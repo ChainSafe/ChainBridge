@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ChainBridgeV2/chains/centrifuge"
 	"ChainBridgeV2/chains/ethereum"
 	"ChainBridgeV2/core"
 	msg "ChainBridgeV2/message"
@@ -42,8 +43,15 @@ func run(ctx *cli.Context) error {
 	eth.SetConnection(ethereum.NewConnection())
 	eth.SetListener(ethereum.NewListener(eth.Connection()))
 	eth.SetPusher(ethereum.NewPusher(eth.Connection()))
+
+	ctfg := core.NewChain(msg.CentrifugeId, []byte{}, []byte{})
+	ctfg.SetConnection(centrifuge.NewConnection())
+	ctfg.SetListener(centrifuge.NewListener(ctfg.Connection()))
+	ctfg.SetPusher(centrifuge.NewPusher(ctfg.Connection()))
+
 	c := core.NewCore()
 	c.AddChain(eth)
+	c.AddChain(ctfg)
 	c.Start()
 
 	return nil
