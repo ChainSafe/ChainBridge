@@ -1,6 +1,9 @@
 package main
 
 import (
+	"ChainBridgeV2/chains/ethereum"
+	"ChainBridgeV2/core"
+	msg "ChainBridgeV2/message"
 	"os"
 
 	log "github.com/ChainSafe/log15"
@@ -33,6 +36,15 @@ func main() {
 }
 
 func run(ctx *cli.Context) error {
-	log.Info("Hello, world!")
+	log.Info("Starting ChainBridge...")
+
+	eth := core.NewChain(msg.EthereumId, []byte{}, []byte{})
+	eth.SetConnection(ethereum.NewConnection())
+	eth.SetListener(ethereum.NewListener(eth.Connection()))
+	eth.SetPusher(ethereum.NewPusher(eth.Connection()))
+	c := core.NewCore()
+	c.AddChain(eth)
+	c.Start()
+
 	return nil
 }
