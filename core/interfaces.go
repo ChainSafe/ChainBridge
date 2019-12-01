@@ -4,11 +4,6 @@ import (
 	msg "ChainBridgeV2/message"
 )
 
-//type Chain interface {
-//	Start() error
-//	Id() ChainId
-//}
-
 type Connection interface {
 	Connect() error
 	SubmitTx([]byte) error

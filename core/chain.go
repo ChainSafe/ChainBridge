@@ -6,19 +6,19 @@ import (
 )
 
 type Chain struct {
-	id          msg.ChainId
-	source      []byte
-	destination []byte
-	conn        Connection
-	listener    Listener
-	pusher      Pusher
+	id       msg.ChainId // Unique chain identifier (see package message)
+	home     []byte      // home bridge address
+	away     []byte      // away bridge address
+	conn     Connection
+	listener Listener
+	pusher   Pusher
 }
 
-func NewChain(id msg.ChainId, source, dest []byte) *Chain {
+func NewChain(id msg.ChainId, home, away []byte) *Chain {
 	return &Chain{
-		id:          id,
-		source:      source,
-		destination: dest,
+		id:   id,
+		home: home,
+		away: away,
 	}
 }
 
