@@ -7,6 +7,7 @@ import (
 	"ChainBridgeV2/core"
 	msg "ChainBridgeV2/message"
 	"github.com/ethereum/go-ethereum/ethclient"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -16,6 +17,7 @@ type Connection struct {
 	ctx      context.Context
 	endpoint string
 	conn     *ethclient.Client
+	rpcConn  *rpc.Client
 
 	// TODO: keystore
 }
@@ -38,7 +40,7 @@ func InitializeChain(id msg.ChainId, endpoint string, home, away []byte) *core.C
 }
 
 func (c *Connection) Connect() error {
-	rpcClient, err := rpc.Dial(c.endpoint)
+	rpcClient, err := rpc.DialHTTP(c.endpoint)
 	if err != nil {
 		return err
 	}
@@ -47,11 +49,26 @@ func (c *Connection) Connect() error {
 	return nil
 }
 
+func (c *Connection) Close() {
+	c.conn.Close()
+}
+
 func (c *Connection) NetworkId() (*big.Int, error) {
 	return c.conn.NetworkID(c.ctx)
 }
 
 func (c *Connection) SubmitTx(data []byte) error {
-	panic("not implemented")
-	return nil
+	tx := &ethtypes.Transaction{}
+	err := tx.UnmarshalJSON(data)
+	if err != nil {
+		return err
+	}
+
+	// TODO: need to set up keystore before a tx can be sent and accepted
+	// signedTx, err := ethtypes.SignTx(tx, signer, priv)
+	// if err != nil {
+	// 	return err
+	// }
+
+	return c.conn.SendTransaction(c.ctx, tx)
 }
