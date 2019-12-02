@@ -6,7 +6,8 @@ import (
 )
 
 type Chain struct {
-	id       msg.ChainId // Unique chain identifier (see package message)
+	id       msg.ChainId // Unique chain identifier (see package message
+	endpoint string      // url for rpc endpoint
 	home     []byte      // home bridge address
 	away     []byte      // away bridge address
 	conn     Connection
@@ -14,11 +15,12 @@ type Chain struct {
 	pusher   Pusher
 }
 
-func NewChain(id msg.ChainId, home, away []byte) *Chain {
+func NewChain(id msg.ChainId, endpoint string, home, away []byte) *Chain {
 	return &Chain{
-		id:   id,
-		home: home,
-		away: away,
+		id:       id,
+		endpoint: endpoint,
+		home:     home,
+		away:     away,
 	}
 }
 
