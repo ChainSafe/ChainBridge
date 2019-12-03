@@ -6,6 +6,9 @@ import (
 
 	"ChainBridgeV2/core"
 	msg "ChainBridgeV2/message"
+	"ChainBridgeV2/types"
+
+	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/ethclient"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -18,6 +21,8 @@ type Connection struct {
 	endpoint string
 	conn     *ethclient.Client
 	rpcConn  *rpc.Client
+
+	subscriptions map[types.EventName]*Subscription
 
 	// TODO: keystore
 }
@@ -71,4 +76,24 @@ func (c *Connection) SubmitTx(data []byte) error {
 	// }
 
 	return c.conn.SendTransaction(c.ctx, tx)
+}
+
+func (c *Connection) Subscribe(name types.EventName, q eth.FilterQuery) (*Subscription, error) {
+	logChan := make(chan ethtypes.Log)
+	ethsub, err := c.conn.SubscribeFilterLogs(c.ctx, q, logChan)
+	if err != nil {
+		return nil, err
+	}
+	
+	sub := &Subscription{
+		ch: logChan,
+		sub: ethsub,
+	}
+
+	c.subscriptions[name] = sub
+	return sub, nil
+}
+
+func (c *Connection) Unsubscribe(name types.EventName) {
+	c.subscriptions[name].sub.Unsubscribe()
 }
