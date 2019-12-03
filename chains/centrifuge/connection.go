@@ -17,7 +17,7 @@ func InitializeChain(id msg.ChainId, home, away []byte) *core.Chain {
 	c := core.NewChain(id, home, away)
 	c.SetConnection(NewConnection())
 	c.SetListener(NewListener(c.Connection()))
-	c.SetPusher(NewPusher(c.Connection()))
+	c.SetWriter(NewWriter(c.Connection()))
 	return c
 }
 

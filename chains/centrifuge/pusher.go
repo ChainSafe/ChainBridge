@@ -5,19 +5,19 @@ import (
 	msg "ChainBridgeV2/message"
 )
 
-var _ core.Pusher = &Pusher{}
+var _ core.Writer = &Writer{}
 
-type Pusher struct {
+type Writer struct {
 	conn core.Connection
 }
 
-func NewPusher(conn core.Connection) *Pusher {
-	return &Pusher{
+func NewWriter(conn core.Connection) *Writer {
+	return &Writer{
 		conn: conn,
 	}
 }
 
-func (p *Pusher) ResolveMessage(msg msg.Message) error {
+func (p *Writer) ResolveMessage(msg msg.Message) error {
 	panic("not implemented")
 	return nil
 }

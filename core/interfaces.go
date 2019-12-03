@@ -13,7 +13,7 @@ type Listener interface {
 	RegisterEventHandler()
 }
 
-type Pusher interface {
+type Writer interface {
 	ResolveMessage(message msg.Message) error
 }
 

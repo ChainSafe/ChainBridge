@@ -7,9 +7,9 @@ const CentrifugeId = ChainId(1)
 
 func (id ChainId) String() string {
 	switch id {
-	case 0:
+	case EthereumId:
 		return "ethereum"
-	case 1:
+	case CentrifugeId:
 		return "centrifuge"
 	default:
 		return "unknown"
