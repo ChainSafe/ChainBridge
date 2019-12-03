@@ -14,7 +14,7 @@ func NewConnection() *Connection {
 }
 
 func InitializeChain(id msg.ChainId, endpoint string, home, away []byte) *core.Chain {
-	c := core.NewChain(id, endpoint, home, away)
+	c := core.NewChain(id, home, away)
 	c.SetConnection(NewConnection())
 	c.SetListener(NewListener(c.Connection()))
 	c.SetWriter(NewWriter(c.Connection()))

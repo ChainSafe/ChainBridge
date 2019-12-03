@@ -36,7 +36,7 @@ func NewConnection(ctx context.Context, endpoint string) *Connection {
 
 func InitializeChain(id msg.ChainId, endpoint string, home, away []byte) *core.Chain {
 	ctx := context.Background()
-	c := core.NewChain(id, endpoint, home, away)
+	c := core.NewChain(id, home, away)
 
 	c.SetConnection(NewConnection(ctx, endpoint))
 	c.SetListener(NewListener(c.Connection()))
