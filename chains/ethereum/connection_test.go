@@ -57,6 +57,7 @@ func TestSendTx(t *testing.T) {
 func TestSubscribe(t *testing.T) {
 	ctx := context.Background()
 	conn := NewConnection(ctx, TestEthereumEndpoint)
+	l := NewListener(conn)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -66,7 +67,7 @@ func TestSubscribe(t *testing.T) {
 	q := eth.FilterQuery{}
 
 	// TODO: this fails with "notifications not supported"
-	_, err = conn.Subscribe(types.TransferEvent, q)
+	_, err = l.subscribe(types.TransferEvent, q)
 	if err != nil {
 		t.Fatal(err)
 	}

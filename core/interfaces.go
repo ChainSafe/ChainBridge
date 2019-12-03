@@ -2,6 +2,7 @@ package core
 
 import (
 	msg "ChainBridgeV2/message"
+	"ChainBridgeV2/types"
 )
 
 type Connection interface {
@@ -10,7 +11,7 @@ type Connection interface {
 }
 
 type Listener interface {
-	RegisterEventHandler()
+	RegisterEventHandler(types.EventName, func())
 }
 
 type Writer interface {
