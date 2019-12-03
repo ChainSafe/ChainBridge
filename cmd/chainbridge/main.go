@@ -1,6 +1,10 @@
 package main
 
 import (
+	"ChainBridgeV2/chains/centrifuge"
+	"ChainBridgeV2/chains/ethereum"
+	"ChainBridgeV2/core"
+	msg "ChainBridgeV2/message"
 	"os"
 
 	log "github.com/ChainSafe/log15"
@@ -33,6 +37,16 @@ func main() {
 }
 
 func run(ctx *cli.Context) error {
-	log.Info("Hello, world!")
+	log.Info("Starting ChainBridge...")
+
+	eth := ethereum.InitializeChain(msg.EthereumId, []byte{}, []byte{})
+
+	ctfg := centrifuge.InitializeChain(msg.CentrifugeId, []byte{}, []byte{})
+
+	c := core.NewCore()
+	c.AddChain(eth)
+	c.AddChain(ctfg)
+	c.Start()
+
 	return nil
 }
