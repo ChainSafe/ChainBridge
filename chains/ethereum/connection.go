@@ -9,8 +9,8 @@ import (
 	"ChainBridgeV2/types"
 
 	eth "github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/ethclient"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -40,7 +40,7 @@ func InitializeChain(id msg.ChainId, endpoint string, home, away []byte) *core.C
 
 	c.SetConnection(NewConnection(ctx, endpoint))
 	c.SetListener(NewListener(c.Connection()))
-	c.SetPusher(NewPusher(c.Connection()))
+	c.SetWriter(NewWriter(c.Connection()))
 	return c
 }
 
@@ -84,9 +84,9 @@ func (c *Connection) Subscribe(name types.EventName, q eth.FilterQuery) (*Subscr
 	if err != nil {
 		return nil, err
 	}
-	
+
 	sub := &Subscription{
-		ch: logChan,
+		ch:  logChan,
 		sub: ethsub,
 	}
 

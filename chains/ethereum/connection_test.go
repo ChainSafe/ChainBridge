@@ -3,7 +3,7 @@ package ethereum
 import (
 	"context"
 	"math/big"
-	"testing"	
+	"testing"
 
 	"ChainBridgeV2/types"
 
@@ -22,7 +22,7 @@ func TestConnect(t *testing.T) {
 		t.Fatal(err)
 	}
 	conn.Close()
-} 
+}
 
 func TestSendTx(t *testing.T) {
 	ctx := context.Background()
@@ -31,12 +31,12 @@ func TestSendTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer conn.Close()	
+	defer conn.Close()
 
 	tx := ethtypes.NewTransaction(
-		1, 
-		ethcommon.Address([20]byte{}), 
-		big.NewInt(0), 
+		1,
+		ethcommon.Address([20]byte{}),
+		big.NewInt(0),
 		1,
 		big.NewInt(1),
 		[]byte{},
@@ -61,7 +61,7 @@ func TestSubscribe(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer conn.Close()	
+	defer conn.Close()
 
 	q := eth.FilterQuery{}
 

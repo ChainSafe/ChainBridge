@@ -12,7 +12,7 @@ type Chain struct {
 	away     []byte      // away bridge address
 	conn     Connection
 	listener Listener
-	pusher   Pusher
+	writer   Writer
 }
 
 func NewChain(id msg.ChainId, endpoint string, home, away []byte) *Chain {
@@ -32,8 +32,8 @@ func (c *Chain) SetListener(listener Listener) {
 	c.listener = listener
 }
 
-func (c *Chain) SetPusher(pusher Pusher) {
-	c.pusher = pusher
+func (c *Chain) SetWriter(Writer Writer) {
+	c.writer = Writer
 }
 
 func (c *Chain) Start() error {
@@ -43,8 +43,8 @@ func (c *Chain) Start() error {
 	if c.listener == nil {
 		return fmt.Errorf("no listener specified")
 	}
-	if c.pusher == nil {
-		return fmt.Errorf("no pusher specified")
+	if c.writer == nil {
+		return fmt.Errorf("no Writer specified")
 	}
 
 	return c.conn.Connect()

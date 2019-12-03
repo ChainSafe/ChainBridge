@@ -21,6 +21,6 @@ func (l *Listener) RegisterEventHandler() {
 }
 
 type Subscription struct {
-	ch <-chan ethtypes.Log
+	ch  <-chan ethtypes.Log
 	sub eth.Subscription
 }
