@@ -6,9 +6,10 @@ import (
 )
 
 type Chain struct {
-	id       msg.ChainId // Unique chain identifier (see package message)
-	home     []byte      // home bridge address
-	away     []byte      // away bridge address
+	id msg.ChainId // Unique chain identifier (see package message
+	//endpoint string      // url for rpc endpoint
+	home     []byte // home bridge address
+	away     []byte // away bridge address
 	conn     Connection
 	listener Listener
 	writer   Writer
@@ -16,7 +17,8 @@ type Chain struct {
 
 func NewChain(id msg.ChainId, home, away []byte) *Chain {
 	return &Chain{
-		id:   id,
+		id: id,
+		//endpoint: endpoint,
 		home: home,
 		away: away,
 	}
