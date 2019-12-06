@@ -2,15 +2,17 @@ package core
 
 import (
 	msg "ChainBridgeV2/message"
+	"ChainBridgeV2/types"
 )
 
 type Connection interface {
 	Connect() error
 	SubmitTx([]byte) error
+	Close() error
 }
 
 type Listener interface {
-	RegisterEventHandler()
+	RegisterEventHandler(types.EventName, func())
 }
 
 type Writer interface {

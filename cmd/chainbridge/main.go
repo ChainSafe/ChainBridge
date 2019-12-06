@@ -39,9 +39,13 @@ func main() {
 func run(ctx *cli.Context) error {
 	log.Info("Starting ChainBridge...")
 
-	eth := ethereum.InitializeChain(msg.EthereumId, []byte{}, []byte{})
+	// TODO: parse config for endpoints
+	ethEndpoint := ""
+	ctfgEndpoint := ""
 
-	ctfg := centrifuge.InitializeChain(msg.CentrifugeId, []byte{}, []byte{})
+	eth := ethereum.InitializeChain(msg.EthereumId, ethEndpoint, []byte{}, []byte{})
+
+	ctfg := centrifuge.InitializeChain(msg.CentrifugeId, ctfgEndpoint, []byte{}, []byte{})
 
 	c := core.NewCore()
 	c.AddChain(eth)

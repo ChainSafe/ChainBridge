@@ -15,7 +15,7 @@ type Connection struct {
 }
 
 func NewConnection(url string) *Connection {
-	return &Connection{}
+	return &Connection{url: url }
 }
 
 func (c *Connection) Connect() error {
@@ -32,9 +32,14 @@ func (c *Connection) SubmitTx(data []byte) error {
 	return nil
 }
 
+func (c *Connection) Close() error {
+	// TODO: Close API
+	return nil
+}
+
 func InitializeChain(id msg.ChainId, endpoint string, home, away []byte) *core.Chain {
-	c := core.NewChain(id, endpoint, home, away)
-	c.SetConnection(NewConnection())
+	c := core.NewChain(id, home, away)
+	c.SetConnection(NewConnection(endpoint))
 	c.SetListener(NewListener(c.Connection()))
 	c.SetWriter(NewWriter(c.Connection()))
 	return c
