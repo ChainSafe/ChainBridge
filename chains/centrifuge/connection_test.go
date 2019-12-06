@@ -12,7 +12,7 @@ func TestConnect(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = conn.Close()
+	conn.Close()
 	if err != nil {
 		t.Error(err)
 	}

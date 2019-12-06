@@ -32,9 +32,9 @@ func (c *Connection) SubmitTx(data []byte) error {
 	return nil
 }
 
-func (c *Connection) Close() error {
+func (c *Connection) Close() {
 	// TODO: Close API
-	return nil
+	return
 }
 
 func InitializeChain(id msg.ChainId, endpoint string, home, away []byte) *core.Chain {
