@@ -1,17 +1,19 @@
 package core
 
 import (
-	msg "ChainBridgeV2/message"
+	"ChainBridgeV2/message"
 	"fmt"
 
 	"github.com/ChainSafe/log15"
+	"github.com/ethereum/go-ethereum/accounts/keystore"
 )
 
 type Core struct {
 	registry map[msg.ChainId]*Chain
+	ks       *keystore.KeyStore
 }
 
-func NewCore() *Core {
+func NewCore(ks *keystore.KeyStore) *Core {
 	return &Core{registry: make(map[msg.ChainId]*Chain)}
 }
 
