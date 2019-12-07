@@ -19,7 +19,7 @@ type Connection struct {
 	ctx      context.Context
 	endpoint string
 	conn     *ethclient.Client
-	rpcConn  *rpc.Client
+	// rpcConn  *rpc.Client
 
 	// TODO: keystore
 }
