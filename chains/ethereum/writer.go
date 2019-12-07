@@ -1,4 +1,4 @@
-package centrifuge
+package ethereum
 
 import (
 	"ChainBridgeV2/core"
@@ -19,5 +19,4 @@ func NewWriter(conn core.Connection) *Writer {
 
 func (p *Writer) ResolveMessage(msg msg.Message) error {
 	panic("not implemented")
-	return nil
 }
