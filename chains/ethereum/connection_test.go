@@ -25,6 +25,7 @@ func TestConnect(t *testing.T) {
 }
 
 func TestSendTx(t *testing.T) {
+	t.Skip()
 	ctx := context.Background()
 	conn := NewConnection(ctx, TestEthereumEndpoint)
 	err := conn.Connect()
@@ -55,6 +56,7 @@ func TestSendTx(t *testing.T) {
 }
 
 func TestSubscribe(t *testing.T) {
+	t.Skip()
 	ctx := context.Background()
 	conn := NewConnection(ctx, TestEthereumEndpoint)
 	l := NewListener(conn)
