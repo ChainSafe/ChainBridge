@@ -47,7 +47,7 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// TODO: this fails since we don't since the tx
+	// TODO: this fails since we don't sign the tx
 	err = conn.SubmitTx(data)
 	if err != nil {
 		t.Fatal(err)
