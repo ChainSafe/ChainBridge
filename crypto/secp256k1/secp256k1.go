@@ -9,7 +9,6 @@ import (
 
 	"ChainBridgeV2/crypto/hash"
 
-	"github.com/ethereum/go-ethereum/common"
 	secp256k1 "github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -86,8 +85,8 @@ func (k *PublicKey) Decode(in []byte) error {
 	return nil
 }
 
-func (k *PublicKey) Address() common.Address {
-	return secp256k1.PubkeyToAddress(k.key)
+func (k *PublicKey) Address() crypto.Address {
+	return secp256k1.PubkeyToAddress(k.key).String()
 }
 
 func (k *PublicKey) Hex() string {
