@@ -23,7 +23,7 @@ lint:
 	if [ ! -f ./bin/golangci-lint ]; then \
 		$(MAKE) get_lint; \
 	fi;
-	./bin/golangci-lint run -v
+	./bin/golangci-lint run
 
 fmt:
 	@echo "  >  \033[32mFormatting project...\033[0m "
