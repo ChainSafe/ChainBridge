@@ -7,6 +7,7 @@ import (
 	"ChainBridgeV2/message"
 	"fmt"
 	"os"
+	"strconv"
 
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
@@ -17,6 +18,7 @@ var app = cli.NewApp()
 var cliFlags = []cli.Flag{
 	ConfigFileFlag,
 	VerbosityFlag,
+	KeystorePathFlag,
 }
 
 // init initializes CLI
@@ -39,7 +41,27 @@ func main() {
 	}
 }
 
+func startLogger(ctx *cli.Context) error {
+	logger := log.Root()
+	handler := logger.GetHandler()
+	var lvl log.Lvl
+
+	if lvlToInt, err := strconv.Atoi(ctx.String(VerbosityFlag.Name)); err == nil {
+		lvl = log.Lvl(lvlToInt)
+	} else if lvl, err = log.LvlFromString(ctx.String(VerbosityFlag.Name)); err != nil {
+		return err
+	}
+	log.Root().SetHandler(log.LvlFilterHandler(lvl, handler))
+
+	return nil
+}
+
 func run(ctx *cli.Context) error {
+	err := startLogger(ctx)
+	if err != nil {
+		return err
+	}
+
 	log.Info("Starting ChainBridge...")
 
 	cfg, err := getConfig(ctx)

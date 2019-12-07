@@ -14,6 +14,7 @@ import (
 )
 
 const DefaultConfigPath = "./config.toml"
+const DefaultKeystorePath = "./keys"
 
 type Config struct {
 	Ethereum core.ChainConfig `toml:"ethereum"`

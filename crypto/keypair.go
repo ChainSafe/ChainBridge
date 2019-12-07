@@ -1,9 +1,5 @@
 package crypto
 
-import (
-	"github.com/ethereum/go-ethereum/common"
-)
-
 type KeyType = string
 
 //const Ed25519Type KeyType = "ed25519"
@@ -22,7 +18,7 @@ type PublicKey interface {
 	Verify(msg, sig []byte) (bool, error)
 	Encode() []byte
 	Decode([]byte) error
-	Address() common.Address
+	Address() Address
 	Hex() string
 }
 
