@@ -29,12 +29,10 @@ func (c *Connection) Connect() error {
 
 func (c *Connection) SubmitTx(data []byte) error {
 	panic("not implemented")
-	return nil
 }
 
 func (c *Connection) Close() {
 	// TODO: Close API
-	return
 }
 
 func InitializeChain(id msg.ChainId, endpoint string, home, away []byte) *core.Chain {

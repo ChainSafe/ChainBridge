@@ -14,6 +14,7 @@ import (
 var app = cli.NewApp()
 
 var cliFlags = []cli.Flag{
+	ConfigFileFlag,
 	VerbosityFlag,
 }
 
