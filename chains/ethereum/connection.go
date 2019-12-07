@@ -6,6 +6,7 @@ import (
 
 	"ChainBridgeV2/core"
 	msg "ChainBridgeV2/message"
+
 	//"ChainBridgeV2/types"
 
 	//eth "github.com/ethereum/go-ethereum"

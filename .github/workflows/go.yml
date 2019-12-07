@@ -1,0 +1,67 @@
+name: Go
+on: [push]
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: chainbridge-test
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2-beta
+
+    - name: Version Check
+      run: go version
+
+    - name: Download dependencies
+      run: make get
+
+    - name: Cache Go modules
+      uses: actions/cache@v1
+      if: always()
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.OS }}-build-${{ env.cache-name }}-
+          ${{ runner.OS }}-build-
+          ${{ runner.OS }}-
+
+    - name: Run tests
+      run: make test
+
+    - name: Slack notification
+      uses: Ilshidur/action-slack@master
+      if: failure()
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_CHANNEL: chainbridge-notifs
+      with:
+          args: '*_Test Failed!_*'
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2-beta
+
+      - name: Install GolangCI-Linter
+        run: curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s latest
+
+      - name: Run linter
+        run: make lint
+        id: chainbridge-lint
+
+      - name: Slack notification
+        uses: Ilshidur/action-slack@master
+        if: failure()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: chainbridge-notifs
+        with:
+          args: '*_Lint Failed!_*'

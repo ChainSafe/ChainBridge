@@ -15,7 +15,7 @@ type Connection struct {
 }
 
 func NewConnection(url string) *Connection {
-	return &Connection{url: url }
+	return &Connection{url: url}
 }
 
 func (c *Connection) Connect() error {
