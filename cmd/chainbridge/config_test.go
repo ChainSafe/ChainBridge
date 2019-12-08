@@ -9,7 +9,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli"
 )
 
@@ -24,7 +23,7 @@ func createTempConfigFile() (*os.File, *Config) {
 	testConfig.Ethereum = ethCfg
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "prefix-")
 	if err != nil {
-		log.Crit("Cannot create temporary file", "err", err)
+		fmt.Println("Cannot create temporary file", "err", err)
 		os.Exit(1)
 	}
 

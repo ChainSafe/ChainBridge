@@ -17,9 +17,6 @@ func TestSignAndVerify(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Log(sig)
-	t.Log(len(sig))
-
 	ok, err := kp.public.Verify(msg, sig[:64])
 	if err != nil {
 		t.Fatal(err)
