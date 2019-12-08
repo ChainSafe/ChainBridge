@@ -1,7 +1,7 @@
 package core
 
 import (
-	"ChainBridgeV2/message"
+	msg "ChainBridgeV2/message"
 	"fmt"
 )
 

@@ -2,7 +2,7 @@ package ethereum
 
 import (
 	"ChainBridgeV2/core"
-	"ChainBridgeV2/message"
+	msg "ChainBridgeV2/message"
 	"context"
 )
 

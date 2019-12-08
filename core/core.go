@@ -1,7 +1,7 @@
 package core
 
 import (
-	"ChainBridgeV2/message"
+	msg "ChainBridgeV2/message"
 	"fmt"
 
 	"github.com/ChainSafe/log15"
@@ -14,7 +14,10 @@ type Core struct {
 }
 
 func NewCore(ks *keystore.KeyStore) *Core {
-	return &Core{registry: make(map[msg.ChainId]*Chain)}
+	return &Core{
+		registry: make(map[msg.ChainId]*Chain),
+		ks:       ks,
+	}
 }
 
 func (c *Core) AddChain(chain *Chain) {

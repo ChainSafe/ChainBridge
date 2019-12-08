@@ -4,7 +4,7 @@ import (
 	"ChainBridgeV2/chains/centrifuge"
 	"ChainBridgeV2/chains/ethereum"
 	"ChainBridgeV2/core"
-	"ChainBridgeV2/message"
+	msg "ChainBridgeV2/message"
 	"fmt"
 	"os"
 	"strconv"

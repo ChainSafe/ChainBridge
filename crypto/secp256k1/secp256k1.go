@@ -104,7 +104,8 @@ func (pk *PrivateKey) Sign(msg []byte) ([]byte, error) {
 }
 
 func (pk *PrivateKey) Public() (crypto.PublicKey, error) {
-	return pk.Public()
+	kp := NewKeypair(pk.key)
+	return kp.Public(), nil
 }
 
 func (pk *PrivateKey) Encode() []byte {

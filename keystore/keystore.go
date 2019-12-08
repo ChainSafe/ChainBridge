@@ -7,10 +7,11 @@ import (
 	"ChainBridgeV2/crypto"
 )
 
+//nolint:structcheck
 type Keystore struct {
 	// map of public key encodings to keypairs
 	keys map[crypto.Address]crypto.Keypair
-	lock sync.RWMutex
+	lock sync.RWMutex //nolint:unused
 }
 
 func NewKeystore() *Keystore {
