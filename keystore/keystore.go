@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"sync"
 
-	"ChainBridgeV2/crypto"
+	"github.com/ChainSafe/ChainBridgeV2/crypto"
 )
 
 //nolint:structcheck

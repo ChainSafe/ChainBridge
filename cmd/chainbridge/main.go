@@ -1,14 +1,14 @@
 package main
 
 import (
-	"ChainBridgeV2/chains/centrifuge"
-	"ChainBridgeV2/chains/ethereum"
-	"ChainBridgeV2/core"
-	msg "ChainBridgeV2/message"
 	"fmt"
 	"os"
 	"strconv"
 
+	"github.com/ChainSafe/ChainBridgeV2/chains/centrifuge"
+	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
+	"github.com/ChainSafe/ChainBridgeV2/core"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )

@@ -1,4 +1,4 @@
-module ChainBridgeV2
+module github.com/ChainSafe/ChainBridgeV2
 
 go 1.13
 
