@@ -1,8 +1,8 @@
 package core
 
 import (
-	msg "ChainBridgeV2/message"
-	"ChainBridgeV2/types"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/types"
 )
 
 type Connection interface {

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"ChainBridgeV2/core"
 	"flag"
 	"fmt"
+	"github.com/ChainSafe/ChainBridgeV2/core"
 	"io/ioutil"
 	"os"
 	"reflect"

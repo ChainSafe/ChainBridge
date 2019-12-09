@@ -1,8 +1,8 @@
 package main
 
 import (
-	"ChainBridgeV2/core"
 	"fmt"
+	"github.com/ChainSafe/ChainBridgeV2/core"
 	"os"
 	"path/filepath"
 	"reflect"
