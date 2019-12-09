@@ -7,8 +7,9 @@ import (
 	"ChainBridgeV2/core"
 	//"ChainBridgeV2/types"
 
-	//eth "github.com/ethereum/go-ethereum"
+	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 )
@@ -19,6 +20,7 @@ type Connection struct {
 	ctx      context.Context
 	endpoint string
 	conn     *ethclient.Client
+	keystore *keystore.Keystore
 	// rpcConn  *rpc.Client
 
 	// TODO: keystore
@@ -56,11 +58,18 @@ func (c *Connection) SubmitTx(data []byte) error {
 		return err
 	}
 
+
+	signer := ethtypes.MakeSigner(ethparams.RinkebyChainConfig, ethparams.RinkebyChainConfig.IstanbulBlock)
+	kp, err := secp256k1.GenerateKeypair()
+	if err != nil {
+		return err
+	}
+
 	// TODO: need to set up keystore before a tx can be sent and accepted
-	// signedTx, err := ethtypes.SignTx(tx, signer, priv)
-	// if err != nil {
-	// 	return err
-	// }
+	signedTx, err := ethtypes.SignTx(tx, signer, priv)
+	if err != nil {
+		return err
+	}
 
 	return c.conn.SendTransaction(c.ctx, tx)
 }
