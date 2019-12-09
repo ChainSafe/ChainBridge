@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/ChainSafe/ChainBridgeV2/core"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
 
+	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli"
 )

@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/ChainSafe/ChainBridgeV2/core"
 	"os"
 	"path/filepath"
 	"reflect"
 	"unicode"
 
+	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/naoina/toml"
 	"github.com/urfave/cli"
