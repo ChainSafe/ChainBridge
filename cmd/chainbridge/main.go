@@ -77,7 +77,7 @@ func run(ctx *cli.Context) error {
 		Endpoint: ethEndpoint,
 		Home:     "",
 		Away:     "",
-	})
+	}, nil)
 
 	ctfg := centrifuge.InitializeChain(msg.CentrifugeId, &core.ChainConfig{
 		Endpoint: ctfgEndpoint,

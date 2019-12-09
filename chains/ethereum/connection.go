@@ -5,10 +5,9 @@ import (
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/core"
-	//"github.com/ChainSafe/ChainBridgeV2/types"
-
-	//"github.com/ChainSafe/ChainBridgeV2/crypto"
+	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	ethparams "github.com/ethereum/go-ethereum/params"
@@ -21,16 +20,15 @@ type Connection struct {
 	ctx      context.Context
 	endpoint string
 	conn     *ethclient.Client
-	keystore *keystore.Keystore
 	// rpcConn  *rpc.Client
-
-	// TODO: keystore
+	kp crypto.Keypair
 }
 
-func NewConnection(ctx context.Context, endpoint string) *Connection {
+func NewConnection(ctx context.Context, endpoint string, kp crypto.Keypair) *Connection {
 	return &Connection{
 		ctx:      ctx,
 		endpoint: endpoint,
+		kp:       kp,
 	}
 }
 
@@ -60,13 +58,7 @@ func (c *Connection) SubmitTx(data []byte) error {
 	}
 
 	signer := ethtypes.MakeSigner(ethparams.RinkebyChainConfig, ethparams.RinkebyChainConfig.IstanbulBlock)
-	kp, err := secp256k1.GenerateKeypair()
-	if err != nil {
-		return err
-	}
-
-	// TODO: need to set up keystore before a tx can be sent and accepted
-	signedTx, err := ethtypes.SignTx(tx, signer, kp.Private().(*secp256k1.PrivateKey).Key())
+	signedTx, err := ethtypes.SignTx(tx, signer, c.kp.Private().(*secp256k1.PrivateKey).Key())
 	if err != nil {
 		return err
 	}
