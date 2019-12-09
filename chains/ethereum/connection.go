@@ -7,10 +7,11 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	//"github.com/ChainSafe/ChainBridgeV2/types"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto"
+	//"github.com/ChainSafe/ChainBridgeV2/crypto"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/ethclient"
+	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -58,7 +59,6 @@ func (c *Connection) SubmitTx(data []byte) error {
 		return err
 	}
 
-
 	signer := ethtypes.MakeSigner(ethparams.RinkebyChainConfig, ethparams.RinkebyChainConfig.IstanbulBlock)
 	kp, err := secp256k1.GenerateKeypair()
 	if err != nil {
@@ -66,10 +66,10 @@ func (c *Connection) SubmitTx(data []byte) error {
 	}
 
 	// TODO: need to set up keystore before a tx can be sent and accepted
-	signedTx, err := ethtypes.SignTx(tx, signer, priv)
+	signedTx, err := ethtypes.SignTx(tx, signer, kp.Private().(*secp256k1.PrivateKey).Key())
 	if err != nil {
 		return err
 	}
 
-	return c.conn.SendTransaction(c.ctx, tx)
+	return c.conn.SendTransaction(c.ctx, signedTx)
 }
