@@ -6,21 +6,26 @@ import (
 )
 
 type Chain struct {
-	id msg.ChainId // Unique chain identifier (see package message
-	//endpoint string      // url for rpc endpoint
-	home     []byte // home bridge address
-	away     []byte // away bridge address
+	id       msg.ChainId // Unique chain identifier (see package message
+	home     string      // home bridge address
+	away     string      // away bridge address
 	conn     Connection
 	listener Listener
 	writer   Writer
 }
 
-func NewChain(id msg.ChainId, home, away []byte) *Chain {
+type ChainConfig struct {
+	Endpoint string `toml:"endpoint"` // url for rpc endpoint
+	Home     string `toml:"home"`     // home bridge address
+	Away     string `toml:"away"`     // away bridge address
+	From     string `toml:"from"`     // address of key to use
+}
+
+func NewChain(id msg.ChainId, cfg *ChainConfig) *Chain {
 	return &Chain{
-		id: id,
-		//endpoint: endpoint,
-		home: home,
-		away: away,
+		id:   id,
+		home: cfg.Home,
+		away: cfg.Away,
 	}
 }
 

@@ -5,8 +5,6 @@ import (
 	"math/big"
 
 	"ChainBridgeV2/core"
-	msg "ChainBridgeV2/message"
-
 	//"ChainBridgeV2/types"
 
 	//eth "github.com/ethereum/go-ethereum"
@@ -31,17 +29,6 @@ func NewConnection(ctx context.Context, endpoint string) *Connection {
 		ctx:      ctx,
 		endpoint: endpoint,
 	}
-}
-
-func InitializeChain(id msg.ChainId, endpoint string, home, away []byte) *core.Chain {
-	ctx := context.Background()
-	c := core.NewChain(id, home, away)
-
-	conn := NewConnection(ctx, endpoint)
-	c.SetConnection(conn)
-	c.SetListener(NewListener(conn))
-	c.SetWriter(NewWriter(c.Connection()))
-	return c
 }
 
 func (c *Connection) Connect() error {

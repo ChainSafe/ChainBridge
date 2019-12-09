@@ -16,4 +16,10 @@ var (
 		Usage: "Supports levels crit (silent) to trce (trace)",
 		Value: log.LvlInfo.String(),
 	}
+
+	KeystorePathFlag = cli.StringFlag{
+		Name:  "keystore",
+		Usage: "Path to keystore directory",
+		Value: DefaultKeystorePath,
+	}
 )

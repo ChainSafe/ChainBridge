@@ -5,14 +5,19 @@ import (
 	"fmt"
 
 	"github.com/ChainSafe/log15"
+	"github.com/ethereum/go-ethereum/accounts/keystore"
 )
 
 type Core struct {
 	registry map[msg.ChainId]*Chain
+	ks       *keystore.KeyStore
 }
 
-func NewCore() *Core {
-	return &Core{registry: make(map[msg.ChainId]*Chain)}
+func NewCore(ks *keystore.KeyStore) *Core {
+	return &Core{
+		registry: make(map[msg.ChainId]*Chain),
+		ks:       ks,
+	}
 }
 
 func (c *Core) AddChain(chain *Chain) {
