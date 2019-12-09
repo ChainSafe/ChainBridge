@@ -12,7 +12,7 @@ func InitializeChain(id msg.ChainId, cfg *core.ChainConfig) *core.Chain {
 
 	conn := NewConnection(ctx, cfg.Endpoint)
 	c.SetConnection(conn)
-	c.SetListener(NewListener(conn))
+	c.SetListener(NewListener(conn, *cfg))
 	c.SetWriter(NewWriter(c.Connection()))
 	return c
 }

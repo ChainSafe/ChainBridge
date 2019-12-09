@@ -5,9 +5,6 @@ import (
 	"math/big"
 	"testing"
 
-	"ChainBridgeV2/types"
-
-	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
@@ -57,20 +54,20 @@ func TestSendTx(t *testing.T) {
 
 func TestSubscribe(t *testing.T) {
 	t.Skip()
-	ctx := context.Background()
-	conn := NewConnection(ctx, TestEthereumEndpoint)
-	l := NewListener(conn)
-	err := conn.Connect()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer conn.Close()
-
-	q := eth.FilterQuery{}
+	//ctx := context.Background()
+	//conn := NewConnection(ctx, TestEthereumEndpoint)
+	//l := NewListener(conn, *cfg)
+	//err := conn.Connect()
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//defer conn.Close()
+	//
+	//q := eth.FilterQuery{}
 
 	// TODO: this fails with "notifications not supported"
-	_, err = l.subscribe(types.TransferEvent, q)
-	if err != nil {
-		t.Fatal(err)
-	}
+	//_, err = l.subscribe(types.TransferEvent, q)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
 }

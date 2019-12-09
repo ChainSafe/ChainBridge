@@ -2,9 +2,9 @@ package ethereum
 
 import (
 	"ChainBridgeV2/core"
-	"ChainBridgeV2/types"
 
 	eth "github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -12,12 +12,18 @@ var _ core.Listener = &Listener{}
 
 type Listener struct {
 	conn          *Connection
-	subscriptions map[types.EventName]*Subscription
-	handlers      map[types.EventName](func())
+	home          common.Address
+	away          common.Address
+	subscriptions map[EventSig]*Subscription
+	handlers      map[EventSig](func())
 }
 
-func NewListener(conn *Connection) *Listener {
-	return &Listener{conn: conn}
+func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {
+	return &Listener{
+		conn: conn,
+		home: common.HexToAddress(cfg.Home),
+		away: common.HexToAddress(cfg.Away),
+	}
 }
 
 type Subscription struct {
@@ -25,26 +31,32 @@ type Subscription struct {
 	sub eth.Subscription
 }
 
-func (l *Listener) RegisterEventHandler(name types.EventName, handler func()) {
-	l.handlers[name] = handler
-}
-
-func (l *Listener) subscribe(name types.EventName, q eth.FilterQuery) (*Subscription, error) {
-	logChan := make(chan ethtypes.Log)
-	ethsub, err := l.conn.conn.SubscribeFilterLogs(l.conn.ctx, q, logChan)
+func (l *Listener) RegisterEventHandler(sig string, handler func()) error {
+	evt := EventSig(sig)
+	_, _, err := l.conn.subscribeToEvent(l.home, evt)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	sub := &Subscription{
-		ch:  logChan,
-		sub: ethsub,
-	}
-
-	l.subscriptions[name] = sub
-	return sub, nil
+	l.handlers[evt] = handler
+	return nil
 }
 
-func (l *Listener) Unsubscribe(name types.EventName) {
-	l.subscriptions[name].sub.Unsubscribe()
+//func (l *Listener) subscribe(name types.EventName, q eth.FilterQuery) (*Subscription, error) {
+//	logChan := make(chan ethtypes.Log)
+//	ethsub, err := l.conn.conn.SubscribeFilterLogs(l.conn.ctx, q, logChan)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	sub := &Subscription{
+//		ch:  logChan,
+//		sub: ethsub,
+//	}
+//
+//	l.subscriptions[name] = sub
+//	return sub, nil
+//}
+
+func (l *Listener) Unsubscribe(sig EventSig) {
+	l.subscriptions[sig].sub.Unsubscribe()
 }

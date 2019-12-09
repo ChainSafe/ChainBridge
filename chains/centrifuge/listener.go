@@ -2,7 +2,6 @@ package centrifuge
 
 import (
 	"ChainBridgeV2/core"
-	"ChainBridgeV2/types"
 )
 
 var _ core.Listener = &Listener{}
@@ -15,6 +14,6 @@ func NewListener(conn core.Connection) *Listener {
 	return &Listener{conn: conn}
 }
 
-func (l *Listener) RegisterEventHandler(name types.EventName, handler func()) {
+func (l *Listener) RegisterEventHandler(name string, handler func()) error {
 	panic("not implemented")
 }
