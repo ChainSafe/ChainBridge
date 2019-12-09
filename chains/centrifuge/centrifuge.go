@@ -1,8 +1,8 @@
 package centrifuge
 
 import (
-	"ChainBridgeV2/core"
-	msg "ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/core"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 )
 
 func InitializeChain(id msg.ChainId, cfg *core.ChainConfig) *core.Chain {

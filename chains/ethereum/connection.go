@@ -4,8 +4,8 @@ import (
 	"context"
 	"math/big"
 
-	"ChainBridgeV2/core"
-	//"ChainBridgeV2/types"
+	"github.com/ChainSafe/ChainBridgeV2/core"
+	//"github.com/ChainSafe/ChainBridgeV2/types"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"

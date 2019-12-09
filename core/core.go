@@ -1,8 +1,9 @@
 package core
 
 import (
-	msg "ChainBridgeV2/message"
 	"fmt"
+
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/keystore"

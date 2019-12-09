@@ -1,7 +1,6 @@
 package main
 
 import (
-	"ChainBridgeV2/core"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -9,6 +8,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli"
 )

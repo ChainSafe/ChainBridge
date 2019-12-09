@@ -1,8 +1,8 @@
 package centrifuge
 
 import (
-	"ChainBridgeV2/core"
-	"ChainBridgeV2/types"
+	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/types"
 )
 
 var _ core.Listener = &Listener{}

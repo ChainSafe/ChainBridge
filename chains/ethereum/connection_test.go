@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"testing"
 
-	"ChainBridgeV2/types"
+	"github.com/ChainSafe/ChainBridgeV2/types"
 
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
