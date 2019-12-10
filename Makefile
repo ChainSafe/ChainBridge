@@ -35,7 +35,7 @@ build:
 
 run:
 	@echo "  >  \033[32mRunning main.go...\033[0m "
-	go run -v cmd/chainbridge/main.go
+	go run cmd/chainbridge/main.go
 
 test:
 	@echo "  >  \033[32mRunning tests...\033[0m "
