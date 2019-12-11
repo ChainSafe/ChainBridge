@@ -10,7 +10,6 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/types"
 
 	eth "github.com/ethereum/go-ethereum"
-	//ethcore "github.com/ethereum/go-ethereum/core"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
