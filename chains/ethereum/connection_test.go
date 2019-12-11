@@ -13,13 +13,18 @@ import (
 	//ethcore "github.com/ethereum/go-ethereum/core"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	ethparams "github.com/ethereum/go-ethereum/params"
 )
 
 var TestEthereumEndpoint = "https://rinkeby.infura.io/v3/b0a01296903f4812b5ec2cf26cbded48"
 
 func TestConnect(t *testing.T) {
 	ctx := context.Background()
-	conn := NewConnection(ctx, TestEthereumEndpoint, nil)
+	cfg := &ConnectionConfig{
+		Ctx:      ctx,
+		Endpoint: TestEthereumEndpoint,
+	}
+	conn := NewConnection(cfg)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -35,7 +40,16 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	conn := NewConnection(ctx, TestEthereumEndpoint, kp)
+	signer := ethtypes.MakeSigner(ethparams.RinkebyChainConfig, ethparams.RinkebyChainConfig.IstanbulBlock)
+
+	cfg := &ConnectionConfig{
+		Ctx:      ctx,
+		Endpoint: TestEthereumEndpoint,
+		Keypair:  kp,
+		Signer:   signer,
+	}
+
+	conn := NewConnection(cfg)
 	err = conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -65,7 +79,12 @@ func TestSendTx(t *testing.T) {
 func TestSubscribe(t *testing.T) {
 	t.Skip()
 	ctx := context.Background()
-	conn := NewConnection(ctx, TestEthereumEndpoint, nil)
+	cfg := &ConnectionConfig{
+		Ctx:      ctx,
+		Endpoint: TestEthereumEndpoint,
+	}
+
+	conn := NewConnection(cfg)
 	l := NewListener(conn)
 	err := conn.Connect()
 	if err != nil {

@@ -10,7 +10,6 @@ import (
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -21,14 +20,23 @@ type Connection struct {
 	endpoint string
 	conn     *ethclient.Client
 	// rpcConn  *rpc.Client
-	kp crypto.Keypair
+	signer ethtypes.Signer
+	kp     crypto.Keypair
 }
 
-func NewConnection(ctx context.Context, endpoint string, kp crypto.Keypair) *Connection {
+type ConnectionConfig struct {
+	Ctx      context.Context
+	Endpoint string
+	Keypair  crypto.Keypair
+	Signer   ethtypes.Signer
+}
+
+func NewConnection(cfg *ConnectionConfig) *Connection {
 	return &Connection{
-		ctx:      ctx,
-		endpoint: endpoint,
-		kp:       kp,
+		ctx:      cfg.Ctx,
+		endpoint: cfg.Endpoint,
+		kp:       cfg.Keypair,
+		signer:   cfg.Signer,
 	}
 }
 
@@ -57,8 +65,7 @@ func (c *Connection) SubmitTx(data []byte) error {
 		return err
 	}
 
-	signer := ethtypes.MakeSigner(ethparams.RinkebyChainConfig, ethparams.RinkebyChainConfig.IstanbulBlock)
-	signedTx, err := ethtypes.SignTx(tx, signer, c.kp.Private().(*secp256k1.PrivateKey).Key())
+	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.Private().(*secp256k1.PrivateKey).Key())
 	if err != nil {
 		return err
 	}
