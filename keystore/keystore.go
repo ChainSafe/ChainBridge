@@ -19,19 +19,19 @@ func NewKeystore() *Keystore {
 	}
 }
 
-// func (ks *Keystore) Insert(kp crypto.Keypair) {
-// 	ks.lock.Lock()
-// 	defer ks.lock.Unlock()
-// 	pub := kp.Public()
-// 	ks.keys[pub] = kp
-// }
+func (ks *Keystore) Insert(kp crypto.Keypair) {
+	ks.lock.Lock()
+	defer ks.lock.Unlock()
+	pub := kp.Public()
+	ks.keys[pub] = kp
+}
 
-// func (ks *Keystore) Get(pub crypto.PublicKey) crypto.Keypair {
-// 	ks.lock.RLock()
-// 	defer ks.lock.RUnlock()
-// 	return ks.keys[pub]
-// }
-//
+func (ks *Keystore) Get(pub crypto.PublicKey) crypto.Keypair {
+	ks.lock.RLock()
+	defer ks.lock.RUnlock()
+	return ks.keys[pub]
+}
+
 //func (ks *Keystore) Ed25519PublicKeys() []crypto.PublicKey {
 //	edkeys := []crypto.PublicKey{}
 //	for _, key := range ks.keys {
