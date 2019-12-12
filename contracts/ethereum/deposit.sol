@@ -2,7 +2,6 @@ pragma solidity 0.5.11;
 
 contract Home {
 
-    address public admin;
     uint public voteThreshold;
 
     struct ChainStruct {
@@ -44,7 +43,7 @@ contract Home {
 
     // Ensure user is a validator
     modifier _isValidator() {
-        require(Validators[msg.sender] || msg.sender == admin, "Sender is not a validator.");
+        require(Validators[msg.sender], "Sender is not a validator.");
         _;
     }
 
