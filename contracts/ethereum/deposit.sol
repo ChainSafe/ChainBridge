@@ -8,7 +8,8 @@ contract Home {
         // The total count of processed tx from this chain`
         uint count;
     }
-    enum Vote {Null, Yes, No}
+
+    enum Vote {Yes, No}
     enum ValidatorVote {Add, Remove}
 
     // Used by validators to vote on deposits
@@ -31,6 +32,7 @@ contract Home {
 	    bool finalized;
     }
 
+    // Proposal to add/remove a bridge validator
     struct ValidatorProposal {
         // Address of the proposed validator
         address validator;
@@ -108,15 +110,16 @@ contract Home {
     function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
         require(!Proposals[_originChainId][_depositId].finalized, "Proposal has already been finalized!");
         require(!Proposals[_originChainId][_depositId].votes[msg.sender], "User has already voted!");
-        require(uint(_vote) > 0 && uint(_vote) <= 2, "Invalid vote!");
-        // Add validator signoff
+        require(uint(_vote) <= 1, "Invalid vote!");
+
+        // Add vote signoff
         if (_vote == Vote.Yes) {
             Proposals[_originChainId][_depositId].numYes++;
         } else if (_vote == Vote.No) {
             Proposals[_originChainId][_depositId].numNo++;
         }
 
-        // Mark that the user voted
+        // Mark that the validator voted
         Proposals[_originChainId][_depositId].votes[msg.sender] = true;
 
         // Check if the threshold has been met
@@ -181,12 +184,14 @@ contract Home {
     function voteValidatorProposal(address _addr, ValidatorVote _vote) public _isValidator {
         require(!ValidatorProposals[_addr].finalized, "Vote has ended");
         require(_action >= 1, "Action out of the vote enum range!");
+
         // Cast vote based on action
         if (_action == ValidatorVote.Add) {
             ValidatorProposals[_addr].numYes++;
         } else if (_action == ValidatorVote.Remove) {
             ValidatorProposals[_addr].numNo++;
         }
+
         // Record vote
         ValidatorProposals[_addr].votes[msg.sender] = true;
 
