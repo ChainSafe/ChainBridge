@@ -1,5 +1,4 @@
-const EmbarkJS = require('Embark/EmbarkJS');
-const { HomeContract } = require('./embarkArtifacts/contracts');
+const HomeContract = artifacts.require("MetaCoin");
 
 let accounts = [];
 
@@ -11,7 +10,7 @@ contract('DepositContract', () => {
     let HomeInstance;
 
     before(async function () {
-        HomeInstance = await HomeContract.deploy({ 
+        HomeInstance = await HomeContract.deployed({ 
             arguments: [
                 [accounts[0], accounts[1]], // bridge validators
                 2, // depoist threshold

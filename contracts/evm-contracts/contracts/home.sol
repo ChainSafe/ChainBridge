@@ -1,4 +1,4 @@
-pragma solidity 0.5.11;
+pragma solidity 0.5.12;
 
 contract Home {
 
@@ -51,7 +51,7 @@ contract Home {
 
     // List of validators
     mapping(address => bool) Validators;
-
+    uint TotalValidatos
     // Validator proposals
     // Address = validator to add/remove
     mapping(address => ValidatorProposal) ValidatorProposals;
@@ -75,6 +75,9 @@ contract Home {
         for (uint i = 0; i<_addrs.length; i++) {
           Validators[_addrs[i]] = true;
         }
+        // Set total validators
+        TotalValidators = addrs.length;
+
     	// Set the thresholds
         voteDepositThreshold = _depositThreshold;
         voteValidatorThreshold = _validatorThreshold;
@@ -89,7 +92,7 @@ contract Home {
     // TODO; if the proposal has already been made should we vote? If they're submitting we can assume they're in favour?
     function createDepositProposal(bytes32 _hash, uint _depositId, uint _originChain) public _isValidator {
         // Ensure this proposal hasn't already been made
-	    require(DepositProposals[_originChain][_depositId].id != _id, "Proposal already exists");
+	    require(DepositProposals[_originChain][_depositId].id != _depositId, "Proposal already exists");
 
         // Create Proposal
         DepositProposals[_originChain][_depositId] = DepositProposal({
@@ -139,8 +142,8 @@ contract Home {
      * @param _originChainId - The chain id representing where the deposit originated from
      * @param _depositId - The id generated from the origin chain
      */
-    function executeDeposit(bytes _data, uint _originChainId, uint _depositId) public {
-        proposal = DepositProposals[_originChainId][_depositId];
+    function executeDeposit(bytes memory _data, uint _originChainId, uint _depositId) public {
+        DepositProposal storage proposal = DepositProposals[_originChainId][_depositId];
         require(proposal.numYes >= voteDepositThreshold, "Vote has not passed!"); // Check that voted passed
         // Ensure that the incoming data is the same as the hashed data from the proposal
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
@@ -156,7 +159,7 @@ contract Home {
     function createValidatorProposal(address _addr,  ValidatorVoteType _action) public _isValidator {
         require(_action <= 1, "Action out of the vote enum range!");
         require(_action == ValidatorVoteType.Remove && Validators[_addr], "Validator is not active!");
-        require(_action == Validator.Add && !Validators[_addr], "Validator is already active!");
+        require(_action == Validators.Add && !Validators[_addr], "Validator is already active!");
         require(ValidatorProposals[_addr].numYes + ValidatorProposals[_addr].numNo > 0, "There is already an active proposal!");
 
         ValidatorProposals[_addr] = ValidatorProposal({
@@ -199,9 +202,11 @@ contract Home {
                 if (ValidatorProposals[_addr] == ValidatorVoteType.Add) {
                     // Add validator
                     Validators[_addr] = true;
+                    TotalValidators++;
                 } else {
                     // Remove validator
                     Validators[_addr] = false;
+                    TotalValidators--;
                 }
             }
         }
