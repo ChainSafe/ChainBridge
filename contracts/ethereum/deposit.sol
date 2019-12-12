@@ -10,8 +10,8 @@ contract Home {
         uint count;
     }
 
-    enum DepositVote {Yes, No}
-    enum ValidatorVote {Add, Remove}
+    enum Vote {Yes, No}
+    enum ValidatorVoteType {Add, Remove}
 
     // Used by validators to vote on deposits
     // A validator should submit a 32 byte keccak hash of the deposit data
@@ -38,7 +38,7 @@ contract Home {
         // Address of the proposed validator
         address validator;
         // validator action
-        ValidatorVote action;
+        ValidatorVoteType action;
         // Keeps track if a user has voted
         mapping(address => bool) votes;
         // Number of votes in favour
@@ -110,15 +110,15 @@ contract Home {
      * @param _depositId - The id assigned to a deposit, generated on the origin chain
      * @param _vote - uint from 0-2 representing the casted vote
      */
-    function voteDepositProposal(uint _originChainId, uint _depositId, DepositVote _vote) public _isValidator {
+    function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
         require(!DepositProposals[_originChainId][_depositId].finalized, "Proposal has already been finalized!");
         require(!DepositProposals[_originChainId][_depositId].votes[msg.sender], "User has already voted!");
         require(uint(_vote) <= 1, "Invalid vote!");
 
         // Add vote signoff
-        if (_vote == DepositVote.Yes) {
+        if (_vote == Vote.Yes) {
             DepositProposals[_originChainId][_depositId].numYes++;
-        } else if (_vote == DepositVote.No) {
+        } else if (_vote == Vote.No) {
             DepositProposals[_originChainId][_depositId].numNo++;
         }
 
@@ -153,9 +153,9 @@ contract Home {
      * @param _addr - Address of the validator to be added or removed
      * @param _action - Action to either remove or add validator
      */
-    function createValidatorProposal(address _addr,  ValidatorVote _action) public _isValidator {
+    function createValidatorProposal(address _addr,  ValidatorVoteType _action) public _isValidator {
         require(_action <= 1, "Action out of the vote enum range!");
-        require(_action == ValidatorVote.Remove && Validators[_addr], "Validator is not active!");
+        require(_action == ValidatorVoteType.Remove && Validators[_addr], "Validator is not active!");
         require(_action == Validator.Add && !Validators[_addr], "Validator is already active!");
         require(ValidatorProposals[_addr].numYes + ValidatorProposals[_addr].numNo > 0, "There is already an active proposal!");
 
@@ -173,12 +173,12 @@ contract Home {
      * @param _addr - Address of the validator to be added or removed
      * @param _vote - Vote to either remove or add validator
      */
-    function voteValidatorProposal(address _addr, ValidatorVote _vote) public _isValidator {
+    function voteValidatorProposal(address _addr, Vote _vote) public _isValidator {
         require(!ValidatorProposals[_addr], "Vote has ended");
         require(_vote <= 1, "Vote out of the vote enum range!");
 
         // Cast vote
-        if (_vote == ValidatorVote.Add) {
+        if (_vote == Vote.Yes) {
             ValidatorProposals[_addr].numYes++;
         } else {
             ValidatorProposals[_addr].numNo++;
@@ -196,7 +196,7 @@ contract Home {
 
             // Vote succeeded, perform action
             if (ValidatorProposals[_addr].numYes > ValidatorProposals[_addr].numNo) {
-                if (ValidatorProposals[_addr] == ValidatorVote.Add) {
+                if (ValidatorProposals[_addr] == ValidatorVoteType.Add) {
                     // Add validator
                     Validators[_addr] = true;
                 } else {
