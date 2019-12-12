@@ -134,30 +134,3 @@ contract Home {
         Validators[_addr] = false;
     }
 }
-
-//TODO finish
-// contract MultiSig {
-
-//     // MultiSig signers
-//     mapping(address => bool) signers;
-
-//     // All votes
-//     mapping(uint => Vote) votes;
-
-//     modifier _isSigner {
-//         require(signers[msg.sender], "Sender is not a signer!");
-//         _;
-//     }
-
-//     constructor(address[] _signers) {
-//         for (uint i=0; _signers.length; i++) {
-//             signers[_signers[i]] = true;
-//         }
-//     }
-
-//     function vote() public _isSigner {}
-
-//     function addSigner(address _addr) public _isSigner {}
-
-//     function removeSigner(address _addr) public _isSigner {}
-// }
