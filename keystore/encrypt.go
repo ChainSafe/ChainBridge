@@ -14,8 +14,6 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	// "github.com/ChainSafe/gossamer/crypto/ed25519"
-	// "github.com/ChainSafe/gossamer/crypto/sr25519"
 	"golang.org/x/crypto/blake2b"
 )
 
@@ -105,20 +103,14 @@ func EncryptAndWriteToFile(file *os.File, pk crypto.PrivateKey, password []byte)
 	}
 
 	keytype := ""
-	// if _, ok := pk.(*ed25519.PrivateKey); ok {
-	// 	keytype = crypto.Ed25519Type
-	// }
 
-	// if _, ok := pk.(*sr25519.PrivateKey); ok {
-	// 	keytype = crypto.Sr25519Type
-	// }
-
+	// TODO: add more key types
 	if _, ok := pk.(*secp256k1.PrivateKey); ok {
 		keytype = crypto.Secp256k1Type
 	}
 
 	if keytype == "" {
-		return errors.New("cannot write key not of type sr25519, ed25519")
+		return errors.New("cannot write key not of type secp256k1")
 	}
 
 	keydata := &EncryptedKeystore{
