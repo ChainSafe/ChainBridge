@@ -2,7 +2,8 @@ pragma solidity 0.5.11;
 
 contract Home {
 
-    uint public voteThreshold;
+    uint public voteDepositThreshold;
+    uint public voteValidatorThreshold;
 
     struct ChainStruct {
         // The total count of processed tx from this chain`
@@ -44,14 +45,15 @@ contract Home {
         uint numYes;
         // Number of votes against
         uint numNo;
-        // If the proposal ended
-        bool finalized;
+        // Total votes
+        uint totalVotes;
     }
 
     // List of validators
     mapping(address => bool) Validators;
 
     // Validator proposals
+    // Address = validator to add/remove
     mapping(address => ValidatorProposal) ValidatorProposals;
 
     // keep track of all proposed deposits per origin chain
@@ -68,13 +70,14 @@ contract Home {
      * @param _addrs - Bridge validator addresses
      * @param _threshold - The number of votes required for a vote to pass
      */
-    constructor ( address[] memory _addrs, uint _threshold) public {
+    constructor ( address[] memory _addrs, uint _depositThreshold, uint _validatorThreshold) public {
         // set the validators
         for (uint i = 0; i<_addrs.length; i++) {
           Validators[_addrs[i]] = true;
         }
-    	// Set the validator threshold
-        voteThreshold = _threshold;
+    	// Set the thresholds
+        voteDepositThreshold = _depositThreshold;
+        voteValidatorThreshold = _validatorThreshold;
     }
 
     /**
@@ -123,7 +126,9 @@ contract Home {
         DepositProposals[_originChainId][_depositId].votes[msg.sender] = true;
 
         // Check if the threshold has been met
-        if (DepositProposals[_originChainId][_depositId].numYes + DepositProposals[_originChainId][_depositId].numNo >= voteThreshold) {
+        // Todo: Edge case if validator threshold changes?
+        if (DepositProposals[_originChainId][_depositId].numYes >= voteDepositThreshold ||
+            Validators.length - DepositProposals[_originChainId][_depositId].numNo >= voteDepositThreshold) {
             DepositProposals[_originChainId][_depositId].finalized = true;
         }
     }
@@ -136,7 +141,7 @@ contract Home {
      */
     function executeDeposit(bytes _data, uint _originChainId, uint _depositId) public {
         proposal = DepositProposals[_originChainId][_depositId];
-        require(proposal.numYes >= voteThreshold, "Vote has not passed!"); // Check that voted passed
+        require(proposal.numYes >= voteDepositThreshold, "Vote has not passed!"); // Check that voted passed
         // Ensure that the incoming data is the same as the hashed data from the proposal
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
 
@@ -149,55 +154,45 @@ contract Home {
      * @param _action - Action to either remove or add validator
      */
     function createValidatorProposal(address _addr,  ValidatorVote _action) public _isValidator {
-        require(_action >= 1, "Action out of the vote enum range!");
-        if (_action == ValidatorVote.Remove) {
-            // A validator must be present to remove them
-            require(Validators[_addr], "Validator is not active!");
-        } else if (_action == Validator.Add) {
-            // A validator must not be present to add them
-            require(!Validators[_addr], "Validator is already active!");
-        }
-        // Ensure there are no active proposals
-        require(ValidatorProposals[_addr].finalized, "There is already an active proposal!");
+        require(_action <= 1, "Action out of the vote enum range!");
+        require(_action == ValidatorVote.Remove && Validators[_addr], "Validator is not active!");
+        require(_action == Validator.Add && !Validators[_addr], "Validator is already active!");
+        require(ValidatorProposals[_addr].numYes + ValidatorProposals[_addr].numNo > 0, "There is already an active proposal!");
 
         ValidatorProposals[_addr] = ValidatorProposal({
             validator: _addr,
             action: _action,
-            numYes: 0,
+            numYes: 1, // Creator must vote in favour
             numNo: 0,
-            finalized: false
+            totalVots: 1 // Creator must vote (below)
         });
-
-        // Cast vote based on action
-        if (_action == ValidatorVote.Add) {
-            ValidatorProposals[_addr].numYes++;
-        } else if (_action == ValidatorVote.Remove) {
-            ValidatorProposals[_addr].numNo++;
-        }
     }
 
     /**
      * Casts vote to add or remove a validator, if the vote succeeds it will perform the action
      * @param _addr - Address of the validator to be added or removed
-     * @param _action - Action to either remove or add validator
+     * @param _vote - Vote to either remove or add validator
      */
     function voteValidatorProposal(address _addr, ValidatorVote _vote) public _isValidator {
-        require(!ValidatorProposals[_addr].finalized, "Vote has ended");
-        require(_action >= 1, "Action out of the vote enum range!");
+        require(!ValidatorProposals[_addr], "Vote has ended");
+        require(_vote <= 1, "Vote out of the vote enum range!");
 
-        // Cast vote based on action
-        if (_action == ValidatorVote.Add) {
+        // Cast vote
+        if (_vote == ValidatorVote.Add) {
             ValidatorProposals[_addr].numYes++;
-        } else if (_action == ValidatorVote.Remove) {
+        } else {
             ValidatorProposals[_addr].numNo++;
         }
+
+        // Incrememnt vote
+        ValidatorProposals[_addr].totalVotes++;
 
         // Record vote
         ValidatorProposals[_addr].votes[msg.sender] = true;
 
         // Check if vote has met the threshold
-        if (ValidatorProposals[_addr].numYes + ValidatorProposals[_addr].numNo >= voteThreshold) {
-            ValidatorProposals[_addr].finalized = true;
+        if (ValidatorProposals[_addr].numYes >= voteValidatorThreshold ||
+            Validators.length - ValidatorProposals[_addr].numNo >= voteValidatorThreshold) {
 
             // Vote succeeded, perform action
             if (ValidatorProposals[_addr].numYes > ValidatorProposals[_addr].numNo) {
