@@ -4,8 +4,6 @@ import (
 	"errors"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
-	//"github.com/ChainSafe/gossamer/crypto/ed25519"
-	//"github.com/ChainSafe/gossamer/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 )
 
