@@ -170,12 +170,10 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 	var kp crypto.Keypair
 	var err error
 	// TODO: add more keytypes
-	//if keytype == crypto.Secp256k1Type {
 	kp, err = secp256k1.GenerateKeypair()
 	if err != nil {
 		return "", fmt.Errorf("could not generate secp256k1 keypair: %s", err)
 	}
-	//}
 
 	keystorepath, err := keystoreDir(datadir)
 	if err != nil {
