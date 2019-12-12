@@ -1,16 +1,16 @@
-pragma solidity 0.5.13;
+pragma solidity 0.5.11;
 
 contract Home {
 
-    uint public validatorThreshold;
-    
     address public admin;
+    uint public voteThreshold;
 
     struct ChainStruct {
         // The total count of processed tx from this chain`
         uint count;
     }
-    
+    enum Vote {Null, Yes, No}
+
     // Used by validators to vote on deposits
     // A validator should submit a 32 byte keccak hash of the deposit data
     // The hash will be verified when finalizing the deposit
@@ -20,22 +20,15 @@ contract Home {
         // Incremented based on the origin chain
         uint id;
         // Chain that the tx originated from
-        uint fromChain;
-        // n-m signatures
+        uint originChain;
+        // Keeps track if a user has voted
         mapping(address => bool) votes;
-	// If proposal has passed
-	bool finalized;
-    }
-
-    // After a succesul vote, a validator will submit a Deposit that will be verified against the 32 byte hash
-    // found in Proposal.hash
-    struct Deposit {
-        // TODO change :: Arbitrary data 
-        bytes data;
-        // Incremented based on the origin chain
-        uint id;
-        // Chain that the tx originated from
-        uint fromChain;
+        // Number of votes yes
+        uint numYes;
+        // Number of votes no
+        uint numNo;
+	    // If proposal has passed
+	    bool finalized;
     }
 
     // List of validators
@@ -47,11 +40,7 @@ contract Home {
 
     // keep track of all proposed deposits per origin chain
     // ChainId => DepositId => Proposal
-    mapping(uint => mapping(uint => Proposal)) Proposals;    
-
-    // Keep track of all finalized deposits per origin chain
-    // ChainId => DepositId => Deposit
-    mapping(uint => mapping(uint => Deposit)) Deposits;
+    mapping(uint => mapping(uint => Proposal)) Proposals;
 
     // Ensure user is a validator
     modifier _isValidator() {
@@ -59,95 +48,116 @@ contract Home {
         _;
     }
 
-    constructor (address[] _addrs, uint _threshold) {
+    /**
+     * @param _addrs - Bridge validator addresses
+     * @param _threshold - The number of votes required for a vote to pass
+     */
+    constructor ( address[] memory _addrs, uint _threshold) public {
         // set the validators
-        for (uint i=0; i<_addrs.length; i++) {
+        for (uint i = 0; i<_addrs.length; i++) {
           Validators[_addrs[i]] = true;
         }
-        
-	// Set the validator threshold
-        validatorThreshold = _threshold;
+    	// Set the validator threshold
+        voteThreshold = _threshold;
     }
 
-    // Validators propose to make a deposit, this isn't final and requires the validators to reach majority consensus
-    // TODO; if the deposit has already been made should we vote? 
-    function submitProposal(bytes32 _hash, uint _id, uint _fromChain) public _isValidator {
-        // Ensure this deposit hasn't already been made
-	require(Deposits[_from][_id].id !== _id);
+    /**
+     * @notice Validators propose to make a deposit, this isn't final and requires the validators to reach majority consensus
+     * @param _hash - 32 bytes hash of the Deposit data
+     * @param _id - The deposit id generated from the origin chain
+     * @param _originChain - The chain id from which the deposit was originally made
+     */
+    // TODO; if the proposal has already been made should we vote? If they're submitting we can assume they're in favour?
+    function submitProposal(bytes32 _hash, uint _depositId, uint _originChain) public _isValidator {
+        // Ensure this proposal hasn't already been made
+	    require(Proposals[_originChain][_depositId].id != _id, "Proposal already exists");
 
-        // Create deposit struct
-        deposit = Proposal({
+        // Create Proposal
+        Proposals[_originChain][_depositId] = Proposal({
             hash: _hash,
-            id: _id,
-            fromChain: _fromChain,
-        })
-
-	// Whoever makes the deposit casts the first vote
-	deposit.votes[msg.sender] = true; 
-
-        // Assign deposit
-        // Todo can this be overridden?
-        Deposits[_from][_id] = deposit;
+            id: _depositId,
+            originChain: _originChain,
+            numYes: 0,
+            numNo: 0,
+            finalized: false
+        });
+        // The creator always votes in favour
+        Proposals[_originChain][_depositId].votes[msg.sender] = true;
+        Proposals[_originChain][_depositId].numYes++;
     }
 
-    // Votes on a proposed deposit
-    function vote(uint _chainId, uint id) public _isValidator {
-
+    /**
+     * @notice - Used to cast a vote on a given proposal
+     * @param _originChainId - The id of the origin chain for a given proposal
+     * @param _depositId - The id assigned to a deposit, generated on the origin chain
+     * @param _vote - uint from 0-2 representing the casted vote
+     */
+    function vote(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
+        require(!Proposals[_originChainId][_depositId].finalized, "Proposal has already been finalized!");
+        require(!Proposals[_originChainId][_depositId].votes[msg.sender], "User has already voted!");
+        require(uint(_vote) > 0 && uint(_vote) <= 2, "Invalid vote!");
         // Add validator signoff
-        Deposits[_chainId][_id].signatures.push(msg.sender);
-
-        // Check if deposit has already been finalized
-        if (!Deposits[_chainId][_id].finalized) {
-
-            // Check if the threshold has been met
-            if (Deposits[_chainId][_id].signatures.length >= validatorThreshold) {
-                /**
-                 * TODO
-                 * - Check type of tx
-                 * - Handle the type accordingly
-                 * - eg: ERC20.transfer(_to, _value);
-                 */
-                 Deposits[_chainId][_id].finalized = true;
-            }
+        if (_vote == Vote.Yes) {
+            Proposals[_originChainId][_depositId].numYes++;
+        } else if (_vote == Vote.No) {
+            Proposals[_originChainId][_depositId].numNo--;
         }
+
+        // Mark that the user voted
+        Proposals[_originChainId][_depositId].votes[msg.sender] = true;
+
+        // Check if the threshold has been met
+        if (Proposals[_originChainId][_depositId].numYes + Proposals[_originChainId][_depositId].numNo >= voteThreshold) {
+            Proposal[_originChainId][_depositId].finalized = true;
+        }
+    }
+
+    /**
+     * Executes a deposit, anyone can execute this as long as they pass in the correct _data
+     */
+    function executeDeposit(bytes _data, uint _originChainId, uint _proposalId) public {
+        proposal = Proposals[_originChainId][_proposalId];
+        require(proposal.numYes >= voteThreshold, "Vote has not passed!"); // Check that voted passed
+        // Ensure that the incoming data is the same as the hashed data from the proposal
+        require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
+
+        // TODO unpack the _data
     }
 
     // Todo add MultiSig checks
-    function addValidator(address _addr) {
+    function addValidator(address _addr) public {
         Validators[_addr] = true;
     }
 
     // Todo add MultiSig checks
-    function removeValidator(address _addr) {
+    function removeValidator(address _addr) public {
         Validators[_addr] = false;
     }
 }
 
 //TODO finish
-contract MultiSig {
+// contract MultiSig {
 
-    // MultiSig signers
-    mapping(address => bool) signers;
+//     // MultiSig signers
+//     mapping(address => bool) signers;
 
-    // All votes
-    mapping(uint => Vote) votes;
-    
-    modifier _isSigner {
-        require(signers[msg.sender], "Sender is not a signer!");
-        _;
-    }
+//     // All votes
+//     mapping(uint => Vote) votes;
 
-    constructor(address[] _signers) {
-        for (uint i=0; _signers.length; i++) {
-            signers[_signers[i]] = true;
-        }
-    }
+//     modifier _isSigner {
+//         require(signers[msg.sender], "Sender is not a signer!");
+//         _;
+//     }
 
-    function vote() public _isSigner {}
+//     constructor(address[] _signers) {
+//         for (uint i=0; _signers.length; i++) {
+//             signers[_signers[i]] = true;
+//         }
+//     }
 
-    function addSigner(address _addr) public _isSigner {}
+//     function vote() public _isSigner {}
 
-    function removeSigner(address _addr) public _isSigner {}
-}
+//     function addSigner(address _addr) public _isSigner {}
 
-
+//     function removeSigner(address _addr) public _isSigner {}
+// }
