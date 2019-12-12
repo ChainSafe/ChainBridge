@@ -11,13 +11,13 @@ type Connection interface {
 }
 
 type Listener interface {
-	RegisterEventHandler(string, func()) error
+	Start() error
+	RegisterEventHandler(string, func(interface{}) msg.Message) error
+	Stop() error
 }
 
 type Writer interface {
+	Start() error
 	ResolveMessage(message msg.Message) error
-}
-
-type Event interface {
-	GetParams() []byte
+	Stop() error
 }

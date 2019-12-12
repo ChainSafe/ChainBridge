@@ -1,7 +1,6 @@
 package main
 
 import (
-	"ChainBridgeV2/chains/centrifuge"
 	"ChainBridgeV2/chains/ethereum"
 	"ChainBridgeV2/core"
 	msg "ChainBridgeV2/message"
@@ -70,24 +69,25 @@ func run(ctx *cli.Context) error {
 	}
 	log.Debug("Loaded config", "config", fmt.Sprintf("%+v", cfg))
 	// TODO: parse config for endpoints
-	ethEndpoint := ""
-	ctfgEndpoint := ""
+	ethEndpoint := "ws://localhost:8546"
+	//ctfgEndpoint := ""
 
 	eth := ethereum.InitializeChain(msg.EthereumId, &core.ChainConfig{
 		Endpoint: ethEndpoint,
 		Home:     "",
 		Away:     "",
+		Subscriptions: []string{"MyEvent(uint256)"},
 	})
 
-	ctfg := centrifuge.InitializeChain(msg.CentrifugeId, &core.ChainConfig{
-		Endpoint: ctfgEndpoint,
-		Home:     "",
-		Away:     "",
-	})
+	//ctfg := centrifuge.InitializeChain(msg.CentrifugeId, &core.ChainConfig{
+	//	Endpoint: ctfgEndpoint,
+	//	Home:     "",
+	//	Away:     "",
+	//})
 
 	c := core.NewCore(nil)
 	c.AddChain(eth)
-	c.AddChain(ctfg)
+	//c.AddChain(ctfg)
 	c.Start()
 
 	return nil

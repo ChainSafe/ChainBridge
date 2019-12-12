@@ -17,6 +17,14 @@ func NewWriter(conn core.Connection) *Writer {
 	}
 }
 
-func (p *Writer) ResolveMessage(msg msg.Message) error {
+func (w *Writer) Start() error {
+	panic("not implemented")
+}
+
+func (w *Writer) ResolveMessage(msg msg.Message) error {
+	panic("not implemented")
+}
+
+func (w *Writer) Stop() error {
 	panic("not implemented")
 }

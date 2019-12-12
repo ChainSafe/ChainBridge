@@ -14,5 +14,6 @@ func InitializeChain(id msg.ChainId, cfg *core.ChainConfig) *core.Chain {
 	c.SetConnection(conn)
 	c.SetListener(NewListener(conn, *cfg))
 	c.SetWriter(NewWriter(c.Connection()))
+
 	return c
 }

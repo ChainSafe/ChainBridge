@@ -7,6 +7,7 @@ import (
 	"ChainBridgeV2/core"
 	//"ChainBridgeV2/types"
 
+	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	//eth "github.com/ethereum/go-ethereum"
@@ -34,7 +35,8 @@ func NewConnection(ctx context.Context, endpoint string) *Connection {
 }
 
 func (c *Connection) Connect() error {
-	rpcClient, err := rpc.DialHTTP(c.endpoint)
+	log15.Info("Connecting to ethereum...", "url", c.endpoint)
+	rpcClient, err := rpc.DialWebsocket(c.ctx, c.endpoint, "/ws")
 	if err != nil {
 		return err
 	}
@@ -66,15 +68,18 @@ func (c *Connection) buildQuery(contract common.Address, sig EventSig) ethereum.
 }
 
 // subscribeToEvent registers an rpc subscription for the event with the signature sig for contract at address
-func (c *Connection) subscribeToEvent(addr common.Address, sig EventSig) (chan ethtypes.Log, ethereum.Subscription, error) {
+func (c *Connection) subscribeToEvent(addr common.Address, sig EventSig) (*Subscription, error) {
 	query := c.buildQuery(addr, sig)
 	ch := make(chan ethtypes.Log)
 	sub, err := c.conn.SubscribeFilterLogs(c.ctx, query, ch)
 	if err != nil {
 		close(ch)
-		return nil, nil, err
+		return nil, err
 	}
-	return ch, sub, nil
+	return &Subscription{
+		ch:  ch,
+		sub: sub,
+	}, nil
 }
 
 func (c *Connection) SubmitTx(data []byte) error {
