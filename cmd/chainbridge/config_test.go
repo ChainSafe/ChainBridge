@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/core"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -19,6 +19,7 @@ func createTempConfigFile() (*os.File, *Config) {
 		Home:     "",
 		Away:     "",
 		From:     "",
+		Subscriptions: []string{},
 	}
 	testConfig.Ethereum = ethCfg
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "prefix-")

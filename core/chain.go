@@ -1,25 +1,26 @@
 package core
 
 import (
-	msg "ChainBridgeV2/message"
 	"fmt"
+
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 )
 
 type Chain struct {
-	id msg.ChainId // Unique chain identifier (see package message
-	//home     string      // home bridge address
-	//away     string      // away bridge address
-	conn          Connection
-	listener      Listener
-	writer        Writer
+	id       msg.ChainId // Unique chain identifier (see package message
+	home     string      // home bridge address
+	away     string      // away bridge address
+	conn     Connection
+	listener Listener
+	writer   Writer
 	subscriptions []string
 }
 
 type ChainConfig struct {
-	Endpoint      string   `toml:"endpoint"` // url for rpc endpoint
-	Home          string   `toml:"home"`     // home bridge address
-	Away          string   `toml:"away"`     // away bridge address
-	From          string   `toml:"from"`     // address of key to use
+	Endpoint string `toml:"endpoint"` // url for rpc endpoint
+	Home     string `toml:"home"`     // home bridge address
+	Away     string `toml:"away"`     // away bridge address
+	From     string `toml:"from"`     // address of key to use
 	Subscriptions []string `toml:"subscriptions"`
 }
 

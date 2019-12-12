@@ -9,7 +9,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-var TestEthereumEndpoint = "https://rinkeby.infura.io/v3/b0a01296903f4812b5ec2cf26cbded48"
+var TestEthereumEndpoint = "wss://goerli.infura.io/ws/v3/b0a01296903f4812b5ec2cf26cbded48"
 
 func TestConnect(t *testing.T) {
 	ctx := context.Background()

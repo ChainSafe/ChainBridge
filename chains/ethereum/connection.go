@@ -4,13 +4,11 @@ import (
 	"context"
 	"math/big"
 
-	"ChainBridgeV2/core"
-	//"ChainBridgeV2/types"
+	"github.com/ChainSafe/ChainBridgeV2/core"
 
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
-	//eth "github.com/ethereum/go-ethereum"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -56,9 +54,8 @@ func (c *Connection) NetworkId() (*big.Int, error) {
 // buildQuery constructs a query for the contract by hashing sig to get the event topic
 func (c *Connection) buildQuery(contract common.Address, sig EventSig) ethereum.FilterQuery {
 	query := ethereum.FilterQuery{
-		// BlockHash: nil,
+		// TODO: Might want current block
 		FromBlock: nil,
-		// ToBlock:   nil,
 		Addresses: []common.Address{contract},
 		Topics: [][]common.Hash{
 			{sig.GetTopic()},

@@ -1,8 +1,8 @@
 package ethereum
 
 import (
-	"ChainBridgeV2/core"
-	msg "ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/core"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
@@ -34,9 +34,10 @@ func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {
 func (l *Listener) Start() error {
 	log15.Info("Starting ethereum listener...", "subs", l.cfg.Subscriptions)
 	for _, sub := range l.cfg.Subscriptions {
-		err := l.RegisterEventHandler(sub, func(evtI interface{}) {
+		err := l.RegisterEventHandler(sub, func(evtI interface{}) msg.Message {
 			evt := evtI.(*geth.Log)
 			log15.Info("Got event!", "evt", evt)
+			return msg.Message{}
 		})
 		if err != nil {
 			log15.Error("failed to register event handler", "err", err)
@@ -61,7 +62,7 @@ func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) ms
 	return nil
 }
 
-func watchEvent(sub *Subscription, handler func(interface{})) {
+func watchEvent(sub *Subscription, handler func(interface{}) msg.Message) {
 	for {
 		select {
 		case evt := <-sub.ch:
@@ -72,21 +73,6 @@ func watchEvent(sub *Subscription, handler func(interface{})) {
 	}
 }
 
-//func (l *Listener) subscribe(name types.EventName, q eth.FilterQuery) (*Subscription, error) {
-//	logChan := make(chan ethtypes.Log)
-//	ethsub, err := l.conn.conn.SubscribeFilterLogs(l.conn.ctx, q, logChan)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	sub := &Subscription{
-//		ch:  logChan,
-//		sub: ethsub,
-//	}
-//
-//	l.subscriptions[name] = sub
-//	return sub, nil
-//}
 
 func (l *Listener) Unsubscribe(sig EventSig) {
 	l.subscriptions[sig].sub.Unsubscribe()

@@ -1,7 +1,8 @@
 package centrifuge
 
 import (
-	"ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/core"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 )
 
 var _ core.Listener = &Listener{}
@@ -18,7 +19,7 @@ func (l *Listener) Start() error {
 	panic("not implemented")
 }
 
-func (l *Listener) RegisterEventHandler(name string, handler func(interface{})) error {
+func (l *Listener) RegisterEventHandler(name string, handler func(interface{}) msg.Message) error {
 	panic("not implemented")
 }
 
