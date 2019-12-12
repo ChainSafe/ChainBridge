@@ -9,7 +9,7 @@ contract Home {
         uint count;
     }
 
-    enum Vote {Yes, No}
+    enum DepositVote {Yes, No}
     enum ValidatorVote {Add, Remove}
 
     // Used by validators to vote on deposits
@@ -56,7 +56,7 @@ contract Home {
 
     // keep track of all proposed deposits per origin chain
     // ChainId => DepositId => Proposal
-    mapping(uint => mapping(uint => DepositProposal)) Proposals;
+    mapping(uint => mapping(uint => DepositProposal)) DepositProposals;
 
     // Ensure user is a validator
     modifier _isValidator() {
@@ -86,10 +86,10 @@ contract Home {
     // TODO; if the proposal has already been made should we vote? If they're submitting we can assume they're in favour?
     function createDepositProposal(bytes32 _hash, uint _depositId, uint _originChain) public _isValidator {
         // Ensure this proposal hasn't already been made
-	    require(Proposals[_originChain][_depositId].id != _id, "Proposal already exists");
+	    require(DepositProposals[_originChain][_depositId].id != _id, "Proposal already exists");
 
         // Create Proposal
-        Proposals[_originChain][_depositId] = DepositProposal({
+        DepositProposals[_originChain][_depositId] = DepositProposal({
             hash: _hash,
             id: _depositId,
             originChain: _originChain,
@@ -98,7 +98,7 @@ contract Home {
             finalized: false
         });
         // The creator always votes in favour
-        Proposals[_originChain][_depositId].votes[msg.sender] = true;
+        DepositProposals[_originChain][_depositId].votes[msg.sender] = true;
     }
 
     /**
@@ -107,24 +107,24 @@ contract Home {
      * @param _depositId - The id assigned to a deposit, generated on the origin chain
      * @param _vote - uint from 0-2 representing the casted vote
      */
-    function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
-        require(!Proposals[_originChainId][_depositId].finalized, "Proposal has already been finalized!");
-        require(!Proposals[_originChainId][_depositId].votes[msg.sender], "User has already voted!");
+    function voteDepositProposal(uint _originChainId, uint _depositId, DepositVote _vote) public _isValidator {
+        require(!DepositProposals[_originChainId][_depositId].finalized, "Proposal has already been finalized!");
+        require(!DepositProposals[_originChainId][_depositId].votes[msg.sender], "User has already voted!");
         require(uint(_vote) <= 1, "Invalid vote!");
 
         // Add vote signoff
-        if (_vote == Vote.Yes) {
-            Proposals[_originChainId][_depositId].numYes++;
-        } else if (_vote == Vote.No) {
-            Proposals[_originChainId][_depositId].numNo++;
+        if (_vote == DepositVote.Yes) {
+            DepositProposals[_originChainId][_depositId].numYes++;
+        } else if (_vote == DepositVote.No) {
+            DepositProposals[_originChainId][_depositId].numNo++;
         }
 
         // Mark that the validator voted
-        Proposals[_originChainId][_depositId].votes[msg.sender] = true;
+        DepositProposals[_originChainId][_depositId].votes[msg.sender] = true;
 
         // Check if the threshold has been met
-        if (Proposals[_originChainId][_depositId].numYes + Proposals[_originChainId][_depositId].numNo >= voteThreshold) {
-            Proposals[_originChainId][_depositId].finalized = true;
+        if (DepositProposals[_originChainId][_depositId].numYes + DepositProposals[_originChainId][_depositId].numNo >= voteThreshold) {
+            DepositProposals[_originChainId][_depositId].finalized = true;
         }
     }
 
@@ -135,7 +135,7 @@ contract Home {
      * @param _depositId - The id generated from the origin chain
      */
     function executeDeposit(bytes _data, uint _originChainId, uint _depositId) public {
-        proposal = Proposals[_originChainId][_depositId];
+        proposal = DepositProposals[_originChainId][_depositId];
         require(proposal.numYes >= voteThreshold, "Vote has not passed!"); // Check that voted passed
         // Ensure that the incoming data is the same as the hashed data from the proposal
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
