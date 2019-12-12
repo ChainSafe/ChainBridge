@@ -9,10 +9,7 @@ import (
 	"path/filepath"
 	"syscall"
 
-	//cfg "github.com/ChainSafe/gossamer/config"
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
-	//"github.com/ChainSafe/ChainBridgeV2/crypto/ed25519"
-	//"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 
@@ -26,6 +23,8 @@ import (
 // then, if the import flag is set, if so, it imports a keypair
 // finally, if the list flag is set, it lists all the keys in the keystore
 func handleAccounts(ctx *cli.Context) error {
+	log.Info("account manager")
+
 	err := startLogger(ctx)
 	if err != nil {
 		log.Error("account", "error", err)
@@ -43,20 +42,11 @@ func handleAccounts(ctx *cli.Context) error {
 	}
 
 	// check if we want to generate a new keypair
-	// can specify key type using --ed25519 or --sr25519
-	// otherwise defaults to sr25519
 	if keygen := ctx.Bool(GenerateFlag.Name); keygen {
 		log.Info("generating keypair...")
 
-		// check if --ed25519 or --sr25519 is set
 		keytype := crypto.Secp256k1Type
-		// if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
-		// 	keytype = crypto.Sr25519Type
-		// } else if flagtype := ctx.Bool(Ed25519Flag.Name); flagtype {
-		// 	keytype = crypto.Ed25519Type
-		// } else if flagtype := ctx.Bool(utils.Secp256k1Flag.Name); flagtype {
-		// 	keytype = crypto.Secp256k1Type
-		// }
+		// TODO: add other key types
 
 		// check if --password is set
 		var password []byte = nil
@@ -179,19 +169,13 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 
 	var kp crypto.Keypair
 	var err error
+	// TODO: add more keytypes
 	if keytype == crypto.Secp256k1Type {
-		// generate sr25519 keys
 		kp, err = secp256k1.GenerateKeypair()
 		if err != nil {
 			return "", fmt.Errorf("could not generate secp256k1 keypair: %s", err)
 		}
-	}/* else if keytype == crypto.Ed25519Type {
-		// generate ed25519 keys
-		kp, err = ed25519.GenerateKeypair()
-		if err != nil {
-			return "", fmt.Errorf("could not generate ed25519 keypair: %s", err)
-		}
-	}*/
+	}
 
 	keystorepath, err := keystoreDir(datadir)
 	if err != nil {
@@ -225,8 +209,8 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 	return fp, nil
 }
 
-// keystoreDir returnns the absolute filepath of the keystore directory given gossamer's datadir
-// by default, it is ~/.gossamer/keystore/
+// keystoreDir returnns the absolute filepath of the keystore directory given a datadir
+// by default, it is ./keystore/
 // otherwise, it is datadir/keystore/
 func keystoreDir(datadir string) (keystorepath string, err error) {
 	// datadir specified, return datadir/keystore as absolute path
@@ -236,7 +220,7 @@ func keystoreDir(datadir string) (keystorepath string, err error) {
 			return "", err
 		}
 	} else {
-		// datadir not specified, return ~/.gossamer/keystore as absolute path
+		// datadir not specified, return ./keystore as absolute path
 		datadir = DefaultDataDir()
 
 		keystorepath, err = filepath.Abs(datadir + "/keystore")

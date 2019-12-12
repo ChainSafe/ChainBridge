@@ -43,7 +43,7 @@ func NewKeypairFromPrivate(priv *PrivateKey) (*Keypair, error) {
 	}
 
 	return &Keypair{
-		public: pub.(*PublicKey),
+		public:  pub.(*PublicKey),
 		private: priv,
 	}, nil
 }

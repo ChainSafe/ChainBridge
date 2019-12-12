@@ -21,6 +21,26 @@ var cliFlags = []cli.Flag{
 	KeystorePathFlag,
 }
 
+var accountFlags = []cli.Flag{
+	GenerateFlag,
+	PasswordFlag,
+	ImportFlag,
+	ListFlag,
+	Secp256k1,
+}
+
+var accountCommand = cli.Command{
+	Action:   handleAccounts,
+	Name:     "account",
+	Usage:    "manage bridge keystore",
+	Flags:    append(append(accountFlags, KeystorePathFlag), VerbosityFlag),
+	Category: "KEYSTORE",
+	Description: "The account command is used to manage the bridge keystore.\n" +
+		"\tTo generate a new secp256k1 (Ethereum) account: bridge account --generate\n" +
+		"\tTo import a keystore file: bridge account --import=path/to/file\n" +
+		"\tTo list keys: bridge account --list",
+}
+
 // init initializes CLI
 func init() {
 	app.Action = run
@@ -29,7 +49,9 @@ func init() {
 	app.Usage = "ChainBridge V2"
 	app.Author = "ChainSafe Systems 2019"
 	app.Version = "0.0.1"
-	app.Commands = []cli.Command{}
+	app.Commands = []cli.Command{
+		accountCommand,
+	}
 
 	app.Flags = append(app.Flags, cliFlags...)
 }
@@ -70,6 +92,7 @@ func run(ctx *cli.Context) error {
 	}
 	log.Debug("Loaded config", "config", fmt.Sprintf("%+v", cfg))
 	// TODO: parse config for endpoints
+	// TODO: add which key we want to use for each chain to config
 	ethEndpoint := ""
 	ctfgEndpoint := ""
 
