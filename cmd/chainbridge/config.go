@@ -84,10 +84,6 @@ func loadConfig(file string, config *Config) error {
 	return nil
 }
 
-func DefaultDataDir() string {
-	return "."
-}
-
 // These settings ensure that TOML keys use the same names as Go struct fields.
 var tomlSettings = toml.Config{
 	NormFieldName: func(rt reflect.Type, key string) string {

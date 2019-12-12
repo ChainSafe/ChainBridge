@@ -220,8 +220,8 @@ func keystoreDir(datadir string) (keystorepath string, err error) {
 			return "", err
 		}
 	} else {
-		// datadir not specified, return ./keystore as absolute path
-		datadir = DefaultDataDir()
+		// datadir not specified, return ./keys/keystore as absolute path
+		datadir = DefaultKeystorePath
 
 		keystorepath, err = filepath.Abs(datadir + "/keystore")
 		if err != nil {
