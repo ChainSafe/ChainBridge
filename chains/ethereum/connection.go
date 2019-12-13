@@ -5,9 +5,9 @@ import (
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/core"
-	//"github.com/ChainSafe/ChainBridgeV2/types"
+	"github.com/ChainSafe/ChainBridgeV2/crypto"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 
-	//eth "github.com/ethereum/go-ethereum"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -20,14 +20,23 @@ type Connection struct {
 	endpoint string
 	conn     *ethclient.Client
 	// rpcConn  *rpc.Client
-
-	// TODO: keystore
+	signer ethtypes.Signer
+	kp     crypto.Keypair
 }
 
-func NewConnection(ctx context.Context, endpoint string) *Connection {
+type ConnectionConfig struct {
+	Ctx      context.Context
+	Endpoint string
+	Keypair  crypto.Keypair
+	Signer   ethtypes.Signer
+}
+
+func NewConnection(cfg *ConnectionConfig) *Connection {
 	return &Connection{
-		ctx:      ctx,
-		endpoint: endpoint,
+		ctx:      cfg.Ctx,
+		endpoint: cfg.Endpoint,
+		kp:       cfg.Keypair,
+		signer:   cfg.Signer,
 	}
 }
 
@@ -56,11 +65,10 @@ func (c *Connection) SubmitTx(data []byte) error {
 		return err
 	}
 
-	// TODO: need to set up keystore before a tx can be sent and accepted
-	// signedTx, err := ethtypes.SignTx(tx, signer, priv)
-	// if err != nil {
-	// 	return err
-	// }
+	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.Private().(*secp256k1.PrivateKey).Key())
+	if err != nil {
+		return err
+	}
 
-	return c.conn.SendTransaction(c.ctx, tx)
+	return c.conn.SendTransaction(c.ctx, signedTx)
 }

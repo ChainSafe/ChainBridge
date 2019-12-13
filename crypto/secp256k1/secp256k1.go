@@ -77,6 +77,7 @@ func (kp *Keypair) Sign(msg []byte) ([]byte, error) {
 func (kp *Keypair) Public() crypto.PublicKey {
 	return kp.public
 }
+
 func (kp *Keypair) Private() crypto.PrivateKey {
 	return kp.private
 }
@@ -137,4 +138,8 @@ func (pk *PrivateKey) Decode(in []byte) error {
 	key := secp256k1.ToECDSAUnsafe(in)
 	pk.key = *key
 	return nil
+}
+
+func (pk *PrivateKey) Key() *ecdsa.PrivateKey {
+	return &pk.key
 }
