@@ -6,12 +6,13 @@ import (
 	"errors"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/hash"
 
 	secp256k1 "github.com/ethereum/go-ethereum/crypto"
 )
 
+const PrivateKeyLength = 32
 const SignatureLength = 64
+const MessageLength = 32
 
 type Keypair struct {
 	public  *PublicKey
@@ -24,6 +25,27 @@ type PublicKey struct {
 
 type PrivateKey struct {
 	key ecdsa.PrivateKey
+}
+
+func NewPrivateKey(in []byte) (*PrivateKey, error) {
+	if len(in) != PrivateKeyLength {
+		return nil, errors.New("input to create secp256k1 private key is not 32 bytes")
+	}
+	priv := new(PrivateKey)
+	err := priv.Decode(in)
+	return priv, err
+}
+
+func NewKeypairFromPrivate(priv *PrivateKey) (*Keypair, error) {
+	pub, err := priv.Public()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Keypair{
+		public:  pub.(*PublicKey),
+		private: priv,
+	}, nil
 }
 
 func NewKeypair(pk ecdsa.PrivateKey) *Keypair {
@@ -45,11 +67,11 @@ func GenerateKeypair() (*Keypair, error) {
 }
 
 func (kp *Keypair) Sign(msg []byte) ([]byte, error) {
-	hash, err := hash.Blake2bHash(msg)
-	if err != nil {
-		return nil, err
+	if len(msg) != MessageLength {
+		return nil, errors.New("invalid message length: not 32 byte hash")
 	}
-	return secp256k1.Sign(hash[:], &kp.private.key)
+
+	return secp256k1.Sign(msg, &kp.private.key)
 }
 
 func (kp *Keypair) Public() crypto.PublicKey {
@@ -65,11 +87,11 @@ func (k *PublicKey) Verify(msg, sig []byte) (bool, error) {
 		return false, errors.New("invalid signature length")
 	}
 
-	hash, err := hash.Blake2bHash(msg)
-	if err != nil {
-		return false, errors.New("could not hash message")
+	if len(msg) != MessageLength {
+		return false, errors.New("invalid message length: not 32 byte hash")
 	}
-	return secp256k1.VerifySignature(k.Encode(), hash[:], sig), nil
+
+	return secp256k1.VerifySignature(k.Encode(), msg, sig), nil
 }
 
 func (k *PublicKey) Encode() []byte {
@@ -96,11 +118,11 @@ func (k *PublicKey) Hex() string {
 }
 
 func (pk *PrivateKey) Sign(msg []byte) ([]byte, error) {
-	h, err := hash.Blake2bHash(msg)
-	if err != nil {
-		return nil, err
+	if len(msg) != MessageLength {
+		return nil, errors.New("invalid message length: not 32 byte hash")
 	}
-	return secp256k1.Sign(h[:], &pk.key)
+
+	return secp256k1.Sign(msg, &pk.key)
 }
 
 func (pk *PrivateKey) Public() (crypto.PublicKey, error) {
