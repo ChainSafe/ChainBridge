@@ -23,8 +23,6 @@ import (
 // then, if the import flag is set, if so, it imports a keypair
 // finally, if the list flag is set, it lists all the keys in the keystore
 func handleAccounts(ctx *cli.Context) error {
-	log.Info("account manager")
-
 	err := startLogger(ctx)
 	if err != nil {
 		log.Error("account", "error", err)

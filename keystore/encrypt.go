@@ -18,9 +18,9 @@ import (
 )
 
 type EncryptedKeystore struct {
-	Type       string
-	PublicKey  string
-	Ciphertext []byte
+	Type       string `json:"type"`
+	PublicKey  string `json:"publicKey"`
+	Ciphertext []byte `json:"ciphertext"`
 }
 
 // gcmFromPassphrase creates a symmetric AES key given a password
