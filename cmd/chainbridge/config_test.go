@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/ChainSafe/ChainBridgeV2/core"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -9,16 +8,18 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/ChainSafe/ChainBridgeV2/core"
+
 	"github.com/urfave/cli"
 )
 
 func createTempConfigFile() (*os.File, *Config) {
 	testConfig := NewConfig()
 	ethCfg := core.ChainConfig{
-		Endpoint: "",
-		Home:     "",
-		Away:     "",
-		From:     "",
+		Endpoint:      "",
+		Home:          "",
+		Away:          "",
+		From:          "",
 		Subscriptions: []string{},
 	}
 	testConfig.Ethereum = ethCfg
