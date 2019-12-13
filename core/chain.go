@@ -7,29 +7,25 @@ import (
 )
 
 type Chain struct {
-	id       msg.ChainId // Unique chain identifier (see package message
-	home     string      // home bridge address
-	away     string      // away bridge address
+	cfg      *ChainConfig // away bridge address
 	conn     Connection
 	listener Listener
 	writer   Writer
-	subscriptions []string
+	//subscriptions []string
 }
 
 type ChainConfig struct {
-	Endpoint string `toml:"endpoint"` // url for rpc endpoint
-	Home     string `toml:"home"`     // home bridge address
-	Away     string `toml:"away"`     // away bridge address
-	From     string `toml:"from"`     // address of key to use
-	Subscriptions []string `toml:"subscriptions"`
+	Id            msg.ChainId `toml:"id"`       // ChainID
+	Endpoint      string      `toml:"endpoint"` // url for rpc endpoint
+	Home          string      `toml:"home"`     // home bridge address
+	Away          string      `toml:"away"`     // away bridge address
+	From          string      `toml:"from"`     // address of key to use
+	Subscriptions []string    `toml:"subscriptions"`
 }
 
-func NewChain(id msg.ChainId, cfg *ChainConfig) *Chain {
+func NewChain(cfg *ChainConfig) *Chain {
 	return &Chain{
-		id:            id,
-		subscriptions: cfg.Subscriptions,
-		//home: cfg.Home,
-		//away: cfg.Away,
+		cfg: cfg,
 	}
 }
 
@@ -74,7 +70,7 @@ func (c *Chain) Start() error {
 }
 
 func (c *Chain) Id() msg.ChainId {
-	return c.id
+	return c.cfg.Id
 }
 
 func (c *Chain) Connection() Connection {

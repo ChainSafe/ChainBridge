@@ -32,7 +32,7 @@ func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {
 }
 
 func (l *Listener) Start() error {
-	log15.Info("Starting ethereum listener...", "subs", l.cfg.Subscriptions)
+	log15.Info("Starting ethereum listener...", "chainID", l.cfg.Id, "subs", l.cfg.Subscriptions)
 	for _, sub := range l.cfg.Subscriptions {
 		err := l.RegisterEventHandler(sub, func(evtI interface{}) msg.Message {
 			evt := evtI.(*geth.Log)
@@ -72,7 +72,6 @@ func watchEvent(sub *Subscription, handler func(interface{}) msg.Message) {
 		}
 	}
 }
-
 
 func (l *Listener) Unsubscribe(sig EventSig) {
 	l.subscriptions[sig].sub.Unsubscribe()

@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/ChainSafe/ChainBridgeV2/chains/centrifuge"
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -70,24 +71,26 @@ func run(ctx *cli.Context) error {
 	log.Debug("Loaded config", "config", fmt.Sprintf("%+v", cfg))
 	// TODO: parse config for endpoints
 	ethEndpoint := "ws://localhost:8546"
-	//ctfgEndpoint := ""
+	ctfgEndpoint := ""
 
-	eth := ethereum.InitializeChain(msg.EthereumId, &core.ChainConfig{
-		Endpoint: ethEndpoint,
-		Home:     "",
-		Away:     "",
+	eth := ethereum.InitializeChain(&core.ChainConfig{
+		Id:            msg.EthereumId,
+		Endpoint:      ethEndpoint,
+		Home:          "",
+		Away:          "",
 		Subscriptions: []string{"MyEvent(uint256)"},
 	})
 
-	//ctfg := centrifuge.InitializeChain(msg.CentrifugeId, &core.ChainConfig{
-	//	Endpoint: ctfgEndpoint,
-	//	Home:     "",
-	//	Away:     "",
-	//})
+	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
+		Id:       msg.CentrifugeId,
+		Endpoint: ctfgEndpoint,
+		Home:     "",
+		Away:     "",
+	})
 
 	c := core.NewCore(nil)
 	c.AddChain(eth)
-	//c.AddChain(ctfg)
+	c.AddChain(ctfg)
 	c.Start()
 
 	return nil
