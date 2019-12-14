@@ -51,13 +51,29 @@ type Subscription struct {
 	sub eth.Subscription
 }
 
+// buildQuery constructs a query for the contract by hashing sig to get the event topic
+func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQuery {
+	query := eth.FilterQuery{
+		// TODO: Might want current block
+		FromBlock: nil,
+		Addresses: []common.Address{contract},
+		Topics: [][]common.Hash{
+			{sig.GetTopic()},
+		},
+	}
+	return query
+}
+
+
 func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) msg.Message) error {
 	log15.Info("Registering event handler", "sig", sig)
 	evt := EventSig(sig)
-	sub, err := l.conn.subscribeToEvent(l.home, evt)
+	query := l.buildQuery(l.home, evt)
+	sub, err := l.conn.subscribeToEvent(query, evt)
 	if err != nil {
 		return err
 	}
+	// TODO: Should be go routine
 	watchEvent(sub, handler)
 	return nil
 }

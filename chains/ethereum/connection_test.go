@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	"github.com/ChainSafe/ChainBridgeV2/types"
-
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -76,7 +74,7 @@ func TestSendTx(t *testing.T) {
 }
 
 func TestSubscribe(t *testing.T) {
-	t.Skip()
+	//t.Skip()
 	ctx := context.Background()
 	cfg := &ConnectionConfig{
 		Ctx:      ctx,
@@ -84,7 +82,7 @@ func TestSubscribe(t *testing.T) {
 	}
 
 	conn := NewConnection(cfg)
-	l := NewListener(conn)
+	l := NewListener(conn, cfg)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -94,7 +92,7 @@ func TestSubscribe(t *testing.T) {
 	q := eth.FilterQuery{}
 
 	// TODO: this fails with "notifications not supported"
-	_, err = l.subscribe(types.TransferEvent, q)
+	_, err = l.subscribe(TransferEvent, q)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/ChainSafe/ChainBridgeV2/core"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
 )
