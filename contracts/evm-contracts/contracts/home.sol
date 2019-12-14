@@ -12,6 +12,7 @@ contract Home {
 
     enum Vote {Yes, No}
     enum ValidatorVoteType {Add, Remove}
+    enum VoteStatus {Null, Active}
 
     // Used by validators to vote on deposits
     // A validator should submit a 32 byte keccak hash of the deposit data
@@ -47,11 +48,14 @@ contract Home {
         uint numNo;
         // Total votes
         uint totalVotes;
+        // Status of a vote
+        VoteStatus status;
     }
 
     // List of validators
     mapping(address => bool) Validators;
-    uint TotalValidatos
+    uint public TotalValidators;
+
     // Validator proposals
     // Address = validator to add/remove
     mapping(address => ValidatorProposal) ValidatorProposals;
@@ -68,7 +72,8 @@ contract Home {
 
     /**
      * @param _addrs - Bridge validator addresses
-     * @param _threshold - The number of votes required for a vote to pass
+     * @param _depositThreshold - The number of votes required for a deposit vote to pass
+     * @param _validatorThreshold - The number of votes required for a validator vote to pass
      */
     constructor ( address[] memory _addrs, uint _depositThreshold, uint _validatorThreshold) public {
         // set the validators
@@ -76,7 +81,7 @@ contract Home {
           Validators[_addrs[i]] = true;
         }
         // Set total validators
-        TotalValidators = addrs.length;
+        TotalValidators = _addrs.length;
 
     	// Set the thresholds
         voteDepositThreshold = _depositThreshold;
@@ -86,7 +91,7 @@ contract Home {
     /**
      * Validators propose to make a deposit, this isn't final and requires the validators to reach majority consensus
      * @param _hash - 32 bytes hash of the Deposit data
-     * @param _id - The deposit id generated from the origin chain
+     * @param _depositId - The deposit id generated from the origin chain
      * @param _originChain - The chain id from which the deposit was originally made
      */
     // TODO; if the proposal has already been made should we vote? If they're submitting we can assume they're in favour?
@@ -131,7 +136,7 @@ contract Home {
         // Check if the threshold has been met
         // Todo: Edge case if validator threshold changes?
         if (DepositProposals[_originChainId][_depositId].numYes >= voteDepositThreshold ||
-            Validators.length - DepositProposals[_originChainId][_depositId].numNo >= voteDepositThreshold) {
+            TotalValidators - DepositProposals[_originChainId][_depositId].numNo >= voteDepositThreshold) {
             DepositProposals[_originChainId][_depositId].finalized = true;
         }
     }
@@ -157,9 +162,9 @@ contract Home {
      * @param _action - Action to either remove or add validator
      */
     function createValidatorProposal(address _addr,  ValidatorVoteType _action) public _isValidator {
-        require(_action <= 1, "Action out of the vote enum range!");
+        require(uint(_action) <= 1, "Action out of the vote enum range!");
         require(_action == ValidatorVoteType.Remove && Validators[_addr], "Validator is not active!");
-        require(_action == Validators.Add && !Validators[_addr], "Validator is already active!");
+        require(_action == ValidatorVoteType.Add && !Validators[_addr], "Validator is already active!");
         require(ValidatorProposals[_addr].numYes + ValidatorProposals[_addr].numNo > 0, "There is already an active proposal!");
 
         ValidatorProposals[_addr] = ValidatorProposal({
@@ -167,7 +172,8 @@ contract Home {
             action: _action,
             numYes: 1, // Creator must vote in favour
             numNo: 0,
-            totalVots: 1 // Creator must vote (below)
+            totalVotes: 1, // Creator must vote (below)
+            status: VoteStatus.Active
         });
     }
 
@@ -177,8 +183,9 @@ contract Home {
      * @param _vote - Vote to either remove or add validator
      */
     function voteValidatorProposal(address _addr, Vote _vote) public _isValidator {
-        require(!ValidatorProposals[_addr], "Vote has ended");
-        require(_vote <= 1, "Vote out of the vote enum range!");
+        require(ValidatorProposals[_addr].status != VoteStatus.Null, "There is no active vote!");
+        require(!ValidatorProposals[_addr].votes[msg.sender], "User has already voted!");
+        require(uint(_vote) <= 1, "Vote out of the vote enum range!");
 
         // Cast vote
         if (_vote == Vote.Yes) {
@@ -195,18 +202,20 @@ contract Home {
 
         // Check if vote has met the threshold
         if (ValidatorProposals[_addr].numYes >= voteValidatorThreshold ||
-            Validators.length - ValidatorProposals[_addr].numNo >= voteValidatorThreshold) {
+            TotalValidators - ValidatorProposals[_addr].numNo >= voteValidatorThreshold) {
 
             // Vote succeeded, perform action
             if (ValidatorProposals[_addr].numYes > ValidatorProposals[_addr].numNo) {
-                if (ValidatorProposals[_addr] == ValidatorVoteType.Add) {
+                if (ValidatorProposals[_addr].action == ValidatorVoteType.Add) {
                     // Add validator
                     Validators[_addr] = true;
                     TotalValidators++;
+                    ValidatorProposals[_addr].status = VoteStatus.Null;
                 } else {
                     // Remove validator
                     Validators[_addr] = false;
                     TotalValidators--;
+                    ValidatorProposals[_addr].status = VoteStatus.Null;
                 }
             }
         }
