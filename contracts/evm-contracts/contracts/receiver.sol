@@ -1,6 +1,6 @@
 pragma solidity 0.5.12;
 
-contract Home {
+contract Receiver {
 
     uint public voteDepositThreshold;
     uint public voteValidatorThreshold;
