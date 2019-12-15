@@ -251,7 +251,7 @@ contract('Receiver - [Voting] validator proposals', async (accounts) => {
     })
 });
 
-contract('Receiver - [Create] deposit proposals', async (accounts) => {
+contract('Receiver - [Create::Basic] deposit proposals', async (accounts) => {
     let ReceiverInstance;
 
     // Set validators
@@ -291,5 +291,27 @@ contract('Receiver - [Create] deposit proposals', async (accounts) => {
             assert.include(e.message, "A proposal already exists!");
         }
     })
+});
+
+contract('Receiver - [Vote::Basic] deposit proposals', async (accounts) => {
+    let ReceiverInstance;
+
+    // Set validators
+    let v1 = accounts[0];
+    let v2 = accounts[1];
+
+    beforeEach(async () => {
+        ReceiverInstance = await ReceiverContract.new(
+            [v1, v2], // bridge validators
+            2,        // depoist threshold
+            2         // validator threshold
+        )
+    });
+
+    it("can vote on proposal", async () => {
+        // await ReceiverInstance.createDepositProposal(...CreateDepositData(null, 0, 0), { from: v1 });
+        // let before = ReceiverInstance.DepositProposals()
+        // await ReceiverInstance.voteDepositProposal(0,0, {from: v2});
+    });
 
 });
