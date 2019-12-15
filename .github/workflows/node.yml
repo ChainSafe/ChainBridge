@@ -1,8 +1,21 @@
-steps:
+name: Node CI
+
+on: [push]
+
+jobs:
+  test:
+    name: EVM Contract Tests
+    runs-on: ubuntu-latest
+
+    steps:
     - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
-        with:
-                node-version: '10.x'
-    - run: cd contracts/evm-contracts/
-    - run: npm install
-    - run: ./node_modules/.bin/truffle test
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - name: npm install, and test
+      run: |
+        npm install
+        ./node_modules/.bin/truffle test
+      env:
+        CI: true
