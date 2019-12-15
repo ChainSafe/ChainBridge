@@ -7,7 +7,7 @@ contract Receiver {
 
     enum Vote {Yes, No}
     enum ValidatorActionType {Add, Remove}
-    enum VoteStatus {Inactive, Active}
+    enum VoteStatus {Inactive, Active, Finalized}
 
     // Used by validators to vote on deposits
     // A validator should submit a 32 byte keccak hash of the deposit data
@@ -26,7 +26,7 @@ contract Receiver {
         // Number of votes no
         uint numNo;
 	    // If proposal has passed
-	    bool finalized;
+	    VoteStatus status;
     }
 
     // Proposal to add/remove a bridge validator
@@ -92,7 +92,7 @@ contract Receiver {
     // TODO; if the proposal has already been made should we vote? If they're submitting we can assume they're in favour?
     function createDepositProposal(bytes32 _hash, uint _depositId, uint _originChain) public _isValidator {
         // Ensure this proposal hasn't already been made
-	    require(DepositProposals[_originChain][_depositId].id != _depositId, "Proposal already exists");
+	    require(DepositProposals[_originChain][_depositId].status == VoteStatus.Inactive, "A proposal already exists!");
 
         // Create Proposal
         DepositProposals[_originChain][_depositId] = DepositProposal({
@@ -101,7 +101,7 @@ contract Receiver {
             originChain: _originChain,
             numYes: 1, // The creator always votes in favour
             numNo: 0,
-            finalized: false
+            status: VoteStatus.Active
         });
         // The creator always votes in favour
         DepositProposals[_originChain][_depositId].votes[msg.sender] = true;
@@ -114,7 +114,7 @@ contract Receiver {
      * @param _vote - uint from 0-2 representing the casted vote
      */
     function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
-        require(!DepositProposals[_originChainId][_depositId].finalized, "Proposal has already been finalized!");
+        require(DepositProposals[_originChainId][_depositId].status == VoteStatus.Finalized, "Proposal has already been finalized!");
         require(!DepositProposals[_originChainId][_depositId].votes[msg.sender], "User has already voted!");
         require(uint(_vote) <= 1, "Invalid vote!");
 
@@ -132,7 +132,7 @@ contract Receiver {
         // Todo: Edge case if validator threshold changes?
         if (DepositProposals[_originChainId][_depositId].numYes >= voteDepositThreshold ||
             TotalValidators - DepositProposals[_originChainId][_depositId].numNo >= voteDepositThreshold) {
-            DepositProposals[_originChainId][_depositId].finalized = true;
+            DepositProposals[_originChainId][_depositId].status = VoteStatus.Finalized;
         }
     }
 

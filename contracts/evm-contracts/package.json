@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "ethers": "^4.0.40",
     "truffle": "^5.1.4"
   }
 }

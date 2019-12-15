@@ -1,5 +1,5 @@
 const ReceiverContract = artifacts.require("Receiver");
-const { ValidatorActionType, Vote, VoteStatus } = require("./helpers");
+const { ValidatorActionType, Vote, VoteStatus, CreateDepositData } = require("./helpers");
 
 contract('Receiver - deployment', async (accounts) => {
     let ReceiverInstance;
@@ -233,4 +233,47 @@ contract('Receiver - [Voting] validator proposals', async (accounts) => {
             assert.include(e.message, "There is no active proposal!");
         }
     })
+});
+
+contract('Receiver - [Create] deposit proposals', async (accounts) => {
+    let ReceiverInstance;
+
+    // Set validators
+    let v1 = accounts[0];
+    let v2 = accounts[1];
+
+    beforeEach(async () => {
+        ReceiverInstance = await ReceiverContract.new(
+            [v1, v2], // bridge validators
+            2,        // depoist threshold
+            2         // validator threshold
+        )
+    });
+
+    it('validators can create proposals', async () => {
+        let { receipt } = await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
+        assert.strictEqual(receipt.status, true);
+    });
+
+    it('only validators can create proposals', async () => {
+        try {
+            let { receipt } = await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: accounts[4] });
+            // This case shouldn't be hit, fail safe.
+            assert.strictEqual(receipt.status, false);
+        } catch (e) {
+            assert.include(e.message, "Sender is not a validator");
+        }
+    });
+
+    it('cannot create proposal if it exists', async () => {
+        try {
+            await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
+            let { receipt } = await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
+            // This case shouldn't be hit, fail safe.
+            assert.strictEqual(receipt.status, false);
+        } catch (e) {
+            assert.include(e.message, "A proposal already exists!");
+        }
+    })
+
 });

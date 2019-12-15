@@ -1,3 +1,5 @@
+const ethers = require("ethers");
+
 const ValidatorActionType = {
     Add: 0,
     Remove: 1
@@ -13,8 +15,26 @@ const VoteStatus = {
     Active: 1
 }
 
+// TODO format differently
+const dummyData = {
+    type: "erc20",
+    value: 100,
+    to: "0x1",
+    from: "0x2"
+}
+
+const CreateDepositData = (data = dummyData, depositId = 0, originChain = 0) => {
+    const hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(data));
+    return [
+        hash,
+        depositId,
+        originChain,
+    ];
+}
+
 module.exports = {
     ValidatorActionType,
     Vote,
     VoteStatus,
+    CreateDepositData,
 }
