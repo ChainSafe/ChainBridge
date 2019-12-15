@@ -1,7 +1,7 @@
 const ReceiverContract = artifacts.require("Receiver");
 const { ValidatorActionType, Vote, VoteStatus, CreateDepositData } = require("./helpers");
 
-contract('Receiver - deployment', async (accounts) => {
+contract('Receiver - [Deployment]', async (accounts) => {
     let ReceiverInstance;
 
     // Set validators
@@ -34,7 +34,7 @@ contract('Receiver - deployment', async (accounts) => {
     });
 });
 
-contract('Receiver - [Create::Basic] validator proposals', async (accounts) => {
+contract('Receiver - [Validator::Create::Basic]', async (accounts) => {
     let ReceiverInstance;
 
     // Set validators
@@ -103,7 +103,7 @@ contract('Receiver - [Create::Basic] validator proposals', async (accounts) => {
     });
 });
 
-contract('Receiver - [Create::Advanced] validator proposals', async (accounts) => {
+contract('Receiver - [Validator::Create::Advanced]', async (accounts) => {
     let ReceiverInstance;
 
     // Set validators
@@ -141,7 +141,7 @@ contract('Receiver - [Create::Advanced] validator proposals', async (accounts) =
     });
 });
 
-contract('Receiver - [Voting::Basic] validator proposals', async (accounts) => {
+contract('Receiver - [Validator::Voting::Basic]', async (accounts) => {
     let ReceiverInstance;
 
     // Set validators
@@ -211,7 +211,7 @@ contract('Receiver - [Voting::Basic] validator proposals', async (accounts) => {
     });
 });
 
-contract('Receiver - [Voting::Advanced] validator proposals', async (accounts) => {
+contract('Receiver - [Validator::Voting::Advanced]', async (accounts) => {
     let ReceiverInstance;
 
     // Set validators
@@ -267,7 +267,7 @@ contract('Receiver - [Voting::Advanced] validator proposals', async (accounts) =
     })
 });
 
-contract('Receiver - [Create::Basic] deposit proposals', async (accounts) => {
+contract('Receiver - [Deposit::Create::Basic]', async (accounts) => {
     let ReceiverInstance;
 
     // Set validators
@@ -309,7 +309,7 @@ contract('Receiver - [Create::Basic] deposit proposals', async (accounts) => {
     })
 });
 
-contract('Receiver - [Create::Basic] deposit proposals', async (accounts) => {
+contract('Receiver - [Deposit::Create::Advanced]', async (accounts) => {
     let ReceiverInstance;
 
     // Set validators
@@ -336,7 +336,7 @@ contract('Receiver - [Create::Basic] deposit proposals', async (accounts) => {
     });
 });
 
-contract('Receiver - [Voting::Basic] deposit proposals', async (accounts) => {
+contract('Receiver - [Deposit::Voting::Basic]', async (accounts) => {
     let ReceiverInstance;
 
     // Set validators
@@ -421,7 +421,7 @@ contract('Receiver - [Voting::Basic] deposit proposals', async (accounts) => {
     });
 });
 
-contract('Receiver - [Voting::Advanced] deposit proposals', async (accounts) => {
+contract('Receiver - [Deposit::Voting::Advanced]', async (accounts) => {
     let ReceiverInstance;
 
     // Set validators
