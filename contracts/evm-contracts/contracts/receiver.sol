@@ -114,8 +114,9 @@ contract Receiver {
      * @param _vote - uint from 0-2 representing the casted vote
      */
     function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
-        require(DepositProposals[_originChainId][_depositId].status == VoteStatus.Finalized, "Proposal has already been finalized!");
-        require(!DepositProposals[_originChainId][_depositId].votes[msg.sender], "User has already voted!");
+        require(DepositProposals[_originChainId][_depositId].status != VoteStatus.Inactive, "There is no active proposal!");
+        require(DepositProposals[_originChainId][_depositId].status != VoteStatus.Finalized, "Proposal has already been finalized!");
+        require(!DepositProposals[_originChainId][_depositId].votes[msg.sender], "Validator has already voted!");
         require(uint(_vote) <= 1, "Invalid vote!");
 
         // Add vote signoff
@@ -221,5 +222,24 @@ contract Receiver {
                 }
             }
         }
+    }
+
+    function getDepositProposal(uint _chainId, uint _depositId) public returns (
+        bytes32 hash,
+        uint id,
+        uint originChain,
+        uint numYes,
+        uint numNo,
+        VoteStatus status
+    ) {
+        DepositProposal memory d = DepositProposals[_chainId][_depositId];
+        return (
+            d.hash,
+            d.id,
+            d.originChain,
+            d.numYes,
+            d.numNo,
+            d.status
+        );
     }
 }
