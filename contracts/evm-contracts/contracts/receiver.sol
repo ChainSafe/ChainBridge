@@ -8,6 +8,7 @@ contract Receiver {
     enum Vote {Yes, No}
     enum ValidatorActionType {Add, Remove}
     enum VoteStatus {Inactive, Active, Finalized}
+    enum ThresholdType {Validator, Deposit}
 
     // Used by validators to vote on deposits
     // A validator should submit a 32 byte keccak hash of the deposit data
@@ -41,8 +42,22 @@ contract Receiver {
         uint numYes;
         // Number of votes against
         uint numNo;
-        // Total votes
-        uint totalVotes;
+        // Status of a vote
+        VoteStatus status;
+    }
+
+    // Proposal to change threshold
+    struct ThresholdProposal {
+        // new value to change to
+        uint newValue;
+        // Type of vote
+        ThresholdType proposalType;
+        // Keeps track if a user has voted
+        mapping(address => bool) votes;
+        // Number of votes in favour
+        uint numYes;
+        // Number of votes against
+        uint numNo;
         // Status of a vote
         VoteStatus status;
     }
@@ -50,6 +65,10 @@ contract Receiver {
     // List of validators
     mapping(address => bool) public Validators;
     uint public TotalValidators;
+
+    // Current threshold proposals
+    // ThesholdType => ThersholdProposal
+    mapping(uint => ThresholdProposal) public ThresholdProposals;
 
     // Validator proposals
     // Address = validator to add/remove
@@ -89,7 +108,6 @@ contract Receiver {
      * @param _depositId - The deposit id generated from the origin chain
      * @param _originChain - The chain id from which the deposit was originally made
      */
-    // TODO; if the proposal has already been made should we vote? If they're submitting we can assume they're in favour?
     function createDepositProposal(bytes32 _hash, uint _depositId, uint _originChain) public _isValidator {
         // Ensure this proposal hasn't already been made
 	    require(DepositProposals[_originChain][_depositId].status == VoteStatus.Inactive, "A proposal already exists!");
@@ -172,7 +190,6 @@ contract Receiver {
             action: _action,
             numYes: 1, // Creator must vote in favour
             numNo: 0,
-            totalVotes: 1, // Creator must vote (below)
             status: VoteStatus.Active
         });
 
@@ -197,9 +214,6 @@ contract Receiver {
             ValidatorProposals[_addr].numNo++;
         }
 
-        // Incrememnt vote
-        ValidatorProposals[_addr].totalVotes++;
-
         // Record vote
         ValidatorProposals[_addr].votes[msg.sender] = true;
 
@@ -219,6 +233,49 @@ contract Receiver {
                     Validators[_addr] = false;
                     TotalValidators--;
                     ValidatorProposals[_addr].status = VoteStatus.Inactive;
+                }
+            }
+        }
+    }
+
+    function createThresholdProposal(uint _value, ThresholdType _type) public _isValidator {
+        uint key = uint(_type);
+
+        require(_value <= TotalValidators, "Total value must be lower than total Validators!");
+        require(ThresholdProposals[key].status != VoteStatus.Active, "A proposal is active!");
+
+        ThresholdProposals[key] = ThresholdProposal({
+            newValue: _value,
+            proposalType: _type,
+            numYes: 1,
+            numNo: 0,
+            status: VoteStatus.Active
+        });
+        // Add vote
+        ThresholdProposals[key].votes[msg.sender] = true;
+    }
+
+    function voteThresholdProposal(Vote _vote, ThresholdType _type) public _isValidator {
+        uint key = uint(_type);
+
+        require(ThresholdProposals[key].status == VoteStatus.Active, "There is no active proposal!");
+        require(!ThresholdProposals[key].votes[msg.sender], "Validator has already voted!");
+
+        if (_vote == Vote.Yes) {
+            ThresholdProposals[key].numYes++;
+        } else if (_vote == Vote.No) {
+            ThresholdProposals[key].numNo++;
+        }
+        ThresholdProposals[key].votes[msg.sender] = true;
+
+        if (ThresholdProposals[key].numYes >= voteValidatorThreshold ||
+            TotalValidators - ThresholdProposals[key].numNo >= voteValidatorThreshold) {
+
+            if (ThresholdProposals[key].numYes > ThresholdProposals[key].numNo) {
+                if (_type == ThresholdType.Validator) {
+                    voteValidatorThreshold = ThresholdProposals[key].newValue;
+                } else if (_type == ThresholdType.Deposit) {
+                    voteValidatorThreshold = ThresholdProposals[key].newValue;
                 }
             }
         }

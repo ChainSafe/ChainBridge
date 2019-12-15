@@ -159,11 +159,11 @@ contract('Receiver - [Validator::Voting::Basic]', async (accounts) => {
     it('can vote on a proposal', async () => {
         await ReceiverInstance.createValidatorProposal(accounts[2], ValidatorActionType.Add, { from: v1 });
         let before = await ReceiverInstance.ValidatorProposals(accounts[2]);
-        assert.strictEqual(before.totalVotes.toNumber(), 1);
+        assert.strictEqual(before.numYes.toNumber() + before.numNo.toNumber(), 1);
 
         await ReceiverInstance.voteValidatorProposal(accounts[2], Vote.Yes, {from: v2});
         let after = await ReceiverInstance.ValidatorProposals(accounts[2]);
-        assert.strictEqual(after.totalVotes.toNumber(), 2);
+        assert.strictEqual(after.numYes.toNumber() + after.numNo.toNumber(), 2);
     });
 
     it('cannot vote twice on a proposal', async () => {
@@ -179,13 +179,13 @@ contract('Receiver - [Validator::Voting::Basic]', async (accounts) => {
     it('only validators can vote on proposals', async () => {
         await ReceiverInstance.createValidatorProposal(accounts[2], ValidatorActionType.Add, { from: v1 });
         let before = await ReceiverInstance.ValidatorProposals(accounts[2]);
-        assert.strictEqual(before.totalVotes.toNumber(), 1);
+        assert.strictEqual(before.numYes.toNumber() + before.numNo.toNumber(), 1);
 
         try {
             await ReceiverInstance.voteValidatorProposal(accounts[2], Vote.Yes, { from: accounts[4] });
             // We shouldn't get here
             let after = await ReceiverInstance.ValidatorProposals(accounts[2]);
-            assert.strictEqual(after.totalVotes.toNumber(), 1);
+            assert.strictEqual(after.numYes.toNumber() + after.numNo.toNumber(), 1);
         } catch (e) {
             assert.include(e.message, "Sender is not a validator");
         }
@@ -437,10 +437,20 @@ contract('Receiver - [Deposit::Voting::Advanced]', async (accounts) => {
         )
     });
 
-    it('can vote in a deposit', async () => {
+    it('vote result success', async () => {
         await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
         await ReceiverInstance.voteDepositProposal(0, 0, Vote.Yes, { from: v2 });
         let res = await ReceiverInstance.getDepositProposal.call(0, 0);
         assert.strictEqual(res.status.toNumber(), VoteStatus.Finalized);
+        assert(res.numYes.toNumber() > res.numNo.toNumber());
+    });
+
+    it('vote result fails', async () => {
+        await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
+        await ReceiverInstance.voteDepositProposal(0, 0, Vote.No, { from: v2 });
+        await ReceiverInstance.voteDepositProposal(0, 0, Vote.No, { from: v3 });
+        let res = await ReceiverInstance.getDepositProposal.call(0, 0);
+        assert.strictEqual(res.status.toNumber(), VoteStatus.Finalized);
+        assert(res.numYes.toNumber() < res.numNo.toNumber());
     });
 });
