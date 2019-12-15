@@ -5,11 +5,6 @@ contract Receiver {
     uint public voteDepositThreshold;
     uint public voteValidatorThreshold;
 
-    struct ChainStruct {
-        // The total count of processed tx from this chain`
-        uint count;
-    }
-
     enum Vote {Yes, No}
     enum ValidatorActionType {Add, Remove}
     enum VoteStatus {Inactive, Active}
@@ -62,7 +57,7 @@ contract Receiver {
 
     // keep track of all proposed deposits per origin chain
     // ChainId => DepositId => Proposal
-    mapping(uint => mapping(uint => DepositProposal)) DepositProposals;
+    mapping(uint => mapping(uint => DepositProposal)) public DepositProposals;
 
     // Ensure user is a validator
     modifier _isValidator() {
