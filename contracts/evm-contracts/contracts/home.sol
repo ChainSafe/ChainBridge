@@ -11,8 +11,8 @@ contract Home {
     }
 
     enum Vote {Yes, No}
-    enum ValidatorVoteType {Add, Remove}
-    enum VoteStatus {Null, Active}
+    enum ValidatorActionType {Add, Remove}
+    enum VoteStatus {Inactive, Active}
 
     // Used by validators to vote on deposits
     // A validator should submit a 32 byte keccak hash of the deposit data
@@ -39,7 +39,7 @@ contract Home {
         // Address of the proposed validator
         address validator;
         // validator action
-        ValidatorVoteType action;
+        ValidatorActionType action;
         // Keeps track if a user has voted
         mapping(address => bool) votes;
         // Number of votes in favour
@@ -53,12 +53,12 @@ contract Home {
     }
 
     // List of validators
-    mapping(address => bool) Validators;
+    mapping(address => bool) public Validators;
     uint public TotalValidators;
 
     // Validator proposals
     // Address = validator to add/remove
-    mapping(address => ValidatorProposal) ValidatorProposals;
+    mapping(address => ValidatorProposal) public ValidatorProposals;
 
     // keep track of all proposed deposits per origin chain
     // ChainId => DepositId => Proposal
@@ -161,11 +161,15 @@ contract Home {
      * @param _addr - Address of the validator to be added or removed
      * @param _action - Action to either remove or add validator
      */
-    function createValidatorProposal(address _addr,  ValidatorVoteType _action) public _isValidator {
+    function createValidatorProposal(address _addr,  ValidatorActionType _action) public _isValidator {
         require(uint(_action) <= 1, "Action out of the vote enum range!");
-        require(_action == ValidatorVoteType.Remove && Validators[_addr], "Validator is not active!");
-        require(_action == ValidatorVoteType.Add && !Validators[_addr], "Validator is already active!");
-        require(ValidatorProposals[_addr].numYes + ValidatorProposals[_addr].numNo > 0, "There is already an active proposal!");
+        if (_action == ValidatorActionType.Remove && Validators[_addr] == false) {
+            require(false, "Validator is not active!");
+        }
+        if (_action == ValidatorActionType.Add && Validators[_addr] == true) {
+            require(false, "Validator is already active!");
+        }
+        require(ValidatorProposals[_addr].status == VoteStatus.Inactive, "There is already an active proposal!");
 
         ValidatorProposals[_addr] = ValidatorProposal({
             validator: _addr,
@@ -175,6 +179,9 @@ contract Home {
             totalVotes: 1, // Creator must vote (below)
             status: VoteStatus.Active
         });
+
+        // Record vote
+        ValidatorProposals[_addr].votes[msg.sender] = true;
     }
 
     /**
@@ -183,8 +190,8 @@ contract Home {
      * @param _vote - Vote to either remove or add validator
      */
     function voteValidatorProposal(address _addr, Vote _vote) public _isValidator {
-        require(ValidatorProposals[_addr].status != VoteStatus.Null, "There is no active vote!");
-        require(!ValidatorProposals[_addr].votes[msg.sender], "User has already voted!");
+        require(ValidatorProposals[_addr].status != VoteStatus.Inactive, "There is no active proposal!");
+        require(!ValidatorProposals[_addr].votes[msg.sender], "Validator has already voted!");
         require(uint(_vote) <= 1, "Vote out of the vote enum range!");
 
         // Cast vote
@@ -206,16 +213,16 @@ contract Home {
 
             // Vote succeeded, perform action
             if (ValidatorProposals[_addr].numYes > ValidatorProposals[_addr].numNo) {
-                if (ValidatorProposals[_addr].action == ValidatorVoteType.Add) {
+                if (ValidatorProposals[_addr].action == ValidatorActionType.Add) {
                     // Add validator
                     Validators[_addr] = true;
                     TotalValidators++;
-                    ValidatorProposals[_addr].status = VoteStatus.Null;
+                    ValidatorProposals[_addr].status = VoteStatus.Inactive;
                 } else {
                     // Remove validator
                     Validators[_addr] = false;
                     TotalValidators--;
-                    ValidatorProposals[_addr].status = VoteStatus.Null;
+                    ValidatorProposals[_addr].status = VoteStatus.Inactive;
                 }
             }
         }
