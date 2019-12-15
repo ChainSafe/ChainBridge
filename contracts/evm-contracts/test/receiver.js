@@ -34,7 +34,7 @@ contract('Receiver - deployment', async (accounts) => {
     });
 });
 
-contract('Receiver - [Create] validator proposals', async (accounts) => {
+contract('Receiver - [Create::Basic] validator proposals', async (accounts) => {
     let ReceiverInstance;
 
     // Set validators
@@ -100,6 +100,22 @@ contract('Receiver - [Create] validator proposals', async (accounts) => {
         } catch (e) {
             assert.include(e.message, "invalid opcode");
         }
+    });
+});
+
+contract('Receiver - [Create::Advanced] validator proposals', async (accounts) => {
+    let ReceiverInstance;
+
+    // Set validators
+    let v1 = accounts[0];
+    let v2 = accounts[1];
+
+    beforeEach(async () => {
+        ReceiverInstance = await ReceiverContract.new(
+            [v1, v2], // bridge validators
+            2,        // depoist threshold
+            2         // validator threshold
+        )
     });
 
     it('can create proposal if proposal has ended', async () => {
