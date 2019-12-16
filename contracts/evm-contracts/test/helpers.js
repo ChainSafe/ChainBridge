@@ -16,6 +16,11 @@ const VoteStatus = {
     Finalized: 2
 }
 
+const ThresholdType = {
+    Validator: 0,
+    Deposit: 1,
+}
+
 // TODO format differently
 const dummyData = {
     type: "erc20",
@@ -38,4 +43,5 @@ module.exports = {
     Vote,
     VoteStatus,
     CreateDepositData,
+    ThresholdType,
 }

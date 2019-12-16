@@ -1,5 +1,5 @@
 const ReceiverContract = artifacts.require("Receiver");
-const { ValidatorActionType, Vote, VoteStatus, CreateDepositData } = require("./helpers");
+const { ValidatorActionType, Vote, VoteStatus, CreateDepositData, ThresholdType } = require("./helpers");
 
 contract('Receiver - [Deployment]', async (accounts) => {
     let ReceiverInstance;
@@ -20,10 +20,10 @@ contract('Receiver - [Deployment]', async (accounts) => {
         let validators = await ReceiverInstance.TotalValidators.call();
         assert.strictEqual(parseInt(validators, 10), 2);
 
-        let depositThreshold = await ReceiverInstance.voteDepositThreshold.call();
+        let depositThreshold = await ReceiverInstance.DepositThreshold.call();
         assert.strictEqual(parseInt(depositThreshold, 10), 2);
 
-        let validatorThreshold = await ReceiverInstance.voteValidatorThreshold.call();
+        let validatorThreshold = await ReceiverInstance.ValidatorThreshold.call();
         assert.strictEqual(parseInt(validatorThreshold, 10), 2);
 
         let validator1 = await ReceiverInstance.Validators(v1);
@@ -347,8 +347,8 @@ contract('Receiver - [Deposit::Voting::Basic]', async (accounts) => {
     beforeEach(async () => {
         ReceiverInstance = await ReceiverContract.new(
             [v1, v2, v3], // bridge validators
-            2,        // depoist threshold
-            2         // validator threshold
+            2,            // depoist threshold
+            2             // validator threshold
         )
     });
 
@@ -419,6 +419,23 @@ contract('Receiver - [Deposit::Voting::Basic]', async (accounts) => {
             assert.include(e.message, "Proposal has already been finalized!");
         }
     });
+
+    it('vote result success', async () => {
+        await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
+        await ReceiverInstance.voteDepositProposal(0, 0, Vote.Yes, { from: v2 });
+        let res = await ReceiverInstance.getDepositProposal.call(0, 0);
+        assert.strictEqual(res.status.toNumber(), VoteStatus.Finalized);
+        assert(res.numYes.toNumber() > res.numNo.toNumber(), "No was > Yes");
+    });
+
+    it('vote result fails', async () => {
+        await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
+        await ReceiverInstance.voteDepositProposal(0, 0, Vote.No, { from: v2 });
+
+        let res = await ReceiverInstance.getDepositProposal.call(0, 0);
+        assert.strictEqual(res.status.toNumber(), VoteStatus.Finalized);
+        assert(res.numYes.toNumber() <= res.numNo.toNumber(), "Yes was > No");
+    });
 });
 
 contract('Receiver - [Deposit::Voting::Advanced]', async (accounts) => {
@@ -432,25 +449,113 @@ contract('Receiver - [Deposit::Voting::Advanced]', async (accounts) => {
     beforeEach(async () => {
         ReceiverInstance = await ReceiverContract.new(
             [v1, v2, v3], // bridge validators
-            2,        // depoist threshold
-            2         // validator threshold
+            2,            // depoist threshold
+            2             // validator threshold
         )
     });
 
-    it('vote result success', async () => {
-        await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
-        await ReceiverInstance.voteDepositProposal(0, 0, Vote.Yes, { from: v2 });
-        let res = await ReceiverInstance.getDepositProposal.call(0, 0);
-        assert.strictEqual(res.status.toNumber(), VoteStatus.Finalized);
-        assert(res.numYes.toNumber() > res.numNo.toNumber());
+    /**
+     * Possible tests
+     * - vote failed, tries to submit deposit anyway
+     */
+});
+
+contract('Receiver - [Thresholds::Create]', async (accounts) => {
+    let ReceiverInstance;
+
+    // Set validators
+    let v1 = accounts[0];
+    let v2 = accounts[1];
+    let v3 = accounts[3];
+
+    beforeEach(async () => {
+        ReceiverInstance = await ReceiverContract.new(
+            [v1, v2, v3], // bridge validators
+            2,            // depoist threshold
+            2             // validator threshold
+        )
     });
 
-    it('vote result fails', async () => {
-        await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
-        await ReceiverInstance.voteDepositProposal(0, 0, Vote.No, { from: v2 });
-        await ReceiverInstance.voteDepositProposal(0, 0, Vote.No, { from: v3 });
-        let res = await ReceiverInstance.getDepositProposal.call(0, 0);
-        assert.strictEqual(res.status.toNumber(), VoteStatus.Finalized);
-        assert(res.numYes.toNumber() < res.numNo.toNumber());
+    it('create deposit threshold proposal', async () => {
+        const {receipt} = await ReceiverInstance.createThresholdProposal(3, ThresholdType.Deposit);
+        assert.strictEqual(receipt.status, true);
+    });
+
+    it('create validator threshold proposal', async () => {
+        const { receipt } = await ReceiverInstance.createThresholdProposal(3, ThresholdType.Validator);
+        assert.strictEqual(receipt.status, true);
+    });
+});
+
+contract('Receiver - [Thresholds::Voting]', async (accounts) => {
+    let ReceiverInstance;
+
+    // Set validators
+    let v1 = accounts[0];
+    let v2 = accounts[1];
+    let v3 = accounts[3];
+
+    beforeEach(async () => {
+        ReceiverInstance = await ReceiverContract.new(
+            [v1, v2, v3], // bridge validators
+            2,            // depoist threshold
+            2             // validator threshold
+        )
+    });
+
+    it('can increment deposit threshold', async () => {
+        const before = await ReceiverInstance.DepositThreshold();
+        assert.strictEqual(before.toNumber(), 2);
+        // Create & vote
+        // This should pass because we have 3 validators
+        await ReceiverInstance.createThresholdProposal(3, ThresholdType.Deposit, {from: v1});
+        await ReceiverInstance.voteThresholdProposal(Vote.Yes, ThresholdType.Deposit, {from: v2});
+        // Check success
+        const vote = await ReceiverInstance.ThresholdProposals(ThresholdType.Deposit);
+        assert.strictEqual(vote.status.toNumber(), VoteStatus.Finalized);
+        const after = await ReceiverInstance.DepositThreshold();
+        assert.strictEqual(after.toNumber(), 3);
+    });
+    
+    it('can decrement deposit threshold', async () => {
+        const before = await ReceiverInstance.DepositThreshold();
+        assert.strictEqual(before.toNumber(), 2);
+        // Create & vote
+        // This should pass because we have 3 validators
+        await ReceiverInstance.createThresholdProposal(1, ThresholdType.Deposit, { from: v1 });
+        await ReceiverInstance.voteThresholdProposal(Vote.Yes, ThresholdType.Deposit, { from: v2 });
+        // Check success
+        const vote = await ReceiverInstance.ThresholdProposals(ThresholdType.Deposit);
+        assert.strictEqual(vote.status.toNumber(), VoteStatus.Finalized);
+        const after = await ReceiverInstance.DepositThreshold();
+        assert.strictEqual(after.toNumber(), 1);
+    });
+
+    it('can increment validator threshold', async () => {
+        const before = await ReceiverInstance.ValidatorThreshold();
+        assert.strictEqual(before.toNumber(), 2);
+        // Create & vote
+        // This should pass because we have 3 validators
+        await ReceiverInstance.createThresholdProposal(3, ThresholdType.Validator, { from: v1 });
+        await ReceiverInstance.voteThresholdProposal(Vote.Yes, ThresholdType.Validator, { from: v2 });
+        // Check success
+        const vote = await ReceiverInstance.ThresholdProposals(ThresholdType.Validator);
+        assert.strictEqual(vote.status.toNumber(), VoteStatus.Finalized);
+        const after = await ReceiverInstance.ValidatorThreshold();
+        assert.strictEqual(after.toNumber(), 3);
+    });
+
+    it('can decrement validator threshold', async () => {
+        const before = await ReceiverInstance.ValidatorThreshold();
+        assert.strictEqual(before.toNumber(), 2);
+        // Create & vote
+        // This should pass because we have 3 validators
+        await ReceiverInstance.createThresholdProposal(1, ThresholdType.Validator, { from: v1 });
+        await ReceiverInstance.voteThresholdProposal(Vote.Yes, ThresholdType.Validator, { from: v2 });
+        // Check success
+        const vote = await ReceiverInstance.ThresholdProposals(ThresholdType.Validator);
+        assert.strictEqual(vote.status.toNumber(), VoteStatus.Finalized);
+        const after = await ReceiverInstance.ValidatorThreshold();
+        assert.strictEqual(after.toNumber(), 1);
     });
 });

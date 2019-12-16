@@ -2,8 +2,8 @@ pragma solidity 0.5.12;
 
 contract Receiver {
 
-    uint public voteDepositThreshold;
-    uint public voteValidatorThreshold;
+    uint public DepositThreshold;
+    uint public ValidatorThreshold;
 
     enum Vote {Yes, No}
     enum ValidatorActionType {Add, Remove}
@@ -89,7 +89,7 @@ contract Receiver {
      * @param _depositThreshold - The number of votes required for a deposit vote to pass
      * @param _validatorThreshold - The number of votes required for a validator vote to pass
      */
-    constructor ( address[] memory _addrs, uint _depositThreshold, uint _validatorThreshold) public {
+    constructor (address[] memory _addrs, uint _depositThreshold, uint _validatorThreshold) public {
         // set the validators
         for (uint i = 0; i<_addrs.length; i++) {
           Validators[_addrs[i]] = true;
@@ -98,8 +98,8 @@ contract Receiver {
         TotalValidators = _addrs.length;
 
     	// Set the thresholds
-        voteDepositThreshold = _depositThreshold;
-        voteValidatorThreshold = _validatorThreshold;
+        DepositThreshold = _depositThreshold;
+        ValidatorThreshold = _validatorThreshold;
     }
 
     /**
@@ -149,8 +149,8 @@ contract Receiver {
 
         // Check if the threshold has been met
         // Todo: Edge case if validator threshold changes?
-        if (DepositProposals[_originChainId][_depositId].numYes >= voteDepositThreshold ||
-            TotalValidators - DepositProposals[_originChainId][_depositId].numNo >= voteDepositThreshold) {
+        if (DepositProposals[_originChainId][_depositId].numYes >= DepositThreshold ||
+            TotalValidators - DepositProposals[_originChainId][_depositId].numNo >= DepositThreshold) {
             DepositProposals[_originChainId][_depositId].status = VoteStatus.Finalized;
         }
     }
@@ -163,7 +163,7 @@ contract Receiver {
      */
     function executeDeposit(bytes memory _data, uint _originChainId, uint _depositId) public {
         DepositProposal storage proposal = DepositProposals[_originChainId][_depositId];
-        require(proposal.numYes >= voteDepositThreshold, "Vote has not passed!"); // Check that voted passed
+        require(proposal.numYes >= DepositThreshold, "Vote has not passed!"); // Check that voted passed
         // Ensure that the incoming data is the same as the hashed data from the proposal
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
 
@@ -218,8 +218,8 @@ contract Receiver {
         ValidatorProposals[_addr].votes[msg.sender] = true;
 
         // Check if vote has met the threshold
-        if (ValidatorProposals[_addr].numYes >= voteValidatorThreshold ||
-            TotalValidators - ValidatorProposals[_addr].numNo >= voteValidatorThreshold) {
+        if (ValidatorProposals[_addr].numYes >= ValidatorThreshold ||
+            TotalValidators - ValidatorProposals[_addr].numNo >= ValidatorThreshold) {
 
             // Vote succeeded, perform action
             if (ValidatorProposals[_addr].numYes > ValidatorProposals[_addr].numNo) {
@@ -268,14 +268,16 @@ contract Receiver {
         }
         ThresholdProposals[key].votes[msg.sender] = true;
 
-        if (ThresholdProposals[key].numYes >= voteValidatorThreshold ||
-            TotalValidators - ThresholdProposals[key].numNo >= voteValidatorThreshold) {
+        if (ThresholdProposals[key].numYes >= ValidatorThreshold ||
+            TotalValidators - ThresholdProposals[key].numNo >= ValidatorThreshold) {
+            // Finalize the vote
+            ThresholdProposals[key].status = VoteStatus.Finalized;
 
             if (ThresholdProposals[key].numYes > ThresholdProposals[key].numNo) {
                 if (_type == ThresholdType.Validator) {
-                    voteValidatorThreshold = ThresholdProposals[key].newValue;
+                    ValidatorThreshold = ThresholdProposals[key].newValue;
                 } else if (_type == ThresholdType.Deposit) {
-                    voteValidatorThreshold = ThresholdProposals[key].newValue;
+                    DepositThreshold = ThresholdProposals[key].newValue;
                 }
             }
         }
