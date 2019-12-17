@@ -269,6 +269,11 @@ contract Receiver {
         }
     }
 
+    /**
+     * A generic function that allows for the creation of any threshold change defined in ThresholdType.
+     * @param _value - The proposed new value for the given threshold
+     * @param _type - The threshold type that the proposal is for
+     */
     function createThresholdProposal(uint _value, ThresholdType _type) public _isValidator {
         uint key = uint(_type);
 
@@ -286,6 +291,11 @@ contract Receiver {
         ThresholdProposals[key].votes[msg.sender] = true;
     }
 
+    /**
+     * Vote on a given threshold vote.
+     * @param _vote - The vote that a validator is making
+     * @param _type - The type of threshold that is being proposed
+     */
     function voteThresholdProposal(Vote _vote, ThresholdType _type) public _isValidator {
         uint key = uint(_type);
 
@@ -314,6 +324,11 @@ contract Receiver {
         }
     }
 
+    /**
+     * Gets the given deposit proposal
+     * @param _chainId - The chain id from where the deposit originated from
+     * @param _depositId - The deposit id that was generated on the origin chain
+     */
     function getDepositProposal(uint _chainId, uint _depositId) public returns (
         bytes32 hash,
         uint id,
