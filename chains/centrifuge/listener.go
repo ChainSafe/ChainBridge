@@ -1,17 +1,17 @@
 package centrifuge
 
 import (
-	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/types"
 )
 
-var _ core.Listener = &Listener{}
+var _ chains.Listener = &Listener{}
 
 type Listener struct {
-	conn core.Connection
+	conn chains.Connection
 }
 
-func NewListener(conn core.Connection) *Listener {
+func NewListener(conn chains.Connection) *Listener {
 	return &Listener{conn: conn}
 }
 

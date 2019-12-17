@@ -1,14 +1,14 @@
 package ethereum
 
 import (
-	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/types"
 
 	eth "github.com/ethereum/go-ethereum"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-var _ core.Listener = &Listener{}
+var _ chains.Listener = &Listener{}
 
 type Listener struct {
 	conn          *Connection
