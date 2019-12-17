@@ -188,8 +188,10 @@ contract('Receiver - [Deposit::Voting::Basic]', async (accounts) => {
     it('vote result fails', async () => {
         await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
         await ReceiverInstance.voteDepositProposal(0, 0, Vote.No, { from: v2 });
+        await ReceiverInstance.voteDepositProposal(0, 0, Vote.No, { from: v3 });
 
         let res = await ReceiverInstance.getDepositProposal.call(0, 0);
+        console.log({res})
         assert.strictEqual(res.status.toNumber(), VoteStatus.Finalized);
         assert(res.numYes.toNumber() <= res.numNo.toNumber(), "Yes was > No");
     });
