@@ -50,7 +50,7 @@ contract('Receiver - [Validator::Create::Basic]', async (accounts) => {
     });
 
     it('validators can create proposals', async () => {
-        let {receipt} = await ReceiverInstance.createValidatorProposal(accounts[2], ValidatorActionType.Add, {from: v1});
+        let { receipt } = await ReceiverInstance.createValidatorProposal(accounts[2], ValidatorActionType.Add, { from: v1 });
         assert.strictEqual(receipt.status, true);
     });
 
@@ -211,6 +211,29 @@ contract('Receiver - [Validator::Voting::Basic]', async (accounts) => {
     });
 });
 
+contract('Receiver - [Validator::Create::low-threshold]', async (accounts) => {
+    let ReceiverInstance;
+
+    // Set validators
+    let v1 = accounts[0];
+    let v2 = accounts[1];
+
+    beforeEach(async () => {
+        ReceiverInstance = await ReceiverContract.new(
+            [v1, v2], // bridge validators
+            2,        // depoist threshold
+            1         // validator threshold
+        )
+    });
+
+    it('auto finalize for one threshold', async () => {
+        await ReceiverInstance.createValidatorProposal(accounts[4], ValidatorActionType.Add, { from: v1 });
+        const after = await ReceiverInstance.Validators(accounts[4]);
+        assert.strictEqual(after, true);
+    });
+
+});
+
 contract('Receiver - [Validator::Voting::Advanced]', async (accounts) => {
     let ReceiverInstance;
 
@@ -307,6 +330,29 @@ contract('Receiver - [Deposit::Create::Basic]', async (accounts) => {
             assert.include(e.message, "A proposal already exists!");
         }
     })
+});
+
+
+contract('Receiver - [Deposit::Create::low-threshold]', async (accounts) => {
+    let ReceiverInstance;
+
+    // Set validators
+    let v1 = accounts[0];
+    let v2 = accounts[1];
+
+    beforeEach(async () => {
+        ReceiverInstance = await ReceiverContract.new(
+            [v1, v2], // bridge validators
+            1,        // depoist threshold
+            2         // validator threshold
+        )
+    });
+
+    it('auto finalize for one threshold', async () => {
+        await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
+        let res = await ReceiverInstance.getDepositProposal.call(0, 0);
+        assert.strictEqual(res.status.toNumber(), VoteStatus.Finalized);
+    });
 });
 
 contract('Receiver - [Deposit::Create::Advanced]', async (accounts) => {

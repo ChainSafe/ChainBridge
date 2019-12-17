@@ -90,6 +90,8 @@ contract Receiver {
      * @param _validatorThreshold - The number of votes required for a validator vote to pass
      */
     constructor (address[] memory _addrs, uint _depositThreshold, uint _validatorThreshold) public {
+        require(_depositThreshold > 0, "Deposit threshold must be greater than 0!");
+        require(_validatorThreshold > 0, "Validator threshold must be greater than 0!");
         // set the validators
         for (uint i = 0; i<_addrs.length; i++) {
           Validators[_addrs[i]] = true;
@@ -112,15 +114,27 @@ contract Receiver {
         // Ensure this proposal hasn't already been made
 	    require(DepositProposals[_originChain][_depositId].status == VoteStatus.Inactive, "A proposal already exists!");
 
-        // Create Proposal
-        DepositProposals[_originChain][_depositId] = DepositProposal({
-            hash: _hash,
-            id: _depositId,
-            originChain: _originChain,
-            numYes: 1, // The creator always votes in favour
-            numNo: 0,
-            status: VoteStatus.Active
-        });
+        if (DepositThreshold == 1) {
+            // If the threshold is set to 1 auto finalize
+            DepositProposals[_originChain][_depositId] = DepositProposal({
+                hash: _hash,
+                id: _depositId,
+                originChain: _originChain,
+                numYes: 1, // The creator always votes in favour
+                numNo: 0,
+                status: VoteStatus.Finalized
+            });
+        } else {
+            // Create Proposal
+            DepositProposals[_originChain][_depositId] = DepositProposal({
+                hash: _hash,
+                id: _depositId,
+                originChain: _originChain,
+                numYes: 1, // The creator always votes in favour
+                numNo: 0,
+                status: VoteStatus.Active
+            });
+        }
         // The creator always votes in favour
         DepositProposals[_originChain][_depositId].votes[msg.sender] = true;
     }
@@ -177,22 +191,37 @@ contract Receiver {
      */
     function createValidatorProposal(address _addr,  ValidatorActionType _action) public _isValidator {
         require(uint(_action) <= 1, "Action out of the vote enum range!");
-        if (_action == ValidatorActionType.Remove && Validators[_addr] == false) {
-            require(false, "Validator is not active!");
-        }
-        if (_action == ValidatorActionType.Add && Validators[_addr] == true) {
-            require(false, "Validator is already active!");
-        }
+        require(!(_action == ValidatorActionType.Remove && Validators[_addr] == false), "Validator is not active!");
+        require(!(_action == ValidatorActionType.Add && Validators[_addr] == true), "Validator is already active!");
         require(ValidatorProposals[_addr].status == VoteStatus.Inactive, "There is already an active proposal!");
 
-        ValidatorProposals[_addr] = ValidatorProposal({
-            validator: _addr,
-            action: _action,
-            numYes: 1, // Creator must vote in favour
-            numNo: 0,
-            status: VoteStatus.Active
-        });
-
+        if (ValidatorThreshold == 1) {
+            // If the threshold is set to 1, auto complete
+            ValidatorProposals[_addr] = ValidatorProposal({
+                validator: _addr,
+                action: _action,
+                numYes: 1, // Creator must vote in favour
+                numNo: 0,
+                status: VoteStatus.Inactive
+            });
+            if (ValidatorProposals[_addr].action == ValidatorActionType.Add) {
+                // Add validator
+                Validators[_addr] = true;
+                TotalValidators++;
+            } else {
+                // Remove validator
+                Validators[_addr] = false;
+                TotalValidators--;
+            }
+        } else {
+            ValidatorProposals[_addr] = ValidatorProposal({
+                validator: _addr,
+                action: _action,
+                numYes: 1, // Creator must vote in favour
+                numNo: 0,
+                status: VoteStatus.Active
+            });
+        }
         // Record vote
         ValidatorProposals[_addr].votes[msg.sender] = true;
     }
