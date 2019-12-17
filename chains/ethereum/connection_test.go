@@ -6,7 +6,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
@@ -36,7 +39,7 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	signer := ethtypes.MakeSigner(ethparams.RinkebyChainConfig, ethparams.RinkebyChainConfig.IstanbulBlock)
+	signer := ethtypes.MakeSigner(ethparams.GoerliChainConfig, ethparams.GoerliChainConfig.IstanbulBlock)
 
 	cfg := &ConnectionConfig{
 		Ctx:      ctx,
@@ -73,26 +76,32 @@ func TestSendTx(t *testing.T) {
 }
 
 func TestSubscribe(t *testing.T) {
-	t.Skip()
-	//ctx := context.Background()
-	//cfg := &ConnectionConfig{
-	//	Ctx:      ctx,
-	//	Endpoint: TestEthereumEndpoint,
-	//}
-	//
-	//conn := NewConnection(cfg)
-	//l := NewListener(conn, cfg)
-	//err := conn.Connect()
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//defer conn.Close()
-	//
-	//q := eth.FilterQuery{}
-	//
-	//// TODO: this fails with "notifications not supported"
-	//_, err = l.subscribe(TransferEvent, q)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
+	ctx := context.Background()
+	cfg := &ConnectionConfig{
+		Ctx:      ctx,
+		Endpoint: TestEthereumEndpoint,
+	}
+
+	conn := NewConnection(cfg)
+	chainCfg := core.ChainConfig{
+		Id:            msg.EthereumId,
+		Endpoint:      TestEthereumEndpoint,
+		Home:          "",
+		Away:          "",
+		From:          "",
+		Subscriptions: nil,
+	}
+	l := NewListener(conn, chainCfg)
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	q := eth.FilterQuery{}
+
+	_, err = l.conn.subscribeToEvent(q, "func(uint256)")
+	if err != nil {
+		t.Fatal(err)
+	}
 }

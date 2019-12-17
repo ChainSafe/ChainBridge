@@ -21,8 +21,8 @@ type Connection struct {
 	ctx      context.Context
 	endpoint string
 	conn     *ethclient.Client
-	signer ethtypes.Signer
-	kp     crypto.Keypair
+	signer   ethtypes.Signer
+	kp       crypto.Keypair
 }
 
 type ConnectionConfig struct {
