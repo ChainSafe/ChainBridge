@@ -7,17 +7,25 @@ import (
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 )
 
+type mockWriter struct {
+	msgs []msg.Message
+}
+
+func (w *mockWriter) ResolveMessage(msg msg.Message) {
+	w.msgs = append(w.msgs, msg)
+}
+
 func TestRouter(t *testing.T) {
 	router := NewRouter()
 
-	ethCh := make(chan msg.Message)
-	err := router.Listen(msg.EthereumId, ethCh)
+	ethW := &mockWriter{msgs: *new([]msg.Message)}
+	err := router.Listen(msg.EthereumId, ethW)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ctfgCh := make(chan msg.Message)
-	err = router.Listen(msg.CentrifugeId, ctfgCh)
+	ctfgW := &mockWriter{msgs: *new([]msg.Message)}
+	err = router.Listen(msg.CentrifugeId, ctfgW)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,11 +49,11 @@ func TestRouter(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !reflect.DeepEqual(<- ethCh, msgCtfgToEth) {
+	if !reflect.DeepEqual(ethW.msgs[0], msgCtfgToEth) {
 		t.Error("Unexpected message")
 	}
 
-	if !reflect.DeepEqual(<- ctfgCh, msgEthToCtfg) {
+	if !reflect.DeepEqual(ctfgW.msgs[0], msgEthToCtfg) {
 		t.Error("Unexpected message")
 	}
 }

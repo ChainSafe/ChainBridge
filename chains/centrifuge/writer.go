@@ -1,22 +1,22 @@
 package centrifuge
 
 import (
-	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/chains"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 )
 
-var _ core.Writer = &Writer{}
+var _ chains.Writer = &Writer{}
 
 type Writer struct {
-	conn core.Connection
+	conn chains.Connection
 }
 
-func NewWriter(conn core.Connection) *Writer {
+func NewWriter(conn chains.Connection) *Writer {
 	return &Writer{
 		conn: conn,
 	}
 }
 
-func (p *Writer) ResolveMessage(msg msg.Message) error {
+func (p *Writer) ResolveMessage(msg msg.Message) {
 	panic("not implemented")
 }

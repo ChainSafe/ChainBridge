@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 
@@ -13,7 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-var _ core.Connection = &Connection{}
+var _ chains.Connection = &Connection{}
 
 type Connection struct {
 	ctx      context.Context

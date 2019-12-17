@@ -4,39 +4,40 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/ChainSafe/ChainBridgeV2/chains"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	log "github.com/ChainSafe/log15"
 )
 
 // Router forwards messages from their source to their destination
 type Router struct {
-	registry map[msg.ChainId]chan<- msg.Message
-	lock sync.RWMutex
+	registry map[msg.ChainId]chains.Writer
+	lock     sync.RWMutex
 }
 
 func NewRouter() *Router {
 	return &Router{
-		registry: make(map[msg.ChainId]chan<- msg.Message),
-		lock: sync.RWMutex{},
+		registry: make(map[msg.ChainId]chains.Writer),
+		lock:     sync.RWMutex{},
 	}
 }
 
-// Send passes a message to the destination channel if it exists
+// Send passes a message to the destination Writer if it exists
 func (r *Router) Send(msg msg.Message) error {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	log.Trace("Sending message", "src", msg.Source.String(), "dest", msg.Destination.String())
-	ch := r.registry[msg.Destination]
-	if ch == nil {
+	W := r.registry[msg.Destination]
+	if W == nil {
 		return fmt.Errorf("unknown destination chainId: %d", msg.Destination)
 	}
 	// TODO: Need to preserve ordering, perhaps a queue would help
-	go func (){ch <- msg}()
+	W.ResolveMessage(msg)
 	return nil
 }
 
-// Listen registers a channel with a ChainId which Send can then use to forward messages
-func (r *Router) Listen(id msg.ChainId, ch chan<- msg.Message) error {
+// Listen registers a Writer with a ChainId which Router.Send can then use to propagate messages
+func (r *Router) Listen(id msg.ChainId, w chains.Writer) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	log.Debug("Registering new chain in router", "id", id)
@@ -44,6 +45,6 @@ func (r *Router) Listen(id msg.ChainId, ch chan<- msg.Message) error {
 		return fmt.Errorf("attempted to register chain that is already registered")
 	}
 
-	r.registry[id] = ch
+	r.registry[id] = w
 	return nil
 }
