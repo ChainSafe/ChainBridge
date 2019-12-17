@@ -2,6 +2,7 @@ pragma solidity 0.5.12;
 
 contract Receiver {
 
+    // These are the required number of YES votes for the respectful proposals
     uint public DepositThreshold;
     uint public ValidatorThreshold;
 
@@ -67,7 +68,7 @@ contract Receiver {
     uint public TotalValidators;
 
     // Current threshold proposals
-    // ThesholdType => ThersholdProposal
+    // ThresholdType => ThersholdProposal
     mapping(uint => ThresholdProposal) public ThresholdProposals;
 
     // Validator proposals
@@ -143,7 +144,7 @@ contract Receiver {
      * Used to cast a vote on a given proposal
      * @param _originChainId - The id of the origin chain for a given proposal
      * @param _depositId - The id assigned to a deposit, generated on the origin chain
-     * @param _vote - uint from 0-2 representing the casted vote
+     * @param _vote - uint from 0-1 representing the casted vote
      */
     function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
         require(DepositProposals[_originChainId][_depositId].status != VoteStatus.Inactive, "There is no active proposal!");
@@ -164,7 +165,7 @@ contract Receiver {
         // Check if the threshold has been met
         // Todo: Edge case if validator threshold changes?
         if (DepositProposals[_originChainId][_depositId].numYes >= DepositThreshold ||
-            TotalValidators - DepositProposals[_originChainId][_depositId].numNo >= DepositThreshold) {
+            TotalValidators - DepositProposals[_originChainId][_depositId].numNo < DepositThreshold) {
             DepositProposals[_originChainId][_depositId].status = VoteStatus.Finalized;
         }
     }
@@ -186,6 +187,7 @@ contract Receiver {
 
     /**
      * Creates a new proposal to add or remove a validator
+     * Note: There is no `Finalized` state for Validator proposals they are either active or inacive
      * @param _addr - Address of the validator to be added or removed
      * @param _action - Action to either remove or add validator
      */
@@ -248,7 +250,7 @@ contract Receiver {
 
         // Check if vote has met the threshold
         if (ValidatorProposals[_addr].numYes >= ValidatorThreshold ||
-            TotalValidators - ValidatorProposals[_addr].numNo >= ValidatorThreshold) {
+            TotalValidators - ValidatorProposals[_addr].numNo < ValidatorThreshold) {
 
             // Vote succeeded, perform action
             if (ValidatorProposals[_addr].numYes > ValidatorProposals[_addr].numNo) {
@@ -298,7 +300,7 @@ contract Receiver {
         ThresholdProposals[key].votes[msg.sender] = true;
 
         if (ThresholdProposals[key].numYes >= ValidatorThreshold ||
-            TotalValidators - ThresholdProposals[key].numNo >= ValidatorThreshold) {
+            TotalValidators - ThresholdProposals[key].numNo < ValidatorThreshold) {
             // Finalize the vote
             ThresholdProposals[key].status = VoteStatus.Finalized;
 
