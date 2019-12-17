@@ -1,4 +1,4 @@
-package core
+package chains
 
 import (
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -18,6 +18,6 @@ type Listener interface {
 
 type Writer interface {
 	Start() error
-	ResolveMessage(message msg.Message) error
+	ResolveMessage(message msg.Message)
 	Stop() error
 }

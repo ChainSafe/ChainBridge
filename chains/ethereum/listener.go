@@ -1,6 +1,7 @@
 package ethereum
 
 import (
+	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 
@@ -11,7 +12,7 @@ import (
 	geth "github.com/ethereum/go-ethereum/mobile"
 )
 
-var _ core.Listener = &Listener{}
+var _ chains.Listener = &Listener{}
 
 type Listener struct {
 	cfg           core.ChainConfig

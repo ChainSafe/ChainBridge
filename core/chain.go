@@ -3,14 +3,15 @@ package core
 import (
 	"fmt"
 
+	"github.com/ChainSafe/ChainBridgeV2/chains"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 )
 
 type Chain struct {
 	cfg      *ChainConfig // away bridge address
-	conn     Connection
-	listener Listener
-	writer   Writer
+	conn     chains.Connection
+	listener chains.Listener
+	writer   chains.Writer
 	//subscriptions []string
 }
 
@@ -29,16 +30,20 @@ func NewChain(cfg *ChainConfig) *Chain {
 	}
 }
 
-func (c *Chain) SetConnection(conn Connection) {
+func (c *Chain) SetConnection(conn chains.Connection) {
 	c.conn = conn
 }
 
-func (c *Chain) SetListener(listener Listener) {
+func (c *Chain) SetListener(listener chains.Listener) {
 	c.listener = listener
 }
 
-func (c *Chain) SetWriter(Writer Writer) {
+func (c *Chain) SetWriter(Writer chains.Writer) {
 	c.writer = Writer
+}
+
+func (c *Chain) GetWriter() chains.Writer {
+	return c.writer
 }
 
 func (c *Chain) Start() error {
@@ -73,7 +78,7 @@ func (c *Chain) Id() msg.ChainId {
 	return c.cfg.Id
 }
 
-func (c *Chain) Connection() Connection {
+func (c *Chain) Connection() chains.Connection {
 	return c.conn
 }
 
