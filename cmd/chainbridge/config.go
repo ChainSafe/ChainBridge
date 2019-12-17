@@ -65,7 +65,27 @@ func getConfig(ctx *cli.Context) (*Config, error) {
 		log.Warn("err loading toml file", "err", err.Error())
 		return &fig, err
 	}
+	setEthKeyPath(ctx, &fig)
 	return &fig, nil
+}
+
+func setEthKeyPath(ctx *cli.Context, config *Config) {
+	var datadir string = ""
+	var err error
+	if dir := ctx.String(KeystorePathFlag.Name); dir != "" {
+		datadir, err = filepath.Abs(dir)
+		if err != nil {
+			log.Error("invalid datadir", "error", err)
+			return
+		}
+	}
+
+	datadir, err = keystoreDir(datadir)
+	if err != nil {
+		return
+	}
+
+	config.Ethereum.From = datadir + "/" + config.Ethereum.From + ".key"
 }
 
 func loadConfig(file string, config *Config) error {
