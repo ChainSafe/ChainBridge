@@ -21,6 +21,7 @@ type ChainConfig struct {
 	Home          string      `toml:"home"`     // home bridge address
 	Away          string      `toml:"away"`     // away bridge address
 	From          string      `toml:"from"`     // address of key to use
+	Password      string      `toml:"password"` // password to key file. should only be used for testing
 	Subscriptions []string    `toml:"subscriptions"`
 }
 
