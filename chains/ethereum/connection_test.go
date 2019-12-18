@@ -6,16 +6,16 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	"github.com/ChainSafe/ChainBridgeV2/types"
-
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
 )
 
-var TestEthereumEndpoint = "https://rinkeby.infura.io/v3/b0a01296903f4812b5ec2cf26cbded48"
+var TestEthereumEndpoint = "wss://goerli.infura.io/ws/v3/b0a01296903f4812b5ec2cf26cbded48"
 
 func TestConnect(t *testing.T) {
 	ctx := context.Background()
@@ -39,7 +39,7 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	signer := ethtypes.MakeSigner(ethparams.RinkebyChainConfig, ethparams.RinkebyChainConfig.IstanbulBlock)
+	signer := ethtypes.MakeSigner(ethparams.GoerliChainConfig, ethparams.GoerliChainConfig.IstanbulBlock)
 
 	cfg := &ConnectionConfig{
 		Ctx:      ctx,
@@ -76,7 +76,6 @@ func TestSendTx(t *testing.T) {
 }
 
 func TestSubscribe(t *testing.T) {
-	t.Skip()
 	ctx := context.Background()
 	cfg := &ConnectionConfig{
 		Ctx:      ctx,
@@ -84,7 +83,15 @@ func TestSubscribe(t *testing.T) {
 	}
 
 	conn := NewConnection(cfg)
-	l := NewListener(conn)
+	chainCfg := core.ChainConfig{
+		Id:            msg.EthereumId,
+		Endpoint:      TestEthereumEndpoint,
+		Home:          "",
+		Away:          "",
+		From:          "",
+		Subscriptions: nil,
+	}
+	l := NewListener(conn, chainCfg)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -93,8 +100,7 @@ func TestSubscribe(t *testing.T) {
 
 	q := eth.FilterQuery{}
 
-	// TODO: this fails with "notifications not supported"
-	_, err = l.subscribe(types.TransferEvent, q)
+	_, err = l.conn.subscribeToEvent(q, "func(uint256)")
 	if err != nil {
 		t.Fatal(err)
 	}

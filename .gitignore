@@ -20,3 +20,7 @@ bin/
 .vscode/
 
 .env
+bridge
+keys/
+
+cmd/chainbridge/bridge

@@ -7,7 +7,9 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	eth "github.com/ethereum/go-ethereum"
 
+	"github.com/ChainSafe/log15"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -19,9 +21,8 @@ type Connection struct {
 	ctx      context.Context
 	endpoint string
 	conn     *ethclient.Client
-	// rpcConn  *rpc.Client
-	signer ethtypes.Signer
-	kp     crypto.Keypair
+	signer   ethtypes.Signer
+	kp       crypto.Keypair
 }
 
 type ConnectionConfig struct {
@@ -41,7 +42,8 @@ func NewConnection(cfg *ConnectionConfig) *Connection {
 }
 
 func (c *Connection) Connect() error {
-	rpcClient, err := rpc.DialHTTP(c.endpoint)
+	log15.Info("Connecting to ethereum...", "url", c.endpoint)
+	rpcClient, err := rpc.DialWebsocket(c.ctx, c.endpoint, "/ws")
 	if err != nil {
 		return err
 	}
@@ -58,7 +60,22 @@ func (c *Connection) NetworkId() (*big.Int, error) {
 	return c.conn.NetworkID(c.ctx)
 }
 
+// subscribeToEvent registers an rpc subscription for the event with the signature sig for contract at address
+func (c *Connection) subscribeToEvent(query eth.FilterQuery, sig EventSig) (*Subscription, error) {
+	ch := make(chan ethtypes.Log)
+	sub, err := c.conn.SubscribeFilterLogs(c.ctx, query, ch)
+	if err != nil {
+		close(ch)
+		return nil, err
+	}
+	return &Subscription{
+		ch:  ch,
+		sub: sub,
+	}, nil
+}
+
 func (c *Connection) SubmitTx(data []byte) error {
+	log15.Debug("Submitting new tx", "data", data)
 	tx := &ethtypes.Transaction{}
 	err := tx.UnmarshalJSON(data)
 	if err != nil {
@@ -67,6 +84,7 @@ func (c *Connection) SubmitTx(data []byte) error {
 
 	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.Private().(*secp256k1.PrivateKey).Key())
 	if err != nil {
+		log15.Trace("Signing tx failed", "err", err)
 		return err
 	}
 
