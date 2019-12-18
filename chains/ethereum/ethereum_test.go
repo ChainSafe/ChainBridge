@@ -31,8 +31,12 @@ func TestInitializeChain(t *testing.T) {
 	}
 
 	defer file.Close()
+	defer os.RemoveAll(fp)
 
 	err = keystore.EncryptAndWriteToFile(file, kp.Private(), testPassword)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	cfg := &core.ChainConfig{
 		Id:       msg.EthereumId,
