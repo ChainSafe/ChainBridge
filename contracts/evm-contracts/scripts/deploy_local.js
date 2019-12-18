@@ -5,13 +5,23 @@ let provider = new ethers.providers.JsonRpcProvider();
 
 // Config
 let numValidators = 2;
+let validatorThreshold = 2;
+let depositThreshold = 2;
 
 // CLI args position
 // 0 = number of validators
+// 1 = validator threshold
+// 2 = deposit threshold
 const cli = process.argv.slice(2);  
 if (cli[0]) {
     // Only support up to 10 in this setup
     numValidators = cli[0] > 10 ? 10 : cli[0];
+}
+if (cli[1] && cli[1] <= numValidators) {
+    validatorThreshold = cli[1];
+}
+if (cli[2] && cli[2] <= numValidators) {
+    depositThreshold = cli[2];
 }
 
 // Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
@@ -57,8 +67,8 @@ let wallet = new ethers.Wallet(deployerPrivKey, provider);
     // Deploy
     let contract = await factory.deploy(
         validators,
-        2,
-        2
+        depositThreshold,
+        validatorThreshold
     );
 
     // The address the Contract WILL have once mined
