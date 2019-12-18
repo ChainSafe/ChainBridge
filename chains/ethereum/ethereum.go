@@ -3,14 +3,13 @@ package ethereum
 import (
 	"context"
 	"fmt"
-	"syscall"
 
+	"github.com/ChainSafe/ChainBridgeV2/common"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 func InitializeChain(id msg.ChainId, cfg *core.ChainConfig) (*core.Chain, error) {
@@ -18,7 +17,7 @@ func InitializeChain(id msg.ChainId, cfg *core.ChainConfig) (*core.Chain, error)
 	c := core.NewChain(id, cfg)
 
 	path := cfg.From
-	pswd := getPassword(fmt.Sprintf("Enter password for key %s:", path))
+	pswd := common.GetPassword(fmt.Sprintf("Enter password for key %s:", path))
 	priv, err := keystore.ReadFromFileAndDecrypt(path, pswd)
 	if err != nil {
 		return nil, err
@@ -44,19 +43,4 @@ func InitializeChain(id msg.ChainId, cfg *core.ChainConfig) (*core.Chain, error)
 	c.SetListener(NewListener(conn))
 	c.SetWriter(NewWriter(c.Connection()))
 	return c, nil
-}
-
-// prompt user to enter password for encrypted keystore
-func getPassword(msg string) []byte {
-	for {
-		fmt.Println(msg)
-		fmt.Print("> ")
-		password, err := terminal.ReadPassword(int(syscall.Stdin))
-		if err != nil {
-			fmt.Printf("invalid input: %s\n", err)
-		} else {
-			fmt.Printf("\n")
-			return password
-		}
-	}
 }

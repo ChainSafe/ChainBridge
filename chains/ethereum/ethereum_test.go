@@ -1,0 +1,5 @@
+package ethereum
+
+import (
+//"testing"
+)

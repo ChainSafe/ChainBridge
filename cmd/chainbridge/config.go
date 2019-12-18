@@ -70,6 +70,10 @@ func getConfig(ctx *cli.Context) (*Config, error) {
 }
 
 func setEthKeyPath(ctx *cli.Context, config *Config) {
+	if config.Ethereum.From == "" {
+		return
+	}
+
 	var datadir string = ""
 	var err error
 	if dir := ctx.String(KeystorePathFlag.Name); dir != "" {
