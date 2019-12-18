@@ -1,5 +1,6 @@
 const ethers = require('ethers');
 const ReceiverContract = require("../build/contracts/Receiver.json");
+const CentrifugeContract = require("../build/contracts/BridgeAsset.json");
 const cli = require('commander');
 
 // Capture argument
@@ -80,10 +81,10 @@ let wallet = new ethers.Wallet(deployerPrivKey, provider);
     );
 
     // The address the Contract WILL have once mined
-    console.log("Contract address: ", contract.address);
+    console.log("[Receiver] Contract address: ", contract.address);
 
     // The transaction that was sent to the network to deploy the Contract
-    console.log("Transaction Hash: ", contract.deployTransaction.hash);
+    console.log("[Receiver] Transaction Hash: ", contract.deployTransaction.hash);
 
     // The contract is NOT deployed yet; we must wait until it is mined
     await contract.deployed()
@@ -110,4 +111,50 @@ let wallet = new ethers.Wallet(deployerPrivKey, provider);
     if (failure) {
         process.exit();
     }
+
+    deployCentrifuge();
 })();
+
+// Deployment is asynchronous, so we use an async IIFE
+async function deployCentrifuge () {
+
+    // Create an instance of a Contract Factory
+    let factory = new ethers.ContractFactory(CentrifugeContract.abi, CentrifugeContract.bytecode, wallet);
+
+    // Deploy
+    let contract = await factory.deploy(
+        10
+    );
+
+    // The address the Contract WILL have once mined
+    console.log("[Centrifuge] Contract address: ", contract.address);
+
+    // The transaction that was sent to the network to deploy the Contract
+    console.log("[Centrifuge] Transaction Hash: ", contract.deployTransaction.hash);
+
+    // The contract is NOT deployed yet; we must wait until it is mined
+    await contract.deployed()
+    // Done! The contract is deployed.
+
+    // Test it worked correctly
+    let CentrifugeInstance = new ethers.Contract(contract.address, CentrifugeContract.abi, provider);
+
+    // Ensure validators are set correctly
+    // note validators[] is sorted in order, so we'll check the top arrays
+    // let failure = false;
+    // validators.forEach(async (v, i) => {
+    //     const value = await ReceiverInstance.Validators(v);
+    //     if (value) {
+    //         const wei = await provider.getBalance(v);
+    //         const balance = ethers.utils.formatEther(wei);
+    //         console.log(`${v} (${balance} ETH) is a validator!`);
+    //     } else {
+    //         console.log(`ERROR: ${v} was not set as a validator!`);
+    //         failure = true;
+    //     }
+    // });
+
+    // if (failure) {
+    //     process.exit();
+    // }
+};
