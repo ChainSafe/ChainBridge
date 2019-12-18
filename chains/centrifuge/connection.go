@@ -1,12 +1,11 @@
 package centrifuge
 
 import (
-	"github.com/ChainSafe/ChainBridgeV2/core"
-
+	"github.com/ChainSafe/ChainBridgeV2/chains"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 )
 
-var _ core.Connection = &Connection{}
+var _ chains.Connection = &Connection{}
 
 type Connection struct {
 	api *gsrpc.SubstrateAPI

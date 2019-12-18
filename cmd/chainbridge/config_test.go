@@ -9,22 +9,23 @@ import (
 	"testing"
 
 	"github.com/ChainSafe/ChainBridgeV2/core"
-	"github.com/ethereum/go-ethereum/log"
+
 	"github.com/urfave/cli"
 )
 
 func createTempConfigFile() (*os.File, *Config) {
 	testConfig := NewConfig()
 	ethCfg := core.ChainConfig{
-		Endpoint: "",
-		Home:     "",
-		Away:     "",
-		From:     "",
+		Endpoint:      "",
+		Home:          "",
+		Away:          "",
+		From:          "",
+		Subscriptions: []string{},
 	}
 	testConfig.Ethereum = ethCfg
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "prefix-")
 	if err != nil {
-		log.Crit("Cannot create temporary file", "err", err)
+		fmt.Println("Cannot create temporary file", "err", err)
 		os.Exit(1)
 	}
 

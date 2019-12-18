@@ -3,20 +3,27 @@ package ethereum
 import (
 	"context"
 	"math/big"
+	"strings"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/types"
-
+	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	ethparams "github.com/ethereum/go-ethereum/params"
 )
 
-var TestEthereumEndpoint = "https://rinkeby.infura.io/v3/b0a01296903f4812b5ec2cf26cbded48"
+var TestEthereumEndpoint = "wss://goerli.infura.io/ws/v3/b0a01296903f4812b5ec2cf26cbded48"
 
 func TestConnect(t *testing.T) {
 	ctx := context.Background()
-	conn := NewConnection(ctx, TestEthereumEndpoint)
+	cfg := &ConnectionConfig{
+		Ctx:      ctx,
+		Endpoint: TestEthereumEndpoint,
+	}
+	conn := NewConnection(cfg)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -25,10 +32,24 @@ func TestConnect(t *testing.T) {
 }
 
 func TestSendTx(t *testing.T) {
-	t.Skip()
 	ctx := context.Background()
-	conn := NewConnection(ctx, TestEthereumEndpoint)
-	err := conn.Connect()
+
+	kp, err := secp256k1.GenerateKeypair()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	signer := ethtypes.MakeSigner(ethparams.GoerliChainConfig, ethparams.GoerliChainConfig.IstanbulBlock)
+
+	cfg := &ConnectionConfig{
+		Ctx:      ctx,
+		Endpoint: TestEthereumEndpoint,
+		Keypair:  kp,
+		Signer:   signer,
+	}
+
+	conn := NewConnection(cfg)
+	err = conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,18 +69,29 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// TODO: this fails since we don't sign the tx
 	err = conn.SubmitTx(data)
-	if err != nil {
+	if err != nil && strings.Compare(err.Error(), "insufficient funds for gas * price + value") != 0 {
 		t.Fatal(err)
 	}
 }
 
 func TestSubscribe(t *testing.T) {
-	t.Skip()
 	ctx := context.Background()
-	conn := NewConnection(ctx, TestEthereumEndpoint)
-	l := NewListener(conn)
+	cfg := &ConnectionConfig{
+		Ctx:      ctx,
+		Endpoint: TestEthereumEndpoint,
+	}
+
+	conn := NewConnection(cfg)
+	chainCfg := core.ChainConfig{
+		Id:            msg.EthereumId,
+		Endpoint:      TestEthereumEndpoint,
+		Home:          "",
+		Away:          "",
+		From:          "",
+		Subscriptions: nil,
+	}
+	l := NewListener(conn, chainCfg)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -68,8 +100,7 @@ func TestSubscribe(t *testing.T) {
 
 	q := eth.FilterQuery{}
 
-	// TODO: this fails with "notifications not supported"
-	_, err = l.subscribe(types.TransferEvent, q)
+	_, err = l.conn.subscribeToEvent(q, "func(uint256)")
 	if err != nil {
 		t.Fatal(err)
 	}
