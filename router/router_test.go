@@ -11,6 +11,9 @@ type mockWriter struct {
 	msgs []msg.Message
 }
 
+func (w *mockWriter) Start() error { return nil }
+func (w *mockWriter) Stop() error  { return nil }
+
 func (w *mockWriter) ResolveMessage(msg msg.Message) {
 	w.msgs = append(w.msgs, msg)
 }

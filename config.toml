@@ -1,5 +1,6 @@
 [ethereum]
 endpoint = ""
-home = ""
+home = "0xEE6106eDe5A1454E1BEC91322aeF4E52f8153511"
 away = ""
 from = ""
+subscriptions = [ "MyEvent(uint256)" ]

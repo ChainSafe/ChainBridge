@@ -2,7 +2,6 @@ package chains
 
 import (
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	"github.com/ChainSafe/ChainBridgeV2/types"
 )
 
 type Connection interface {
@@ -12,13 +11,13 @@ type Connection interface {
 }
 
 type Listener interface {
-	RegisterEventHandler(types.EventName, func())
+	Start() error
+	RegisterEventHandler(string, func(interface{}) msg.Message) error
+	Stop() error
 }
 
 type Writer interface {
+	Start() error
 	ResolveMessage(message msg.Message)
-}
-
-type Event interface {
-	GetParams() []byte
+	Stop() error
 }
