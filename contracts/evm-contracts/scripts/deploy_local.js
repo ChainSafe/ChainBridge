@@ -1,5 +1,14 @@
 const ethers = require('ethers');
 const ReceiverContract = require("../build/contracts/Receiver.json");
+const cli = require('commander');
+
+// Capture argument
+cli
+    .option('--validators <value>', 'Number of validators', 2)
+    .option('-v, --validator-threshold <value>', 'Value of validator threshold', 2)
+    .option('-d, --deposit-threshold <value>', 'Value of deposit threshold', 2);
+cli.parse(process.argv);
+
 // Connect to the network
 let provider = new ethers.providers.JsonRpcProvider();
 
@@ -12,16 +21,15 @@ let depositThreshold = 2;
 // 0 = number of validators
 // 1 = validator threshold
 // 2 = deposit threshold
-const cli = process.argv.slice(2);  
-if (cli[0]) {
+if (cli.validators) {
     // Only support up to 10 in this setup
-    numValidators = cli[0] > 10 ? 10 : cli[0];
+    numValidators = cli.validators > 10 ? 10 : cli.validators;
 }
-if (cli[1] && cli[1] <= numValidators) {
-    validatorThreshold = cli[1];
+if (cli.validatorThreshold && cli.validatorThreshold <= numValidators) {
+    validatorThreshold = cli.validatorThreshold;
 }
-if (cli[2] && cli[2] <= numValidators) {
-    depositThreshold = cli[2];
+if (cli.depositThreshold && cli.depositThreshold <= numValidators) {
+    depositThreshold = cli.depositThreshold;
 }
 
 // Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
