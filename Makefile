@@ -44,3 +44,11 @@ test:
 truffle_test:
 	@echo " > \033[32mRunning truffle test... \033[0m "
 	@cd contracts/evm-contracts && node_modules/.bin/truffle test
+
+start_eth:
+	@echo " > \033[32mStarting ganache... \033[0m "
+	./scripts/local_test/start_ganache.sh
+
+deploy_eth:
+	@echo " > \033[32Deploying Ethereum contracts... \033[0m "
+	./scripts/local_test/ethereum_start.sh
