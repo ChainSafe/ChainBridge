@@ -23,7 +23,7 @@ lint:
 	if [ ! -f ./bin/golangci-lint ]; then \
 		$(MAKE) get_lint; \
 	fi;
-	./bin/golangci-lint run
+	./bin/golangci-lint run --timeout 5m0s
 
 fmt:
 	@echo "  >  \033[32mFormatting project...\033[0m "
@@ -31,7 +31,7 @@ fmt:
 
 build:
 	@echo "  >  \033[32mBuilding binary...\033[0m "
-	cd cmd/chainbridge && env GOARCH=amd64 go build -o ./bridge
+	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/bridge
 
 run:
 	@echo "  >  \033[32mRunning main.go...\033[0m "
