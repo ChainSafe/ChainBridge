@@ -18,5 +18,5 @@
   "dependencies": {
     "commander": "^4.0.1",
     "truffle": "^5.1.4"
-  },
+  }
 }

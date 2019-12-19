@@ -81,7 +81,7 @@ func (c *Connection) NetworkId() (*big.Int, error) {
 }
 
 // subscribeToEvent registers an rpc subscription for the event with the signature sig for contract at address
-func (c *Connection) subscribeToEvent(query eth.FilterQuery, sig EventSig) (*Subscription, error) {
+func (c *Connection) subscribeToEvent(query eth.FilterQuery) (*Subscription, error) {
 	ch := make(chan ethtypes.Log)
 	sub, err := c.conn.SubscribeFilterLogs(c.ctx, query, ch)
 	if err != nil {
@@ -97,12 +97,14 @@ func (c *Connection) subscribeToEvent(query eth.FilterQuery, sig EventSig) (*Sub
 // SubmitTx submits a transaction to the chain
 // It assumes the input data is an ethtypes.Transaction, marshalled as JSON
 func (c *Connection) SubmitTx(data []byte) error {
-	log15.Debug("Submitting new tx", "data", data)
 	tx := &ethtypes.Transaction{}
 	err := tx.UnmarshalJSON(data)
 	if err != nil {
 		return err
 	}
+
+	log15.Debug("Submitting new tx", "to", tx.To(), "nonce", tx.Nonce(), "value", tx.Value(),
+		"gasLimit", tx.Gas(), "gasPrice", tx.GasPrice(), "calldata", tx.Data())
 
 	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.Private().(*secp256k1.PrivateKey).Key())
 	if err != nil {

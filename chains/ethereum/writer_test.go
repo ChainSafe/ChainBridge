@@ -16,7 +16,7 @@ import (
 
 var TestPrivateKey = "ae6a8b4518e3970a0501ecf796a51dc0dab9143a66be75e948bf352582db15d5"
 var TestAddress = "C5F737aE7EaBB7226f21121E335b0949d8eA6365"
-var TestContractAddress = "f563197e48e62ae4ce194e89f7fca67e05cfe5fc"
+var TestCentrifugeContractAddress = "f563197e48e62ae4ce194e89f7fca67e05cfe5fc"
 
 func testHandler(t *testing.T) msg.Message {
 	// arbitrary hash
@@ -99,7 +99,7 @@ func TestWriteToCentrifugeContract(t *testing.T) {
 		Keypair:  kp,
 		Signer:   signer,
 		HttpConn: true,
-		Away:     TestContractAddress,
+		Away:     TestCentrifugeContractAddress,
 	}
 
 	conn := NewConnection(cfg)

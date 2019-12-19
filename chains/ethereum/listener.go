@@ -15,7 +15,7 @@ import (
 var _ chains.Listener = &Listener{}
 
 type Listener struct {
-	cfg           core.ChainConfig
+	cfg           *core.ChainConfig
 	conn          *Connection
 	home          common.Address
 	away          common.Address
@@ -23,12 +23,13 @@ type Listener struct {
 	//handlers      map[EventSig](func())
 }
 
-func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {
+func NewListener(conn *Connection, cfg *core.ChainConfig) *Listener {
 	return &Listener{
-		cfg:  cfg,
-		conn: conn,
-		home: common.HexToAddress(cfg.Home),
-		away: common.HexToAddress(cfg.Away),
+		cfg:           cfg,
+		conn:          conn,
+		home:          common.HexToAddress(cfg.Home),
+		away:          common.HexToAddress(cfg.Away),
+		subscriptions: make(map[EventSig]*Subscription),
 	}
 }
 
@@ -69,12 +70,13 @@ func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) ms
 	log15.Info("Registering event handler", "sig", sig)
 	evt := EventSig(sig)
 	query := l.buildQuery(l.home, evt)
-	sub, err := l.conn.subscribeToEvent(query, evt)
+	sub, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
 	}
+	l.subscriptions[EventSig(sig)] = sub
 	// TODO: Should be go routine
-	watchEvent(sub, handler)
+	go watchEvent(sub, handler)
 	return nil
 }
 
@@ -83,6 +85,8 @@ func watchEvent(sub *Subscription, handler func(interface{}) msg.Message) {
 		select {
 		case evt := <-sub.ch:
 			handler(evt)
+			//msg := handler(evt)
+			// TODO: ResolveMessage()
 		case err := <-sub.sub.Err():
 			log15.Error("subscrip4tion error", "sub", sub, "err", err)
 		}

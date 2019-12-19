@@ -83,7 +83,7 @@ func TestSubscribe(t *testing.T) {
 	}
 
 	conn := NewConnection(cfg)
-	chainCfg := core.ChainConfig{
+	chainCfg := &core.ChainConfig{
 		Id:            msg.EthereumId,
 		Endpoint:      TestEthereumEndpoint,
 		Home:          "",
@@ -100,7 +100,7 @@ func TestSubscribe(t *testing.T) {
 
 	q := eth.FilterQuery{}
 
-	_, err = l.conn.subscribeToEvent(q, "func(uint256)")
+	_, err = l.conn.subscribeToEvent(q)
 	if err != nil {
 		t.Fatal(err)
 	}
