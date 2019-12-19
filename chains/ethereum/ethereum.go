@@ -19,7 +19,7 @@ func InitializeChain(cfg *core.ChainConfig) (*core.Chain, error) {
 
 	var kp crypto.Keypair
 	path := cfg.From
-	fmt.Println(path)
+
 	if path != "" {
 		pswd := []byte(cfg.Password)
 		if bytes.Equal(pswd, []byte{}) {
