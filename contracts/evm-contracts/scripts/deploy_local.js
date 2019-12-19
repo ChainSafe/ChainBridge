@@ -85,7 +85,6 @@ let wallet = new ethers.Wallet(deployerPrivKey, provider);
 
     // The transaction that was sent to the network to deploy the Contract
     console.log("[Receiver] Transaction Hash: ", contract.deployTransaction.hash);
-
     // The contract is NOT deployed yet; we must wait until it is mined
     await contract.deployed()
     // Done! The contract is deployed.
@@ -136,25 +135,5 @@ async function deployCentrifuge () {
     await contract.deployed()
     // Done! The contract is deployed.
 
-    // Test it worked correctly
     let CentrifugeInstance = new ethers.Contract(contract.address, CentrifugeContract.abi, provider);
-
-    // Ensure validators are set correctly
-    // note validators[] is sorted in order, so we'll check the top arrays
-    // let failure = false;
-    // validators.forEach(async (v, i) => {
-    //     const value = await ReceiverInstance.Validators(v);
-    //     if (value) {
-    //         const wei = await provider.getBalance(v);
-    //         const balance = ethers.utils.formatEther(wei);
-    //         console.log(`${v} (${balance} ETH) is a validator!`);
-    //     } else {
-    //         console.log(`ERROR: ${v} was not set as a validator!`);
-    //         failure = true;
-    //     }
-    // });
-
-    // if (failure) {
-    //     process.exit();
-    // }
 };
