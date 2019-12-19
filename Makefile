@@ -42,5 +42,17 @@ test:
 	./scripts/test.sh
 
 truffle_test:
-	@echo " > \033[32mRunning truffle test... \033[0m "
+	@echo " > \033[32mTesting evm contracts... \033[0m "
 	@cd contracts/evm-contracts && node_modules/.bin/truffle test
+
+truffle_compile:
+	@echo " > \033[32mCompiling evm contracts... \033[0m "
+	./scripts/evm/compile.sh
+
+start_eth:
+	@echo " > \033[32mStarting ganache... \033[0m "
+	./scripts/local_test/start_ganache.sh
+
+deploy_eth:
+	@echo " > \033[32Deploying evm contracts... \033[0m "
+	./scripts/local_test/ethereum_deploy.sh

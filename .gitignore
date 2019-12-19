@@ -13,12 +13,18 @@
 *.out
 coverage.txt
 
-build/
-bin/
-
+# IDE
 .idea/
 .vscode/
 
+# Builds
+build/
+bin/
+
+# golang
 .env
 bridge
 keys/
+
+# nodejs
+node_modules/
