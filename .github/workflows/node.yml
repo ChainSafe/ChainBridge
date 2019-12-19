@@ -20,3 +20,22 @@ jobs:
         ./node_modules/.bin/truffle test
       env:
         CI: true
+  test:
+    name: For noot
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - name: Test using scripts
+      run: |
+        sh ./scripts/local_test/start_ganache.sh silent
+        sh ./scripts/local_test/ethereum_deploy.sh
+        npm install
+        ./node_modules/.bin/truffle test
+        kill $(lsof -t -i:8545)
+      env:
+        CI: true
