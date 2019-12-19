@@ -3,14 +3,15 @@ package ethereum
 import (
 	"context"
 	"encoding/hex"
-	//"fmt"
+	"fmt"
 	"math/big"
 	"testing"
 
 	"github.com/ChainSafe/ChainBridgeV2/common"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	//msg "github.com/ChainSafe/ChainBridgeV2/message"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/router"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
@@ -86,13 +87,9 @@ func TestListener(t *testing.T) {
 		Subscriptions: []string{string(event)},
 	}
 	listener := NewListener(conn, cfg)
-	// err = listener.RegisterEventHandler(string(event), testTransferHandler)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
 
 	// calling fallback
-	calldata := []byte{} ///common.FunctionId("arbitrary")
+	calldata := []byte{}
 
 	tx := ethtypes.NewTransaction(
 		nonce,
@@ -114,6 +111,7 @@ func TestListener(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer subscription.sub.Unsubscribe()
 
 	// send tx to trigger event
 	err = conn.SubmitTx(data)
@@ -125,77 +123,88 @@ func TestListener(t *testing.T) {
 	t.Log("got event", evt)
 }
 
-// func TestListenerAndWriter(t *testing.T) {
-// 	conn := newLocalConnection(t, TestCentrifugeContractAddress)
-// 	defer conn.Close()
+func TestListenerAndWriter(t *testing.T) {
+	conn := newLocalConnection(t, TestCentrifugeContractAddress)
+	defer conn.Close()
 
-// 	// send tx to trigger event in EmitterContract
-// 	contractBytes, err := hex.DecodeString(TestEmitterContractAddress)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	// setup writer and router
+	writer := NewWriter(conn)
+	router := router.NewRouter()
+	router.RegisterWriter(msg.EthereumId, writer)
 
-// 	contract := [20]byte{}
-// 	copy(contract[:], contractBytes)
+	// setup Emitter contract
+	contractBytes, err := hex.DecodeString(TestEmitterContractAddress)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	currBlock, err := conn.LatestBlock()
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	contract := [20]byte{}
+	copy(contract[:], contractBytes)
 
-// 	nonce, err := conn.NonceAt(common.StringToAddress(TestAddress), currBlock.Number())
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	currBlock, err := conn.LatestBlock()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	event := EventSig("Transfer(address,bytes32)")
-// 	cfg := &core.ChainConfig{
-// 		Home:	TestEmitterContractAddress,
-// 		Away:    TestCentrifugeContractAddress,
-// 		Subscriptions: []string{string(event)},
-// 	}
-// 	listener := NewListener(conn, cfg)
-// 	err = listener.RegisterEventHandler(string(event), testTransferHandler)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	nonce, err := conn.NonceAt(common.StringToAddress(TestAddress), currBlock.Number())
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	// calling fallback
-// 	calldata := []byte{}///common.FunctionId("arbitrary")
+	event := EventSig("Transfer(address,bytes32)")
+	cfg := &core.ChainConfig{
+		Home:          TestEmitterContractAddress,
+		Away:          TestCentrifugeContractAddress,
+		Subscriptions: []string{string(event)},
+	}
+	listener := NewListener(conn, cfg)
+	listener.SetRouter(router)
+	err = listener.RegisterEventHandler(string(event), testTransferHandler)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer listener.Unsubscribe(event)
 
-// 	tx := ethtypes.NewTransaction(
-// 		nonce,
-// 		ethcommon.Address(contract),
-// 		big.NewInt(0),
-// 		1000000,        // gasLimit
-// 		big.NewInt(10), // gasPrice
-// 		calldata,
-// 	)
+	// calling fallback in Emitter to trigger Transfer event
+	tx := ethtypes.NewTransaction(
+		nonce,
+		ethcommon.Address(contract),
+		big.NewInt(0),
+		1000000,        // gasLimit
+		big.NewInt(10), // gasPrice
+		[]byte{},
+	)
 
-// 	data, err := tx.MarshalJSON()
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	data, err := tx.MarshalJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	// subscribe to event in Centrifuge receiver contract
-// 	query := listener.buildQuery(common.StringToAddress(TestCentrifugeContractAddress), EventSig("store(bytes32)"))
-// 	subscription, err := conn.subscribeToEvent(query)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	// subscribe to event in Centrifuge receiver contract
+	query := listener.buildQuery(common.StringToAddress(TestCentrifugeContractAddress), EventSig("AssetStored(bytes32)"))
+	subscription, err := conn.subscribeToEvent(query)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	// send tx to trigger event
-// 	err = conn.SubmitTx(data)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	// send tx to trigger event
+	err = conn.SubmitTx(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	evt := <-subscription.ch
-// 	t.Log("got event", evt)
-// }
+	evt := <-subscription.ch
+	t.Log("got event", evt)
+}
 
-// func testTransferHandler(logi interface{}) msg.Message {
-// 	log := logi.(ethtypes.Log)
-// 	fmt.Printf("got log %v\n", log)
-// 	return msg.Message{}
-// }
+func testTransferHandler(logi interface{}) msg.Message {
+	log := logi.(ethtypes.Log)
+	fmt.Printf("got log %v\n", log)
+	fmt.Printf("topics %v\n", log.Topics)
+	hash := [32]byte(log.Topics[1])
+	return msg.Message{
+		Destination: msg.EthereumId,
+		Type:        msg.AssetTransferType,
+		Data:        hash[:],
+	}
+}

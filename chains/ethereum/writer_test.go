@@ -16,7 +16,7 @@ import (
 
 var TestPrivateKey = "ae6a8b4518e3970a0501ecf796a51dc0dab9143a66be75e948bf352582db15d5"
 var TestAddress = "C5F737aE7EaBB7226f21121E335b0949d8eA6365"
-var TestCentrifugeContractAddress = "f563197e48e62ae4ce194e89f7fca67e05cfe5fc"
+var TestCentrifugeContractAddress = "F60D9c8AC3B9B88483cee749b25117330F927780"
 
 func testHandler(t *testing.T) msg.Message {
 	// arbitrary hash
@@ -56,6 +56,7 @@ func TestResolveMessage(t *testing.T) {
 		Endpoint: "http://localhost:8545",
 		Keypair:  kp,
 		Signer:   signer,
+		Away:     TestCentrifugeContractAddress,
 		HttpConn: true,
 	}
 
