@@ -14,8 +14,9 @@ type mockWriter struct {
 func (w *mockWriter) Start() error { return nil }
 func (w *mockWriter) Stop() error  { return nil }
 
-func (w *mockWriter) ResolveMessage(msg msg.Message) {
+func (w *mockWriter) ResolveMessage(msg msg.Message) error {
 	w.msgs = append(w.msgs, msg)
+	return nil
 }
 
 func TestRouter(t *testing.T) {
