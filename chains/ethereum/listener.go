@@ -65,7 +65,7 @@ func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQ
 	return query
 }
 
-func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) msg.Message) error {
+func (l *Listener) RegisterEventHandler(sig string, handler chains.HandlerFn) error {
 	log15.Info("Registering event handler", "sig", sig)
 	evt := EventSig(sig)
 	query := l.buildQuery(l.home, evt)
