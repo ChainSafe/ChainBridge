@@ -96,7 +96,9 @@ func (l *Listener) watchEvent(sub *Subscription, handler func(interface{}) msg.M
 				log15.Error("subscription error: cannot send message", "sub", sub, "err", err)
 			}
 		case err := <-sub.sub.Err():
-			log15.Error("subscription error", "sub", sub, "err", err)
+			if err != nil {
+				log15.Error("subscription error", "sub", sub, "err", err)
+			}
 		}
 	}
 }

@@ -41,7 +41,7 @@ func newLocalConnection(t *testing.T, away string) *Connection {
 	// to CI so that contract gets deployed
 	cfg := &ConnectionConfig{
 		Ctx:      ctx,
-		Endpoint: "ws://localhost:8545",
+		Endpoint: TestEndpoint,
 		Keypair:  kp,
 		Signer:   signer,
 		HttpConn: true,

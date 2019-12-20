@@ -33,6 +33,8 @@ func (w *Writer) ResolveMessage(m msg.Message) error {
 	// TODO: make sure message is bound for this chain
 	// if m.Destination != w.conn.Id()
 
+	var tx *ethtypes.Transaction
+
 	if m.Type == msg.AssetTransferType {
 		log15.Info("sending asset transfer...", "to", w.conn.away, "msgdata", m.Data)
 		currBlock, err := w.conn.LatestBlock()
@@ -50,7 +52,7 @@ func (w *Writer) ResolveMessage(m msg.Message) error {
 		id := common.FunctionId("store(bytes32)")
 		calldata := append(id, m.Data...)
 
-		tx := ethtypes.NewTransaction(
+		tx = ethtypes.NewTransaction(
 			nonce,
 			w.conn.away,
 			big.NewInt(0),  // TODO: value?
@@ -58,20 +60,19 @@ func (w *Writer) ResolveMessage(m msg.Message) error {
 			big.NewInt(10), // TODO: gasPrice
 			calldata,
 		)
-
-		data, err := tx.MarshalJSON()
-		if err != nil {
-			return err
-		}
-
-		err = w.conn.SubmitTx(data)
-		if err != nil {
-			return err
-		}
 	} else {
 		panic("not implemented")
 	}
 
+	data, err := tx.MarshalJSON()
+	if err != nil {
+		return err
+	}
+
+	err = w.conn.SubmitTx(data)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
