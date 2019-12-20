@@ -14,11 +14,7 @@ import (
 	ethparams "github.com/ethereum/go-ethereum/params"
 )
 
-var TestPrivateKey = "ae6a8b4518e3970a0501ecf796a51dc0dab9143a66be75e948bf352582db15d5"
-var TestAddress = "C5F737aE7EaBB7226f21121E335b0949d8eA6365"
-var TestContractAddress = "f563197e48e62ae4ce194e89f7fca67e05cfe5fc"
-
-func testHandler(t *testing.T) msg.Message {
+func testMessage(t *testing.T) msg.Message {
 	// arbitrary hash
 	data, err := hex.DecodeString("b6e25575ab25a1938070eeb64ac4cd6df49af423327877522bec719815dc5e27")
 	if err != nil {
@@ -32,7 +28,7 @@ func testHandler(t *testing.T) msg.Message {
 }
 
 func TestResolveMessage(t *testing.T) {
-	m := testHandler(t)
+	m := testMessage(t)
 
 	ctx := context.Background()
 
@@ -53,9 +49,10 @@ func TestResolveMessage(t *testing.T) {
 
 	cfg := &ConnectionConfig{
 		Ctx:      ctx,
-		Endpoint: "http://localhost:8545",
+		Endpoint: TestEndpoint,
 		Keypair:  kp,
 		Signer:   signer,
+		Away:     TestCentrifugeContractAddress,
 		HttpConn: true,
 	}
 
@@ -95,11 +92,11 @@ func TestWriteToCentrifugeContract(t *testing.T) {
 	// to CI so that contract gets deployed
 	cfg := &ConnectionConfig{
 		Ctx:      ctx,
-		Endpoint: "http://localhost:8545",
+		Endpoint: TestEndpoint,
 		Keypair:  kp,
 		Signer:   signer,
 		HttpConn: true,
-		Away:     TestContractAddress,
+		Away:     TestCentrifugeContractAddress,
 	}
 
 	conn := NewConnection(cfg)

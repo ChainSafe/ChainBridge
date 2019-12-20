@@ -4,6 +4,7 @@ import (
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
+	"github.com/ChainSafe/ChainBridgeV2/common"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -35,6 +36,7 @@ func (w *Writer) ResolveMessage(m msg.Message) error {
 	var tx *ethtypes.Transaction
 
 	if m.Type == msg.AssetTransferType {
+		log15.Info("sending asset transfer...", "to", w.conn.away, "msgdata", m.Data)
 		currBlock, err := w.conn.LatestBlock()
 		if err != nil {
 			return err
@@ -47,13 +49,16 @@ func (w *Writer) ResolveMessage(m msg.Message) error {
 			return err
 		}
 
+		id := common.FunctionId("store(bytes32)")
+		calldata := append(id, m.Data...)
+
 		tx = ethtypes.NewTransaction(
 			nonce,
 			w.conn.away,
 			big.NewInt(0),  // TODO: value?
 			1000000,        // TODO: gasLimit
 			big.NewInt(10), // TODO: gasPrice
-			m.Data,
+			calldata,
 		)
 	} else {
 		panic("not implemented")
