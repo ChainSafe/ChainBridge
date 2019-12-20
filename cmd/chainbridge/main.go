@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains/centrifuge"
-	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	log "github.com/ChainSafe/log15"
@@ -93,28 +92,30 @@ func run(ctx *cli.Context) error {
 	log.Debug("Loaded config", "config", fmt.Sprintf("%+v", cfg))
 	// TODO: parse config for endpoints
 	// TODO: add which key we want to use for each chain to config
-	ethEndpoint := ""
-	ctfgEndpoint := ""
+	//ethEndpoint := ""
+	ctfgEndpoint := "ws://127.0.0.1:9944"
 
-	eth := ethereum.InitializeChain(&core.ChainConfig{
-		Id:            msg.EthereumId,
-		Endpoint:      ethEndpoint,
-		Home:          "",
-		Away:          "",
-		Subscriptions: []string{"MyEvent(uint256)"},
-	})
+	//eth := ethereum.InitializeChain(&core.ChainConfig{
+	//	Id:            msg.EthereumId,
+	//	Endpoint:      ethEndpoint,
+	//	Home:          "",
+	//	Away:          "",
+	//	Subscriptions: []string{"MyEvent(uint256)"},
+	//})
 
 	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
 		Id:       msg.CentrifugeId,
 		Endpoint: ctfgEndpoint,
 		Home:     "",
 		Away:     "",
+		Subscriptions: []string{"something"},
 	})
 
 	c := core.NewCore(nil)
-	c.AddChain(eth)
+	//c.AddChain(eth)
 	c.AddChain(ctfg)
 	c.Start()
+	for {}
 
 	return nil
 }

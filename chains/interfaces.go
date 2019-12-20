@@ -12,9 +12,11 @@ type Connection interface {
 
 type Listener interface {
 	Start() error
-	RegisterEventHandler(string, func(interface{}) msg.Message) error
+	RegisterEventHandler(string, HandlerFn) error
 	Stop() error
 }
+
+type HandlerFn func(interface{}) msg.Message
 
 type Writer interface {
 	Start() error

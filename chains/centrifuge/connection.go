@@ -3,6 +3,8 @@ package centrifuge
 import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
+	"github.com/centrifuge/go-substrate-rpc-client/rpc/state"
+	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
 var _ chains.Connection = &Connection{}
@@ -27,6 +29,23 @@ func (c *Connection) Connect() error {
 
 func (c *Connection) SubmitTx(data []byte) error {
 	panic("not implemented")
+}
+
+func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
+	meta, err := c.api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		return nil, err
+	}
+	key, err := types.CreateStorageKey(meta, "System", "Events", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	sub, err := c.api.RPC.State.SubscribeStorageRaw([]types.StorageKey{key})
+	if err != nil {
+		return nil, err
+	}
+	return sub, nil
 }
 
 func (c *Connection) Close() {

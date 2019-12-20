@@ -18,7 +18,7 @@ func NewWriter(conn chains.Connection) *Writer {
 }
 
 func (w *Writer) Start() error {
-	panic("not implemented")
+	return nil
 }
 
 func (w *Writer) ResolveMessage(msg msg.Message) {
@@ -26,5 +26,5 @@ func (w *Writer) ResolveMessage(msg msg.Message) {
 }
 
 func (w *Writer) Stop() error {
-	panic("not implemented")
+	return nil
 }
