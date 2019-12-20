@@ -8,12 +8,10 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/common"
 	"github.com/ChainSafe/ChainBridgeV2/core"
-	//"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	//ethparams "github.com/ethereum/go-ethereum/params"
 )
 
 var TestEndpoint = "ws://localhost:8545"
