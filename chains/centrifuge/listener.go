@@ -6,6 +6,7 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/router"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/state"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
@@ -14,29 +15,23 @@ import (
 var _ chains.Listener = &Listener{}
 
 type Listener struct {
-	cfg core.ChainConfig
-	conn *Connection
-	sub *state.StorageSubscription
-	subscriptions map[string]chains.HandlerFn
-}
-
-type EventNFTDeposited struct {
-	Phase  types.Phase
-	Asset  types.Hash
-	Topics []types.Hash
-}
-
-type Events struct {
-	types.EventRecords
-	Nfts_DepositAsset []EventNFTDeposited //nolint:stylecheck,golint
+	cfg           core.ChainConfig
+	conn          *Connection
+	sub           *state.StorageSubscription  // Subscription to all events
+	subscriptions map[string]chains.HandlerFn // Handlers for specific events
+	router        *router.Router
 }
 
 func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {
 	return &Listener{
-		cfg: cfg,
-		conn: conn,
+		cfg:           cfg,
+		conn:          conn,
 		subscriptions: make(map[string]chains.HandlerFn),
 	}
+}
+
+func (l *Listener) SetRouter(r *router.Router) {
+	l.router = r
 }
 
 // Start creates the initial subscription for all events
@@ -52,11 +47,14 @@ func (l *Listener) Start() error {
 }
 
 func (l *Listener) RegisterEventHandler(name string, handler chains.HandlerFn) error {
-	if l.subscriptions[name] != nil {
-		return fmt.Errorf("event %s already registered", name)
+	if l.sub == nil {
+		if l.subscriptions[name] != nil {
+			return fmt.Errorf("event %s already registered", name)
+		}
+		l.subscriptions[name] = handler
+		return nil
 	}
-	l.subscriptions[name] = handler
-	return nil
+	return fmt.Errorf("can't register handler once listener is started")
 }
 
 func (l *Listener) watchForEvents(sub *state.StorageSubscription, handler func(interface{}) msg.Message) {
@@ -83,10 +81,17 @@ func (l *Listener) watchForEvents(sub *state.StorageSubscription, handler func(i
 }
 
 func (l *Listener) handleEvents(evts Events) {
-	// TODO: Iterate through events and handle those we are subscribed to
-
+	// TODO: Handle all event types and remove string literal
+	for _, nft := range evts.Nfts_DepositAsset {
+		msg := l.subscriptions["nfts"](nft)
+		err := l.router.Send(msg)
+		if err != nil {
+			log15.Error("failed to process event", "err", err)
+		}
+	}
 }
 
 func (l *Listener) Stop() error {
-	panic("not implemented")
+	l.sub.Unsubscribe()
+	return nil
 }

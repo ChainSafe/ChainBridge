@@ -4,6 +4,7 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/router"
 
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
@@ -20,7 +21,7 @@ type Listener struct {
 	home          common.Address
 	away          common.Address
 	subscriptions map[EventSig]*Subscription
-	//handlers      map[EventSig](func())
+	router        *router.Router
 }
 
 func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {

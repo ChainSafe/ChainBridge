@@ -31,6 +31,7 @@ func (c *Connection) SubmitTx(data []byte) error {
 	panic("not implemented")
 }
 
+// Subscribe creates a subscription to all events
 func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
 	meta, err := c.api.RPC.State.GetMetadataLatest()
 	if err != nil {
@@ -49,5 +50,5 @@ func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
 }
 
 func (c *Connection) Close() {
-	// TODO: Close API
+	// Do nothing for now
 }

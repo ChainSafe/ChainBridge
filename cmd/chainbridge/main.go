@@ -104,10 +104,10 @@ func run(ctx *cli.Context) error {
 	//})
 
 	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
-		Id:       msg.CentrifugeId,
-		Endpoint: ctfgEndpoint,
-		Home:     "",
-		Away:     "",
+		Id:            msg.CentrifugeId,
+		Endpoint:      ctfgEndpoint,
+		Home:          "",
+		Away:          "",
 		Subscriptions: []string{"something"},
 	})
 
@@ -115,7 +115,8 @@ func run(ctx *cli.Context) error {
 	//c.AddChain(eth)
 	c.AddChain(ctfg)
 	c.Start()
-	for {}
+	for {
+	}
 
 	return nil
 }
