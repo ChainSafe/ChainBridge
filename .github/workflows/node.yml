@@ -20,7 +20,7 @@ jobs:
         ./node_modules/.bin/truffle test
       env:
         CI: true
-  test:
+  noot:
     name: For noot
     runs-on: ubuntu-latest
 
