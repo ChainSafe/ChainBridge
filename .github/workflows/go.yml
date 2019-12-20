@@ -33,7 +33,6 @@ jobs:
 
     - name: Run tests
       run: |
-        make truffle_compile
         sh ./scripts/local_test/start_ganache.sh silent
         sh ./scripts/local_test/ethereum_deploy.sh
         make test
