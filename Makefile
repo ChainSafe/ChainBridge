@@ -40,7 +40,7 @@ run:
 test:
 	@echo "  >  \033[32mRunning tests...\033[0m "
 	./scripts/test.sh
-
+	
 truffle_test:
 	@echo " > \033[32mTesting evm contracts... \033[0m "
 	@cd contracts/evm-contracts && node_modules/.bin/truffle test

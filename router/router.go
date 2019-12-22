@@ -22,17 +22,21 @@ func NewRouter() *Router {
 	}
 }
 
+func (r *Router) RegisterWriter(id msg.ChainId, writer chains.Writer) {
+	r.registry[id] = writer
+}
+
 // Send passes a message to the destination Writer if it exists
 func (r *Router) Send(msg msg.Message) error {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	log.Trace("Sending message", "src", msg.Source.String(), "dest", msg.Destination.String())
-	W := r.registry[msg.Destination]
-	if W == nil {
+	w := r.registry[msg.Destination]
+	if w == nil {
 		return fmt.Errorf("unknown destination chainId: %d", msg.Destination)
 	}
 	// TODO: Need to preserve ordering, perhaps a queue would help
-	W.ResolveMessage(msg)
+	w.ResolveMessage(msg)
 	return nil
 }
 

@@ -32,7 +32,10 @@ jobs:
           ${{ runner.OS }}-
 
     - name: Run tests
-      run: make test
+      run: |
+        ./scripts/local_test/start_ganache.sh silent
+        ./scripts/local_test/ethereum_deploy.sh
+        make test
 
     - name: Slack notification
       uses: Ilshidur/action-slack@master
