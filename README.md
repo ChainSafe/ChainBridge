@@ -8,7 +8,7 @@
 or
 
 1. `make build`
-2. `./build/bridge`
+2. `./build/chainbridge`
 
 ## Configuring the bridge
 
