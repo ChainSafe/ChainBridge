@@ -24,8 +24,8 @@ A chain configurations take this form:
 ```toml
 [<name>]
 endpoint = <RPC (WS) endpoint>
-home = <bridge contract address>
-away = <bridge contract address>
+receiver = <bridge contract address>
+emitter = <bridge contract address>
 from = <address of key to use for txs>
 ```
 
@@ -51,6 +51,8 @@ Bridge contracts can then be deployed with:
 ```
 make deploy_eth
 ```
+
+Note: The environment variable `PORT=<port>` can be provided for these commands (default `PORT=8545`)
 
 ## Tests
 
