@@ -53,7 +53,6 @@ func TestResolveMessage(t *testing.T) {
 		Keypair:  kp,
 		Signer:   signer,
 		Away:     TestCentrifugeContractAddress,
-		HttpConn: true,
 	}
 
 	conn := NewConnection(cfg)
@@ -64,10 +63,8 @@ func TestResolveMessage(t *testing.T) {
 	defer conn.Close()
 
 	w := NewWriter(conn)
-	err = w.ResolveMessage(m)
-	if err != nil {
-		t.Fatal(err)
-	}
+	w.ResolveMessage(m)
+
 }
 
 func TestWriteToCentrifugeContract(t *testing.T) {
@@ -95,7 +92,6 @@ func TestWriteToCentrifugeContract(t *testing.T) {
 		Endpoint: TestEndpoint,
 		Keypair:  kp,
 		Signer:   signer,
-		HttpConn: true,
 		Away:     TestCentrifugeContractAddress,
 	}
 

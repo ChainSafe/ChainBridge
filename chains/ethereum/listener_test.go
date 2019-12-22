@@ -3,7 +3,6 @@ package ethereum
 import (
 	"context"
 	"encoding/hex"
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -44,7 +43,6 @@ func newLocalConnection(t *testing.T, away string) *Connection {
 		Endpoint: TestEndpoint,
 		Keypair:  kp,
 		Signer:   signer,
-		HttpConn: true,
 		Away:     away,
 	}
 
@@ -55,6 +53,17 @@ func newLocalConnection(t *testing.T, away string) *Connection {
 	}
 
 	return conn
+}
+
+// test handler function for events
+func testTransferHandler(logi interface{}) msg.Message {
+	log := logi.(ethtypes.Log)
+	hash := [32]byte(log.Topics[1])
+	return msg.Message{
+		Destination: msg.EthereumId,
+		Type:        msg.AssetTransferType,
+		Data:        hash[:],
+	}
 }
 
 func TestListener(t *testing.T) {
@@ -195,16 +204,4 @@ func TestListenerAndWriter(t *testing.T) {
 
 	evt := <-subscription.ch
 	t.Log("got event", evt)
-}
-
-func testTransferHandler(logi interface{}) msg.Message {
-	log := logi.(ethtypes.Log)
-	fmt.Printf("got log %v\n", log)
-	fmt.Printf("topics %v\n", log.Topics)
-	hash := [32]byte(log.Topics[1])
-	return msg.Message{
-		Destination: msg.EthereumId,
-		Type:        msg.AssetTransferType,
-		Data:        hash[:],
-	}
 }

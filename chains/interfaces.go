@@ -18,6 +18,6 @@ type Listener interface {
 
 type Writer interface {
 	Start() error
-	ResolveMessage(message msg.Message) error
+	ResolveMessage(message msg.Message)
 	Stop() error
 }

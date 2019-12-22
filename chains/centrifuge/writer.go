@@ -21,7 +21,7 @@ func (w *Writer) Start() error {
 	panic("not implemented")
 }
 
-func (w *Writer) ResolveMessage(msg msg.Message) error {
+func (w *Writer) ResolveMessage(msg msg.Message) {
 	panic("not implemented")
 }
 

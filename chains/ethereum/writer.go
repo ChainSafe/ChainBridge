@@ -29,24 +29,23 @@ func (w *Writer) Start() error {
 	return nil
 }
 
-func (w *Writer) ResolveMessage(m msg.Message) error {
-	// TODO: make sure message is bound for this chain
-	// if m.Destination != w.conn.Id()
-
+// ResolveMessage handles any given message based on type
+// Note: We are currently panicking here, we should develop a better method for handling failures (possibly a queue?)
+func (w *Writer) ResolveMessage(m msg.Message) {
 	var tx *ethtypes.Transaction
 
 	if m.Type == msg.AssetTransferType {
 		log15.Info("sending asset transfer...", "to", w.conn.away, "msgdata", m.Data)
 		currBlock, err := w.conn.LatestBlock()
 		if err != nil {
-			return err
+			panic(err)
 		}
 
 		address := ethcommon.HexToAddress(w.conn.kp.Public().Address())
 
 		nonce, err := w.conn.NonceAt(address, currBlock.Number())
 		if err != nil {
-			return err
+			panic(err)
 		}
 
 		id := common.FunctionId("store(bytes32)")
@@ -66,14 +65,14 @@ func (w *Writer) ResolveMessage(m msg.Message) error {
 
 	data, err := tx.MarshalJSON()
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	err = w.conn.SubmitTx(data)
 	if err != nil {
-		return err
+		panic(err)
+
 	}
-	return nil
 }
 
 func (w *Writer) Stop() error {

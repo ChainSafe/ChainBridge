@@ -26,7 +26,6 @@ type Connection struct {
 	conn     *ethclient.Client
 	signer   ethtypes.Signer
 	kp       crypto.Keypair
-	httpConn bool
 }
 
 type ConnectionConfig struct {
@@ -34,7 +33,6 @@ type ConnectionConfig struct {
 	Endpoint string
 	Home     string
 	Away     string
-	HttpConn bool
 	Keypair  crypto.Keypair
 	Signer   ethtypes.Signer
 }
@@ -47,21 +45,11 @@ func NewConnection(cfg *ConnectionConfig) *Connection {
 		away:     ethcommon.HexToAddress(cfg.Away),
 		kp:       cfg.Keypair,
 		signer:   cfg.Signer,
-		httpConn: cfg.HttpConn,
 	}
 }
 
 func (c *Connection) Connect() error {
 	log15.Info("Connecting to ethereum...", "url", c.endpoint)
-	if c.httpConn {
-		rpcClient, err := rpc.Dial(c.endpoint)
-		if err != nil {
-			return err
-		}
-
-		c.conn = ethclient.NewClient(rpcClient)
-		return nil
-	}
 
 	rpcClient, err := rpc.DialWebsocket(c.ctx, c.endpoint, "/ws")
 	if err != nil {
