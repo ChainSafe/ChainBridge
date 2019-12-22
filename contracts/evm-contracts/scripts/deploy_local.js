@@ -1,5 +1,7 @@
 const ethers = require('ethers');
 const ReceiverContract = require("../build/contracts/Receiver.json");
+const EmitterContract = require("../build/contracts/Emitter.json");
+const CentrifugeContract = require("../build/contracts/BridgeAsset.json");
 const cli = require('commander');
 
 // Capture argument
@@ -80,11 +82,10 @@ let wallet = new ethers.Wallet(deployerPrivKey, provider);
     );
 
     // The address the Contract WILL have once mined
-    console.log("Contract address: ", contract.address);
+    console.log("[Receiver] Contract address: ", contract.address);
 
     // The transaction that was sent to the network to deploy the Contract
-    console.log("Transaction Hash: ", contract.deployTransaction.hash);
-
+    console.log("[Receiver] Transaction Hash: ", contract.deployTransaction.hash);
     // The contract is NOT deployed yet; we must wait until it is mined
     await contract.deployed()
     // Done! The contract is deployed.
@@ -110,4 +111,53 @@ let wallet = new ethers.Wallet(deployerPrivKey, provider);
     if (failure) {
         process.exit();
     }
+
+    await deployCentrifuge();
+    await deployEmitter();
 })();
+
+// Deployment is asynchronous, so we use an async IIFE
+async function deployCentrifuge () {
+
+    // Create an instance of a Contract Factory
+    let factory = new ethers.ContractFactory(CentrifugeContract.abi, CentrifugeContract.bytecode, wallet);
+
+    // Deploy
+    let contract = await factory.deploy(
+        10
+    );
+
+    // The address the Contract WILL have once mined
+    console.log("[Centrifuge] Contract address: ", contract.address);
+
+    // The transaction that was sent to the network to deploy the Contract
+    console.log("[Centrifuge] Transaction Hash: ", contract.deployTransaction.hash);
+
+    // The contract is NOT deployed yet; we must wait until it is mined
+    await contract.deployed()
+    // Done! The contract is deployed.
+
+    let CentrifugeInstance = new ethers.Contract(contract.address, CentrifugeContract.abi, provider);
+};
+
+// Deployment is asynchronous, so we use an async IIFE
+async function deployEmitter () {
+
+    // Create an instance of a Contract Factory
+    let factory = new ethers.ContractFactory(EmitterContract.abi, EmitterContract.bytecode, wallet);
+
+    // Deploy
+    let contract = await factory.deploy();
+
+    // The address the Contract WILL have once mined
+    console.log("[Emitter] Contract address: ", contract.address);
+
+    // The transaction that was sent to the network to deploy the Contract
+    console.log("[Emitter] Transaction Hash: ", contract.deployTransaction.hash);
+
+    // The contract is NOT deployed yet; we must wait until it is mined
+    await contract.deployed()
+    // Done! The contract is deployed.
+
+    let EmitterInstance = new ethers.Contract(contract.address, CentrifugeContract.abi, provider);
+};

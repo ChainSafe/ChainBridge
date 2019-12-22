@@ -6,22 +6,24 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ChainSafe/ChainBridgeV2/common"
 	"github.com/ChainSafe/ChainBridgeV2/core"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethparams "github.com/ethereum/go-ethereum/params"
 )
 
-var TestEthereumEndpoint = "wss://goerli.infura.io/ws/v3/b0a01296903f4812b5ec2cf26cbded48"
+var TestEndpoint = "ws://localhost:8545"
+var TestPrivateKey = "ae6a8b4518e3970a0501ecf796a51dc0dab9143a66be75e948bf352582db15d5"
+var TestAddress = "C5F737aE7EaBB7226f21121E335b0949d8eA6365"
+var TestCentrifugeContractAddress = "F60D9c8AC3B9B88483cee749b25117330F927780"
 
 func TestConnect(t *testing.T) {
 	ctx := context.Background()
 	cfg := &ConnectionConfig{
 		Ctx:      ctx,
-		Endpoint: TestEthereumEndpoint,
+		Endpoint: TestEndpoint,
 	}
 	conn := NewConnection(cfg)
 	err := conn.Connect()
@@ -32,34 +34,24 @@ func TestConnect(t *testing.T) {
 }
 
 func TestSendTx(t *testing.T) {
-	ctx := context.Background()
-
-	kp, err := secp256k1.GenerateKeypair()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	signer := ethtypes.MakeSigner(ethparams.GoerliChainConfig, ethparams.GoerliChainConfig.IstanbulBlock)
-
-	cfg := &ConnectionConfig{
-		Ctx:      ctx,
-		Endpoint: TestEthereumEndpoint,
-		Keypair:  kp,
-		Signer:   signer,
-	}
-
-	conn := NewConnection(cfg)
-	err = conn.Connect()
-	if err != nil {
-		t.Fatal(err)
-	}
+	conn := newLocalConnection(t, "")
 	defer conn.Close()
 
+	currBlock, err := conn.LatestBlock()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	nonce, err := conn.NonceAt(common.StringToAddress(TestAddress), currBlock.Number())
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	tx := ethtypes.NewTransaction(
-		1,
+		nonce,
 		ethcommon.Address([20]byte{}),
 		big.NewInt(0),
-		1,
+		1000000,
 		big.NewInt(1),
 		[]byte{},
 	)
@@ -79,13 +71,13 @@ func TestSubscribe(t *testing.T) {
 	ctx := context.Background()
 	cfg := &ConnectionConfig{
 		Ctx:      ctx,
-		Endpoint: TestEthereumEndpoint,
+		Endpoint: TestEndpoint,
 	}
 
 	conn := NewConnection(cfg)
-	chainCfg := core.ChainConfig{
+	chainCfg := &core.ChainConfig{
 		Id:            msg.EthereumId,
-		Endpoint:      TestEthereumEndpoint,
+		Endpoint:      TestEndpoint,
 		Home:          "",
 		Away:          "",
 		From:          "",
@@ -100,7 +92,7 @@ func TestSubscribe(t *testing.T) {
 
 	q := eth.FilterQuery{}
 
-	_, err = l.conn.subscribeToEvent(q, "func(uint256)")
+	_, err = l.conn.subscribeToEvent(q)
 	if err != nil {
 		t.Fatal(err)
 	}
