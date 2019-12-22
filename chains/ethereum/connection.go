@@ -21,8 +21,8 @@ var _ chains.Connection = &Connection{}
 type Connection struct {
 	ctx      context.Context
 	endpoint string
-	home     ethcommon.Address
-	away     ethcommon.Address
+	receiver ethcommon.Address
+	emitter  ethcommon.Address
 	conn     *ethclient.Client
 	signer   ethtypes.Signer
 	kp       crypto.Keypair
@@ -31,8 +31,8 @@ type Connection struct {
 type ConnectionConfig struct {
 	Ctx      context.Context
 	Endpoint string
-	Home     string
-	Away     string
+	Receiver string
+	Emitter  string
 	Keypair  crypto.Keypair
 	Signer   ethtypes.Signer
 }
@@ -41,8 +41,8 @@ func NewConnection(cfg *ConnectionConfig) *Connection {
 	return &Connection{
 		ctx:      cfg.Ctx,
 		endpoint: cfg.Endpoint,
-		home:     ethcommon.HexToAddress(cfg.Home),
-		away:     ethcommon.HexToAddress(cfg.Away),
+		receiver: ethcommon.HexToAddress(cfg.Receiver),
+		emitter:  ethcommon.HexToAddress(cfg.Emitter),
 		kp:       cfg.Keypair,
 		signer:   cfg.Signer,
 	}
