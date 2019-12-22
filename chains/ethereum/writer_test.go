@@ -52,7 +52,7 @@ func TestResolveMessage(t *testing.T) {
 		Endpoint: TestEndpoint,
 		Keypair:  kp,
 		Signer:   signer,
-		Away:     TestCentrifugeContractAddress,
+		Emitter:  TestCentrifugeContractAddress,
 	}
 
 	conn := NewConnection(cfg)
@@ -92,7 +92,7 @@ func TestWriteToCentrifugeContract(t *testing.T) {
 		Endpoint: TestEndpoint,
 		Keypair:  kp,
 		Signer:   signer,
-		Away:     TestCentrifugeContractAddress,
+		Emitter:  TestCentrifugeContractAddress,
 	}
 
 	conn := NewConnection(cfg)
