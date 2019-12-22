@@ -33,9 +33,9 @@ build:
 	@echo "  >  \033[32mBuilding binary...\033[0m "
 	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/bridge
 
-run:
-	@echo "  >  \033[32mRunning main.go...\033[0m "
-	go run -v cmd/chainbridge/main.go
+run: build
+	@echo "  >  \033[32mRunning bridge...\033[0m "
+	./build/bridge
 
 test:
 	@echo "  >  \033[32mRunning tests...\033[0m "
