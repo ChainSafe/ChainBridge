@@ -99,16 +99,16 @@ func run(ctx *cli.Context) error {
 	eth := ethereum.InitializeChain(&core.ChainConfig{
 		Id:            msg.EthereumId,
 		Endpoint:      ethEndpoint,
-		Receiver:          "",
-		Emitter:          "",
+		Receiver:      "",
+		Emitter:       "",
 		Subscriptions: []string{"MyEvent(uint256)"},
 	})
 
 	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
 		Id:       msg.CentrifugeId,
 		Endpoint: ctfgEndpoint,
-		Receiver:     "",
-		Emitter:     "",
+		Receiver: "",
+		Emitter:  "",
 	})
 
 	c := core.NewCore(nil)

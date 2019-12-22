@@ -86,8 +86,8 @@ func TestSubscribe(t *testing.T) {
 	chainCfg := core.ChainConfig{
 		Id:            msg.EthereumId,
 		Endpoint:      TestEthereumEndpoint,
-		Receiver:          "",
-		Emitter:          "",
+		Receiver:      "",
+		Emitter:       "",
 		From:          "",
 		Subscriptions: nil,
 	}

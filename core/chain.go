@@ -18,8 +18,8 @@ type Chain struct {
 type ChainConfig struct {
 	Id            msg.ChainId `toml:"id"`       // ChainID
 	Endpoint      string      `toml:"endpoint"` // url for rpc endpoint
-	Receiver          string      `toml:"receiver"`     // receiver bridge address
-	Emitter          string      `toml:"emitter"`     // emitter bridge address
+	Receiver      string      `toml:"receiver"` // receiver bridge address
+	Emitter       string      `toml:"emitter"`  // emitter bridge address
 	From          string      `toml:"from"`     // address of key to use
 	Subscriptions []string    `toml:"subscriptions"`
 }

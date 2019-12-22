@@ -17,18 +17,18 @@ var _ chains.Listener = &Listener{}
 type Listener struct {
 	cfg           core.ChainConfig
 	conn          *Connection
-	receiver          common.Address
-	emitter          common.Address
+	receiver      common.Address
+	emitter       common.Address
 	subscriptions map[EventSig]*Subscription
 	//handlers      map[EventSig](func())
 }
 
 func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {
 	return &Listener{
-		cfg:  cfg,
-		conn: conn,
+		cfg:      cfg,
+		conn:     conn,
 		receiver: common.HexToAddress(cfg.Receiver),
-		emitter: common.HexToAddress(cfg.Emitter),
+		emitter:  common.HexToAddress(cfg.Emitter),
 	}
 }
 
