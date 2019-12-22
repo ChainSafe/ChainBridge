@@ -18,7 +18,7 @@ import (
 
 var TestEmitterContractAddress = "1a5eA9856dE8966DF6f3aE55B5cC3CD5207537c8"
 
-func newLocalConnection(t *testing.T, away string) *Connection {
+func newLocalConnection(t *testing.T, emitter string) *Connection {
 	ctx := context.Background()
 
 	signer := ethtypes.MakeSigner(ethparams.MainnetChainConfig, big.NewInt(0))
@@ -41,7 +41,7 @@ func newLocalConnection(t *testing.T, away string) *Connection {
 		Endpoint: TestEndpoint,
 		Keypair:  kp,
 		Signer:   signer,
-		Away:     away,
+		Emitter:  emitter,
 	}
 
 	conn := NewConnection(cfg)
@@ -89,8 +89,8 @@ func TestListener(t *testing.T) {
 
 	event := EventSig("Transfer(address,bytes32)")
 	cfg := &core.ChainConfig{
-		Home:          TestEmitterContractAddress,
-		Away:          TestCentrifugeContractAddress,
+		Receiver:      TestEmitterContractAddress,
+		Emitter:       TestCentrifugeContractAddress,
 		Subscriptions: []string{string(event)},
 	}
 	listener := NewListener(conn, cfg)
@@ -160,8 +160,8 @@ func TestListenerAndWriter(t *testing.T) {
 
 	event := EventSig("Transfer(address,bytes32)")
 	cfg := &core.ChainConfig{
-		Home:          TestEmitterContractAddress,
-		Away:          TestCentrifugeContractAddress,
+		Receiver:      TestEmitterContractAddress,
+		Emitter:       TestCentrifugeContractAddress,
 		Subscriptions: []string{string(event)},
 	}
 	listener := NewListener(conn, cfg)

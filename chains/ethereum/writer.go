@@ -35,7 +35,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 	var tx *ethtypes.Transaction
 
 	if m.Type == msg.AssetTransferType {
-		log15.Info("sending asset transfer...", "to", w.conn.away, "msgdata", m.Data)
+		log15.Info("sending asset transfer...", "to", w.conn.emitter, "msgdata", m.Data)
 		currBlock, err := w.conn.LatestBlock()
 		if err != nil {
 			panic(err)
@@ -53,7 +53,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 
 		tx = ethtypes.NewTransaction(
 			nonce,
-			w.conn.away,
+			w.conn.emitter,
 			big.NewInt(0),  // TODO: value?
 			1000000,        // TODO: gasLimit
 			big.NewInt(10), // TODO: gasPrice
