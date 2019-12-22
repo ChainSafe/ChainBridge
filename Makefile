@@ -54,5 +54,5 @@ start_eth:
 	./scripts/local_test/start_ganache.sh
 
 deploy_eth:
-	@echo " > \033[32Deploying evm contracts... \033[0m "
+	@echo " > \033[32mDeploying evm contracts... \033[0m "
 	./scripts/local_test/ethereum_deploy.sh
