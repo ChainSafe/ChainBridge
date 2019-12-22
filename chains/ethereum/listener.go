@@ -17,8 +17,8 @@ var _ chains.Listener = &Listener{}
 type Listener struct {
 	cfg           core.ChainConfig
 	conn          *Connection
-	home          common.Address
-	away          common.Address
+	receiver          common.Address
+	emitter          common.Address
 	subscriptions map[EventSig]*Subscription
 	//handlers      map[EventSig](func())
 }
@@ -27,8 +27,8 @@ func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {
 	return &Listener{
 		cfg:  cfg,
 		conn: conn,
-		home: common.HexToAddress(cfg.Home),
-		away: common.HexToAddress(cfg.Away),
+		receiver: common.HexToAddress(cfg.Receiver),
+		emitter: common.HexToAddress(cfg.Emitter),
 	}
 }
 
@@ -68,7 +68,7 @@ func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQ
 func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) msg.Message) error {
 	log15.Info("Registering event handler", "sig", sig)
 	evt := EventSig(sig)
-	query := l.buildQuery(l.home, evt)
+	query := l.buildQuery(l.receiver, evt)
 	sub, err := l.conn.subscribeToEvent(query, evt)
 	if err != nil {
 		return err
