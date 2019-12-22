@@ -24,8 +24,8 @@ func InitializeChain(cfg *core.ChainConfig) *core.Chain {
 
 	conn := NewConnection(conncfg)
 	c.SetConnection(conn)
-	c.SetListener(NewListener(conn, *cfg))
-	c.SetWriter(NewWriter(c.Connection()))
+	c.SetListener(NewListener(conn, cfg))
+	c.SetWriter(NewWriter(conn))
 
 	return c
 }

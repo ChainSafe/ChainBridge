@@ -13,10 +13,10 @@
   "license": "ISC",
   "devDependencies": {
     "ethers": "^4.0.40",
-    "ganache-cli": "^6.7.0",
-    "truffle": "^5.1.4"
+    "ganache-cli": "^6.7.0"
   },
   "dependencies": {
-    "commander": "^4.0.1"
+    "commander": "^4.0.1",
+    "truffle": "^5.1.4"
   }
 }

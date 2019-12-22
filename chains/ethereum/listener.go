@@ -4,6 +4,7 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/router"
 
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
@@ -15,21 +16,27 @@ import (
 var _ chains.Listener = &Listener{}
 
 type Listener struct {
-	cfg           core.ChainConfig
+	cfg           *core.ChainConfig
 	conn          *Connection
 	home          common.Address
 	away          common.Address
 	subscriptions map[EventSig]*Subscription
+	router        *router.Router
 	//handlers      map[EventSig](func())
 }
 
-func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {
+func NewListener(conn *Connection, cfg *core.ChainConfig) *Listener {
 	return &Listener{
-		cfg:  cfg,
-		conn: conn,
-		home: common.HexToAddress(cfg.Home),
-		away: common.HexToAddress(cfg.Away),
+		cfg:           cfg,
+		conn:          conn,
+		home:          common.HexToAddress(cfg.Home),
+		away:          common.HexToAddress(cfg.Away),
+		subscriptions: make(map[EventSig]*Subscription),
 	}
+}
+
+func (l *Listener) SetRouter(r *router.Router) {
+	l.router = r
 }
 
 func (l *Listener) Start() error {
@@ -69,22 +76,29 @@ func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) ms
 	log15.Info("Registering event handler", "sig", sig)
 	evt := EventSig(sig)
 	query := l.buildQuery(l.home, evt)
-	sub, err := l.conn.subscribeToEvent(query, evt)
+	sub, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
 	}
+	l.subscriptions[EventSig(sig)] = sub
 	// TODO: Should be go routine
-	watchEvent(sub, handler)
+	go l.watchEvent(sub, handler)
 	return nil
 }
 
-func watchEvent(sub *Subscription, handler func(interface{}) msg.Message) {
+func (l *Listener) watchEvent(sub *Subscription, handler func(interface{}) msg.Message) {
 	for {
 		select {
 		case evt := <-sub.ch:
-			handler(evt)
+			msg := handler(evt)
+			err := l.router.Send(msg)
+			if err != nil {
+				log15.Error("subscription error: cannot send message", "sub", sub, "err", err)
+			}
 		case err := <-sub.sub.Err():
-			log15.Error("subscription error", "sub", sub, "err", err)
+			if err != nil {
+				log15.Error("subscription error", "sub", sub, "err", err)
+			}
 		}
 	}
 }
