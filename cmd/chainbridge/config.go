@@ -17,12 +17,14 @@ const DefaultConfigPath = "./config.toml"
 const DefaultKeystorePath = "./keys"
 
 type Config struct {
-	Ethereum core.ChainConfig `toml:"ethereum"`
+	EthereumA core.ChainConfig `toml:"ethereumA"`
+	EthereumB core.ChainConfig `toml:"ethereumB"`
 }
 
 func NewConfig() *Config {
 	return &Config{
-		Ethereum: core.ChainConfig{},
+		EthereumA: core.ChainConfig{},
+		EthereumB: core.ChainConfig{},
 	}
 }
 
