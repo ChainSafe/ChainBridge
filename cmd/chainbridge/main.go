@@ -31,9 +31,9 @@ var accountFlags = []cli.Flag{
 
 var accountCommand = cli.Command{
 	Action:   handleAccounts,
-	Name:     "account",
+	Name:     "accounts",
 	Usage:    "manage bridge keystore",
-	Flags:    append(append(accountFlags, KeystorePathFlag), VerbosityFlag),
+	Flags:    accountFlags,
 	Category: "KEYSTORE",
 	Description: "The account command is used to manage the bridge keystore.\n" +
 		"\tTo generate a new secp256k1 (Ethereum) account: bridge account --generate\n" +
@@ -68,9 +68,9 @@ func startLogger(ctx *cli.Context) error {
 	handler := logger.GetHandler()
 	var lvl log.Lvl
 
-	if lvlToInt, err := strconv.Atoi(ctx.String(VerbosityFlag.Name)); err == nil {
+	if lvlToInt, err := strconv.Atoi(ctx.GlobalString(VerbosityFlag.Name)); err == nil {
 		lvl = log.Lvl(lvlToInt)
-	} else if lvl, err = log.LvlFromString(ctx.String(VerbosityFlag.Name)); err != nil {
+	} else if lvl, err = log.LvlFromString(ctx.GlobalString(VerbosityFlag.Name)); err != nil {
 		return err
 	}
 	log.Root().SetHandler(log.LvlFilterHandler(lvl, handler))
