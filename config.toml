@@ -2,10 +2,10 @@
 endpoint = "ws://localhost:8545"
 receiver = "0x705D4Fa884AF2Ae59C7780A0f201109947E2Bf6D"
 emitter = "0x1fA38b0EfccA4228EB9e15112D4d98B0CEe3c600"
-from = ""
+from = "0x34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4"
 
 [ethereumB]
 endpoint = "ws://localhost:8546"
 receiver = "0xf563197E48e62AE4ce194e89F7fCa67E05CFE5fC"
 emitter = "0x1a5eA9856dE8966DF6f3aE55B5cC3CD5207537c8"
-from = ""
+from = "0x34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4"

@@ -10,7 +10,6 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/common"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
 )
@@ -50,16 +49,17 @@ func newLocalConnection(t *testing.T, emitter string) *Connection {
 	return conn
 }
 
+// TODO: See TestListenerAndWriter
 // test handler function for events
-func testTransferHandler(logi interface{}) msg.Message {
-	log := logi.(ethtypes.Log)
-	hash := [32]byte(log.Topics[1])
-	return msg.Message{
-		Destination: msg.EthereumId,
-		Type:        msg.AssetTransferType,
-		Data:        hash[:],
-	}
-}
+//func testTransferHandler(logi interface{}) msg.Message {
+//	log := logi.(ethtypes.Log)
+//	hash := [32]byte(log.Topics[1])
+//	return msg.Message{
+//		Destination: msg.EthereumId,
+//		Type:        msg.AssetTransferType,
+//		Data:        hash[:],
+//	}
+//}
 
 func TestListener(t *testing.T) {
 	conn := newLocalConnection(t, TestCentrifugeContractAddress)
@@ -133,7 +133,7 @@ func TestListener(t *testing.T) {
 }
 
 func TestListenerAndWriter(t *testing.T) {
-	// TODO: Unlear what this is suppoed to test
+	// TODO: Unclear what this is supposed to test
 	t.Skip()
 	//conn := newLocalConnection(t, TestEmitterContractAddress)
 	//defer conn.Close()

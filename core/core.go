@@ -39,7 +39,7 @@ func (c *Core) AddChain(chain *Chain) {
 
 // Start will call all registered chains' Start methods and block forever (or until signal is received)
 func (c *Core) Start() {
-	for _, ch := range c.registry {
+	for id, ch := range c.registry {
 		err := ch.Start()
 		if err != nil {
 			log15.Error(
@@ -47,6 +47,7 @@ func (c *Core) Start() {
 				"chain", ch.Id(),
 				"err", err,
 			)
+			delete(c.registry, id)
 		} else {
 			log15.Info(fmt.Sprintf("Started %s chain", ch.Id()))
 		}
@@ -56,22 +57,17 @@ func (c *Core) Start() {
 	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
 
 	// Block here and wait for a signal
-	for {
-		select {
-		case <-sigc:
-			log15.Info("Interrupt received, shutting down now.")
-			for _, ch := range c.registry {
-				err := ch.Stop()
-				if err != nil {
-					log15.Error(
-						"failed to shutdown chain",
-						"chain", ch.Id(),
-						"err", err,
-					)
-				}
-			}
-			signal.Stop(sigc)
-			return
+	<-sigc
+	log15.Info("Interrupt received, shutting down now.")
+	for _, ch := range c.registry {
+		err := ch.Stop()
+		if err != nil {
+			log15.Error(
+				"failed to shutdown chain",
+				"chain", ch.Id(),
+				"err", err,
+			)
 		}
 	}
+	signal.Stop(sigc)
 }
