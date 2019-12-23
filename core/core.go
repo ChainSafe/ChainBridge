@@ -2,6 +2,9 @@ package core
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
@@ -33,6 +36,7 @@ func (c *Core) AddChain(chain *Chain) {
 	c.registry[chain.Id()] = chain
 }
 
+// Start will call all registered chains' Start methods and block forever (or until signal is received)
 func (c *Core) Start() {
 	for _, ch := range c.registry {
 		err := ch.Start()
@@ -44,6 +48,29 @@ func (c *Core) Start() {
 			)
 		} else {
 			log15.Info(fmt.Sprintf("Started %s chain", ch.Id()))
+		}
+	}
+
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
+
+	// Block here and wait for a signal
+	for {
+		select {
+			case <-sigc:
+				log15.Info("Interrupt received, shutting down now.")
+				for _, ch := range c.registry {
+					err := ch.Stop()
+					if err != nil {
+						log15.Error(
+							"failed to shutdown chain",
+							"chain", ch.Id(),
+							"err", err,
+						)
+					}
+				}
+				signal.Stop(sigc)
+				return
 		}
 	}
 }

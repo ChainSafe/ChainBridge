@@ -76,5 +76,5 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 }
 
 func (w *Writer) Stop() error {
-	panic("not implemented")
+	return nil
 }
