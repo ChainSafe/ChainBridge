@@ -21,7 +21,7 @@ type Listener struct {
 	receiver      common.Address
 	emitter       common.Address
 	subscriptions map[EventSig]*Subscription
-	router        *router.Router
+	router        chains.Router
 	//handlers      map[EventSig](func())
 }
 
@@ -35,7 +35,7 @@ func NewListener(conn *Connection, cfg *core.ChainConfig) *Listener {
 	}
 }
 
-func (l *Listener) SetRouter(r *router.Router) {
+func (l *Listener) SetRouter(r chains.Router) {
 	l.router = r
 }
 
@@ -90,8 +90,8 @@ func (l *Listener) watchEvent(sub *Subscription, handler func(interface{}) msg.M
 	for {
 		select {
 		case evt := <-sub.ch:
-			msg := handler(evt)
-			err := l.router.Send(msg)
+			m := handler(evt)
+			err := l.router.Send(m)
 			if err != nil {
 				log15.Error("subscription error: cannot send message", "sub", sub, "err", err)
 			}

@@ -12,18 +12,14 @@ import (
 // Router forwards messages from their source to their destination
 type Router struct {
 	registry map[msg.ChainId]chains.Writer
-	lock     sync.RWMutex
+	lock     *sync.RWMutex
 }
 
 func NewRouter() *Router {
 	return &Router{
 		registry: make(map[msg.ChainId]chains.Writer),
-		lock:     sync.RWMutex{},
+		lock:     &sync.RWMutex{},
 	}
-}
-
-func (r *Router) RegisterWriter(id msg.ChainId, writer chains.Writer) {
-	r.registry[id] = writer
 }
 
 // Send passes a message to the destination Writer if it exists
