@@ -34,6 +34,7 @@ func (c *Core) AddChain(chain *Chain) {
 		return
 	}
 	c.registry[chain.Id()] = chain
+	chain.listener.SetRouter(c.route)
 }
 
 // Start will call all registered chains' Start methods and block forever (or until signal is received)
@@ -57,20 +58,20 @@ func (c *Core) Start() {
 	// Block here and wait for a signal
 	for {
 		select {
-			case <-sigc:
-				log15.Info("Interrupt received, shutting down now.")
-				for _, ch := range c.registry {
-					err := ch.Stop()
-					if err != nil {
-						log15.Error(
-							"failed to shutdown chain",
-							"chain", ch.Id(),
-							"err", err,
-						)
-					}
+		case <-sigc:
+			log15.Info("Interrupt received, shutting down now.")
+			for _, ch := range c.registry {
+				err := ch.Stop()
+				if err != nil {
+					log15.Error(
+						"failed to shutdown chain",
+						"chain", ch.Id(),
+						"err", err,
+					)
 				}
-				signal.Stop(sigc)
-				return
+			}
+			signal.Stop(sigc)
+			return
 		}
 	}
 }

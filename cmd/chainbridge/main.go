@@ -95,9 +95,9 @@ func run(ctx *cli.Context) error {
 	ethA := ethereum.InitializeChain(&core.ChainConfig{
 		Id:            msg.EthereumId,
 		Endpoint:      cfg.EthereumA.Endpoint,
-		Receiver:     cfg.EthereumA.Receiver,
+		Receiver:      cfg.EthereumA.Receiver,
 		Emitter:       cfg.EthereumA.Emitter,
-		Subscriptions: []string{"MyEvent(uint256)"},
+		Subscriptions: []string{"Transfer(address,bytes32)"},
 	})
 
 	ethB := ethereum.InitializeChain(&core.ChainConfig{
@@ -105,9 +105,8 @@ func run(ctx *cli.Context) error {
 		Endpoint:      cfg.EthereumB.Endpoint,
 		Receiver:      cfg.EthereumB.Receiver,
 		Emitter:       cfg.EthereumB.Emitter,
-		Subscriptions: []string{"MyEvent(uint256)"},
+		Subscriptions: []string{"Transfer(address,bytes32)"},
 	})
-
 
 	//ctfg := centrifuge.InitializeChain(&core.ChainConfig{
 	//	Id:       msg.CentrifugeId,

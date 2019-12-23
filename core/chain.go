@@ -8,18 +8,17 @@ import (
 )
 
 type Chain struct {
-	cfg      *ChainConfig // emitter bridge address
+	cfg      *ChainConfig
 	conn     chains.Connection
 	listener chains.Listener
 	writer   chains.Writer
-	//subscriptions []string
 }
 
 type ChainConfig struct {
 	Id            msg.ChainId `toml:"id"`       // ChainID
 	Endpoint      string      `toml:"endpoint"` // url for rpc endpoint
-	Receiver      string      `toml:"receiver"` // receiver bridge address
-	Emitter       string      `toml:"emitter"`  // emitter bridge address
+	Receiver      string      `toml:"receiver"` // bridge address to call
+	Emitter       string      `toml:"emitter"`  // bridge address where events occur
 	From          string      `toml:"from"`     // address of key to use
 	Subscriptions []string    `toml:"subscriptions"`
 }

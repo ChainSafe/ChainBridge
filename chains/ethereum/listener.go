@@ -4,13 +4,10 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	"github.com/ChainSafe/ChainBridgeV2/router"
-
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	geth "github.com/ethereum/go-ethereum/mobile"
 )
 
 var _ chains.Listener = &Listener{}
@@ -40,10 +37,10 @@ func (l *Listener) SetRouter(r chains.Router) {
 }
 
 func (l *Listener) Start() error {
-	log15.Info("Starting ethereum listener...", "chainID", l.cfg.Id, "subs", l.cfg.Subscriptions)
+	log15.Info("Starting listener...", "chainID", l.cfg.Id, "subs", l.cfg.Subscriptions)
 	for _, sub := range l.cfg.Subscriptions {
 		err := l.RegisterEventHandler(sub, func(evtI interface{}) msg.Message {
-			evt := evtI.(*geth.Log)
+			evt := evtI.(ethtypes.Log)
 			log15.Info("Got event!", "evt", evt)
 			return msg.Message{}
 		})
@@ -73,16 +70,15 @@ func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQ
 }
 
 func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) msg.Message) error {
-	log15.Info("Registering event handler", "sig", sig)
 	evt := EventSig(sig)
-	query := l.buildQuery(l.receiver, evt)
+	query := l.buildQuery(l.emitter, evt)
 	sub, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
 	}
 	l.subscriptions[EventSig(sig)] = sub
-	// TODO: Should be go routine
 	go l.watchEvent(sub, handler)
+	log15.Info("Registered event handler", "chainID", l.cfg.Id, "contract", l.emitter, "sig", sig)
 	return nil
 }
 
