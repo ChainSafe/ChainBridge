@@ -25,7 +25,6 @@ import (
 func handleAccounts(ctx *cli.Context) error {
 	err := startLogger(ctx)
 	if err != nil {
-		log.Error("account", "error", err)
 		return err
 	}
 
@@ -34,7 +33,6 @@ func handleAccounts(ctx *cli.Context) error {
 	if dir := ctx.GlobalString(KeystorePathFlag.Name); dir != "" {
 		datadir, err = filepath.Abs(dir)
 		if err != nil {
-			log.Error("invalid datadir", "error", err)
 			return err
 		}
 		log.Trace(fmt.Sprintf("Using keystore dir: %s", datadir))
@@ -55,8 +53,7 @@ func handleAccounts(ctx *cli.Context) error {
 
 		_, err = generateKeypair(keytype, datadir, password)
 		if err != nil {
-			log.Error("generate error", "error", err)
-			return err
+			return fmt.Errorf("failed to generate key: %s", err)
 		}
 	}
 
@@ -65,8 +62,7 @@ func handleAccounts(ctx *cli.Context) error {
 		log.Info("Importing key...")
 		_, err = importKey(keyimport, datadir)
 		if err != nil {
-			log.Error("import error", "error", err)
-			return err
+			return fmt.Errorf("failed to import key: %s", err)
 		}
 	}
 
@@ -74,8 +70,7 @@ func handleAccounts(ctx *cli.Context) error {
 	if keylist := ctx.Bool(ListFlag.Name); keylist {
 		_, err = listKeys(datadir)
 		if err != nil {
-			log.Error("list error", "error", err)
-			return err
+			return fmt.Errorf("failed to list keys: %s", err)
 		}
 	}
 
