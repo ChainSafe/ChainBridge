@@ -13,14 +13,20 @@
 *.out
 coverage.txt
 
-build/
-bin/
-
+# IDE
 .idea/
 .vscode/
 
+# Builds
+build/
+bin/
+
+# golang
 .env
 bridge
 keys/
 
 cmd/chainbridge/bridge
+
+# nodejs
+node_modules/

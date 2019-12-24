@@ -17,8 +17,8 @@ func createTempConfigFile() (*os.File, *Config) {
 	testConfig := NewConfig()
 	ethCfg := core.ChainConfig{
 		Endpoint:      "",
-		Home:          "",
-		Away:          "",
+		Receiver:      "",
+		Emitter:       "",
 		From:          "",
 		Subscriptions: []string{},
 	}

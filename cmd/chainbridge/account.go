@@ -25,23 +25,22 @@ import (
 func handleAccounts(ctx *cli.Context) error {
 	err := startLogger(ctx)
 	if err != nil {
-		log.Error("account", "error", err)
 		return err
 	}
 
 	// key directory is datadir/keystore/
 	var datadir string
-	if dir := ctx.String(KeystorePathFlag.Name); dir != "" {
+	if dir := ctx.GlobalString(KeystorePathFlag.Name); dir != "" {
 		datadir, err = filepath.Abs(dir)
 		if err != nil {
-			log.Error("invalid datadir", "error", err)
 			return err
 		}
+		log.Trace(fmt.Sprintf("Using keystore dir: %s", datadir))
 	}
 
 	// check if we want to generate a new keypair
 	if keygen := ctx.Bool(GenerateFlag.Name); keygen {
-		log.Info("generating keypair...")
+		log.Info("Generating keypair...")
 
 		keytype := crypto.Secp256k1Type
 		// TODO: add other key types
@@ -54,18 +53,16 @@ func handleAccounts(ctx *cli.Context) error {
 
 		_, err = generateKeypair(keytype, datadir, password)
 		if err != nil {
-			log.Error("generate error", "error", err)
-			return err
+			return fmt.Errorf("failed to generate key: %s", err)
 		}
 	}
 
 	// import key
 	if keyimport := ctx.String(ImportFlag.Name); keyimport != "" {
-		log.Info("importing key...")
+		log.Info("Importing key...")
 		_, err = importKey(keyimport, datadir)
 		if err != nil {
-			log.Error("import error", "error", err)
-			return err
+			return fmt.Errorf("failed to import key: %s", err)
 		}
 	}
 
@@ -73,8 +70,7 @@ func handleAccounts(ctx *cli.Context) error {
 	if keylist := ctx.Bool(ListFlag.Name); keylist {
 		_, err = listKeys(datadir)
 		if err != nil {
-			log.Error("list error", "error", err)
-			return err
+			return fmt.Errorf("failed to list keys: %s", err)
 		}
 	}
 
@@ -122,6 +118,7 @@ func listKeys(datadir string) ([]string, error) {
 		return nil, err
 	}
 
+	fmt.Printf("=== Found %d keys ===\n", len(keys))
 	for i, key := range keys {
 		fmt.Printf("[%d] %s\n", i, key)
 	}
@@ -206,28 +203,28 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 }
 
 // keystoreDir returnns the absolute filepath of the keystore directory given a datadir
-// by default, it is ./keystore/
-// otherwise, it is datadir/keystore/
-func keystoreDir(datadir string) (keystorepath string, err error) {
-	// datadir specified, return datadir/keystore as absolute path
-	if datadir != "" {
-		keystorepath, err = filepath.Abs(datadir + "/keystore")
+// by default, it is ./keys/
+// otherwise, it is datadir/keys/
+func keystoreDir(keyPath string) (keystorepath string, err error) {
+	// datadir specified, return datadir/keys as absolute path
+	if keyPath != "" {
+		keystorepath, err = filepath.Abs(keyPath)
 		if err != nil {
 			return "", err
 		}
 	} else {
-		// datadir not specified, return ./keys/keystore as absolute path
-		datadir = DefaultKeystorePath
+		// datadir not specified, use default
+		keyPath = DefaultKeystorePath
 
-		keystorepath, err = filepath.Abs(datadir + "/keystore")
+		keystorepath, err = filepath.Abs(keyPath)
 		if err != nil {
 			return "", fmt.Errorf("could not create keystore file path: %s", err)
 		}
 	}
 
 	// if datadir does not exist, create it
-	if _, err = os.Stat(datadir); os.IsNotExist(err) {
-		err = os.Mkdir(datadir, os.ModePerm)
+	if _, err = os.Stat(keyPath); os.IsNotExist(err) {
+		err = os.Mkdir(keyPath, os.ModePerm)
 		if err != nil {
 			return "", err
 		}
