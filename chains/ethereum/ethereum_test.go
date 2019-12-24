@@ -41,8 +41,8 @@ func TestInitializeChain(t *testing.T) {
 	cfg := &core.ChainConfig{
 		Id:       msg.EthereumId,
 		Endpoint: TestEndpoint,
-		Receiver:     "",
-		Emitter:     "",
+		Receiver: "",
+		Emitter:  "",
 		From:     fp,
 		Password: string(testPassword),
 	}

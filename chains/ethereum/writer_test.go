@@ -85,8 +85,6 @@ func TestWriteToCentrifugeContract(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// TODO: add run ./scripts/local_test/start_ganache.sh and ./scripts/local_test/ethereum_start.sh
-	// to CI so that contract gets deployed
 	cfg := &ConnectionConfig{
 		Ctx:      ctx,
 		Endpoint: TestEndpoint,

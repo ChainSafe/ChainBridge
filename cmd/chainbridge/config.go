@@ -65,12 +65,16 @@ func getConfig(ctx *cli.Context) (*Config, error) {
 		log.Warn("err loading toml file", "err", err.Error())
 		return &fig, err
 	}
-	setEthKeyPath(ctx, &fig)
+	setKeyPath(ctx, &fig.Ethereum)
 	return &fig, nil
 }
 
-func setEthKeyPath(ctx *cli.Context, config *Config) {
-	if config.Ethereum.From == "" {
+func setKeyPath(ctx *cli.Context, config *core.ChainConfig) {
+	if config.From == "" {
+		return
+	}
+
+	if config.KeyPath != "" {
 		return
 	}
 
@@ -89,7 +93,7 @@ func setEthKeyPath(ctx *cli.Context, config *Config) {
 		return
 	}
 
-	config.Ethereum.From = datadir + "/" + config.Ethereum.From + ".key"
+	config.KeyPath = datadir + "/" + config.From + ".key"
 }
 
 func loadConfig(file string, config *Config) error {

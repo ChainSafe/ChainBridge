@@ -23,6 +23,7 @@ type ChainConfig struct {
 	From          string      `toml:"from"`     // address of key to use
 	Password      string      `toml:"password"` // password to key file. should only be used for testing
 	Subscriptions []string    `toml:"subscriptions"`
+	KeyPath       string      `toml:"key-path"` // path to key file; if not set, looks in datadir/keys
 }
 
 func NewChain(cfg *ChainConfig) *Chain {
