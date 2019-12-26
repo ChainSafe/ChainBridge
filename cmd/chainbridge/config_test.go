@@ -22,7 +22,7 @@ func createTempConfigFile() (*os.File, *Config) {
 		From:          "",
 		Subscriptions: []string{},
 	}
-	testConfig.Ethereum = ethCfg
+	testConfig.EthereumA = ethCfg
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "prefix-")
 	if err != nil {
 		fmt.Println("Cannot create temporary file", "err", err)
@@ -64,7 +64,7 @@ func TestLoadConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !reflect.DeepEqual(res.Ethereum, cfg.Ethereum) {
-		t.Errorf("did not match\ngot: %+v\nexpected: %+v", res.Ethereum, cfg.Ethereum)
+	if !reflect.DeepEqual(res.EthereumA, cfg.EthereumA) {
+		t.Errorf("did not match\ngot: %+v\nexpected: %+v", res.EthereumA, cfg.EthereumA)
 	}
 }

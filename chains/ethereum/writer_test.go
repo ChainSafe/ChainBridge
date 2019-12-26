@@ -9,7 +9,6 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/common"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
 )
@@ -130,7 +129,7 @@ func TestWriteToCentrifugeContract(t *testing.T) {
 
 	tx := ethtypes.NewTransaction(
 		nonce,
-		ethcommon.Address(contract),
+		contract,
 		big.NewInt(0),
 		1000000,        // gasLimit
 		big.NewInt(10), // gasPrice

@@ -53,7 +53,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 
 		tx = ethtypes.NewTransaction(
 			nonce,
-			w.conn.emitter,
+			w.conn.receiver,
 			big.NewInt(0),  // TODO: value?
 			1000000,        // TODO: gasLimit
 			big.NewInt(10), // TODO: gasPrice
@@ -76,5 +76,5 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 }
 
 func (w *Writer) Stop() error {
-	panic("not implemented")
+	return nil
 }

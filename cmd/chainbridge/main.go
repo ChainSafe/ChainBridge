@@ -5,7 +5,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains/centrifuge"
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -91,29 +90,35 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 	log.Debug("Loaded config", "config", fmt.Sprintf("%+v", cfg))
-	// TODO: parse config for endpoints
 	// TODO: add which key we want to use for each chain to config
-	ethEndpoint := ""
-	ctfgEndpoint := ""
 
-	eth := ethereum.InitializeChain(&core.ChainConfig{
+	ethA := ethereum.InitializeChain(&core.ChainConfig{
 		Id:            msg.EthereumId,
-		Endpoint:      ethEndpoint,
-		Receiver:      "",
-		Emitter:       "",
-		Subscriptions: []string{"MyEvent(uint256)"},
+		Endpoint:      cfg.EthereumA.Endpoint,
+		Receiver:      cfg.EthereumA.Receiver,
+		Emitter:       cfg.EthereumA.Emitter,
+		Subscriptions: []string{"Transfer(address,bytes32)"},
 	})
 
-	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
-		Id:       msg.CentrifugeId,
-		Endpoint: ctfgEndpoint,
-		Receiver: "",
-		Emitter:  "",
+	ethB := ethereum.InitializeChain(&core.ChainConfig{
+		Id:            msg.CentrifugeId,
+		Endpoint:      cfg.EthereumB.Endpoint,
+		Receiver:      cfg.EthereumB.Receiver,
+		Emitter:       cfg.EthereumB.Emitter,
+		Subscriptions: []string{"Transfer(address,bytes32)"},
 	})
+
+	//ctfg := centrifuge.InitializeChain(&core.ChainConfig{
+	//	Id:       msg.CentrifugeId,
+	//	Endpoint: ctfgEndpoint,
+	//	Receiver: "",
+	//	Emitter:  "",
+	//})
 
 	c := core.NewCore(nil)
-	c.AddChain(eth)
-	c.AddChain(ctfg)
+	c.AddChain(ethA)
+	c.AddChain(ethB)
+	//c.AddChain(ctfg)
 	c.Start()
 
 	return nil

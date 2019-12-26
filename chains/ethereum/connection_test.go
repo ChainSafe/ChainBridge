@@ -5,6 +5,7 @@ import (
 	"math/big"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/ChainSafe/ChainBridgeV2/common"
 	"github.com/ChainSafe/ChainBridgeV2/core"
@@ -14,10 +15,12 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-var TestEndpoint = "ws://localhost:8545"
-var TestPrivateKey = "ae6a8b4518e3970a0501ecf796a51dc0dab9143a66be75e948bf352582db15d5"
-var TestAddress = "C5F737aE7EaBB7226f21121E335b0949d8eA6365"
-var TestCentrifugeContractAddress = "F60D9c8AC3B9B88483cee749b25117330F927780"
+const TestEndpoint = "ws://localhost:8545"
+const TestPrivateKey = "39a9ea0dce63086c64a80ce045b796bebed2006554e3992d92601515c7b19807"
+const TestAddress = "34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4" // Account address
+const TestCentrifugeContractAddress = "290f41e61374c715C1127974bf08a3993afd0145"
+const TestEmitterContractAddress = "1fA38b0EfccA4228EB9e15112D4d98B0CEe3c600"
+const TestTimeout = time.Second * 30
 
 func TestConnect(t *testing.T) {
 	ctx := context.Background()

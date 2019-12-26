@@ -10,8 +10,13 @@ type Connection interface {
 	Close()
 }
 
+type Router interface {
+	Send(message msg.Message) error
+}
+
 type Listener interface {
 	Start() error
+	SetRouter(Router)
 	RegisterEventHandler(string, func(interface{}) msg.Message) error
 	Stop() error
 }

@@ -8,11 +8,13 @@ const cli = require('commander');
 cli
     .option('--validators <value>', 'Number of validators', 2)
     .option('-v, --validator-threshold <value>', 'Value of validator threshold', 2)
-    .option('-d, --deposit-threshold <value>', 'Value of deposit threshold', 2);
+    .option('-d, --deposit-threshold <value>', 'Value of deposit threshold', 2)
+    .option('-p, --port <value>', 'Port of RPC instance', 8545)
 cli.parse(process.argv);
 
 // Connect to the network
-let provider = new ethers.providers.JsonRpcProvider();
+let url = `http://localhost:${cli.port}`;
+let provider = new ethers.providers.JsonRpcProvider(url);
 
 // Config
 let numValidators = 2;
@@ -35,8 +37,8 @@ if (cli.depositThreshold && cli.depositThreshold <= numValidators) {
 }
 
 // Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
-const deployerPubKey = "0xC5F737aE7EaBB7226f21121E335b0949d8eA6365";
-const deployerPrivKey = "0xae6a8b4518e3970a0501ecf796a51dc0dab9143a66be75e948bf352582db15d5";
+const deployerPubKey = "0x34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4";
+const deployerPrivKey = "0x39a9ea0dce63086c64a80ce045b796bebed2006554e3992d92601515c7b19807";
 
 // TODO Remove these and cycle through mnemonic
 const validatorPubkeys = [

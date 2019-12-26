@@ -31,11 +31,15 @@ fmt:
 
 build:
 	@echo "  >  \033[32mBuilding binary...\033[0m "
-	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/bridge
+	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge
 
-run:
-	@echo "  >  \033[32mRunning main.go...\033[0m "
-	go run -v cmd/chainbridge/main.go
+run: build
+	@echo "  >  \033[32mRunning bridge...\033[0m "
+	./build/chainbridge
+
+install:
+	@echo "  >  \033[32mInstalling bridge...\033[0m "
+	cd cmd/chainbridge && go install
 
 test:
 	@echo "  >  \033[32mRunning tests...\033[0m "
@@ -54,5 +58,5 @@ start_eth:
 	./scripts/local_test/start_ganache.sh
 
 deploy_eth:
-	@echo " > \033[32Deploying evm contracts... \033[0m "
+	@echo " > \033[32mDeploying evm contracts... \033[0m "
 	./scripts/local_test/ethereum_deploy.sh
