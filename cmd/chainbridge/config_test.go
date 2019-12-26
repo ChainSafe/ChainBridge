@@ -8,21 +8,18 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/core"
-
 	"github.com/urfave/cli"
 )
 
 func createTempConfigFile() (*os.File, *Config) {
 	testConfig := NewConfig()
-	ethCfg := core.ChainConfig{
-		Endpoint:      "",
-		Receiver:      "",
-		Emitter:       "",
-		From:          "",
-		Subscriptions: []string{},
+	ethCfg := RawChainConfig{
+		Endpoint: "",
+		Receiver: "",
+		Emitter:  "",
+		From:     "",
 	}
-	testConfig.EthereumA = ethCfg
+	testConfig.Chains = []RawChainConfig{ethCfg}
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "prefix-")
 	if err != nil {
 		fmt.Println("Cannot create temporary file", "err", err)
@@ -64,7 +61,7 @@ func TestLoadConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !reflect.DeepEqual(res.EthereumA, cfg.EthereumA) {
-		t.Errorf("did not match\ngot: %+v\nexpected: %+v", res.EthereumA, cfg.EthereumA)
+	if !reflect.DeepEqual(res.Chains[0], cfg.Chains[0]) {
+		t.Errorf("did not match\ngot: %+v\nexpected: %+v", res.Chains[0], cfg.Chains[0])
 	}
 }

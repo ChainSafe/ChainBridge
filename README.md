@@ -4,11 +4,7 @@
 
 ## Run the bridge
 1. `make run`
-
-or
-
-1. `make build`
-2. `./build/chainbridge`
+2. `make build`
 
 ## Configuring the bridge
 
@@ -16,17 +12,18 @@ or
 
 Presently chains must be manually inserted into `cmd/chainbridge/main.go`. In future this will be more flexible and require less manual configuration.
 
-For the time being we have `ethereum` and `ethereum2` which are both standard Ethereum chains.
+For the time being we have `ethereum` and `centrifuge` which are both standard Ethereum chains.
 
 ### Configuring Chains
 
 A chain configurations take this form:
 ```toml
-[<name>]
+[[chains]]
+id = <see ./message/id.go>
 endpoint = <RPC (WS) endpoint>
 receiver = <bridge contract address>
 emitter = <bridge contract address>
-from = <address of key to use for txs>
+from = <public key to use for txs>
 ```
 
 See `config.toml` for an example configuration. 
@@ -56,12 +53,19 @@ Note: The environment variable `PORT=<port>` can be provided for these commands 
 
 ## Tests
 
-Go tests can run with:
+### Go tests
+To run the go tests a fresh ganache instance is required (tests depend on deterministic addresses). 
+A new instance can be started by running these in seperate terminals:
+```
+make start_eth
+make deploy_eth
+```
+Go tests can then be run with:
 ```
 make test
 ```
-
-Truffle tests can be run with:
+### Contract Tests
+Truffle tests can be run with just:
 ```
 make truffle_test
 ```

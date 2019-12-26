@@ -2,7 +2,6 @@ package ethereum
 
 import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
@@ -13,21 +12,16 @@ import (
 var _ chains.Listener = &Listener{}
 
 type Listener struct {
-	cfg           *core.ChainConfig
+	cfg           Config
 	conn          *Connection
-	receiver      common.Address
-	emitter       common.Address
 	subscriptions map[EventSig]*Subscription
 	router        chains.Router
-	//handlers      map[EventSig](func())
 }
 
-func NewListener(conn *Connection, cfg *core.ChainConfig) *Listener {
+func NewListener(conn *Connection, cfg *Config) *Listener {
 	return &Listener{
-		cfg:           cfg,
+		cfg:           *cfg,
 		conn:          conn,
-		receiver:      common.HexToAddress(cfg.Receiver),
-		emitter:       common.HexToAddress(cfg.Emitter),
 		subscriptions: make(map[EventSig]*Subscription),
 	}
 }
@@ -37,12 +31,15 @@ func (l *Listener) SetRouter(r chains.Router) {
 }
 
 func (l *Listener) Start() error {
-	log15.Info("Starting listener...", "chainID", l.cfg.Id, "subs", l.cfg.Subscriptions)
-	for _, sub := range l.cfg.Subscriptions {
+	log15.Debug("Starting listener...", "chainID", l.cfg.id, "subs", l.cfg.subscriptions)
+	for _, sub := range l.cfg.subscriptions {
 		err := l.RegisterEventHandler(sub, func(evtI interface{}) msg.Message {
 			evt := evtI.(ethtypes.Log)
-			log15.Info("Got event!", "evt", evt)
-			return msg.Message{}
+			log15.Trace("Got event!", "type", sub)
+			return msg.Message{
+				Type: msg.DepositAssetType,
+				Data: evt.Topics[0].Bytes(),
+			}
 		})
 		if err != nil {
 			log15.Error("failed to register event handler", "err", err)
@@ -71,14 +68,14 @@ func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQ
 
 func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) msg.Message) error {
 	evt := EventSig(sig)
-	query := l.buildQuery(l.emitter, evt)
+	query := l.buildQuery(l.cfg.emitter, evt)
 	sub, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
 	}
 	l.subscriptions[EventSig(sig)] = sub
 	go l.watchEvent(sub, handler)
-	log15.Info("Registered event handler", "chainID", l.cfg.Id, "contract", l.emitter, "sig", sig)
+	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.emitter, "sig", sig)
 	return nil
 }
 

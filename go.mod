@@ -17,6 +17,7 @@ require (
 	github.com/onsi/gomega v1.7.0 // indirect
 	github.com/pierrec/xxHash v0.1.5 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
+	github.com/status-im/keycard-go v0.0.0-20190316090335-8537d3370df4
 	github.com/urfave/cli v1.22.2
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
 	golang.org/x/net v0.0.0-20190916140828-c8589233b77d // indirect

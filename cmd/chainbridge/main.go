@@ -6,6 +6,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -27,7 +28,7 @@ var accountFlags = []cli.Flag{
 }
 
 var accountCommand = cli.Command{
-	Action:   handleAccounts,
+	Action:   handleAccountsCmd,
 	Name:     "accounts",
 	Usage:    "manage bridge keystore",
 	Flags:    accountFlags,
@@ -87,14 +88,18 @@ func run(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	// TODO: add which key we want to use for each chain to config
 
+	ks := keystore.NewKeystore(cfg.keystorePath)
+
+	// TODO: Load chains iteratively
 	ethA := ethereum.InitializeChain(&core.ChainConfig{
 		Id:            cfg.Chains[0].Id,
 		Endpoint:      cfg.Chains[0].Endpoint,
 		Receiver:      cfg.Chains[0].Receiver,
 		Emitter:       cfg.Chains[0].Emitter,
+		From:          cfg.Chains[0].From,
 		Subscriptions: []string{"Transfer(address,bytes32)"},
+		Keystore:      ks,
 	})
 
 	// For now lets pretend this is a Centrifuge chain
@@ -103,7 +108,9 @@ func run(ctx *cli.Context) error {
 		Endpoint:      cfg.Chains[1].Endpoint,
 		Receiver:      cfg.Chains[1].Receiver,
 		Emitter:       cfg.Chains[1].Emitter,
+		From:          cfg.Chains[1].From,
 		Subscriptions: []string{"DepositAsset(address,bytes32)"},
+		Keystore:      ks,
 	})
 
 	//ctfg := centrifuge.InitializeChain(&core.ChainConfig{

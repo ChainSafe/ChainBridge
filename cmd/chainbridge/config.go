@@ -17,7 +17,8 @@ const DefaultConfigPath = "./config.toml"
 const DefaultKeystorePath = "./keys"
 
 type Config struct {
-	Chains []RawChainConfig `toml:"chains"`
+	Chains       []RawChainConfig `toml:"chains"`
+	keystorePath string
 }
 
 // RawChainConfig is parsed directly from the config file and should be using to construct the core.ChainConfig
@@ -74,6 +75,9 @@ func getConfig(ctx *cli.Context) (*Config, error) {
 	if err != nil {
 		log.Warn("err loading toml file", "err", err.Error())
 		return &fig, err
+	}
+	if ksPath := ctx.GlobalString(KeystorePathFlag.Name); ksPath != "" {
+		fig.keystorePath = ksPath
 	}
 	log.Debug("Loaded config", "path", path)
 	return &fig, nil
