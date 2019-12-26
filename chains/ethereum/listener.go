@@ -33,6 +33,7 @@ func (l *Listener) SetRouter(r chains.Router) {
 func (l *Listener) Start() error {
 	log15.Debug("Starting listener...", "chainID", l.cfg.id, "subs", l.cfg.subscriptions)
 	for _, sub := range l.cfg.subscriptions {
+		sub := sub
 		err := l.RegisterEventHandler(sub, func(evtI interface{}) msg.Message {
 			evt := evtI.(ethtypes.Log)
 			log15.Trace("Got event!", "type", sub)

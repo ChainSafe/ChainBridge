@@ -16,7 +16,6 @@ import (
 type Core struct {
 	registry map[msg.ChainId]*Chain
 	route    *router.Router
-	keyPath  string
 	ks       *keystore.Keystore
 }
 
