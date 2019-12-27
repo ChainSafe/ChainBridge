@@ -18,11 +18,11 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-// handleAccounts manages the flags for the account subcommand
+// handleAccountsCmd manages the flags for the account subcommand
 // first, if the generate flag is set, if so, it generates a new keypair
 // then, if the import flag is set, if so, it imports a keypair
 // finally, if the list flag is set, it lists all the keys in the keystore
-func handleAccounts(ctx *cli.Context) error {
+func handleAccountsCmd(ctx *cli.Context) error {
 	err := startLogger(ctx)
 	if err != nil {
 		return err

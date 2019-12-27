@@ -1,8 +1,8 @@
 package msg
 
-type MessageType = string
+type MessageType string
 
-var AssetTransferType = "centrifuge_asset_transfer"
+var DepositAssetType MessageType = "centrifuge_deposit_asset"
 
 // Message is used as a generic format to communicate between chains
 type Message struct {

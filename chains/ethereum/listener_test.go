@@ -1,47 +1,26 @@
 package ethereum
 
 import (
-	"context"
-	"encoding/hex"
 	"math/big"
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridgeV2/common"
-	"github.com/ChainSafe/ChainBridgeV2/core"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	ethcmn "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethparams "github.com/ethereum/go-ethereum/params"
 )
 
-func newLocalConnection(t *testing.T, emitter string) *Connection {
-	ctx := context.Background()
+func newLocalConnection(t *testing.T, emitter ethcmn.Address) *Connection {
 
-	signer := ethtypes.MakeSigner(ethparams.MainnetChainConfig, big.NewInt(0))
-	privBytes, err := hex.DecodeString(TestPrivateKey)
-	if err != nil {
-		t.Fatal(err)
-	}
-	priv, err := secp256k1.NewPrivateKey(privBytes)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	kp, err := secp256k1.NewKeypairFromPrivate(priv)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	cfg := &ConnectionConfig{
-		Ctx:      ctx,
-		Endpoint: TestEndpoint,
-		Keypair:  kp,
-		Signer:   signer,
-		Emitter:  emitter,
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		emitter:  emitter,
+		keystore: keystore.NewTestKeystore(),
+		from:     "ethereum",
 	}
 
 	conn := NewConnection(cfg)
-	err = conn.Connect()
+	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,10 +45,7 @@ func TestListener(t *testing.T) {
 	defer conn.Close()
 
 	// send tx to trigger event in EmitterContract
-	contractBytes, err := hex.DecodeString(TestEmitterContractAddress)
-	if err != nil {
-		t.Fatal(err)
-	}
+	contractBytes := TestEmitterContractAddress.Bytes()
 
 	contract := [20]byte{}
 	copy(contract[:], contractBytes)
@@ -79,16 +55,16 @@ func TestListener(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	nonce, err := conn.NonceAt(common.StringToAddress(TestAddress), currBlock.Number())
+	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	event := EventSig("Transfer(address,bytes32)")
-	cfg := &core.ChainConfig{
-		Receiver:      TestEmitterContractAddress,
-		Emitter:       TestCentrifugeContractAddress,
-		Subscriptions: []string{string(event)},
+	event := EventSig("DepositAsset(address,bytes32)")
+	cfg := &Config{
+		receiver:      TestEmitterContractAddress,
+		emitter:       TestCentrifugeContractAddress,
+		subscriptions: []string{string(event)},
 	}
 	listener := NewListener(conn, cfg)
 
@@ -110,7 +86,7 @@ func TestListener(t *testing.T) {
 	}
 
 	// subscribe to event
-	query := listener.buildQuery(common.StringToAddress(TestEmitterContractAddress), event)
+	query := listener.buildQuery(TestEmitterContractAddress, event)
 	subscription, err := conn.subscribeToEvent(query)
 	if err != nil {
 		t.Fatal(err)

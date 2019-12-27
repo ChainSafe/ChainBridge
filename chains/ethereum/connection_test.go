@@ -1,32 +1,32 @@
 package ethereum
 
 import (
-	"context"
 	"math/big"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridgeV2/common"
-	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	eth "github.com/ethereum/go-ethereum"
-	ethcommon "github.com/ethereum/go-ethereum/common"
+	ethcmn "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 const TestEndpoint = "ws://localhost:8545"
 const TestPrivateKey = "39a9ea0dce63086c64a80ce045b796bebed2006554e3992d92601515c7b19807"
-const TestAddress = "34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4" // Account address
-const TestCentrifugeContractAddress = "290f41e61374c715C1127974bf08a3993afd0145"
-const TestEmitterContractAddress = "1fA38b0EfccA4228EB9e15112D4d98B0CEe3c600"
+
+var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4") // Account address
+var TestCentrifugeContractAddress = ethcmn.HexToAddress("290f41e61374c715C1127974bf08a3993afd0145")
+var TestEmitterContractAddress = ethcmn.HexToAddress("1fA38b0EfccA4228EB9e15112D4d98B0CEe3c600")
+
 const TestTimeout = time.Second * 30
 
 func TestConnect(t *testing.T) {
-	ctx := context.Background()
-	cfg := &ConnectionConfig{
-		Ctx:      ctx,
-		Endpoint: TestEndpoint,
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		from:     "ethereum",
+		keystore: keystore.NewTestKeystore(),
 	}
 	conn := NewConnection(cfg)
 	err := conn.Connect()
@@ -37,7 +37,7 @@ func TestConnect(t *testing.T) {
 }
 
 func TestSendTx(t *testing.T) {
-	conn := newLocalConnection(t, "")
+	conn := newLocalConnection(t, ethcmn.HexToAddress("0x0"))
 	defer conn.Close()
 
 	currBlock, err := conn.LatestBlock()
@@ -45,14 +45,14 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	nonce, err := conn.NonceAt(common.StringToAddress(TestAddress), currBlock.Number())
+	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	tx := ethtypes.NewTransaction(
 		nonce,
-		ethcommon.Address([20]byte{}),
+		ethcmn.Address([20]byte{}),
 		big.NewInt(0),
 		1000000,
 		big.NewInt(1),
@@ -71,22 +71,15 @@ func TestSendTx(t *testing.T) {
 }
 
 func TestSubscribe(t *testing.T) {
-	ctx := context.Background()
-	cfg := &ConnectionConfig{
-		Ctx:      ctx,
-		Endpoint: TestEndpoint,
+	cfg := &Config{
+		id:       msg.EthereumId,
+		endpoint: TestEndpoint,
+		keystore: keystore.NewTestKeystore(),
+		from:     "ethereum",
 	}
 
 	conn := NewConnection(cfg)
-	chainCfg := &core.ChainConfig{
-		Id:            msg.EthereumId,
-		Endpoint:      TestEndpoint,
-		Receiver:      "",
-		Emitter:       "",
-		From:          "",
-		Subscriptions: nil,
-	}
-	l := NewListener(conn, chainCfg)
+	l := NewListener(conn, cfg)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)

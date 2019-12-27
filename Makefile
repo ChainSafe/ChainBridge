@@ -1,7 +1,7 @@
 PROJECTNAME=$(shell basename "$(PWD)")
 GOLANGCI := $(GOPATH)/bin/golangci-lint
 
-.PHONY: help
+.PHONY: help run build install
 all: help
 
 help: Makefile

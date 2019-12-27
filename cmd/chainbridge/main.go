@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -29,7 +28,7 @@ var accountFlags = []cli.Flag{
 }
 
 var accountCommand = cli.Command{
-	Action:   handleAccounts,
+	Action:   handleAccountsCmd,
 	Name:     "accounts",
 	Usage:    "manage bridge keystore",
 	Flags:    accountFlags,
@@ -89,23 +88,29 @@ func run(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	log.Debug("Loaded config", "config", fmt.Sprintf("%+v", cfg))
-	// TODO: add which key we want to use for each chain to config
 
+	ks := keystore.NewKeystore(cfg.keystorePath)
+
+	// TODO: Load chains iteratively
 	ethA := ethereum.InitializeChain(&core.ChainConfig{
-		Id:            msg.EthereumId,
-		Endpoint:      cfg.EthereumA.Endpoint,
-		Receiver:      cfg.EthereumA.Receiver,
-		Emitter:       cfg.EthereumA.Emitter,
-		Subscriptions: []string{"Transfer(address,bytes32)"},
+		Id:            cfg.Chains[0].Id,
+		Endpoint:      cfg.Chains[0].Endpoint,
+		Receiver:      cfg.Chains[0].Receiver,
+		Emitter:       cfg.Chains[0].Emitter,
+		From:          cfg.Chains[0].From,
+		Subscriptions: []string{"DepositAsset(address,bytes32)"},
+		Keystore:      ks,
 	})
 
+	// For now lets pretend this is a Centrifuge chain
 	ethB := ethereum.InitializeChain(&core.ChainConfig{
-		Id:            msg.CentrifugeId,
-		Endpoint:      cfg.EthereumB.Endpoint,
-		Receiver:      cfg.EthereumB.Receiver,
-		Emitter:       cfg.EthereumB.Emitter,
-		Subscriptions: []string{"Transfer(address,bytes32)"},
+		Id:            cfg.Chains[1].Id,
+		Endpoint:      cfg.Chains[1].Endpoint,
+		Receiver:      cfg.Chains[1].Receiver,
+		Emitter:       cfg.Chains[1].Emitter,
+		From:          cfg.Chains[1].From,
+		Subscriptions: []string{"DepositAsset(address,bytes32)"},
+		Keystore:      ks,
 	})
 
 	//ctfg := centrifuge.InitializeChain(&core.ChainConfig{
@@ -118,7 +123,6 @@ func run(ctx *cli.Context) error {
 	c := core.NewCore(nil)
 	c.AddChain(ethA)
 	c.AddChain(ethB)
-	//c.AddChain(ctfg)
 	c.Start()
 
 	return nil

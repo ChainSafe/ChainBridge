@@ -1,11 +1,14 @@
-[ethereumA]
+[[chains]]
+id = 0
 endpoint = "ws://localhost:8545"
-receiver = "0x705D4Fa884AF2Ae59C7780A0f201109947E2Bf6D"
 emitter = "0x1fA38b0EfccA4228EB9e15112D4d98B0CEe3c600"
-from = "0x34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4"
+receiver = "0x290f41e61374c715C1127974bf08a3993afd0145"
+from = "02855e96adad26f99329dd921889fbf94811b0de26efeb8b251b9e1f83f02d8597"
 
-[ethereumB]
+
+[[chains]]
+id = 1
 endpoint = "ws://localhost:8546"
-receiver = "0xf563197E48e62AE4ce194e89F7fCa67E05CFE5fC"
 emitter = "0x1fA38b0EfccA4228EB9e15112D4d98B0CEe3c600"
-from = "0x34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4"
+receiver = "0x290f41e61374c715C1127974bf08a3993afd0145"
+from = "02855e96adad26f99329dd921889fbf94811b0de26efeb8b251b9e1f83f02d8597"

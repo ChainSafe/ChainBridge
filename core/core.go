@@ -9,17 +9,17 @@ import (
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
 
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	"github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum/accounts/keystore"
 )
 
 type Core struct {
 	registry map[msg.ChainId]*Chain
 	route    *router.Router
-	ks       *keystore.KeyStore
+	ks       *keystore.Keystore
 }
 
-func NewCore(ks *keystore.KeyStore) *Core {
+func NewCore(ks *keystore.Keystore) *Core {
 	return &Core{
 		registry: make(map[msg.ChainId]*Chain),
 		route:    router.NewRouter(),

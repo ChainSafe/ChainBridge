@@ -1,16 +1,14 @@
 package ethereum
 
 import (
-	"context"
 	"encoding/hex"
 	"math/big"
 	"testing"
 
 	"github.com/ChainSafe/ChainBridgeV2/common"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethparams "github.com/ethereum/go-ethereum/params"
 )
 
 func testMessage(t *testing.T) msg.Message {
@@ -21,7 +19,7 @@ func testMessage(t *testing.T) msg.Message {
 	}
 
 	return msg.Message{
-		Type: msg.AssetTransferType,
+		Type: msg.DepositAssetType,
 		Data: data,
 	}
 }
@@ -29,73 +27,38 @@ func testMessage(t *testing.T) msg.Message {
 func TestResolveMessage(t *testing.T) {
 	m := testMessage(t)
 
-	ctx := context.Background()
-
-	signer := ethtypes.MakeSigner(ethparams.MainnetChainConfig, big.NewInt(0))
-	privBytes, err := hex.DecodeString(TestPrivateKey)
-	if err != nil {
-		t.Fatal(err)
-	}
-	priv, err := secp256k1.NewPrivateKey(privBytes)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	kp, err := secp256k1.NewKeypairFromPrivate(priv)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	cfg := &ConnectionConfig{
-		Ctx:      ctx,
-		Endpoint: TestEndpoint,
-		Keypair:  kp,
-		Signer:   signer,
-		Emitter:  TestCentrifugeContractAddress,
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		emitter:  TestCentrifugeContractAddress,
+		keystore: keystore.NewTestKeystore(),
+		from:     "ethereum",
 	}
 
 	conn := NewConnection(cfg)
-	err = conn.Connect()
+	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer conn.Close()
 
-	w := NewWriter(conn)
+	w := NewWriter(conn, cfg)
 	w.ResolveMessage(m)
 
 }
 
 func TestWriteToCentrifugeContract(t *testing.T) {
-	ctx := context.Background()
-
-	signer := ethtypes.MakeSigner(ethparams.MainnetChainConfig, big.NewInt(0))
-	privBytes, err := hex.DecodeString(TestPrivateKey)
-	if err != nil {
-		t.Fatal(err)
-	}
-	priv, err := secp256k1.NewPrivateKey(privBytes)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	kp, err := secp256k1.NewKeypairFromPrivate(priv)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	// TODO: add run ./scripts/local_test/start_ganache.sh and ./scripts/local_test/ethereum_start.sh
 	// to CI so that contract gets deployed
-	cfg := &ConnectionConfig{
-		Ctx:      ctx,
-		Endpoint: TestEndpoint,
-		Keypair:  kp,
-		Signer:   signer,
-		Emitter:  TestCentrifugeContractAddress,
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		emitter:  TestCentrifugeContractAddress,
+		keystore: keystore.NewTestKeystore(),
+		from:     "ethereum",
 	}
 
 	conn := NewConnection(cfg)
-	err = conn.Connect()
+	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +77,7 @@ func TestWriteToCentrifugeContract(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	nonce, err := conn.NonceAt(common.StringToAddress(TestAddress), currBlock.Number())
+	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
 	if err != nil {
 		t.Fatal(err)
 	}
