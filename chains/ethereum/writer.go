@@ -60,9 +60,10 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 	tx = ethtypes.NewTransaction(
 		nonce,
 		w.conn.cfg.receiver,
-		big.NewInt(0),  // TODO: value?
-		1000000,        // TODO: gasLimit
-		big.NewInt(10), // TODO: gasPrice
+		// TODO: Make these configurable
+		big.NewInt(0),
+		6721975,
+		big.NewInt(20000000000),
 		calldata,
 	)
 
@@ -74,7 +75,6 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 	err = w.conn.SubmitTx(data)
 	if err != nil {
 		panic(err)
-
 	}
 }
 

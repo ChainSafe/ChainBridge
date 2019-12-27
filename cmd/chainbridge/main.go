@@ -89,6 +89,8 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
+
+
 	ks := keystore.NewKeystore(cfg.keystorePath)
 
 	// TODO: Load chains iteratively
@@ -98,7 +100,7 @@ func run(ctx *cli.Context) error {
 		Receiver:      cfg.Chains[0].Receiver,
 		Emitter:       cfg.Chains[0].Emitter,
 		From:          cfg.Chains[0].From,
-		Subscriptions: []string{"Transfer(address,bytes32)"},
+		Subscriptions: []string{"DepositAsset(address,bytes32)"},
 		Keystore:      ks,
 	})
 

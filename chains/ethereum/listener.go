@@ -1,6 +1,8 @@
 package ethereum
 
 import (
+	"fmt"
+
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
@@ -43,6 +45,7 @@ func (l *Listener) Start() error {
 		err := l.RegisterEventHandler(sub, func(evtI interface{}) msg.Message {
 			evt := evtI.(ethtypes.Log)
 			log15.Trace("Got event!", "type", sub)
+			fmt.Printf("%+v\n", evt)
 			return msg.Message{
 				Type: msg.DepositAssetType,
 				Data: evt.Topics[0].Bytes(),
