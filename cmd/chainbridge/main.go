@@ -89,8 +89,6 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-
-
 	ks := keystore.NewKeystore(cfg.keystorePath)
 
 	// TODO: Load chains iteratively
