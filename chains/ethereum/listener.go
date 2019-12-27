@@ -11,6 +11,11 @@ import (
 
 var _ chains.Listener = &Listener{}
 
+type Subscription struct {
+	ch  <-chan ethtypes.Log
+	sub eth.Subscription
+}
+
 type Listener struct {
 	cfg           Config
 	conn          *Connection
@@ -30,6 +35,7 @@ func (l *Listener) SetRouter(r chains.Router) {
 	l.router = r
 }
 
+// Start registers all subscriptions provided by the config
 func (l *Listener) Start() error {
 	log15.Debug("Starting listener...", "chainID", l.cfg.id, "subs", l.cfg.subscriptions)
 	for _, sub := range l.cfg.subscriptions {
@@ -49,15 +55,10 @@ func (l *Listener) Start() error {
 	return nil
 }
 
-type Subscription struct {
-	ch  <-chan ethtypes.Log
-	sub eth.Subscription
-}
-
 // buildQuery constructs a query for the contract by hashing sig to get the event topic
+// TODO: Start from current block
 func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQuery {
 	query := eth.FilterQuery{
-		// TODO: Might want current block
 		FromBlock: nil,
 		Addresses: []common.Address{contract},
 		Topics: [][]common.Hash{
@@ -67,6 +68,8 @@ func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQ
 	return query
 }
 
+// RegisterEventHandler creates a subscription for the provided event on the emitter contract.
+// Handler will be called for every instance of event.
 func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) msg.Message) error {
 	evt := EventSig(sig)
 	query := l.buildQuery(l.cfg.emitter, evt)
@@ -80,6 +83,8 @@ func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) ms
 	return nil
 }
 
+// watchEvent will call the handler for every occurrence of the corresponding event. It should be run in a separate
+// goroutine to monitor the subscription channel.
 func (l *Listener) watchEvent(sub *Subscription, handler func(interface{}) msg.Message) {
 	for {
 		select {
@@ -97,10 +102,14 @@ func (l *Listener) watchEvent(sub *Subscription, handler func(interface{}) msg.M
 	}
 }
 
+// Unsubscribe cancels a subscription for the given event
 func (l *Listener) Unsubscribe(sig EventSig) {
-	l.subscriptions[sig].sub.Unsubscribe()
+	if _, ok := l.subscriptions[sig]; ok {
+		l.subscriptions[sig].sub.Unsubscribe()
+	}
 }
 
+// Stop cancels all subscriptions. Must be called before Connection.Stop().
 func (l *Listener) Stop() error {
 	for _, sub := range l.subscriptions {
 		sub.sub.Unsubscribe()

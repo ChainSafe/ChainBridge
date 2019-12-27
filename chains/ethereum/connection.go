@@ -36,6 +36,7 @@ func NewConnection(cfg *Config) *Connection {
 	}
 }
 
+// Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
 	kp, err := c.cfg.keystore.KeypairFromAddress(c.cfg.from)
 	if err != nil {
@@ -52,6 +53,7 @@ func (c *Connection) Connect() error {
 	return nil
 }
 
+// Close stops the WS connection
 func (c *Connection) Close() {
 	c.conn.Close()
 }
@@ -100,7 +102,7 @@ func (c *Connection) NonceAt(account [20]byte, blockNum *big.Int) (uint64, error
 	return c.conn.NonceAt(c.ctx, ethcommon.Address(account), blockNum)
 }
 
-// LatestBlock returns the latest block
+// LatestBlock returns the latest block from the current chain
 func (c *Connection) LatestBlock() (*ethtypes.Block, error) {
 	return c.conn.BlockByNumber(c.ctx, nil)
 }

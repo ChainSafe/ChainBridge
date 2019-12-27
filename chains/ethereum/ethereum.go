@@ -5,7 +5,7 @@ import (
 )
 
 func InitializeChain(chainCfg *core.ChainConfig) *core.Chain {
-	cfg := FromChainConfig(chainCfg)
+	cfg := ParseChainConfig(chainCfg)
 
 	c := core.NewChain(chainCfg)
 	conn := NewConnection(cfg)
