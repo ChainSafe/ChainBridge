@@ -12,13 +12,13 @@ import (
 // Router forwards messages from their source to their destination
 type Router struct {
 	registry map[msg.ChainId]chains.Writer
-	lock     sync.RWMutex
+	lock     *sync.RWMutex
 }
 
 func NewRouter() *Router {
 	return &Router{
 		registry: make(map[msg.ChainId]chains.Writer),
-		lock:     sync.RWMutex{},
+		lock:     &sync.RWMutex{},
 	}
 }
 
@@ -27,12 +27,12 @@ func (r *Router) Send(msg msg.Message) error {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	log.Trace("Sending message", "src", msg.Source.String(), "dest", msg.Destination.String())
-	W := r.registry[msg.Destination]
-	if W == nil {
+	w := r.registry[msg.Destination]
+	if w == nil {
 		return fmt.Errorf("unknown destination chainId: %d", msg.Destination)
 	}
 	// TODO: Need to preserve ordering, perhaps a queue would help
-	W.ResolveMessage(msg)
+	w.ResolveMessage(msg)
 	return nil
 }
 

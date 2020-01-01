@@ -6,7 +6,6 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	"github.com/ChainSafe/ChainBridgeV2/router"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/state"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
@@ -19,7 +18,7 @@ type Listener struct {
 	conn          *Connection
 	sub           *state.StorageSubscription  // Subscription to all events
 	subscriptions map[string]chains.HandlerFn // Handlers for specific events
-	router        *router.Router
+	router        chains.Router
 }
 
 func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {
@@ -30,7 +29,7 @@ func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {
 	}
 }
 
-func (l *Listener) SetRouter(r *router.Router) {
+func (l *Listener) SetRouter(r chains.Router) {
 	l.router = r
 }
 
@@ -92,6 +91,5 @@ func (l *Listener) handleEvents(evts Events) {
 }
 
 func (l *Listener) Stop() error {
-	l.sub.Unsubscribe()
-	return nil
+	panic("not implemented")
 }

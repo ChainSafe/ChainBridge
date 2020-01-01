@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
+# Exit on failure
 set -e
+
 echo "" > coverage.txt
 
 for d in $(go list ./...); do

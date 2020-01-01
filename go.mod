@@ -18,6 +18,7 @@ require (
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/rs/xhandler v0.0.0-20170707052532-1eb70cf1520d // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
+	github.com/status-im/keycard-go v0.0.0-20190316090335-8537d3370df4
 	github.com/urfave/cli v1.22.2
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
