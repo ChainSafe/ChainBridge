@@ -3,8 +3,10 @@
 #**[WIP]**
 
 ## Run the bridge
-1. `make run`
-2. `make build`
+ 
+`make run`
+
+See `--help` for CLI options.
 
 ## Configuring the bridge
 
@@ -19,11 +21,11 @@ For the time being we have `ethereum` and `centrifuge` which are both standard E
 A chain configurations take this form:
 ```toml
 [[chains]]
-id = <see ./message/id.go>
-endpoint = <RPC (WS) endpoint>
-receiver = <bridge contract address>
-emitter = <bridge contract address>
-from = <public key to use for txs>
+id = 0 # see ./message/id.go
+endpoint = "ws://localhost:8545" # RPC (WS) endpoint
+receiver = "0x1234" # bridge receiver contract address
+emitter = "0x1234" # bridge emitter contract address>
+from = "0x1234" # public key to use for txs
 ```
 
 See `config.toml` for an example configuration. 
@@ -33,7 +35,7 @@ Note: presently a home and away contracts can be specified, these can be the sam
 
 ### Keystore
 
-To manage key ChainBridge uses a keystore specificed with the `--keystore <path>` flag. By default it uses `./keys`. The addresses specified in the config will be used to identify which keys to load.
+To manage keys ChainBridge uses a keystore specificed with the `--keystore <path>` flag. By default it uses `./keys`. The public key specified in the config will be used to identify which keys to load.
 
 Keys can be managed with the `account` sub-command. Please see `chainbridge account --help` for documentation.
 
