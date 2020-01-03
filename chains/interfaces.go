@@ -17,11 +17,11 @@ type Router interface {
 type Listener interface {
 	Start() error
 	SetRouter(Router)
-	RegisterEventHandler(string, HandlerFn) error
+	RegisterEventHandler(string, EvtHandlerFn) error
 	Stop() error
 }
 
-type HandlerFn func(interface{}) msg.Message
+type EvtHandlerFn func(interface{}) msg.Message
 
 type Writer interface {
 	Start() error
