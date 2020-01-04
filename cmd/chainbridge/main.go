@@ -104,17 +104,6 @@ func run(ctx *cli.Context) error {
 		Keystore:      ks,
 	})
 
-	// For now lets pretend this is a Centrifuge chain
-	//ethB := ethereum.InitializeChain(&core.ChainConfig{
-	//	Id:            cfg.Chains[1].Id,
-	//	Endpoint:      cfg.Chains[1].Endpoint,
-	//	Receiver:      cfg.Chains[1].Receiver,
-	//	Emitter:       cfg.Chains[1].Emitter,
-	//	From:          cfg.Chains[1].From,
-	//	Subscriptions: []string{"DepositAsset(address,bytes32)"},
-	//	Keystore:      ks,
-	//})
-
 	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
 		Id:            msg.CentrifugeId,
 		Endpoint:      cfg.Chains[1].Endpoint,
