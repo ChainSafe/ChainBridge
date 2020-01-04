@@ -56,6 +56,7 @@ func (l *Listener) Start() error {
 	return nil
 }
 
+// RegisterEventHandler enables a handler for a given event. This cannot be used after Start is called.
 func (l *Listener) RegisterEventHandler(name string, handler chains.EvtHandlerFn) error {
 	if l.sub == nil {
 		if l.subscriptions[name] != nil {
@@ -68,6 +69,8 @@ func (l *Listener) RegisterEventHandler(name string, handler chains.EvtHandlerFn
 
 }
 
+// watchForEvents is a blocking function that watches the subscription's event and error channels.
+// New events are handled by calling handleEvents. Errors are simply logged.
 func (l *Listener) watchForEvents(sub *state.StorageSubscription) {
 	for {
 		select {
@@ -86,20 +89,27 @@ func (l *Listener) watchForEvents(sub *state.StorageSubscription) {
 				l.handleEvents(events)
 			}
 		case err := <-sub.Err():
-			log15.Error("subscription error", "sub", sub, "err", err)
+			// TODO: Re-try connection
+			if err != nil {
+				log15.Error("subscription error", "sub", sub, "err", err)
+			}
 		}
 	}
 }
 
+// handleEvents calls the associated handler for all registered event types
 func (l *Listener) handleEvents(evts Events) {
 	// TODO: Handle all event types
-	for _, nft := range evts.Nfts_DepositAsset {
-		msg := l.subscriptions["nfts"](nft)
-		err := l.router.Send(msg)
-		if err != nil {
-			log15.Error("failed to process event", "err", err)
+	if l.subscriptions["nfts"] != nil {
+		for _, nft := range evts.Nfts_DepositAsset {
+			msg := l.subscriptions["nfts"](nft)
+			err := l.router.Send(msg)
+			if err != nil {
+				log15.Error("failed to process event", "err", err)
+			}
 		}
 	}
+
 }
 
 func (l *Listener) Stop() error {
