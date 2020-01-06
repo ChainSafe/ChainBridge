@@ -13,7 +13,9 @@ import (
 	"path/filepath"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/ed25519"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
 	"golang.org/x/crypto/blake2b"
 )
 
@@ -104,7 +106,14 @@ func EncryptAndWriteToFile(file *os.File, pk crypto.PrivateKey, password []byte)
 
 	keytype := ""
 
-	// TODO: add more key types
+	if _, ok := pk.(*ed25519.PrivateKey); ok {
+		keytype = crypto.Ed25519Type
+	}
+
+	if _, ok := pk.(*sr25519.PrivateKey); ok {
+		keytype = crypto.Sr25519Type
+	}
+
 	if _, ok := pk.(*secp256k1.PrivateKey); ok {
 		keytype = crypto.Secp256k1Type
 	}

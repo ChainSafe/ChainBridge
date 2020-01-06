@@ -3,8 +3,10 @@ module github.com/ChainSafe/ChainBridgeV2
 go 1.13
 
 require (
+	github.com/ChainSafe/go-schnorrkel v0.0.0-20200102211924-4bcbc698314f
 	github.com/ChainSafe/log15 v1.0.0
 	github.com/btcsuite/btcd v0.0.0-20190824003749-130ea5bddde3 // indirect
+	github.com/btcsuite/btcutil v0.0.0-20190425235716-9e5f4b9a998d
 	github.com/centrifuge/go-substrate-rpc-client v0.0.3
 	github.com/ethereum/go-ethereum v1.9.8
 	github.com/golang/protobuf v1.3.2 // indirect
@@ -19,7 +21,7 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/status-im/keycard-go v0.0.0-20190316090335-8537d3370df4
 	github.com/urfave/cli v1.22.2
-	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
+	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
 	golang.org/x/net v0.0.0-20190916140828-c8589233b77d // indirect
 	golang.org/x/sys v0.0.0-20190922100055-0a153f010e69 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect

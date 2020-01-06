@@ -10,7 +10,9 @@ import (
 	"syscall"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/ed25519"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 
 	log "github.com/ChainSafe/log15"
@@ -42,8 +44,15 @@ func handleAccountsCmd(ctx *cli.Context) error {
 	if keygen := ctx.Bool(GenerateFlag.Name); keygen {
 		log.Info("Generating keypair...")
 
+		// check if --ed25519 or --sr25519 is set
 		keytype := crypto.Secp256k1Type
-		// TODO: add other key types
+		if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
+			keytype = crypto.Sr25519Type
+		} else if flagtype := ctx.Bool(Ed25519Flag.Name); flagtype {
+			keytype = crypto.Ed25519Type
+		} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
+			keytype = crypto.Secp256k1Type
+		}
 
 		// check if --password is set
 		var password []byte = nil
@@ -159,15 +168,31 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 	}
 
 	if keytype == "" {
+		log.Info("Using default key type", "type", keytype)
 		keytype = crypto.Secp256k1Type
 	}
 
 	var kp crypto.Keypair
 	var err error
-	// TODO: add more keytypes
-	kp, err = secp256k1.GenerateKeypair()
-	if err != nil {
-		return "", fmt.Errorf("could not generate secp256k1 keypair: %s", err)
+
+	if keytype == crypto.Sr25519Type {
+		// generate sr25519 keys
+		kp, err = sr25519.GenerateKeypair()
+		if err != nil {
+			return "", fmt.Errorf("could not generate sr25519 keypair: %s", err)
+		}
+	} else if keytype == crypto.Ed25519Type {
+		// generate ed25519 keys
+		kp, err = ed25519.GenerateKeypair()
+		if err != nil {
+			return "", fmt.Errorf("could not generate ed25519 keypair: %s", err)
+		}
+	} else if keytype == crypto.Secp256k1Type {
+		// generate secp256k1 keys
+		kp, err = secp256k1.GenerateKeypair()
+		if err != nil {
+			return "", fmt.Errorf("could not generate secp256k1 keypair: %s", err)
+		}
 	}
 
 	keystorepath, err := keystoreDir(datadir)
