@@ -1,0 +1,23 @@
+version: '3'
+services:
+  ganache:
+    build: .
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "8545:8545"
+    command: ["/usr/src/app/scripts/local_test/start_ganache.sh"]
+    networks:
+      - eth
+  deploy-eth:
+    build: .
+    depends_on:
+      - ganache
+    volumes:
+      - .:/usr/src/app
+    command: ["/usr/src/app/scripts/local_test/ethereum_deploy.sh"]
+    networks:
+      - eth
+
+networks:
+  eth:
