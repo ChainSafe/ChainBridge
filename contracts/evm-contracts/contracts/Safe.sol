@@ -24,8 +24,8 @@ contract Safe is ISafe {
         // balances[_tokenAddress] = balances[_tokenAddress].add(_value);
         
         // Lock tokens
-        // ERC20 token = ERC20(_tokenAddress);
-        // token.transferFrom(_from, _to, _value);
+        ERC20 token = ERC20(_tokenAddress);
+        token.transferFrom(_from, _to, _value);
     }
     
     function release(address _tokenAddress, uint _value, address _to) public onlyOwner {

@@ -20,7 +20,7 @@ contract Emitter is Safe {
         uint depositId = DepositCounts[_destChain];
         emit GenericTransfer(_destChain, depositId, _destAddress, _data);
     }
-
+    
     function depositGenericErc(
         uint _destChain,
         uint _value,

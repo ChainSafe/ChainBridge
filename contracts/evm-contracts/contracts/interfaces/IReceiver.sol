@@ -1,5 +1,7 @@
 pragma solidity 0.5.12;
 
+import "../helpers/Ownable.sol";
+
 interface IReceiver {
-    function transfer(uint _originChain, address _originTokenAddress, address _to, uint _value) external;
+    function executeTransfer(uint _originChain, bytes calldata _data) external;
 }
