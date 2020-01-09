@@ -1,7 +1,8 @@
 pragma solidity 0.5.12;
 
 import "./erc/ERC20.sol";
-import "./safe";
+import "./Safe.sol";
+
 contract Emitter is Safe {
 
     // ChainId => number of deposits
@@ -9,13 +10,8 @@ contract Emitter is Safe {
 
     event GenericTransfer(uint _destChain, uint _depositId, address _destAddress, bytes _data);
     event ERCTransfer(uint _destChain, uint _depositId, address _to, uint _amount, address _tokenAddress);
-    event Transfer(address _addr, bytes32 indexed _hash);
 
-    constructor(address _safeAddress) {
-        _safe = _safeAddress;
-    }
-
-    function deposit(uint _destChain, address _destAddress, bytes _data) public {
+    function deposit(uint _destChain, address _destAddress, bytes memory _data) public {
         // Incremnet deposit
         DepositCounts[_destChain]++;
         uint depositId = DepositCounts[_destChain];
@@ -36,11 +32,6 @@ contract Emitter is Safe {
         // Lock funds
         lock(_tokenAddress, _value, _to, _from);
 
-        emit ERCTransfer(_destChain, depositId, _to, _amount, _tokenAddress);
+        emit ERCTransfer(_destChain, depositId, _to, _value, _tokenAddress);
     }
-
-	function () external {
-		bytes32 hash = sha256(abi.encodePacked(msg.sender, block.number));
-		emit Transfer(msg.sender, hash);
-	}
 }

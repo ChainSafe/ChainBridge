@@ -1,7 +1,6 @@
 pragma solidity ^0.5.2;
 
 import "./ERC20.sol";
-import "./ERC20Detailed.sol";
 
 /**
  * @title SimpleToken
@@ -16,7 +15,7 @@ contract SimpleToken is ERC20, ERC20Detailed {
     /**
      * @dev Constructor that gives msg.sender all of existing tokens.
      */
-    constructor () public ERC20Detailed("SimpleToken", "SIM", DECIMALS) {
+    constructor () public {
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 }
