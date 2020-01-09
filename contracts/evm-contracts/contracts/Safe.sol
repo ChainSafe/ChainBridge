@@ -2,14 +2,24 @@ pragma solidity 0.5.12;
 
 import "./helpers/SafeMath.sol";
 import "./erc/ERC20.sol";
-import "./Ownable.sol";
 import "./interfaces/ISafe.sol";
 
-contract Safe is ISafe, Ownable {
+contract Safe is ISafe {
     using SafeMath for uint;
 
+    address Owner;
+    
     mapping(address => uint) balances;
-
+    
+    modifier onlyOwner {
+        require(msg.sender == Owner);
+        _;
+    }
+    
+    constructor(address _owner) public {
+        Owner = _owner;
+    }
+    
     function lock(address _tokenAddress, uint _value, address _to, address _from) public onlyOwner {
         balances[_tokenAddress] = balances[_tokenAddress].add(_value);
         

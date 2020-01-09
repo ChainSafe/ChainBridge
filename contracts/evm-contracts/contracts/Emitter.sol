@@ -1,16 +1,17 @@
 pragma solidity 0.5.12;
 
-import "./erc/ERC20.sol";
 import "./Safe.sol";
 
-contract Emitter is Safe {
+contract Emitter is ISafe, Safe {
 
     // ChainId => number of deposits
     mapping(uint => uint) DepositCounts;
 
     event GenericTransfer(uint _destChain, uint _depositId, address _destAddress, bytes _data);
     event ERCTransfer(uint _destChain, uint _depositId, address _to, uint _amount, address _tokenAddress);
-
+    
+    constructor() public Safe(address(this)) {}
+    
     function deposit(uint _destChain, address _destAddress, bytes memory _data) public {
         // Incremnet deposit
         DepositCounts[_destChain]++;

@@ -176,7 +176,7 @@ contract Receiver {
      * @param _originChainId - The chain id representing where the deposit originated from
      * @param _depositId - The id generated from the origin chain
      */
-    function executeDeposit(bytes memory _data, uint _originChainId, uint _depositId) public {
+    function executeDeposit(bytes memory _data, uint _originChainId, uint _depositId) public view {
         DepositProposal storage proposal = DepositProposals[_originChainId][_depositId];
         require(proposal.numYes >= DepositThreshold, "Vote has not passed!"); // Check that voted passed
         // Ensure that the incoming data is the same as the hashed data from the proposal
@@ -329,7 +329,7 @@ contract Receiver {
      * @param _chainId - The chain id from where the deposit originated from
      * @param _depositId - The deposit id that was generated on the origin chain
      */
-    function getDepositProposal(uint _chainId, uint _depositId) public returns (
+    function getDepositProposal(uint _chainId, uint _depositId) public view returns (
         bytes32 hash,
         uint id,
         uint originChain,
