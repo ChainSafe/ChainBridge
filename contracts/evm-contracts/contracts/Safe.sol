@@ -21,11 +21,11 @@ contract Safe is ISafe {
     }
     
     function lock(address _tokenAddress, uint _value, address _to, address _from) public onlyOwner {
-        balances[_tokenAddress] = balances[_tokenAddress].add(_value);
+        // balances[_tokenAddress] = balances[_tokenAddress].add(_value);
         
         // Lock tokens
-        ERC20 token = ERC20(_tokenAddress);
-        token.transferFrom(_from, _to, _value);
+        // ERC20 token = ERC20(_tokenAddress);
+        // token.transferFrom(_from, _to, _value);
     }
     
     function release(address _tokenAddress, uint _value, address _to) public onlyOwner {
@@ -35,5 +35,9 @@ contract Safe is ISafe {
         // Transfer funds to user
         ERC20 token = ERC20(_tokenAddress);
         token.transfer(_to, _value);
+    }
+    
+    function owner() public view returns (address) {
+       return Owner;
     }
 }

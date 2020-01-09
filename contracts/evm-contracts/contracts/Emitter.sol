@@ -2,7 +2,7 @@ pragma solidity 0.5.12;
 
 import "./Safe.sol";
 
-contract Emitter is ISafe, Safe {
+contract Emitter is Safe {
 
     // ChainId => number of deposits
     mapping(uint => uint) DepositCounts;
@@ -10,7 +10,9 @@ contract Emitter is ISafe, Safe {
     event GenericTransfer(uint _destChain, uint _depositId, address _destAddress, bytes _data);
     event ERCTransfer(uint _destChain, uint _depositId, address _to, uint _amount, address _tokenAddress);
     
-    constructor() public Safe(address(this)) {}
+    constructor()
+        Safe(address(this)) 
+        public {}
     
     function deposit(uint _destChain, address _destAddress, bytes memory _data) public {
         // Incremnet deposit
@@ -19,11 +21,10 @@ contract Emitter is ISafe, Safe {
         emit GenericTransfer(_destChain, depositId, _destAddress, _data);
     }
 
-    function genericErc(
+    function depositGenericErc(
         uint _destChain,
         uint _value,
         address _to,
-        address _from,
         address _tokenAddress
     ) public {
         // Incremnet deposit
@@ -31,7 +32,7 @@ contract Emitter is ISafe, Safe {
         uint depositId = DepositCounts[_destChain];
 
         // Lock funds
-        lock(_tokenAddress, _value, _to, _from);
+        super.lock(_tokenAddress, _value, address(this), msg.sender);
 
         emit ERCTransfer(_destChain, depositId, _to, _value, _tokenAddress);
     }
