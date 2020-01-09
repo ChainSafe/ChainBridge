@@ -1,8 +1,8 @@
 pragma solidity ^0.5.12;
 
 import "../GSN/Context.sol";
-import "./ERC20.sol";
-import "./ERC20Mintable.sol";
+import "../erc/ERC20.sol";
+import "../erc/ERC20Mintable.sol";
 
 /**
  * @title SimpleToken
