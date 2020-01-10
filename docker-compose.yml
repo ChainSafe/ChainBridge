@@ -10,19 +10,23 @@ services:
     ports:
       - "8545:8545"
     expose: 
-      - "8545"
+      - 8545
     networks:
       - eth
+
   deploy-eth:
     build: 
-        context: ./contracts/evm-contracts
-        dockerfile: Dockerfile
+        context: .
+        dockerfile: Docker/deploy.Dockerfile
+    volumes:
+      - .:/usr/src/app
     restart: always
     depends_on:
       - ganache
     networks:
       - eth
-    links:
-      - ganache
+
 networks:
-  eth:
+  eth: 
+    driver: bridge
+
