@@ -1,6 +1,6 @@
 FROM node:10
 
-ENV BASE_URL 0.0.0.0
+ENV BASE_URL ganache
 
 RUN mkdir /app
 WORKDIR /app

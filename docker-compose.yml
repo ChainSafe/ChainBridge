@@ -22,6 +22,7 @@ services:
       - ganache
     networks:
       - eth
-
+    links:
+      - ganache
 networks:
   eth:
