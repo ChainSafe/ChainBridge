@@ -60,3 +60,6 @@ start_eth:
 deploy_eth:
 	@echo " > \033[32mDeploying evm contracts... \033[0m "
 	./scripts/local_test/ethereum_deploy.sh
+
+docker_start:
+	docker-compose up -d && docker-compose exec ganache node ./scripts/deploy_local.js --validators 3

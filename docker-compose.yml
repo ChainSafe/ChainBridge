@@ -3,30 +3,31 @@ services:
   ganache:
     build:
         context: .
-        dockerfile: Docker/ganache.Dockerfile
+        dockerfile: Docker/Dockerfile
     restart: always
     volumes:
       - .:/usr/src/app
     ports:
       - "8545:8545"
-    expose: 
-      - 8545
-    networks:
-      - eth
+    # expose: 
+    #   - 8545
+    # networks:
+    #   - eth
 
-  deploy-eth:
-    build: 
-        context: .
-        dockerfile: Docker/deploy.Dockerfile
-    volumes:
-      - .:/usr/src/app
-    restart: always
-    depends_on:
-      - ganache
-    networks:
-      - eth
+#   deploy-eth:
+#     build:
+#       context: .
+#       dockerfile: Docker/deploy.Dockerfile
+#     volumes: 
+#       - .:/usr/src/app
+#     command: node ./scripts/deploy_local.js --validators 3
+#     # restart: always
+#     depends_on:
+#       - ganache
+#     networks:
+#       - eth
 
-networks:
-  eth: 
-    driver: bridge
+# networks:
+#   eth: 
+#     driver: bridge
 
