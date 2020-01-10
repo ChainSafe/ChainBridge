@@ -1,21 +1,25 @@
 version: '3'
 services:
   ganache:
-    build: .
+    build:
+        context: .
+        dockerfile: Docker/ganache.Dockerfile
+    restart: always
     volumes:
       - .:/usr/src/app
     ports:
       - "8545:8545"
-    command: ["/usr/src/app/scripts/local_test/start_ganache.sh"]
+    expose: 
+      - "8545"
     networks:
       - eth
   deploy-eth:
-    build: .
+    build: 
+        context: ./contracts/evm-contracts
+        dockerfile: Dockerfile
+    restart: always
     depends_on:
       - ganache
-    volumes:
-      - .:/usr/src/app
-    command: ["/usr/src/app/scripts/local_test/ethereum_deploy.sh"]
     networks:
       - eth
 
