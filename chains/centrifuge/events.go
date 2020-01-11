@@ -6,7 +6,7 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
-// Centrofuge event
+// Centrifuge event
 type EventNFTDeposited struct {
 	Phase  types.Phase
 	Asset  types.Hash
