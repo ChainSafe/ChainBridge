@@ -8,6 +8,5 @@ RUN cd cmd/chainbridge && go build -o /bridge .
 # # final stage
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
-COPY --from=builder /bridge /src/config.toml ./
+COPY --from=builder /bridge /src/config.toml /keys ./
 RUN chmod +x ./bridge
-ENTRYPOINT [ "./bridge" ]

@@ -8,9 +8,9 @@ services:
     volumes:
       - .:/usr/src/app
     ports:
-      - "8545:8545"
-    # expose: 
-    #   - 8545
+    - "8545:8545"
+    expose: 
+      - 8545
     networks:
       - eth
 
@@ -18,6 +18,9 @@ services:
     build:
         context: .
         dockerfile: Docker/Bridge.Dockerfile
+    environment: 
+      - KEYSTORE_PASSWORD=chainsafe
+    command: ./bridge
     depends_on:
       - ganache
     networks:
