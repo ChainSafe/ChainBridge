@@ -1,12 +1,13 @@
 FROM  golang:1.12.5-alpine AS builder
 RUN apk --no-cache add gcc build-base git
-ADD . /bridge
-WORKDIR /bridge
+ADD . /src
+WORKDIR /src
 RUN go mod download
-RUN cd cmd/chainbridge && go build -o ../../bridge
-RUN ls -la
+RUN cd cmd/chainbridge && go build -o /bridge .
 
-# final stage
-FROM alpine:3.11
-COPY --from=builder /bridge /
-# ENTRYPOINT [ "bridge" ]
+# # final stage
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+COPY --from=builder /bridge /src/config.toml ./
+RUN chmod +x ./bridge
+ENTRYPOINT [ "./bridge" ]
