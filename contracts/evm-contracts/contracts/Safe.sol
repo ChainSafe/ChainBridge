@@ -19,7 +19,7 @@ contract Safe is ISafe {
     constructor(address _owner) public {
         Owner = _owner;
     }
-    
+
     function lock(address _tokenAddress, uint _value, address _to, address _from) public onlyOwner {
         // balances[_tokenAddress] = balances[_tokenAddress].add(_value);
         
@@ -27,7 +27,7 @@ contract Safe is ISafe {
         ERC20 token = ERC20(_tokenAddress);
         token.transferFrom(_from, _to, _value);
     }
-    
+
     function release(address _tokenAddress, uint _value, address _to) public onlyOwner {
         require(balances[_tokenAddress] >= _value, "Withdrawal amount is too high!");
         balances[_tokenAddress] = balances[_tokenAddress].sub(_value);
