@@ -1,6 +1,7 @@
 pragma solidity 0.5.12;
 
-import "../interfaces/IReciever.sol";
+import "./interfaces/IReceiver.sol";
+import "./Centrifuge.sol";
 
 contract Receiver {
 
@@ -10,7 +11,7 @@ contract Receiver {
 
     enum Vote {Yes, No}
     enum ValidatorActionType {Add, Remove}
-    enum VoteStatus {Inactive, Active, Finalized, Trasnferred}
+    enum VoteStatus {Inactive, Active, Finalized, Transferred}
     enum ThresholdType {Validator, Deposit}
 
     // Used by validators to vote on deposits
@@ -80,7 +81,7 @@ contract Receiver {
     // keep track of all proposed deposits per origin chain
     // ChainId => DepositId => Proposal
     mapping(uint => mapping(uint => DepositProposal)) public DepositProposals;
-    
+
     // Ensure user is a validator
     modifier _isValidator() {
         require(Validators[msg.sender], "Sender is not a validator.");
@@ -150,7 +151,7 @@ contract Receiver {
      */
     function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
         require(DepositProposals[_originChainId][_depositId].status != VoteStatus.Inactive, "There is no active proposal!");
-        require(DepositProposals[_originChainId][_depositId].status >= VoteStatus.Finalized, "Proposal has already been finalized!");
+        require(DepositProposals[_originChainId][_depositId].status < VoteStatus.Finalized, "Proposal has already been finalized!");
         require(!DepositProposals[_originChainId][_depositId].votes[msg.sender], "Validator has already voted!");
         require(uint(_vote) <= 1, "Invalid vote!");
 
@@ -176,19 +177,30 @@ contract Receiver {
      * Executes a deposit, anyone can execute this as long as they pass in the correct _data
      * @param _originChainId - The chain id representing where the deposit originated from
      * @param _depositId - The id generated from the origin chain
-     * @param _to - The receiver contract address 
+     * @param _to - The receiver contract address
      * @param _data - Deposit data to be unpacked
      */
-    function executeDeposit(uint _originChainId, uint _depositId, address _to, bytes memory _data) public view {
+    function executeDeposit(uint _originChainId, uint _depositId, address _to, bytes memory _data) public {
         DepositProposal storage proposal = DepositProposals[_originChainId][_depositId];
         require(proposal.status == VoteStatus.Finalized, "Vote has not finalized!");
         require(proposal.numYes >= DepositThreshold, "Vote has not passed!"); // Check that voted passed
         // Ensure that the incoming data is the same as the hashed data from the proposal
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
 
-        // TODO unpack the _data
-        IReciever(_to).executeDeposit(_originChainId, _to, );
-        
+        // TODO use generic receiver
+        // IReciever(_to).executeDeposit(_originChainId, _to, );
+
+        ///////
+        // TODO remove this in favour of generic receiver
+        bytes32 centrifugeBytes32;
+        for (uint i = 0; i < 32; i++) {
+            centrifugeBytes32 |= bytes32(_data[i] & 0xFF) >> (i * 8);
+        }
+        // BridgeAsset centrifuge = BridgeAsset(_to);
+        BridgeAsset(_to).store(centrifugeBytes32);
+        // REMOVE ABOVE
+        ///////////////
+
         // Mark deposit Transferred
         DepositProposals[_originChainId][_depositId].status = VoteStatus.Transferred;
     }
