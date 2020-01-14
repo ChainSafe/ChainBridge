@@ -4,24 +4,26 @@ import (
 	"fmt"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	log "github.com/ChainSafe/log15"
 )
 
 type Chain struct {
-	cfg      *ChainConfig // emitter bridge address
+	cfg      *ChainConfig
 	conn     chains.Connection
 	listener chains.Listener
 	writer   chains.Writer
-	//subscriptions []string
 }
 
 type ChainConfig struct {
-	Id            msg.ChainId `toml:"id"`       // ChainID
-	Endpoint      string      `toml:"endpoint"` // url for rpc endpoint
-	Receiver      string      `toml:"receiver"` // receiver bridge address
-	Emitter       string      `toml:"emitter"`  // emitter bridge address
-	From          string      `toml:"from"`     // address of key to use
-	Subscriptions []string    `toml:"subscriptions"`
+	Id            msg.ChainId // ChainID
+	Endpoint      string      // url for rpc endpoint
+	Receiver      string      // bridge address to call
+	Emitter       string      // bridge address where events occur
+	From          string
+	Keystore      *keystore.Keystore
+	Subscriptions []string `toml:"subscriptions"`
 }
 
 func NewChain(cfg *ChainConfig) *Chain {
@@ -71,6 +73,8 @@ func (c *Chain) Start() error {
 	if err != nil {
 		return err
 	}
+
+	log.Debug("Successfully started chain")
 	return nil
 }
 

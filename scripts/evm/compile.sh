@@ -3,14 +3,14 @@
 contract_path="./contracts/evm-contracts/"
 build_dir="./build/evm-contracts/"
 
-cd $contract_path
+echo "Compiling contracts..."
 
-echo "\nRunning npm install..."
+pushd $contract_path
+
 npm install --silent
-echo "Running truffle compile..."
 node_modules/.bin/truffle compile
 
-cd ../../
+popd
 
-echo "\nCopying contracts to root..."
+echo "Copying contracts to root..."
 mkdir -p $build_dir && cp -r $contract_path/build/contracts/ $build_dir

@@ -2,50 +2,51 @@ package ethereum
 
 import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	"github.com/ChainSafe/ChainBridgeV2/router"
-
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	geth "github.com/ethereum/go-ethereum/mobile"
 )
 
 var _ chains.Listener = &Listener{}
 
-type Listener struct {
-	cfg           *core.ChainConfig
-	conn          *Connection
-	receiver      common.Address
-	emitter       common.Address
-	subscriptions map[EventSig]*Subscription
-	router        *router.Router
-	//handlers      map[EventSig](func())
+type Subscription struct {
+	ch  <-chan ethtypes.Log
+	sub eth.Subscription
 }
 
-func NewListener(conn *Connection, cfg *core.ChainConfig) *Listener {
+type Listener struct {
+	cfg           Config
+	conn          *Connection
+	subscriptions map[EventSig]*Subscription
+	router        chains.Router
+}
+
+func NewListener(conn *Connection, cfg *Config) *Listener {
 	return &Listener{
-		cfg:           cfg,
+		cfg:           *cfg,
 		conn:          conn,
-		receiver:      common.HexToAddress(cfg.Receiver),
-		emitter:       common.HexToAddress(cfg.Emitter),
 		subscriptions: make(map[EventSig]*Subscription),
 	}
 }
 
-func (l *Listener) SetRouter(r *router.Router) {
+func (l *Listener) SetRouter(r chains.Router) {
 	l.router = r
 }
 
+// Start registers all subscriptions provided by the config
 func (l *Listener) Start() error {
-	log15.Info("Starting ethereum listener...", "chainID", l.cfg.Id, "subs", l.cfg.Subscriptions)
-	for _, sub := range l.cfg.Subscriptions {
+	log15.Debug("Starting listener...", "chainID", l.cfg.id, "subs", l.cfg.subscriptions)
+	for _, sub := range l.cfg.subscriptions {
+		sub := sub
 		err := l.RegisterEventHandler(sub, func(evtI interface{}) msg.Message {
-			evt := evtI.(*geth.Log)
-			log15.Info("Got event!", "evt", evt)
-			return msg.Message{}
+			evt := evtI.(ethtypes.Log)
+			log15.Trace("Got event!", "type", sub)
+			return msg.Message{
+				Type: msg.DepositAssetType,
+				Data: evt.Topics[0].Bytes(),
+			}
 		})
 		if err != nil {
 			log15.Error("failed to register event handler", "err", err)
@@ -54,15 +55,10 @@ func (l *Listener) Start() error {
 	return nil
 }
 
-type Subscription struct {
-	ch  <-chan ethtypes.Log
-	sub eth.Subscription
-}
-
 // buildQuery constructs a query for the contract by hashing sig to get the event topic
+// TODO: Start from current block
 func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQuery {
 	query := eth.FilterQuery{
-		// TODO: Might want current block
 		FromBlock: nil,
 		Addresses: []common.Address{contract},
 		Topics: [][]common.Hash{
@@ -72,26 +68,29 @@ func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQ
 	return query
 }
 
+// RegisterEventHandler creates a subscription for the provided event on the emitter contract.
+// Handler will be called for every instance of event.
 func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) msg.Message) error {
-	log15.Info("Registering event handler", "sig", sig)
 	evt := EventSig(sig)
-	query := l.buildQuery(l.receiver, evt)
+	query := l.buildQuery(l.cfg.emitter, evt)
 	sub, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
 	}
 	l.subscriptions[EventSig(sig)] = sub
-	// TODO: Should be go routine
 	go l.watchEvent(sub, handler)
+	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.emitter, "sig", sig)
 	return nil
 }
 
+// watchEvent will call the handler for every occurrence of the corresponding event. It should be run in a separate
+// goroutine to monitor the subscription channel.
 func (l *Listener) watchEvent(sub *Subscription, handler func(interface{}) msg.Message) {
 	for {
 		select {
 		case evt := <-sub.ch:
-			msg := handler(evt)
-			err := l.router.Send(msg)
+			m := handler(evt)
+			err := l.router.Send(m)
 			if err != nil {
 				log15.Error("subscription error: cannot send message", "sub", sub, "err", err)
 			}
@@ -103,10 +102,14 @@ func (l *Listener) watchEvent(sub *Subscription, handler func(interface{}) msg.M
 	}
 }
 
+// Unsubscribe cancels a subscription for the given event
 func (l *Listener) Unsubscribe(sig EventSig) {
-	l.subscriptions[sig].sub.Unsubscribe()
+	if _, ok := l.subscriptions[sig]; ok {
+		l.subscriptions[sig].sub.Unsubscribe()
+	}
 }
 
+// Stop cancels all subscriptions. Must be called before Connection.Stop().
 func (l *Listener) Stop() error {
 	for _, sub := range l.subscriptions {
 		sub.sub.Unsubscribe()

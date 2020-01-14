@@ -8,6 +8,7 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	eth "github.com/ethereum/go-ethereum"
+	ethparams "github.com/ethereum/go-ethereum/params"
 
 	"github.com/ChainSafe/log15"
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -19,39 +20,31 @@ import (
 var _ chains.Connection = &Connection{}
 
 type Connection struct {
-	ctx      context.Context
-	endpoint string
-	receiver ethcommon.Address
-	emitter  ethcommon.Address
-	conn     *ethclient.Client
-	signer   ethtypes.Signer
-	kp       crypto.Keypair
+	cfg    Config
+	ctx    context.Context
+	conn   *ethclient.Client
+	signer ethtypes.Signer
+	kp     crypto.Keypair
 }
 
-type ConnectionConfig struct {
-	Ctx      context.Context
-	Endpoint string
-	Receiver string
-	Emitter  string
-	Keypair  crypto.Keypair
-	Signer   ethtypes.Signer
-}
-
-func NewConnection(cfg *ConnectionConfig) *Connection {
+func NewConnection(cfg *Config) *Connection {
 	return &Connection{
-		ctx:      cfg.Ctx,
-		endpoint: cfg.Endpoint,
-		receiver: ethcommon.HexToAddress(cfg.Receiver),
-		emitter:  ethcommon.HexToAddress(cfg.Emitter),
-		kp:       cfg.Keypair,
-		signer:   cfg.Signer,
+		ctx: context.Background(),
+		cfg: *cfg,
+		// TODO: add network to use to config
+		signer: ethtypes.MakeSigner(ethparams.MainnetChainConfig, ethparams.MainnetChainConfig.IstanbulBlock),
 	}
 }
 
+// Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	log15.Info("Connecting to ethereum...", "url", c.endpoint)
-
-	rpcClient, err := rpc.DialWebsocket(c.ctx, c.endpoint, "/ws")
+	kp, err := c.cfg.keystore.KeypairFromAddress(c.cfg.from)
+	if err != nil {
+		return err
+	}
+	c.kp = kp
+	log15.Info("Connecting to ethereum...", "url", c.cfg.endpoint)
+	rpcClient, err := rpc.DialWebsocket(c.ctx, c.cfg.endpoint, "/ws")
 	if err != nil {
 		return err
 	}
@@ -60,6 +53,7 @@ func (c *Connection) Connect() error {
 	return nil
 }
 
+// Close stops the WS connection
 func (c *Connection) Close() {
 	c.conn.Close()
 }
@@ -108,7 +102,7 @@ func (c *Connection) NonceAt(account [20]byte, blockNum *big.Int) (uint64, error
 	return c.conn.NonceAt(c.ctx, ethcommon.Address(account), blockNum)
 }
 
-// LatestBlock returns the latest block
+// LatestBlock returns the latest block from the current chain
 func (c *Connection) LatestBlock() (*ethtypes.Block, error) {
 	return c.conn.BlockByNumber(c.ctx, nil)
 }

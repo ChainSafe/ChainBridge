@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 
+# Exit on failure
+set -e
+
+PORT=${PORT:-8545}
+
 # Compile the contracts
-sh ./scripts/evm/compile.sh
+./scripts/evm/compile.sh
 
 # Deploy contracts
-echo "\nDeploying contracts..."
-node ./contracts/evm-contracts/scripts/deploy_local.js --validators 3
+echo "Deploying contracts..."
+node ./contracts/evm-contracts/scripts/deploy_local.js --validators 3 --port $PORT

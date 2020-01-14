@@ -1,25 +1,16 @@
 package keystore
 
 import (
-	"reflect"
+	"bytes"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/status-im/keycard-go/hexutils"
 )
 
-func TestKeystore(t *testing.T) {
-	ks := NewKeystore()
-
-	kp, err := secp256k1.GenerateKeypair()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	addr := kp.Public()
-	ks.Insert(kp)
-	kp2 := ks.Get(addr)
-
-	if !reflect.DeepEqual(kp, kp2) {
-		t.Fatalf("Fail: got %v expected %v", kp2, kp)
+func TestMockKeystore(t *testing.T) {
+	ks := NewTestKeystore()
+	kp, _ := ks.KeypairFromAddress("ethereum")
+	if !bytes.Equal(kp.Private().Encode(), hexutils.HexToBytes(TestEthereumPrivateKey)) {
+		t.Fatalf("unexpected key. got: %s expected: %s\n", kp.Private(), TestEthereumPrivateKey)
 	}
 }

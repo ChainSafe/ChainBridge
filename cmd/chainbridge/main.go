@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains/centrifuge"
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -30,10 +28,10 @@ var accountFlags = []cli.Flag{
 }
 
 var accountCommand = cli.Command{
-	Action:   handleAccounts,
-	Name:     "account",
+	Action:   handleAccountsCmd,
+	Name:     "accounts",
 	Usage:    "manage bridge keystore",
-	Flags:    append(append(accountFlags, KeystorePathFlag), VerbosityFlag),
+	Flags:    accountFlags,
 	Category: "KEYSTORE",
 	Description: "The account command is used to manage the bridge keystore.\n" +
 		"\tTo generate a new secp256k1 (Ethereum) account: bridge account --generate\n" +
@@ -68,9 +66,9 @@ func startLogger(ctx *cli.Context) error {
 	handler := logger.GetHandler()
 	var lvl log.Lvl
 
-	if lvlToInt, err := strconv.Atoi(ctx.String(VerbosityFlag.Name)); err == nil {
+	if lvlToInt, err := strconv.Atoi(ctx.GlobalString(VerbosityFlag.Name)); err == nil {
 		lvl = log.Lvl(lvlToInt)
-	} else if lvl, err = log.LvlFromString(ctx.String(VerbosityFlag.Name)); err != nil {
+	} else if lvl, err = log.LvlFromString(ctx.GlobalString(VerbosityFlag.Name)); err != nil {
 		return err
 	}
 	log.Root().SetHandler(log.LvlFilterHandler(lvl, handler))
@@ -90,30 +88,41 @@ func run(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	log.Debug("Loaded config", "config", fmt.Sprintf("%+v", cfg))
-	// TODO: parse config for endpoints
-	// TODO: add which key we want to use for each chain to config
-	ethEndpoint := ""
-	ctfgEndpoint := ""
 
-	eth := ethereum.InitializeChain(&core.ChainConfig{
-		Id:            msg.EthereumId,
-		Endpoint:      ethEndpoint,
-		Receiver:      "",
-		Emitter:       "",
-		Subscriptions: []string{"MyEvent(uint256)"},
+	ks := keystore.NewKeystore(cfg.keystorePath)
+
+	// TODO: Load chains iteratively
+	ethA := ethereum.InitializeChain(&core.ChainConfig{
+		Id:            cfg.Chains[0].Id,
+		Endpoint:      cfg.Chains[0].Endpoint,
+		Receiver:      cfg.Chains[0].Receiver,
+		Emitter:       cfg.Chains[0].Emitter,
+		From:          cfg.Chains[0].From,
+		Subscriptions: []string{"DepositAsset(address,bytes32)"},
+		Keystore:      ks,
 	})
 
-	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
-		Id:       msg.CentrifugeId,
-		Endpoint: ctfgEndpoint,
-		Receiver: "",
-		Emitter:  "",
+	// For now lets pretend this is a Centrifuge chain
+	ethB := ethereum.InitializeChain(&core.ChainConfig{
+		Id:            cfg.Chains[1].Id,
+		Endpoint:      cfg.Chains[1].Endpoint,
+		Receiver:      cfg.Chains[1].Receiver,
+		Emitter:       cfg.Chains[1].Emitter,
+		From:          cfg.Chains[1].From,
+		Subscriptions: []string{"DepositAsset(address,bytes32)"},
+		Keystore:      ks,
 	})
+
+	//ctfg := centrifuge.InitializeChain(&core.ChainConfig{
+	//	Id:       msg.CentrifugeId,
+	//	Endpoint: ctfgEndpoint,
+	//	Receiver: "",
+	//	Emitter:  "",
+	//})
 
 	c := core.NewCore(nil)
-	c.AddChain(eth)
-	c.AddChain(ctfg)
+	c.AddChain(ethA)
+	c.AddChain(ethB)
 	c.Start()
 
 	return nil

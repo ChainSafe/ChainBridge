@@ -19,6 +19,10 @@ func (l *Listener) Start() error {
 	panic("not implemented")
 }
 
+func (l *Listener) SetRouter(chains.Router) {
+	panic("implement me")
+}
+
 func (l *Listener) RegisterEventHandler(name string, handler func(interface{}) msg.Message) error {
 	panic("not implemented")
 }
