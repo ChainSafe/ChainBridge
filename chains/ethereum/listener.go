@@ -70,7 +70,7 @@ func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQ
 
 // RegisterEventHandler creates a subscription for the provided event on the emitter contract.
 // Handler will be called for every instance of event.
-func (l *Listener) RegisterEventHandler(sig string, handler func(interface{}) msg.Message) error {
+func (l *Listener) RegisterEventHandler(sig string, handler chains.EvtHandlerFn) error {
 	evt := EventSig(sig)
 	query := l.buildQuery(l.cfg.emitter, evt)
 	sub, err := l.conn.subscribeToEvent(query)

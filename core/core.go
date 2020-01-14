@@ -39,7 +39,7 @@ func (c *Core) AddChain(chain *Chain) {
 
 // Start will call all registered chains' Start methods and block forever (or until signal is received)
 func (c *Core) Start() {
-	for id, ch := range c.registry {
+	for _, ch := range c.registry {
 		err := ch.Start()
 		if err != nil {
 			log15.Error(
@@ -47,7 +47,7 @@ func (c *Core) Start() {
 				"chain", ch.Id(),
 				"err", err,
 			)
-			delete(c.registry, id)
+			return
 		} else {
 			log15.Info(fmt.Sprintf("Started %s chain", ch.Id()))
 		}
@@ -55,6 +55,7 @@ func (c *Core) Start() {
 
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
+	defer signal.Stop(sigc)
 
 	// Block here and wait for a signal
 	<-sigc
@@ -69,5 +70,4 @@ func (c *Core) Start() {
 			)
 		}
 	}
-	signal.Stop(sigc)
 }
