@@ -2,7 +2,14 @@ pragma solidity 0.5.12;
 
 import "./Safe.sol";
 
-contract Emitter is Safe {
+/**
+ * @title Emitter
+ * @dev The emitter is found on the origin chain,it is the on-chain
+ * user interacted portion of the bridge, and it prepares an asset for
+ * transfer. It is responsible for generating the necessary information
+ * for the bridge validators to successfully perform a transfer.
+ */
+ contract Emitter is Safe {
 
     // ChainId => number of deposits
     mapping(uint => uint) DepositCounts;

@@ -3,6 +3,14 @@ pragma solidity 0.5.12;
 import "./interfaces/IHandler.sol";
 import "./Centrifuge.sol";
 
+/**
+ * @title Emitter
+ * @dev The receiver is found on the destination chain,
+ * it can only be written to by the validators, and is
+ * the location where a validator would write the deposit
+ * too. A receiver doesn't directly handle the asset,
+ * rather it sends it to the respective handler.
+ */
 contract Receiver {
 
     // These are the required number of YES votes for the respectful proposals

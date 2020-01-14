@@ -4,6 +4,10 @@ import "./helpers/SafeMath.sol";
 import "./erc/ERC20.sol";
 import "./interfaces/ISafe.sol";
 
+/**
+ * @title Safe
+ * @dev
+ */
 contract Safe is ISafe {
     using SafeMath for uint;
 
