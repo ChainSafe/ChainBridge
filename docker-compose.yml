@@ -8,18 +8,17 @@ services:
     volumes:
       - .:/usr/src/app
     ports:
-    - "8545:8545"
-    # expose: 
-    #   - 8545
+      - "8545:8545"
 
   bridge:
     build:
         context: .
         dockerfile: Docker/Bridge.Dockerfile
     environment: 
-      - KEYSTORE_PASSWORD=chainsafe
-    command: ["./wait-for-ganache.sh", "./bridge"]
+      KEYSTORE_PASSWORD: chainsafe
+    command: /bin/sh -c '/wait-for-ganache.sh ganache:8545 && ./bridge'
     links:
       - ganache
-    depends_on:
+    depends_on: 
       - ganache
+
