@@ -1,6 +1,6 @@
 # ChainBridge V2
 
-#**[WIP]**
+# **[WIP]**
 
 ## Run the bridge
  
@@ -14,7 +14,7 @@ See `--help` for CLI options.
 
 Presently chains must be manually inserted into `cmd/chainbridge/main.go`. In future this will be more flexible and require less manual configuration.
 
-For the time being we have `ethereum` and `centrifuge` which are both standard Ethereum chains.
+For the time being we have `ethereum` and `centrifuge` chains configured.
 
 ### Configuring Chains
 
@@ -53,6 +53,19 @@ make deploy_eth
 
 Note: The environment variable `PORT=<port>` can be provided for these commands (default `PORT=8545`)
 
+## Centrifuge Dev Environment
+
+To fetch, build and run centrifuge-chain run:
+```
+make start_cent
+```
+
+Note: The build process takes a while, but will only run once.
+
+You can submit a random asset hash for validation (ie. transfer) with:
+```
+make cent_asset_tx
+```
 ## Tests
 
 ### Go tests
