@@ -1,6 +1,6 @@
 pragma solidity 0.5.12;
 
-import "./interfaces/IReceiver.sol";
+import "./interfaces/IHandler.sol";
 import "./Centrifuge.sol";
 
 contract Receiver {
@@ -188,7 +188,7 @@ contract Receiver {
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
 
         // TODO use generic receiver
-        // IReciever(_to).executeDeposit(_originChainId, _to, );
+        // IHandler(_to).executeDeposit(_originChainId, _to, );
 
         ///////
         // TODO remove this in favour of generic receiver
