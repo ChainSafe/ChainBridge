@@ -18,7 +18,7 @@ const TestPrivateKey = "39a9ea0dce63086c64a80ce045b796bebed2006554e3992d92601515
 
 var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4") // Account address
 var TestCentrifugeContractAddress = ethcmn.HexToAddress("290f41e61374c715C1127974bf08a3993afd0145")
-var TestEmitterContractAddress = ethcmn.HexToAddress("1fA38b0EfccA4228EB9e15112D4d98B0CEe3c600")
+var TestEmitterContractAddress = ethcmn.HexToAddress("b139bFCFE3c268cd080BB9Ab1bb103f0B670676d")
 
 const TestTimeout = time.Second * 30
 
