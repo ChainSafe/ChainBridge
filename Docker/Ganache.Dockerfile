@@ -8,3 +8,6 @@ COPY ./contracts/evm-contracts .
 RUN yarn install --silent && node_modules/.bin/truffle compile
 
 CMD ["node_modules/.bin/ganache-cli", "-h", "0.0.0.0", "-p","8545","-m","when sound uniform light fee face forum huge impact talent exhaust arrow"]
+
+EXPOSE 8545
+EXPOSE 8546
