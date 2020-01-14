@@ -7,6 +7,7 @@ RUN cd cmd/chainbridge && go build -o /bridge .
 
 # # final stage
 FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-COPY --from=builder /bridge /src/config.toml /keys ./
-RUN chmod +x ./bridge
+RUN apk --no-cache add ca-certificates curl
+COPY --from=builder /bridge /src/config.toml /src/scripts/docker/wait-for-ganache.sh ./
+COPY --from=builder /src/keys/ ./keys/
+RUN chmod +x ./bridge ./keys/ ./wait-for-ganache.sh
