@@ -6,8 +6,9 @@ import (
 
 func InitializeChain(cfg *core.ChainConfig) *core.Chain {
 	c := core.NewChain(cfg)
-	c.SetConnection(NewConnection(cfg.Endpoint))
-	c.SetListener(NewListener(c.Connection()))
+	conn := NewConnection(cfg.Endpoint)
+	c.SetConnection(conn)
+	c.SetListener(NewListener(conn, *cfg))
 	c.SetWriter(NewWriter(c.Connection()))
 	return c
 }

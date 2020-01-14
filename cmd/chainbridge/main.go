@@ -4,9 +4,11 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/ChainSafe/ChainBridgeV2/chains/centrifuge"
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -92,7 +94,7 @@ func run(ctx *cli.Context) error {
 	ks := keystore.NewKeystore(cfg.keystorePath)
 
 	// TODO: Load chains iteratively
-	ethA := ethereum.InitializeChain(&core.ChainConfig{
+	eth := ethereum.InitializeChain(&core.ChainConfig{
 		Id:            cfg.Chains[0].Id,
 		Endpoint:      cfg.Chains[0].Endpoint,
 		Receiver:      cfg.Chains[0].Receiver,
@@ -102,27 +104,19 @@ func run(ctx *cli.Context) error {
 		Keystore:      ks,
 	})
 
-	// For now lets pretend this is a Centrifuge chain
-	ethB := ethereum.InitializeChain(&core.ChainConfig{
-		Id:            cfg.Chains[1].Id,
+	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
+		Id:            msg.CentrifugeId,
 		Endpoint:      cfg.Chains[1].Endpoint,
 		Receiver:      cfg.Chains[1].Receiver,
 		Emitter:       cfg.Chains[1].Emitter,
 		From:          cfg.Chains[1].From,
-		Subscriptions: []string{"DepositAsset(address,bytes32)"},
+		Subscriptions: []string{"nfts"},
 		Keystore:      ks,
 	})
 
-	//ctfg := centrifuge.InitializeChain(&core.ChainConfig{
-	//	Id:       msg.CentrifugeId,
-	//	Endpoint: ctfgEndpoint,
-	//	Receiver: "",
-	//	Emitter:  "",
-	//})
-
 	c := core.NewCore(nil)
-	c.AddChain(ethA)
-	c.AddChain(ethB)
+	c.AddChain(eth)
+	c.AddChain(ctfg)
 	c.Start()
 
 	return nil

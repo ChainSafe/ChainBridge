@@ -74,7 +74,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 
 	err = w.conn.SubmitTx(data)
 	if err != nil {
-		panic(err)
+		log15.Error("TX failed", "err", err)
 	}
 }
 
