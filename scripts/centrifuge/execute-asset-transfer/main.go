@@ -42,6 +42,7 @@ func main() {
 
 	var to [20]byte
 	copy(to[:], bob.AsAccountID[:20])
+	var staticProofs [3][32]byte
 	c, err := types.NewCall(
 		meta,
 		"Nfts.validate_mint",
@@ -52,7 +53,8 @@ func main() {
 				LeafHash:     hsh,
 				SortedHashes: [][32]byte{hsh},
 			},
-		})
+		},
+		staticProofs)
 
 	if err != nil {
 		log15.Error("Failed to create call", "err", err)
@@ -73,7 +75,7 @@ func main() {
 		panic(err)
 	}
 
-	key, err := types.CreateStorageKey(meta, "System", "AccountNonce", signature.TestKeyringPairAlice.PublicKey)
+	key, err := types.CreateStorageKey(meta, "System", "AccountNonce", signature.TestKeyringPairAlice.PublicKey, nil)
 	if err != nil {
 		panic(err)
 	}

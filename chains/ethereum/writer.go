@@ -59,7 +59,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 
 	tx = ethtypes.NewTransaction(
 		nonce,
-		w.conn.cfg.receiver,
+		w.conn.cfg.emitter,
 		// TODO: Make these configurable
 		big.NewInt(0),
 		6721975,
