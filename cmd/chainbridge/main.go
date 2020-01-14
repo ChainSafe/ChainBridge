@@ -26,7 +26,9 @@ var accountFlags = []cli.Flag{
 	PasswordFlag,
 	ImportFlag,
 	ListFlag,
-	Secp256k1,
+	Ed25519Flag,
+	Sr25519Flag,
+	Secp256k1Flag,
 }
 
 var accountCommand = cli.Command{
