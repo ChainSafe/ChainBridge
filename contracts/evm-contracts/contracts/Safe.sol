@@ -6,7 +6,7 @@ import "./interfaces/ISafe.sol";
 
 /**
  * @title Safe
- * @dev
+ * @dev The safe is used to take custody, and give custody of ERC20 based tokens.
  */
 contract Safe is ISafe {
     using SafeMath for uint;

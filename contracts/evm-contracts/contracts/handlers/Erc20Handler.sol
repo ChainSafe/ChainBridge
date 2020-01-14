@@ -4,11 +4,8 @@ import "../erc/ERC20Mintable.sol";
 import "../helpers/Ownable.sol";
 
 /**
- * 
- * We need to use the safe
- * 
+ *
  */
-
 contract ERC20Receiver is Ownable {
     // ChainId originChainAddress => currentChainAddress
     mapping(uint => mapping(address => address)) public whitelist;

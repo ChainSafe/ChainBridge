@@ -1,6 +1,5 @@
 pragma solidity ^0.5.12;
 
-import "../GSN/Context.sol";
 import "../erc/ERC20.sol";
 import "../erc/ERC20Mintable.sol";
 
@@ -10,7 +9,7 @@ import "../erc/ERC20Mintable.sol";
  * Note they can later distribute these tokens as they wish using `transfer` and other
  * `ERC20` functions.
  */
-contract SimpleToken is Context, ERC20, ERC20Mintable {
+contract SimpleToken is ERC20, ERC20Mintable {
 
     /**
      * @dev Constructor

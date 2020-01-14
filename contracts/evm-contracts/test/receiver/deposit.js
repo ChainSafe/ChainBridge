@@ -170,8 +170,6 @@ contract('Receiver - [Deposit::Voting::Basic]', async (accounts) => {
         try {
             await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
             await ReceiverInstance.voteDepositProposal(0, 0, Vote.Yes, { from: v2 });
-            const f = await ReceiverInstance.getDepositProposal(0,0);
-            console.log({f})
             let { receipt } = await ReceiverInstance.voteDepositProposal(0, 0, Vote.Yes, { from: v3 });
             assert.strictEqual(receipt.status, false);
         } catch (e) {
