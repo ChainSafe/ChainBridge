@@ -31,7 +31,14 @@ func (ks *Keystore) KeypairFromAddress(addr string) (crypto.Keypair, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, fmt.Errorf("key file not found: %s", path)
 	}
-	pswd := common.GetPassword(fmt.Sprintf("Enter password for key %s:", path))
+
+	var pswd []byte;
+	if os.Getenv("KEYSTORE_PASSWORD") != "" {
+		pswd = []byte(os.Getenv("KEYSTORE_PASSWORD"))
+	} else {
+		pswd = common.GetPassword(fmt.Sprintf("Enter password for key %s:", path))
+	}
+
 	priv, err := ReadFromFileAndDecrypt(path, pswd)
 	if err != nil {
 		return nil, err
