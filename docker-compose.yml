@@ -18,9 +18,9 @@ services:
     build:
         context: .
         dockerfile: Docker/Bridge.Dockerfile
-    environment: 
-      KEYSTORE_PASSWORD: chainsafe
-    command: /bin/sh -c 'KEYSTORE_PASSWORD=chainsafe ./bridge'
+    # environment: 
+    #   KEYSTORE_PASSWORD: chainsafe
+    # command: /bin/sh -c 'KEYSTORE_PASSWORD=chainsafe ./bridge'
     links:
       - ganache
     depends_on: 

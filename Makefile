@@ -62,4 +62,4 @@ deploy_eth:
 	./scripts/local_test/ethereum_deploy.sh
 
 docker_start:
-	docker-compose up -d && docker-compose exec ganache node ./scripts/deploy_local.js --validators 3
+	./scripts/docker/start-docker.sh
