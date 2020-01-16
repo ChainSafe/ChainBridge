@@ -63,3 +63,11 @@ deploy_eth:
 
 docker_start:
 	./scripts/docker/start-docker.sh
+	
+start_cent:
+	@echo " > \033[32mStarting centrifuge-chain... \033[0m "
+	./scripts/centrifuge/run_chain.sh
+
+cent_asset_tx:
+	@echo " > \033[32mExecuting centrifuge asset transfer... \033[0m "
+	./scripts/centrifuge/execute_transfer.sh
