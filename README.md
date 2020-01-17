@@ -2,6 +2,9 @@
 
 # **[WIP]**
 
+# Chain configs
+For chain specific configs, please check [this subdirectory](./chain-documents)
+
 ## Run the bridge
  
 `make run`
@@ -38,6 +41,8 @@ Note: presently a home and away contracts can be specified, these can be the sam
 To manage keys ChainBridge uses a keystore specificed with the `--keystore <path>` flag. By default it uses `./keys`. The public key specified in the config will be used to identify which keys to load.
 
 Keys can be managed with the `account` sub-command. Please see `chainbridge account --help` for documentation.
+
+Alternatively, an environemnet variable can be used with the key `KEYSTORE_PASSWORD`.
 
 ## Ethereum Dev Environment 
 
