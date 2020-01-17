@@ -8,6 +8,8 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
 )
 
+const KEYSTORE_ENV = "KEYSTORE_PASSWORD"
+
 // Keystore is used to track the location of key files and provide easy retrieval
 type Keystore struct {
 	path     string // path to keys
@@ -32,9 +34,9 @@ func (ks *Keystore) KeypairFromAddress(addr string) (crypto.Keypair, error) {
 		return nil, fmt.Errorf("key file not found: %s", path)
 	}
 
-	const pswd []byte
-	if os.Getenv("KEYSTORE_PASSWORD") != "" {
-		pswd = []byte(os.Getenv("KEYSTORE_PASSWORD"))
+	var pswd []byte
+	if os.Getenv("") != "" {
+		pswd = []byte(os.Getenv(KEYSTORE_ENV))
 	} else {
 		pswd = common.GetPassword(fmt.Sprintf("Enter password for key %s:", path))
 	}
