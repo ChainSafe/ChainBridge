@@ -2,6 +2,9 @@
 
 # **[WIP]**
 
+# Chain configs
+For chain specific configs, please check [this subdirectory](./chain-documents)
+
 ## Run the bridge
  
 `make run`
