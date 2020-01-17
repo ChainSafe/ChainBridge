@@ -4,7 +4,7 @@ import "./interfaces/IHandler.sol";
 import "./Centrifuge.sol";
 
 /**
- * @title Emitter
+ * @title Receiver
  * @dev The receiver is found on the destination chain,
  * it can only be written to by the validators, and is
  * the location where a validator would write the deposit
