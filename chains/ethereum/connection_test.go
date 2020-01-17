@@ -17,8 +17,8 @@ const TestEndpoint = "ws://localhost:8545"
 const TestPrivateKey = "39a9ea0dce63086c64a80ce045b796bebed2006554e3992d92601515c7b19807"
 
 var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4") // Account address
-var TestCentrifugeContractAddress = ethcmn.HexToAddress("290f41e61374c715C1127974bf08a3993afd0145")
-var TestEmitterContractAddress = ethcmn.HexToAddress("70486404e42d17298c57b046Aa162Dc3aCc075f0")
+var TestCentrifugeContractAddress = ethcmn.HexToAddress("70486404e42d17298c57b046Aa162Dc3aCc075f0")
+var TestEmitterContractAddress = ethcmn.HexToAddress("60F9363AaF4993ABA818D5438db5E64bCe6E612b")
 
 const TestTimeout = time.Second * 30
 
