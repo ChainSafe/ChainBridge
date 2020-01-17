@@ -24,7 +24,7 @@ contract Safe is ISafe {
         Owner = _owner;
     }
 
-    function lock(address _tokenAddress, uint _value, address _to, address _from) public onlyOwner {
+    function lockErc(address _tokenAddress, uint _value, address _to, address _from) public onlyOwner {
         // balances[_tokenAddress] = balances[_tokenAddress].add(_value);
         
         // Lock tokens
@@ -32,7 +32,7 @@ contract Safe is ISafe {
         token.transferFrom(_from, _to, _value);
     }
 
-    function release(address _tokenAddress, uint _value, address _to) public onlyOwner {
+    function releaseErc(address _tokenAddress, uint _value, address _to) public onlyOwner {
         require(balances[_tokenAddress] >= _value, "Withdrawal amount is too high!");
         balances[_tokenAddress] = balances[_tokenAddress].sub(_value);
 
