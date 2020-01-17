@@ -42,6 +42,8 @@ To manage keys ChainBridge uses a keystore specificed with the `--keystore <path
 
 Keys can be managed with the `account` sub-command. Please see `chainbridge account --help` for documentation.
 
+Alternatively, an environemnet variable can be used with the key `KEYSTORE_PASSWORD`.
+
 ## Ethereum Dev Environment 
 
 To start a ganache instance:
