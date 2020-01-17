@@ -29,6 +29,8 @@ github.com/centrifuge/go-substrate-rpc-client v0.0.3 h1:QvRKpw9r3fHAiBxWlECsfMe1
 github.com/centrifuge/go-substrate-rpc-client v0.0.3/go.mod h1:GBMLH8MQs5g4FcrytcMm9uRgBnTL1LIkNTue6lUPhZU=
 github.com/centrifuge/go-substrate-rpc-client v0.0.4-0.20191216100757-070166d9f380 h1:/srjx2ffJDhdL0uHCJklDrsPFFjV8M8Ld7JNgGpXLm4=
 github.com/centrifuge/go-substrate-rpc-client v0.0.4-0.20191216100757-070166d9f380/go.mod h1:GBMLH8MQs5g4FcrytcMm9uRgBnTL1LIkNTue6lUPhZU=
+github.com/centrifuge/go-substrate-rpc-client v0.0.4-0.20191231113815-b277fcc48a0f h1:7w2J9IlDpTrbYAaxsry9UoBDoY1SRKoJKMkp1BazlJg=
+github.com/centrifuge/go-substrate-rpc-client v0.0.4-0.20191231113815-b277fcc48a0f/go.mod h1:GBMLH8MQs5g4FcrytcMm9uRgBnTL1LIkNTue6lUPhZU=
 github.com/cespare/cp v0.1.0/go.mod h1:SOGHArjBr4JWaSDEVpWpo/hNg6RoKrls6Oh40hiwW+s=
 github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghfAqPWnc=
 github.com/cespare/xxhash/v2 v2.0.1-0.20190104013014-3767db7a7e18/go.mod h1:HD5P3vAIAh+Y2GAxg0PrPN1P8WkepXGpjbUPDHJqqKM=

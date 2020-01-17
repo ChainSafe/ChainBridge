@@ -39,7 +39,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 	var calldata []byte
 
 	if m.Type == msg.DepositAssetType {
-		log15.Info("Handling Deposit Asset message", "to", w.conn.cfg.emitter, "msgdata", m.Data)
+		log15.Info("Handling Deposit Asset message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 		id := common.FunctionId("store(bytes32)")
 		calldata = append(id, m.Data...)
 	} else {
