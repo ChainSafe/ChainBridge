@@ -32,7 +32,7 @@ func (ks *Keystore) KeypairFromAddress(addr string) (crypto.Keypair, error) {
 		return nil, fmt.Errorf("key file not found: %s", path)
 	}
 
-	var pswd []byte
+	const pswd []byte
 	if os.Getenv("KEYSTORE_PASSWORD") != "" {
 		pswd = []byte(os.Getenv("KEYSTORE_PASSWORD"))
 	} else {
