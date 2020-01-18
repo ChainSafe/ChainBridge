@@ -1,6 +1,6 @@
 pragma solidity 0.5.12;
 
-import "../erc/ERC721/ERC721.sol";
+import "../erc/ERC721/ERC721Mintable.sol";
 import "../interfaces/IHandler.sol";
 import "../helpers/Ownable.sol";
 
@@ -26,10 +26,10 @@ contract ERC721Handler is Ownable, IHandler {
             to := mload(add(0x40, _data))
 
             // get uint from calldata
-            value := mload(add(0x60, _data))
+            tokenId := mload(add(0x60, _data))
 
             // get arbitrary length bytes from calldata
-            extra := mload(0x40)
+            extraData := mload(0x40)
             let lenextra := mload(add(0x80, _data))
             mstore(0x40, add(0x60, add(extra, lenextra)))
             calldatacopy(
@@ -44,24 +44,24 @@ contract ERC721Handler is Ownable, IHandler {
             // Token is whitelisted
             // tokenAddress might not be needed
             address tokenAddress = whitelist[_originChain][_originTokenAddress];
-            ERC20Mintable token = ERC20Mintable(tokenAddress);
+            ERC721Mintable token = ERC721Mintable(tokenAddress);
             // Mint new tokens
-            token.mint(_to, _value);
+            token.safeMint(to, tokenId, extraData);
         } else {
             if (synthetics[_originChain][_originTokenAddress] != address(0)) {
                 // token exists
                 // tokenAddress might not be needed
                 address tokenAddress = synthetics[_originChain][_originTokenAddress];
-                ERC20Mintable token = ERC20Mintable(tokenAddress);
+                ERC721Mintable token = ERC721Mintable(tokenAddress);
                 // Mint new contract
-                token.mint(_to, _value);
+                token.safeMint(to, tokenId, extraData);
             } else {
                 // Token doesn't exist
-                ERC20Mintable token = new ERC20Mintable();
+                ERC721Mintable token = new ERC721Mintable();
                 // Create a relationship between the originAddress and the synthetic
                 synthetics[_originChain][_originTokenAddress] = address(token);
                 // Mint new tokens
-                token.mint(_to, _value);
+                token.safeMint(to, tokenId, extraData);
             }
         }
     }
