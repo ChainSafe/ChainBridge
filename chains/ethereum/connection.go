@@ -43,7 +43,7 @@ func (c *Connection) Connect() error {
 		return err
 	}
 	c.kp = kp
-	log15.Info("Connecting to ethereum...", "url", c.cfg.endpoint)
+	log15.Info("Connecting to ethereum...", "url", c.cfg.endpoint, "from", c.kp.Public().Address()	)
 	rpcClient, err := rpc.DialWebsocket(c.ctx, c.cfg.endpoint, "/ws")
 	if err != nil {
 		return err

@@ -57,6 +57,10 @@ start_eth:
 	@echo " > \033[32mStarting ganache... \033[0m "
 	./scripts/local_test/start_ganache.sh
 
+add_dev_balance:
+	@echo " > \033[32mAdding balance to dev account... \033[0m "
+	./scripts/local_test/add_balance.sh
+
 deploy_eth:
 	@echo " > \033[32mDeploying evm contracts... \033[0m "
 	./scripts/local_test/ethereum_deploy.sh

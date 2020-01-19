@@ -11,4 +11,6 @@ FROM alpine:latest
 COPY --from=builder /bridge /src/config.toml ./
 COPY --from=builder /src/keys/ ./keys/
 RUN chmod +x ./bridge ./keys/
-CMD /bin/sh -c 'KEYSTORE_PASSWORD=chainsafe ./bridge'
+ENV KEYSTORE_PASSWORD=chainsafe
+
+ENTRYPOINT ["./bridge"]

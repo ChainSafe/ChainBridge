@@ -24,7 +24,6 @@ bin/
 # golang
 .env
 bridge
-keys/
 
 # nodejs
 node_modules/

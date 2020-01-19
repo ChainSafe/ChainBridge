@@ -35,9 +35,9 @@ func (ks *Keystore) KeypairFromAddress(addr string) (crypto.Keypair, error) {
 	}
 
 	var pswd []byte
-	if os.Getenv("") != "" {
-		pswd = []byte(os.Getenv(KEYSTORE_ENV))
-	} else {
+	if v, ok := os.LookupEnv(KEYSTORE_ENV); ok { // If defined or empty
+		pswd = []byte(v)
+	} else { // If not defined
 		pswd = common.GetPassword(fmt.Sprintf("Enter password for key %s:", path))
 	}
 

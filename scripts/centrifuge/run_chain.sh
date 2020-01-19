@@ -1,19 +1,8 @@
 #!/usr/bin/env bash
 
-CENT_CHAIN_URL="https://github.com/ansermino/centrifuge-chain.git"
-CENT_CHAIN_BRANCH="simple-asset-tx"
-
 # Exit on failure
 set -e
 
-if [ ! -d "./centrifuge-chain" ]
-then
-  echo "Centrifuge-chain not found, fetching and building"
-  git clone $CENT_CHAIN_URL -b $CENT_CHAIN_BRANCH
-  cd centrifuge-chain
-  cargo build --release
-  cd ..
-fi
-
-./centrifuge-chain/target/release/centrifuge-chain purge-chain --dev
-./centrifuge-chain/target/release/centrifuge-chain --dev
+# Temporary repository until stable
+# Tailored image to not validate anchor or proofs
+docker run -p 9933:9933 -p 9944:9944 -p 30333:30333 mikiquantum/centrifuge-chain:latest centrifuge-chain --dev --ws-external --rpc-external
