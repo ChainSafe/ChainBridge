@@ -199,16 +199,7 @@ contract Receiver {
         // IHandler handler = IHandler(_to);
         // handler.executeDeposit(_originChainId, _data);
 
-        // ///////
-        // // TODO remo0ve this in favour of generic receiver
-        // bytes32 centrifugeBytes32;
-        // for (uint i = 0; i < 32; i++) {
-        //     centrifugeBytes32 |= bytes32(_data[i] & 0xFF) >> (i * 8);
-        // }
-        // // BridgeAsset centrifuge = BridgeAsset(_to);
-        // BridgeAsset(_to).store(centrifugeBytes32);
-        // // REMOVE ABOVE
-        // ///////////////
+        address to = _to;
 
         // Mark deposit Transferred
         DepositProposals[_originChainId][_depositId].status = VoteStatus.Transferred;
