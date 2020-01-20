@@ -1,0 +1,1 @@
+[{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"_addr","type":"address"},{"indexed":true,"internalType":"bytes32","name":"_hash","type":"bytes32"}],"name":"DepositAsset","type":"event"},{"payable":false,"stateMutability":"nonpayable","type":"fallback"}]
