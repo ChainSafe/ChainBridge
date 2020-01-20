@@ -96,8 +96,8 @@ contract Receiver {
         _;
     }
 
-    event DepositProposalCreated(bytes32 _hash, uint _depositId, address _originChain, uint _voteStatus);
-    event DepositProposalVote(uint _originChainId, uint _depositId, uint _vote, uint _voteStatus);
+    event DepositProposalCreated(bytes32 _hash, uint _depositId, uint _originChain, VoteStatus _voteStatus);
+    event DepositProposalVote(uint _originChainId, uint _depositId, Vote _vote, VoteStatus _voteStatus);
     event DepositExecuted(uint _originChainId, uint _depositId, address _to);
 
     /**
