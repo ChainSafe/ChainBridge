@@ -1,13 +1,13 @@
 package ethereum
 
 import (
-	"context"
-	//"math/big"
+	//"context"
+	"math/big"
 	"testing"
-	//"time"
+	"time"
 
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	//"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 
 
 	ethcmn "github.com/ethereum/go-ethereum/common"
@@ -70,43 +70,63 @@ func TestListener(t *testing.T) {
     	Contract: contract,
     }
 
-	// nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
+	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
+	if err != nil {
+		t.Fatal(err)
+	}
 
-    //privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
-    // auth := bind.NewKeyedTransactor(privateKey)
-    // auth.Nonce = big.NewInt(int64(nonce))
-    // auth.Value = big.NewInt(0)     // in wei
-    // auth.GasLimit = uint64(300000) // in units
-    // auth.GasPrice = big.NewInt(10)
-    auth := &bind.CallOpts{
-    	Pending: true,
-    	From: address,
-    	BlockNumber: currBlock.Number(),
-    	Context: context.Background(),
-    }
+    privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
+    auth := bind.NewKeyedTransactor(privateKey)
+    auth.Nonce = big.NewInt(int64(nonce))
+    auth.Value = big.NewInt(0)     // in wei
+    auth.GasLimit = uint64(300000) // in units
+    auth.GasPrice = big.NewInt(10)
+ 
+ 	// create listener for event
+ 	event := EventSig("DepositAsset(address,bytes32)")
+	cfg := &Config{
+		receiver:      TestEmitterContractAddress,
+		emitter:       TestCentrifugeContractAddress,
+		subscriptions: []string{string(event)},
+	}
+	listener := NewListener(conn, cfg)
 
-    err = instance.Call(auth, nil, "")
+	// subscribe to event
+	query := listener.buildQuery(TestEmitterContractAddress, event)
+	subscription, err := conn.subscribeToEvent(query)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer subscription.sub.Unsubscribe()
+
+	// call fallback to trigger event
+    _, err = instance.Transact(auth, "")
     if err != nil {
     	t.Fatal(err)
     }
 
-	// event := EventSig("DepositAsset(address,bytes32)")
-	// cfg := &Config{
-	// 	receiver:      TestEmitterContractAddress,
-	// 	emitter:       TestCentrifugeContractAddress,
-	// 	subscriptions: []string{string(event)},
-	// }
-	// listener := NewListener(conn, cfg)
+ //    eventIterator, err := instance.Contract.SimpleEmitterFilterer.FilterDepositAsset(&bind.FilterOpts{
+ //    	Start: 0, //uint64(currBlock.Number().Int64()),
+ //    	End: nil,
+ //    	Context: context.Background(),
+	// }, [][32]byte{{}})
+ //    if err != nil {
+ //    	t.Fatal(err)
+ //    }
+
+ //    t.Log(eventIterator.Event)
+
+ //  	ok := eventIterator.Next()
+ //  	t.Log(ok)
+    
+ //    t.Log(eventIterator.Event)
 
 	// // calling fallback
 	// calldata := []byte{}
 
 	// tx := ethtypes.NewTransaction(
 	// 	nonce,
-	// 	contract,
+	// 	address,
 	// 	big.NewInt(0),
 	// 	1000000,        // gasLimit
 	// 	big.NewInt(10), // gasPrice
@@ -118,26 +138,18 @@ func TestListener(t *testing.T) {
 	// 	t.Fatal(err)
 	// }
 
-	// // subscribe to event
-	// query := listener.buildQuery(TestEmitterContractAddress, event)
-	// subscription, err := conn.subscribeToEvent(query)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-	// defer subscription.sub.Unsubscribe()
-
 	// // send tx to trigger event
 	// err = conn.SubmitTx(data)
 	// if err != nil {
 	// 	t.Fatal(err)
 	// }
 
-	// select {
-	// case evt := <-subscription.ch:
-	// 	t.Log("got event", evt)
-	// case <-time.After(TestTimeout):
-	// 	t.Fatal("Timed out")
-	// }
+	select {
+	case evt := <-subscription.ch:
+		t.Log("got event", evt)
+	case <-time.After(TestTimeout):
+		t.Fatal("Timed out")
+	}
 
 }
 
