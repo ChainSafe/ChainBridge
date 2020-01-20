@@ -154,7 +154,7 @@ contract Receiver {
         // The creator always votes in favour
         DepositProposals[_originChain][_depositId].votes[msg.sender] = true;
         // Trigger event
-        DepositProposalCreated(_hash, _depositId, _originChain, DepositProposals[_originChain][_depositId].status);
+        emit DepositProposalCreated(_hash, _depositId, _originChain, DepositProposals[_originChain][_depositId].status);
     }
 
     /**
@@ -186,7 +186,7 @@ contract Receiver {
             DepositProposals[_originChainId][_depositId].status = VoteStatus.Finalized;
         }
         // Triger event
-        event DepositProposalVote(_originChainId, _depositId, _vote, DepositProposals[_originChainId][_depositId].status);
+        emit DepositProposalVote(_originChainId, _depositId, _vote, DepositProposals[_originChainId][_depositId].status);
     }
 
     /**
@@ -207,13 +207,11 @@ contract Receiver {
         // IHandler handler = IHandler(_to);
         // handler.executeDeposit(_originChainId, _data);
 
-        address to = _to;
-
         // Mark deposit Transferred
         DepositProposals[_originChainId][_depositId].status = VoteStatus.Transferred;
 
         // Trigger event
-        event DepositExecuted(_originChainId, _depositId, _to);
+        emit DepositExecuted(_originChainId, _depositId, _to);
     }
 
     /**
