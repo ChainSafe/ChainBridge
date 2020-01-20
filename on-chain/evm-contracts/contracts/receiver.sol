@@ -196,10 +196,11 @@ contract Receiver {
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
 
         // TODO use generic receiver
-        IHandler(_to).executeDeposit(_originChainId, _data);
+        // IHandler handler = IHandler(_to);
+        // handler.executeDeposit(_originChainId, _data);
 
         // ///////
-        // // TODO remove this in favour of generic receiver
+        // // TODO remo0ve this in favour of generic receiver
         // bytes32 centrifugeBytes32;
         // for (uint i = 0; i < 32; i++) {
         //     centrifugeBytes32 |= bytes32(_data[i] & 0xFF) >> (i * 8);
