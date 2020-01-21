@@ -9,6 +9,7 @@ import (
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 func testDepositAssetMessage(t *testing.T) msg.Message {
@@ -151,21 +152,17 @@ func TestWriteToReceiverContract(t *testing.T) {
 	depositId := big.NewInt(420)
 	originChain := big.NewInt(1)
 
-	_, err = contract.Transact(auth, "createDepositProposal", [32]byte{1, 2, 3, 4}, depositId, originChain)
-	if err != nil {
-		t.Fatal(err)
-	}
+	data := []byte("nootwashere")
+	hash := ethcrypto.Keccak256Hash(data)
 
-	auth = createTestAuth2(t, conn)
-
-	_, err = contract.Transact(auth, "voteDepositProposal", originChain, depositId, uint8(1))
+	_, err = contract.Transact(auth, "createDepositProposal", hash, depositId, originChain)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	auth = createTestAuth(t, conn)
 
-	_, err = contract.Transact(auth, "executeDeposit", originChain, depositId, TestAddress, []byte("nootwashere"))
+	_, err = contract.Transact(auth, "executeDeposit", originChain, depositId, TestAddress, data)
 	if err != nil {
 		t.Fatal(err)
 	}
