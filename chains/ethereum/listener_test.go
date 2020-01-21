@@ -1,7 +1,7 @@
 package ethereum
 
 import (
-	//"context"
+	"context"
 	"math/big"
 	"testing"
 	"time"
@@ -82,22 +82,33 @@ func TestListener(t *testing.T) {
     auth.GasLimit = uint64(300000) // in units
     auth.GasPrice = big.NewInt(10)
  
- 	// create listener for event
- 	event := EventSig("DepositAsset(address,bytes32)")
-	cfg := &Config{
-		receiver:      TestEmitterContractAddress,
-		emitter:       TestCentrifugeContractAddress,
-		subscriptions: []string{string(event)},
-	}
-	listener := NewListener(conn, cfg)
+ // 	// create listener for event
+ // 	event := EventSig("DepositAsset(address,bytes32)")
+	// cfg := &Config{
+	// 	receiver:      TestEmitterContractAddress,
+	// 	emitter:       TestCentrifugeContractAddress,
+	// 	subscriptions: []string{string(event)},
+	// }
+	// listener := NewListener(conn, cfg)
 
-	// subscribe to event
-	query := listener.buildQuery(TestEmitterContractAddress, event)
-	subscription, err := conn.subscribeToEvent(query)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer subscription.sub.Unsubscribe()
+	// // subscribe to event
+	// query := listener.buildQuery(TestEmitterContractAddress, event)
+	// subscription, err := conn.subscribeToEvent(query)
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	// defer subscription.sub.Unsubscribe()
+
+    eventIterator, err := instance.Contract.SimpleEmitterFilterer.FilterDepositAsset(&bind.FilterOpts{
+    	Start: 0, //uint64(currBlock.Number().Int64()),
+    	End: nil,
+    	Context: context.Background(),
+	}, [][32]byte{{}})
+    if err != nil {
+    	t.Fatal(err)
+    }
+
+    t.Log(eventIterator.Event)
 
 	// call fallback to trigger event
     _, err = instance.Transact(auth, "")
@@ -105,52 +116,20 @@ func TestListener(t *testing.T) {
     	t.Fatal(err)
     }
 
- //    eventIterator, err := instance.Contract.SimpleEmitterFilterer.FilterDepositAsset(&bind.FilterOpts{
- //    	Start: 0, //uint64(currBlock.Number().Int64()),
- //    	End: nil,
- //    	Context: context.Background(),
-	// }, [][32]byte{{}})
- //    if err != nil {
- //    	t.Fatal(err)
- //    }
-
- //    t.Log(eventIterator.Event)
-
- //  	ok := eventIterator.Next()
- //  	t.Log(ok)
+  	ok := eventIterator.Next()
+  	t.Log(ok)
     
- //    t.Log(eventIterator.Event)
+    t.Log(eventIterator.Event)
 
-	// // calling fallback
-	// calldata := []byte{}
-
-	// tx := ethtypes.NewTransaction(
-	// 	nonce,
-	// 	address,
-	// 	big.NewInt(0),
-	// 	1000000,        // gasLimit
-	// 	big.NewInt(10), // gasPrice
-	// 	calldata,
-	// )
-
-	// data, err := tx.MarshalJSON()
-	// if err != nil {
-	// 	t.Fatal(err)
+	// select {
+	// case evt := <-subscription.ch:
+	// 	t.Log("got event", evt)
+	// case <-time.After(TestTimeout):
+	// 	t.Fatal("Timed out")
 	// }
 
-	// // send tx to trigger event
-	// err = conn.SubmitTx(data)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-
-	select {
-	case evt := <-subscription.ch:
-		t.Log("got event", evt)
-	case <-time.After(TestTimeout):
-		t.Fatal("Timed out")
-	}
-
+	<-time.After(TestTimeout)
+	t.Fatal("timeout")
 }
 
 func TestListenerAndWriter(t *testing.T) {
