@@ -36,14 +36,12 @@ contract ERC721Handler is Ownable, IHandler {
             _tokenId := mload(add(0x60, _data))
 
             // get arbitrary length bytes from calldata
-            //
-            // Test to see if it's cheaper to calculate the length of this in memory
-            // or compute it offchain and pass it in as a parameter
+            // passing in the length is more expensive than this so just do this pls
             _extraData := mload(0x40)
             let lenextra := mload(add(0x80, _data))
             mstore(0x40, add(0x60, add(_extraData, lenextra)))
             calldatacopy(
-                    _extraData,                     // copy to extra
+                    _extraData,                // copy to extra
                     0xA4,                      // copy from calldata @ 0xA4
                     sub(calldatasize, 0xA4)    // copy size (calldatasize - 0xA4)
             )
