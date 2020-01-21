@@ -10,25 +10,25 @@ import (
 	"github.com/ChainSafe/log15"
 
 	eth "github.com/ethereum/go-ethereum"
-	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
 var _ chains.Connection = &Connection{}
 
 type Connection struct {
-	cfg    Config
-	ctx    context.Context
-	conn   *ethclient.Client
-	signer ethtypes.Signer
-	kp     crypto.Keypair
+	cfg              Config
+	ctx              context.Context
+	conn             *ethclient.Client
+	signer           ethtypes.Signer
+	kp               crypto.Keypair
 	receiverContract ReceiverContract // instance of bound receiver contract
-	emitterContract  EmitterContract // instance of bound emitter contract
+	emitterContract  EmitterContract  // instance of bound emitter contract
 }
 
 func NewConnection(cfg *Config) *Connection {
@@ -131,11 +131,6 @@ func (c *Connection) Transact(opts *bind.TransactOpts, method string, params ...
 
 // newTransactOpts builds the TransactOpts for the connection's keypair.
 func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, error) {
-	// currBlock, err := c.LatestBlock()
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	pub := c.kp.Public().(*secp256k1.PublicKey).Key()
 	address := ethcrypto.PubkeyToAddress(pub)
 

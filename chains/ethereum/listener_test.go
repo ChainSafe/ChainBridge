@@ -7,9 +7,9 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 
+	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcmn "github.com/ethereum/go-ethereum/common"
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
 )
 
 func newLocalConnection(t *testing.T, emitter ethcmn.Address) *Connection {

@@ -5,9 +5,9 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	centrifuge "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 )
 
@@ -112,7 +112,7 @@ func TestResolveMessage(t *testing.T) {
 
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		receiver:  TestCentrifugeContractAddress,
+		receiver: TestCentrifugeContractAddress,
 		keystore: keystore.NewTestKeystore(),
 		from:     "ethereum",
 	}
@@ -130,29 +130,6 @@ func TestResolveMessage(t *testing.T) {
 	w := NewWriter(conn, cfg)
 	w.ResolveMessage(m)
 }
-
-// func TestWriteToCentrifugeContract(t *testing.T) {
-// 	cfg := &Config{
-// 		endpoint: TestEndpoint,
-// 		keystore: keystore.NewTestKeystore(),
-// 		from:     "ethereum",
-// 	}
-
-// 	conn := NewConnection(cfg)
-// 	err := conn.Connect()
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	defer conn.Close()
-
-// 	contract := createTestCentrifugeContract(t, conn)
-// 	auth := createTestAuth(t, conn)
-
-// 	_, err = contract.Transact(auth, "store", [32]byte{1,2,3,4})
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// }
 
 func TestWriteToReceiverContract(t *testing.T) {
 	cfg := &Config{
@@ -174,24 +151,24 @@ func TestWriteToReceiverContract(t *testing.T) {
 	depositId := big.NewInt(420)
 	originChain := big.NewInt(1)
 
-	_, err = contract.Transact(auth, "createDepositProposal", [32]byte{1,2,3,4}, depositId, originChain)
+	_, err = contract.Transact(auth, "createDepositProposal", [32]byte{1, 2, 3, 4}, depositId, originChain)
 	if err != nil {
 		t.Fatal(err)
-	}	
+	}
 
-	// auth = createTestAuth(t, conn)
+	auth = createTestAuth2(t, conn)
 
-	// _, err = contract.Transact(auth, "voteDepositProposal", originChain, depositId, uint8(1))
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }	
+	_, err = contract.Transact(auth, "voteDepositProposal", originChain, depositId, uint8(1))
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	auth = createTestAuth(t, conn)
 
 	_, err = contract.Transact(auth, "executeDeposit", originChain, depositId, TestAddress, []byte("nootwashere"))
 	if err != nil {
 		t.Fatal(err)
-	}		
+	}
 }
 
 func TestWriter_createDepositProposal(t *testing.T) {
@@ -219,7 +196,6 @@ func TestWriter_createDepositProposal(t *testing.T) {
 }
 
 func TestWriter_voteDepositProposal(t *testing.T) {
-	t.Skip()
 	m := testVoteDepositProposalMessage(t)
 
 	cfg := &Config{

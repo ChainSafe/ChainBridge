@@ -13,7 +13,7 @@ type ReceiverContract interface {
 
 type EmitterContract interface {
 	FilterERCTransfer(opts *bind.FilterOpts) (EventIterator, error)
-	FilterGenericTransfer(opts *bind.FilterOpts) (EventIterator, error) 
+	FilterGenericTransfer(opts *bind.FilterOpts) (EventIterator, error)
 }
 
 type EventIterator interface {

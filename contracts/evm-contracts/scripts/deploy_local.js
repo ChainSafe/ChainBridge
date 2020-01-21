@@ -20,7 +20,7 @@ let provider = new ethers.providers.JsonRpcProvider(url);
 
 // Config
 let numValidators = 2;
-let validatorThreshold = 2;
+let validatorThreshold = 1;
 let depositThreshold = 2;
 
 // CLI args position

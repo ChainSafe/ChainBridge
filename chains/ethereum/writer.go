@@ -4,11 +4,8 @@ import (
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	//"github.com/ChainSafe/ChainBridgeV2/common"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
-	//ethcommon "github.com/ethereum/go-ethereum/common"
-	//ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 var _ chains.Writer = &Writer{}
@@ -64,14 +61,14 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 		hash, depositId, originChain, err := m.DecodeCreateDepositProposalData()
 		if err != nil {
 			log15.Error("Failed to handle CreateDepositProposal message", "error", err)
-			return		
+			return
 		}
 
 		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
 		if err != nil {
 			log15.Error("Failed to build transaction opts", "err", err)
 			return
-		}		
+		}
 
 		_, err = w.conn.Transact(opts, method, hash, depositId, originChain)
 		if err != nil {
@@ -84,21 +81,39 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 		depositId, originChain, vote, err := m.DecodeVoteDepositProposalData()
 		if err != nil {
 			log15.Error("Failed to handle VoteDepositProposal message", "error", err)
-			return		
+			return
 		}
 
 		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
 		if err != nil {
 			log15.Error("Failed to build transaction opts", "err", err)
 			return
-		}		
+		}
 
 		_, err = w.conn.Transact(opts, method, depositId, originChain, vote)
 		if err != nil {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
 	} else if m.Type == msg.ExecuteDepositType {
+		log15.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
+		method := "executeDeposit"
+		depositId, originChain, address, data, err := m.DecodeExecuteDepositData()
+		if err != nil {
+			log15.Error("Failed to handle VoteDepositProposal message", "error", err)
+			return
+		}
+
+		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
+		if err != nil {
+			log15.Error("Failed to build transaction opts", "err", err)
+			return
+		}
+
+		_, err = w.conn.Transact(opts, method, depositId, originChain, address, data)
+		if err != nil {
+			log15.Error("Failed to submit transaction", "err", err)
+		}
 	} else {
 		panic("not implemented")
 	}

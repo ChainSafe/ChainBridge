@@ -9,13 +9,13 @@ import (
 
 // Config encapsulates all necessary parameters in ethereum compatible forms
 type Config struct {
-	id               msg.ChainId    // ChainID
-	endpoint         string         // url for rpc endpoint
-	receiver         common.Address // bridge address to call
-	emitter          common.Address // bridge address where events occur
-	from             string   // address of key to use
-	subscriptions    []string // list of events to subscribe to
-	keystore         *keystore.Keystore
+	id            msg.ChainId    // ChainID
+	endpoint      string         // url for rpc endpoint
+	receiver      common.Address // bridge address to call
+	emitter       common.Address // bridge address where events occur
+	from          string         // address of key to use
+	subscriptions []string       // list of events to subscribe to
+	keystore      *keystore.Keystore
 }
 
 // ParseChainConfig uses a core.ChainConfig to construct a corresponding Config

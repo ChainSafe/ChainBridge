@@ -71,7 +71,7 @@ func (m *Message) EncodeExecuteDepositData(depositId, originChain *big.Int, addr
 	m.Data = append(append(append(depositIdBytes[:], originChainBytes[:]...), address[:]...), data...)
 }
 
-func  (m *Message) DecodeExecuteDepositData() (*big.Int, *big.Int, ethcommon.Address, []byte, error) {
+func (m *Message) DecodeExecuteDepositData() (*big.Int, *big.Int, ethcommon.Address, []byte, error) {
 	if len(m.Data) < 84 {
 		return nil, nil, ethcommon.Address{}, nil, errors.New("cannot decode: data is <84 bytes")
 	}
@@ -89,6 +89,6 @@ func  (m *Message) DecodeExecuteDepositData() (*big.Int, *big.Int, ethcommon.Add
 
 func byteSliceTo32Bytes(in []byte) []byte {
 	out := [32]byte{}
-	copy(out[31-len(in):], in)
+	copy(out[32-len(in):], in)
 	return out[:]
 }
