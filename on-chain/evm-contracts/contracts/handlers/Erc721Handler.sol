@@ -21,7 +21,6 @@ contract ERC721Handler is Ownable, IHandler {
         //     uint _value              @ 0x84
         //     bytes _extraData         @ 0xA4 ... arbitrary length
         
-        // TODO remove stub
         bytes memory _extraData;
         address _to;
         uint _tokenId;
