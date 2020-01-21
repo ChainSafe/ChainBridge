@@ -13,5 +13,5 @@ contract IHandler {
      * eg: The receiver would
      * IHandler(_to).executeTransfer(0, 0, _data)
      */
-    function executeTransfer(uint _originChain, bytes memory _data) external;
+    function executeTransfer(uint _originChain, bytes calldata _data) external;
 }

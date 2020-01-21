@@ -188,7 +188,7 @@ contract Receiver {
      * @param _to - The receiver contract address
      * @param _data - Deposit data to be unpacked
      */
-    function executeDeposit(uint _originChainId, uint _depositId, address payable _to, bytes memory _data) public {
+    function executeDeposit(uint _originChainId, uint _depositId, address payable _to, bytes calldata _data) external {
         DepositProposal storage proposal = DepositProposals[_originChainId][_depositId];
         require(proposal.status == VoteStatus.Finalized, "Vote has not finalized!");
         require(proposal.numYes >= DepositThreshold, "Vote has not passed!"); // Check that voted passed
