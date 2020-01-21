@@ -78,11 +78,9 @@ func TestListener(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Log(eventIterator.Event)
+	time.Sleep(time.Second)
 
 	ok := eventIterator.Next()
-
-	t.Log(eventIterator.Event)
 
 	if eventIterator.Event == nil || !ok {
 		t.Fatal("Did not get event")
