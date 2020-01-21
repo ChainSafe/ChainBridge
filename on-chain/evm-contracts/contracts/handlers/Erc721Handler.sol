@@ -27,6 +27,9 @@ contract ERC721Handler is Ownable, IHandler {
         uint _tokenId;
         address _originTokenAddress;
         
+        
+        // NOTE: test using calldatacopy instead of mlad for all variables and manually setting the offset 
+        // for the arbitrary length _extraData it might be more efficient
         assembly {
             // get addresses from calldata
             _originTokenAddress := mload(add(0x20, _data))
@@ -36,7 +39,6 @@ contract ERC721Handler is Ownable, IHandler {
             _tokenId := mload(add(0x60, _data))
 
             // get arbitrary length bytes from calldata
-            // passing in the length is more expensive than this so just do this pls
             _extraData := mload(0x40)
             let lenextra := mload(add(0x80, _data))
             mstore(0x40, add(0x60, add(_extraData, lenextra)))
