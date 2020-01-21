@@ -5,12 +5,9 @@ import (
 	"math/big"
 	"testing"
 
-	//"github.com/ChainSafe/ChainBridgeV2/common"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	//"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+=	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	centrifuge "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
-	//emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 
 	//ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -92,7 +89,6 @@ func TestResolveMessage(t *testing.T) {
 func TestWriteToCentrifugeContract(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		//receiver: TestCentrifugeContractAddress,
 		keystore: keystore.NewTestKeystore(),
 		from:     "ethereum",
 	}
@@ -151,5 +147,5 @@ func TestWriteToReceiverContract(t *testing.T) {
 }
 
 func TestWriter_ReceiverContract(t *testing.T) {
-	
+
 }

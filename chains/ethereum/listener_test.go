@@ -2,11 +2,9 @@ package ethereum
 
 import (
 	"context"
-	//"math/big"
 	"testing"
 	"time"
 
-	//"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
