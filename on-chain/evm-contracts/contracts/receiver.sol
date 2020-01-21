@@ -188,7 +188,7 @@ contract Receiver {
      * @param _to - The receiver contract address
      * @param _data - Deposit data to be unpacked
      */
-    function executeDeposit(uint _originChainId, uint _depositId, address _to, bytes memory _data) public {
+    function executeDeposit(uint _originChainId, uint _depositId, address payable _to, bytes memory _data) public {
         DepositProposal storage proposal = DepositProposals[_originChainId][_depositId];
         require(proposal.status == VoteStatus.Finalized, "Vote has not finalized!");
         require(proposal.numYes >= DepositThreshold, "Vote has not passed!"); // Check that voted passed
@@ -196,7 +196,7 @@ contract Receiver {
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
 
         // TODO use generic receiver
-         IHandler handler = IHandler(_to);
+        IHandler handler = IHandler(_to);
         handler.executeDeposit(_originChainId, _data);
 
         address to = _to;
