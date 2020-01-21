@@ -4,11 +4,11 @@ import (
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/common"
+	//"github.com/ChainSafe/ChainBridgeV2/common"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
-	ethcommon "github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	//ethcommon "github.com/ethereum/go-ethereum/common"
+	//ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 var _ chains.Writer = &Writer{}
@@ -35,46 +35,60 @@ func (w *Writer) Start() error {
 // Note: We are currently panicking here, we should develop a better method for handling failures (possibly a queue?)
 func (w *Writer) ResolveMessage(m msg.Message) {
 	log15.Trace("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination)
-	var tx *ethtypes.Transaction
-	var calldata []byte
+
+	// TODO: make this configurable
+	gasLimit := big.NewInt(6721975)
+	gasPrice := big.NewInt(20000000000)
 
 	if m.Type == msg.DepositAssetType {
-		log15.Info("Handling Deposit Asset message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
-		id := common.FunctionId("store(bytes32)")
-		calldata = append(id, m.Data...)
+		log15.Info("Handling DepositAsset message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
+
+		method := "store"
+		params := m.Data
+		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
+		if err != nil {
+			log15.Error("Failed to build transaction opts", "err", err)
+			return
+		}
+
+		_, err = w.conn.Transact(opts, method, params)
+		if err != nil {
+			log15.Error("Failed to submit transaction", "err", err)
+		}
+	} else if m.Type == msg.CreateDepositProposalType {
+		log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
+		if len(m.Data) < 96 {
+			log15.Error("Failed to handle CreateDepositProposal message", "error", "data is < 96 bytes")
+			return
+		}
+
+		method := "createDepositProposal"
+		hashSlice := m.Data[:32]
+		hash := [32]byte{}
+		copy(hash[:], hashSlice)
+
+		depositIdBytes := m.Data[32:64]
+		originChainBytes := m.Data[64:96]
+
+		depositId := big.NewInt(0).SetBytes(depositIdBytes)
+		originChain := big.NewInt(0).SetBytes(originChainBytes)
+
+		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
+		if err != nil {
+			log15.Error("Failed to build transaction opts", "err", err)
+			return
+		}		
+
+		_, err = w.conn.Transact(opts, method, hash, depositId, originChain)
+		if err != nil {
+			log15.Error("Failed to submit transaction", "err", err)
+		}
+	} else if m.Type == msg.VoteDepositProposalType {
+
+	} else if m.Type == msg.ExecuteDepositType {
+
 	} else {
 		panic("not implemented")
-	}
-
-	currBlock, err := w.conn.LatestBlock()
-	if err != nil {
-		panic(err)
-	}
-	address := ethcommon.HexToAddress(w.conn.kp.Public().Address())
-
-	nonce, err := w.conn.NonceAt(address, currBlock.Number())
-	if err != nil {
-		panic(err)
-	}
-
-	tx = ethtypes.NewTransaction(
-		nonce,
-		w.conn.cfg.receiver,
-		// TODO: Make these configurable
-		big.NewInt(0),
-		6721975,
-		big.NewInt(20000000000),
-		calldata,
-	)
-
-	data, err := tx.MarshalJSON()
-	if err != nil {
-		panic(err)
-	}
-
-	err = w.conn.SubmitTx(data)
-	if err != nil {
-		log15.Error("TX failed", "err", err)
 	}
 }
 

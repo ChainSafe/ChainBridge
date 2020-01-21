@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"testing"
 
-=	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	centrifuge "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -15,7 +15,7 @@ import (
 
 )
 
-func testMessage(t *testing.T) msg.Message {
+func testDepositAssetMessage(t *testing.T) msg.Message {
 	// arbitrary hash
 	data, err := hex.DecodeString("b6e25575ab25a1938070eeb64ac4cd6df49af423327877522bec719815dc5e27")
 	if err != nil {
@@ -25,6 +25,22 @@ func testMessage(t *testing.T) msg.Message {
 	return msg.Message{
 		Type: msg.DepositAssetType,
 		Data: data,
+	}
+}
+
+func testCreateDepositProposalMessage(t *testing.T) msg.Message {
+	// arbitrary hash
+	data, err := hex.DecodeString("b6e25575ab25a1938070eeb64ac4cd6df49af423327877522bec719815dc5e27")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	depositId := [32]byte{0}
+	originChain := [32]byte{1}
+
+	return msg.Message{
+		Type: msg.CreateDepositProposalType,
+		Data: append(append(data, depositId[:]...), originChain[:]...),
 	}
 }
 
@@ -65,11 +81,11 @@ func createTestCentrifugeContract(t *testing.T, conn *Connection) ReceiverContra
 }
 
 func TestResolveMessage(t *testing.T) {
-	m := testMessage(t)
+	m := testDepositAssetMessage(t)
 
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		emitter:  TestCentrifugeContractAddress,
+		receiver:  TestCentrifugeContractAddress,
 		keystore: keystore.NewTestKeystore(),
 		from:     "ethereum",
 	}
@@ -80,39 +96,40 @@ func TestResolveMessage(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer conn.Close()
+
+	centrifugeContract := createTestCentrifugeContract(t, conn)
+	conn.SetReceiverContract(centrifugeContract)
 
 	w := NewWriter(conn, cfg)
 	w.ResolveMessage(m)
-
 }
 
-func TestWriteToCentrifugeContract(t *testing.T) {
-	cfg := &Config{
-		endpoint: TestEndpoint,
-		keystore: keystore.NewTestKeystore(),
-		from:     "ethereum",
-	}
+// func TestWriteToCentrifugeContract(t *testing.T) {
+// 	cfg := &Config{
+// 		endpoint: TestEndpoint,
+// 		keystore: keystore.NewTestKeystore(),
+// 		from:     "ethereum",
+// 	}
 
-	conn := NewConnection(cfg)
-	err := conn.Connect()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer conn.Close()
+// 	conn := NewConnection(cfg)
+// 	err := conn.Connect()
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	defer conn.Close()
 
-	contract := createTestCentrifugeContract(t, conn)
-	auth := createTestAuth(t, conn)
+// 	contract := createTestCentrifugeContract(t, conn)
+// 	auth := createTestAuth(t, conn)
 
-	_, err = contract.Transact(auth, "store", [32]byte{1,2,3,4})
-	if err != nil {
-		t.Fatal(err)
-	}
-}
+// 	_, err = contract.Transact(auth, "store", [32]byte{1,2,3,4})
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// }
 
 func TestWriteToReceiverContract(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		//receiver: TestReceiverContractAddress,
 		keystore: keystore.NewTestKeystore(),
 		from:     "ethereum",
 	}
@@ -147,5 +164,25 @@ func TestWriteToReceiverContract(t *testing.T) {
 }
 
 func TestWriter_ReceiverContract(t *testing.T) {
+	m := testCreateDepositProposalMessage(t)
 
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		receiver: TestReceiverContractAddress,
+		keystore: keystore.NewTestKeystore(),
+		from:     "ethereum",
+	}
+
+	conn := NewConnection(cfg)
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	receiver := createTestReceiverContract(t, conn)
+	conn.SetReceiverContract(receiver)
+
+	w := NewWriter(conn, cfg)
+	w.ResolveMessage(m)
 }
