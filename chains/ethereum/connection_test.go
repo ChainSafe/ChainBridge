@@ -20,7 +20,7 @@ var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4"
 var TestCentrifugeContractAddress = ethcmn.HexToAddress("70486404e42d17298c57b046Aa162Dc3aCc075f0")
 var TestEmitterContractAddress = ethcmn.HexToAddress("60F9363AaF4993ABA818D5438db5E64bCe6E612b")
 
-const TestTimeout = time.Second * 30
+const TestTimeout = time.Second * 5
 
 func TestConnect(t *testing.T) {
 	cfg := &Config{

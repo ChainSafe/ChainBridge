@@ -13,7 +13,7 @@ import (
 	ethcmn "github.com/ethereum/go-ethereum/common"
     "github.com/ethereum/go-ethereum/accounts/abi/bind"
 	//ethtypes "github.com/ethereum/go-ethereum/core/types"
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/testemitter"
+	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
 )
 
 func newLocalConnection(t *testing.T, emitter ethcmn.Address) *Connection {
@@ -81,34 +81,15 @@ func TestListener(t *testing.T) {
     auth.Value = big.NewInt(0)     // in wei
     auth.GasLimit = uint64(300000) // in units
     auth.GasPrice = big.NewInt(10)
- 
- // 	// create listener for event
- // 	event := EventSig("DepositAsset(address,bytes32)")
-	// cfg := &Config{
-	// 	receiver:      TestEmitterContractAddress,
-	// 	emitter:       TestCentrifugeContractAddress,
-	// 	subscriptions: []string{string(event)},
-	// }
-	// listener := NewListener(conn, cfg)
-
-	// // subscribe to event
-	// query := listener.buildQuery(TestEmitterContractAddress, event)
-	// subscription, err := conn.subscribeToEvent(query)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-	// defer subscription.sub.Unsubscribe()
 
     eventIterator, err := instance.Contract.SimpleEmitterFilterer.FilterDepositAsset(&bind.FilterOpts{
-    	Start: 0, //uint64(currBlock.Number().Int64()),
+    	Start: 0,
     	End: nil,
     	Context: context.Background(),
-	}, [][32]byte{{}})
+	}, []ethcmn.Address{})
     if err != nil {
     	t.Fatal(err)
     }
-
-    t.Log(eventIterator.Event)
 
 	// call fallback to trigger event
     _, err = instance.Transact(auth, "")
@@ -117,16 +98,13 @@ func TestListener(t *testing.T) {
     }
 
   	ok := eventIterator.Next()
-  	t.Log(ok)
     
-    t.Log(eventIterator.Event)
-
-	// select {
-	// case evt := <-subscription.ch:
-	// 	t.Log("got event", evt)
-	// case <-time.After(TestTimeout):
-	// 	t.Fatal("Timed out")
-	// }
+    if eventIterator.Event == nil || !ok {
+    	t.Fatal("Did not get event")
+    } else {
+    	t.Log(eventIterator.Event)
+    	return
+    }
 
 	<-time.After(TestTimeout)
 	t.Fatal("timeout")

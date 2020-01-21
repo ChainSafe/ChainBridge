@@ -1,7 +1,7 @@
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
-package emitter
+package SimpleEmitter
 
 import (
 	"math/big"
@@ -28,10 +28,10 @@ var (
 )
 
 // SimpleEmitterABI is the input ABI used to generate the binding from.
-const SimpleEmitterABI = "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_addr\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"_hash\",\"type\":\"bytes32\"}],\"name\":\"DepositAsset\",\"type\":\"event\"},{\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"fallback\"}]"
+const SimpleEmitterABI = "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_addr\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"_hash\",\"type\":\"bytes32\"}],\"name\":\"DepositAsset\",\"type\":\"event\"},{\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"fallback\"}]"
 
 // SimpleEmitterBin is the compiled bytecode used for deploying new contracts.
-const SimpleEmitterBin = `60806040523480156100115760006000fd5b50610017565b6101ba806100266000396000f3fe60806040526004361061000d575b34801561001a5760006000fd5b505b600060023343604051602001808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1660601b8152601401828152602001925050506040516020818303038152906040526040518082805190602001908083835b6020831015156100ad57805182525b602082019150602081019050602083039250610087565b6001836020036101000a038019825116818451168082178552505050505050905001915050602060405180830381855afa1580156100f0573d600060003e3d6000fd5b5050506040513d60208110156101065760006000fd5b8101908080519060200190929190505050905080600019167f073221459ee71dc19e3af5573dea23a57451d68b87132e600a1f4f4d9484195033604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390a2505b00fea265627a7a72315820581683a72189dd8409fbc88e1cd197e80c1fcc83fd1b9986f93647c1e0288e1364736f6c634300050c0032`
+const SimpleEmitterBin = `60806040523480156100115760006000fd5b50610017565b6101a8806100266000396000f3fe60806040526004361061000d575b34801561001a5760006000fd5b505b600060023343604051602001808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1660601b8152601401828152602001925050506040516020818303038152906040526040518082805190602001908083835b6020831015156100ad57805182525b602082019150602081019050602083039250610087565b6001836020036101000a038019825116818451168082178552505050505050905001915050602060405180830381855afa1580156100f0573d600060003e3d6000fd5b5050506040513d60208110156101065760006000fd5b810190808051906020019092919050505090503373ffffffffffffffffffffffffffffffffffffffff167f073221459ee71dc19e3af5573dea23a57451d68b87132e600a1f4f4d948419508260405180826000191660001916815260200191505060405180910390a2505b00fea265627a7a72315820d32a199b2a10503d801478bd70dc699134119da41b738e4c9ca0b8f7637a2cf264736f6c634300050c0032`
 
 // DeploySimpleEmitter deploys a new Ethereum contract, binding an instance of SimpleEmitter to it.
 func DeploySimpleEmitter(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *SimpleEmitter, error) {
@@ -264,15 +264,15 @@ type SimpleEmitterDepositAsset struct {
 
 // FilterDepositAsset is a free log retrieval operation binding the contract event 0x073221459ee71dc19e3af5573dea23a57451d68b87132e600a1f4f4d94841950.
 //
-// Solidity: e DepositAsset(_addr address, _hash indexed bytes32)
-func (_SimpleEmitter *SimpleEmitterFilterer) FilterDepositAsset(opts *bind.FilterOpts, _hash [][32]byte) (*SimpleEmitterDepositAssetIterator, error) {
+// Solidity: e DepositAsset(_addr indexed address, _hash bytes32)
+func (_SimpleEmitter *SimpleEmitterFilterer) FilterDepositAsset(opts *bind.FilterOpts, _addr []common.Address) (*SimpleEmitterDepositAssetIterator, error) {
 
-	var _hashRule []interface{}
-	for _, _hashItem := range _hash {
-		_hashRule = append(_hashRule, _hashItem)
+	var _addrRule []interface{}
+	for _, _addrItem := range _addr {
+		_addrRule = append(_addrRule, _addrItem)
 	}
 
-	logs, sub, err := _SimpleEmitter.contract.FilterLogs(opts, "DepositAsset", _hashRule)
+	logs, sub, err := _SimpleEmitter.contract.FilterLogs(opts, "DepositAsset", _addrRule)
 	if err != nil {
 		return nil, err
 	}
@@ -281,15 +281,15 @@ func (_SimpleEmitter *SimpleEmitterFilterer) FilterDepositAsset(opts *bind.Filte
 
 // WatchDepositAsset is a free log subscription operation binding the contract event 0x073221459ee71dc19e3af5573dea23a57451d68b87132e600a1f4f4d94841950.
 //
-// Solidity: e DepositAsset(_addr address, _hash indexed bytes32)
-func (_SimpleEmitter *SimpleEmitterFilterer) WatchDepositAsset(opts *bind.WatchOpts, sink chan<- *SimpleEmitterDepositAsset, _hash [][32]byte) (event.Subscription, error) {
+// Solidity: e DepositAsset(_addr indexed address, _hash bytes32)
+func (_SimpleEmitter *SimpleEmitterFilterer) WatchDepositAsset(opts *bind.WatchOpts, sink chan<- *SimpleEmitterDepositAsset, _addr []common.Address) (event.Subscription, error) {
 
-	var _hashRule []interface{}
-	for _, _hashItem := range _hash {
-		_hashRule = append(_hashRule, _hashItem)
+	var _addrRule []interface{}
+	for _, _addrItem := range _addr {
+		_addrRule = append(_addrRule, _addrItem)
 	}
 
-	logs, sub, err := _SimpleEmitter.contract.WatchLogs(opts, "DepositAsset", _hashRule)
+	logs, sub, err := _SimpleEmitter.contract.WatchLogs(opts, "DepositAsset", _addrRule)
 	if err != nil {
 		return nil, err
 	}

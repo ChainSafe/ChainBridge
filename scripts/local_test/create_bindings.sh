@@ -21,9 +21,6 @@ done
 
 solcjs --abi -o abi/ Receiver.sol BridgeAsset.sol interfaces/IHandler.sol helpers/Ownable.sol 
 solcjs --bin -o bin/ Receiver.sol BridgeAsset.sol interfaces/IHandler.sol helpers/Ownable.sol 
-# abigen --abi abi/Receiver_sol_Receiver.abi --pkg $value --type $value --bin bin/contracts_${value}_sol_${value}.bin --out ../bindings/$value.go
-# echo "finished generating bindings for Receiver, BridgeAsset at $contract_path/bindings/"
-
 solcjs --abi -o abi/ Emitter.sol Safe.sol erc/ERC20.sol interfaces/ISafe.sol helpers/SafeMath.sol erc/IERC20.sol 
 solcjs --bin -o bin/ Emitter.sol Safe.sol erc/ERC20.sol interfaces/ISafe.sol helpers/SafeMath.sol erc/IERC20.sol 
 for value in $contracts
@@ -33,3 +30,17 @@ do
 done
 
 popd
+
+for value in $test_contracts
+do
+	mkdir "./contracts/$value"
+	mv "./contracts/evm-contracts/bindings/$value.go" "./contracts/$value"
+	echo "moved $value.go to go package ./contracts/$value"
+done
+
+for value in $contracts
+do
+	mkdir "./contracts/$value"
+	mv "./contracts/evm-contracts/bindings/$value.go" "./contracts/$value"
+	echo "moved $value.go to go package ./contracts/$value"
+done
