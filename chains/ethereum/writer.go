@@ -44,34 +44,28 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 		log15.Info("Handling DepositAsset message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
 		method := "store"
-		params := m.Data
+		hash := [32]byte{}
+		copy(hash[:], m.Data)
+
 		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
 		if err != nil {
 			log15.Error("Failed to build transaction opts", "err", err)
 			return
 		}
 
-		_, err = w.conn.Transact(opts, method, params)
+		_, err = w.conn.Transact(opts, method, hash)
 		if err != nil {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
 	} else if m.Type == msg.CreateDepositProposalType {
 		log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
-		if len(m.Data) < 96 {
-			log15.Error("Failed to handle CreateDepositProposal message", "error", "data is < 96 bytes")
-			return
-		}
 
 		method := "createDepositProposal"
-		hashSlice := m.Data[:32]
-		hash := [32]byte{}
-		copy(hash[:], hashSlice)
-
-		depositIdBytes := m.Data[32:64]
-		originChainBytes := m.Data[64:96]
-
-		depositId := big.NewInt(0).SetBytes(depositIdBytes)
-		originChain := big.NewInt(0).SetBytes(originChainBytes)
+		hash, depositId, originChain, err := m.DecodeCreateDepositProposalData()
+		if err != nil {
+			log15.Error("Failed to handle CreateDepositProposal message", "error", err)
+			return		
+		}
 
 		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
 		if err != nil {
@@ -84,7 +78,25 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
 	} else if m.Type == msg.VoteDepositProposalType {
+		log15.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
+		method := "voteDepositProposal"
+		depositId, originChain, vote, err := m.DecodeVoteDepositProposalData()
+		if err != nil {
+			log15.Error("Failed to handle VoteDepositProposal message", "error", err)
+			return		
+		}
+
+		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
+		if err != nil {
+			log15.Error("Failed to build transaction opts", "err", err)
+			return
+		}		
+
+		_, err = w.conn.Transact(opts, method, depositId, originChain, vote)
+		if err != nil {
+			log15.Error("Failed to submit transaction", "err", err)
+		}
 	} else if m.Type == msg.ExecuteDepositType {
 
 	} else {

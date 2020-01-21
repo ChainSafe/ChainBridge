@@ -9,10 +9,6 @@ import (
 	centrifuge "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
-
-	//ethtypes "github.com/ethereum/go-ethereum/core/types"
-	//"github.com/ethereum/go-ethereum/accounts/abi/bind"
-
 )
 
 func testDepositAssetMessage(t *testing.T) msg.Message {
@@ -30,18 +26,49 @@ func testDepositAssetMessage(t *testing.T) msg.Message {
 
 func testCreateDepositProposalMessage(t *testing.T) msg.Message {
 	// arbitrary hash
-	data, err := hex.DecodeString("b6e25575ab25a1938070eeb64ac4cd6df49af423327877522bec719815dc5e27")
+	hash, err := hex.DecodeString("b6e25575ab25a1938070eeb64ac4cd6df49af423327877522bec719815dc5e27")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	depositId := [32]byte{0}
-	originChain := [32]byte{1}
+	hashBytes := [32]byte{}
+	copy(hashBytes[:], hash)
 
-	return msg.Message{
+	depositId := big.NewInt(0)
+	originChain := big.NewInt(1)
+
+	m := &msg.Message{
 		Type: msg.CreateDepositProposalType,
-		Data: append(append(data, depositId[:]...), originChain[:]...),
 	}
+
+	m.EncodeCreateDepositProposalData(hashBytes, depositId, originChain)
+	return *m
+}
+
+func testVoteDepositProposalMessage(t *testing.T) msg.Message {
+	depositId := big.NewInt(0)
+	originChain := big.NewInt(1)
+	vote := uint8(1)
+
+	m := &msg.Message{
+		Type: msg.VoteDepositProposalType,
+	}
+
+	m.EncodeVoteDepositProposalData(depositId, originChain, vote)
+	return *m
+}
+
+func testExecuteDepositMessage(t *testing.T) msg.Message {
+	depositId := big.NewInt(0)
+	originChain := big.NewInt(1)
+	address := TestAddress
+
+	m := &msg.Message{
+		Type: msg.ExecuteDepositType,
+	}
+
+	m.EncodeExecuteDepositData(depositId, originChain, address, []byte("nootwashere"))
+	return *m
 }
 
 func createTestReceiverContract(t *testing.T, conn *Connection) ReceiverContract {
@@ -144,7 +171,7 @@ func TestWriteToReceiverContract(t *testing.T) {
 	contract := createTestReceiverContract(t, conn)
 	auth := createTestAuth(t, conn)
 
-	depositId := big.NewInt(0)
+	depositId := big.NewInt(420)
 	originChain := big.NewInt(1)
 
 	_, err = contract.Transact(auth, "createDepositProposal", [32]byte{1,2,3,4}, depositId, originChain)
@@ -152,10 +179,14 @@ func TestWriteToReceiverContract(t *testing.T) {
 		t.Fatal(err)
 	}	
 
-	_, err = contract.Transact(auth, "voteDepositProposal", originChain, depositId, uint8(1))
-	if err != nil {
-		t.Fatal(err)
-	}	
+	// auth = createTestAuth(t, conn)
+
+	// _, err = contract.Transact(auth, "voteDepositProposal", originChain, depositId, uint8(1))
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }	
+
+	auth = createTestAuth(t, conn)
 
 	_, err = contract.Transact(auth, "executeDeposit", originChain, depositId, TestAddress, []byte("nootwashere"))
 	if err != nil {
@@ -163,8 +194,57 @@ func TestWriteToReceiverContract(t *testing.T) {
 	}		
 }
 
-func TestWriter_ReceiverContract(t *testing.T) {
+func TestWriter_createDepositProposal(t *testing.T) {
 	m := testCreateDepositProposalMessage(t)
+
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		receiver: TestReceiverContractAddress,
+		keystore: keystore.NewTestKeystore(),
+		from:     "ethereum",
+	}
+
+	conn := NewConnection(cfg)
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	receiver := createTestReceiverContract(t, conn)
+	conn.SetReceiverContract(receiver)
+
+	w := NewWriter(conn, cfg)
+	w.ResolveMessage(m)
+}
+
+func TestWriter_voteDepositProposal(t *testing.T) {
+	t.Skip()
+	m := testVoteDepositProposalMessage(t)
+
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		receiver: TestReceiverContractAddress,
+		keystore: keystore.NewTestKeystore(),
+		from:     "ethereum",
+	}
+
+	conn := NewConnection(cfg)
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	receiver := createTestReceiverContract(t, conn)
+	conn.SetReceiverContract(receiver)
+
+	w := NewWriter(conn, cfg)
+	w.ResolveMessage(m)
+}
+
+func TestWriter_executeDeposit(t *testing.T) {
+	m := testExecuteDepositMessage(t)
 
 	cfg := &Config{
 		endpoint: TestEndpoint,
