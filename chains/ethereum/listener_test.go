@@ -2,16 +2,15 @@ package ethereum
 
 import (
 	"context"
-	"math/big"
+	//"math/big"
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	//"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcmn "github.com/ethereum/go-ethereum/common"
-	//ethtypes "github.com/ethereum/go-ethereum/core/types"
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
 )
 
@@ -55,11 +54,6 @@ func TestListener(t *testing.T) {
 	address := [20]byte{}
 	copy(address[:], addressBytes)
 
-	currBlock, err := conn.LatestBlock()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	contract, err := emitter.NewSimpleEmitter(address, conn.conn)
 	if err != nil {
 		t.Fatal(err)
@@ -69,17 +63,7 @@ func TestListener(t *testing.T) {
 		Contract: contract,
 	}
 
-	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
-	auth := bind.NewKeyedTransactor(privateKey)
-	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0)     // in wei
-	auth.GasLimit = uint64(300000) // in units
-	auth.GasPrice = big.NewInt(10)
+	auth := createTestAuth(t, conn)
 
 	eventIterator, err := instance.Contract.SimpleEmitterFilterer.FilterDepositAsset(&bind.FilterOpts{
 		Start:   0,

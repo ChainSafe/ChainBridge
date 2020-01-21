@@ -7,10 +7,12 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"	
+	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
 
 const TestEndpoint = "ws://localhost:8545"
@@ -21,7 +23,7 @@ var TestCentrifugeContractAddress = ethcmn.HexToAddress("70486404e42d17298c57b04
 var TestReceiverContractAddress = ethcmn.HexToAddress("705D4Fa884AF2Ae59C7780A0f201109947E2Bf6D")
 var TestEmitterContractAddress = ethcmn.HexToAddress("60F9363AaF4993ABA818D5438db5E64bCe6E612b")
 
-const TestTimeout = time.Second * 5
+const TestTimeout = time.Second * 10
 
 func TestConnect(t *testing.T) {
 	cfg := &Config{
@@ -93,4 +95,25 @@ func TestSubscribe(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
+	currBlock, err := conn.LatestBlock()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
+	auth := bind.NewKeyedTransactor(privateKey)
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = big.NewInt(0)     // in wei
+	auth.GasLimit = uint64(300000) // in units
+	auth.GasPrice = big.NewInt(10)
+
+	return auth
 }
