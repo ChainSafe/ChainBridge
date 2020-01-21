@@ -22,28 +22,32 @@ contract ERC721Handler is Ownable, IHandler {
         //     bytes _extraData         @ 0xA4 ... arbitrary length
         
         // TODO remove stub
-        bytes memory extraData = _data;
-        address to = address(this);
-        uint tokenId = 21312;
-        address _originTokenAddress = address(this);
-        // assembly {
-        //     // get addresses from calldata
-        //     origin := mload(add(0x20, _data))
-            // to := mload(add(0x40, _data))
+        bytes memory _extraData;
+        address _to;
+        uint _tokenId;
+        address _originTokenAddress;
+        
+        assembly {
+            // get addresses from calldata
+            _originTokenAddress := mload(add(0x20, _data))
+            _to := mload(add(0x40, _data))
 
-        //     // get uint from calldata
-        //     tokenId := mload(add(0x60, _data))
+            // get uint from calldata
+            _tokenId := mload(add(0x60, _data))
 
-        //     // get arbitrary length bytes from calldata
-        //     extraData := mload(0x40)
-        //     let lenextra := mload(add(0x80, _data))
-        //     mstore(0x40, add(0x60, add(extra, lenextra)))
-        //     calldatacopy(
-        //             extra,                     // copy to extra
-        //             0xA4,                      // copy from calldata @ 0xA4
-        //             sub(calldatasize, 0xA4)    // copy size (calldatasize - 0xA4)
-        //     )
-        // }
+            // get arbitrary length bytes from calldata
+            //
+            // Test to see if it's cheaper to calculate the length of this in memory
+            // or compute it offchain and pass it in as a parameter
+            _extraData := mload(0x40)
+            let lenextra := mload(add(0x80, _data))
+            mstore(0x40, add(0x60, add(_extraData, lenextra)))
+            calldatacopy(
+                    _extraData,                     // copy to extra
+                    0xA4,                      // copy from calldata @ 0xA4
+                    sub(calldatasize, 0xA4)    // copy size (calldatasize - 0xA4)
+            )
+        }
 
         if (whitelist[_originChain][_originTokenAddress] != address(0)) {
             // Token is whitelisted
@@ -51,7 +55,7 @@ contract ERC721Handler is Ownable, IHandler {
             address tokenAddress = whitelist[_originChain][_originTokenAddress];
             ERC721Mintable token = ERC721Mintable(tokenAddress);
             // Mint new tokens
-            token.safeMint(to, tokenId, extraData);
+            token.safeMint(_to, _tokenId, _extraData);
         } else {
             if (synthetics[_originChain][_originTokenAddress] != address(0)) {
                 // token exists
@@ -59,14 +63,14 @@ contract ERC721Handler is Ownable, IHandler {
                 address tokenAddress = synthetics[_originChain][_originTokenAddress];
                 ERC721Mintable token = ERC721Mintable(tokenAddress);
                 // Mint new contract
-                token.safeMint(to, tokenId, extraData);
+                token.safeMint(_to, _tokenId, _extraData);
             } else {
                 // Token doesn't exist
                 ERC721Mintable token = new ERC721Mintable();
                 // Create a relationship between the originAddress and the synthetic
                 synthetics[_originChain][_originTokenAddress] = address(token);
                 // Mint new tokens
-                token.safeMint(to, tokenId, extraData);
+                token.safeMint(_to, _tokenId, _extraData);
             }
         }
     }

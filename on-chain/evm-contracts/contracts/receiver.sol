@@ -196,8 +196,8 @@ contract Receiver {
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
 
         // TODO use generic receiver
-        // IHandler handler = IHandler(_to);
-        // handler.executeDeposit(_originChainId, _data);
+         IHandler handler = IHandler(_to);
+        handler.executeDeposit(_originChainId, _data);
 
         address to = _to;
 
