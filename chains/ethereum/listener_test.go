@@ -6,12 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 
-
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcmn "github.com/ethereum/go-ethereum/common"
-    "github.com/ethereum/go-ethereum/accounts/abi/bind"
 	//ethtypes "github.com/ethereum/go-ethereum/core/types"
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
 )
@@ -62,49 +61,49 @@ func TestListener(t *testing.T) {
 	}
 
 	contract, err := emitter.NewSimpleEmitter(address, conn.conn)
-    if err != nil {
-        t.Fatal(err)
-    }
+	if err != nil {
+		t.Fatal(err)
+	}
 
-    instance := &emitter.SimpleEmitterRaw{
-    	Contract: contract,
-    }
+	instance := &emitter.SimpleEmitterRaw{
+		Contract: contract,
+	}
 
 	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-    privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
-    auth := bind.NewKeyedTransactor(privateKey)
-    auth.Nonce = big.NewInt(int64(nonce))
-    auth.Value = big.NewInt(0)     // in wei
-    auth.GasLimit = uint64(300000) // in units
-    auth.GasPrice = big.NewInt(10)
+	privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
+	auth := bind.NewKeyedTransactor(privateKey)
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = big.NewInt(0)     // in wei
+	auth.GasLimit = uint64(300000) // in units
+	auth.GasPrice = big.NewInt(10)
 
-    eventIterator, err := instance.Contract.SimpleEmitterFilterer.FilterDepositAsset(&bind.FilterOpts{
-    	Start: 0,
-    	End: nil,
-    	Context: context.Background(),
+	eventIterator, err := instance.Contract.SimpleEmitterFilterer.FilterDepositAsset(&bind.FilterOpts{
+		Start:   0,
+		End:     nil,
+		Context: context.Background(),
 	}, []ethcmn.Address{})
-    if err != nil {
-    	t.Fatal(err)
-    }
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// call fallback to trigger event
-    _, err = instance.Transact(auth, "")
-    if err != nil {
-    	t.Fatal(err)
-    }
+	_, err = instance.Transact(auth, "")
+	if err != nil {
+		t.Fatal(err)
+	}
 
-  	ok := eventIterator.Next()
-    
-    if eventIterator.Event == nil || !ok {
-    	t.Fatal("Did not get event")
-    } else {
-    	t.Log(eventIterator.Event)
-    	return
-    }
+	ok := eventIterator.Next()
+
+	if eventIterator.Event == nil || !ok {
+		t.Fatal("Did not get event")
+	} else {
+		t.Log(eventIterator.Event)
+		return
+	}
 
 	<-time.After(TestTimeout)
 	t.Fatal("timeout")

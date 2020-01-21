@@ -25,6 +25,8 @@ type Connection struct {
 	conn   *ethclient.Client
 	signer ethtypes.Signer
 	kp     crypto.Keypair
+	receiverContract ReceiverContract // instance of bound receiver contract
+	emitterContract  EmitterContract // instance of bound emitter contract
 }
 
 func NewConnection(cfg *Config) *Connection {
@@ -34,6 +36,14 @@ func NewConnection(cfg *Config) *Connection {
 		// TODO: add network to use to config
 		signer: ethtypes.MakeSigner(ethparams.MainnetChainConfig, ethparams.MainnetChainConfig.IstanbulBlock),
 	}
+}
+
+func (c *Connection) SetReceiverContract(rc ReceiverContract) {
+	c.receiverContract = rc
+}
+
+func (c *Connection) SetEmitterContract(ec EmitterContract) {
+	c.emitterContract = ec
 }
 
 // Connect starts the ethereum WS connection

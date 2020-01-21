@@ -16,8 +16,9 @@ import (
 const TestEndpoint = "ws://localhost:8545"
 const TestPrivateKey = "39a9ea0dce63086c64a80ce045b796bebed2006554e3992d92601515c7b19807"
 
-var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4") // Account address
+var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4")
 var TestCentrifugeContractAddress = ethcmn.HexToAddress("70486404e42d17298c57b046Aa162Dc3aCc075f0")
+var TestReceiverContractAddress = ethcmn.HexToAddress("705D4Fa884AF2Ae59C7780A0f201109947E2Bf6D")
 var TestEmitterContractAddress = ethcmn.HexToAddress("60F9363AaF4993ABA818D5438db5E64bCe6E612b")
 
 const TestTimeout = time.Second * 5

@@ -5,10 +5,17 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/common"
+	//"github.com/ChainSafe/ChainBridgeV2/common"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	centrifuge "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
+	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
+	//emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
+	//ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+
 )
 
 func testMessage(t *testing.T) msg.Message {
@@ -46,13 +53,67 @@ func TestResolveMessage(t *testing.T) {
 
 }
 
-func TestWriteToCentrifugeContract(t *testing.T) {
+func createTestReceiverContract(t *testing.T, conn *Connection) ReceiverContract {
+	addressBytes := TestReceiverContractAddress.Bytes()
 
-	// TODO: add run ./scripts/local_test/start_ganache.sh and ./scripts/local_test/ethereum_start.sh
-	// to CI so that contract gets deployed
+	address := [20]byte{}
+	copy(address[:], addressBytes)
+
+	contract, err := receiver.NewReceiver(address, conn.conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	instance := &receiver.ReceiverRaw{
+		Contract: contract,
+	}
+
+	return instance
+}
+
+func createTestCentrifugeContract(t *testing.T, conn *Connection) ReceiverContract {
+	addressBytes := TestCentrifugeContractAddress.Bytes()
+
+	address := [20]byte{}
+	copy(address[:], addressBytes)
+
+	contract, err := centrifuge.NewBridgeAsset(address, conn.conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	instance := &centrifuge.BridgeAssetRaw{
+		Contract: contract,
+	}
+
+	return instance
+}
+
+func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
+	currBlock, err := conn.LatestBlock()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
+	auth := bind.NewKeyedTransactor(privateKey)
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = big.NewInt(0)     // in wei
+	auth.GasLimit = uint64(300000) // in units
+	auth.GasPrice = big.NewInt(10)
+
+	return auth
+}
+
+func TestWriteToCentrifugeContract(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		emitter:  TestCentrifugeContractAddress,
+		receiver: TestCentrifugeContractAddress,
 		keystore: keystore.NewTestKeystore(),
 		from:     "ethereum",
 	}
@@ -64,47 +125,10 @@ func TestWriteToCentrifugeContract(t *testing.T) {
 	}
 	defer conn.Close()
 
-	contractBytes, err := hex.DecodeString("F60D9c8AC3B9B88483cee749b25117330F927780")
-	if err != nil {
-		t.Fatal(err)
-	}
+	contract := createTestCentrifugeContract(t, conn)
+	auth := createTestAuth(t, conn)
 
-	contract := [20]byte{}
-	copy(contract[:], contractBytes)
-
-	currBlock, err := conn.LatestBlock()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	calldata := common.FunctionId("store(bytes32)")
-	// arbitrary hash
-	hash, err := hex.DecodeString("58c4b8bfc2aa5dd1da2f02da071c35c1c9f1bc95c4b8b957d44119af6abd5df9")
-	if err != nil {
-		t.Fatal(err)
-	}
-	calldata = append(calldata, hash...)
-
-	tx := ethtypes.NewTransaction(
-		nonce,
-		contract,
-		big.NewInt(0),
-		1000000,        // gasLimit
-		big.NewInt(10), // gasPrice
-		calldata,
-	)
-
-	data, err := tx.MarshalJSON()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = conn.SubmitTx(data)
+	_, err = contract.Transact(auth, "store", [32]byte{1,2,3,4})
 	if err != nil {
 		t.Fatal(err)
 	}
