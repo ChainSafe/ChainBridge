@@ -67,7 +67,7 @@ func TestListener(t *testing.T) {
 		Start:   0,
 		End:     nil,
 		Context: context.Background(),
-	}, []ethcmn.Address{})
+	}, []ethcmn.Address{TestAddress})
 	if err != nil {
 		t.Fatal(err)
 	}
