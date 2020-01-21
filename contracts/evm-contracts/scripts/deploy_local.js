@@ -8,7 +8,7 @@ const cli = require('commander');
 // Capture argument
 cli
     .option('--validators <value>', 'Number of validators', 2)
-    .option('-v, --validator-threshold <value>', 'Value of validator threshold', 2)
+    .option('-v, --validator-threshold <value>', 'Value of validator threshold', 1)
     .option('-d, --deposit-threshold <value>', 'Value of deposit threshold', 2)
     .option('-p, --port <value>', 'Port of RPC instance', 8545)
 cli.parse(process.argv);

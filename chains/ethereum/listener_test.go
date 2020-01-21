@@ -78,7 +78,7 @@ func TestListener(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	time.Sleep(time.Second)
+	time.Sleep(2*time.Second)
 
 	ok := eventIterator.Next()
 
