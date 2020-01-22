@@ -6,6 +6,8 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 var _ chains.Writer = &Writer{}
@@ -13,6 +15,7 @@ var _ chains.Writer = &Writer{}
 type Writer struct {
 	cfg  Config
 	conn *Connection
+	receiverContract ReceiverContract // instance of bound receiver contract
 }
 
 func NewWriter(conn *Connection, cfg *Config) *Writer {
@@ -26,6 +29,10 @@ func (w *Writer) Start() error {
 	log15.Debug("Starting ethereum writer...")
 	log15.Warn("Writer.Start() not fully implemented")
 	return nil
+}
+
+func (w *Writer) SetReceiverContract(rc ReceiverContract) {
+	w.receiverContract = rc
 }
 
 // ResolveMessage handles any given message based on type
@@ -50,7 +57,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			return
 		}
 
-		_, err = w.conn.Transact(opts, method, hash)
+		_, err = w.Transact(opts, method, hash)
 		if err != nil {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
@@ -70,7 +77,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			return
 		}
 
-		_, err = w.conn.Transact(opts, method, hash, depositId, originChain)
+		_, err = w.Transact(opts, method, hash, depositId, originChain)
 		if err != nil {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
@@ -90,7 +97,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			return
 		}
 
-		_, err = w.conn.Transact(opts, method, depositId, originChain, vote)
+		_, err = w.Transact(opts, method, depositId, originChain, vote)
 		if err != nil {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
@@ -110,7 +117,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			return
 		}
 
-		_, err = w.conn.Transact(opts, method, depositId, originChain, address, data)
+		_, err = w.Transact(opts, method, depositId, originChain, address, data)
 		if err != nil {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
@@ -121,4 +128,9 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 
 func (w *Writer) Stop() error {
 	return nil
+}
+
+// Transact submits a transaction to the receiver contract intsance.
+func (w *Writer) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*ethtypes.Transaction, error) {
+	return w.receiverContract.Transact(opts, method, params...)
 }

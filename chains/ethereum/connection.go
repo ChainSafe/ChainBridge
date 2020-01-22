@@ -27,8 +27,6 @@ type Connection struct {
 	conn             *ethclient.Client
 	signer           ethtypes.Signer
 	kp               crypto.Keypair
-	receiverContract ReceiverContract // instance of bound receiver contract
-	emitterContract  EmitterContract  // instance of bound emitter contract
 }
 
 func NewConnection(cfg *Config) *Connection {
@@ -38,14 +36,6 @@ func NewConnection(cfg *Config) *Connection {
 		// TODO: add network to use to config
 		signer: ethtypes.MakeSigner(ethparams.MainnetChainConfig, ethparams.MainnetChainConfig.IstanbulBlock),
 	}
-}
-
-func (c *Connection) SetReceiverContract(rc ReceiverContract) {
-	c.receiverContract = rc
-}
-
-func (c *Connection) SetEmitterContract(ec EmitterContract) {
-	c.emitterContract = ec
 }
 
 // Connect starts the ethereum WS connection
@@ -122,11 +112,6 @@ func (c *Connection) NonceAt(account [20]byte, blockNum *big.Int) (uint64, error
 // LatestBlock returns the latest block from the current chain
 func (c *Connection) LatestBlock() (*ethtypes.Block, error) {
 	return c.conn.BlockByNumber(c.ctx, nil)
-}
-
-// Transact submits a transaction to the receiver contract intsance.
-func (c *Connection) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*ethtypes.Transaction, error) {
-	return c.receiverContract.Transact(opts, method, params...)
 }
 
 // newTransactOpts builds the TransactOpts for the connection's keypair.

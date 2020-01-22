@@ -126,9 +126,8 @@ func TestResolveMessage(t *testing.T) {
 	defer conn.Close()
 
 	centrifugeContract := createTestCentrifugeContract(t, conn)
-	conn.SetReceiverContract(centrifugeContract)
-
 	w := NewWriter(conn, cfg)
+	w.SetReceiverContract(centrifugeContract)
 	w.ResolveMessage(m)
 }
 
@@ -187,9 +186,8 @@ func TestWriter_createDepositProposal(t *testing.T) {
 	defer conn.Close()
 
 	receiver := createTestReceiverContract(t, conn)
-	conn.SetReceiverContract(receiver)
-
 	w := NewWriter(conn, cfg)
+	w.SetReceiverContract(receiver)
 	w.ResolveMessage(m)
 }
 
@@ -211,9 +209,8 @@ func TestWriter_voteDepositProposal(t *testing.T) {
 	defer conn.Close()
 
 	receiver := createTestReceiverContract(t, conn)
-	conn.SetReceiverContract(receiver)
-
 	w := NewWriter(conn, cfg)
+	w.SetReceiverContract(receiver)
 	w.ResolveMessage(m)
 }
 
@@ -235,8 +232,7 @@ func TestWriter_executeDeposit(t *testing.T) {
 	defer conn.Close()
 
 	receiver := createTestReceiverContract(t, conn)
-	conn.SetReceiverContract(receiver)
-
 	w := NewWriter(conn, cfg)
+	w.SetReceiverContract(receiver)
 	w.ResolveMessage(m)
 }
