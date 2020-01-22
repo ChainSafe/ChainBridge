@@ -143,8 +143,8 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 	auth := bind.NewKeyedTransactor(privateKey)
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0)     // in wei
-	auth.GasLimit = uint64(300000) // in units
-	auth.GasPrice = big.NewInt(10)
+	auth.GasLimit = uint64(gasLimit.Int64()) // in units
+	auth.GasPrice = gasPrice
 
 	return auth, nil
 }
