@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-contract_path="./contracts/evm-contracts/contracts"
+contract_path="./on-chain/evm-contracts/contracts"
 test_contracts="SimpleEmitter"
 contracts="Receiver BridgeAsset Emitter Safe"
 
@@ -39,7 +39,7 @@ for value in $test_contracts
 do
 	rm -r ./contracts/$value
 	mkdir "./contracts/$value"
-	mv "./contracts/evm-contracts/bindings/$value.go" "./contracts/$value"
+	mv "./on-chain/evm-contracts/bindings/$value.go" "./contracts/$value"
 	echo "moved $value.go to go package ./contracts/$value"
 done
 
@@ -47,6 +47,6 @@ for value in $contracts
 do
 	rm -r ./contracts/$value
 	mkdir "./contracts/$value"
-	mv "./contracts/evm-contracts/bindings/$value.go" "./contracts/$value"
+	mv "./on-chain/evm-contracts/bindings/$value.go" "./contracts/$value"
 	echo "moved $value.go to go package ./contracts/$value"
 done
