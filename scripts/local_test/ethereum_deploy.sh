@@ -10,4 +10,4 @@ PORT=${PORT:-8545}
 
 # Deploy contracts
 echo "Deploying contracts..."
-node ./contracts/evm-contracts/scripts/deploy_local.js --validators 3 --port $PORT
+node ./on-chain/evm-contracts/scripts/deploy_local.js --validators 3 --port $PORT
