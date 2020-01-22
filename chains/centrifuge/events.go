@@ -30,6 +30,6 @@ func nftHandler(evtI interface{}) msg.Message {
 		Source:      msg.CentrifugeId,
 		Destination: msg.EthereumId,
 		Type:        msg.DepositAssetType,
-		Data:        []byte(evt.Asset.Hex()),
+		Data:        evt.Asset[:],
 	}
 }

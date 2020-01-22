@@ -61,6 +61,9 @@ deploy_eth:
 	@echo " > \033[32mDeploying evm contracts... \033[0m "
 	./scripts/local_test/ethereum_deploy.sh
 
+docker_start:
+	./scripts/docker/start-docker.sh
+	
 start_cent:
 	@echo " > \033[32mStarting centrifuge-chain... \033[0m "
 	./scripts/centrifuge/run_chain.sh
