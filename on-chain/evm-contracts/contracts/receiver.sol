@@ -96,8 +96,9 @@ contract Receiver {
         _;
     }
 
-    event DepositProposalCreated(bytes32 _hash, uint _depositId, address _originChain, uint _voteStatus);
-    event DepositProposalVote(uint _originChainId, uint _depositId, uint _vote, uint _voteStatus);
+    event DepositProposalCreated(bytes32 _hash, uint _depositId, uint _originChain, VoteStatus _voteStatus);
+    event DepositProposalVote(uint _originChainId, uint _depositId, Vote _vote, VoteStatus _voteStatus);
+    event DepositExecuted(uint _originChainId, uint _depositId, address _to);
 
     /**
      * @param _addrs - Bridge validator addresses
@@ -153,7 +154,7 @@ contract Receiver {
         // The creator always votes in favour
         DepositProposals[_originChain][_depositId].votes[msg.sender] = true;
         // Trigger event
-        DepositProposalCreated(bytes32 _hash, uint _depositId, address _originChain, uint DepositProposals[_originChain][_depositId].status);
+        emit DepositProposalCreated(_hash, _depositId, _originChain, DepositProposals[_originChain][_depositId].status);
     }
 
     /**
@@ -185,7 +186,7 @@ contract Receiver {
             DepositProposals[_originChainId][_depositId].status = VoteStatus.Finalized;
         }
         // Triger event
-        event DepositProposalVote(uint _originChainId, uint _depositId, uint _vote, uint DepositProposals[_originChainId][_depositId].status);
+        emit DepositProposalVote(_originChainId, _depositId, _vote, DepositProposals[_originChainId][_depositId].status);
     }
 
     /**
@@ -206,13 +207,11 @@ contract Receiver {
         IHandler handler = IHandler(_to);
         handler.executeTransfer(_originChainId, _data);
 
-        address to = _to;
-
         // Mark deposit Transferred
         DepositProposals[_originChainId][_depositId].status = VoteStatus.Transferred;
 
         // Trigger event
-        event DepositExecuted(uint _originChainId, uint _depositId, address _to);
+        emit DepositExecuted(_originChainId, _depositId, _to);
     }
 
     /**
