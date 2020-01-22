@@ -198,8 +198,6 @@ contract Receiver {
         IHandler handler = IHandler(_to);
         handler.executeTransfer(_originChainId, _data);
 
-        address to = _to;
-
         // Mark deposit Transferred
         DepositProposals[_originChainId][_depositId].status = VoteStatus.Transferred;
     }
