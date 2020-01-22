@@ -71,3 +71,7 @@ start_cent:
 cent_asset_tx:
 	@echo " > \033[32mExecuting centrifuge asset transfer... \033[0m "
 	./scripts/centrifuge/execute_transfer.sh
+
+bindings:
+	@echo " > \033[32mCreating go bindings for ethereum contracts... \033[0m "
+	./scripts/local_test/create_bindings.sh

@@ -1,7 +1,6 @@
 pragma solidity 0.5.12;
 
 import "./interfaces/IHandler.sol";
-import "./Centrifuge.sol";
 
 /**
  * @title Receiver
@@ -198,8 +197,6 @@ contract Receiver {
         // TODO use generic receiver
         IHandler handler = IHandler(_to);
         handler.executeTransfer(_originChainId, _data);
-
-        address to = _to;
 
         // Mark deposit Transferred
         DepositProposals[_originChainId][_depositId].status = VoteStatus.Transferred;
