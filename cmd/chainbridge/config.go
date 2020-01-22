@@ -29,7 +29,7 @@ type RawChainConfig struct {
 	Receiver string      `toml:"receiver"` // bridge address to call
 	Emitter  string      `toml:"emitter"`  // bridge address where events occur
 	From     string      `toml:"from"`     // address of key to use
-} 
+}
 
 func NewConfig() *Config {
 	return &Config{

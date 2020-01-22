@@ -5,13 +5,14 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/common"
+	centrifuge "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
+	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
-func testMessage(t *testing.T) msg.Message {
+func testDepositAssetMessage(t *testing.T) msg.Message {
 	// arbitrary hash
 	data, err := hex.DecodeString("b6e25575ab25a1938070eeb64ac4cd6df49af423327877522bec719815dc5e27")
 	if err != nil {
@@ -24,35 +25,95 @@ func testMessage(t *testing.T) msg.Message {
 	}
 }
 
-func TestResolveMessage(t *testing.T) {
-	m := testMessage(t)
-
-	cfg := &Config{
-		endpoint: TestEndpoint,
-		emitter:  TestCentrifugeContractAddress,
-		keystore: keystore.NewTestKeystore(),
-		from:     "ethereum",
-	}
-
-	conn := NewConnection(cfg)
-	err := conn.Connect()
+func testCreateDepositProposalMessage(t *testing.T) msg.Message {
+	// arbitrary hash
+	hash, err := hex.DecodeString("b6e25575ab25a1938070eeb64ac4cd6df49af423327877522bec719815dc5e27")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer conn.Close()
 
-	w := NewWriter(conn, cfg)
-	w.ResolveMessage(m)
+	hashBytes := [32]byte{}
+	copy(hashBytes[:], hash)
 
+	depositId := big.NewInt(0)
+	originChain := big.NewInt(1)
+
+	m := &msg.Message{
+		Type: msg.CreateDepositProposalType,
+	}
+
+	m.EncodeCreateDepositProposalData(hashBytes, depositId, originChain)
+	return *m
 }
 
-func TestWriteToCentrifugeContract(t *testing.T) {
+func testVoteDepositProposalMessage(t *testing.T) msg.Message {
+	depositId := big.NewInt(0)
+	originChain := big.NewInt(1)
+	vote := uint8(1)
 
-	// TODO: add run ./scripts/local_test/start_ganache.sh and ./scripts/local_test/ethereum_start.sh
-	// to CI so that contract gets deployed
+	m := &msg.Message{
+		Type: msg.VoteDepositProposalType,
+	}
+
+	m.EncodeVoteDepositProposalData(depositId, originChain, vote)
+	return *m
+}
+
+func testExecuteDepositMessage(t *testing.T) msg.Message {
+	depositId := big.NewInt(0)
+	originChain := big.NewInt(1)
+	address := TestAddress
+
+	m := &msg.Message{
+		Type: msg.ExecuteDepositType,
+	}
+
+	m.EncodeExecuteDepositData(depositId, originChain, address, []byte("nootwashere"))
+	return *m
+}
+
+func createTestReceiverContract(t *testing.T, conn *Connection) ReceiverContract {
+	addressBytes := TestReceiverContractAddress.Bytes()
+
+	address := [20]byte{}
+	copy(address[:], addressBytes)
+
+	contract, err := receiver.NewReceiver(address, conn.conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	instance := &receiver.ReceiverRaw{
+		Contract: contract,
+	}
+
+	return instance
+}
+
+func createTestCentrifugeContract(t *testing.T, conn *Connection) ReceiverContract {
+	addressBytes := TestCentrifugeContractAddress.Bytes()
+
+	address := [20]byte{}
+	copy(address[:], addressBytes)
+
+	contract, err := centrifuge.NewBridgeAsset(address, conn.conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	instance := &centrifuge.BridgeAssetRaw{
+		Contract: contract,
+	}
+
+	return instance
+}
+
+func TestResolveMessage(t *testing.T) {
+	m := testDepositAssetMessage(t)
+
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		emitter:  TestCentrifugeContractAddress,
+		receiver: TestCentrifugeContractAddress,
 		keystore: keystore.NewTestKeystore(),
 		from:     "ethereum",
 	}
@@ -64,48 +125,106 @@ func TestWriteToCentrifugeContract(t *testing.T) {
 	}
 	defer conn.Close()
 
-	contractBytes, err := hex.DecodeString("F60D9c8AC3B9B88483cee749b25117330F927780")
+	centrifugeContract := createTestCentrifugeContract(t, conn)
+	w := NewWriter(conn, cfg)
+	w.SetReceiverContract(centrifugeContract)
+	w.ResolveMessage(m)
+}
+
+func TestWriteToReceiverContract(t *testing.T) {
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		keystore: keystore.NewTestKeystore(),
+		from:     "ethereum",
+	}
+
+	conn := NewConnection(cfg)
+	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer conn.Close()
 
-	contract := [20]byte{}
-	copy(contract[:], contractBytes)
+	contract := createTestReceiverContract(t, conn)
+	auth := createTestAuth(t, conn)
 
-	currBlock, err := conn.LatestBlock()
+	depositId := big.NewInt(421)
+	originChain := big.NewInt(1)
+
+	data := []byte("nootwashere")
+	hash := ethcrypto.Keccak256Hash(data)
+
+	_, err = contract.Transact(auth, "createDepositProposal", hash, depositId, originChain)
 	if err != nil {
 		t.Fatal(err)
 	}
+}
 
-	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
+func TestWriter_createDepositProposal(t *testing.T) {
+	m := testCreateDepositProposalMessage(t)
+
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		receiver: TestReceiverContractAddress,
+		keystore: keystore.NewTestKeystore(),
+		from:     "ethereum",
+	}
+
+	conn := NewConnection(cfg)
+	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer conn.Close()
 
-	calldata := common.FunctionId("store(bytes32)")
-	// arbitrary hash
-	hash, err := hex.DecodeString("58c4b8bfc2aa5dd1da2f02da071c35c1c9f1bc95c4b8b957d44119af6abd5df9")
+	receiver := createTestReceiverContract(t, conn)
+	w := NewWriter(conn, cfg)
+	w.SetReceiverContract(receiver)
+	w.ResolveMessage(m)
+}
+
+func TestWriter_voteDepositProposal(t *testing.T) {
+	m := testVoteDepositProposalMessage(t)
+
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		receiver: TestReceiverContractAddress,
+		keystore: keystore.NewTestKeystore(),
+		from:     "ethereum",
+	}
+
+	conn := NewConnection(cfg)
+	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
-	calldata = append(calldata, hash...)
+	defer conn.Close()
 
-	tx := ethtypes.NewTransaction(
-		nonce,
-		contract,
-		big.NewInt(0),
-		1000000,        // gasLimit
-		big.NewInt(10), // gasPrice
-		calldata,
-	)
+	receiver := createTestReceiverContract(t, conn)
+	w := NewWriter(conn, cfg)
+	w.SetReceiverContract(receiver)
+	w.ResolveMessage(m)
+}
 
-	data, err := tx.MarshalJSON()
+func TestWriter_executeDeposit(t *testing.T) {
+	m := testExecuteDepositMessage(t)
+
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		receiver: TestReceiverContractAddress,
+		keystore: keystore.NewTestKeystore(),
+		from:     "ethereum",
+	}
+
+	conn := NewConnection(cfg)
+	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer conn.Close()
 
-	err = conn.SubmitTx(data)
-	if err != nil {
-		t.Fatal(err)
-	}
+	receiver := createTestReceiverContract(t, conn)
+	w := NewWriter(conn, cfg)
+	w.SetReceiverContract(receiver)
+	w.ResolveMessage(m)
 }
