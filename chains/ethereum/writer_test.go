@@ -148,7 +148,7 @@ func TestWriteToReceiverContract(t *testing.T) {
 	contract := createTestReceiverContract(t, conn)
 	auth := createTestAuth(t, conn)
 
-	depositId := big.NewInt(420)
+	depositId := big.NewInt(421)
 	originChain := big.NewInt(1)
 
 	data := []byte("nootwashere")
@@ -158,14 +158,6 @@ func TestWriteToReceiverContract(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	// TODO: need to fix invalid opcode error @gurg
-	// auth = createTestAuth(t, conn)
-
-	// _, err = contract.Transact(auth, "executeDeposit", originChain, depositId, TestAddress, data)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
 }
 
 func TestWriter_createDepositProposal(t *testing.T) {
