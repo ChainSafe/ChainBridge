@@ -23,7 +23,7 @@ type ChainConfig struct {
 	Emitter       string             // bridge address where events occur
 	From          string             // address of key to use
 	Keystore      *keystore.Keystore // Location of key files
-	Subscriptions []string           `toml:"subscriptions"` // list of events to subscribe too
+	Subscriptions []string           // list of events to subscribe too
 	GethDevMode   bool               // denotes if we are running in geth dev mode
 }
 

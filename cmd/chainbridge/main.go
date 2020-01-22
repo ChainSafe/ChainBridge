@@ -109,7 +109,7 @@ func run(ctx *cli.Context) error {
 		From:          cfg.Chains[0].From,
 		Subscriptions: []string{"DepositAsset(address,bytes32)"},
 		Keystore:      ks,
-		GethDevMode:   ctx.Bool("gethdev"),
+		GethDevMode:   ctx.GlobalBool("gethdev"),
 	})
 
 	ctfg := centrifuge.InitializeChain(&core.ChainConfig{

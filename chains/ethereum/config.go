@@ -16,7 +16,7 @@ type Config struct {
 	from          string             // address of key to use
 	subscriptions []string           // list of events to subscribe to
 	keystore      *keystore.Keystore // Location of keyfiles
-	GethDevMode   bool               // denotes if we are running in geth dev mode
+	G\gethDevMode   bool               // denotes if we are running in geth dev mode
 }
 
 // ParseChainConfig uses a core.ChainConfig to construct a corresponding Config
@@ -29,6 +29,6 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 		from:          chainCfg.From,
 		subscriptions: chainCfg.Subscriptions,
 		keystore:      chainCfg.Keystore,
-		GethDevMode:   chainCfg.GethDevMode,
+		gethDevMode:   chainCfg.GethDevMode,
 	}
 }
