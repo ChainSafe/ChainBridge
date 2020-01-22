@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-contract_path="./contracts/evm-contracts/"
+contract_path="./on-chain/evm-contracts/"
 build_dir="./build/evm-contracts/"
 
 echo "Compiling contracts..."
