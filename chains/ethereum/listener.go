@@ -21,6 +21,7 @@ type Listener struct {
 	conn          *Connection
 	subscriptions map[EventSig]*Subscription
 	router        chains.Router
+	emitterContract  EmitterContract  // instance of bound emitter contract
 }
 
 func NewListener(conn *Connection, cfg *Config) *Listener {
@@ -29,6 +30,10 @@ func NewListener(conn *Connection, cfg *Config) *Listener {
 		conn:          conn,
 		subscriptions: make(map[EventSig]*Subscription),
 	}
+}
+
+func (l *Listener) SetEmitterContract(ec EmitterContract) {
+	l.emitterContract = ec
 }
 
 func (l *Listener) SetRouter(r chains.Router) {

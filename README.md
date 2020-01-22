@@ -58,6 +58,11 @@ make deploy_eth
 
 Note: The environment variable `PORT=<port>` can be provided for these commands (default `PORT=8545`)
 
+To build the go bindings for the Ethereum contracts:
+```
+make bindings
+```
+
 ## Centrifuge Dev Environment
 
 To fetch, build and run centrifuge-chain run:

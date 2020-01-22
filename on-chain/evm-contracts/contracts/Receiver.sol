@@ -1,7 +1,6 @@
 pragma solidity 0.5.12;
 
 import "./interfaces/IHandler.sol";
-import "./Centrifuge.sol";
 
 /**
  * @title Receiver

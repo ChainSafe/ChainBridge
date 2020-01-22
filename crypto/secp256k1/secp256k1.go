@@ -117,6 +117,10 @@ func (k *PublicKey) Hex() string {
 	return "0x" + h
 }
 
+func (k *PublicKey) Key() ecdsa.PublicKey {
+	return k.key
+}
+
 func (pk *PrivateKey) Sign(msg []byte) ([]byte, error) {
 	if len(msg) != MessageLength {
 		return nil, errors.New("invalid message length: not 32 byte hash")

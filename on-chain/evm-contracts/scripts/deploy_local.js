@@ -9,7 +9,7 @@ const cli = require('commander');
 cli
     .option('--validators <value>', 'Number of validators', 2)
     .option('-v, --validator-threshold <value>', 'Value of validator threshold', 2)
-    .option('-d, --deposit-threshold <value>', 'Value of deposit threshold', 2)
+    .option('-d, --deposit-threshold <value>', 'Value of deposit threshold', 1)
     .option('-p, --port <value>', 'Port of RPC instance', 8545)
 cli.parse(process.argv);
 
@@ -21,7 +21,7 @@ let provider = new ethers.providers.JsonRpcProvider(url);
 // Config
 let numValidators = 2;
 let validatorThreshold = 2;
-let depositThreshold = 2;
+let depositThreshold = 1;
 
 // CLI args position
 // 0 = number of validators
