@@ -37,7 +37,7 @@ contract Safe is ISafe {
         // balances[_tokenAddress] = balances[_tokenAddress].add(_value);
 
         // Lock tokens
-        ERC20 token = ERC721(_tokenAddress);
+        ERC721 token = ERC721(_tokenAddress);
         token.transferFrom(_from, _to, _tokenId);
     }
 
