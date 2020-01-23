@@ -51,7 +51,7 @@ import "./Safe.sol";
         uint _value,
         address _to,
         address _tokenAddress,
-        bytes _data,
+        bytes memory _data,
         uint _tokenId
     ) public {
         // Incremnet deposit
