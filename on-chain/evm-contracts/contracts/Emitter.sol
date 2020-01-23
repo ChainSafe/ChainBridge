@@ -33,7 +33,7 @@ import "./Safe.sol";
         uint _destChain,
         uint _value,
         address _to,
-        address _tokenAddress,
+        address _tokenAddress
     ) public {
         // Incremnet deposit
         DepositCounts[_destChain]++;
