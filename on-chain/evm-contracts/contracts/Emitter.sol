@@ -62,6 +62,6 @@ import "./Safe.sol";
         super.lockNFT(_tokenAddress, address(this), msg.sender, _tokenId);
 
         // emit event
-        emit ERCTransfer(_destChain, _depositId, _to, _tokenAddress, _tokenId, _data);
+        emit NFTTransfer(_destChain, _depositId, _to, _tokenAddress, _tokenId, _data);
     }
 }
