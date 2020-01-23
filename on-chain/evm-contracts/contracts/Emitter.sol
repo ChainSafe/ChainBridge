@@ -48,11 +48,10 @@ import "./Safe.sol";
 
     function depositNFT(
         uint _destChain,
-        uint _value,
         address _to,
         address _tokenAddress,
-        bytes memory _data,
-        uint _tokenId
+        uint _tokenId,
+        bytes memory _metaData
     ) public {
         // Incremnet deposit
         DepositCounts[_destChain]++;
@@ -62,6 +61,6 @@ import "./Safe.sol";
         super.lockNFT(_tokenAddress, address(this), msg.sender, _tokenId);
 
         // emit event
-        emit NFTTransfer(_destChain, depositId, _to, _tokenAddress, _tokenId, _data);
+        emit NFTTransfer(_destChain, depositId, _to, _tokenAddress, _tokenId, _metaData);
     }
 }
