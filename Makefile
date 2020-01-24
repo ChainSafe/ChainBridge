@@ -47,7 +47,7 @@ test:
 	
 truffle_test:
 	@echo " > \033[32mTesting evm contracts... \033[0m "
-	@cd contracts/evm-contracts && node_modules/.bin/truffle test
+	@cd on-chain/evm-contracts && node_modules/.bin/truffle test
 
 truffle_compile:
 	@echo " > \033[32mCompiling evm contracts... \033[0m "
@@ -71,3 +71,7 @@ start_cent:
 cent_asset_tx:
 	@echo " > \033[32mExecuting centrifuge asset transfer... \033[0m "
 	./scripts/centrifuge/execute_transfer.sh
+
+bindings:
+	@echo " > \033[32mCreating go bindings for ethereum contracts... \033[0m "
+	./scripts/local_test/create_bindings.sh

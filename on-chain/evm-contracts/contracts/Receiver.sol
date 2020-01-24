@@ -1,10 +1,9 @@
 pragma solidity 0.5.12;
 
 import "./interfaces/IHandler.sol";
-import "./Centrifuge.sol";
 
 /**
- * @title Emitter
+ * @title Receiver
  * @dev The receiver is found on the destination chain,
  * it can only be written to by the validators, and is
  * the location where a validator would write the deposit
@@ -96,6 +95,10 @@ contract Receiver {
         _;
     }
 
+    event DepositProposalCreated(bytes32 _hash, uint _depositId, uint _originChain, VoteStatus _voteStatus);
+    event DepositProposalVote(uint _originChainId, uint _depositId, Vote _vote, VoteStatus _voteStatus);
+    event DepositExecuted(uint _originChainId, uint _depositId, address _to);
+
     /**
      * @param _addrs - Bridge validator addresses
      * @param _depositThreshold - The number of votes required for a deposit vote to pass
@@ -149,6 +152,8 @@ contract Receiver {
         }
         // The creator always votes in favour
         DepositProposals[_originChain][_depositId].votes[msg.sender] = true;
+        // Trigger event
+        emit DepositProposalCreated(_hash, _depositId, _originChain, DepositProposals[_originChain][_depositId].status);
     }
 
     /**
@@ -179,6 +184,8 @@ contract Receiver {
             TotalValidators - DepositProposals[_originChainId][_depositId].numNo < DepositThreshold) {
             DepositProposals[_originChainId][_depositId].status = VoteStatus.Finalized;
         }
+        // Triger event
+        emit DepositProposalVote(_originChainId, _depositId, _vote, DepositProposals[_originChainId][_depositId].status);
     }
 
     /**
@@ -196,21 +203,14 @@ contract Receiver {
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
 
         // TODO use generic receiver
-        // IHandler(_to).executeDeposit(_originChainId, _to, );
-
-        ///////
-        // TODO remove this in favour of generic receiver
-        bytes32 centrifugeBytes32;
-        for (uint i = 0; i < 32; i++) {
-            centrifugeBytes32 |= bytes32(_data[i] & 0xFF) >> (i * 8);
-        }
-        // BridgeAsset centrifuge = BridgeAsset(_to);
-        BridgeAsset(_to).store(centrifugeBytes32);
-        // REMOVE ABOVE
-        ///////////////
+        IHandler handler = IHandler(_to);
+        handler.executeTransfer(_originChainId, _data);
 
         // Mark deposit Transferred
         DepositProposals[_originChainId][_depositId].status = VoteStatus.Transferred;
+
+        // Trigger event
+        emit DepositExecuted(_originChainId, _depositId, _to);
     }
 
     /**

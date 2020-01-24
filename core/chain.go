@@ -10,20 +10,21 @@ import (
 )
 
 type Chain struct {
-	cfg      *ChainConfig
-	conn     chains.Connection
-	listener chains.Listener
-	writer   chains.Writer
+	cfg      *ChainConfig      // The config of the chain
+	conn     chains.Connection // THe chains connection
+	listener chains.Listener   // The listener of this chain
+	writer   chains.Writer     // The writer of the chain
 }
 
 type ChainConfig struct {
-	Id            msg.ChainId // ChainID
-	Endpoint      string      // url for rpc endpoint
-	Receiver      string      // bridge address to call
-	Emitter       string      // bridge address where events occur
-	From          string
-	Keystore      *keystore.Keystore
-	Subscriptions []string `toml:"subscriptions"`
+	Id            msg.ChainId        // ChainID
+	Endpoint      string             // url for rpc endpoint
+	Receiver      string             // bridge address to call
+	Emitter       string             // bridge address where events occur
+	From          string             // address of key to use
+	Keystore      *keystore.Keystore // Location of key files
+	Subscriptions []string           // list of events to subscribe too
+	GethDevMode   bool               // denotes if we are running in geth dev mode
 }
 
 func NewChain(cfg *ChainConfig) *Chain {

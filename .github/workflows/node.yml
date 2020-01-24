@@ -15,7 +15,7 @@ jobs:
         node-version: 12.x
     - name: npm install, and test
       run: |
-        cd contracts/evm-contracts/
+        cd on-chain/evm-contracts/
         npm install
         ./node_modules/.bin/truffle test
       env:
