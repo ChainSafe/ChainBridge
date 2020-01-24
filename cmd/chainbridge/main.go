@@ -107,7 +107,7 @@ func run(ctx *cli.Context) error {
 		Receiver:      cfg.Chains[0].Receiver,
 		Emitter:       cfg.Chains[0].Emitter,
 		From:          cfg.Chains[0].From,
-		Subscriptions: []string{"DepositAsset(address,bytes32)"},
+		Subscriptions: []string{"DepositAsset(address,bytes32)", "GenericTransfer(uint256,uint256,address,bytes)", "ERCTransfer(uint,uint,address,uint,address)"},
 		Keystore:      ks,
 		GethDevMode:   ctx.GlobalBool("gethdev"),
 	})
