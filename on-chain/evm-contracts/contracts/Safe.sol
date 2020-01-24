@@ -2,6 +2,7 @@ pragma solidity 0.5.12;
 
 import "./helpers/SafeMath.sol";
 import "./erc/ERC20/ERC20.sol";
+import "./erc/ERC721/ERC721.sol";
 import "./interfaces/ISafe.sol";
 
 /**
@@ -30,6 +31,14 @@ contract Safe is ISafe {
         // Lock tokens
         ERC20 token = ERC20(_tokenAddress);
         token.transferFrom(_from, _to, _value);
+    }
+
+    function lockNFT(address _tokenAddress, address _to, address _from, uint _tokenId) public onlyOwner {
+        // balances[_tokenAddress] = balances[_tokenAddress].add(_value);
+
+        // Lock tokens
+        ERC721 token = ERC721(_tokenAddress);
+        token.transferFrom(_from, _to, _tokenId);
     }
 
     function releaseErc(address _tokenAddress, uint _value, address _to) public onlyOwner {

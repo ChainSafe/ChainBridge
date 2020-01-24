@@ -31,6 +31,10 @@ var accountFlags = []cli.Flag{
 	Secp256k1Flag,
 }
 
+var networkFlags = []cli.Flag{
+	GethFlag,
+}
+
 var accountCommand = cli.Command{
 	Action:   handleAccountsCmd,
 	Name:     "accounts",
@@ -56,6 +60,7 @@ func init() {
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)
+	app.Flags = append(app.Flags, networkFlags...)
 }
 
 func main() {
@@ -104,6 +109,7 @@ func run(ctx *cli.Context) error {
 		From:          cfg.Chains[0].From,
 		Subscriptions: []string{"DepositAsset(address,bytes32)"},
 		Keystore:      ks,
+		GethDevMode:   ctx.GlobalBool("gethdev"),
 	})
 
 	ctfg := centrifuge.InitializeChain(&core.ChainConfig{

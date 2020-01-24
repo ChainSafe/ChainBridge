@@ -30,11 +30,17 @@ type Connection struct {
 }
 
 func NewConnection(cfg *Config) *Connection {
+	var signer ethtypes.Signer
+	if cfg.gethDevMode {
+		signer = ethtypes.MakeSigner(ethparams.AllCliqueProtocolChanges, ethparams.AllCliqueProtocolChanges.HomesteadBlock)
+	} else {
+		signer = ethtypes.MakeSigner(ethparams.MainnetChainConfig, ethparams.MainnetChainConfig.IstanbulBlock)
+	}
 	return &Connection{
 		ctx: context.Background(),
 		cfg: *cfg,
 		// TODO: add network to use to config
-		signer: ethtypes.MakeSigner(ethparams.MainnetChainConfig, ethparams.MainnetChainConfig.IstanbulBlock),
+		signer: signer,
 	}
 }
 
