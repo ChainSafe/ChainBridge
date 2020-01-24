@@ -13,8 +13,8 @@ import (
 var _ chains.Writer = &Writer{}
 
 type Writer struct {
-	cfg  Config
-	conn *Connection
+	cfg              Config
+	conn             *Connection
 	receiverContract ReceiverContract // instance of bound receiver contract
 }
 
@@ -35,94 +35,97 @@ func (w *Writer) SetReceiverContract(rc ReceiverContract) {
 	w.receiverContract = rc
 }
 
-// ResolveMessage handles any given message based on type
-// Note: We are currently panicking here, we should develop a better method for handling failures (possibly a queue?)
-func (w *Writer) ResolveMessage(m msg.Message) {
+func (w *Writer) ResolveMessage(message msg.Message) {
+	if message.Type == msg.CreateDepositProposalType {
+		w.CreateDepositProposal(message)
+	} else if message.Type == msg.VoteDepositProposalType {
+		w.VoteDepositProposal(message)
+	} else if message.Type == msg.ExecuteDepositType {
+		w.ExecuteDeposit(message)
+	}
+}
+
+func (w *Writer) CreateDepositProposal(m msg.Message) {
 	log15.Trace("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination)
 
 	// TODO: make this configurable
 	gasLimit := big.NewInt(6721975)
 	gasPrice := big.NewInt(20000000000)
 
-	if m.Type == msg.DepositAssetType {
-		log15.Info("Handling DepositAsset message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
+	log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
-		method := "store"
-		hash := [32]byte{}
-		copy(hash[:], m.Data)
+	method := "createDepositProposal"
+	hash, depositId, originChain, err := m.DecodeCreateDepositProposalData()
+	if err != nil {
+		log15.Error("Failed to handle CreateDepositProposal message", "error", err)
+		return
+	}
 
-		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
-		if err != nil {
-			log15.Error("Failed to build transaction opts", "err", err)
-			return
-		}
+	opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
+	if err != nil {
+		log15.Error("Failed to build transaction opts", "err", err)
+		return
+	}
 
-		_, err = w.Transact(opts, method, hash)
-		if err != nil {
-			log15.Error("Failed to submit transaction", "err", err)
-		}
-	} else if m.Type == msg.CreateDepositProposalType {
-		log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
+	_, err = w.Transact(opts, method, hash, depositId, originChain)
+	if err != nil {
+		log15.Error("Failed to submit transaction", "err", err)
+	}
+}
 
-		method := "createDepositProposal"
-		hash, depositId, originChain, err := m.DecodeCreateDepositProposalData()
-		if err != nil {
-			log15.Error("Failed to handle CreateDepositProposal message", "error", err)
-			return
-		}
+func (w *Writer) VoteDepositProposal(m msg.Message) {
+	log15.Trace("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination)
 
-		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
-		if err != nil {
-			log15.Error("Failed to build transaction opts", "err", err)
-			return
-		}
+	// TODO: make this configurable
+	gasLimit := big.NewInt(6721975)
+	gasPrice := big.NewInt(20000000000)
 
-		_, err = w.Transact(opts, method, hash, depositId, originChain)
-		if err != nil {
-			log15.Error("Failed to submit transaction", "err", err)
-		}
-	} else if m.Type == msg.VoteDepositProposalType {
-		log15.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
+	log15.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
-		method := "voteDepositProposal"
-		depositId, originChain, vote, err := m.DecodeVoteDepositProposalData()
-		if err != nil {
-			log15.Error("Failed to handle VoteDepositProposal message", "error", err)
-			return
-		}
+	method := "voteDepositProposal"
+	depositId, originChain, vote, err := m.DecodeVoteDepositProposalData()
+	if err != nil {
+		log15.Error("Failed to handle VoteDepositProposal message", "error", err)
+		return
+	}
 
-		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
-		if err != nil {
-			log15.Error("Failed to build transaction opts", "err", err)
-			return
-		}
+	opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
+	if err != nil {
+		log15.Error("Failed to build transaction opts", "err", err)
+		return
+	}
 
-		_, err = w.Transact(opts, method, depositId, originChain, vote)
-		if err != nil {
-			log15.Error("Failed to submit transaction", "err", err)
-		}
-	} else if m.Type == msg.ExecuteDepositType {
-		log15.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
+	_, err = w.Transact(opts, method, depositId, originChain, vote)
+	if err != nil {
+		log15.Error("Failed to submit transaction", "err", err)
+	}
+}
 
-		method := "executeDeposit"
-		depositId, originChain, address, data, err := m.DecodeExecuteDepositData()
-		if err != nil {
-			log15.Error("Failed to handle VoteDepositProposal message", "error", err)
-			return
-		}
+func (w *Writer) ExecuteDeposit(m msg.Message) {
+	log15.Trace("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination)
 
-		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
-		if err != nil {
-			log15.Error("Failed to build transaction opts", "err", err)
-			return
-		}
+	// TODO: make this configurable
+	gasLimit := big.NewInt(6721975)
+	gasPrice := big.NewInt(20000000000)
 
-		_, err = w.Transact(opts, method, depositId, originChain, address, data)
-		if err != nil {
-			log15.Error("Failed to submit transaction", "err", err)
-		}
-	} else {
-		panic("not implemented")
+	log15.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
+
+	method := "executeDeposit"
+	depositId, originChain, address, data, err := m.DecodeExecuteDepositData()
+	if err != nil {
+		log15.Error("Failed to handle VoteDepositProposal message", "error", err)
+		return
+	}
+
+	opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
+	if err != nil {
+		log15.Error("Failed to build transaction opts", "err", err)
+		return
+	}
+
+	_, err = w.Transact(opts, method, depositId, originChain, address, data)
+	if err != nil {
+		log15.Error("Failed to submit transaction", "err", err)
 	}
 }
 
