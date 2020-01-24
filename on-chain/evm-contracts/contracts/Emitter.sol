@@ -16,18 +16,19 @@ import "./Safe.sol";
 
     event GenericTransfer(uint _destChain, uint _depositId, address _destAddress, bytes _data);
     event ERCTransfer(uint _destChain, uint _depositId, address _to, uint _amount, address _tokenAddress);
-    
+    event NFTTransfer(uint _destChain, uint _depositId, address _to, address _tokenAddress, uint _tokenId, bytes _data);
+
     constructor()
-        Safe(address(this)) 
+        Safe(address(this))
         public {}
-    
+
     function deposit(uint _destChain, address _destAddress, bytes memory _data) public {
         // Incremnet deposit
         DepositCounts[_destChain]++;
         uint depositId = DepositCounts[_destChain];
         emit GenericTransfer(_destChain, depositId, _destAddress, _data);
     }
-    
+
     function depositGenericErc(
         uint _destChain,
         uint _value,
@@ -41,6 +42,25 @@ import "./Safe.sol";
         // Lock funds
         super.lockErc(_tokenAddress, _value, address(this), msg.sender);
 
+        // emit event
         emit ERCTransfer(_destChain, depositId, _to, _value, _tokenAddress);
+    }
+
+    function depositNFT(
+        uint _destChain,
+        address _to,
+        address _tokenAddress,
+        uint _tokenId,
+        bytes memory _metaData
+    ) public {
+        // Incremnet deposit
+        DepositCounts[_destChain]++;
+        uint depositId = DepositCounts[_destChain];
+
+        // Lock funds
+        super.lockNFT(_tokenAddress, address(this), msg.sender, _tokenId);
+
+        // emit event
+        emit NFTTransfer(_destChain, depositId, _to, _tokenAddress, _tokenId, _metaData);
     }
 }
