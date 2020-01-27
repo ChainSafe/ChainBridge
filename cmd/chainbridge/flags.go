@@ -62,4 +62,8 @@ var (
 		Name:  "gethdev",
 		Usage: "Applies default Clique settings rather than mainnet settings",
 	}
+	KovanFlag = cli.BoolFlag{
+		Name:  "kovan",
+		Usage: "Applies default kovan settings",
+	}
 )
