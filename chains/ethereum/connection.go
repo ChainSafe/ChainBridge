@@ -27,10 +27,16 @@ type Connection struct {
 	kp     crypto.Keypair
 }
 
+var kovanConfig = ethparams.AllCliqueProtocolChanges
+
 func NewConnection(cfg *Config) *Connection {
 	var signer ethtypes.Signer
+
 	if cfg.gethDevMode {
 		signer = ethtypes.MakeSigner(ethparams.AllCliqueProtocolChanges, ethparams.AllCliqueProtocolChanges.HomesteadBlock)
+	} else if cfg.kovan {
+		kovanConfig.ChainID = big.NewInt(42)
+		signer = ethtypes.MakeSigner(kovanConfig, ethparams.MainnetChainConfig.IstanbulBlock)
 	} else {
 		signer = ethtypes.MakeSigner(ethparams.MainnetChainConfig, ethparams.MainnetChainConfig.IstanbulBlock)
 	}
@@ -112,3 +118,23 @@ func (c *Connection) NonceAt(account [20]byte, blockNum *big.Int) (uint64, error
 func (c *Connection) LatestBlock() (*ethtypes.Block, error) {
 	return c.conn.BlockByNumber(c.ctx, nil)
 }
+
+// // newTransactOpts builds the TransactOpts for the connection's keypair.
+// func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, error) {
+// 	pub := c.kp.Public().(*secp256k1.PublicKey).Key()
+// 	address := ethcrypto.PubkeyToAddress(pub)
+
+// 	nonce, err := c.PendingNonceAt(address)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	privateKey := c.kp.Private().(*secp256k1.PrivateKey).Key()
+// 	auth := bind.NewKeyedTransactor(privateKey)
+// 	auth.Nonce = big.NewInt(int64(nonce))
+// 	auth.Value = big.NewInt(0)               // in wei
+// 	auth.GasLimit = uint64(gasLimit.Int64()) // in units
+// 	auth.GasPrice = gasPrice
+
+// 	return auth, nil
+// }

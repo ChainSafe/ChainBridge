@@ -33,6 +33,7 @@ var accountFlags = []cli.Flag{
 
 var networkFlags = []cli.Flag{
 	GethFlag,
+	KovanFlag,
 }
 
 var accountCommand = cli.Command{
@@ -110,6 +111,7 @@ func run(ctx *cli.Context) error {
 		Subscriptions: []string{"DepositAsset(address,bytes32)"},
 		Keystore:      ks,
 		GethDevMode:   ctx.GlobalBool("gethdev"),
+		Kovan:         ctx.GlobalBool("kovan"),
 	})
 
 	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
