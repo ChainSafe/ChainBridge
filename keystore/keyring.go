@@ -7,10 +7,10 @@ import (
 )
 
 type NameKeystore struct {
-	privateKey  []byte
+	PrivateKey  []byte
 	SecpKeypair *secp256k1.Keypair
 	SrKeypair   *sr25519.Keypair
-	edKeypair   *ed25519.Keypair
+	EdKeypair   *ed25519.Keypair
 }
 
 func makeProperKeyLength(key []byte, targetLength int) []byte {
@@ -27,14 +27,13 @@ func errorWrap(in interface{}, err error) interface{} {
 
 func createNameKeyStore(key []byte) *NameKeystore {
 	secpPrivateKey := errorWrap(secp256k1.NewPrivateKey(makeProperKeyLength(key, secp256k1.PrivateKeyLength))).(*secp256k1.PrivateKey)
-	srPrivateKey := errorWrap(sr25519.NewPrivateKey(makeProperKeyLength(key, sr25519.PrivateKeyLength))).(*sr25519.PrivateKey)
 	edPrivateKey := errorWrap(ed25519.NewPrivateKey(makeProperKeyLength(key, ed25519.PrivateKeyLength))).(*ed25519.PrivateKey)
 
 	return &NameKeystore{
-		privateKey:  key,
+		PrivateKey:  key,
 		SecpKeypair: errorWrap(secp256k1.NewKeypairFromPrivate(secpPrivateKey)).(*secp256k1.Keypair),
-		SrKeypair:   errorWrap(sr25519.NewKeypairFromPrivate(srPrivateKey)).(*sr25519.Keypair),
-		edKeypair:   errorWrap(ed25519.NewKeypairFromPrivate(edPrivateKey)).(*ed25519.Keypair),
+		SrKeypair:   errorWrap(sr25519.NewKeypairFromSeed(makeProperKeyLength(key, sr25519.PrivateKeyLength))).(*sr25519.Keypair),
+		EdKeypair:   errorWrap(ed25519.NewKeypairFromPrivate(edPrivateKey)).(*ed25519.Keypair),
 	}
 }
 

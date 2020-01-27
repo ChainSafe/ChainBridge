@@ -56,10 +56,30 @@ var (
 	}
 )
 
-// Network Setting Flags
+// Test Setting Flags
 var (
 	GethFlag = cli.BoolFlag{
 		Name:  "gethdev",
 		Usage: "Applies default Clique settings rather than mainnet settings",
+	}
+	AliceFlag = cli.BoolFlag{
+		Name:  "Alice",
+		Usage: "Applies the Alice Pub/Priv keys to the bridge",
+	}
+	BobFlag = cli.BoolFlag{
+		Name:  "Bob",
+		Usage: "Applies the Bob Pub/Priv keys to the bridge",
+	}
+	CharlieFlag = cli.BoolFlag{
+		Name:  "Charlie",
+		Usage: "Applies the Charlie Pub/Priv keys to the bridge",
+	}
+	DaveFlag = cli.BoolFlag{
+		Name:  "Charlie",
+		Usage: "Applies the Dave Pub/Priv keys to the bridge",
+	}
+	EveFlag = cli.BoolFlag{
+		Name:  "Charlie",
+		Usage: "Applies the Eve Pub/Priv keys to the bridge",
 	}
 )

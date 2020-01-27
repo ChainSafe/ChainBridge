@@ -31,8 +31,13 @@ var accountFlags = []cli.Flag{
 	Secp256k1Flag,
 }
 
-var networkFlags = []cli.Flag{
+var testFlags = []cli.Flag{
 	GethFlag,
+	AliceFlag,
+	BobFlag,
+	CharlieFlag,
+	DaveFlag,
+	EveFlag,
 }
 
 var accountCommand = cli.Command{
@@ -60,7 +65,7 @@ func init() {
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)
-	app.Flags = append(app.Flags, networkFlags...)
+	app.Flags = append(app.Flags, testFlags...)
 }
 
 func main() {
