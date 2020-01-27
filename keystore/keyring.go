@@ -1,6 +1,7 @@
 package keystore
 
 import (
+	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/ed25519"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
@@ -8,9 +9,9 @@ import (
 
 type NameKeystore struct {
 	PrivateKey  []byte
-	SecpKeypair *secp256k1.Keypair
-	SrKeypair   *sr25519.Keypair
-	EdKeypair   *ed25519.Keypair
+	SecpKeypair crypto.Keypair
+	SrKeypair   crypto.Keypair
+	EdKeypair   crypto.Keypair
 }
 
 func makeProperKeyLength(key []byte, targetLength int) []byte {

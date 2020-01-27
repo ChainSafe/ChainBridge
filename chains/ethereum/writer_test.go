@@ -114,7 +114,7 @@ func TestResolveMessage(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		receiver: TestCentrifugeContractAddress,
-		keystore: keystore.NewTestKeystore(),
+		keystore: keystore.NewTestKeystore("Alice"),
 		from:     "ethereum",
 	}
 
@@ -134,7 +134,7 @@ func TestResolveMessage(t *testing.T) {
 func TestWriteToReceiverContract(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		keystore: keystore.NewTestKeystore(),
+		keystore: keystore.NewTestKeystore("Alice"),
 		from:     "ethereum",
 	}
 
@@ -166,7 +166,7 @@ func TestWriter_createDepositProposal(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		receiver: TestReceiverContractAddress,
-		keystore: keystore.NewTestKeystore(),
+		keystore: keystore.NewTestKeystore("Alice"),
 		from:     "ethereum",
 	}
 
@@ -189,7 +189,7 @@ func TestWriter_voteDepositProposal(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		receiver: TestReceiverContractAddress,
-		keystore: keystore.NewTestKeystore(),
+		keystore: keystore.NewTestKeystore("Alice"),
 		from:     "ethereum",
 	}
 
@@ -212,7 +212,7 @@ func TestWriter_executeDeposit(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		receiver: TestReceiverContractAddress,
-		keystore: keystore.NewTestKeystore(),
+		keystore: keystore.NewTestKeystore("Alice"),
 		from:     "ethereum",
 	}
 

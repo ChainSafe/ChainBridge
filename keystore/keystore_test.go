@@ -8,8 +8,8 @@ import (
 )
 
 func TestMockKeystore(t *testing.T) {
-	ks := NewTestKeystore()
-	kp, _ := ks.KeypairFromAddress("ethereum")
+	ks := NewTestKeystore("Alice")
+	kp, _ := ks.KeypairFromAddress("Alice", "ethereum")
 	if !bytes.Equal(kp.Private().Encode(), hexutils.HexToBytes(TestEthereumPrivateKey)) {
 		t.Fatalf("unexpected key. got: %s expected: %s\n", kp.Private(), TestEthereumPrivateKey)
 	}

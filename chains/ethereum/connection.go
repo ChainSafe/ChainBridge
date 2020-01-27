@@ -22,11 +22,11 @@ import (
 var _ chains.Connection = &Connection{}
 
 type Connection struct {
-	cfg              Config
-	ctx              context.Context
-	conn             *ethclient.Client
-	signer           ethtypes.Signer
-	kp               crypto.Keypair
+	cfg    Config
+	ctx    context.Context
+	conn   *ethclient.Client
+	signer ethtypes.Signer
+	kp     crypto.Keypair
 }
 
 func NewConnection(cfg *Config) *Connection {
@@ -46,7 +46,7 @@ func NewConnection(cfg *Config) *Connection {
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	kp, err := c.cfg.keystore.KeypairFromAddress(c.cfg.from)
+	kp, err := c.cfg.keystore.KeypairFromAddress(c.cfg.from, "ethereum")
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 	privateKey := c.kp.Private().(*secp256k1.PrivateKey).Key()
 	auth := bind.NewKeyedTransactor(privateKey)
 	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0)     // in wei
+	auth.Value = big.NewInt(0)               // in wei
 	auth.GasLimit = uint64(gasLimit.Int64()) // in units
 	auth.GasPrice = gasPrice
 

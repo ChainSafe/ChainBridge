@@ -33,11 +33,7 @@ var accountFlags = []cli.Flag{
 
 var testFlags = []cli.Flag{
 	GethFlag,
-	AliceFlag,
-	BobFlag,
-	CharlieFlag,
-	DaveFlag,
-	EveFlag,
+	DevFlag,
 }
 
 var accountCommand = cli.Command{
@@ -103,7 +99,15 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-	ks := keystore.NewKeystore(cfg.keystorePath)
+	var ks *keystore.Keystore
+	if ctx.GlobalString(DevFlag.Name) != "" {
+		ks = &keystore.Keystore{
+			path:     ctx.GlobalString(DevFlag.Name),
+			insecure: true,
+		}
+	} else {
+		ks = keystore.NewKeystore(cfg.keystorePath)
+	}
 
 	// TODO: Load chains iteratively
 	eth := ethereum.InitializeChain(&core.ChainConfig{
