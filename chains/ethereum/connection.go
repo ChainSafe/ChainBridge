@@ -22,17 +22,23 @@ import (
 var _ chains.Connection = &Connection{}
 
 type Connection struct {
-	cfg              Config
-	ctx              context.Context
-	conn             *ethclient.Client
-	signer           ethtypes.Signer
-	kp               crypto.Keypair
+	cfg    Config
+	ctx    context.Context
+	conn   *ethclient.Client
+	signer ethtypes.Signer
+	kp     crypto.Keypair
 }
+
+var kovanConfig = ethparams.AllCliqueProtocolChanges
 
 func NewConnection(cfg *Config) *Connection {
 	var signer ethtypes.Signer
+
 	if cfg.gethDevMode {
 		signer = ethtypes.MakeSigner(ethparams.AllCliqueProtocolChanges, ethparams.AllCliqueProtocolChanges.HomesteadBlock)
+	} else if cfg.kovan {
+		kovanConfig.ChainID = big.NewInt(42)
+		signer = ethtypes.MakeSigner(kovanConfig, ethparams.MainnetChainConfig.IstanbulBlock)
 	} else {
 		signer = ethtypes.MakeSigner(ethparams.MainnetChainConfig, ethparams.MainnetChainConfig.IstanbulBlock)
 	}
@@ -133,7 +139,7 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 	privateKey := c.kp.Private().(*secp256k1.PrivateKey).Key()
 	auth := bind.NewKeyedTransactor(privateKey)
 	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0)     // in wei
+	auth.Value = big.NewInt(0)               // in wei
 	auth.GasLimit = uint64(gasLimit.Int64()) // in units
 	auth.GasPrice = gasPrice
 

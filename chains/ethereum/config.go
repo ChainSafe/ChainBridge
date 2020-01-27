@@ -17,6 +17,7 @@ type Config struct {
 	subscriptions []string           // list of events to subscribe to
 	keystore      *keystore.Keystore // Location of keyfiles
 	gethDevMode   bool               // denotes if we are running in geth dev mode
+	kovan         bool               // denotes if we are running a kovan chain
 }
 
 // ParseChainConfig uses a core.ChainConfig to construct a corresponding Config
@@ -30,5 +31,6 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 		subscriptions: chainCfg.Subscriptions,
 		keystore:      chainCfg.Keystore,
 		gethDevMode:   chainCfg.GethDevMode,
+		kovan:         chainCfg.Kovan,
 	}
 }

@@ -25,6 +25,7 @@ type ChainConfig struct {
 	Keystore      *keystore.Keystore // Location of key files
 	Subscriptions []string           // list of events to subscribe too
 	GethDevMode   bool               // denotes if we are running in geth dev mode
+	Kovan         bool               // denotes if we are running kovan
 }
 
 func NewChain(cfg *ChainConfig) *Chain {
