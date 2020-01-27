@@ -38,9 +38,9 @@ func NewConnection(cfg *Config) *Connection {
 		signer = ethtypes.MakeSigner(ethparams.AllCliqueProtocolChanges, ethparams.AllCliqueProtocolChanges.HomesteadBlock)
 	} else if cfg.kovan {
 		kovanConfig.ChainID = big.NewInt(42)
-		signer = ethtypes.MakeSigner(kovanConfig, ethparams.MainnetChainConfig.MuirGlacierBlock)
+		signer = ethtypes.MakeSigner(kovanConfig, ethparams.MainnetChainConfig.IstanbulBlock)
 	} else {
-		signer = ethtypes.MakeSigner(ethparams.MainnetChainConfig, ethparams.MainnetChainConfig.MuirGlacierBlock)
+		signer = ethtypes.MakeSigner(ethparams.MainnetChainConfig, ethparams.MainnetChainConfig.IstanbulBlock)
 	}
 	return &Connection{
 		ctx: context.Background(),
