@@ -55,15 +55,3 @@ var (
 		Usage: "Specify account type as secp256k1",
 	}
 )
-
-// Network Setting Flags
-var (
-	GethFlag = cli.BoolFlag{
-		Name:  "gethdev",
-		Usage: "Applies default Clique settings rather than mainnet settings",
-	}
-	KovanFlag = cli.BoolFlag{
-		Name:  "kovan",
-		Usage: "Applies default kovan settings",
-	}
-)

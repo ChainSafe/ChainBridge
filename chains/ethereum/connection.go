@@ -33,15 +33,7 @@ var kovanConfig = ethparams.AllCliqueProtocolChanges
 
 func NewConnection(cfg *Config) *Connection {
 	var signer ethtypes.Signer
-
-	if cfg.gethDevMode {
-		signer = ethtypes.MakeSigner(ethparams.AllCliqueProtocolChanges, ethparams.AllCliqueProtocolChanges.HomesteadBlock)
-	} else if cfg.kovan {
-		kovanConfig.ChainID = big.NewInt(42)
-		signer = ethtypes.MakeSigner(kovanConfig, ethparams.MainnetChainConfig.IstanbulBlock)
-	} else {
-		signer = ethtypes.MakeSigner(ethparams.MainnetChainConfig, ethparams.MainnetChainConfig.IstanbulBlock)
-	}
+	signer = ethtypes.NewEIP155Signer(cfg.chainID)
 	return &Connection{
 		ctx: context.Background(),
 		cfg: *cfg,
