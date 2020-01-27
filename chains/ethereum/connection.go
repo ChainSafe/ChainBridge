@@ -15,7 +15,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -28,8 +27,6 @@ type Connection struct {
 	signer ethtypes.Signer
 	kp     crypto.Keypair
 }
-
-var kovanConfig = ethparams.AllCliqueProtocolChanges
 
 func NewConnection(cfg *Config) *Connection {
 	var signer ethtypes.Signer
