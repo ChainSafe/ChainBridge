@@ -102,10 +102,7 @@ func run(ctx *cli.Context) error {
 
 	var ks *keystore.Keystore
 	if ctx.GlobalString(DevFlag.Name) != "" {
-		ks = &keystore.Keystore{
-			path:     ctx.GlobalString(DevFlag.Name),
-			insecure: true,
-		}
+		ks = keystore.NewTestKeystore(ctx.GlobalString(DevFlag.Name))
 	} else {
 		ks = keystore.NewKeystore(cfg.keystorePath)
 	}

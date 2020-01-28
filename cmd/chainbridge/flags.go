@@ -65,6 +65,7 @@ var (
 	DevFlag = cli.StringFlag{
 		Name:  "devmode",
 		Usage: "Applies a predetermined test keystore to the chains",
+	}
 	KovanFlag = cli.BoolFlag{
 		Name:  "kovan",
 		Usage: "Applies default kovan settings",
