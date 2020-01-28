@@ -43,14 +43,19 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 }
 
 func parseOpts(opts map[string]string) configOpts {
-	var chainID *big.Int
 
-	if opts["ChainID"] != "" {
-		chainID := new(big.Int)
-		chainID.SetString(opts["ChainID"], 10)
+	config := defaultConfig()
+
+	if chainID, ok := opts["ChainID"]; ok {
+		config.chainID = big.NewInt(0)
+		config.chainID.SetString(chainID, 10)
 	}
 
+	return config
+}
+
+func defaultConfig() configOpts {
 	return configOpts{
-		chainID,
+		chainID: big.NewInt(1),
 	}
 }

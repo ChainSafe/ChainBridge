@@ -80,10 +80,6 @@ func startLogger(ctx *cli.Context) error {
 	return nil
 }
 
-type ETH struct {
-	ChainID string
-}
-
 func run(ctx *cli.Context) error {
 	err := startLogger(ctx)
 	if err != nil {
