@@ -51,6 +51,9 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	dasd, _ := conn.conn.ChainID(conn.ctx)
+	t.Log(dasd)
+
 	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
 	if err != nil {
 		t.Fatal(err)

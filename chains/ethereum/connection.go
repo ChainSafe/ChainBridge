@@ -30,7 +30,9 @@ type Connection struct {
 
 func NewConnection(cfg *Config) *Connection {
 	var signer ethtypes.Signer
-	signer = ethtypes.NewEIP155Signer(cfg.chainID)
+	// ???????????
+	// signer = ethtypes.NewEIP155Signer(cfg.chainID)
+	signer = ethtypes.HomesteadSigner{}
 	return &Connection{
 		ctx: context.Background(),
 		cfg: *cfg,
