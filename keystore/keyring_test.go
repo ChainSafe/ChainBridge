@@ -29,8 +29,7 @@ func TestNameKeystore(t *testing.T) {
 }
 
 func TestTestKeystore(t *testing.T) {
-	tps := createTestKeyStore()
-	keys := []*NameKeystore{tps.Alice, tps.Bob, tps.Charlie, tps.Dave, tps.Eve}
+	keys := []*NameKeystore{TestKeyRing.Alice, TestKeyRing.Bob, TestKeyRing.Charlie, TestKeyRing.Dave, TestKeyRing.Eve}
 	for _, key := range keys {
 		tpk32 := makeProperKeyLength(key.PrivateKey, 32)
 		tpk64 := makeProperKeyLength(key.PrivateKey, 64)
