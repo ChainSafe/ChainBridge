@@ -213,7 +213,7 @@ func TestWriter_executeDeposit(t *testing.T) {
 		endpoint: TestEndpoint,
 		receiver: TestReceiverContractAddress,
 		keystore: keystore.NewTestKeystore("Alice"),
-		from:     "ethereum",
+		from:     "Alice",
 	}
 
 	conn := NewConnection(cfg)
