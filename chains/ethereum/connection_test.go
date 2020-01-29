@@ -101,12 +101,12 @@ func TestSubscribe(t *testing.T) {
 }
 
 func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
-	currBlock, err := conn.LatestBlock()
-	if err != nil {
-		t.Fatal(err)
-	}
+	//currBlock, err := conn.LatestBlock()
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
 
-	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
+	nonce, err := conn.PendingNonceAt(TestAddress)
 	if err != nil {
 		t.Fatal(err)
 	}
