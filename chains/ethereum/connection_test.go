@@ -106,7 +106,7 @@ func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
 	// 	t.Fatal(err)
 	// }
 
-	nonce, err := conn.PendingNonceAt(TestAddress)
+	nonce, err := conn.PendingNonceAt(keystore.TestKeyRing.Alice.SecpKeypair.(*secp256k1.Keypair).Public().Address())
 	if err != nil {
 		t.Fatal(err)
 	}
