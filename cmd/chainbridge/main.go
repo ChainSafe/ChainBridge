@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains/centrifuge"
-	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -102,17 +101,17 @@ func run(ctx *cli.Context) error {
 	ks := keystore.NewKeystore(cfg.keystorePath)
 
 	// TODO: Load chains iteratively
-	eth := ethereum.InitializeChain(&core.ChainConfig{
-		Id:            cfg.Chains[0].Id,
-		Endpoint:      cfg.Chains[0].Endpoint,
-		Receiver:      cfg.Chains[0].Receiver,
-		Emitter:       cfg.Chains[0].Emitter,
-		From:          cfg.Chains[0].From,
-		Subscriptions: []string{"DepositAsset(address,bytes32)"},
-		Keystore:      ks,
-		GethDevMode:   ctx.GlobalBool("gethdev"),
-		Kovan:         ctx.GlobalBool("kovan"),
-	})
+	//eth := ethereum.InitializeChain(&core.ChainConfig{
+	//	Id:            cfg.Chains[0].Id,
+	//	Endpoint:      cfg.Chains[0].Endpoint,
+	//	Receiver:      cfg.Chains[0].Receiver,
+	//	Emitter:       cfg.Chains[0].Emitter,
+	//	From:          cfg.Chains[0].From,
+	//	Subscriptions: []string{"DepositAsset(address,bytes32)"},
+	//	Keystore:      ks,
+	//	GethDevMode:   ctx.GlobalBool("gethdev"),
+	//	Kovan:         ctx.GlobalBool("kovan"),
+	//})
 
 	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
 		Id:            msg.CentrifugeId,
@@ -120,12 +119,12 @@ func run(ctx *cli.Context) error {
 		Receiver:      cfg.Chains[1].Receiver,
 		Emitter:       cfg.Chains[1].Emitter,
 		From:          cfg.Chains[1].From,
-		Subscriptions: []string{"nfts"},
+		Subscriptions: []string{"assetTx"},
 		Keystore:      ks,
 	})
 
 	c := core.NewCore(nil)
-	c.AddChain(eth)
+	//c.AddChain(eth)
 	c.AddChain(ctfg)
 	c.Start()
 
