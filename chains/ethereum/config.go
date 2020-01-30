@@ -47,7 +47,6 @@ func parseOpts(opts map[string]string) configOpts {
 	config := defaultConfig()
 
 	if chainID, ok := opts["ChainID"]; ok {
-		config.chainID = big.NewInt(0)
 		config.chainID.SetString(chainID, 10)
 	}
 
