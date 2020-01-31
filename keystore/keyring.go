@@ -15,14 +15,25 @@ const CharlieKey = "Charlie"
 const DaveKey = "Dave"
 const EveKey = "Eve"
 
-type NameKeystore struct {
+func init() {
+	TestKeyRing = &TestKeyStore{
+		Alice:   createNamedKeyStore([]byte(AliceKey)),
+		Bob:     createNamedKeyStore([]byte(BobKey)),
+		Charlie: createNamedKeyStore([]byte(CharlieKey)),
+		Dave:    createNamedKeyStore([]byte(DaveKey)),
+		Eve:     createNamedKeyStore([]byte(EveKey)),
+	}
+}
+
+// NamedKeyStore contains the data needed for test keys
+type NamedKeyStore struct {
 	PrivateKey  []byte
 	SecpKeypair crypto.Keypair
 	SrKeypair   crypto.Keypair
 	EdKeypair   crypto.Keypair
 }
 
-func makeProperKeyLength(key []byte, targetLength int) []byte {
+func padWithZeros(key []byte, targetLength int) []byte {
 	res := make([]byte, targetLength-len(key))
 	return append(res, key...)
 }
@@ -34,37 +45,27 @@ func errorWrap(in interface{}, err error) interface{} {
 	return in
 }
 
-func createNameKeyStore(key []byte) *NameKeystore {
-	secpPrivateKey := errorWrap(secp256k1.NewPrivateKey(makeProperKeyLength(key, secp256k1.PrivateKeyLength))).(*secp256k1.PrivateKey)
-	edPrivateKey := errorWrap(ed25519.NewPrivateKey(makeProperKeyLength(key, ed25519.PrivateKeyLength))).(*ed25519.PrivateKey)
+func createNamedKeyStore(key []byte) *NamedKeyStore {
+	secpPrivateKey := errorWrap(secp256k1.NewPrivateKey(padWithZeros(key, secp256k1.PrivateKeyLength))).(*secp256k1.PrivateKey)
+	edPrivateKey := errorWrap(ed25519.NewPrivateKey(padWithZeros(key, ed25519.PrivateKeyLength))).(*ed25519.PrivateKey)
 
-	return &NameKeystore{
+	return &NamedKeyStore{
 		PrivateKey:  key,
 		SecpKeypair: errorWrap(secp256k1.NewKeypairFromPrivate(secpPrivateKey)).(*secp256k1.Keypair),
-		SrKeypair:   errorWrap(sr25519.NewKeypairFromSeed(makeProperKeyLength(key, sr25519.PrivateKeyLength))).(*sr25519.Keypair),
+		SrKeypair:   errorWrap(sr25519.NewKeypairFromSeed(padWithZeros(key, sr25519.PrivateKeyLength))).(*sr25519.Keypair),
 		EdKeypair:   errorWrap(ed25519.NewKeypairFromPrivate(edPrivateKey)).(*ed25519.Keypair),
 	}
 }
 
 type TestKeyStore struct {
-	Alice   *NameKeystore
-	Bob     *NameKeystore
-	Charlie *NameKeystore
-	Dave    *NameKeystore
-	Eve     *NameKeystore
+	Alice   *NamedKeyStore
+	Bob     *NamedKeyStore
+	Charlie *NamedKeyStore
+	Dave    *NamedKeyStore
+	Eve     *NamedKeyStore
 }
 
 var TestKeyRing *TestKeyStore
-
-func init() {
-	TestKeyRing = &TestKeyStore{
-		Alice:   createNameKeyStore([]byte(AliceKey)),
-		Bob:     createNameKeyStore([]byte(BobKey)),
-		Charlie: createNameKeyStore([]byte(CharlieKey)),
-		Dave:    createNameKeyStore([]byte(DaveKey)),
-		Eve:     createNameKeyStore([]byte(EveKey)),
-	}
-}
 
 func NewTestKeystore(devmode string) *Keystore {
 	return &Keystore{

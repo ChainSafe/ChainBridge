@@ -6,18 +6,18 @@ import (
 )
 
 func TestByteLength(t *testing.T) {
-	res := makeProperKeyLength([]byte("Alice"), 32)
+	res := padWithZeros([]byte("Alice"), 32)
 	if len(res) != 32 {
 		t.Errorf("Length is incorrect.")
 	}
 }
 
-func TestNameKeystore(t *testing.T) {
+func TestNamedKeyStore(t *testing.T) {
 	tpk := []byte("test")
-	ks := createNameKeyStore(tpk)
+	ks := createNamedKeyStore(tpk)
 
-	tpk32 := makeProperKeyLength(tpk, 32)
-	tpk64 := makeProperKeyLength(tpk, 64)
+	tpk32 := padWithZeros(tpk, 32)
+	tpk64 := padWithZeros(tpk, 64)
 
 	if !bytes.Equal(ks.SecpKeypair.Private().Encode(), tpk32) {
 		t.Fatalf("unexpected key. got: %s expected: %s\n", ks.SecpKeypair.Private(), tpk32)
@@ -29,10 +29,10 @@ func TestNameKeystore(t *testing.T) {
 }
 
 func TestTestKeystore(t *testing.T) {
-	keys := []*NameKeystore{TestKeyRing.Alice, TestKeyRing.Bob, TestKeyRing.Charlie, TestKeyRing.Dave, TestKeyRing.Eve}
+	keys := []*NamedKeyStore{TestKeyRing.Alice, TestKeyRing.Bob, TestKeyRing.Charlie, TestKeyRing.Dave, TestKeyRing.Eve}
 	for _, key := range keys {
-		tpk32 := makeProperKeyLength(key.PrivateKey, 32)
-		tpk64 := makeProperKeyLength(key.PrivateKey, 64)
+		tpk32 := padWithZeros(key.PrivateKey, 32)
+		tpk64 := padWithZeros(key.PrivateKey, 64)
 
 		if !bytes.Equal(key.SecpKeypair.Private().Encode(), tpk32) {
 			t.Fatalf("unexpected key. got: %s expected: %s\n", key.SecpKeypair.Private(), tpk32)
