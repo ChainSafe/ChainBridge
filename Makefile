@@ -1,6 +1,12 @@
 PROJECTNAME=$(shell basename "$(PWD)")
 GOLANGCI := $(GOPATH)/bin/golangci-lint
 
+CENT_EMITTER_ADDR?=0x1
+CENT_CHAIN_ID?=0x1
+CENT_TO?=0x1234567890
+CENT_TOKEN_ID?=0x5
+CENT_METADATA?=0x0
+
 .PHONY: help run build install
 all: help
 
@@ -68,9 +74,25 @@ start_cent:
 	@echo " > \033[32mStarting centrifuge-chain... \033[0m "
 	./scripts/centrifuge/run_chain.sh
 
+cent_auto_run:
+	@echo " > \033[32mExecuting centrifuge setup... \033[0m "
+	./scripts/centrifuge/run_setup.sh
+
+cent_set_emitter:
+	@echo " > \033[32mSetting centrifuge emitter address... \033[0m "
+	./scripts/centrifuge/run_interaction.sh set-emitter $(CENT_EMITTER_ADDR)
+
+cent_get_emitter:
+	@echo " > \033[32mGetting centrifuge emitter address... \033[0m "
+	./scripts/centrifuge/run_interaction.sh get-emitter
+
+cent_whitelist_chain:
+	@echo " > \033[32mExecuting centrifuge chain whitelist... \033[0m "
+	./scripts/centrifuge/run_interaction.sh whitelist-chain $(CENT_CHAIN_ID)
+
 cent_asset_tx:
-	@echo " > \033[32mExecuting centrifuge asset transfer... \033[0m "
-	./scripts/centrifuge/execute_transfer.sh
+	@echo " > \033[32mExecuting centrifuge interaction... \033[0m "
+	./scripts/centrifuge/run_interaction.sh asset-tx $(CENT_CHAIN_ID) $(CENT_TO) $(CENT_TOKEN_ID) $(CENT_METADATA)
 
 bindings:
 	@echo " > \033[32mCreating go bindings for ethereum contracts... \033[0m "
