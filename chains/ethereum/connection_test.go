@@ -1,6 +1,7 @@
 package ethereum
 
 import (
+	"fmt"
 	"math/big"
 	"strings"
 	"testing"
@@ -51,10 +52,9 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var testBytesAddr [20]byte
 	TestAddr := keystore.TestKeyRing.Alice.SecpKeypair.(*secp256k1.Keypair).Public().Address()
-	copy(testBytesAddr[:], TestAddr)
-	nonce, err := conn.NonceAt(testBytesAddr, currBlock.Number())
+	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
+	fmt.Println(nonce)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,10 +109,8 @@ func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
 		t.Fatal(err)
 	}
 
-	var testBytesAddr [20]byte
 	TestAddr := keystore.TestKeyRing.Alice.SecpKeypair.(*secp256k1.Keypair).Public().Address()
-	copy(testBytesAddr[:], TestAddr)
-	nonce, err := conn.NonceAt(testBytesAddr, currBlock.Number())
+	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
 
 	if err != nil {
 		t.Fatal(err)

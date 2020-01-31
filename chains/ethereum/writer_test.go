@@ -134,8 +134,8 @@ func TestResolveMessage(t *testing.T) {
 func TestWriteToReceiverContract(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		keystore: keystore.NewTestKeystore("Bob"),
-		from:     "Bob",
+		keystore: keystore.NewTestKeystore("Alice"),
+		from:     "Alice",
 	}
 
 	conn := NewConnection(cfg)
