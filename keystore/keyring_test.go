@@ -2,7 +2,6 @@ package keystore
 
 import (
 	"bytes"
-	"encoding/hex"
 	"testing"
 )
 
@@ -33,8 +32,6 @@ func TestTestKeystore(t *testing.T) {
 	keys := []*NameKeystore{TestKeyRing.Alice, TestKeyRing.Bob, TestKeyRing.Charlie, TestKeyRing.Dave, TestKeyRing.Eve}
 	for _, key := range keys {
 		tpk32 := makeProperKeyLength(key.PrivateKey, 32)
-		str1 := hex.EncodeToString(tpk32)
-		t.Logf("%s\n", str1)
 		tpk64 := makeProperKeyLength(key.PrivateKey, 64)
 
 		if !bytes.Equal(key.SecpKeypair.Private().Encode(), tpk32) {

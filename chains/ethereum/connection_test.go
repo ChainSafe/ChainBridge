@@ -51,7 +51,10 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
+	var testBytesAddr [20]byte
+	TestAddr := keystore.TestKeyRing.Alice.SecpKeypair.(*secp256k1.Keypair).Public().Address()
+	copy(testBytesAddr[:], TestAddr)
+	nonce, err := conn.NonceAt(testBytesAddr, currBlock.Number())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,12 +104,16 @@ func TestSubscribe(t *testing.T) {
 }
 
 func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
-	//currBlock, err := conn.LatestBlock()
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
+	currBlock, err := conn.LatestBlock()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	nonce, err := conn.PendingNonceAt(keystore.TestKeyRing.Alice.SecpKeypair.(*secp256k1.Keypair).Public().Address())
+	var testBytesAddr [20]byte
+	TestAddr := keystore.TestKeyRing.Alice.SecpKeypair.(*secp256k1.Keypair).Public().Address()
+	copy(testBytesAddr[:], TestAddr)
+	nonce, err := conn.NonceAt(testBytesAddr, currBlock.Number())
+
 	if err != nil {
 		t.Fatal(err)
 	}
