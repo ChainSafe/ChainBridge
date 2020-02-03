@@ -34,6 +34,8 @@ func TestTestKeystore(t *testing.T) {
 		tpk32 := padWithZeros(key.PrivateKey, 32)
 		tpk64 := padWithZeros(key.PrivateKey, 64)
 
+		t.Log(key.SecpKeypair.Public().Address())
+
 		if !bytes.Equal(key.SecpKeypair.Private().Encode(), tpk32) {
 			t.Fatalf("unexpected key. got: %s expected: %s\n", key.SecpKeypair.Private(), tpk32)
 		}

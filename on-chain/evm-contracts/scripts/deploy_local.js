@@ -39,17 +39,17 @@ if (cli.depositThreshold && cli.depositThreshold <= numValidators) {
 }
 
 // Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
-const deployerPubKey = "0x34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4";
-const deployerPrivKey = "0x39a9ea0dce63086c64a80ce045b796bebed2006554e3992d92601515c7b19807";
+const deployerPubKey = "0x0c6CD6Dc5258EF556eA7c6dab2abE302fB60e0b6";
+const deployerPrivKey = "0x000000000000000000000000000000000000000000000000000000416c696365";
 
 
 // TODO Remove these and cycle through mnemonic
 const validatorPubkeys = [
-    "0x029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c",
-    "0x0256e9cd885e02497bedbd9b780d9ff05fba77fab5c757f35530461681879206ee",
-    "0x03237d70c85198221508cefe652bef49e0afaebf738044aabbf86a91f10f5da73b",
-    "0x03de552cb89aea6ce30096503c4f4d098d0457d4022258cc287e6a6cf34d0ad70a",
-    "0x02da378cfd22df34e4e89df63b4ed279a426992112601ae9fc538055bd55d8a7a5",
+    "0x0c6CD6Dc5258EF556eA7c6dab2abE302fB60e0b6",
+    "0x0E17A926c6525b59921846c85E1efD7a5396a47B",
+    "0x0f05849291a309EC001bbd2dAd7DC6F989c40c80",
+    "0x3003d03276434dd23429D4D33090DA5948b7b510",
+    "0x251e6F841549D519dE6De1e99241695bc1000A26",
 ]
 const validatorPrivKeys = [
     "0x000000000000000000000000000000000000000000000000000000416c696365",
