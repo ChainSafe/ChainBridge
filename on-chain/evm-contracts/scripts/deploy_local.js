@@ -39,12 +39,12 @@ if (cli.depositThreshold && cli.depositThreshold <= numValidators) {
 }
 
 // Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
-const deployerPubKey = "0x0c6CD6Dc5258EF556eA7c6dab2abE302fB60e0b6";
+const deployerAddress = "0x0c6CD6Dc5258EF556eA7c6dab2abE302fB60e0b6";
 const deployerPrivKey = "0x000000000000000000000000000000000000000000000000000000416c696365";
 
 
 // TODO Remove these and cycle through mnemonic
-const validatorPubkeys = [
+const validatorAddress = [
     "0x0c6CD6Dc5258EF556eA7c6dab2abE302fB60e0b6",
     "0x0E17A926c6525b59921846c85E1efD7a5396a47B",
     "0x0f05849291a309EC001bbd2dAd7DC6F989c40c80",
@@ -68,7 +68,7 @@ let wallet = new ethers.Wallet(deployerPrivKey, provider);
         let factory = new ethers.ContractFactory(ReceiverContract.abi, ReceiverContract.bytecode, wallet);
 
         // Set validators
-        const validators = validatorPubkeys.slice(0, numValidators);
+        const validators = validatorAddress.slice(0, numValidators);
 
         // Deploy
         let contract = await factory.deploy(
