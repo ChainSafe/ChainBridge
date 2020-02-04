@@ -19,8 +19,6 @@ type Chain struct {
 type ChainConfig struct {
 	Id            msg.ChainId        // ChainID
 	Endpoint      string             // url for rpc endpoint
-	Receiver      string             // bridge address to call
-	Emitter       string             // bridge address where events occur
 	From          string             // address of key to use
 	Keystore      *keystore.Keystore // Location of key files
 	Subscriptions []string           // list of events to subscribe too

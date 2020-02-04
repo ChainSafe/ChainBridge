@@ -14,15 +14,16 @@ type Config struct {
 	id            msg.ChainId        // ChainID
 	chainID       *big.Int           // Ethereum chain ID
 	endpoint      string             // url for rpc endpoint
-	receiver      common.Address     // bridge address to call
-	emitter       common.Address     // bridge address where events occur
 	from          string             // address of key to use
 	subscriptions []string           // list of events to subscribe to
 	keystore      *keystore.Keystore // Location of keyfiles
+	opts          configOpts         // General ethereum configuration options
 }
 
 type configOpts struct {
-	chainID *big.Int // Ethereum chain ID
+	chainID  *big.Int       // Ethereum chain ID
+	receiver common.Address // bridge address to call
+	emitter  common.Address // bridge address where events occur
 }
 
 // ParseChainConfig uses a core.ChainConfig to construct a corresponding Config
@@ -34,11 +35,10 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 		id:            chainCfg.Id,
 		chainID:       opts.chainID,
 		endpoint:      chainCfg.Endpoint,
-		receiver:      common.HexToAddress(chainCfg.Receiver),
-		emitter:       common.HexToAddress(chainCfg.Emitter),
 		from:          chainCfg.From,
 		subscriptions: chainCfg.Subscriptions,
 		keystore:      chainCfg.Keystore,
+		opts:          opts,
 	}
 }
 
@@ -50,11 +50,21 @@ func parseOpts(opts map[string]string) configOpts {
 		config.chainID.SetString(chainID, 10)
 	}
 
+	if receiver, ok := opts["Receiver"]; ok {
+		config.receiver = common.HexToAddress(receiver)
+	}
+
+	if emitter, ok := opts["Emmitter"]; ok {
+		config.emitter = common.HexToAddress(emitter)
+	}
+
 	return config
 }
 
 func defaultConfig() configOpts {
 	return configOpts{
-		chainID: big.NewInt(1),
+		chainID:  big.NewInt(1),
+		receiver: common.HexToAddress("0x0"),
+		emitter:  common.HexToAddress("0x0"),
 	}
 }
