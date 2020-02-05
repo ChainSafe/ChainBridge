@@ -45,10 +45,4 @@ contract('Emitter - [deposits::ERC20]', async (accounts) => {
         const owner = await NFTInstance.ownerOf(1);
         assert.strictEqual(owner, EmitterAddress);
     });
-
-    // it('token balance is correct', async () => {
-    //     EmitterInstance.depositGenericErc(0, 1, receiver, NFTInstance.address);
-    //     const balance = await EmitterInstance.balances(NFTInstance.address);
-    //     assert.strictEqual(balance.toNumber(), 1);
-    // });
 });
