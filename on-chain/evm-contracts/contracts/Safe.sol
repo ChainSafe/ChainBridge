@@ -14,7 +14,7 @@ contract Safe is ISafe {
 
     address Owner;
     
-    mapping(address => uint) balances;
+    mapping(address => uint) public balances;
     
     modifier onlyOwner {
         require(msg.sender == Owner);
