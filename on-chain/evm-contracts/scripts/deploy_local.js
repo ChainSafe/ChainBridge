@@ -120,13 +120,10 @@ let wallet = new ethers.Wallet(deployerPrivKey, provider);
 
         await deployCentrifuge();
         await deployEmitter();
+        await deployEmitterTest();
     } catch (e) {
         console.log({ e });
     }
-
-    await deployCentrifuge();
-    await deployEmitter();
-    await deployEmitterTest();
 })();
 
 // Deployment is asynchronous, so we use an async IIFE

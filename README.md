@@ -99,6 +99,14 @@ An asset transfer can be executed with:
 ```
 make cent_asset_tx CENT_CHAIN_ID=<HEX VALUE> CENT_TO=<HEX VALUE> CENT_TOKEN_ID=<HEX VALUE> CENT_METADATA=<HEX VALUE>
 ```
+
+### Auto Run
+
+Setting an emitter address, whitelisting a chain and submitting an asset tx can be executed using default values with:
+```
+make cent_auto_run 
+```
+
 ## Tests
 
 ### Go tests
