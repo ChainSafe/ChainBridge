@@ -38,7 +38,7 @@ import "./Safe.sol";
         uint depositId = DepositCounts[_destChain];
 
         // Lock funds
-        super.lockErc(_tokenAddress, _value, address(this), msg.sender);
+        lockErc(_tokenAddress, _value, address(this), msg.sender);
 
         // emit event
         emit ERCTransfer(_destChain, depositId, _to, _value, _tokenAddress);

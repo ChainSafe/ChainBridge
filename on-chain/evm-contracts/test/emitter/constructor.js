@@ -12,5 +12,8 @@ contract('Emitter - [Deployment]', async (accounts) => {
     });
 
     it('should deploy safe', async () => {
+        const emitterAddress = EmitterInstance.address;
+        const owner = await EmitterInstance.owner.call();
+        assert.strictEqual(owner, emitterAddress);
     });
 });
