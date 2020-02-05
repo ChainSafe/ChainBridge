@@ -10,7 +10,7 @@ interface ISafe {
      */
     // function lockErc(address _tokenAddress, uint _value, address _to, address _from) external;
     
-    function lockNFT(address _tokenAddress, address _to, address _from, uint _tokenId) external;
+    // function lockNFT(address _tokenAddress, address _to, address _from, uint _tokenId) external;
 
     /**
      * @dev Transfers a custodied ERC token to a user.

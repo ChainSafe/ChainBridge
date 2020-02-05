@@ -33,7 +33,7 @@ contract Safe is ISafe {
         token.transferFrom(_from, _to, _value);
     }
 
-    function lockNFT(address _tokenAddress, address _to, address _from, uint _tokenId) public onlyOwner {
+    function lockNFT(address _tokenAddress, address _to, address _from, uint _tokenId) internal {
         ERC721 nft = ERC721(_tokenAddress);
         nft.transferFrom(_from, _to, _tokenId);
     }

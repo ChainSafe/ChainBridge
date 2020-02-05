@@ -56,7 +56,7 @@ import "./Safe.sol";
         uint depositId = DepositCounts[_destChain];
 
         // Lock funds
-        super.lockNFT(_tokenAddress, address(this), msg.sender, _tokenId);
+        lockNFT(_tokenAddress, address(this), msg.sender, _tokenId);
 
         // emit event
         emit NFTTransfer(_destChain, depositId, _to, _tokenAddress, _tokenId, _metaData);
