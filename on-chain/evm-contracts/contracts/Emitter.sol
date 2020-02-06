@@ -17,7 +17,7 @@ import "./Safe.sol";
     event GenericTransfer(uint _destChain, uint _depositId, address _destAddress, bytes _data);
     event ERCTransfer(uint _destChain, uint _depositId, address _to, uint _amount, address _tokenAddress);
     event NFTTransfer(uint _destChain, uint _depositId, address _to, address _tokenAddress, uint _tokenId, bytes _data);
-    
+
     constructor() Safe(address(this)) public {}
 
     function deposit(uint _destChain, address _destAddress, bytes memory _data) public {

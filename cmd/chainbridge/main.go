@@ -4,11 +4,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains/centrifuge"
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
+	"github.com/ChainSafe/ChainBridgeV2/constants"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -103,26 +102,43 @@ func run(ctx *cli.Context) error {
 
 	// TODO: Load chains iteratively
 	eth := ethereum.InitializeChain(&core.ChainConfig{
-		Id:            cfg.Chains[0].Id,
-		Endpoint:      cfg.Chains[0].Endpoint,
-		Receiver:      cfg.Chains[0].Receiver,
-		Emitter:       cfg.Chains[0].Emitter,
-		From:          cfg.Chains[0].From,
-		Subscriptions: []string{"DepositAsset(address,bytes32)"},
+		Id:       cfg.Chains[0].Id,
+		Endpoint: cfg.Chains[0].Endpoint,
+		Receiver: cfg.Chains[0].Receiver,
+		Emitter:  cfg.Chains[0].Emitter,
+		From:     cfg.Chains[0].From,
+		// Subscriptions: []string{"DepositAsset(address,bytes32)", "NFTTransfer(uint256,uint256,address,address,uint256,bytes)", "ERCTransfer(uint256,uint256,address,uint256,address)"},
+		// TODO remove this in favour of OPTS when config PR lands
+		Subscriptions: constants.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
 		Keystore:      ks,
 		GethDevMode:   ctx.GlobalBool("gethdev"),
 		Kovan:         ctx.GlobalBool("kovan"),
 	})
 
-	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
-		Id:            msg.CentrifugeId,
-		Endpoint:      cfg.Chains[1].Endpoint,
-		Receiver:      cfg.Chains[1].Receiver,
-		Emitter:       cfg.Chains[1].Emitter,
-		From:          cfg.Chains[1].From,
-		Subscriptions: []string{"nfts"},
+	// TODO: Load chains iteratively
+	ctfg := ethereum.InitializeChain(&core.ChainConfig{
+		Id:       cfg.Chains[1].Id,
+		Endpoint: cfg.Chains[1].Endpoint,
+		Receiver: cfg.Chains[1].Receiver,
+		Emitter:  cfg.Chains[1].Emitter,
+		From:     cfg.Chains[1].From,
+		// Subscriptions: []string{"DepositAsset(address,bytes32)", "NFTTransfer(uint256,uint256,address,address,uint256,bytes)", "ERCTransfer(uint256,uint256,address,uint256,address)"},
+		// TODO remove this in favour of OPTS when config PR lands
+		Subscriptions: constants.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
 		Keystore:      ks,
+		GethDevMode:   ctx.GlobalBool("gethdev"),
+		Kovan:         ctx.GlobalBool("kovan"),
 	})
+
+	// ctfg := centrifuge.InitializeChain(&core.ChainConfig{
+	// 	Id:            msg.CentrifugeId,
+	// 	Endpoint:      cfg.Chains[1].Endpoint,
+	// 	Receiver:      cfg.Chains[1].Receiver,
+	// 	Emitter:       cfg.Chains[1].Emitter,
+	// 	From:          cfg.Chains[1].From,
+	// 	Subscriptions: []string{"nfts"},
+	// 	Keystore:      ks,
+	// })
 
 	c := core.NewCore(nil)
 	c.AddChain(eth)

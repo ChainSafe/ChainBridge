@@ -15,6 +15,8 @@ cli
     .option('-p, --port <value>', 'Port of RPC instance', 8545)
     .option('--deposit-erc', "Make an ERC20 deposit", false)
     .option('--deposit-nft', "Make an ERC721 deposit", false)
+    .option('--deposit-asset', "Make a test deployment", false)
+    .option('--test-only', "Skip main contract depoyments, only run tests", false)
 cli.parse(process.argv);
 
 // Connect to the network
@@ -70,21 +72,27 @@ const validatorPrivKeys = [
 // Load the wallet to deploy the contract with
 let wallet = new ethers.Wallet(deployerPrivKey, provider);
 
-let EMITTER_ADDRESS;
+// These are deterministic
+const RECEIVER_ADDRESS = "0x705D4Fa884AF2Ae59C7780A0f201109947E2Bf6D";
+const CENTRIFUGE_ADDRESS = "0x290f41e61374c715C1127974bf08a3993afd0145";
+const EMITTER_ADDRESS = "0x1fA38b0EfccA4228EB9e15112D4d98B0CEe3c600";
+const TEST_EMITTER_ADDRESS = "0x70486404e42d17298c57b046Aa162Dc3aCc075f0";
 
 // Deployment is asynchronous, so we use an async IIFE
 (async function () {
-    if (cli.depositErc) {
-        await deployEmitter();
-        await erc20Transfer();
-    } else if (cli.depositNft) {
-        await deployEmitter();
-        await erc721Transfer();
-    } else {
+    if (!cli.testOnly) {
         await deployReceiver();
         await deployCentrifuge();
         await deployEmitter();
         await deployEmitterTest();
+    }
+
+    if (cli.depositErc) {
+        await erc20Transfer();
+    } else if (cli.depositNft) {
+        await erc721Transfer();
+    } else if (cli.depositAsset) {
+        await deployAssetTest();
     }
 })();
 
@@ -160,7 +168,8 @@ async function deployCentrifuge() {
         await contract.deployed();
         // Done! The contract is deployed.
 
-        let CentrifugeInstance = new ethers.Contract(contract.address, CentrifugeContract.abi, provider);
+        // let CentrifugeInstance = new ethers.Contract(contract.address, CentrifugeContract.abi, provider);
+        // CENTRIFUGE_ADDRESS = contract.address;
     } catch (e) {
         console.log({ e });
     }
@@ -185,7 +194,7 @@ async function deployEmitter() {
         await contract.deployed();
 
         // Done! The contract is deployed.
-        EMITTER_ADDRESS = contract.address;
+        // EMITTER_ADDRESS = contract.address;
     } finally {
         
     }
@@ -210,8 +219,23 @@ async function deployEmitterTest() {
     await contract.deployed()
     // Done! The contract is deployed.
 
-    let EmitterInstance = new ethers.Contract(contract.address, CentrifugeContract.abi, provider);
+    // TEST_EMITTER_ADDRESS = contract.address;
 };
+
+async function deployAssetTest() {
+    try {
+        const deployerWallet = new ethers.Wallet(validatorPrivKeys[0], provider);
+        let emitterInstance = new ethers.Contract(TEST_EMITTER_ADDRESS, TestEmitterContract.abi, deployerWallet);
+        // Trigger fallback
+        const tx = await wallet.sendTransaction({
+            to: emitterInstance.address,
+            value: ethers.utils.parseEther("0.0")
+        });
+        console.log("[Deploy Asset] Tx hash: ", tx.hash);
+    } catch (e) {
+        console.log({e})
+    }
+}
 
 async function erc20Transfer() {
     try {
@@ -228,14 +252,25 @@ async function erc20Transfer() {
         await erc20Instance.mint(minterWallet.address, 100);
         console.log("[ERC20 Transfer] Minted tokens!");
         
-        await erc20Instance.approve(EMITTER_ADDRESS, 100);
+        await erc20Instance.approve(EMITTER_ADDRESS, 1);
         console.log("[ERC20 Transfer] Approved tokens!");
 
         // Perform deposit
         const emitterInstance = new ethers.Contract(EMITTER_ADDRESS, EmitterContract.abi, minterWallet);
-        emitterInstance.depositGenericErc(0, 1, validatorPubkeys[1], erc20Instance.address);
+
+        // Check the balance before the transfer
+        const prebal = await emitterInstance.balances(erc20Instance.address);
+        console.log("[ERC20 Transfer] Pre token balaance: ", prebal.toNumber());
+
+        // Make the deposit
+        await emitterInstance.depositGenericErc(0, 1, validatorPubkeys[1], erc20Instance.address);
         console.log("[ERC20 Transfer] Created deposit!");
 
+        // Check the balance after the deposit
+        const postbal = await emitterInstance.balances(erc20Instance.address);
+        console.log("[ERC20 Transfer] Post token balaance: ", postbal.toNumber());
+
+        console.log("[ERC20 Transfer] has the balance increased?", postbal.toNumber() > prebal.toNumber());
     } catch (e) {
         console.log({ e });
     }
@@ -260,11 +295,30 @@ async function erc721Transfer() {
         await erc721Instance.approve(EMITTER_ADDRESS, 1);
         console.log("[ERC721 Transfer] Approved tokens!");
 
-        // Perform deposit
+        // Create emitter instance
         const emitterInstance = new ethers.Contract(EMITTER_ADDRESS, EmitterContract.abi, minterWallet);
-        emitterInstance.depositNFT(0, validatorPubkeys[1], erc721Instance.address, 1, "0x");
+
+        // Check pre balance
+        const prebal = await erc721Instance.balanceOf(EMITTER_ADDRESS);
+        console.log("[ERC721 Transfer] Pre balance:", prebal.toNumber());
+        
+        // Check the owner
+        let owner = await erc721Instance.ownerOf(1);
+        console.log("[ERC721 Transfer] Owner of token 1:", owner);
+        
+        // // Perform deposit
+        await emitterInstance.depositNFT(0, validatorPubkeys[1], erc721Instance.address, 1, "0x");
         console.log("[ERC721 Transfer] Created deposit!");
 
+        // Check post balance
+        const postbal = await erc721Instance.balanceOf(EMITTER_ADDRESS);
+        console.log("[ERC721 Transfer] Pre balance:", postbal.toNumber());
+        
+        console.log("[ERC20 Transfer] has the balance increased?", postbal.toNumber() > prebal.toNumber());
+
+        // Check the owner
+        owner = await erc721Instance.ownerOf(1);
+        console.log("[ERC721 Transfer] Owner of token 1:", owner);
     } catch (e) {
         console.log({ e });
     }

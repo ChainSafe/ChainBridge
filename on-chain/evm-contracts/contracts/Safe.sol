@@ -13,21 +13,21 @@ contract Safe is ISafe {
     using SafeMath for uint;
 
     address Owner;
-    
+
     mapping(address => uint) public balances;
-    
+
     modifier onlyOwner {
         require(msg.sender == Owner);
         _;
     }
-    
+
     constructor(address _owner) public {
         Owner = _owner;
     }
 
     function lockErc(address _tokenAddress, uint _value, address _to, address _from) internal {
         balances[_tokenAddress] = balances[_tokenAddress].add(_value);
-        
+
         // Lock tokens
         ERC20 token = ERC20(_tokenAddress);
         token.transferFrom(_from, _to, _value);
