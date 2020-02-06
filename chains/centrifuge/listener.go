@@ -38,6 +38,12 @@ func (l *Listener) Start() error {
 
 	for _, sub := range l.cfg.Subscriptions {
 		switch sub {
+		case "nfts":
+			err := l.RegisterEventHandler("nfts", nftHandler)
+
+			if err != nil {
+				return err
+			}
 		case "assetTx":
 			err := l.RegisterEventHandler("assetTx", assetTransferHandler)
 
@@ -105,6 +111,17 @@ func (l *Listener) watchForEvents(sub *state.StorageSubscription) {
 // handleEvents calls the associated handler for all registered event types
 func (l *Listener) handleEvents(evts Events) {
 	// TODO: Handle all event types
+	if l.subscriptions["nfts"] != nil {
+		for _, nft := range evts.Nfts_DepositAsset {
+			log15.Trace("Handling NFT event")
+			msg := l.subscriptions["nfts"](nft)
+			err := l.router.Send(msg)
+			if err != nil {
+				log15.Error("failed to process event", "err", err)
+			}
+		}
+	}
+
 	if l.subscriptions["assetTx"] != nil {
 		for _, assetTx := range evts.Bridge_AssetTransfer {
 			log15.Trace("Handling AssetTransfer event")
