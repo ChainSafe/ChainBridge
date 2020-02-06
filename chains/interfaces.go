@@ -17,7 +17,7 @@ type Router interface {
 type Listener interface {
 	Start() error
 	SetRouter(Router)
-	RegisterEventHandler(string) error
+	RegisterEventHandler(string, EvtHandlerFn) error
 	Stop() error
 }
 

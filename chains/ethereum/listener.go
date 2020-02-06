@@ -1,6 +1,7 @@
 package ethereum
 
 import (
+	"fmt"
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/constants"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -45,10 +46,20 @@ func (l *Listener) SetRouter(r chains.Router) {
 func (l *Listener) Start() error {
 	log15.Debug("Starting listener...", "chainID", l.cfg.id, "subs", l.cfg.subscriptions)
 	for _, subscription := range l.cfg.subscriptions {
-		subscription := subscription
-		err := l.RegisterEventHandler(subscription)
-		if err != nil {
-			log15.Error("failed to register event handler", "err", err)
+		sub := subscription
+		switch sub {
+		case constants.ErcTransferSignature, constants.NftTransferSignature:
+			err := l.RegisterEventHandler(sub, handleTransferEvent)
+			if err != nil {
+				log15.Error("failed to register event handler", "err", err)
+			}
+		case constants.DepositAssetSignature:
+			err := l.RegisterEventHandler(sub, handleTestDeposit)
+			if err != nil {
+				log15.Error("failed to register event handler", "err", err)
+			}
+		default:
+			return fmt.Errorf("Unrecognized event: %s", sub)
 		}
 	}
 	return nil
@@ -69,7 +80,7 @@ func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQ
 
 // RegisterEventHandler creates a subscription for the provided event on the emitter contract.
 // Handler will be called for every instance of event.
-func (l *Listener) RegisterEventHandler(subscription string) error {
+func (l *Listener) RegisterEventHandler(subscription string, handler chains.EvtHandlerFn) error {
 	evt := EventSig(subscription)
 	query := l.buildQuery(l.cfg.emitter, evt)
 	subscriptionEvent, err := l.conn.subscribeToEvent(query)
@@ -77,18 +88,18 @@ func (l *Listener) RegisterEventHandler(subscription string) error {
 		return err
 	}
 	l.subscriptions[EventSig(subscription)] = subscriptionEvent
-	go l.watchEvent(subscription, subscriptionEvent)
+	go l.watchEvent(subscriptionEvent, handler)
 	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.emitter, "sig", subscription)
 	return nil
 }
 
 // watchEvent will call the handler for every occurrence of the corresponding event. It should be run in a separate
 // goroutine to monitor the subscription channel.
-func (l *Listener) watchEvent(subscription string, subscriptionEvent *Subscription) {
+func (l *Listener) watchEvent(subscriptionEvent *Subscription, handler func(interface{}) msg.Message) {
 	for {
 		select {
 		case evt := <-subscriptionEvent.ch:
-			m := handleEvents(subscription, evt)
+			m := handler(evt)
 			err := l.router.Send(m)
 			if err != nil {
 				log15.Error("subscription error: cannot send message", "sub", subscriptionEvent, "err", err)
@@ -136,5 +147,21 @@ func handleEvents(subscription string, evtI interface{}) msg.Message {
 	return msg.Message{
 		Type: msgType,
 		Data: evt.Topics[0].Bytes(),
+	}
+}
+
+func handleTransferEvent(eventI interface{}) msg.Message {
+	event := eventI.(ethtypes.Log)
+	return msg.Message{
+		Type: msg.CreateDepositProposalType,
+		Data: event.Topics[0].Bytes(),
+	}
+}
+
+func handleTestDeposit(eventI interface{}) msg.Message {
+	event := eventI.(ethtypes.Log)
+	return msg.Message{
+		Type: msg.DepositAssetType,
+		Data: event.Topics[0].Bytes(),
 	}
 }
