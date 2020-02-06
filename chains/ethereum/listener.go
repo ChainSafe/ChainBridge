@@ -17,11 +17,11 @@ type Subscription struct {
 }
 
 type Listener struct {
-	cfg           Config
-	conn          *Connection
-	subscriptions map[EventSig]*Subscription
-	router        chains.Router
-	emitterContract  EmitterContract  // instance of bound emitter contract
+	cfg             Config
+	conn            *Connection
+	subscriptions   map[EventSig]*Subscription
+	router          chains.Router
+	emitterContract EmitterContract // instance of bound emitter contract
 }
 
 func NewListener(conn *Connection, cfg *Config) *Listener {

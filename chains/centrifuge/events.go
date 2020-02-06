@@ -24,7 +24,7 @@ type EventAssetTransfer struct {
 
 type Events struct {
 	types.EventRecords
-	Nfts_DepositAsset []EventNFTDeposited //nolint:stylecheck,golint
+	Nfts_DepositAsset    []EventNFTDeposited  //nolint:stylecheck,golint
 	Bridge_AssetTransfer []EventAssetTransfer //nolint:stylecheck,golint
 }
 
