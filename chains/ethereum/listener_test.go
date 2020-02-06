@@ -14,13 +14,9 @@ import (
 
 func newLocalConnection(t *testing.T, emitter ethcmn.Address) *Connection {
 
-	opts := configOpts{
-		receiver: TestCentrifugeContractAddress,
-	}
-
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		opts:     opts,
+		receiver: TestCentrifugeContractAddress,
 		keystore: keystore.NewTestKeystore(),
 		from:     "ethereum",
 	}

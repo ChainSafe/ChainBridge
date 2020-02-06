@@ -45,7 +45,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 	gasPrice := big.NewInt(20000000000)
 
 	if m.Type == msg.DepositAssetType {
-		log15.Info("Handling DepositAsset message", "to", w.conn.cfg.opts.receiver, "msgdata", m.Data)
+		log15.Info("Handling DepositAsset message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
 		method := "store"
 		hash := [32]byte{}
@@ -62,7 +62,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
 	} else if m.Type == msg.CreateDepositProposalType {
-		log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.opts.receiver, "msgdata", m.Data)
+		log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
 		method := "createDepositProposal"
 		hash, depositId, originChain, err := m.DecodeCreateDepositProposalData()
@@ -82,7 +82,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
 	} else if m.Type == msg.VoteDepositProposalType {
-		log15.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.opts.receiver, "msgdata", m.Data)
+		log15.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
 		method := "voteDepositProposal"
 		depositId, originChain, vote, err := m.DecodeVoteDepositProposalData()
@@ -102,7 +102,7 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
 	} else if m.Type == msg.ExecuteDepositType {
-		log15.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.opts.receiver, "msgdata", m.Data)
+		log15.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
 		method := "executeDeposit"
 		depositId, originChain, address, data, err := m.DecodeExecuteDepositData()

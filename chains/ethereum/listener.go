@@ -17,11 +17,11 @@ type Subscription struct {
 }
 
 type Listener struct {
-	cfg           Config
-	conn          *Connection
-	subscriptions map[EventSig]*Subscription
-	router        chains.Router
-	emitterContract  EmitterContract  // instance of bound emitter contract
+	cfg             Config
+	conn            *Connection
+	subscriptions   map[EventSig]*Subscription
+	router          chains.Router
+	emitterContract EmitterContract // instance of bound emitter contract
 }
 
 func NewListener(conn *Connection, cfg *Config) *Listener {
@@ -77,14 +77,14 @@ func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQ
 // Handler will be called for every instance of event.
 func (l *Listener) RegisterEventHandler(sig string, handler chains.EvtHandlerFn) error {
 	evt := EventSig(sig)
-	query := l.buildQuery(l.cfg.opts.emitter, evt)
+	query := l.buildQuery(l.cfg.emitter, evt)
 	sub, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
 	}
 	l.subscriptions[EventSig(sig)] = sub
 	go l.watchEvent(sub, handler)
-	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.opts.emitter, "sig", sig)
+	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.emitter, "sig", sig)
 	return nil
 }
 
