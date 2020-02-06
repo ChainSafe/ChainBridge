@@ -21,12 +21,6 @@ type Config struct {
 	emitter       common.Address
 }
 
-type configOpts struct {
-	chainID  *big.Int       // Ethereum chain ID
-	receiver common.Address // bridge address to call
-	emitter  common.Address // bridge address where events occur
-}
-
 // ParseChainConfig uses a core.ChainConfig to construct a corresponding Config
 func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 
