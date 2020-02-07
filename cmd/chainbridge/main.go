@@ -33,7 +33,7 @@ var accountFlags = []cli.Flag{
 
 var testFlags = []cli.Flag{
 	GethFlag,
-	DevFlag,
+	TestKeyFlag,
 	KovanFlag,
 }
 
@@ -101,8 +101,8 @@ func run(ctx *cli.Context) error {
 	}
 
 	var ks *keystore.Keystore
-	if ctx.GlobalString(DevFlag.Name) != "" {
-		ks = keystore.NewTestKeystore(ctx.GlobalString(DevFlag.Name))
+	if ctx.GlobalString(TestKeyFlag.Name) != "" {
+		ks = keystore.NewTestKeystore(ctx.GlobalString(TestKeyFlag.Name))
 	} else {
 		ks = keystore.NewKeystore(cfg.keystorePath)
 	}

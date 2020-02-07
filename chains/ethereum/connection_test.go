@@ -33,7 +33,7 @@ func TestConnect(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		from:     "ethereum",
-		keystore: keystore.NewTestKeystore("Alice"),
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 	}
 	conn := NewConnection(cfg)
 	err := conn.Connect()
@@ -83,7 +83,7 @@ func TestSubscribe(t *testing.T) {
 	cfg := &Config{
 		id:       msg.EthereumId,
 		endpoint: TestEndpoint,
-		keystore: keystore.NewTestKeystore("Alice"),
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 		from:     "ethereum",
 	}
 

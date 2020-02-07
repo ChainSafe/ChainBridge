@@ -62,8 +62,8 @@ var (
 		Name:  "gethdev",
 		Usage: "Applies default Clique settings rather than mainnet settings",
 	}
-	DevFlag = cli.StringFlag{
-		Name:  "devmode",
+	TestKeyFlag = cli.StringFlag{
+		Name:  "testkey",
 		Usage: "Applies a predetermined test keystore to the chains",
 	}
 	KovanFlag = cli.BoolFlag{
