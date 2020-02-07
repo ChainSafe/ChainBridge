@@ -23,12 +23,11 @@ type Config struct {
 
 // RawChainConfig is parsed directly from the config file and should be using to construct the core.ChainConfig
 type RawChainConfig struct {
-	Name     string      `toml:"name"`
-	Id       msg.ChainId `toml:"id"`       // ChainID
-	Endpoint string      `toml:"endpoint"` // url for rpc endpoint
-	Receiver string      `toml:"receiver"` // bridge address to call
-	Emitter  string      `toml:"emitter"`  // bridge address where events occur
-	From     string      `toml:"from"`     // address of key to use
+	Name     string            `toml:"name"`
+	Id       msg.ChainId       `toml:"id"`       // ChainID
+	Endpoint string            `toml:"endpoint"` // url for rpc endpoint
+	From     string            `toml:"from"`     // address of key to use
+	Opts     map[string]string `toml:"opts"`
 }
 
 func NewConfig() *Config {
