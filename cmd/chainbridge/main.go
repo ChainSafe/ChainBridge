@@ -30,11 +30,6 @@ var accountFlags = []cli.Flag{
 	Secp256k1Flag,
 }
 
-var networkFlags = []cli.Flag{
-	GethFlag,
-	KovanFlag,
-}
-
 var accountCommand = cli.Command{
 	Action:   handleAccountsCmd,
 	Name:     "accounts",
@@ -60,7 +55,6 @@ func init() {
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)
-	app.Flags = append(app.Flags, networkFlags...)
 }
 
 func main() {
@@ -104,40 +98,31 @@ func run(ctx *cli.Context) error {
 	eth := ethereum.InitializeChain(&core.ChainConfig{
 		Id:       cfg.Chains[0].Id,
 		Endpoint: cfg.Chains[0].Endpoint,
-		Receiver: cfg.Chains[0].Receiver,
-		Emitter:  cfg.Chains[0].Emitter,
 		From:     cfg.Chains[0].From,
-		// Subscriptions: []string{"DepositAsset(address,bytes32)", "NFTTransfer(uint256,uint256,address,address,uint256,bytes)", "ERCTransfer(uint256,uint256,address,uint256,address)"},
 		// TODO remove this in favour of OPTS when config PR lands
 		Subscriptions: constants.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
 		Keystore:      ks,
-		GethDevMode:   ctx.GlobalBool("gethdev"),
-		Kovan:         ctx.GlobalBool("kovan"),
+		Opts:          cfg.Chains[0].Opts,
 	})
 
 	// TODO: Load chains iteratively
 	ctfg := ethereum.InitializeChain(&core.ChainConfig{
 		Id:       cfg.Chains[1].Id,
 		Endpoint: cfg.Chains[1].Endpoint,
-		Receiver: cfg.Chains[1].Receiver,
-		Emitter:  cfg.Chains[1].Emitter,
 		From:     cfg.Chains[1].From,
-		// Subscriptions: []string{"DepositAsset(address,bytes32)", "NFTTransfer(uint256,uint256,address,address,uint256,bytes)", "ERCTransfer(uint256,uint256,address,uint256,address)"},
 		// TODO remove this in favour of OPTS when config PR lands
 		Subscriptions: constants.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
 		Keystore:      ks,
-		GethDevMode:   ctx.GlobalBool("gethdev"),
-		Kovan:         ctx.GlobalBool("kovan"),
+		Opts:          cfg.Chains[1].Opts,
 	})
 
 	// ctfg := centrifuge.InitializeChain(&core.ChainConfig{
 	// 	Id:            msg.CentrifugeId,
 	// 	Endpoint:      cfg.Chains[1].Endpoint,
-	// 	Receiver:      cfg.Chains[1].Receiver,
-	// 	Emitter:       cfg.Chains[1].Emitter,
 	// 	From:          cfg.Chains[1].From,
 	// 	Subscriptions: []string{"nfts"},
 	// 	Keystore:      ks,
+	// 	Opts:          cfg.Chains[1].Opts,
 	// })
 
 	c := core.NewCore(nil)
