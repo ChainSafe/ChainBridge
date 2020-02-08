@@ -2,6 +2,8 @@ package ethereum
 
 import (
 	"fmt"
+	"math/big"
+
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/constants"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -9,6 +11,7 @@ import (
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 var _ chains.Listener = &Listener{}
@@ -49,12 +52,12 @@ func (l *Listener) Start() error {
 		sub := subscription
 		switch sub {
 		case constants.ErcTransferSignature, constants.NftTransferSignature:
-			err := l.RegisterEventHandler(sub, handleTransferEvent)
+			err := l.RegisterEventHandler(sub, l.handleTransferEvent)
 			if err != nil {
 				log15.Error("failed to register event handler", "err", err)
 			}
 		case constants.DepositAssetSignature:
-			err := l.RegisterEventHandler(sub, handleTestDeposit)
+			err := l.RegisterEventHandler(sub, l.handleTestDeposit)
 			if err != nil {
 				log15.Error("failed to register event handler", "err", err)
 			}
@@ -127,41 +130,22 @@ func (l *Listener) Stop() error {
 	return nil
 }
 
-func handleEvents(subscription string, evtI interface{}) msg.Message {
-	evt := evtI.(ethtypes.Log)
-	log15.Trace("Got event!", "type", subscription)
-	log15.Trace("EVT", "type", evt)
-
-	var msgType msg.MessageType
-	if subscription == constants.ErcTransferSignature ||
-		subscription == constants.NftTransferSignature {
-
-		msgType = msg.CreateDepositProposalType
-	} else if subscription == constants.DepositAssetSignature {
-		msgType = msg.DepositAssetType
-	}
-
-	log15.Trace("Data Dump", "topics", evt.Topics)
-	log15.Trace("Data Dump", "length", len(evt.Topics[0].Bytes()))
-
-	return msg.Message{
-		Type: msgType,
-		Data: evt.Topics[0].Bytes(),
-	}
-}
-
-func handleTransferEvent(eventI interface{}) msg.Message {
+func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 	event := eventI.(ethtypes.Log)
-	return msg.Message{
+	msg := msg.Message{
 		Type: msg.CreateDepositProposalType,
 		Data: event.Topics[0].Bytes(),
 	}
+	log15.Info("event", "data", msg.Data)
+	msg.EncodeCreateDepositProposalData(big.NewInt(0), l.cfg.chainID)
+	return msg
 }
 
-func handleTestDeposit(eventI interface{}) msg.Message {
+func (l *Listener) handleTestDeposit(eventI interface{}) msg.Message {
 	event := eventI.(ethtypes.Log)
+	data := ethcrypto.Keccak256Hash(event.Topics[0].Bytes()).Bytes()
 	return msg.Message{
 		Type: msg.DepositAssetType,
-		Data: event.Topics[0].Bytes(),
+		Data: data,
 	}
 }
