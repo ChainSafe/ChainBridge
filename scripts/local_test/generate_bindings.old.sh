@@ -22,10 +22,14 @@ do
     echo "finished generating bindings for $value at $contract_path/bindings/$value.go"
 done
 
+echo "@@@@@@@@@@@@start receiver"
 solcjs --abi -o abi/ Receiver.sol BridgeAsset.sol interfaces/IHandler.sol helpers/Ownable.sol 
 solcjs --bin -o bin/ Receiver.sol BridgeAsset.sol interfaces/IHandler.sol helpers/Ownable.sol 
-solcjs --abi -o abi/ Emitter.sol Safe.sol erc/ERC20.sol interfaces/ISafe.sol helpers/SafeMath.sol erc/IERC20.sol 
-solcjs --bin -o bin/ Emitter.sol Safe.sol erc/ERC20.sol interfaces/ISafe.sol helpers/SafeMath.sol erc/IERC20.sol 
+echo "@@@@@@@@@@@@done receiver"
+echo "@@@@@@@@@@@@start emitter"
+solcjs --abi -o abi/ Emitter.sol Safe.sol erc/ERC20/ERC20.sol interfaces/ISafe.sol helpers/SafeMath.sol erc/ERC20/IERC20.sol erc/ERC721/IERC721.sol erc/ERC721/ERC721.sol erc/ERC721/IERC721Receiver.sol helpers/SafeMath.sol helpers/Address.sol helpers/Counters.sol erc/ERC165/ERC165.sol erc/ERC165/IERC165.sol
+solcjs --bin -o bin/ Emitter.sol Safe.sol erc/ERC20/ERC20.sol interfaces/ISafe.sol helpers/SafeMath.sol erc/ERC20/IERC20.sol erc/ERC721/IERC721.sol erc/ERC721/ERC721.sol erc/ERC721/IERC721Receiver.sol helpers/SafeMath.sol helpers/Address.sol helpers/Counters.sol erc/ERC165/ERC165.sol erc/ERC165/IERC165.sol
+echo "@@@@@@@@@@@@done emitter"
 
 for value in $contracts
 do
@@ -34,6 +38,8 @@ do
 done
 
 popd
+
+mkdir ./contracts
 
 for value in $test_contracts
 do
