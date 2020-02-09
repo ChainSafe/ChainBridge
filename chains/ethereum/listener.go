@@ -142,20 +142,20 @@ func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 		log15.Error("JSON ABI Err", err)
 	}
 
-	var nftEvent NftTransfer
-
+	var nftEvent emitter.EmitterNFTTransfer
 	err = contractAbi.Unpack(&nftEvent, "NFTTransfer", event.Data)
 	if err != nil {
 		log15.Error("UNPACK err", err)
 	}
 
 	// Capture indexed values
-	nftEvent.DestinationChain = event.Topics[1].Big()
+	nftEvent.DestChain = event.Topics[1].Big()
 	nftEvent.DepositId = event.Topics[2].Big()
 
 	msg := msg.Message{
-		Type: msg.CreateDepositProposalType,
-		Data: nftEvent.Data,
+		Type:        msg.CreateDepositProposalType,
+		Destination: msg.ChainId(uint8(nftEvent.DestChain.Uint64())),
+		Data:        nftEvent.Data,
 	}
 	msg.EncodeCreateDepositProposalData(nftEvent.DepositId, l.cfg.chainID)
 	return msg
@@ -170,6 +170,7 @@ func (l *Listener) handleTestDeposit(eventI interface{}) msg.Message {
 	}
 }
 
+// May not need this - up for discussion
 type NftTransfer struct {
 	DestinationChain *big.Int
 	DepositId        *big.Int
