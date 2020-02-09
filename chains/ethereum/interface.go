@@ -20,4 +20,5 @@ type ReceiverContract interface {
 type EmitterContract interface {
 	FilterERCTransfer(*bind.FilterOpts, []*big.Int, []*big.Int) (*emitter.EmitterERCTransferIterator, error)
 	FilterGenericTransfer(*bind.FilterOpts, []*big.Int, []*big.Int) (*emitter.EmitterGenericTransferIterator, error)
+	FilterNFTTransfer(opts *bind.FilterOpts, _destChain []*big.Int, _depositId []*big.Int) (*emitter.EmitterNFTTransferIterator, error)
 }
