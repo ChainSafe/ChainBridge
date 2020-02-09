@@ -14,9 +14,9 @@ import "./Safe.sol";
     // ChainId => number of deposits
     mapping(uint => uint) DepositCounts;
 
-    event GenericTransfer(uint index _destChain, uint index _depositId, address index _destAddress, bytes index _data);
-    event ERCTransfer(uint index _destChain, uint index _depositId, address index _to, uint index _amount, address index _tokenAddress);
-    event NFTTransfer(uint index _destChain, uint index _depositId, address index _to, address index _tokenAddress, uint index _tokenId, bytes index _data);
+    event GenericTransfer(uint indexed _destChain, uint indexed _depositId, address _destAddress, bytes _data);
+    event ERCTransfer(uint indexed _destChain, uint indexed _depositId, address _to, uint _amount, address _tokenAddress);
+    event NFTTransfer(uint indexed _destChain, uint indexed _depositId, address _to, address _tokenAddress, uint _tokenId, bytes _data);
 
     constructor() Safe(address(this)) public {}
 

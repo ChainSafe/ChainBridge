@@ -3,12 +3,15 @@ package ethereum
 import (
 	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/constants"
+	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
@@ -132,11 +135,25 @@ func (l *Listener) Stop() error {
 
 func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 	event := eventI.(ethtypes.Log)
+
+	contractAbi, err := abi.JSON(strings.NewReader(string(emitter.EmitterABI)))
+	if err != nil {
+		log15.Error("Err", err)
+	}
+
+	var NftEvent NftTransfer
+
+	err = contractAbi.Unpack(&NftEvent, "LogFill", event.Data)
+	if err != nil {
+		log15.Error("err", err)
+	}
+	fmt.Printf("%+v\n", NftEvent)
+
 	msg := msg.Message{
 		Type: msg.CreateDepositProposalType,
 		Data: event.Topics[0].Bytes(),
 	}
-	log15.Info("event", "data", msg.Data)
+	log15.Info("event", "data", event.Topics)
 	msg.EncodeCreateDepositProposalData(big.NewInt(0), l.cfg.chainID)
 	return msg
 }
@@ -148,4 +165,13 @@ func (l *Listener) handleTestDeposit(eventI interface{}) msg.Message {
 		Type: msg.DepositAssetType,
 		Data: data,
 	}
+}
+
+type NftTransfer struct {
+	DestinationChain *big.Int
+	DepositId        *big.Int
+	To               common.Address
+	TokenAddress     common.Address
+	TokenId          *big.Int
+	Data             []byte
 }
