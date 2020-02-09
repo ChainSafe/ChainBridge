@@ -278,6 +278,7 @@ async function erc20Transfer() {
 
 async function erc721Transfer() {
     try {
+        console.log("[ERC721 Transfer] EMITTER_ADDRESS:", EMITTER_ADDRESS);
         const minterWallet = new ethers.Wallet(validatorPrivKeys[0], provider);
        
         // Create token
