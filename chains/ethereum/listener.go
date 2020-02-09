@@ -10,7 +10,6 @@ import (
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -51,24 +50,6 @@ func (l *Listener) SetRouter(r chains.Router) {
 
 // Start registers all subscriptions provided by the config
 func (l *Listener) Start() error {
-	query := ethereum.FilterQuery{
-		FromBlock: big.NewInt(0),
-		ToBlock:   big.NewInt(6383488),
-		Addresses: []common.Address{
-			l.cfg.emitter,
-		},
-	}
-	logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
-	if err != nil {
-		log15.Error("f", "f", err)
-	}
-	fmt.Println(l.cfg.emitter)
-	fmt.Printf("%+v\n", query)
-
-	for _, vLog := range logs {
-		fmt.Printf("Log Block Number: %d\n", vLog.BlockNumber)
-		fmt.Printf("Log Index: %d\n", vLog.Index)
-	}
 	log15.Debug("Starting listener...", "chainID", l.cfg.id, "subs", l.cfg.subscriptions)
 	for _, subscription := range l.cfg.subscriptions {
 		sub := subscription
@@ -153,27 +134,30 @@ func (l *Listener) Stop() error {
 }
 
 func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
+	log15.Info("Create Depoist")
 	event := eventI.(ethtypes.Log)
 
 	contractAbi, err := abi.JSON(strings.NewReader(string(emitter.EmitterABI)))
 	if err != nil {
-		log15.Error("Err", err)
+		log15.Error("JSON ABI Err", err)
 	}
 
-	var NftEvent NftTransfer
+	var nftEvent NftTransfer
 
-	err = contractAbi.Unpack(&NftEvent, "LogFill", event.Data)
+	err = contractAbi.Unpack(&nftEvent, "NFTTransfer", event.Data)
 	if err != nil {
-		log15.Error("err", err)
+		log15.Error("UNPACK err", err)
 	}
-	fmt.Printf("%+v\n", NftEvent)
+
+	// Capture indexed values
+	nftEvent.DestinationChain = event.Topics[1].Big()
+	nftEvent.DepositId = event.Topics[2].Big()
 
 	msg := msg.Message{
 		Type: msg.CreateDepositProposalType,
-		Data: event.Topics[0].Bytes(),
+		Data: nftEvent.Data,
 	}
-	log15.Info("event", "data", event.Topics)
-	msg.EncodeCreateDepositProposalData(big.NewInt(0), l.cfg.chainID)
+	msg.EncodeCreateDepositProposalData(nftEvent.DepositId, l.cfg.chainID)
 	return msg
 }
 
