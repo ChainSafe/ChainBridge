@@ -163,7 +163,7 @@ func submitAssetTx(ctx *cli.Context) error {
 	)
 
 	if err != nil {
-		log15.Error("Failed to create call", "err", err)
+		return fmt.Errorf("failed to create call: %s", err)
 	}
 
 	return submitTx(api, c, meta)
