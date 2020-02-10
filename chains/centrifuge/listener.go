@@ -37,13 +37,24 @@ func (l *Listener) Start() error {
 	log15.Info("Starting centrifuge listener...", "chainID", l.cfg.Id, "subs", l.cfg.Subscriptions)
 
 	for _, sub := range l.cfg.Subscriptions {
-		if sub == "nfts" {
+		switch sub {
+		case "nfts":
 			err := l.RegisterEventHandler("nfts", nftHandler)
 
 			if err != nil {
 				return err
 			}
+		case "assetTx":
+			err := l.RegisterEventHandler("assetTx", assetTransferHandler)
+
+			if err != nil {
+				return err
+			}
+
+		default:
+			return fmt.Errorf("unrecognized event: %s", sub)
 		}
+
 	}
 
 	sub, err := l.conn.Subscribe()
@@ -102,7 +113,19 @@ func (l *Listener) handleEvents(evts Events) {
 	// TODO: Handle all event types
 	if l.subscriptions["nfts"] != nil {
 		for _, nft := range evts.Nfts_DepositAsset {
+			log15.Trace("Handling NFT event")
 			msg := l.subscriptions["nfts"](nft)
+			err := l.router.Send(msg)
+			if err != nil {
+				log15.Error("failed to process event", "err", err)
+			}
+		}
+	}
+
+	if l.subscriptions["assetTx"] != nil {
+		for _, assetTx := range evts.Bridge_AssetTransfer {
+			log15.Trace("Handling AssetTransfer event")
+			msg := l.subscriptions["assetTx"](assetTx)
 			err := l.router.Send(msg)
 			if err != nil {
 				log15.Error("failed to process event", "err", err)

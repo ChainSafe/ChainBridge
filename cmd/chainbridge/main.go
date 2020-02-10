@@ -109,7 +109,7 @@ func run(ctx *cli.Context) error {
 		Id:            msg.CentrifugeId,
 		Endpoint:      cfg.Chains[1].Endpoint,
 		From:          cfg.Chains[1].From,
-		Subscriptions: []string{"nfts"},
+		Subscriptions: []string{"nfts", "assetTx"},
 		Keystore:      ks,
 		Opts:          cfg.Chains[1].Opts,
 	})

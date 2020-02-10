@@ -13,7 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 const TestEndpoint = "ws://localhost:8545"
@@ -112,31 +111,6 @@ func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
 	}
 
 	privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
-	auth := bind.NewKeyedTransactor(privateKey)
-	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0)     // in wei
-	auth.GasLimit = uint64(300000) // in units
-	auth.GasPrice = big.NewInt(10)
-
-	return auth
-}
-
-func createTestAuth2(t *testing.T, conn *Connection) *bind.TransactOpts {
-	currBlock, err := conn.LatestBlock()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	nonce, err := conn.NonceAt(TestAddress2, currBlock.Number())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	privateKey, err := ethcrypto.HexToECDSA(TestPrivateKey2)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	auth := bind.NewKeyedTransactor(privateKey)
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0)     // in wei
