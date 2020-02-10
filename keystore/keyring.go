@@ -22,7 +22,7 @@ var TestKeyStoreMap map[string]*Keystore
 
 // Init function to create a keyRing that can be accessed anywhere without having to recreate the data
 func init() {
-	TestKeyRing = &TestKeyStore{
+	TestKeyRing = &TestKeySRingHolder{
 		Alice:   createNamedKeyStore([]byte(AliceKey)),
 		Bob:     createNamedKeyStore([]byte(BobKey)),
 		Charlie: createNamedKeyStore([]byte(CharlieKey)),
@@ -76,7 +76,7 @@ func createNamedKeyStore(key []byte) *NamedKeyStore {
 }
 
 // TestKeyStore is a struct that holds a Keystore of all the test keys
-type TestKeyStore struct {
+type TestKeyRingHolder struct {
 	Alice   *NamedKeyStore
 	Bob     *NamedKeyStore
 	Charlie *NamedKeyStore
