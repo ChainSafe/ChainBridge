@@ -1,6 +1,8 @@
 package ethereum
 
 import (
+	"math/big"
+
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -10,27 +12,40 @@ import (
 // Config encapsulates all necessary parameters in ethereum compatible forms
 type Config struct {
 	id            msg.ChainId        // ChainID
+	chainID       *big.Int           // Ethereum chain ID
 	endpoint      string             // url for rpc endpoint
-	receiver      common.Address     // bridge address to call
-	emitter       common.Address     // bridge address where events occur
 	from          string             // address of key to use
 	subscriptions []string           // list of events to subscribe to
 	keystore      *keystore.Keystore // Location of keyfiles
-	gethDevMode   bool               // denotes if we are running in geth dev mode
-	kovan         bool               // denotes if we are running a kovan chain
+	receiver      common.Address
+	emitter       common.Address
 }
 
 // ParseChainConfig uses a core.ChainConfig to construct a corresponding Config
 func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
-	return &Config{
+
+	config := &Config{
 		id:            chainCfg.Id,
 		endpoint:      chainCfg.Endpoint,
-		receiver:      common.HexToAddress(chainCfg.Receiver),
-		emitter:       common.HexToAddress(chainCfg.Emitter),
 		from:          chainCfg.From,
 		subscriptions: chainCfg.Subscriptions,
 		keystore:      chainCfg.Keystore,
-		gethDevMode:   chainCfg.GethDevMode,
-		kovan:         chainCfg.Kovan,
+		chainID:       big.NewInt(1),
+		receiver:      common.HexToAddress("0x0"),
+		emitter:       common.HexToAddress("0x0"),
 	}
+
+	if chainID, ok := chainCfg.Opts["ChainID"]; ok {
+		config.chainID.SetString(chainID, 10)
+	}
+
+	if receiver, ok := chainCfg.Opts["Receiver"]; ok {
+		config.receiver = common.HexToAddress(receiver)
+	}
+
+	if emitter, ok := chainCfg.Opts["Emmitter"]; ok {
+		config.emitter = common.HexToAddress(emitter)
+	}
+
+	return config
 }
