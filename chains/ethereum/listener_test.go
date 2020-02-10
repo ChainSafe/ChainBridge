@@ -16,7 +16,7 @@ func newLocalConnection(t *testing.T, emitter ethcmn.Address) *Connection {
 
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		emitter:  emitter,
+		receiver: TestCentrifugeContractAddress,
 		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 		from:     "Alice",
 	}

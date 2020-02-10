@@ -13,8 +13,8 @@ import (
 var _ chains.Writer = &Writer{}
 
 type Writer struct {
-	cfg  Config
-	conn *Connection
+	cfg              Config
+	conn             *Connection
 	receiverContract ReceiverContract // instance of bound receiver contract
 }
 

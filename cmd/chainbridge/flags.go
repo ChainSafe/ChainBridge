@@ -58,16 +58,8 @@ var (
 
 // Test Setting Flags
 var (
-	GethFlag = cli.BoolFlag{
-		Name:  "gethdev",
-		Usage: "Applies default Clique settings rather than mainnet settings",
-	}
 	TestKeyFlag = cli.StringFlag{
 		Name:  "testkey",
 		Usage: "Applies a predetermined test keystore to the chains",
-	}
-	KovanFlag = cli.BoolFlag{
-		Name:  "kovan",
-		Usage: "Applies default kovan settings",
 	}
 )

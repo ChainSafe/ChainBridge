@@ -15,8 +15,6 @@ func createTempConfigFile() (*os.File, *Config) {
 	testConfig := NewConfig()
 	ethCfg := RawChainConfig{
 		Endpoint: "",
-		Receiver: "",
-		Emitter:  "",
 		From:     "",
 	}
 	testConfig.Chains = []RawChainConfig{ethCfg}

@@ -15,7 +15,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -29,19 +28,9 @@ type Connection struct {
 	kp     crypto.Keypair
 }
 
-var kovanConfig = ethparams.AllCliqueProtocolChanges
-
 func NewConnection(cfg *Config) *Connection {
 	var signer ethtypes.Signer
-
-	if cfg.gethDevMode {
-		signer = ethtypes.MakeSigner(ethparams.AllCliqueProtocolChanges, ethparams.AllCliqueProtocolChanges.HomesteadBlock)
-	} else if cfg.kovan {
-		kovanConfig.ChainID = big.NewInt(42)
-		signer = ethtypes.MakeSigner(kovanConfig, ethparams.MainnetChainConfig.IstanbulBlock)
-	} else {
-		signer = ethtypes.MakeSigner(ethparams.MainnetChainConfig, ethparams.MainnetChainConfig.IstanbulBlock)
-	}
+	signer = ethtypes.HomesteadSigner{}
 	return &Connection{
 		ctx: context.Background(),
 		cfg: *cfg,
