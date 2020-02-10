@@ -17,12 +17,12 @@ const CharlieKey = "Charlie"
 const DaveKey = "Dave"
 const EveKey = "Eve"
 
-var TestKeyRing *TestKeyStore
+var TestKeyRing *TestKeyRingHolder
 var TestKeyStoreMap map[string]*Keystore
 
 // Init function to create a keyRing that can be accessed anywhere without having to recreate the data
 func init() {
-	TestKeyRing = &TestKeySRingHolder{
+	TestKeyRing = &TestKeyRingHolder{
 		Alice:   createNamedKeyStore([]byte(AliceKey)),
 		Bob:     createNamedKeyStore([]byte(BobKey)),
 		Charlie: createNamedKeyStore([]byte(CharlieKey)),
