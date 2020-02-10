@@ -12,7 +12,7 @@ import (
 )
 
 // parseHexArgument converts a hex string to an byte representation, ignoring 0x if present.
-func parseHexArgument(arg string) ([]byte, error) {
+func parseHexArgument(arg string) []byte {
 	// Ignore 0x prefix
 	if len(arg) >= 2 && arg[0:2] == "0x" {
 		arg = arg[2:]
@@ -23,7 +23,12 @@ func parseHexArgument(arg string) ([]byte, error) {
 		arg = "0" + arg
 	}
 
-	return hex.DecodeString(arg)
+	if hx, err := hex.DecodeString(arg); err != nil {
+		err = fmt.Errorf("failed to parse hex argument: %s", err.Error())
+		panic(err)
+	} else {
+		return hx
+	}
 }
 
 func setEmitterAddress(ctx *cli.Context) error {
@@ -33,7 +38,7 @@ func setEmitterAddress(ctx *cli.Context) error {
 		return fmt.Errorf("must provide a new address to use")
 	}
 
-	newAddr, err := parseHexArgument(addrStr)
+	newAddr := parseHexArgument(addrStr)
 
 	api, err := gsrpc.NewSubstrateAPI(config.Default().RPCURL)
 	if err != nil {
@@ -90,7 +95,7 @@ func whitelistChain(ctx *cli.Context) error {
 	if idStr = ctx.Args().Get(0); idStr == "" {
 		return fmt.Errorf("must provide a chain id to use")
 	}
-	id, err := parseHexArgument(idStr)
+	id := parseHexArgument(idStr)
 
 	api, err := gsrpc.NewSubstrateAPI(config.Default().RPCURL)
 	if err != nil {
@@ -129,23 +134,13 @@ func submitAssetTx(ctx *cli.Context) error {
 	}
 	metadataStr = ctx.Args().Get(3)
 
-	destId, err := parseHexArgument(destIdStr)
-	if err != nil {
-		return err
-	}
-	to, err := parseHexArgument(toStr)
-	if err != nil {
-		return err
-	}
-	tokenId, err := parseHexArgument(tokenIdStr)
-	if err != nil {
-		return err
-	}
+	destId := parseHexArgument(destIdStr)
 
-	metadata, err := parseHexArgument(metadataStr)
-	if err != nil {
-		return err
-	}
+	to := parseHexArgument(toStr)
+
+	tokenId := parseHexArgument(tokenIdStr)
+
+	metadata := parseHexArgument(metadataStr)
 
 	api, err := gsrpc.NewSubstrateAPI(config.Default().RPCURL)
 	if err != nil {
