@@ -2,7 +2,7 @@ package msg
 
 import (
 	"bytes"
-	"encoding/hex"
+	//"encoding/hex"
 	"math/big"
 	"testing"
 
@@ -12,13 +12,13 @@ import (
 var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4")
 
 func TestCreateDepositProposalData(t *testing.T) {
-	hash, err := hex.DecodeString("b6e25575ab25a1938070eeb64ac4cd6df49af423327877522bec719815dc5e27")
-	if err != nil {
-		t.Fatal(err)
-	}
+	// hash, err := hex.DecodeString("b6e25575ab25a1938070eeb64ac4cd6df49af423327877522bec719815dc5e27")
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
 
-	hashBytes := [32]byte{}
-	copy(hashBytes[:], hash)
+	// hashBytes := [32]byte{}
+	// copy(hashBytes[:], hash)
 
 	depositId := big.NewInt(0)
 	originChain := big.NewInt(1)
@@ -27,16 +27,16 @@ func TestCreateDepositProposalData(t *testing.T) {
 		Type: CreateDepositProposalType,
 	}
 
-	m.EncodeCreateDepositProposalData(hashBytes, depositId, originChain)
+	m.EncodeCreateDepositProposalData(depositId, originChain)
 
-	hashRes, depositIdRes, originChainRes, err := m.DecodeCreateDepositProposalData()
+	_, depositIdRes, originChainRes, err := m.DecodeCreateDepositProposalData()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if !bytes.Equal(hashBytes[:], hashRes[:]) {
-		t.Fatalf("Fail: got %x expected %x", hashRes, hashBytes)
-	}
+	// if !bytes.Equal(hashBytes[:], hashRes[:]) {
+	// 	t.Fatalf("Fail: got %x expected %x", hashRes, hashBytes)
+	// }
 
 	if depositId.Cmp(depositIdRes) != 0 {
 		t.Fatalf("Fail: got %d expected %d", depositIdRes, depositId)
