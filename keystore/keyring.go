@@ -9,18 +9,34 @@ import (
 )
 
 // The Constant "keys". These are the name that the keys are based on. This can be expanded, but
-// any additions but be added to TestKeyRing and to insecureKeyFromAddress
+// any additions must be added to TestKeyRing and to insecureKeyFromAddress
 const AliceKey = "Alice"
 const BobKey = "Bob"
 const CharlieKey = "Charlie"
 const DaveKey = "Dave"
 const EveKey = "Eve"
 
+// The Chain type Constants
 const ETHChain = "ethereum"
 const CTFGChain = "centrifuge"
 
 var TestKeyRing *TestKeyRingHolder
 var TestKeyStoreMap map[string]*Keystore
+
+// TestKeyStore is a struct that holds a Keystore of all the test keys
+type TestKeyRingHolder struct {
+	SecpKeys *KeyRing
+	SrKeys   *KeyRing
+}
+
+// KeyRing holds the keypair related to a specfic keypair type
+type KeyRing struct {
+	Alice   crypto.Keypair
+	Bob     crypto.Keypair
+	Charlie crypto.Keypair
+	Dave    crypto.Keypair
+	Eve     crypto.Keypair
+}
 
 // Init function to create a keyRing that can be accessed anywhere without having to recreate the data
 func init() {
@@ -76,21 +92,6 @@ func createKeypair(key []byte, chain string) crypto.Keypair {
 
 }
 
-// TestKeyStore is a struct that holds a Keystore of all the test keys
-type TestKeyRingHolder struct {
-	SecpKeys *KeyRing
-	SrKeys   *KeyRing
-}
-
-// KeyRing holds the keypair related to a specfic keypair type
-type KeyRing struct {
-	Alice   crypto.Keypair
-	Bob     crypto.Keypair
-	Charlie crypto.Keypair
-	Dave    crypto.Keypair
-	Eve     crypto.Keypair
-}
-
 //NewTestKeystore creates an insecure keystores for testing purposes
 func NewTestKeystore(devmode string) *Keystore {
 	return &Keystore{
@@ -114,6 +115,19 @@ func (ks *Keystore) insecureKeypairFromAddress(keyType string, chain_type string
 			return TestKeyRing.SecpKeys.Dave, nil
 		case EveKey:
 			return TestKeyRing.SecpKeys.Eve, nil
+		}
+	} else if chain_type == CTFGChain {
+		switch keyType {
+		case AliceKey:
+			return TestKeyRing.SrKeys.Alice, nil
+		case BobKey:
+			return TestKeyRing.SrKeys.Bob, nil
+		case CharlieKey:
+			return TestKeyRing.SrKeys.Charlie, nil
+		case DaveKey:
+			return TestKeyRing.SrKeys.Dave, nil
+		case EveKey:
+			return TestKeyRing.SrKeys.Eve, nil
 		}
 	} else {
 		fmt.Println(chain_type)

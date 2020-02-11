@@ -21,4 +21,14 @@ func TestInsecureAddresses(t *testing.T) {
 	if !bytes.Equal(tkp.Private().Encode(), TestKeyRing.SecpKeys.Alice.Private().Encode()) {
 		t.Fatalf("Key is not being returned correctly")
 	}
+
+	tkp, err = tks.insecureKeypairFromAddress(AliceKey, CTFGChain)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !bytes.Equal(tkp.Private().Encode(), TestKeyRing.SrKeys.Alice.Private().Encode()) {
+		t.Fatalf("Key is not being returned correctly")
+	}
+
 }
