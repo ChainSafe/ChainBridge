@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/ed25519"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
 )
@@ -17,17 +16,17 @@ const CharlieKey = "Charlie"
 const DaveKey = "Dave"
 const EveKey = "Eve"
 
+const ETHChain = "ethereum"
+const CTFGChain = "centrifuge"
+
 var TestKeyRing *TestKeyRingHolder
 var TestKeyStoreMap map[string]*Keystore
 
 // Init function to create a keyRing that can be accessed anywhere without having to recreate the data
 func init() {
 	TestKeyRing = &TestKeyRingHolder{
-		Alice:   createNamedKeyStore([]byte(AliceKey)),
-		Bob:     createNamedKeyStore([]byte(BobKey)),
-		Charlie: createNamedKeyStore([]byte(CharlieKey)),
-		Dave:    createNamedKeyStore([]byte(DaveKey)),
-		Eve:     createNamedKeyStore([]byte(EveKey)),
+		SecpKeys: createKeyRing(ETHChain),
+		SrKeys:   createKeyRing(CTFGChain),
 	}
 
 	TestKeyStoreMap = map[string]*Keystore{
@@ -37,14 +36,6 @@ func init() {
 		DaveKey:    NewTestKeystore(DaveKey),
 		EveKey:     NewTestKeystore(EveKey),
 	}
-}
-
-// NamedKeyStore contains the data needed for test keys
-type NamedKeyStore struct {
-	PrivateKey  []byte         // The named PrivateKey (eg Alice, Bob)
-	SecpKeypair crypto.Keypair //The required keypair for Secp
-	SrKeypair   crypto.Keypair //The required keypair for Sr
-	EdKeypair   crypto.Keypair //The required keypair for Ed
 }
 
 // padWithZeros adds on extra 0 bytes to make a byte array of a specified length
@@ -61,27 +52,43 @@ func errorWrap(in interface{}, err error) interface{} {
 	return in
 }
 
-// createdNamedKeyStore creates private keys for all 3 protocols based off a given private key,
-// then makes keypair based on those new private keys
-func createNamedKeyStore(key []byte) *NamedKeyStore {
-	secpPrivateKey := errorWrap(secp256k1.NewPrivateKey(padWithZeros(key, secp256k1.PrivateKeyLength))).(*secp256k1.PrivateKey)
-	edPrivateKey := errorWrap(ed25519.NewPrivateKey(padWithZeros(key, ed25519.PrivateKeyLength))).(*ed25519.PrivateKey)
-
-	return &NamedKeyStore{
-		PrivateKey:  key,
-		SecpKeypair: errorWrap(secp256k1.NewKeypairFromPrivate(secpPrivateKey)).(*secp256k1.Keypair),
-		SrKeypair:   errorWrap(sr25519.NewKeypairFromSeed(padWithZeros(key, sr25519.PrivateKeyLength))).(*sr25519.Keypair),
-		EdKeypair:   errorWrap(ed25519.NewKeypairFromPrivate(edPrivateKey)).(*ed25519.Keypair),
+// createKeyRing creates a KeyRing for the specfied chain/key type
+func createKeyRing(chain string) *KeyRing {
+	return &KeyRing{
+		Alice:   createKeypair([]byte(AliceKey), chain),
+		Bob:     createKeypair([]byte(BobKey), chain),
+		Charlie: createKeypair([]byte(CharlieKey), chain),
+		Dave:    createKeypair([]byte(DaveKey), chain),
+		Eve:     createKeypair([]byte(EveKey), chain),
 	}
+}
+
+// createKeypair creates keypairs based on the private key seed inputted for the specfied chain
+func createKeypair(key []byte, chain string) crypto.Keypair {
+	switch chain {
+	case ETHChain:
+		secpPrivateKey := errorWrap(secp256k1.NewPrivateKey(padWithZeros(key, secp256k1.PrivateKeyLength))).(*secp256k1.PrivateKey)
+		return errorWrap(secp256k1.NewKeypairFromPrivate(secpPrivateKey)).(*secp256k1.Keypair)
+	case CTFGChain:
+		return errorWrap(sr25519.NewKeypairFromSeed(padWithZeros(key, sr25519.PrivateKeyLength))).(*sr25519.Keypair)
+	}
+	return nil
+
 }
 
 // TestKeyStore is a struct that holds a Keystore of all the test keys
 type TestKeyRingHolder struct {
-	Alice   *NamedKeyStore
-	Bob     *NamedKeyStore
-	Charlie *NamedKeyStore
-	Dave    *NamedKeyStore
-	Eve     *NamedKeyStore
+	SecpKeys *KeyRing
+	SrKeys   *KeyRing
+}
+
+// KeyRing holds the keypair related to a specfic keypair type
+type KeyRing struct {
+	Alice   crypto.Keypair
+	Bob     crypto.Keypair
+	Charlie crypto.Keypair
+	Dave    crypto.Keypair
+	Eve     crypto.Keypair
 }
 
 //NewTestKeystore creates an insecure keystores for testing purposes
@@ -95,18 +102,18 @@ func NewTestKeystore(devmode string) *Keystore {
 // insecureKeypairFromAddress is used for resolving address in an insecure keystore.
 // Instead of providing an address a chain reference can be used to fetch a default keypair (eg. "ethereum").
 func (ks *Keystore) insecureKeypairFromAddress(keyType string, chain_type string) (crypto.Keypair, error) {
-	if chain_type == "ethereum" {
+	if chain_type == ETHChain {
 		switch keyType {
-		case "Alice":
-			return TestKeyRing.Alice.SecpKeypair, nil
-		case "Bob":
-			return TestKeyRing.Bob.SecpKeypair, nil
-		case "Charlie":
-			return TestKeyRing.Charlie.SecpKeypair, nil
-		case "Dave":
-			return TestKeyRing.Dave.SecpKeypair, nil
-		case "Eve":
-			return TestKeyRing.Eve.SecpKeypair, nil
+		case AliceKey:
+			return TestKeyRing.SecpKeys.Alice, nil
+		case BobKey:
+			return TestKeyRing.SecpKeys.Bob, nil
+		case CharlieKey:
+			return TestKeyRing.SecpKeys.Charlie, nil
+		case DaveKey:
+			return TestKeyRing.SecpKeys.Dave, nil
+		case EveKey:
+			return TestKeyRing.SecpKeys.Eve, nil
 		}
 	} else {
 		fmt.Println(chain_type)

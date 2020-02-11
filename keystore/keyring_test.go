@@ -11,37 +11,14 @@ func TestByteLength(t *testing.T) {
 		t.Errorf("Length is incorrect.")
 	}
 }
-
-func TestNamedKeyStore(t *testing.T) {
-	tpk := []byte("test")
-	ks := createNamedKeyStore(tpk)
-
-	tpk32 := padWithZeros(tpk, 32)
-	tpk64 := padWithZeros(tpk, 64)
-
-	if !bytes.Equal(ks.SecpKeypair.Private().Encode(), tpk32) {
-		t.Fatalf("unexpected key. got: %s expected: %s\n", ks.SecpKeypair.Private(), tpk32)
+func TestInsecureAddresses(t *testing.T) {
+	tks := NewTestKeystore(AliceKey)
+	tkp, err := tks.insecureKeypairFromAddress(AliceKey, ETHChain)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	if !bytes.Equal(ks.EdKeypair.Private().Encode(), tpk64) {
-		t.Fatalf("unexpected key. got: %s expected: %s\n", ks.EdKeypair.Private(), tpk64)
-	}
-}
-
-func TestTestKeystore(t *testing.T) {
-	keys := []*NamedKeyStore{TestKeyRing.Alice, TestKeyRing.Bob, TestKeyRing.Charlie, TestKeyRing.Dave, TestKeyRing.Eve}
-	for _, key := range keys {
-		tpk32 := padWithZeros(key.PrivateKey, 32)
-		tpk64 := padWithZeros(key.PrivateKey, 64)
-
-		t.Log(key.SecpKeypair.Public().Address())
-
-		if !bytes.Equal(key.SecpKeypair.Private().Encode(), tpk32) {
-			t.Fatalf("unexpected key. got: %s expected: %s\n", key.SecpKeypair.Private(), tpk32)
-		}
-
-		if !bytes.Equal(key.EdKeypair.Private().Encode(), tpk64) {
-			t.Fatalf("unexpected key. got: %s expected: %s\n", key.EdKeypair.Private(), tpk64)
-		}
+	if !bytes.Equal(tkp.Private().Encode(), TestKeyRing.SecpKeys.Alice.Private().Encode()) {
+		t.Fatalf("Key is not being returned correctly")
 	}
 }
