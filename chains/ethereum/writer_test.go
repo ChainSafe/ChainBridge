@@ -40,6 +40,7 @@ func testCreateDepositProposalMessage(t *testing.T) msg.Message {
 
 	m := &msg.Message{
 		Type: msg.CreateDepositProposalType,
+		Data: []byte{},
 	}
 
 	m.EncodeCreateDepositProposalData(depositId, originChain)

@@ -25,10 +25,10 @@ type Message struct {
 }
 
 func (m *Message) EncodeCreateDepositProposalData(depositId, originChain *big.Int) {
-	data := ethcrypto.Keccak256Hash(m.Data).Bytes()
+	hash := ethcrypto.Keccak256Hash(m.Data).Bytes()
 	depositIdBytes := byteSliceTo32Bytes(depositId.Bytes())
 	originChainBytes := byteSliceTo32Bytes(originChain.Bytes())
-	m.Data = append(append(data[:], depositIdBytes...), originChainBytes[:]...)
+	m.Data = append(append(hash[:], depositIdBytes...), originChainBytes[:]...)
 }
 
 func (m *Message) DecodeCreateDepositProposalData() ([32]byte, *big.Int, *big.Int, error) {
