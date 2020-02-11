@@ -70,12 +70,43 @@ To fetch, build and run centrifuge-chain run:
 make start_cent
 ```
 
-Note: The build process takes a while, but will only run once.
+Note: The build process takes a while, but will only run once. It currently uses a modified fork of centrifuge-chain
 
-You can submit a random asset hash for validation (ie. transfer) with:
+You can run several commands to interact with the bridge module:
+
+### Emitter Address
+
+You can set and get the emitter address with:
+ ```
+ make cent_get_emitter
+``` 
+and 
 ```
-make cent_asset_tx
+make cent_set_emitter CENT_EMITTER_ADDR=<HEX VALUE>
 ```
+### Whitelist Chain
+
+A chain ID can be whitelisted as a destination with:
+
+```
+make cent_whitelist_chain CENT_CHAIN_ID=<HEX VALUE>
+```
+
+### Asset Transfer
+
+An asset transfer can be executed with:
+
+```
+make cent_asset_tx CENT_CHAIN_ID=<HEX VALUE> CENT_TO=<HEX VALUE> CENT_TOKEN_ID=<HEX VALUE> CENT_METADATA=<HEX VALUE>
+```
+
+### Auto Run
+
+Setting an emitter address, whitelisting a chain and submitting an asset tx can be executed using default values with:
+```
+make cent_auto_run 
+```
+
 ## Tests
 
 ### Go tests

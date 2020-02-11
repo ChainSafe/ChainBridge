@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 CENT_CHAIN_URL="https://github.com/ansermino/centrifuge-chain.git"
-CENT_CHAIN_BRANCH="simple-asset-tx"
+CENT_CHAIN_BRANCH="david/bridge-module"
 
 # Exit on failure
 set -e

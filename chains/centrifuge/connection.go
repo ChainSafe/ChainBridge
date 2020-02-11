@@ -37,7 +37,7 @@ func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
 	if err != nil {
 		return nil, err
 	}
-	key, err := types.CreateStorageKey(meta, "System", "Events", nil)
+	key, err := types.CreateStorageKey(meta, "System", "Events", nil, nil)
 	if err != nil {
 		return nil, err
 	}
