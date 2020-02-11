@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/constants"
+	"github.com/ChainSafe/ChainBridgeV2/common"
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
@@ -54,12 +54,12 @@ func (l *Listener) Start() error {
 	for _, subscription := range l.cfg.subscriptions {
 		sub := subscription
 		switch sub {
-		case constants.ErcTransferSignature, constants.NftTransferSignature:
+		case common.ErcTransferSignature, common.NftTransferSignature:
 			err := l.RegisterEventHandler(sub, l.handleTransferEvent)
 			if err != nil {
 				log15.Error("failed to register event handler", "err", err)
 			}
-		case constants.DepositAssetSignature:
+		case common.DepositAssetSignature:
 			err := l.RegisterEventHandler(sub, l.handleTestDeposit)
 			if err != nil {
 				log15.Error("failed to register event handler", "err", err)

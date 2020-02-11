@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
-	"github.com/ChainSafe/ChainBridgeV2/constants"
+	"github.com/ChainSafe/ChainBridgeV2/common"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	log "github.com/ChainSafe/log15"
@@ -100,7 +100,7 @@ func run(ctx *cli.Context) error {
 		Endpoint: cfg.Chains[0].Endpoint,
 		From:     cfg.Chains[0].From,
 		// TODO remove this in favour of OPTS when config PR lands
-		Subscriptions: constants.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
+		Subscriptions: common.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
 		Keystore:      ks,
 		Opts:          cfg.Chains[0].Opts,
 	})
@@ -111,7 +111,7 @@ func run(ctx *cli.Context) error {
 		Endpoint: cfg.Chains[1].Endpoint,
 		From:     cfg.Chains[1].From,
 		// TODO remove this in favour of OPTS when config PR lands
-		Subscriptions: constants.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
+		Subscriptions: common.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
 		Keystore:      ks,
 		Opts:          cfg.Chains[1].Opts,
 	})
