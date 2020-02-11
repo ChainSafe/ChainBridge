@@ -70,17 +70,20 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			log15.Error("Failed to handle CreateDepositProposal message", "error", err)
 			return
 		}
+		log15.Info("Decoded Deposit Proposal")
 
 		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
 		if err != nil {
 			log15.Error("Failed to build transaction opts", "err", err)
 			return
 		}
-
+		log15.Info("Created tx for Deposit Proposal")
+		log15.Info("opts", "opts", opts, "hash", hash, "depositId", depositId, "originChain", originChain)
 		_, err = w.Transact(opts, method, hash, depositId, originChain)
 		if err != nil {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
+		log15.Info("Sent tx for Deposit Proposal")
 	} else if m.Type == msg.VoteDepositProposalType {
 		log15.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
@@ -132,5 +135,6 @@ func (w *Writer) Stop() error {
 
 // Transact submits a transaction to the receiver contract intsance.
 func (w *Writer) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*ethtypes.Transaction, error) {
+	log15.Info("writer", "ethclient", w.conn.conn)
 	return w.receiverContract.Transact(opts, method, params...)
 }
