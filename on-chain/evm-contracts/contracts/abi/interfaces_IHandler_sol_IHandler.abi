@@ -1,0 +1,1 @@
+[{"constant":false,"inputs":[{"internalType":"uint256","name":"_originChain","type":"uint256"},{"internalType":"bytes","name":"_data","type":"bytes"}],"name":"executeTransfer","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}]
