@@ -2,7 +2,6 @@ package ethereum
 
 import (
 	"fmt"
-	"math/big"
 	"strings"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
@@ -12,7 +11,7 @@ import (
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
@@ -73,11 +72,11 @@ func (l *Listener) Start() error {
 
 // buildQuery constructs a query for the contract by hashing sig to get the event topic
 // TODO: Start from current block
-func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQuery {
+func (l *Listener) buildQuery(contract ethcommon.Address, sig EventSig) eth.FilterQuery {
 	query := eth.FilterQuery{
 		FromBlock: nil,
-		Addresses: []common.Address{contract},
-		Topics: [][]common.Hash{
+		Addresses: []ethcommon.Address{contract},
+		Topics: [][]ethcommon.Hash{
 			{sig.GetTopic()},
 		},
 	}
