@@ -68,3 +68,10 @@ jobs:
           SLACK_CHANNEL: chainbridge-notifs
         with:
           args: '*_Lint Failed!_*'
+
+  github-lint:
+    name: github-lint
+    runs-on: [ubuntu-18.04]
+    steps:
+    - name: golangci-lint
+      uses: actions-contrib/golangci-lint@v1
