@@ -116,15 +116,6 @@ func run(ctx *cli.Context) error {
 		Opts:          cfg.Chains[1].Opts,
 	})
 
-	// ctfg := centrifuge.InitializeChain(&core.ChainConfig{
-	// 	Id:            msg.CentrifugeId,
-	// 	Endpoint:      cfg.Chains[1].Endpoint,
-	// 	From:          cfg.Chains[1].From,
-	// 	Subscriptions: []string{"nfts"},
-	// 	Keystore:      ks,
-	// 	Opts:          cfg.Chains[1].Opts,
-	// })
-
 	c := core.NewCore(nil)
 	c.AddChain(eth)
 	c.AddChain(ctfg)

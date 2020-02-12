@@ -133,18 +133,18 @@ func (l *Listener) Stop() error {
 }
 
 func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
-	log15.Info("Create Depoist")
+	log15.Debug("Handling deposit proposal event")
 	event := eventI.(ethtypes.Log)
 
 	contractAbi, err := abi.JSON(strings.NewReader(string(emitter.EmitterABI)))
 	if err != nil {
-		log15.Error("JSON ABI Err", err)
+		log15.Error("Unable to decode event", err)
 	}
 
 	var nftEvent emitter.EmitterNFTTransfer
 	err = contractAbi.Unpack(&nftEvent, "NFTTransfer", event.Data)
 	if err != nil {
-		log15.Error("UNPACK err", err)
+		log15.Error("Unable to unpack NFTTransfer", err)
 	}
 
 	// Capture indexed values
