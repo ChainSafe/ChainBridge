@@ -169,13 +169,3 @@ func (l *Listener) handleTestDeposit(eventI interface{}) msg.Message {
 		Data: data,
 	}
 }
-
-// May not need this - up for discussion
-type NftTransfer struct {
-	DestinationChain *big.Int
-	DepositId        *big.Int
-	To               common.Address
-	TokenAddress     common.Address
-	TokenId          *big.Int
-	Data             []byte
-}
