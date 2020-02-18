@@ -33,7 +33,7 @@ jobs:
 
     - name: Run tests
       run: |
-        ./scripts/local_test/start_ganache.sh silent
+        SILENT=true ./scripts/local_test/start_ganache.sh
         ./scripts/local_test/ethereum_deploy.sh
         make test
 
