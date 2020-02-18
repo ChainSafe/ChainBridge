@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"strconv"
 
@@ -99,7 +100,7 @@ func run(ctx *cli.Context) error {
 
 	for _, chain := range cfg.Chains {
 		var chainconfig *core.Chain
-		if chain.Name == "ethereum" {
+		if chain.Type == "ethereum" {
 			chainconfig = ethereum.InitializeChain(&core.ChainConfig{
 				Id:            chain.Id,
 				Endpoint:      chain.Endpoint,
@@ -108,7 +109,7 @@ func run(ctx *cli.Context) error {
 				Keystore:      ks,
 				Opts:          chain.Opts,
 			})
-		} else if chain.Name == "centrifuge" {
+		} else if chain.Type == "substrate" {
 			chainconfig = centrifuge.InitializeChain(&core.ChainConfig{
 				Id:            msg.CentrifugeId,
 				Endpoint:      chain.Endpoint,
@@ -117,6 +118,8 @@ func run(ctx *cli.Context) error {
 				Keystore:      ks,
 				Opts:          chain.Opts,
 			})
+		} else {
+			return errors.New("Unrecognized Chain Type")
 		}
 
 		c.AddChain(chainconfig)

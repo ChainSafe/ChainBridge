@@ -1,6 +1,7 @@
 
 [[chains]]
 name = "ethereum"
+type = "ethereum"
 id = 0
 endpoint = "ws://127.0.0.1:8545"
 emitter = "0x1fA38b0EfccA4228EB9e15112D4d98B0CEe3c600"
@@ -10,6 +11,7 @@ opts = { chainID = "1337" }
 
 [[chains]]
 name = "centrifuge"
+type = "substrate"
 id = 1
 endpoint = "ws://127.0.0.1:9944"
 emitter = "0x1fA38b0EfccA4228EB9e15112D4d98B0CEe3c600"
