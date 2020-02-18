@@ -213,7 +213,7 @@ func TestWriter_executeDeposit(t *testing.T) {
 		endpoint: TestEndpoint,
 		receiver: TestCentrifugeContractAddress,
 		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-		from:     "Alice",
+		from:     keystore.AliceKey,
 	}
 
 	conn := NewConnection(cfg)

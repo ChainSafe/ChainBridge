@@ -25,8 +25,8 @@ var TestKeyStoreMap map[string]*Keystore
 
 // TestKeyStore is a struct that holds a Keystore of all the test keys
 type TestKeyRingHolder struct {
-	SecpKeys *KeyRing
-	SrKeys   *KeyRing
+	EthereumKeys   *KeyRing
+	CentrifugeKeys *KeyRing
 }
 
 // KeyRing holds the keypair related to a specfic keypair type
@@ -41,8 +41,8 @@ type KeyRing struct {
 // Init function to create a keyRing that can be accessed anywhere without having to recreate the data
 func init() {
 	TestKeyRing = &TestKeyRingHolder{
-		SecpKeys: createKeyRing(ETHChain),
-		SrKeys:   createKeyRing(CTFGChain),
+		EthereumKeys:   createKeyRing(ETHChain),
+		CentrifugeKeys: createKeyRing(CTFGChain),
 	}
 
 	TestKeyStoreMap = map[string]*Keystore{
@@ -106,28 +106,28 @@ func (ks *Keystore) insecureKeypairFromAddress(keyType string, chain_type string
 	if chain_type == ETHChain {
 		switch keyType {
 		case AliceKey:
-			return TestKeyRing.SecpKeys.Alice, nil
+			return TestKeyRing.EthereumKeys.Alice, nil
 		case BobKey:
-			return TestKeyRing.SecpKeys.Bob, nil
+			return TestKeyRing.EthereumKeys.Bob, nil
 		case CharlieKey:
-			return TestKeyRing.SecpKeys.Charlie, nil
+			return TestKeyRing.EthereumKeys.Charlie, nil
 		case DaveKey:
-			return TestKeyRing.SecpKeys.Dave, nil
+			return TestKeyRing.EthereumKeys.Dave, nil
 		case EveKey:
-			return TestKeyRing.SecpKeys.Eve, nil
+			return TestKeyRing.EthereumKeys.Eve, nil
 		}
 	} else if chain_type == CTFGChain {
 		switch keyType {
 		case AliceKey:
-			return TestKeyRing.SrKeys.Alice, nil
+			return TestKeyRing.CentrifugeKeys.Alice, nil
 		case BobKey:
-			return TestKeyRing.SrKeys.Bob, nil
+			return TestKeyRing.CentrifugeKeys.Bob, nil
 		case CharlieKey:
-			return TestKeyRing.SrKeys.Charlie, nil
+			return TestKeyRing.CentrifugeKeys.Charlie, nil
 		case DaveKey:
-			return TestKeyRing.SrKeys.Dave, nil
+			return TestKeyRing.CentrifugeKeys.Dave, nil
 		case EveKey:
-			return TestKeyRing.SrKeys.Eve, nil
+			return TestKeyRing.CentrifugeKeys.Eve, nil
 		}
 	} else {
 		fmt.Println(chain_type)
