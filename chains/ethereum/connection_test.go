@@ -50,7 +50,7 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	TestAddr := keystore.TestKeyRing.EthereumKeys.Alice.(*secp256k1.Keypair).Public().Address()
+	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
 	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
 	if err != nil {
 		t.Fatal(err)
@@ -106,7 +106,7 @@ func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
 		t.Fatal(err)
 	}
 
-	TestAddr := keystore.TestKeyRing.EthereumKeys.Alice.(*secp256k1.Keypair).Public().Address()
+	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
 	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
 
 	if err != nil {
