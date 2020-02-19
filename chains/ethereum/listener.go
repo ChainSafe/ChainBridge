@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/common"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
@@ -49,12 +48,12 @@ func (l *Listener) Start() error {
 	for _, subscription := range l.cfg.subscriptions {
 		sub := subscription
 		switch sub {
-		case common.ErcTransferSignature, common.NftTransferSignature:
+		case ErcTransferSignature, NftTransferSignature:
 			err := l.RegisterEventHandler(sub, l.handleTransferEvent)
 			if err != nil {
 				log15.Error("failed to register event handler", "err", err)
 			}
-		case common.DepositAssetSignature:
+		case DepositAssetSignature:
 			err := l.RegisterEventHandler(sub, l.handleTestDeposit)
 			if err != nil {
 				log15.Error("failed to register event handler", "err", err)
