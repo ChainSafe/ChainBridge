@@ -18,7 +18,7 @@ func TestInsecureAddresses(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !bytes.Equal(tkp.Private().Encode(), TestKeyRing.EthereumKeys.Alice.Private().Encode()) {
+	if !bytes.Equal(tkp.Private().Encode(), TestKeyRing.EthereumKeys[AliceKey].Private().Encode()) {
 		t.Fatalf("Key is not being returned correctly")
 	}
 
@@ -27,7 +27,7 @@ func TestInsecureAddresses(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !bytes.Equal(tkp.Private().Encode(), TestKeyRing.CentrifugeKeys.Alice.Private().Encode()) {
+	if !bytes.Equal(tkp.Private().Encode(), TestKeyRing.CentrifugeKeys[AliceKey].Private().Encode()) {
 		t.Fatalf("Key is not being returned correctly")
 	}
 

@@ -25,18 +25,12 @@ var TestKeyStoreMap map[string]*Keystore
 
 // TestKeyStore is a struct that holds a Keystore of all the test keys
 type TestKeyRingHolder struct {
-	EthereumKeys   *KeyRing
-	CentrifugeKeys *KeyRing
+	EthereumKeys   KeyRing
+	CentrifugeKeys KeyRing
 }
 
 // KeyRing holds the keypair related to a specfic keypair type
-type KeyRing struct {
-	Alice   crypto.Keypair
-	Bob     crypto.Keypair
-	Charlie crypto.Keypair
-	Dave    crypto.Keypair
-	Eve     crypto.Keypair
-}
+type KeyRing map[string]crypto.Keypair
 
 // Init function to create a keyRing that can be accessed anywhere without having to recreate the data
 func init() {
@@ -69,14 +63,17 @@ func errorWrap(in interface{}, err error) interface{} {
 }
 
 // createKeyRing creates a KeyRing for the specfied chain/key type
-func createKeyRing(chain string) *KeyRing {
-	return &KeyRing{
-		Alice:   createKeypair([]byte(AliceKey), chain),
-		Bob:     createKeypair([]byte(BobKey), chain),
-		Charlie: createKeypair([]byte(CharlieKey), chain),
-		Dave:    createKeypair([]byte(DaveKey), chain),
-		Eve:     createKeypair([]byte(EveKey), chain),
+func createKeyRing(chain string) KeyRing {
+	ring := map[string]crypto.Keypair{
+		AliceKey:   createKeypair([]byte(AliceKey), chain),
+		BobKey:     createKeypair([]byte(BobKey), chain),
+		CharlieKey: createKeypair([]byte(CharlieKey), chain),
+		DaveKey:    createKeypair([]byte(DaveKey), chain),
+		EveKey:     createKeypair([]byte(EveKey), chain),
 	}
+
+	return ring
+
 }
 
 // createKeypair creates keypairs based on the private key seed inputted for the specfied chain
@@ -102,33 +99,11 @@ func NewTestKeystore(devmode string) *Keystore {
 
 // insecureKeypairFromAddress is used for resolving address in an insecure keystore.
 // Instead of providing an address a chain reference can be used to fetch a default keypair (eg. "ethereum").
-func (ks *Keystore) insecureKeypairFromAddress(keyType string, chain_type string) (crypto.Keypair, error) {
+func (ks *Keystore) insecureKeypairFromAddress(key_type string, chain_type string) (crypto.Keypair, error) {
 	if chain_type == ETHChain {
-		switch keyType {
-		case AliceKey:
-			return TestKeyRing.EthereumKeys.Alice, nil
-		case BobKey:
-			return TestKeyRing.EthereumKeys.Bob, nil
-		case CharlieKey:
-			return TestKeyRing.EthereumKeys.Charlie, nil
-		case DaveKey:
-			return TestKeyRing.EthereumKeys.Dave, nil
-		case EveKey:
-			return TestKeyRing.EthereumKeys.Eve, nil
-		}
+		return TestKeyRing.EthereumKeys[key_type], nil
 	} else if chain_type == CTFGChain {
-		switch keyType {
-		case AliceKey:
-			return TestKeyRing.CentrifugeKeys.Alice, nil
-		case BobKey:
-			return TestKeyRing.CentrifugeKeys.Bob, nil
-		case CharlieKey:
-			return TestKeyRing.CentrifugeKeys.Charlie, nil
-		case DaveKey:
-			return TestKeyRing.CentrifugeKeys.Dave, nil
-		case EveKey:
-			return TestKeyRing.CentrifugeKeys.Eve, nil
-		}
+		return TestKeyRing.CentrifugeKeys[key_type], nil
 	} else {
 		fmt.Println(chain_type)
 		panic("unrecognized key type")
