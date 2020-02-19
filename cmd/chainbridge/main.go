@@ -9,7 +9,6 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -111,7 +110,7 @@ func run(ctx *cli.Context) error {
 			})
 		} else if chain.Type == "substrate" {
 			chainconfig = centrifuge.InitializeChain(&core.ChainConfig{
-				Id:            msg.CentrifugeId,
+				Id:            chain.Id,
 				Endpoint:      chain.Endpoint,
 				From:          chain.From,
 				Subscriptions: []string{"nfts", "assetTx"},
