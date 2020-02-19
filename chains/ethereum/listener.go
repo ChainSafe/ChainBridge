@@ -2,18 +2,14 @@ package ethereum
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/common"
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 var _ chains.Listener = &Listener{}
@@ -88,30 +84,30 @@ func (l *Listener) buildQuery(contract ethcommon.Address, sig EventSig) eth.Filt
 func (l *Listener) RegisterEventHandler(subscription string, handler chains.EvtHandlerFn) error {
 	evt := EventSig(subscription)
 	query := l.buildQuery(l.cfg.emitter, evt)
-	subscriptionEvent, err := l.conn.subscribeToEvent(query)
+	eventSubscription, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
 	}
-	l.subscriptions[EventSig(subscription)] = subscriptionEvent
-	go l.watchEvent(subscriptionEvent, handler)
+	l.subscriptions[EventSig(subscription)] = eventSubscription
+	go l.watchEvent(eventSubscription, handler)
 	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.emitter, "sig", subscription)
 	return nil
 }
 
 // watchEvent will call the handler for every occurrence of the corresponding event. It should be run in a separate
 // goroutine to monitor the subscription channel.
-func (l *Listener) watchEvent(subscriptionEvent *Subscription, handler func(interface{}) msg.Message) {
+func (l *Listener) watchEvent(eventSubscription *Subscription, handler func(interface{}) msg.Message) {
 	for {
 		select {
-		case evt := <-subscriptionEvent.ch:
+		case evt := <-eventSubscription.ch:
 			m := handler(evt)
 			err := l.router.Send(m)
 			if err != nil {
-				log15.Error("subscription error: cannot send message", "sub", subscriptionEvent, "err", err)
+				log15.Error("subscription error: cannot send message", "sub", eventSubscription, "err", err)
 			}
-		case err := <-subscriptionEvent.sub.Err():
+		case err := <-eventSubscription.sub.Err():
 			if err != nil {
-				log15.Error("subscription error", "sub", subscriptionEvent, "err", err)
+				log15.Error("subscription error", "sub", eventSubscription, "err", err)
 			}
 		}
 	}
@@ -130,41 +126,4 @@ func (l *Listener) Stop() error {
 		sub.sub.Unsubscribe()
 	}
 	return nil
-}
-
-func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
-	log15.Debug("Handling deposit proposal event")
-	event := eventI.(ethtypes.Log)
-
-	contractAbi, err := abi.JSON(strings.NewReader(string(emitter.EmitterABI)))
-	if err != nil {
-		log15.Error("Unable to decode event", err)
-	}
-
-	var nftEvent emitter.EmitterNFTTransfer
-	err = contractAbi.Unpack(&nftEvent, "NFTTransfer", event.Data)
-	if err != nil {
-		log15.Error("Unable to unpack NFTTransfer", err)
-	}
-
-	// Capture indexed values
-	nftEvent.DestChain = event.Topics[1].Big()
-	nftEvent.DepositId = event.Topics[2].Big()
-
-	msg := msg.Message{
-		Type:        msg.CreateDepositProposalType,
-		Destination: msg.ChainId(uint8(nftEvent.DestChain.Uint64())),
-		Data:        nftEvent.Data,
-	}
-	msg.EncodeCreateDepositProposalData(nftEvent.DepositId, l.cfg.chainID)
-	return msg
-}
-
-func (l *Listener) handleTestDeposit(eventI interface{}) msg.Message {
-	event := eventI.(ethtypes.Log)
-	data := ethcrypto.Keccak256Hash(event.Topics[0].Bytes()).Bytes()
-	return msg.Message{
-		Type: msg.DepositAssetType,
-		Data: data,
-	}
 }

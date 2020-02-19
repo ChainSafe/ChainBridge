@@ -77,8 +77,6 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			return
 		}
 
-        log15.Trace("Created tx for Deposit Proposal")
-		log15.Trace("Tx opts", "opts", opts, "hash", hash, "depositId", depositId, "originChain", originChain)
 		_, err = w.Transact(opts, method, hash, depositId, originChain)
 		if err != nil {
 			log15.Error("Failed to submit transaction", "err", err)

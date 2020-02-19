@@ -12,7 +12,7 @@ import (
 const (
 	// In your configuration file, please register as many of the following events
 	DepositAsset = "DepositAsset"
-	NftTransfer  = "NftTransfer"
+	NftTransfer  = "NFTTransfer"
 	ErcTransfer  = "ErcTransfer"
 
 	// For internal usage only
