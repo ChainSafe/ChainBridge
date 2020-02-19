@@ -31,7 +31,7 @@ var accountFlags = []cli.Flag{
 	Secp256k1Flag,
 }
 
-var tdevFlags = []cli.Flag{
+var devFlags = []cli.Flag{
 	TestKeyFlag,
 }
 
