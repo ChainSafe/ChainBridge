@@ -34,7 +34,7 @@ jobs:
     - name: Run tests
       run: |
         SILENT=true make start_eth
-        make deploy eth
+        make deploy_eth
         make test
 
     - name: Slack notification
