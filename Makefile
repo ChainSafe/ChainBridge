@@ -29,7 +29,7 @@ lint:
 	if [ ! -f ./bin/golangci-lint ]; then \
 		$(MAKE) get_lint; \
 	fi;
-	./bin/golangci-lint run --timeout 5m0s
+	./bin/golangci-lint run ./... --timeout 5m0s
 
 fmt:
 	@echo "  >  \033[32mFormatting project...\033[0m "
