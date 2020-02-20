@@ -30,3 +30,5 @@ keys/
 node_modules/
 
 centrifuge-chain/
+
+abi/
