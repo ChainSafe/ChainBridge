@@ -35,15 +35,15 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 		emitter:       common.HexToAddress("0x0"),
 	}
 
-	if chainID, ok := chainCfg.Opts["ChainID"]; ok {
+	if chainID, ok := chainCfg.Opts["chainID"]; ok {
 		config.chainID.SetString(chainID, 10)
 	}
 
-	if receiver, ok := chainCfg.Opts["Receiver"]; ok {
+	if receiver, ok := chainCfg.Opts["receiver"]; ok {
 		config.receiver = common.HexToAddress(receiver)
 	}
 
-	if emitter, ok := chainCfg.Opts["Emmitter"]; ok {
+	if emitter, ok := chainCfg.Opts["emitter"]; ok {
 		config.emitter = common.HexToAddress(emitter)
 	}
 

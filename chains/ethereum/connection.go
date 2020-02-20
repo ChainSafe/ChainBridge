@@ -29,8 +29,7 @@ type Connection struct {
 }
 
 func NewConnection(cfg *Config) *Connection {
-	var signer ethtypes.Signer
-	signer = ethtypes.HomesteadSigner{}
+    signer := ethtypes.HomesteadSigner{}
 	return &Connection{
 		ctx: context.Background(),
 		cfg: *cfg,
@@ -131,6 +130,7 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 	auth.Value = big.NewInt(0)               // in wei
 	auth.GasLimit = uint64(gasLimit.Int64()) // in units
 	auth.GasPrice = gasPrice
+	auth.Context = c.ctx
 
 	return auth, nil
 }

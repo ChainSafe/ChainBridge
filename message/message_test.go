@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	ethcmn "github.com/ethereum/go-ethereum/common"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4")
@@ -19,23 +20,25 @@ func TestCreateDepositProposalData(t *testing.T) {
 
 	hashBytes := [32]byte{}
 	copy(hashBytes[:], hash)
+	keccakHash := ethcrypto.Keccak256Hash(hashBytes[:]).Bytes()
 
 	depositId := big.NewInt(0)
 	originChain := big.NewInt(1)
 
 	m := &Message{
 		Type: CreateDepositProposalType,
+		Data: hashBytes[:],
 	}
 
-	m.EncodeCreateDepositProposalData(hashBytes, depositId, originChain)
+	m.EncodeCreateDepositProposalData(depositId, originChain)
 
 	hashRes, depositIdRes, originChainRes, err := m.DecodeCreateDepositProposalData()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if !bytes.Equal(hashBytes[:], hashRes[:]) {
-		t.Fatalf("Fail: got %x expected %x", hashRes, hashBytes)
+	if !bytes.Equal(keccakHash, hashRes[:]) {
+		t.Fatalf("Fail: got %x x %x", hashRes, hashBytes)
 	}
 
 	if depositId.Cmp(depositIdRes) != 0 {

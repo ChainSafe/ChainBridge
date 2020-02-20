@@ -29,7 +29,7 @@ lint:
 	if [ ! -f ./bin/golangci-lint ]; then \
 		$(MAKE) get_lint; \
 	fi;
-	./bin/golangci-lint run --timeout 5m0s
+	./bin/golangci-lint run ./... --timeout 5m0s
 
 fmt:
 	@echo "  >  \033[32mFormatting project...\033[0m "
@@ -96,4 +96,4 @@ cent_asset_tx:
 
 bindings:
 	@echo " > \033[32mCreating go bindings for ethereum contracts... \033[0m "
-	./scripts/local_test/create_bindings.sh
+	./scripts/evm/create_bindings.sh

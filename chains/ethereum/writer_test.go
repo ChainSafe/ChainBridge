@@ -26,23 +26,15 @@ func testDepositAssetMessage(t *testing.T) msg.Message {
 }
 
 func testCreateDepositProposalMessage(t *testing.T) msg.Message {
-	// arbitrary hash
-	hash, err := hex.DecodeString("b6e25575ab25a1938070eeb64ac4cd6df49af423327877522bec719815dc5e27")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	hashBytes := [32]byte{}
-	copy(hashBytes[:], hash)
-
 	depositId := big.NewInt(0)
 	originChain := big.NewInt(1)
 
 	m := &msg.Message{
 		Type: msg.CreateDepositProposalType,
+		Data: []byte{},
 	}
 
-	m.EncodeCreateDepositProposalData(hashBytes, depositId, originChain)
+	m.EncodeCreateDepositProposalData(depositId, originChain)
 	return *m
 }
 

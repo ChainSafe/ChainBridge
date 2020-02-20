@@ -5,6 +5,7 @@ import (
 	"math/big"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 type MessageType string
@@ -23,7 +24,8 @@ type Message struct {
 	Data []byte      // data associated with event sequence
 }
 
-func (m *Message) EncodeCreateDepositProposalData(hash [32]byte, depositId, originChain *big.Int) {
+func (m *Message) EncodeCreateDepositProposalData(depositId, originChain *big.Int) {
+	hash := ethcrypto.Keccak256Hash(m.Data).Bytes()
 	depositIdBytes := byteSliceTo32Bytes(depositId.Bytes())
 	originChainBytes := byteSliceTo32Bytes(originChain.Bytes())
 	m.Data = append(append(hash[:], depositIdBytes...), originChainBytes[:]...)
