@@ -2,24 +2,26 @@ const EmitterContract = artifacts.require("Emitter");
 const ERC20Contract = artifacts.require("ERC20Mintable");
 
 contract('Safe - [release::ERC20]', async (accounts) => {
-    let EmitterInstance;
-    let erc20Instance;
+    const minter = accounts[0];
+    const receiver = accounts[1];
+    const initialTokenAmount = 100;
+    const depositTokenAmount = 1;
 
-    let minter = accounts[0];
-    let receiver = accounts[1];
+    let EmitterInstance;
+    let ERC20Instance;
 
     beforeEach(async () => {
         EmitterInstance = await EmitterContract.new();
-        erc20Instance = await ERC20Contract.new({ from: minter });
-        await erc20Instance.mint(minter, 100, { from: minter });
-        await erc20Instance.approve(EmitterInstance.address, 100, {from: minter})
+        ERC20Instance = await ERC20Contract.new();
+        await ERC20Instance.mint(minter, initialTokenAmount);
+        await ERC20Instance.approve(EmitterInstance.address, initialTokenAmount)
     });
 
     it('[sanity] test minter balance', async () => {
-        const minterbal = await erc20Instance.balanceOf(minter);
-        assert.strictEqual(minterbal.toNumber(), 100);
-        const allowance = await erc20Instance.allowance(minter, EmitterInstance.address);
-        assert.strictEqual(allowance.toNumber(), 100);
+        const minterBalance = await ERC20Instance.balanceOf(minter);
+        assert.strictEqual(minterBalance.toNumber(), initialTokenAmount);
+        const allowance = await ERC20Instance.allowance(minter, EmitterInstance.address);
+        assert.strictEqual(allowance.toNumber(), initialTokenAmount);
     });
 
     it('release', async () => {
@@ -28,24 +30,27 @@ contract('Safe - [release::ERC20]', async (accounts) => {
         let receiverBalance;
 
         // Staging the deposit
-        EmitterInstance.depositGenericErc(0, 1, receiver, erc20Instance.address);
+        EmitterInstance.depositGenericErc(0, depositTokenAmount, receiver, ERC20Instance.address);
 
-        safeBalance = await erc20Instance.balanceOf(EmitterInstance.address);
-        assert.strictEqual(safeBalance.toNumber(), 1);
+        safeBalance = await ERC20Instance.balanceOf(EmitterInstance.address);
+        assert.strictEqual(safeBalance.toNumber(), depositTokenAmount);
 
-        minterBalance = await erc20Instance.balanceOf(minter);
-        assert.strictEqual(minterBalance.toNumber(), 99);
+        minterBalance = await ERC20Instance.balanceOf(minter);
+        assert.strictEqual(minterBalance.toNumber(), initialTokenAmount - depositTokenAmount);
+
+        receiverBalance = await ERC20Instance.balanceOf(receiver);
+        assert.strictEqual(receiverBalance.toNumber(), 0);
 
         // Releasing deposited token
-        EmitterInstance.releaseErc(erc20Instance.address, 1, receiver);
+        EmitterInstance.releaseErc(ERC20Instance.address, depositTokenAmount, minter);
 
-        safeBalance = await erc20Instance.balanceOf(EmitterInstance.address);
+        safeBalance = await ERC20Instance.balanceOf(EmitterInstance.address);
         assert.strictEqual(safeBalance.toNumber(), 0);
 
-        minterBalance = await erc20Instance.balanceOf(minter);
-        assert.strictEqual(minterBalance.toNumber(), 99);
+        minterBalance = await ERC20Instance.balanceOf(minter);
+        assert.strictEqual(minterBalance.toNumber(), initialTokenAmount);
 
-        receiverBalance = await erc20Instance.balanceOf(receiver);
-        assert.strictEqual(receiverBalance.toNumber(), 1);
+        receiverBalance = await ERC20Instance.balanceOf(receiver);
+        assert.strictEqual(receiverBalance.toNumber(), 0);
     });
 });
