@@ -96,4 +96,4 @@ cent_asset_tx:
 
 bindings:
 	@echo " > \033[32mCreating go bindings for ethereum contracts... \033[0m "
-	./scripts/local_test/create_bindings.sh
+	./scripts/evm/create_bindings.sh
