@@ -39,17 +39,17 @@ func (c *Core) AddChain(chain *Chain) {
 
 // Start will call all registered chains' Start methods and block forever (or until signal is received)
 func (c *Core) Start() {
-	for _, ch := range c.registry {
-		err := ch.Start()
+	for _, chain := range c.registry {
+		err := chain.Start()
 		if err != nil {
 			log15.Error(
 				"failed to start chain",
-				"chain", ch.Id(),
+				"chain", chain.Id(),
 				"err", err,
 			)
 			return
 		} else {
-			log15.Info(fmt.Sprintf("Started %s chain", ch.Id()))
+			log15.Info(fmt.Sprintf("Started %s chain", chain.Id()))
 		}
 	}
 

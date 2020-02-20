@@ -1,11 +1,13 @@
 package ethereum
 
 import (
+	"fmt"
+
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -43,18 +45,21 @@ func (l *Listener) SetRouter(r chains.Router) {
 // Start registers all subscriptions provided by the config
 func (l *Listener) Start() error {
 	log15.Debug("Starting listener...", "chainID", l.cfg.id, "subs", l.cfg.subscriptions)
-	for _, sub := range l.cfg.subscriptions {
-		sub := sub
-		err := l.RegisterEventHandler(sub, func(evtI interface{}) msg.Message {
-			evt := evtI.(ethtypes.Log)
-			log15.Trace("Got event!", "type", sub)
-			return msg.Message{
-				Type: msg.DepositAssetType,
-				Data: evt.Topics[0].Bytes(),
+	for _, subscription := range l.cfg.subscriptions {
+		sub := subscription
+		switch sub {
+		case ErcTransferSignature, NftTransferSignature:
+			err := l.RegisterEventHandler(sub, l.handleTransferEvent)
+			if err != nil {
+				log15.Error("failed to register event handler", "err", err)
 			}
-		})
-		if err != nil {
-			log15.Error("failed to register event handler", "err", err)
+		case DepositAssetSignature:
+			err := l.RegisterEventHandler(sub, l.handleTestDeposit)
+			if err != nil {
+				log15.Error("failed to register event handler", "err", err)
+			}
+		default:
+			return fmt.Errorf("Unrecognized event: %s", sub)
 		}
 	}
 	return nil
@@ -62,11 +67,11 @@ func (l *Listener) Start() error {
 
 // buildQuery constructs a query for the contract by hashing sig to get the event topic
 // TODO: Start from current block
-func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQuery {
+func (l *Listener) buildQuery(contract ethcommon.Address, sig EventSig) eth.FilterQuery {
 	query := eth.FilterQuery{
 		FromBlock: nil,
-		Addresses: []common.Address{contract},
-		Topics: [][]common.Hash{
+		Addresses: []ethcommon.Address{contract},
+		Topics: [][]ethcommon.Hash{
 			{sig.GetTopic()},
 		},
 	}
@@ -75,33 +80,33 @@ func (l *Listener) buildQuery(contract common.Address, sig EventSig) eth.FilterQ
 
 // RegisterEventHandler creates a subscription for the provided event on the emitter contract.
 // Handler will be called for every instance of event.
-func (l *Listener) RegisterEventHandler(sig string, handler chains.EvtHandlerFn) error {
-	evt := EventSig(sig)
+func (l *Listener) RegisterEventHandler(subscription string, handler chains.EvtHandlerFn) error {
+	evt := EventSig(subscription)
 	query := l.buildQuery(l.cfg.emitter, evt)
-	sub, err := l.conn.subscribeToEvent(query)
+	eventSubscription, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
 	}
-	l.subscriptions[EventSig(sig)] = sub
-	go l.watchEvent(sub, handler)
-	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.emitter, "sig", sig)
+	l.subscriptions[EventSig(subscription)] = eventSubscription
+	go l.watchEvent(eventSubscription, handler)
+	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.emitter, "sig", subscription)
 	return nil
 }
 
 // watchEvent will call the handler for every occurrence of the corresponding event. It should be run in a separate
 // goroutine to monitor the subscription channel.
-func (l *Listener) watchEvent(sub *Subscription, handler func(interface{}) msg.Message) {
+func (l *Listener) watchEvent(eventSubscription *Subscription, handler func(interface{}) msg.Message) {
 	for {
 		select {
-		case evt := <-sub.ch:
+		case evt := <-eventSubscription.ch:
 			m := handler(evt)
 			err := l.router.Send(m)
 			if err != nil {
-				log15.Error("subscription error: cannot send message", "sub", sub, "err", err)
+				log15.Error("subscription error: cannot send message", "sub", eventSubscription, "err", err)
 			}
-		case err := <-sub.sub.Err():
+		case err := <-eventSubscription.sub.Err():
 			if err != nil {
-				log15.Error("subscription error", "sub", sub, "err", err)
+				log15.Error("subscription error", "sub", eventSubscription, "err", err)
 			}
 		}
 	}
