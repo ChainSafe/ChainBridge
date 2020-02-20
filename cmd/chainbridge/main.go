@@ -101,19 +101,21 @@ func run(ctx *cli.Context) error {
 		var chainconfig *core.Chain
 		if chain.Type == "ethereum" {
 			chainconfig = ethereum.InitializeChain(&core.ChainConfig{
-				Id:            chain.Id,
-				Endpoint:      chain.Endpoint,
-				From:          chain.From,
-				Subscriptions: []string{"DepositAsset(address,bytes32)"},
+				Id:       chain.Id,
+				Endpoint: chain.Endpoint,
+				From:     chain.From,
+				// TODO remove this in favour of OPTS when config PR lands
+				Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
 				Keystore:      ks,
 				Opts:          chain.Opts,
 			})
 		} else if chain.Type == "substrate" {
 			chainconfig = centrifuge.InitializeChain(&core.ChainConfig{
-				Id:            chain.Id,
-				Endpoint:      chain.Endpoint,
-				From:          chain.From,
-				Subscriptions: []string{"nfts", "assetTx"},
+				Id:       chain.Id,
+				Endpoint: chain.Endpoint,
+				From:     chain.From,
+				// TODO remove this in favour of OPTS when config PR lands
+				Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
 				Keystore:      ks,
 				Opts:          chain.Opts,
 			})
