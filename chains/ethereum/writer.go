@@ -132,5 +132,6 @@ func (w *Writer) Stop() error {
 
 // Transact submits a transaction to the receiver contract intsance.
 func (w *Writer) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*ethtypes.Transaction, error) {
+	log15.Info("writer", "ethclient", w.conn.conn)
 	return w.receiverContract.Transact(opts, method, params...)
 }

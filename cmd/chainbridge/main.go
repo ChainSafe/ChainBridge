@@ -4,11 +4,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains/centrifuge"
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -97,19 +95,22 @@ func run(ctx *cli.Context) error {
 
 	// TODO: Load chains iteratively
 	eth := ethereum.InitializeChain(&core.ChainConfig{
-		Id:            cfg.Chains[0].Id,
-		Endpoint:      cfg.Chains[0].Endpoint,
-		From:          cfg.Chains[0].From,
-		Subscriptions: []string{"DepositAsset(address,bytes32)"},
+		Id:       cfg.Chains[0].Id,
+		Endpoint: cfg.Chains[0].Endpoint,
+		From:     cfg.Chains[0].From,
+		// TODO remove this in favour of OPTS when config PR lands
+		Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
 		Keystore:      ks,
 		Opts:          cfg.Chains[0].Opts,
 	})
 
-	ctfg := centrifuge.InitializeChain(&core.ChainConfig{
-		Id:            msg.CentrifugeId,
-		Endpoint:      cfg.Chains[1].Endpoint,
-		From:          cfg.Chains[1].From,
-		Subscriptions: []string{"nfts", "assetTx"},
+	// TODO: Load chains iteratively
+	ctfg := ethereum.InitializeChain(&core.ChainConfig{
+		Id:       cfg.Chains[1].Id,
+		Endpoint: cfg.Chains[1].Endpoint,
+		From:     cfg.Chains[1].From,
+		// TODO remove this in favour of OPTS when config PR lands
+		Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
 		Keystore:      ks,
 		Opts:          cfg.Chains[1].Opts,
 	})
