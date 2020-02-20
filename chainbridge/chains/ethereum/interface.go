@@ -1,6 +1,8 @@
 package ethereum
 
 import (
+	"math/big"
+
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -16,6 +18,7 @@ type ReceiverContract interface {
 
 // EmitterContract provides the interface to filter events from Emitter.sol.
 type EmitterContract interface {
-	FilterERCTransfer(opts *bind.FilterOpts) (*emitter.EmitterERCTransferIterator, error)
-	FilterGenericTransfer(opts *bind.FilterOpts) (*emitter.EmitterGenericTransferIterator, error)
+	FilterERCTransfer(*bind.FilterOpts, []*big.Int, []*big.Int) (*emitter.EmitterERCTransferIterator, error)
+	FilterGenericTransfer(*bind.FilterOpts, []*big.Int, []*big.Int) (*emitter.EmitterGenericTransferIterator, error)
+	FilterNFTTransfer(opts *bind.FilterOpts, _destChain []*big.Int, _depositId []*big.Int) (*emitter.EmitterNFTTransferIterator, error)
 }

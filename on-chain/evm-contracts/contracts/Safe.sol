@@ -13,32 +13,29 @@ contract Safe is ISafe {
     using SafeMath for uint;
 
     address Owner;
-    
-    mapping(address => uint) balances;
-    
+
+    mapping(address => uint) public balances;
+
     modifier onlyOwner {
         require(msg.sender == Owner);
         _;
     }
-    
+
     constructor(address _owner) public {
         Owner = _owner;
     }
 
-    function lockErc(address _tokenAddress, uint _value, address _to, address _from) public onlyOwner {
-        // balances[_tokenAddress] = balances[_tokenAddress].add(_value);
-        
+    function lockErc(address _tokenAddress, uint _value, address _to, address _from) internal {
+        balances[_tokenAddress] = balances[_tokenAddress].add(_value);
+
         // Lock tokens
         ERC20 token = ERC20(_tokenAddress);
         token.transferFrom(_from, _to, _value);
     }
 
-    function lockNFT(address _tokenAddress, address _to, address _from, uint _tokenId) public onlyOwner {
-        // balances[_tokenAddress] = balances[_tokenAddress].add(_value);
-
-        // Lock tokens
-        ERC721 token = ERC721(_tokenAddress);
-        token.transferFrom(_from, _to, _tokenId);
+    function lockNFT(address _tokenAddress, address _to, address _from, uint _tokenId) internal {
+        ERC721 nft = ERC721(_tokenAddress);
+        nft.transferFrom(_from, _to, _tokenId);
     }
 
     function releaseErc(address _tokenAddress, uint _value, address _to) public onlyOwner {
@@ -48,6 +45,11 @@ contract Safe is ISafe {
         // Transfer funds to user
         ERC20 token = ERC20(_tokenAddress);
         token.transfer(_to, _value);
+    }
+    
+    function releaseNFT(address _tokenAddress, address _to, uint _tokenId) public onlyOwner {
+        ERC721 nft = ERC721(_tokenAddress);
+        nft.transferFrom(address(this), _to, _tokenId);
     }
     
     function owner() public view returns (address) {
