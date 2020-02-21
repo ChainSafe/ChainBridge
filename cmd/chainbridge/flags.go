@@ -55,3 +55,11 @@ var (
 		Usage: "Specify account type as secp256k1",
 	}
 )
+
+// Test Setting Flags
+var (
+	TestKeyFlag = cli.StringFlag{
+		Name:  "testkey",
+		Usage: "Applies a predetermined test keystore to the chains",
+	}
+)
