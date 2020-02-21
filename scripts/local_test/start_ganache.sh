@@ -5,7 +5,7 @@ set -e
 
 PORT=${PORT:-8545}
 
-cd ./on-chain/evm-contracts &&
+cd ./ethereum/evm-contracts &&
 npm install
 
 echo "Running ganache..."

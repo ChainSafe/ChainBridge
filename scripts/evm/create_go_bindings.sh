@@ -2,9 +2,9 @@
 
 set -e
 
-contract_path="on-chain/evm-contracts/contracts"
-contract_binding_path="on-chain/evm-contracts/"
-contract_json_path=./on-chain/evm-contracts/contracts
+contract_path="ethereum/evm-contracts/contracts"
+contract_binding_path="ethereum/evm-contracts/"
+contract_json_path=./ethereum/evm-contracts/contracts
 
 BIN_DIR=build/bindings/bin
 ABI_DIR=build/bindings/abi

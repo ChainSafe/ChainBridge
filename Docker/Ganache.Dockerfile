@@ -3,7 +3,7 @@ FROM node:12.14-alpine3.11
 RUN mkdir /app
 WORKDIR /app
 
-COPY ./on-chain/evm-contracts .
+COPY ./ethereum/evm-contracts .
 
 RUN yarn install --silent && node_modules/.bin/truffle compile
 

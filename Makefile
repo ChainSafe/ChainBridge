@@ -53,7 +53,7 @@ test:
 	
 truffle_test:
 	@echo " > \033[32mTesting evm contracts... \033[0m "
-	@cd on-chain/evm-contracts && node_modules/.bin/truffle test
+	@cd ethereum/evm-contracts && node_modules/.bin/truffle test
 
 truffle_compile:
 	@echo " > \033[32mCompiling evm contracts... \033[0m "
