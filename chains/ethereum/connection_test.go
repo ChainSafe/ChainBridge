@@ -31,7 +31,7 @@ func TestConnect(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		from:     "ethereum",
-		keystore: keystore.NewTestKeystore(),
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 	}
 	conn := NewConnection(cfg)
 	err := conn.Connect()
@@ -50,7 +50,8 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
+	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
+	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +80,7 @@ func TestSubscribe(t *testing.T) {
 	cfg := &Config{
 		id:       msg.EthereumId,
 		endpoint: TestEndpoint,
-		keystore: keystore.NewTestKeystore(),
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 		from:     "ethereum",
 	}
 
@@ -105,7 +106,9 @@ func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
 		t.Fatal(err)
 	}
 
-	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
+	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
+	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
+
 	if err != nil {
 		t.Fatal(err)
 	}

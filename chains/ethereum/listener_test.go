@@ -17,8 +17,8 @@ func newLocalConnection(t *testing.T, emitter ethcmn.Address) *Connection {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		receiver: TestCentrifugeContractAddress,
-		keystore: keystore.NewTestKeystore(),
-		from:     "ethereum",
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+		from:     keystore.AliceKey,
 	}
 
 	conn := NewConnection(cfg)
