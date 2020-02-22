@@ -13,6 +13,7 @@ matrix:
       go: 1.13.x
       name: "Golang-ci Linter"
       script: make lint
+
     - language: go
       go: 1.13.x
       name: "Run Go tests"
@@ -20,3 +21,12 @@ matrix:
           - SILENT=true make start_eth
           - make deploy_eth
           - make test
+
+    - language: node_js
+      node_js: 12.x
+      name: "Truffle tests"
+      env: CI=true
+      script:
+        - cd on-chain/evm-contracts/
+        - npm install
+        - ./node_modules/.bin/truffle test
