@@ -1,8 +1,3 @@
-language: go
-
-go:
-  - 1.13.x
-
 env:
   global:
     - GO111MODULE=on
@@ -14,10 +9,14 @@ cache:
 
 matrix:
   include:
-    - name: "Golang-ci Linter"
+    - language: go
+      go: 1.13.x
+      name: "Golang-ci Linter"
       script: make lint
-    - name: "Run tests"
+    - language: go
+      go: 1.13.x
+      name: "Run Go tests"
       script:
-        - SILENT=true make start_eth
-        - make deploy_eth
-        - make test
+          - SILENT=true make start_eth
+          - make deploy_eth
+          - make test
