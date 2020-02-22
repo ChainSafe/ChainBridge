@@ -16,3 +16,8 @@ matrix:
   include:
     - name: "Golang-ci Linter"
       script: make lint
+    - name: "Run tests"
+      script:
+        - SILENT=true make start_eth
+        - make deploy_eth
+        - make test
