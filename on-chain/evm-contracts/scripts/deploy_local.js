@@ -299,8 +299,9 @@ async function erc721Transfer() {
         console.log("[ERC721 Transfer] Owner of token 1:", owner);
         
         // // Perform deposit
-        await emitterInstance.depositNFT(0, validatorAddress[1], erc721Instance.address, 1, "0x");
-        console.log("[ERC721 Transfer] Created deposit!");
+        const d = await emitterInstance.depositNFT(0, validatorAddress[1], erc721Instance.address, 1, "0x");
+        console.log("[ERC721 Transfer] Created deposit!")
+        console.log("[ERC721 Transfer] Deposit Hash", d.hash);
 
         // Check post balance
         const postbal = await erc721Instance.balanceOf(EMITTER_ADDRESS);
