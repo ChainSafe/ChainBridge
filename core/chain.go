@@ -58,12 +58,12 @@ func (c *Chain) Start() error {
 		return fmt.Errorf("no Writer specified")
 	}
 
-	err := c.conn.Connect()
-	if err != nil {
-		return err
-	}
+	// err := c.conn.Connect()
+	// if err != nil {
+	// 	return err
+	// }
 
-	err = c.listener.Start()
+	err := c.listener.Start()
 	if err != nil {
 		return err
 	}

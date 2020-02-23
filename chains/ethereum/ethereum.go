@@ -13,6 +13,11 @@ func InitializeChain(chainCfg *core.ChainConfig) *core.Chain {
 	conn := NewConnection(cfg)
 	c.SetConnection(conn)
 
+	err := conn.Connect()
+	if err != nil {
+		panic(err)
+	}
+
 	emitterContract, err := emitter.NewEmitter(cfg.emitter, conn.conn)
 	if err != nil {
 		panic(err)
