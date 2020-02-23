@@ -26,4 +26,7 @@ matrix:
       node_js: 12
       name: "Run Truffle tests"
       env: CI=true
-      script: make truffle_test
+      script:
+        - cd on-chain/evm-contracts/
+        - npm install
+        - ./node_modules/.bin/truffle test
