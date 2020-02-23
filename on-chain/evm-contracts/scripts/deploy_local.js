@@ -17,6 +17,7 @@ cli
     .option('--deposit-nft', "Make an ERC721 deposit", false)
     .option('--deposit-asset', "Make a test deployment", false)
     .option('--test-only', "Skip main contract depoyments, only run tests", false)
+    .option('--dest <value>', "destination chain", 1)
 cli.parse(process.argv);
 
 // Connect to the network
@@ -81,7 +82,8 @@ const TEST_EMITTER_ADDRESS = "0x8090062239c909eB9b0433F1184c7DEf6124cc78";
     if (cli.depositErc) {
         await erc20Transfer();
     } else if (cli.depositNft) {
-        await erc721Transfer();
+        console.log(cli.dest)
+        await erc721Transfer(Number(cli.dest));
     } else if (cli.depositAsset) {
         await deployAssetTest();
     }
@@ -267,7 +269,7 @@ async function erc20Transfer() {
     }
 }
 
-async function erc721Transfer() {
+async function erc721Transfer(chain) {
     try {
         console.log("[ERC721 Transfer] EMITTER_ADDRESS:", EMITTER_ADDRESS);
         const minterWallet = new ethers.Wallet(validatorPrivKeys[0], provider);
@@ -299,7 +301,7 @@ async function erc721Transfer() {
         console.log("[ERC721 Transfer] Owner of token 1:", owner);
         
         // // Perform deposit
-        const d = await emitterInstance.depositNFT(0, validatorAddress[1], erc721Instance.address, 1, "0x");
+        const d = await emitterInstance.depositNFT(chain, validatorAddress[1], erc721Instance.address, 1, "0x");
         console.log("[ERC721 Transfer] Created deposit!")
         console.log("[ERC721 Transfer] Deposit Hash", d.hash);
 
