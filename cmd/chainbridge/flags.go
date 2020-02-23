@@ -34,6 +34,10 @@ var (
 		Name:  "password",
 		Usage: "Password used to encrypt the keystore. Used with --generate or --unlock",
 	}
+	PrivateKeyFlag = cli.StringFlag{
+		Name:  "privateKey",
+		Usage: "Hex string private key used to generate a keypair. Used with --generate",
+	}
 	ImportFlag = cli.StringFlag{
 		Name:  "import",
 		Usage: "Import encrypted keystore file generated with bridge cli",

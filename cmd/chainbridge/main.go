@@ -22,6 +22,7 @@ var cliFlags = []cli.Flag{
 var accountFlags = []cli.Flag{
 	GenerateFlag,
 	PasswordFlag,
+	PrivateKeyFlag,
 	ImportFlag,
 	ListFlag,
 	Ed25519Flag,
