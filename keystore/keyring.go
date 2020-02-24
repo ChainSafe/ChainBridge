@@ -108,5 +108,4 @@ func (ks *Keystore) insecureKeypairFromAddress(key_type string, chain_type strin
 		fmt.Println(chain_type)
 		panic("unrecognized key type")
 	}
-	return nil, nil
 }
