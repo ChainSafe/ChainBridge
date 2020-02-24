@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-pushd ./ethereum/evm-contracts &&
+pushd ./ethereum &&
 npm install &&
 node ./scripts/deploy_local.js --validators 3

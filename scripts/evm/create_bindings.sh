@@ -6,7 +6,7 @@ set -e
 ./scripts/evm/compile.sh
 
 # Switch to directory
-pushd ./ethereum/evm-contracts
+pushd ./ethereum
 
 # Generate bindings
 node ./scripts/genBindings.js

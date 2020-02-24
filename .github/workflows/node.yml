@@ -15,7 +15,7 @@ jobs:
         node-version: 12.x
     - name: npm install, and test
       run: |
-        cd ethereum/evm-contracts/
+        cd ethereum/
         npm install
         ./node_modules/.bin/truffle test
       env:
