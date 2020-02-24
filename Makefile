@@ -7,6 +7,8 @@ CENT_TO?=0x1234567890
 CENT_TOKEN_ID?=0x5
 CENT_METADATA?=0x0
 
+MNEMONIC="when sound uniform light fee face forum huge impact talent exhaust arrow"
+
 .PHONY: help run build install
 all: help
 
@@ -61,7 +63,7 @@ truffle_compile:
 
 start_eth:
 	@echo " > \033[32mStarting ganache... \033[0m "
-	./scripts/local_test/start_ganache.sh
+	MNEMONIC=${MNEMONIC} ./scripts/local_test/start_ganache.sh
 
 deploy_eth:
 	@echo " > \033[32mDeploying evm contracts... \033[0m "
