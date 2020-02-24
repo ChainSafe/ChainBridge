@@ -1,4 +1,4 @@
-package centrifuge
+package substrate
 
 import (
 	msg "github.com/ChainSafe/ChainBridgeV2/message"

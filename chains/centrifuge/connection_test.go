@@ -1,4 +1,4 @@
-package centrifuge
+package substrate
 
 import (
 	"testing"

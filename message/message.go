@@ -10,7 +10,7 @@ import (
 
 type MessageType string
 
-var DepositAssetType MessageType = "centrifuge_deposit_asset"
+var DepositAssetType MessageType = "substrate_deposit_asset"
 var CreateDepositProposalType MessageType = "create_deposit_proposal"
 var VoteDepositProposalType MessageType = "vote_deposit_proposal"
 var ExecuteDepositType MessageType = "execute_deposit"

@@ -1,4 +1,4 @@
-package centrifuge
+package substrate
 
 import (
 	"fmt"
@@ -34,7 +34,7 @@ func (l *Listener) SetRouter(r chains.Router) {
 
 // Start creates the initial subscription for all events
 func (l *Listener) Start() error {
-	log15.Info("Starting centrifuge listener...", "chainID", l.cfg.Id, "subs", l.cfg.Subscriptions)
+	log15.Info("Starting substrate listener...", "chainID", l.cfg.Id, "subs", l.cfg.Subscriptions)
 
 	for _, sub := range l.cfg.Subscriptions {
 		switch sub {
