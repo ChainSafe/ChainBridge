@@ -48,7 +48,7 @@ var accountCommand = cli.Command{
 		"\tTo list keys: bridge account --list",
 	Subcommands: []cli.Command{
 		{
-			Action:   handleAccountsCmd,
+			Action:   handleGenerateCmd,
 			Name:     "generate",
 			Usage:    "generate bridge keystore",
 			Flags:    generateFlags,
