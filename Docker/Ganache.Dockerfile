@@ -7,5 +7,5 @@ COPY ./on-chain/evm-contracts .
 
 RUN yarn install --silent && node_modules/.bin/truffle compile
 
-ENTRYPOINT ["node_modules/.bin/ganache-cli", "-h", "0.0.0.0", "-p","8545","-m",MNEMONIC=${MNEMONIC}]
+ENTRYPOINT ["node_modules/.bin/ganache-cli", "-h", "0.0.0.0", "-p","8545"]
 
