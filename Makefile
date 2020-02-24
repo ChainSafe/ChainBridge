@@ -97,3 +97,13 @@ cent_asset_tx:
 bindings:
 	@echo " > \033[32mCreating go bindings for ethereum contracts... \033[0m "
 	./scripts/evm/create_bindings.sh
+
+
+$(ADDLICENSE):
+	go get -u github.com/google/addlicense
+
+## license: Adds license header to missing files, go gets addLicense if missing. Runs `addlicense -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .` on project files.
+.PHONY: license
+license: $(ADDLICENSE)
+	@echo "  >  \033[32mAdding license headers...\033[0m "
+	addlicense -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .
