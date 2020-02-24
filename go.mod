@@ -1,7 +1,5 @@
 module github.com/ChainSafe/ChainBridgeV2
 
-replace github.com/ChainSafe/ChainBridgeV2 => github.com/ChainSafe/ChainBridgeV2/chainbridge
-
 go 1.13
 
 require (

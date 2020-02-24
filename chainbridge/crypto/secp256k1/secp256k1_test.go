@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto/hash"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/crypto/hash"
 )
 
 func TestSignAndVerify(t *testing.T) {

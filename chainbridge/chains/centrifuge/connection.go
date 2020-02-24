@@ -1,7 +1,7 @@
 package centrifuge
 
 import (
-	"github.com/ChainSafe/ChainBridgeV2/chains"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/chains"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/state"
 	"github.com/centrifuge/go-substrate-rpc-client/types"

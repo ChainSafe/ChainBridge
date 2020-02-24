@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/crypto"
 
 	secp256k1 "github.com/ethereum/go-ethereum/crypto"
 )

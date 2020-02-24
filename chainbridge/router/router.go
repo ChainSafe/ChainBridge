@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/chains"
+	msg "github.com/ChainSafe/ChainBridgeV2/chainbridge/message"
 	log "github.com/ChainSafe/log15"
 )
 

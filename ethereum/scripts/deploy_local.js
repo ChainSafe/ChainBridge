@@ -40,33 +40,24 @@ if (cli.depositThreshold && cli.depositThreshold <= numValidators) {
 }
 
 // Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
-const deployerPubKey = "0x34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4";
-const deployerPrivKey = "0x39a9ea0dce63086c64a80ce045b796bebed2006554e3992d92601515c7b19807";
+const deployerAddress = "0x0c6CD6Dc5258EF556eA7c6dab2abE302fB60e0b6";
+const deployerPrivKey = "0x000000000000000000000000000000000000000000000000000000416c696365";
+
 
 // TODO Remove these and cycle through mnemonic
-const validatorPubkeys = [
-    "0x34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4",
-    "0x0a4c3620AF8f3F182e203609f90f7133e018Bf5D",
-    "0x75A8e662d70904e6f5f5cABed8f874f3cE5714f1",
-    "0x7FdAFcCa9A3e69C483D88BF23126b5B4021f7E24",
-    "0xd695b3C074aD73EbEE55B71A28497dA6b2894307",
-    "0x57dd6d89bBb594911645C19149D2f979CF09ebf1",
-    "0x2F73cdf831FedfcFD257c795cb6aDD83BfEC722d",
-    "0xEC33e3945A50eD81d69D2454Bcd21f87989ACf83",
-    "0x16025F9d271283ba7cEAFe87d5031e17E427dA84",
-    "0x87c2e6be98f1B88D8d3748220eA7bCb51393B69E"
+const validatorAddress = [
+    "0x0c6CD6Dc5258EF556eA7c6dab2abE302fB60e0b6",
+    "0x0E17A926c6525b59921846c85E1efD7a5396a47B",
+    "0x0f05849291a309EC001bbd2dAd7DC6F989c40c80",
+    "0x3003d03276434dd23429D4D33090DA5948b7b510",
+    "0x251e6F841549D519dE6De1e99241695bc1000A26",
 ]
 const validatorPrivKeys = [
-    "0x39a9ea0dce63086c64a80ce045b796bebed2006554e3992d92601515c7b19807",
-    "0x5de3b6992e5ad40dc346cfd3b00595f58bd16ea38b43511e7a00a2a60d380225",
-    "0x342254b80c2f78806850cd5d6a7e91b1f004271ea08714654aef28bb0c0b81f2",
-    "0x4bb140bee3a48b88ebd2ebe5903e2ccfc3afadf4be373930875b93576b0c48f7",
-    "0xec638dcf102e0b0213b498451c6311e5af0532bb2d8deff5ce526c38fb74519a",
-    "0x34548c03095760bd48a027de381a48db562e1358df15d176dd1fd07063604841",
-    "0xc1380998e9cb034c8c92d1d4bf7cfce647da0568de72775d00b8c9f3528875f8",
-    "0x1bbf053a7b2ed73ad549437a175f5310373154f63e0993bd9b5a5aa013f10794",
-    "0x6d77d1d80f38de6e6ec67f65c52b3f9f301571ef6e178aab3d732c72eae8b8c1",
-    "0x9fd8879319af178930822a55e88ee9177958094c760b1a56b1362b4098574c5d"
+    "0x000000000000000000000000000000000000000000000000000000416c696365",
+    "0x0000000000000000000000000000000000000000000000000000000000426f62",
+    "0x00000000000000000000000000000000000000000000000000436861726c6965",
+    "0x0000000000000000000000000000000000000000000000000000000044617665",
+    "0x0000000000000000000000000000000000000000000000000000000000457665",
 ]
 
 // Load the wallet to deploy the contract with
@@ -102,7 +93,7 @@ async function deployReceiver() {
         let factory = new ethers.ContractFactory(ReceiverContract.abi, ReceiverContract.bytecode, wallet);
 
         // Set validators
-        const validators = validatorPubkeys.slice(0, numValidators);
+        const validators = validatorAddress.slice(0, numValidators);
 
         // Deploy
         let contract = await factory.deploy(

@@ -3,8 +3,8 @@ package ethereum
 import (
 	"fmt"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/chains"
+	msg "github.com/ChainSafe/ChainBridgeV2/chainbridge/message"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"

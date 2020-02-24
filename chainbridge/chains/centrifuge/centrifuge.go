@@ -1,8 +1,6 @@
 package centrifuge
 
-import (
-	"github.com/ChainSafe/ChainBridgeV2/core"
-)
+import "github.com/ChainSafe/ChainBridgeV2/chainbridge//core"
 
 func InitializeChain(cfg *core.ChainConfig) *core.Chain {
 	c := core.NewChain(cfg)

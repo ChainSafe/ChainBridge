@@ -4,9 +4,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
-	"github.com/ChainSafe/ChainBridgeV2/core"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/chains/ethereum"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/core"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/keystore"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -27,6 +27,10 @@ var accountFlags = []cli.Flag{
 	Ed25519Flag,
 	Sr25519Flag,
 	Secp256k1Flag,
+}
+
+var devFlags = []cli.Flag{
+	TestKeyFlag,
 }
 
 var accountCommand = cli.Command{
@@ -54,6 +58,7 @@ func init() {
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)
+	app.Flags = append(app.Flags, devFlags...)
 }
 
 func main() {
@@ -91,7 +96,12 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-	ks := keystore.NewKeystore(cfg.keystorePath)
+	var ks *keystore.Keystore
+	if key := ctx.GlobalString(TestKeyFlag.Name); key != "" {
+		ks = keystore.NewTestKeystore(ctx.GlobalString(TestKeyFlag.Name))
+	} else {
+		ks = keystore.NewKeystore(cfg.keystorePath)
+	}
 
 	// TODO: Load chains iteratively
 	eth := ethereum.InitializeChain(&core.ChainConfig{

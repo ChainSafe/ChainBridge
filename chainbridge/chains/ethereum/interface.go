@@ -3,7 +3,7 @@ package ethereum
 import (
 	"math/big"
 
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
+	emitter "github.com/ChainSafe/ChainBridgeV2/chainbridge/contracts/Emitter"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"
 )

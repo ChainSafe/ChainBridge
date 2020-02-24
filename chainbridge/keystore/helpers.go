@@ -3,8 +3,8 @@ package keystore
 import (
 	"errors"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/crypto"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/crypto/secp256k1"
 )
 
 // PrivateKeyToKeypair returns a public, private keypair given a private key

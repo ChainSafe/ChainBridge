@@ -3,8 +3,8 @@ package ethereum
 import (
 	"math/big"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/chains"
+	msg "github.com/ChainSafe/ChainBridgeV2/chainbridge/message"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"

@@ -3,8 +3,8 @@ package ethereum
 import (
 	"strings"
 
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	emitter "github.com/ChainSafe/ChainBridgeV2/chainbridge/contracts/Emitter"
+	msg "github.com/ChainSafe/ChainBridgeV2/chainbridge/message"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"

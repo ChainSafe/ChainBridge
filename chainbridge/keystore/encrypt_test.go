@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/crypto/secp256k1"
 )
 
 func TestEncryptAndDecrypt(t *testing.T) {

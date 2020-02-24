@@ -1,8 +1,8 @@
 package centrifuge
 
 import (
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/chains"
+	msg "github.com/ChainSafe/ChainBridgeV2/chainbridge/message"
 )
 
 var _ chains.Writer = &Writer{}

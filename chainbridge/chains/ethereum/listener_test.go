@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/keystore"
 
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
+	emitter "github.com/ChainSafe/ChainBridgeV2/chainbridge/contracts/SimpleEmitter"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 )
@@ -17,8 +17,8 @@ func newLocalConnection(t *testing.T, emitter ethcmn.Address) *Connection {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		receiver: TestCentrifugeContractAddress,
-		keystore: keystore.NewTestKeystore(),
-		from:     "ethereum",
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+		from:     keystore.AliceKey,
 	}
 
 	conn := NewConnection(cfg)

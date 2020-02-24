@@ -9,11 +9,11 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/ed25519"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/crypto"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/crypto/ed25519"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/crypto/sr25519"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/keystore"
 
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"

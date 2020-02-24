@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/keystore"
+	msg "github.com/ChainSafe/ChainBridgeV2/chainbridge/message"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcmn "github.com/ethereum/go-ethereum/common"
@@ -31,7 +31,7 @@ func TestConnect(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		from:     "ethereum",
-		keystore: keystore.NewTestKeystore(),
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 	}
 	conn := NewConnection(cfg)
 	err := conn.Connect()
@@ -50,7 +50,8 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
+	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
+	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +80,7 @@ func TestSubscribe(t *testing.T) {
 	cfg := &Config{
 		id:       msg.EthereumId,
 		endpoint: TestEndpoint,
-		keystore: keystore.NewTestKeystore(),
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 		from:     "ethereum",
 	}
 
@@ -105,7 +106,9 @@ func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
 		t.Fatal(err)
 	}
 
-	nonce, err := conn.NonceAt(TestAddress, currBlock.Number())
+	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
+	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
+
 	if err != nil {
 		t.Fatal(err)
 	}

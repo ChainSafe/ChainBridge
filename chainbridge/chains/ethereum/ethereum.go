@@ -1,9 +1,9 @@
 package ethereum
 
 import (
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
-	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
-	"github.com/ChainSafe/ChainBridgeV2/core"
+	emitter "github.com/ChainSafe/ChainBridgeV2/chainbridge/contracts/Emitter"
+	receiver "github.com/ChainSafe/ChainBridgeV2/chainbridge/contracts/Receiver"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/core"
 )
 
 func InitializeChain(chainCfg *core.ChainConfig) *core.Chain {

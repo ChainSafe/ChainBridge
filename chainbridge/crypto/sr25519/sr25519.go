@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/crypto"
 	sr25519 "github.com/ChainSafe/go-schnorrkel"
 )
 
@@ -59,6 +59,7 @@ func NewKeypairFromPrivate(priv *PrivateKey) (*Keypair, error) {
 // NewKeypairFromSeed returns a new sr25519 Keypair given a seed
 func NewKeypairFromSeed(seed []byte) (*Keypair, error) {
 	buf := [SeedLength]byte{}
+	copy(buf[:], seed)
 	msc, err := sr25519.NewMiniSecretKeyFromRaw(buf)
 	if err != nil {
 		return nil, err

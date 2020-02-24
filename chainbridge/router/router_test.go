@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	msg "github.com/ChainSafe/ChainBridgeV2/chainbridge/message"
 )
 
 type mockWriter struct {

@@ -1,7 +1,7 @@
 package chains
 
 import (
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	msg "github.com/ChainSafe/ChainBridgeV2/chainbridge/message"
 )
 
 type Connection interface {

@@ -3,9 +3,9 @@ package ethereum
 import (
 	"math/big"
 
-	"github.com/ChainSafe/ChainBridgeV2/core"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/core"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/keystore"
+	msg "github.com/ChainSafe/ChainBridgeV2/chainbridge/message"
 	"github.com/ethereum/go-ethereum/common"
 )
 

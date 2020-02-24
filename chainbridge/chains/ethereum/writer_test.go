@@ -5,10 +5,10 @@ import (
 	"math/big"
 	"testing"
 
-	centrifuge "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
-	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	centrifuge "github.com/ChainSafe/ChainBridgeV2/chainbridge/contracts/BridgeAsset"
+	receiver "github.com/ChainSafe/ChainBridgeV2/chainbridge/contracts/Receiver"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/keystore"
+	msg "github.com/ChainSafe/ChainBridgeV2/chainbridge/message"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -106,8 +106,8 @@ func TestResolveMessage(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		receiver: TestCentrifugeContractAddress,
-		keystore: keystore.NewTestKeystore(),
-		from:     "ethereum",
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+		from:     keystore.AliceKey,
 	}
 
 	conn := NewConnection(cfg)
@@ -126,8 +126,8 @@ func TestResolveMessage(t *testing.T) {
 func TestWriteToReceiverContract(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		keystore: keystore.NewTestKeystore(),
-		from:     "ethereum",
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+		from:     keystore.AliceKey,
 	}
 
 	conn := NewConnection(cfg)
@@ -158,9 +158,8 @@ func TestWriter_createDepositProposal(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		receiver: TestCentrifugeContractAddress,
-
-		keystore: keystore.NewTestKeystore(),
-		from:     "ethereum",
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+		from:     keystore.AliceKey,
 	}
 
 	conn := NewConnection(cfg)
@@ -182,8 +181,8 @@ func TestWriter_voteDepositProposal(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		receiver: TestCentrifugeContractAddress,
-		keystore: keystore.NewTestKeystore(),
-		from:     "ethereum",
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+		from:     keystore.AliceKey,
 	}
 
 	conn := NewConnection(cfg)
@@ -205,8 +204,8 @@ func TestWriter_executeDeposit(t *testing.T) {
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		receiver: TestCentrifugeContractAddress,
-		keystore: keystore.NewTestKeystore(),
-		from:     "ethereum",
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+		from:     keystore.AliceKey,
 	}
 
 	conn := NewConnection(cfg)

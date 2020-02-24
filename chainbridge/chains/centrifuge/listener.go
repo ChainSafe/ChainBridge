@@ -3,8 +3,8 @@ package centrifuge
 import (
 	"fmt"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/chains"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/core"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/state"
 	"github.com/centrifuge/go-substrate-rpc-client/types"

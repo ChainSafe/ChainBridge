@@ -3,9 +3,9 @@ package core
 import (
 	"fmt"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/chains"
+	"github.com/ChainSafe/ChainBridgeV2/chainbridge/keystore"
+	msg "github.com/ChainSafe/ChainBridgeV2/chainbridge/message"
 	log "github.com/ChainSafe/log15"
 )
 
