@@ -54,7 +54,7 @@ var accountCommand = cli.Command{
 			Flags:    generateFlags,
 			Category: "KEYSTORE",
 			Description: "The generate subcommand is used to generate the bridge keystore.\n" +
-				"\tIf no options are specified, then a generic key will be made.",
+				"\tIf no options are specified, a secp256k1 key will be made.",
 		},
 	},
 }
