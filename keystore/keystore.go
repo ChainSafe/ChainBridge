@@ -24,9 +24,9 @@ func NewKeystore(path string) *Keystore {
 
 // KeypairFromAddress attempts to load the encrypted key file for the provided address,
 // prompting the user for the password.
-func (ks *Keystore) KeypairFromAddress(addr string) (crypto.Keypair, error) {
+func (ks *Keystore) KeypairFromAddress(addr string, chain_type string) (crypto.Keypair, error) {
 	if ks.insecure {
-		return ks.insecureKeypairFromAddress(addr)
+		return ks.insecureKeypairFromAddress(addr, chain_type)
 	}
 	path := fmt.Sprintf("%s/%s.key", ks.path, addr)
 	// Make sure key exists before prompting password

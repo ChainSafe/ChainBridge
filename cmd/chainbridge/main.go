@@ -31,6 +31,10 @@ var accountFlags = []cli.Flag{
 	Secp256k1Flag,
 }
 
+var devFlags = []cli.Flag{
+	TestKeyFlag,
+}
+
 var accountCommand = cli.Command{
 	Action:   handleAccountsCmd,
 	Name:     "accounts",
@@ -56,6 +60,7 @@ func init() {
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)
+	app.Flags = append(app.Flags, devFlags...)
 }
 
 func main() {
@@ -93,7 +98,12 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-	ks := keystore.NewKeystore(cfg.keystorePath)
+	var ks *keystore.Keystore
+	if key := ctx.GlobalString(TestKeyFlag.Name); key != "" {
+		ks = keystore.NewTestKeystore(ctx.GlobalString(TestKeyFlag.Name))
+	} else {
+		ks = keystore.NewKeystore(cfg.keystorePath)
+	}
 
 	c := core.NewCore(nil)
 

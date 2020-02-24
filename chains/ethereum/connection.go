@@ -7,6 +7,7 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	"github.com/ChainSafe/log15"
 
 	eth "github.com/ethereum/go-ethereum"
@@ -29,7 +30,7 @@ type Connection struct {
 }
 
 func NewConnection(cfg *Config) *Connection {
-    signer := ethtypes.HomesteadSigner{}
+	signer := ethtypes.HomesteadSigner{}
 	return &Connection{
 		ctx: context.Background(),
 		cfg: *cfg,
@@ -40,7 +41,7 @@ func NewConnection(cfg *Config) *Connection {
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	kp, err := c.cfg.keystore.KeypairFromAddress(c.cfg.from)
+	kp, err := c.cfg.keystore.KeypairFromAddress(c.cfg.from, keystore.ETHChain)
 	if err != nil {
 		return err
 	}
