@@ -2,6 +2,7 @@ package ethereum
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -70,7 +71,7 @@ func (l *Listener) Start() error {
 func (l *Listener) buildQuery(contract ethcommon.Address, sig EventSig) eth.FilterQuery {
 
 	query := eth.FilterQuery{
-		FromBlock: 0,
+		FromBlock: big.NewInt(0),
 		Addresses: []ethcommon.Address{contract},
 		Topics: [][]ethcommon.Hash{
 			{sig.GetTopic()},
