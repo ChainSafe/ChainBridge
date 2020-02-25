@@ -20,8 +20,11 @@ var cliFlags = []cli.Flag{
 }
 
 var accountFlags = []cli.Flag{
-	ImportFlag,
 	ListFlag,
+}
+
+var importFlags = []cli.Flag{
+	ImportFlag,
 }
 
 var generateFlags = []cli.Flag{
@@ -55,6 +58,22 @@ var accountCommand = cli.Command{
 			Category: "KEYSTORE",
 			Description: "The generate subcommand is used to generate the bridge keystore.\n" +
 				"\tIf no options are specified, a secp256k1 key will be made.",
+		},
+		{
+			Action:      handleImportCmd,
+			Name:        "import",
+			Usage:       "import bridge keystore",
+			Flags:       importFlags,
+			Category:    "KEYSTORE",
+			Description: "The import subcommand is used to import the bridge keystore.\n",
+		},
+		{
+			Action:      handleListCmd,
+			Name:        "list",
+			Usage:       "list bridge keystore",
+			Flags:       accountFlags,
+			Category:    "KEYSTORE",
+			Description: "The list subcommand is used to list the bridge keystore.\n",
 		},
 	},
 }

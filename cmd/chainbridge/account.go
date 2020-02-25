@@ -103,6 +103,53 @@ func handleGenerateCmd(ctx *cli.Context) error {
 	return nil
 }
 
+func handleImportCmd(ctx *cli.Context) error {
+	err := startLogger(ctx)
+	if err != nil {
+		return err
+	}
+
+	// key directory is datadir/keystore/
+	datadir, err := getDataDir(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to access the datadir: %s", err)
+	}
+
+	// import key
+	if keyimport := ctx.String(ImportFlag.Name); keyimport != "" {
+		log.Info("Importing key...")
+		_, err = importKey(keyimport, datadir)
+		if err != nil {
+			return fmt.Errorf("failed to import key: %s", err)
+		}
+	}
+
+	return nil
+}
+
+func handleListCmd(ctx *cli.Context) error {
+	err := startLogger(ctx)
+	if err != nil {
+		return err
+	}
+
+	// key directory is datadir/keystore/
+	datadir, err := getDataDir(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to access the datadir: %s", err)
+	}
+
+	// list keys
+	if keylist := ctx.Bool(ListFlag.Name); keylist {
+		_, err = listKeys(datadir)
+		if err != nil {
+			return fmt.Errorf("failed to list keys: %s", err)
+		}
+	}
+
+	return nil
+}
+
 func getDataDir(ctx *cli.Context) (string, error) {
 	// key directory is datadir/keystore/
 	if dir := ctx.GlobalString(KeystorePathFlag.Name); dir != "" {
