@@ -257,7 +257,7 @@ async function erc20Transfer() {
         console.log("[ERC20 Transfer] Pre token balaance: ", prebal.toNumber());
 
         // Make the deposit
-        await emitterInstance.depositGenericErc(0, 1, validatorPubkeys[1], erc20Instance.address);
+        await emitterInstance.depositGenericErc(0, 1, validatorAddress[1], erc20Instance.address);
         console.log("[ERC20 Transfer] Created deposit!");
 
         // Check the balance after the deposit

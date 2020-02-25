@@ -1,9 +1,8 @@
 package ethereum
 
 const (
-	// In your configuration file, please register as many of the following events
 	DepositAsset = "DepositAsset"
-	NftTransfer  = "NFTTransfer"
+	NftTransfer  = "NftTransfer"
 	ErcTransfer  = "ErcTransfer"
 
 	// For internal usage only
