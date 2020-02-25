@@ -14,19 +14,18 @@ import (
 type Chain struct {
 	cfg      *core.ChainConfig // The config of the chain
 	conn     chains.Connection // THe chains connection
-	listener chains.Listener   // The listener of this chain
-	writer   chains.Writer     // The writer of the chain
+	listener *Listener   // The listener of this chain
+	writer   *Writer     // The writer of the chain
 }
 
-func newChain(cfg *core.ChainConfig) *core.Chain {
-	return &core.Chain{
+func newChain(cfg *core.ChainConfig) Chain {
+	return Chain{
 		cfg: cfg,
 	}
 }
 
-func InitializeChain(chainCfg *core.ChainConfig) *core.Chain {
+func InitializeChain(chainCfg *core.ChainConfig) *Chain {
 	cfg := ParseChainConfig(chainCfg)
-	c := newChain(chainCfg)
 
 	conn := NewConnection(cfg)
 	err := conn.Connect()
@@ -54,10 +53,15 @@ func InitializeChain(chainCfg *core.ChainConfig) *core.Chain {
 	writer := NewWriter(conn, cfg)
 	writer.SetReceiverContract(instance)
 
-	return c
+	return &Chain{
+		cfg: chainCfg,
+		conn: conn,
+		writer: writer,
+		listener: listener,
+	}
 }
 
-func (c *core.Chain) Start() error {
+func (c *Chain) Start() error {
 	if c.conn == nil {
 		return fmt.Errorf("no connection specified")
 	}
@@ -82,15 +86,23 @@ func (c *core.Chain) Start() error {
 	return nil
 }
 
-func (c *core.Chain) Id() msg.ChainId {
+func (c *Chain) Id() msg.ChainId {
 	return c.cfg.Id
 }
 
-func (c *core.Chain) Connection() chains.Connection {
+func (c *Chain) Connection() chains.Connection {
 	return c.conn
 }
 
-func (c *core.Chain) Stop() error {
+func (c *Chain) GetWriter() chains.Writer {
+	return c.writer
+}
+
+func (c *Chain) GetListner() chains.Listener {
+	return c.listener
+}
+
+func (c *Chain) Stop() error {
 	err := c.listener.Stop()
 	if err != nil {
 		return err
