@@ -68,10 +68,9 @@ func (l *Listener) Start() error {
 // buildQuery constructs a query for the contract by hashing sig to get the event topic
 // TODO: Start from current block
 func (l *Listener) buildQuery(contract ethcommon.Address, sig EventSig) eth.FilterQuery {
-	currentBlock, _ := l.conn.LatestBlock()
 
 	query := eth.FilterQuery{
-		FromBlock: currentBlock.Number(),
+		FromBlock: 0,
 		Addresses: []ethcommon.Address{contract},
 		Topics: [][]ethcommon.Hash{
 			{sig.GetTopic()},
