@@ -8,6 +8,7 @@ import (
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/router"
 	log "github.com/ChainSafe/log15"
 )
 
@@ -53,6 +54,10 @@ func InitializeChain(chainCfg *core.ChainConfig) *Chain {
 		writer:   writer,
 		listener: listener,
 	}
+}
+
+func (c *Chain) SetRouter(r *router.Router) {
+	r.Listen(c.cfg.Id, c.writer)
 }
 
 func (c *Chain) Start() error {
