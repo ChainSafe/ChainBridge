@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "commander": "^4.0.1",
+    "rimraf": "^3.0.2",
     "truffle": "^5.1.4"
   }
 }
