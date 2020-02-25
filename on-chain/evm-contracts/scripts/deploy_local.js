@@ -64,10 +64,10 @@ const validatorPrivKeys = [
 let wallet = new ethers.Wallet(deployerPrivKey, provider);
 
 // These are deterministic
-const RECEIVER_ADDRESS = "0x705D4Fa884AF2Ae59C7780A0f201109947E2Bf6D";
-const CENTRIFUGE_ADDRESS = "0x290f41e61374c715C1127974bf08a3993afd0145";
-const EMITTER_ADDRESS = "0x1fA38b0EfccA4228EB9e15112D4d98B0CEe3c600";
-const TEST_EMITTER_ADDRESS = "0x70486404e42d17298c57b046Aa162Dc3aCc075f0";
+const RECEIVER_ADDRESS = "0x5842B333910Fe0BfA05F5Ea9F1602a40d1AF3584";
+const CENTRIFUGE_ADDRESS = "0xcB76d991cFCd621b477d705be7DdF5EA69D39C00";
+const EMITTER_ADDRESS = "0x3c747684333605408F9A4907DA043ee4c1A72D9c";
+const TEST_EMITTER_ADDRESS = "0x8090062239c909eB9b0433F1184c7DEf6124cc78";
 
 // Deployment is asynchronous, so we use an async IIFE
 (async function () {
@@ -254,7 +254,7 @@ async function erc20Transfer() {
         console.log("[ERC20 Transfer] Pre token balaance: ", prebal.toNumber());
 
         // Make the deposit
-        await emitterInstance.depositGenericErc(0, 1, validatorPubkeys[1], erc20Instance.address);
+        await emitterInstance.depositGenericErc(0, 1, validatorAddress[1], erc20Instance.address);
         console.log("[ERC20 Transfer] Created deposit!");
 
         // Check the balance after the deposit
@@ -299,8 +299,9 @@ async function erc721Transfer() {
         console.log("[ERC721 Transfer] Owner of token 1:", owner);
         
         // // Perform deposit
-        await emitterInstance.depositNFT(0, validatorPubkeys[1], erc721Instance.address, 1, "0x");
-        console.log("[ERC721 Transfer] Created deposit!");
+        const d = await emitterInstance.depositNFT(0, validatorAddress[1], erc721Instance.address, 1, "0x");
+        console.log("[ERC721 Transfer] Created deposit!")
+        console.log("[ERC721 Transfer] Deposit Hash", d.hash);
 
         // Check post balance
         const postbal = await erc721Instance.balanceOf(EMITTER_ADDRESS);
