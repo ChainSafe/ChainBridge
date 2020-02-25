@@ -2,16 +2,28 @@ package substrate
 
 import (
 	"testing"
+	"time"
+
+	"github.com/centrifuge/go-substrate-rpc-client/signature"
+	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
-var TestPolkadotEndpoint = "wss://poc3-rpc.polkadot.io"
+var TestEndpoint = "ws://127.0.0.1:9944"
 
 func TestConnect(t *testing.T) {
-	t.Skip()
-	// conn := NewConnection(TestPolkadotEndpoint)
-	// err := conn.Connect()
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-	// conn.Close()
+	conn := NewConnection(TestEndpoint)
+	conn.key = signature.TestKeyringPairAlice
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	err = conn.SubmitTx(WhitelistChainMethod, types.Bytes([]byte{10}))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	time.Sleep(time.Second * 5)
 }
+
