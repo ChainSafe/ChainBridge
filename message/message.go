@@ -24,10 +24,10 @@ type Message struct {
 	Data []byte      // data associated with event sequence
 }
 
-func (m *Message) EncodeCreateDepositProposalData(depositId, originChain *big.Int) {
+func (m *Message) EncodeCreateDepositProposalData(depositId *big.Int, originChain ChainId) {
 	hash := ethcrypto.Keccak256Hash(m.Data).Bytes()
 	depositIdBytes := byteSliceTo32Bytes(depositId.Bytes())
-	originChainBytes := byteSliceTo32Bytes(originChain.Bytes())
+	originChainBytes := byteSliceTo32Bytes(make([]byte, originChain))
 	m.Data = append(append(hash[:], depositIdBytes...), originChainBytes[:]...)
 }
 

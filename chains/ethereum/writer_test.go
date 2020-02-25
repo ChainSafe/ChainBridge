@@ -27,7 +27,7 @@ func testDepositAssetMessage(t *testing.T) msg.Message {
 
 func testCreateDepositProposalMessage(t *testing.T) msg.Message {
 	depositId := big.NewInt(0)
-	originChain := big.NewInt(1)
+	originChain := msg.ChainId(1)
 
 	m := &msg.Message{
 		Type: msg.CreateDepositProposalType,
