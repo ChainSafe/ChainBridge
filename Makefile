@@ -1,13 +1,14 @@
 PROJECTNAME=$(shell basename "$(PWD)")
 GOLANGCI := $(GOPATH)/bin/golangci-lint
 
+
 CENT_EMITTER_ADDR?=0x1
 CENT_CHAIN_ID?=0x1
 CENT_TO?=0x1234567890
 CENT_TOKEN_ID?=0x5
 CENT_METADATA?=0x0
 
-.PHONY: help run build install
+.PHONY: help run build install license
 all: help
 
 help: Makefile
@@ -98,12 +99,8 @@ bindings:
 	@echo " > \033[32mCreating go bindings for ethereum contracts... \033[0m "
 	./scripts/evm/create_bindings.sh
 
-
-$(ADDLICENSE):
-	go get -u github.com/google/addlicense
-
 ## license: Adds license header to missing files, go gets addLicense if missing. Runs `addlicense -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .` on project files.
-.PHONY: license
-license: $(ADDLICENSE)
+license: 
+	go get -u github.com/google/addlicense
 	@echo "  >  \033[32mAdding license headers...\033[0m "
 	addlicense -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .
