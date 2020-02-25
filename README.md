@@ -1,5 +1,7 @@
 # ChainBridge V2
 
+[![Build Status](https://travis-ci.com/ChainSafe/ChainBridgeV2.svg?branch=master)](https://travis-ci.com/ChainSafe/ChainBridgeV2)
+
 # **[WIP]**
 
 # Chain configs
