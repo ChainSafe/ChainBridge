@@ -2,17 +2,21 @@
 
 set -e
 
-contract_path="on-chain/evm-contracts/contracts"
 contract_binding_path="on-chain/evm-contracts/"
-contract_json_path=./on-chain/evm-contracts/contracts
+base_path="./build/tmp"
+BIN_DIR="$base_path/bin"
+ABI_DIR="$base_path/abi"
+GO_DIR="$base_path/go"
 
-BIN_DIR=build/bindings/bin
-ABI_DIR=build/bindings/abi
-GO_DIR=build/bindings/go
+# Remove old bin and abi
+echo "Removing old builds..."
+rm -rf $base_path
+mkdir $base_path
+mkdir $ABI_DIR
+mkdir $BIN_DIR
+mkdir $GO_DIR
 
-mkdir ./build/bindings
-mkdir ./build/bindings/go
-
+echo "Copying new builds to root..."
 cp -r $contract_binding_path/bindings/abi $ABI_DIR
 cp -r $contract_binding_path/bindings/bin $BIN_DIR
 
@@ -29,6 +33,12 @@ do
     abigen --abi $ABI_DIR/${value}.abi --pkg $value --type $value --bin $BIN_DIR/${value}.bin --out $GO_DIR/$value/$value.go
 done
 
+# Remove old bindings
 rm -rf ./contracts
 mkdir ./contracts
+
+# Copy in new bindings
 cp -r $GO_DIR ./contracts
+
+# cleanup tmp
+rm -rf ./build/tmp
