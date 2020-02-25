@@ -14,14 +14,8 @@ import (
 type Chain struct {
 	cfg      *core.ChainConfig // The config of the chain
 	conn     chains.Connection // THe chains connection
-	listener *Listener   // The listener of this chain
-	writer   *Writer     // The writer of the chain
-}
-
-func newChain(cfg *core.ChainConfig) Chain {
-	return Chain{
-		cfg: cfg,
-	}
+	listener *Listener         // The listener of this chain
+	writer   *Writer           // The writer of the chain
 }
 
 func InitializeChain(chainCfg *core.ChainConfig) *Chain {
@@ -54,9 +48,9 @@ func InitializeChain(chainCfg *core.ChainConfig) *Chain {
 	writer.SetReceiverContract(instance)
 
 	return &Chain{
-		cfg: chainCfg,
-		conn: conn,
-		writer: writer,
+		cfg:      chainCfg,
+		conn:     conn,
+		writer:   writer,
 		listener: listener,
 	}
 }
