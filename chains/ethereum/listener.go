@@ -99,6 +99,7 @@ func (l *Listener) watchEvent(eventSubscription *Subscription, handler func(inte
 	for {
 		select {
 		case evt := <-eventSubscription.ch:
+			log15.Trace("Event found")
 			m := handler(evt)
 			err := l.router.Send(m)
 			if err != nil {
