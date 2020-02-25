@@ -2,7 +2,6 @@ package substrate
 
 import (
 	"testing"
-	"time"
 
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
@@ -23,7 +22,5 @@ func TestConnect(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	time.Sleep(time.Second * 5)
 }
 

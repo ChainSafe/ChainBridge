@@ -1,9 +1,6 @@
 package substrate
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/author"
@@ -53,30 +50,33 @@ func (c *Connection) Connect() error {
 
 func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	log15.Debug("Submitting substrate call...", "method", method)
-	// Create call
-	call, err := types.NewCall(c.meta, method.String(), args)
-	if err != nil {
-		return err
-	}
-	// Create the extrinsic
+
+	// Create call and extrinsic
+	call, err := types.NewCall(
+		c.meta,
+		method.String(),
+		args...,
+	)
 	ext := types.NewExtrinsic(call)
 
+	// Get latest runtime version
 	rv, err := c.api.RPC.State.GetRuntimeVersionLatest()
 	if err != nil {
 		return err
 	}
 
-	key, err := types.CreateStorageKey(c.meta, "System", "AccountNonce", c.key.PublicKey, nil)
+	// Fetch account nonce
+	key, err := types.CreateStorageKey(c.meta, "System", "AccountNonce", signature.TestKeyringPairAlice.PublicKey, nil)
 	if err != nil {
 		return err
 	}
-
 	var nonce uint32
 	err = c.api.RPC.State.GetStorageLatest(key, &nonce)
 	if err != nil {
 		return err
 	}
 
+	// Sign the extrinsic
 	o := types.SignatureOptions{
 		BlockHash:   c.genesisHash,
 		Era:         types.ExtrinsicEra{IsMortalEra: false},
@@ -85,17 +85,18 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 		SpecVersion: rv.SpecVersion,
 		Tip:         0,
 	}
-
-	// Sign the transaction using Alice's default account
 	err = ext.Sign(c.key, o)
-	log15.Debug("Ext complete", "signed", ext.IsSigned(), "method", ext.Method)
 	if err != nil {
 		return err
 	}
 
+	// Submit and watch the extrinsic
 	sub, err := c.api.RPC.Author.SubmitAndWatchExtrinsic(ext)
+	if err != nil {
+		return err
+	}
 	log15.Debug("Extrinsic submission succeeded")
-	time.Sleep(time.Second * 1)
+	defer sub.Unsubscribe()
 	return watchSubmission(sub)
 }
 
@@ -104,7 +105,7 @@ func watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 		select {
 		case status := <-sub.Chan():
 			if status.IsFinalized {
-				fmt.Println("Extrinsic successful.")
+				log15.Trace("Successful extrinsic finalized")
 				return nil
 			}
 		case err := <-sub.Err():
@@ -112,7 +113,6 @@ func watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 		}
 	}
 }
-
 
 // Subscribe creates a subscription to all events
 func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
@@ -133,5 +133,5 @@ func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
 }
 
 func (c *Connection) Close() {
-	// Do nothing for now
+	// TODO: Anything required to shutdown GRPC?
 }
