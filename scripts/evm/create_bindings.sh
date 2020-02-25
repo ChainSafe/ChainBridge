@@ -12,7 +12,7 @@ set -e
 pushd ./on-chain/evm-contracts
 
 # Generate bindings
-node ./scripts/genBindings.js
+node ./scripts/compileAbiBin.js
 
 # Go back to root
 popd
