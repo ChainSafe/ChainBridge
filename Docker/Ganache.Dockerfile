@@ -1,3 +1,6 @@
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
+
 FROM node:12.14-alpine3.11
 
 RUN mkdir /app
