@@ -27,6 +27,7 @@ type Config struct {
 // RawChainConfig is parsed directly from the config file and should be using to construct the core.ChainConfig
 type RawChainConfig struct {
 	Name     string            `toml:"name"`
+	Type     string            `toml:"type"`
 	Id       msg.ChainId       `toml:"id"`       // ChainID
 	Endpoint string            `toml:"endpoint"` // url for rpc endpoint
 	From     string            `toml:"from"`     // address of key to use
