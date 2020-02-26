@@ -17,6 +17,5 @@ type Message struct {
 	Type        MessageType // type of bridge transfer
 	DepositId   uint32      // Nonce for the deposit
 	To          []byte      // Recipient
-	TokenId     uint32      // Identifier for the specific token
 	Metadata    []byte      // data associated with event sequence
 }
