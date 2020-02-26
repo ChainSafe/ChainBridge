@@ -19,7 +19,7 @@ var cliFlags = []cli.Flag{
 	KeystorePathFlag,
 }
 
-var accountFlags = []cli.Flag{
+var listFlags = []cli.Flag{
 	ListFlag,
 }
 
@@ -40,10 +40,9 @@ var devFlags = []cli.Flag{
 }
 
 var accountCommand = cli.Command{
-	Action:   wrapHandler(handleAccountsCmd),
 	Name:     "accounts",
 	Usage:    "manage bridge keystore",
-	Flags:    accountFlags,
+	Flags:    cliFlags,
 	Category: "KEYSTORE",
 	Description: "The account command is used to manage the bridge keystore.\n" +
 		"\tTo generate a new secp256k1 (Ethereum) account: bridge account --generate\n" +
@@ -71,7 +70,7 @@ var accountCommand = cli.Command{
 			Action:      wrapHandler(handleListCmd),
 			Name:        "list",
 			Usage:       "list bridge keystore",
-			Flags:       accountFlags,
+			Flags:       listFlags,
 			Category:    "KEYSTORE",
 			Description: "The list subcommand is used to list the bridge keystore.\n",
 		},
@@ -90,7 +89,6 @@ func init() {
 		accountCommand,
 	}
 
-	app.Flags = append(app.Flags, cliFlags...)
 	app.Flags = append(app.Flags, devFlags...)
 }
 

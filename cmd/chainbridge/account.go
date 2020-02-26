@@ -20,6 +20,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+// wrapHandler takes in a Cmd function (all declared below) and wraps
+// it in the correct signature for the Cli Commands
 func wrapHandler(hdl func(*cli.Context, string) error) cli.ActionFunc {
 
 	return func(ctx *cli.Context) error {
@@ -37,31 +39,7 @@ func wrapHandler(hdl func(*cli.Context, string) error) cli.ActionFunc {
 	}
 }
 
-// handleAccountsCmd manages the flags for the account subcommand
-// first, if the generate flag is set, if so, it generates a new keypair
-// then, if the import flag is set, if so, it imports a keypair
-// finally, if the list flag is set, it lists all the keys in the keystore
-func handleAccountsCmd(ctx *cli.Context, datadir string) error {
-	// import key
-	if keyimport := ctx.String(ImportFlag.Name); keyimport != "" {
-		log.Info("Importing key...")
-		_, err := importKey(keyimport, datadir)
-		if err != nil {
-			return fmt.Errorf("failed to import key: %s", err)
-		}
-	}
-
-	// list keys
-	if keylist := ctx.Bool(ListFlag.Name); keylist {
-		_, err := listKeys(datadir)
-		if err != nil {
-			return fmt.Errorf("failed to list keys: %s", err)
-		}
-	}
-
-	return nil
-}
-
+// handleGenerateCmd generates a keystore for the accounts
 func handleGenerateCmd(ctx *cli.Context, datadir string) error {
 
 	log.Info("Generating keypair...")
@@ -99,6 +77,7 @@ func handleGenerateCmd(ctx *cli.Context, datadir string) error {
 	return nil
 }
 
+// handleImportCmd imports external keystores into the bridge
 func handleImportCmd(ctx *cli.Context, datadir string) error {
 
 	// import key
@@ -113,6 +92,7 @@ func handleImportCmd(ctx *cli.Context, datadir string) error {
 	return nil
 }
 
+// handleListCmd lists all accounts currently in the bridge
 func handleListCmd(ctx *cli.Context, datadir string) error {
 
 	// list keys
@@ -126,6 +106,7 @@ func handleListCmd(ctx *cli.Context, datadir string) error {
 	return nil
 }
 
+// getDataDir obtains the path to the keystore and returns it as a string
 func getDataDir(ctx *cli.Context) (string, error) {
 	// key directory is datadir/keystore/
 	if dir := ctx.GlobalString(KeystorePathFlag.Name); dir != "" {
