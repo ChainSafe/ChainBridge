@@ -19,8 +19,6 @@ type Writer struct {
 	cfg              Config
 	conn             *Connection
 	receiverContract ReceiverContract // instance of bound receiver contract
-	gasLimit         string
-	gasPrice         string
 }
 
 func NewWriter(conn *Connection, cfg *Config) *Writer {
