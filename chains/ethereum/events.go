@@ -40,7 +40,7 @@ func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 		// TODO: Can we safely downsize?
 		DepositId: uint32(nftEvent.DepositId.Uint64()),
 		To:        nftEvent.To.Bytes(),
-		Metadata: nftEvent.Data,
+		Metadata:  nftEvent.Data,
 	}
 
 	return msg
