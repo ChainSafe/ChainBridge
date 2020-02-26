@@ -40,7 +40,7 @@ var devFlags = []cli.Flag{
 }
 
 var accountCommand = cli.Command{
-	Action:   handleAccountsCmd,
+	Action:   wrapHandler(handleAccountsCmd),
 	Name:     "accounts",
 	Usage:    "manage bridge keystore",
 	Flags:    accountFlags,
@@ -51,7 +51,7 @@ var accountCommand = cli.Command{
 		"\tTo list keys: bridge account --list",
 	Subcommands: []cli.Command{
 		{
-			Action:   handleGenerateCmd,
+			Action:   wrapHandler(handleGenerateCmd),
 			Name:     "generate",
 			Usage:    "generate bridge keystore",
 			Flags:    generateFlags,
@@ -60,7 +60,7 @@ var accountCommand = cli.Command{
 				"\tIf no options are specified, a secp256k1 key will be made.",
 		},
 		{
-			Action:      handleImportCmd,
+			Action:      wrapHandler(handleImportCmd),
 			Name:        "import",
 			Usage:       "import bridge keystore",
 			Flags:       importFlags,
@@ -68,7 +68,7 @@ var accountCommand = cli.Command{
 			Description: "The import subcommand is used to import the bridge keystore.\n",
 		},
 		{
-			Action:      handleListCmd,
+			Action:      wrapHandler(handleListCmd),
 			Name:        "list",
 			Usage:       "list bridge keystore",
 			Flags:       accountFlags,

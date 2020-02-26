@@ -20,26 +20,32 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+func wrapHandler(hdl func(*cli.Context, string) error) cli.ActionFunc {
+
+	return func(ctx *cli.Context) error {
+		err := startLogger(ctx)
+		if err != nil {
+			return err
+		}
+
+		datadir, err := getDataDir(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to access the datadir: %s", err)
+		}
+
+		return hdl(ctx, datadir)
+	}
+}
+
 // handleAccountsCmd manages the flags for the account subcommand
 // first, if the generate flag is set, if so, it generates a new keypair
 // then, if the import flag is set, if so, it imports a keypair
 // finally, if the list flag is set, it lists all the keys in the keystore
-func handleAccountsCmd(ctx *cli.Context) error {
-	err := startLogger(ctx)
-	if err != nil {
-		return err
-	}
-
-	// key directory is datadir/keystore/
-	datadir, err := getDataDir(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to access the datadir: %s", err)
-	}
-
+func handleAccountsCmd(ctx *cli.Context, datadir string) error {
 	// import key
 	if keyimport := ctx.String(ImportFlag.Name); keyimport != "" {
 		log.Info("Importing key...")
-		_, err = importKey(keyimport, datadir)
+		_, err := importKey(keyimport, datadir)
 		if err != nil {
 			return fmt.Errorf("failed to import key: %s", err)
 		}
@@ -47,7 +53,7 @@ func handleAccountsCmd(ctx *cli.Context) error {
 
 	// list keys
 	if keylist := ctx.Bool(ListFlag.Name); keylist {
-		_, err = listKeys(datadir)
+		_, err := listKeys(datadir)
 		if err != nil {
 			return fmt.Errorf("failed to list keys: %s", err)
 		}
@@ -56,17 +62,7 @@ func handleAccountsCmd(ctx *cli.Context) error {
 	return nil
 }
 
-func handleGenerateCmd(ctx *cli.Context) error {
-	err := startLogger(ctx)
-	if err != nil {
-		return err
-	}
-
-	// key directory is datadir/keystore/
-	datadir, err := getDataDir(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to access the datadir: %s", err)
-	}
+func handleGenerateCmd(ctx *cli.Context, datadir string) error {
 
 	log.Info("Generating keypair...")
 
@@ -96,29 +92,19 @@ func handleGenerateCmd(ctx *cli.Context) error {
 		}
 	}
 
-	_, err = generateKeypair(keytype, datadir, password, privKey)
+	_, err := generateKeypair(keytype, datadir, password, privKey)
 	if err != nil {
 		return fmt.Errorf("failed to generate key: %s", err)
 	}
 	return nil
 }
 
-func handleImportCmd(ctx *cli.Context) error {
-	err := startLogger(ctx)
-	if err != nil {
-		return err
-	}
-
-	// key directory is datadir/keystore/
-	datadir, err := getDataDir(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to access the datadir: %s", err)
-	}
+func handleImportCmd(ctx *cli.Context, datadir string) error {
 
 	// import key
 	if keyimport := ctx.String(ImportFlag.Name); keyimport != "" {
 		log.Info("Importing key...")
-		_, err = importKey(keyimport, datadir)
+		_, err := importKey(keyimport, datadir)
 		if err != nil {
 			return fmt.Errorf("failed to import key: %s", err)
 		}
@@ -127,21 +113,11 @@ func handleImportCmd(ctx *cli.Context) error {
 	return nil
 }
 
-func handleListCmd(ctx *cli.Context) error {
-	err := startLogger(ctx)
-	if err != nil {
-		return err
-	}
-
-	// key directory is datadir/keystore/
-	datadir, err := getDataDir(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to access the datadir: %s", err)
-	}
+func handleListCmd(ctx *cli.Context, datadir string) error {
 
 	// list keys
 	if keylist := ctx.Bool(ListFlag.Name); keylist {
-		_, err = listKeys(datadir)
+		_, err := listKeys(datadir)
 		if err != nil {
 			return fmt.Errorf("failed to list keys: %s", err)
 		}
