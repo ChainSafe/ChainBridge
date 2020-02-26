@@ -23,9 +23,13 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+type dataHandler struct {
+	datadir string
+}
+
 // wrapHandler takes in a Cmd function (all declared below) and wraps
 // it in the correct signature for the Cli Commands
-func wrapHandler(hdl func(*cli.Context, string) error) cli.ActionFunc {
+func wrapHandler(hdl func(*cli.Context, *dataHandler) error) cli.ActionFunc {
 
 	return func(ctx *cli.Context) error {
 		err := startLogger(ctx)
@@ -38,12 +42,12 @@ func wrapHandler(hdl func(*cli.Context, string) error) cli.ActionFunc {
 			return fmt.Errorf("failed to access the datadir: %s", err)
 		}
 
-		return hdl(ctx, datadir)
+		return hdl(ctx, &dataHandler{datadir: datadir})
 	}
 }
 
 // handleGenerateCmd generates a keystore for the accounts
-func handleGenerateCmd(ctx *cli.Context, datadir string) error {
+func handleGenerateCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 	log.Info("Generating keypair...")
 
@@ -73,7 +77,7 @@ func handleGenerateCmd(ctx *cli.Context, datadir string) error {
 		}
 	}
 
-	_, err := generateKeypair(keytype, datadir, password, privKey)
+	_, err := generateKeypair(keytype, dHandler.datadir, password, privKey)
 	if err != nil {
 		return fmt.Errorf("failed to generate key: %s", err)
 	}
@@ -81,12 +85,12 @@ func handleGenerateCmd(ctx *cli.Context, datadir string) error {
 }
 
 // handleImportCmd imports external keystores into the bridge
-func handleImportCmd(ctx *cli.Context, datadir string) error {
+func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 	// import key
 	if keyimport := ctx.String(ImportFlag.Name); keyimport != "" {
 		log.Info("Importing key...")
-		_, err := importKey(keyimport, datadir)
+		_, err := importKey(keyimport, dHandler.datadir)
 		if err != nil {
 			return fmt.Errorf("failed to import key: %s", err)
 		}
@@ -96,11 +100,11 @@ func handleImportCmd(ctx *cli.Context, datadir string) error {
 }
 
 // handleListCmd lists all accounts currently in the bridge
-func handleListCmd(ctx *cli.Context, datadir string) error {
+func handleListCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 	// list keys
 	if keylist := ctx.Bool(ListFlag.Name); keylist {
-		_, err := listKeys(datadir)
+		_, err := listKeys(dHandler.datadir)
 		if err != nil {
 			return fmt.Errorf("failed to list keys: %s", err)
 		}
