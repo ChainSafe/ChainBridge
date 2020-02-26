@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
+
 
 set -e
 
@@ -17,8 +20,8 @@ mkdir $BIN_DIR
 mkdir $GO_DIR
 
 echo "Copying new builds to root..."
-cp -r $contract_binding_path/bindings/abi $ABI_DIR
-cp -r $contract_binding_path/bindings/bin $BIN_DIR
+cp -r $contract_binding_path/bindings/abi/* $ABI_DIR
+cp -r $contract_binding_path/bindings/bin/* $BIN_DIR
 
 for file in "$BIN_DIR"/*.bin
 do
@@ -27,7 +30,7 @@ do
     echo Compiling file $value from path $file
 
     # Create the go package directory
-    mkdir ./contracts/$value
+    mkdir $GO_DIR/$value
     
     # Build the go package
     abigen --abi $ABI_DIR/${value}.abi --pkg $value --type $value --bin $BIN_DIR/${value}.bin --out $GO_DIR/$value/$value.go
@@ -38,7 +41,7 @@ rm -rf ./contracts
 mkdir ./contracts
 
 # Copy in new bindings
-cp -r $GO_DIR ./contracts
+cp -r $GO_DIR/* ./contracts
 
 # cleanup tmp
 rm -rf ./build/tmp
