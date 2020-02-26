@@ -51,6 +51,8 @@ func (c *Connection) Connect() error {
 	return nil
 }
 
+// SubmitTx constructs and submits an extrinsic to call the method with the given arguments.
+// All args are passed directly into GSRPC. GSRPC types are recommended to avoid serialization inconsistencies.
 func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	log15.Debug("Submitting substrate call...", "method", method)
 
@@ -117,7 +119,7 @@ func watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 	}
 }
 
-// Subscribe creates a subscription to all events
+// Subscribe creates a subscription to all events.
 func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
 	meta, err := c.api.RPC.State.GetMetadataLatest()
 	if err != nil {

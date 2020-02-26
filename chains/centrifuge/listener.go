@@ -16,14 +16,14 @@ import (
 var _ chains.Listener = &Listener{}
 
 type Listener struct {
-	cfg           core.ChainConfig
+	cfg           *core.ChainConfig
 	conn          *Connection
 	sub           *state.StorageSubscription     // Subscription to all events
 	subscriptions map[string]chains.EvtHandlerFn // Handlers for specific events
 	router        chains.Router
 }
 
-func NewListener(conn *Connection, cfg core.ChainConfig) *Listener {
+func NewListener(conn *Connection, cfg *core.ChainConfig) *Listener {
 	return &Listener{
 		cfg:           cfg,
 		conn:          conn,

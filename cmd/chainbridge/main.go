@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 
+	substrate "github.com/ChainSafe/ChainBridgeV2/chains/centrifuge"
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
@@ -136,7 +137,7 @@ func run(ctx *cli.Context) error {
 				Opts:          chain.Opts,
 			})
 		} else if chain.Type == "substrate" {
-			chainconfig = ethereum.InitializeChain(&core.ChainConfig{
+			chainconfig = substrate.InitializeChain(&core.ChainConfig{
 				Id:       chain.Id,
 				Endpoint: chain.Endpoint,
 				From:     chain.From,

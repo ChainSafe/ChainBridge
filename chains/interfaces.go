@@ -9,7 +9,6 @@ import (
 
 type Connection interface {
 	Connect() error
-	// SubmitTx([]byte) error
 	Close()
 }
 
