@@ -11,6 +11,7 @@ require (
 	github.com/centrifuge/go-substrate-rpc-client v0.0.4-0.20200117100327-4dc63dc6b2e6
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/ethereum/go-ethereum v1.9.10
+	github.com/google/addlicense v0.0.0-20200222194535-20ee99ff6ab8 // indirect
 	github.com/naoina/toml v0.1.2-0.20170918210437-9fafd6967416
 	github.com/pierrec/xxHash v0.1.5 // indirect
 	github.com/rs/cors v1.7.0 // indirect
