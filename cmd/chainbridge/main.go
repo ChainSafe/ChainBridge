@@ -20,10 +20,13 @@ var cliFlags = []cli.Flag{
 }
 
 var accountFlags = []cli.Flag{
-	GenerateFlag,
-	PasswordFlag,
 	ImportFlag,
 	ListFlag,
+}
+
+var generateFlags = []cli.Flag{
+	PrivateKeyFlag,
+	PasswordFlag,
 	Ed25519Flag,
 	Sr25519Flag,
 	Secp256k1Flag,
@@ -43,6 +46,17 @@ var accountCommand = cli.Command{
 		"\tTo generate a new secp256k1 (Ethereum) account: bridge account --generate\n" +
 		"\tTo import a keystore file: bridge account --import=path/to/file\n" +
 		"\tTo list keys: bridge account --list",
+	Subcommands: []cli.Command{
+		{
+			Action:   handleGenerateCmd,
+			Name:     "generate",
+			Usage:    "generate bridge keystore",
+			Flags:    generateFlags,
+			Category: "KEYSTORE",
+			Description: "The generate subcommand is used to generate the bridge keystore.\n" +
+				"\tIf no options are specified, a secp256k1 key will be made.",
+		},
+	},
 }
 
 // init initializes CLI

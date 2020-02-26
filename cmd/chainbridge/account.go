@@ -31,39 +31,9 @@ func handleAccountsCmd(ctx *cli.Context) error {
 	}
 
 	// key directory is datadir/keystore/
-	var datadir string
-	if dir := ctx.GlobalString(KeystorePathFlag.Name); dir != "" {
-		datadir, err = filepath.Abs(dir)
-		if err != nil {
-			return err
-		}
-		log.Trace(fmt.Sprintf("Using keystore dir: %s", datadir))
-	}
-
-	// check if we want to generate a new keypair
-	if keygen := ctx.Bool(GenerateFlag.Name); keygen {
-		log.Info("Generating keypair...")
-
-		// check if --ed25519 or --sr25519 is set
-		keytype := crypto.Secp256k1Type
-		if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
-			keytype = crypto.Sr25519Type
-		} else if flagtype := ctx.Bool(Ed25519Flag.Name); flagtype {
-			keytype = crypto.Ed25519Type
-		} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
-			keytype = crypto.Secp256k1Type
-		}
-
-		// check if --password is set
-		var password []byte = nil
-		if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
-			password = []byte(pwdflag)
-		}
-
-		_, err = generateKeypair(keytype, datadir, password)
-		if err != nil {
-			return fmt.Errorf("failed to generate key: %s", err)
-		}
+	datadir, err := getDataDir(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to access the datadir: %s", err)
 	}
 
 	// import key
@@ -84,6 +54,66 @@ func handleAccountsCmd(ctx *cli.Context) error {
 	}
 
 	return nil
+}
+
+func handleGenerateCmd(ctx *cli.Context) error {
+	err := startLogger(ctx)
+	if err != nil {
+		return err
+	}
+
+	// key directory is datadir/keystore/
+	datadir, err := getDataDir(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to access the datadir: %s", err)
+	}
+
+	log.Info("Generating keypair...")
+
+	// check if --ed25519 or --sr25519 is set
+	keytype := crypto.Secp256k1Type
+	if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
+		keytype = crypto.Sr25519Type
+	} else if flagtype := ctx.Bool(Ed25519Flag.Name); flagtype {
+		keytype = crypto.Ed25519Type
+	} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
+		keytype = crypto.Secp256k1Type
+	}
+
+	// check if --password is set
+	var password []byte = nil
+	if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
+		password = []byte(pwdflag)
+	}
+
+	var privKey string = ""
+	if privkeyflag := ctx.String(PrivateKeyFlag.Name); privkeyflag != "" {
+		// Hex must not have leading 0x
+		if privkeyflag[0:2] == "0x" {
+			privKey = privkeyflag[2:]
+		} else {
+			privKey = privkeyflag
+		}
+	}
+
+	_, err = generateKeypair(keytype, datadir, password, privKey)
+	if err != nil {
+		return fmt.Errorf("failed to generate key: %s", err)
+	}
+	return nil
+}
+
+func getDataDir(ctx *cli.Context) (string, error) {
+	// key directory is datadir/keystore/
+	if dir := ctx.GlobalString(KeystorePathFlag.Name); dir != "" {
+		datadir, err := filepath.Abs(dir)
+		if err != nil {
+			return "", err
+		}
+		log.Trace(fmt.Sprintf("Using keystore dir: %s", datadir))
+		return datadir, nil
+	}
+	return "", fmt.Errorf("datadir flag not supplied")
 }
 
 // importKey imports a key specified by its filename to datadir/keystore/
@@ -162,7 +192,7 @@ func getKeyFiles(datadir string) ([]string, error) {
 // generateKeypair create a new keypair with the corresponding type and saves it to datadir/keystore/[public key].key
 // in json format encrypted using the specified password
 // it returns the resulting filepath of the new key
-func generateKeypair(keytype, datadir string, password []byte) (string, error) {
+func generateKeypair(keytype, datadir string, password []byte, privateKey string) (string, error) {
 	if password == nil {
 		password = getPassword("Enter password to encrypt keystore file:")
 	}
@@ -189,9 +219,16 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 		}
 	} else if keytype == crypto.Secp256k1Type {
 		// generate secp256k1 keys
-		kp, err = secp256k1.GenerateKeypair()
-		if err != nil {
-			return "", fmt.Errorf("could not generate secp256k1 keypair: %s", err)
+		if privateKey != "" {
+			kp, err = secp256k1.NewKeypairFromString(privateKey)
+			if err != nil {
+				return "", fmt.Errorf("could not generate secp256k1 keypair from given string: %s", err)
+			}
+		} else {
+			kp, err = secp256k1.GenerateKeypair()
+			if err != nil {
+				return "", fmt.Errorf("could not generate secp256k1 keypair: %s", err)
+			}
 		}
 	}
 
