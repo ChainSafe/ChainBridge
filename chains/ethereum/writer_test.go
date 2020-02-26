@@ -111,6 +111,8 @@ func TestResolveMessage(t *testing.T) {
 		receiver: TestCentrifugeContractAddress,
 		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 		from:     keystore.AliceKey,
+		gasLimit: big.NewInt(6721975),
+		gasPrice: big.NewInt(20000000000),
 	}
 
 	conn := NewConnection(cfg)
