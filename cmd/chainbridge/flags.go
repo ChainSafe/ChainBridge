@@ -26,14 +26,6 @@ var (
 
 // Account management flags
 var (
-	GenerateFlag = cli.BoolFlag{
-		Name:  "generate",
-		Usage: "Generate a new keypair. If type is not specified, defaults to secp256k1",
-	}
-	PasswordFlag = cli.StringFlag{
-		Name:  "password",
-		Usage: "Password used to encrypt the keystore. Used with --generate or --unlock",
-	}
 	ImportFlag = cli.StringFlag{
 		Name:  "import",
 		Usage: "Import encrypted keystore file generated with bridge cli",
@@ -41,6 +33,18 @@ var (
 	ListFlag = cli.BoolFlag{
 		Name:  "list",
 		Usage: "List node keys",
+	}
+)
+
+// Generate subcommand flags
+var (
+	PrivateKeyFlag = cli.StringFlag{
+		Name:  "privateKey",
+		Usage: "Hex string private key used to generate a keypair.",
+	}
+	PasswordFlag = cli.StringFlag{
+		Name:  "password",
+		Usage: "Password used to encrypt the keystore. Used with --generate or --unlock",
 	}
 	Ed25519Flag = cli.BoolFlag{
 		Name:  "ed25519",
