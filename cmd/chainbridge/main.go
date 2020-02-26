@@ -4,6 +4,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"strconv"
 
@@ -120,31 +121,37 @@ func run(ctx *cli.Context) error {
 		ks = keystore.NewKeystore(cfg.keystorePath)
 	}
 
-	// TODO: Load chains iteratively
-	eth := ethereum.InitializeChain(&core.ChainConfig{
-		Id:       cfg.Chains[0].Id,
-		Endpoint: cfg.Chains[0].Endpoint,
-		From:     cfg.Chains[0].From,
-		// TODO remove this in favour of OPTS when config PR lands
-		Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
-		Keystore:      ks,
-		Opts:          cfg.Chains[0].Opts,
-	})
-
-	// TODO: Load chains iteratively
-	ctfg := ethereum.InitializeChain(&core.ChainConfig{
-		Id:       cfg.Chains[1].Id,
-		Endpoint: cfg.Chains[1].Endpoint,
-		From:     cfg.Chains[1].From,
-		// TODO remove this in favour of OPTS when config PR lands
-		Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
-		Keystore:      ks,
-		Opts:          cfg.Chains[1].Opts,
-	})
-
 	c := core.NewCore(nil)
-	c.AddChain(eth)
-	c.AddChain(ctfg)
+
+	for _, chain := range cfg.Chains {
+		var chainconfig core.Chain
+		if chain.Type == "ethereum" {
+			chainconfig = ethereum.InitializeChain(&core.ChainConfig{
+				Id:       chain.Id,
+				Endpoint: chain.Endpoint,
+				From:     chain.From,
+				// TODO remove this in favour of OPTS when config PR lands
+				Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
+				Keystore:      ks,
+				Opts:          chain.Opts,
+			})
+		} else if chain.Type == "substrate" {
+			chainconfig = ethereum.InitializeChain(&core.ChainConfig{
+				Id:       chain.Id,
+				Endpoint: chain.Endpoint,
+				From:     chain.From,
+				// TODO remove this in favour of OPTS when config PR lands
+				Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
+				Keystore:      ks,
+				Opts:          chain.Opts,
+			})
+		} else {
+			return errors.New("Unrecognized Chain Type")
+		}
+
+		c.AddChain(chainconfig)
+	}
+
 	c.Start()
 
 	return nil
