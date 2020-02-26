@@ -71,6 +71,10 @@ deploy_eth:
 docker_start:
 	./scripts/docker/start-docker.sh
 	
+build_cent:
+	@echo " > \033[32mBuilding centrifuge-chain... \033[0m "
+	./scripts/centrifuge/build_chain.sh
+
 start_cent:
 	@echo " > \033[32mStarting centrifuge-chain... \033[0m "
 	./scripts/centrifuge/run_chain.sh

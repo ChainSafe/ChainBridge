@@ -6,26 +6,53 @@ env:
     - GO111MODULE=on
 
 cache:
+  - cargo
   directories:
     - $HOME/.cache/go-build
     - $GOPATH/pkg/mod
+    - build/centrifuge-chain
 
-matrix:
+stages:
+  - "Build"
+  - "Test & Lint"
+
+jobs:
   include:
-    - language: go
+    - stage: "Build"
+      language: rust
+      rust: nightly
+      addons:
+        apt:
+          packages:
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+            - cmake
+            - gcc
+            - binutils-dev
+            - libiberty-dev
+      name: "Build centrifuge-chain"
+      script:
+        - make build_cent
+
+    - stage: "Test & Lint"
+      language: go
       go: 1.13.x
       name: "Golang-ci Linter"
       script: make lint
 
-    - language: go
+    - stage: "Test & Lint"
+      language: go
       go: 1.13.x
       name: "Run Go tests"
       script:
+          - make start_cent
           - SILENT=true make start_eth
           - make deploy_eth
           - make test
 
-    - language: node_js
+    - stage: "Test & Lint"
+      language: node_js
       node_js: 12
       name: "Run Truffle tests"
       env: CI=true
