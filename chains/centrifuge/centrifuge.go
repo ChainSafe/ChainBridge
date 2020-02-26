@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package centrifuge
 
 // import "github.com/ChainSafe/ChainBridgeV2/core"

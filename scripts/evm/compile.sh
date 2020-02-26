@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
+
 
 contract_path="./on-chain/evm-contracts/"
 build_dir="./build/evm-contracts/"
