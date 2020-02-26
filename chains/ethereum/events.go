@@ -15,7 +15,7 @@ func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 	log15.Debug("Handling deposit proposal event")
 	event := eventI.(ethtypes.Log)
 
-	contractAbi, err := abi.JSON(strings.NewReader(string(emitter.EmitterABI)))
+	contractAbi, err := abi.JSON(strings.NewReader(emitter.EmitterABI))
 	if err != nil {
 		log15.Error("Unable to decode event", err)
 	}
@@ -32,10 +32,15 @@ func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 
 	msg := msg.Message{
 		Type:        msg.CreateDepositProposalType,
+		Source:      l.cfg.id,
 		Destination: msg.ChainId(uint8(nftEvent.DestChain.Uint64())),
-		Data:        nftEvent.Data,
+		// TODO: Can we safely downsize?
+		DepositId: uint32(nftEvent.DepositId.Uint64()),
+		To:        nftEvent.To.Bytes(),
+		// TODO: Can we safely downsize?
+		TokenId:  uint32(nftEvent.TokenId.Uint64()),
+		Metadata: nftEvent.Data,
 	}
-	msg.EncodeCreateDepositProposalData(nftEvent.DepositId, l.cfg.id)
 
 	return msg
 }
@@ -44,7 +49,7 @@ func (l *Listener) handleTestDeposit(eventI interface{}) msg.Message {
 	event := eventI.(ethtypes.Log)
 	data := ethcrypto.Keccak256Hash(event.Topics[0].Bytes()).Bytes()
 	return msg.Message{
-		Type: msg.DepositAssetType,
-		Data: data,
+		Type:     msg.DepositAssetType,
+		Metadata: data,
 	}
 }

@@ -21,5 +21,5 @@ type Listener interface {
 type EvtHandlerFn func(interface{}) msg.Message
 
 type Writer interface {
-	ResolveMessage(message msg.Message)
+	ResolveMessage(message msg.Message) bool
 }
