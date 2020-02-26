@@ -68,7 +68,7 @@ var accountCommand = cli.Command{
 			Usage:       "import bridge keystore",
 			Flags:       importFlags,
 			Category:    "KEYSTORE",
-			Description: "The import subcommand is used to import the bridge keystore.\n",
+			Description: "The import subcommand is used to import a keystore for the bridge.\n",
 		},
 		{
 			Action:      wrapHandler(handleListCmd),
