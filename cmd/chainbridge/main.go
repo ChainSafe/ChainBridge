@@ -76,7 +76,7 @@ var accountCommand = cli.Command{
 			Usage:       "list bridge keystore",
 			Flags:       listFlags,
 			Category:    "KEYSTORE",
-			Description: "The list subcommand is used to list the bridge keystore.\n",
+			Description: "The list subcommand is used to list all of the bridge keystores.\n",
 		},
 	},
 }
