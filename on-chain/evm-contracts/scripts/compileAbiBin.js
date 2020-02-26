@@ -1,4 +1,5 @@
 const fs = require("fs");
+const rimraf = require("rimraf");
 
 const BUILD_PATH = "./bindings/";
 const ABI_PATH = BUILD_PATH + "abi/"
@@ -10,10 +11,18 @@ fs.readdir("./build/contracts", function (err, files) {
         process.exit(1);
     }
     
-    fs.rmdirSync(BUILD_PATH, { recursive: true });
-    fs.mkdirSync(BUILD_PATH);
-    fs.mkdirSync(ABI_PATH);
-    fs.mkdirSync(BIN_PATH);
+    // Remove old build
+    rimraf.sync(BUILD_PATH);
+    fs.mkdirSync(BUILD_PATH)
+    // Add if doesn't exist
+    if (!fs.existsSync(ABI_PATH)) {
+        fs.mkdirSync(ABI_PATH);
+    }
+    // Add if doesn't exist
+    if (!fs.existsSync(BIN_PATH)) {
+        fs.mkdirSync(BIN_PATH);
+    }
+    
 
     files.forEach(function (file, index) {
         const basename = file.split(".")[0];

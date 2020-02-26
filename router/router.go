@@ -26,7 +26,8 @@ func NewRouter() *Router {
 func (r *Router) Send(msg msg.Message) error {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
-	log.Trace("Sending message", "src", msg.Source.String(), "dest", msg.Destination.String())
+
+	log.Trace("[Router.go] Sending message", "src", msg.Source, "dest", msg.Destination)
 	w := r.registry[msg.Destination]
 	if w == nil {
 		return fmt.Errorf("unknown destination chainId: %d", msg.Destination)
