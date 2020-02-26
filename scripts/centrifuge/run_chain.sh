@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
+
 
 CENT_CHAIN_URL="https://github.com/ansermino/centrifuge-chain.git"
 CENT_CHAIN_BRANCH="david/bridge-module"

@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package ethereum
 
 import (
@@ -99,6 +102,7 @@ func (l *Listener) watchEvent(eventSubscription *Subscription, handler func(inte
 	for {
 		select {
 		case evt := <-eventSubscription.ch:
+			log15.Trace("Event found")
 			m := handler(evt)
 			err := l.router.Send(m)
 			if err != nil {

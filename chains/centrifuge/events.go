@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package substrate
 
 import (
@@ -40,7 +43,7 @@ func nftHandler(evtI interface{}) msg.Message {
 		Source:      msg.CentrifugeId,
 		Destination: msg.EthereumId,
 		Type:        msg.DepositAssetType,
-		Data:        evt.Asset[:],
+		Metadata:    evt.Asset[:],
 	}
 }
 
@@ -56,6 +59,6 @@ func assetTransferHandler(evtI interface{}) msg.Message {
 		Source:      msg.CentrifugeId,
 		Destination: msg.EthereumId,
 		Type:        msg.DepositAssetType,
-		Data:        evt.Destination[:], // TODO: Pack data
+		Metadata:    evt.Destination[:], // TODO: Pack data
 	}
 }
