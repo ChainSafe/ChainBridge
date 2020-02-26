@@ -1,5 +1,9 @@
 package msg
 
+import (
+	"math/big"
+)
+
 type ChainId uint8
 
 const EthereumId = ChainId(0)
@@ -14,4 +18,8 @@ func (id ChainId) String() string {
 	default:
 		return "unknown"
 	}
+}
+
+func (id ChainId) Big() *big.Int {
+	return big.NewInt(int64(id))
 }
