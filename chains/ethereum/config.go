@@ -5,6 +5,8 @@ package ethereum
 
 import (
 	"math/big"
+	"regexp"
+	"strconv"
 
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
@@ -22,6 +24,8 @@ type Config struct {
 	keystore      *keystore.Keystore // Location of keyfiles
 	receiver      common.Address
 	emitter       common.Address
+	gasLimit      *big.Int
+	gasPrice      *big.Int
 }
 
 // ParseChainConfig uses a core.ChainConfig to construct a corresponding Config
@@ -36,6 +40,8 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 		chainID:       big.NewInt(1),
 		receiver:      common.HexToAddress("0x0"),
 		emitter:       common.HexToAddress("0x0"),
+		gasLimit:      big.NewInt(6721975),
+		gasPrice:      big.NewInt(20000000000),
 	}
 
 	if chainID, ok := chainCfg.Opts["chainID"]; ok {
@@ -48,6 +54,22 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 
 	if emitter, ok := chainCfg.Opts["emitter"]; ok {
 		config.emitter = common.HexToAddress(emitter)
+	}
+
+	if gasPrice, ok := chainCfg.Opts["gasPrice"]; ok {
+		matched, err := regexp.MatchString("^[0-9]+$", gasPrice)
+		if matched && err != nil {
+			price64, _ := strconv.ParseInt(gasPrice, 10, 64)
+			config.gasPrice = big.NewInt(price64)
+		}
+	}
+
+	if gasLimit, ok := chainCfg.Opts["gasLimit"]; ok {
+		matched, err := regexp.MatchString("^[0-9]+$", gasLimit)
+		if matched && err != nil {
+			price64, _ := strconv.ParseInt(gasLimit, 10, 64)
+			config.gasLimit = big.NewInt(price64)
+		}
 	}
 
 	return config
