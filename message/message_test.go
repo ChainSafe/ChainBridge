@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package msg
 
 import (
@@ -23,7 +26,7 @@ func TestCreateDepositProposalData(t *testing.T) {
 	keccakHash := ethcrypto.Keccak256Hash(hashBytes[:]).Bytes()
 
 	depositId := big.NewInt(0)
-	originChain := big.NewInt(1)
+	originChain := ChainId(1)
 
 	m := &Message{
 		Type: CreateDepositProposalType,
@@ -45,7 +48,7 @@ func TestCreateDepositProposalData(t *testing.T) {
 		t.Fatalf("Fail: got %d expected %d", depositIdRes, depositId)
 	}
 
-	if originChain.Cmp(originChainRes) != 0 {
+	if originChain == ChainId(originChainRes.Int64()) {
 		t.Fatalf("Fail: got %d expected %d", originChainRes, originChain)
 	}
 }

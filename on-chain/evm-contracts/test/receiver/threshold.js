@@ -1,3 +1,8 @@
+/**
+ * Copyright 2020 ChainSafe Systems
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 const ReceiverContract = artifacts.require("Receiver");
 const { Vote, VoteStatus, ThresholdType } = require("../helpers");
 
