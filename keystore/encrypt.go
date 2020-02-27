@@ -14,12 +14,14 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"syscall"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/ed25519"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
 	"golang.org/x/crypto/blake2b"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 type EncryptedKeystore struct {
@@ -159,4 +161,19 @@ func ReadFromFileAndDecrypt(filename string, password []byte) (crypto.PrivateKey
 	}
 
 	return DecryptPrivateKey(keydata.Ciphertext, password, keydata.Type)
+}
+
+// prompt user to enter password for encrypted keystore
+func GetPassword(msg string) []byte {
+	for {
+		fmt.Println(msg)
+		fmt.Print("> ")
+		password, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			fmt.Printf("invalid input: %s\n", err)
+		} else {
+			fmt.Printf("\n")
+			return password
+		}
+	}
 }

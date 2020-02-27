@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"syscall"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/ed25519"
@@ -20,7 +19,6 @@ import (
 
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 type dataHandler struct {
@@ -205,7 +203,7 @@ func getKeyFiles(datadir string) ([]string, error) {
 // it returns the resulting filepath of the new key
 func generateKeypair(keytype, datadir string, password []byte, privateKey string) (string, error) {
 	if password == nil {
-		password = getPassword("Enter password to encrypt keystore file:")
+		password = keystore.GetPassword("Enter password to encrypt keystore file:")
 	}
 
 	if keytype == "" {
@@ -312,19 +310,4 @@ func keystoreDir(keyPath string) (keystorepath string, err error) {
 	}
 
 	return keystorepath, nil
-}
-
-// prompt user to enter password for encrypted keystore
-func getPassword(msg string) []byte {
-	for {
-		fmt.Println(msg)
-		fmt.Print("> ")
-		password, err := terminal.ReadPassword(int(syscall.Stdin))
-		if err != nil {
-			fmt.Printf("invalid input: %s\n", err)
-		} else {
-			fmt.Printf("\n")
-			return password
-		}
-	}
 }
