@@ -5,8 +5,6 @@ package ethereum
 
 import (
 	"math/big"
-	"regexp"
-	"strconv"
 
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
@@ -57,18 +55,18 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 	}
 
 	if gasPrice, ok := chainCfg.Opts["gasPrice"]; ok {
-		matched, err := regexp.MatchString("^[0-9]+$", gasPrice)
-		if matched && err != nil {
-			price64, _ := strconv.ParseInt(gasPrice, 10, 64)
-			config.gasPrice = big.NewInt(price64)
+		price := big.NewInt(0)
+		_, pass := price.SetString(gasPrice, 10)
+		if pass {
+			config.gasPrice = price
 		}
 	}
 
 	if gasLimit, ok := chainCfg.Opts["gasLimit"]; ok {
-		matched, err := regexp.MatchString("^[0-9]+$", gasLimit)
-		if matched && err != nil {
-			price64, _ := strconv.ParseInt(gasLimit, 10, 64)
-			config.gasLimit = big.NewInt(price64)
+		limit := big.NewInt(0)
+		_, pass := limit.SetString(gasLimit, 10)
+		if pass {
+			config.gasLimit = limit
 		}
 	}
 
