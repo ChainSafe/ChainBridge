@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package centrifuge
 
 import (
@@ -21,7 +24,7 @@ func (w *Writer) Start() error {
 	return nil
 }
 
-func (w *Writer) ResolveMessage(msg msg.Message) {
+func (w *Writer) ResolveMessage(msg msg.Message) bool {
 	panic("not implemented")
 }
 

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
+
 
 set -e
 
@@ -9,7 +12,7 @@ set -e
 pushd ./on-chain/evm-contracts
 
 # Generate bindings
-node ./scripts/genBindings.js
+node ./scripts/compileAbiBin.js
 
 # Go back to root
 popd

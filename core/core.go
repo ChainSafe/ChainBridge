@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package core
 
 import (
@@ -14,27 +17,23 @@ import (
 )
 
 type Core struct {
-	registry map[msg.ChainId]*Chain
+	registry map[msg.ChainId]Chain
 	route    *router.Router
 	ks       *keystore.Keystore
 }
 
 func NewCore(ks *keystore.Keystore) *Core {
 	return &Core{
-		registry: make(map[msg.ChainId]*Chain),
+		registry: make(map[msg.ChainId]Chain),
 		route:    router.NewRouter(),
 		ks:       ks,
 	}
 }
 
-func (c *Core) AddChain(chain *Chain) {
-	err := c.route.Listen(chain.Id(), chain.GetWriter())
-	if err != nil {
-		log15.Error("Failed to add chain, will not be started", "id", chain.Id(), "err", err)
-		return
-	}
+// AddChain registers the chain in the registry and calls Chain.SetRouter()
+func (c *Core) AddChain(chain Chain) {
 	c.registry[chain.Id()] = chain
-	chain.listener.SetRouter(c.route)
+	chain.SetRouter(c.route)
 }
 
 // Start will call all registered chains' Start methods and block forever (or until signal is received)
@@ -48,9 +47,8 @@ func (c *Core) Start() {
 				"err", err,
 			)
 			return
-		} else {
-			log15.Info(fmt.Sprintf("Started %s chain", chain.Id()))
 		}
+		log15.Info(fmt.Sprintf("Started %s chain", chain.Id()))
 	}
 
 	sigc := make(chan os.Signal, 1)

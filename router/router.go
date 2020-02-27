@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package router
 
 import (
@@ -26,7 +29,8 @@ func NewRouter() *Router {
 func (r *Router) Send(msg msg.Message) error {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
-	log.Trace("Sending message", "src", msg.Source.String(), "dest", msg.Destination.String())
+
+	log.Trace("[Router.go] Sending message", "src", msg.Source, "dest", msg.Destination)
 	w := r.registry[msg.Destination]
 	if w == nil {
 		return fmt.Errorf("unknown destination chainId: %d", msg.Destination)
@@ -37,14 +41,9 @@ func (r *Router) Send(msg msg.Message) error {
 }
 
 // Listen registers a Writer with a ChainId which Router.Send can then use to propagate messages
-func (r *Router) Listen(id msg.ChainId, w chains.Writer) error {
+func (r *Router) Listen(id msg.ChainId, w chains.Writer) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	log.Debug("Registering new chain in router", "id", id)
-	if r.registry[id] != nil {
-		return fmt.Errorf("attempted to register chain that is already registered")
-	}
-
 	r.registry[id] = w
-	return nil
 }

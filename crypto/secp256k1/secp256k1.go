@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package secp256k1
 
 import (
@@ -46,6 +49,17 @@ func NewKeypairFromPrivate(priv *PrivateKey) (*Keypair, error) {
 		public:  pub.(*PublicKey),
 		private: priv,
 	}, nil
+}
+
+func NewKeypairFromString(priv string) (*Keypair, error) {
+	pk, err := secp256k1.HexToECDSA(priv)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewKeypairFromPrivate(&PrivateKey{
+		key: *pk,
+	})
 }
 
 func NewKeypair(pk ecdsa.PrivateKey) *Keypair {

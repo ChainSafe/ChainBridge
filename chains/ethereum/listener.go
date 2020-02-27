@@ -1,7 +1,11 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package ethereum
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -68,8 +72,9 @@ func (l *Listener) Start() error {
 // buildQuery constructs a query for the contract by hashing sig to get the event topic
 // TODO: Start from current block
 func (l *Listener) buildQuery(contract ethcommon.Address, sig EventSig) eth.FilterQuery {
+
 	query := eth.FilterQuery{
-		FromBlock: nil,
+		FromBlock: big.NewInt(0),
 		Addresses: []ethcommon.Address{contract},
 		Topics: [][]ethcommon.Hash{
 			{sig.GetTopic()},
@@ -99,6 +104,7 @@ func (l *Listener) watchEvent(eventSubscription *Subscription, handler func(inte
 	for {
 		select {
 		case evt := <-eventSubscription.ch:
+			log15.Trace("Event found")
 			m := handler(evt)
 			err := l.router.Send(m)
 			if err != nil {

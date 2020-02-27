@@ -1,3 +1,8 @@
+/**
+ * Copyright 2020 ChainSafe Systems
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 const EmitterContract = artifacts.require("Emitter");
 const ERC721Contract = artifacts.require("ERC721Mintable");
 
