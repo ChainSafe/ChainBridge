@@ -1,15 +1,18 @@
 env:
   global:
   - GO111MODULE=on
+
 cache:
   cargo: true
   directories:
   - "$HOME/.cache/go-build"
   - "$GOPATH/pkg/mod"
   - build/centrifuge-chain
+
 stages:
 - Build
 - Test & Lint
+
 jobs:
   include:
   - stage: Build
@@ -37,9 +40,6 @@ jobs:
       bucket: centchain
       local-dir: "./build/centrifuge-chain"
       acl: private
-      on:
-        repo: ChainSafe/ChainBridgeV2
-        branch: david/substrate-writer
 
   - stage: "Test & Lint"
     language: go
