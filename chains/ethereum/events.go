@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package ethereum
 
 import (
@@ -35,7 +38,8 @@ func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 		Destination: msg.ChainId(uint8(nftEvent.DestChain.Uint64())),
 		Data:        nftEvent.Data,
 	}
-	msg.EncodeCreateDepositProposalData(nftEvent.DepositId, l.cfg.chainID)
+	msg.EncodeCreateDepositProposalData(nftEvent.DepositId, l.cfg.id)
+
 	return msg
 }
 

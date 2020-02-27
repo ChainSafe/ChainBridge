@@ -1,9 +1,11 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package ethereum
 
 const (
-	// In your configuration file, please register as many of the following events
 	DepositAsset = "DepositAsset"
-	NftTransfer  = "NFTTransfer"
+	NftTransfer  = "NftTransfer"
 	ErcTransfer  = "ErcTransfer"
 
 	// For internal usage only
