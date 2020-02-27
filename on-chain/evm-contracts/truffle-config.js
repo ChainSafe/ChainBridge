@@ -1,4 +1,9 @@
 /**
+ * Copyright 2020 ChainSafe Systems
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
+/**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
  * compilation and testing. Uncomment the ones you need or modify

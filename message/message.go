@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package msg
 
 import (
@@ -48,9 +51,9 @@ func (m *Message) DecodeCreateDepositProposalData() ([32]byte, *big.Int, *big.In
 	return hash, depositId, originChain, nil
 }
 
-func (m *Message) EncodeVoteDepositProposalData(depositId, originChain *big.Int, vote byte) {
+func (m *Message) EncodeVoteDepositProposalData(depositId *big.Int, originChain ChainId, vote byte) {
 	depositIdBytes := byteSliceTo32Bytes(depositId.Bytes())
-	originChainBytes := byteSliceTo32Bytes(originChain.Bytes())
+	originChainBytes := byteSliceTo32Bytes(make([]byte, originChain))
 	m.Data = append(append(depositIdBytes[:], originChainBytes[:]...), vote)
 }
 

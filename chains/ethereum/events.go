@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package ethereum
 
 import (
@@ -50,19 +53,21 @@ func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
 		log15.Error("Unable to decode event", err)
 	}
 
-	var depositProposal receiver.ReceiverDepositProposalCreated
-	err = contractAbi.Unpack(&depositProposal, "DepositProposalCreated", event.Data)
+	var depoistEvent receiver.ReceiverDepositProposalCreated
+	err = contractAbi.Unpack(&depoistEvent, "DepositProposalCreated", event.Data)
 	if err != nil {
 		log15.Error("Unable to unpack DepositProposalCreated", err)
 	}
 
-	log15.Trace("deposit events", "struct", depositProposal)
+	log15.Trace("deposit events", "struct", depoistEvent)
 
-	return msg.Message{
+	message := msg.Message{
 		Type:        msg.VoteDepositProposalType,
 		Destination: l.cfg.id, // We are reading from the receiver, must write to the same contract
-		// Data:        depositProposal, TODO
+		Data:        depoistEvent.Hash[:],
 	}
+	v := msg.ChainId(depoistEvent.OriginChain.bytes()[0])
+	message.EncodeVoteDepositProposalData(depoistEvent.DepositId, depoistEvent.OriginChain, depoistEvent.VoteStatus)
 }
 
 func (l *Listener) handleTestDeposit(eventI interface{}) msg.Message {
