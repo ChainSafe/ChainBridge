@@ -62,14 +62,20 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
 	} else if m.Type == msg.CreateDepositProposalType {
+		// TODO: Build check here
+		// Call listener
+		// Use depositId & originChain
 		log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
 		method := "createDepositProposal"
 		hash, depositId, originChain, err := m.DecodeCreateDepositProposalData()
+
 		if err != nil {
 			log15.Error("Failed to handle CreateDepositProposal message", "error", err)
 			return
 		}
+
+		// TODO Check deposit state here
 
 		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
 		if err != nil {
