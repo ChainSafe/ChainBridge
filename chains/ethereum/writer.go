@@ -62,9 +62,6 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			log15.Error("Failed to submit transaction", "err", err)
 		}
 	} else if m.Type == msg.CreateDepositProposalType {
-		// TODO: Build check here
-		// Call listener
-		// Use depositId & originChain
 		log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver, "msgdata", m.Data)
 
 		method := "createDepositProposal"
@@ -75,7 +72,18 @@ func (w *Writer) ResolveMessage(m msg.Message) {
 			return
 		}
 
-		// TODO Check deposit state here
+		status, err := w.DepositStatus(depositId, originChain)
+
+		if err != nil {
+			log15.Error("Fetch deposit status failed", "error", err)
+			return
+		}
+
+		if status != 0 {
+			// Block Tx
+			log15.Error("Deposit already submitted", "error")
+			return
+		}
 
 		opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
 		if err != nil {
