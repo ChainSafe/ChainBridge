@@ -24,7 +24,7 @@ contract('Safe - [release::ERC20]', async (accounts) => {
         assert.strictEqual(allowance.toNumber(), initialTokenAmount);
     });
 
-    it('release', async () => {
+    xit('release', async () => {
         let safeBalance;
         let minterBalance;
         let receiverBalance;
