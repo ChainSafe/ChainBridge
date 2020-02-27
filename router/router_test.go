@@ -17,24 +17,19 @@ type mockWriter struct {
 func (w *mockWriter) Start() error { return nil }
 func (w *mockWriter) Stop() error  { return nil }
 
-func (w *mockWriter) ResolveMessage(msg msg.Message) {
+func (w *mockWriter) ResolveMessage(msg msg.Message) bool {
 	w.msgs = append(w.msgs, msg)
+	return true
 }
 
 func TestRouter(t *testing.T) {
 	router := NewRouter()
 
 	ethW := &mockWriter{msgs: *new([]msg.Message)}
-	err := router.Listen(msg.EthereumId, ethW)
-	if err != nil {
-		t.Fatal(err)
-	}
+	router.Listen(msg.EthereumId, ethW)
 
 	ctfgW := &mockWriter{msgs: *new([]msg.Message)}
-	err = router.Listen(msg.CentrifugeId, ctfgW)
-	if err != nil {
-		t.Fatal(err)
-	}
+	router.Listen(msg.CentrifugeId, ctfgW)
 
 	msgEthToCtfg := msg.Message{
 		Source:      msg.EthereumId,
@@ -46,7 +41,7 @@ func TestRouter(t *testing.T) {
 		Destination: msg.EthereumId,
 	}
 
-	err = router.Send(msgCtfgToEth)
+	err := router.Send(msgCtfgToEth)
 	if err != nil {
 		t.Fatal(err)
 	}

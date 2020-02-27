@@ -30,14 +30,10 @@ func NewCore(ks *keystore.Keystore) *Core {
 	}
 }
 
+// AddChain registers the chain in the registry and calls Chain.SetRouter()
 func (c *Core) AddChain(chain Chain) {
-	err := c.route.Listen(chain.Id(), chain.GetWriter())
-	if err != nil {
-		log15.Error("Failed to add chain, will not be started", "id", chain.Id(), "err", err)
-		return
-	}
 	c.registry[chain.Id()] = chain
-	chain.GetListner().SetRouter(c.route)
+	chain.SetRouter(c.route)
 }
 
 // Start will call all registered chains' Start methods and block forever (or until signal is received)

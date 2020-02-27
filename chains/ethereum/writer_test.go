@@ -4,7 +4,6 @@
 package ethereum
 
 import (
-	"encoding/hex"
 	"math/big"
 	"testing"
 
@@ -15,57 +14,16 @@ import (
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
-func testDepositAssetMessage(t *testing.T) msg.Message {
-	// arbitrary hash
-	data, err := hex.DecodeString("b6e25575ab25a1938070eeb64ac4cd6df49af423327877522bec719815dc5e27")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return msg.Message{
-		Type: msg.DepositAssetType,
-		Data: data,
-	}
+var testConfig = &Config{
+	endpoint: TestEndpoint,
+	receiver: TestCentrifugeContractAddress,
+	keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+	from:     keystore.AliceKey,
 }
 
-func testCreateDepositProposalMessage(t *testing.T) msg.Message {
-	depositId := big.NewInt(0)
-	originChain := msg.ChainId(1)
-
-	m := &msg.Message{
-		Type: msg.CreateDepositProposalType,
-		Data: []byte{},
-	}
-
-	m.EncodeCreateDepositProposalData(depositId, originChain)
-	return *m
-}
-
-func testVoteDepositProposalMessage(t *testing.T) msg.Message {
-	depositId := big.NewInt(0)
-	originChain := big.NewInt(1)
-	vote := uint8(1)
-
-	m := &msg.Message{
-		Type: msg.VoteDepositProposalType,
-	}
-
-	m.EncodeVoteDepositProposalData(depositId, originChain, vote)
-	return *m
-}
-
-func testExecuteDepositMessage(t *testing.T) msg.Message {
-	depositId := big.NewInt(0)
-	originChain := big.NewInt(1)
-	address := TestAddress
-
-	m := &msg.Message{
-		Type: msg.ExecuteDepositType,
-	}
-
-	m.EncodeExecuteDepositData(depositId, originChain, address, []byte("nootwashere"))
-	return *m
-}
+var randomHash = []byte{0x12, 0x34}
+var sourceChain = msg.ChainId(1)
+var depositId uint32 = 0
 
 func createTestReceiverContract(t *testing.T, conn *Connection) ReceiverContract {
 	addressBytes := TestReceiverContractAddress.Bytes()
@@ -104,16 +62,12 @@ func createTestCentrifugeContract(t *testing.T, conn *Connection) ReceiverContra
 }
 
 func TestResolveMessage(t *testing.T) {
-	m := testDepositAssetMessage(t)
-
-	cfg := &Config{
-		endpoint: TestEndpoint,
-		receiver: TestCentrifugeContractAddress,
-		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-		from:     keystore.AliceKey,
+	m := msg.Message{
+		Type:     msg.DepositAssetType,
+		Metadata: randomHash,
 	}
 
-	conn := NewConnection(cfg)
+	conn := NewConnection(testConfig)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -121,9 +75,12 @@ func TestResolveMessage(t *testing.T) {
 	defer conn.Close()
 
 	centrifugeContract := createTestCentrifugeContract(t, conn)
-	w := NewWriter(conn, cfg)
+	w := NewWriter(conn, testConfig)
 	w.SetReceiverContract(centrifugeContract)
-	w.ResolveMessage(m)
+	ok := w.ResolveMessage(m)
+	if !ok {
+		t.Fatal("Transaction failed")
+	}
 }
 
 func TestWriteToReceiverContract(t *testing.T) {
@@ -156,70 +113,72 @@ func TestWriteToReceiverContract(t *testing.T) {
 }
 
 func TestWriter_createDepositProposal(t *testing.T) {
-	m := testCreateDepositProposalMessage(t)
-
-	cfg := &Config{
-		endpoint: TestEndpoint,
-		receiver: TestCentrifugeContractAddress,
-		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-		from:     keystore.AliceKey,
+	m := msg.Message{
+		Type:      msg.CreateDepositProposalType,
+		DepositId: depositId,
+		Source:    sourceChain,
 	}
 
-	conn := NewConnection(cfg)
+	conn := NewConnection(testConfig)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer conn.Close()
 
-	receiver := createTestReceiverContract(t, conn)
-	w := NewWriter(conn, cfg)
-	w.SetReceiverContract(receiver)
-	w.ResolveMessage(m)
+	rcvr := createTestReceiverContract(t, conn)
+	w := NewWriter(conn, testConfig)
+	w.SetReceiverContract(rcvr)
+	ok := w.ResolveMessage(m)
+	if !ok {
+		t.Fatal("Transaction failed")
+	}
 }
 
 func TestWriter_voteDepositProposal(t *testing.T) {
-	m := testVoteDepositProposalMessage(t)
-
-	cfg := &Config{
-		endpoint: TestEndpoint,
-		receiver: TestCentrifugeContractAddress,
-		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-		from:     keystore.AliceKey,
+	m := msg.Message{
+		Type:      msg.VoteDepositProposalType,
+		Source:    sourceChain,
+		DepositId: 0,
+		Metadata:  []byte{1},
 	}
 
-	conn := NewConnection(cfg)
+	conn := NewConnection(testConfig)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer conn.Close()
 
-	receiver := createTestReceiverContract(t, conn)
-	w := NewWriter(conn, cfg)
-	w.SetReceiverContract(receiver)
-	w.ResolveMessage(m)
+	rcvr := createTestReceiverContract(t, conn)
+	w := NewWriter(conn, testConfig)
+	w.SetReceiverContract(rcvr)
+	ok := w.ResolveMessage(m)
+	if !ok {
+		t.Fatal("Transaction failed")
+	}
 }
 
 func TestWriter_executeDeposit(t *testing.T) {
-	m := testExecuteDepositMessage(t)
-
-	cfg := &Config{
-		endpoint: TestEndpoint,
-		receiver: TestCentrifugeContractAddress,
-		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-		from:     keystore.AliceKey,
+	m := msg.Message{
+		Source:    sourceChain,
+		Type:      msg.ExecuteDepositType,
+		To:        TestAddress.Bytes(),
+		DepositId: depositId,
 	}
 
-	conn := NewConnection(cfg)
+	conn := NewConnection(testConfig)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer conn.Close()
 
-	receiver := createTestReceiverContract(t, conn)
-	w := NewWriter(conn, cfg)
-	w.SetReceiverContract(receiver)
-	w.ResolveMessage(m)
+	rcvr := createTestReceiverContract(t, conn)
+	w := NewWriter(conn, testConfig)
+	w.SetReceiverContract(rcvr)
+	ok := w.ResolveMessage(m)
+	if !ok {
+		t.Fatal("Transaction failed")
+	}
 }
