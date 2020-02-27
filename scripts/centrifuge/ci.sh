@@ -9,7 +9,7 @@ CENT_CHAIN_BRANCH="david/bridge-module"
 # Exit on failure
 set -e
 
-if [ $CMD == "fetch" ]
+if [ "$CMD" == "fetch" ]
 then
   if [ ! -d $DIR ] || [ -z "$(ls -A $DIR)" ]
   then
@@ -18,12 +18,14 @@ then
     cd $DIR
     git pull origin $CENT_CHAIN_BRANCH
   fi
-elif [ $CMD == "build" ]
+elif [ "$CMD" == "build" ]
 then
   cd $DIR
   RUST_TOOLCHAIN=nightly-2020-02-17 TARGET=build-client ./ci/script.sh
-elif [ $CMD == "run" ]
+elif [ "$CMD" == "run" ]
 then
+  ls -la $DIR
+  ls -la $DIR/target/release
   $DIR/target/release/centrifuge-chain --dev > /dev/null
 else
   echo "Please provide CMD={build,run}"
