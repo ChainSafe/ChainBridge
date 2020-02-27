@@ -6,7 +6,7 @@ env:
     - GO111MODULE=on
 
 cache:
-  - cargo
+  cargo: true
   directories:
     - $HOME/.cache/go-build
     - $GOPATH/pkg/mod
@@ -33,7 +33,8 @@ jobs:
             - libiberty-dev
       name: "Build centrifuge-chain"
       script:
-        - make build_cent
+        - CMD=fetch ./scripts/centrifuge/ci.sh
+        - CMD=build travis_wait 180 ./scripts/centrifuge/ci.sh
 
     - stage: "Test & Lint"
       language: go
@@ -46,7 +47,7 @@ jobs:
       go: 1.13.x
       name: "Run Go tests"
       script:
-          - make start_cent
+          - CMD=run ./scripts/centrifuge/ci.sh
           - SILENT=true make start_eth
           - make deploy_eth
           - make test
