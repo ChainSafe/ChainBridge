@@ -12,7 +12,6 @@ import (
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
@@ -56,28 +55,19 @@ func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
 		log15.Error("Unable to decode event", err)
 	}
 
-	var depoistEvent receiver.ReceiverDepositProposalCreated
-	err = contractAbi.Unpack(&depoistEvent, "DepositProposalCreated", event.Data)
+	var depositEvent receiver.ReceiverDepositProposalCreated
+	err = contractAbi.Unpack(&depositEvent, "DepositProposalCreated", event.Data)
 	if err != nil {
 		log15.Error("Unable to unpack DepositProposalCreated", err)
 	}
 
-	log15.Trace("deposit events", "struct", depoistEvent)
+	log15.Trace("deposit events", "struct", depositEvent)
 
-	message := msg.Message{
-		Type:        msg.VoteDepositProposalType,
-		Destination: l.cfg.id, // We are reading from the receiver, must write to the same contract
-		Data:        depoistEvent.Hash[:],
-	}
-	v := msg.ChainId(depoistEvent.OriginChain.bytes()[0])
-	message.EncodeVoteDepositProposalData(depoistEvent.DepositId, depoistEvent.OriginChain, depoistEvent.VoteStatus)
-}
-
-func (l *Listener) handleTestDeposit(eventI interface{}) msg.Message {
-	event := eventI.(ethtypes.Log)
-	data := ethcrypto.Keccak256Hash(event.Topics[0].Bytes()).Bytes()
 	return msg.Message{
-		Type:     msg.DepositAssetType,
-		Metadata: data,
+		Source:      msg.ChainId(depositEvent.OriginChain.Bytes()[0]), // Todo handle safely
+		Destination: l.cfg.id, // We are reading from the receiver, must write to the same contract
+		Type:        msg.VoteDepositProposalType,
+		DepositId:   uint32(depositEvent.DepositId.Int64()),
+		Metadata:    depositEvent.Hash[:],
 	}
 }

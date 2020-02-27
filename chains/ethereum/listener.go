@@ -57,11 +57,6 @@ func (l *Listener) Start() error {
 			if err != nil {
 				log15.Error("failed to register event handler", "err", err)
 			}
-		case DepositAssetSignature:
-			err := l.RegisterEventHandler(sub, l.handleTestDeposit)
-			if err != nil {
-				log15.Error("failed to register event handler", "err", err)
-			}
 		case DepositProposalSignature:
 			log15.Trace("inside deposit prosoposal vote")
 			err := l.RegisterEventHandler(sub, l.handleVoteEvent)
