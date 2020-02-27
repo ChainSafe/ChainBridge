@@ -9,16 +9,16 @@ import (
 )
 
 // Queries the contract for the current deposit status
-func (w *Writer) DepositStatus(depositId big.Int, originChain big.Int) (uint8, error) {
+func (w *Writer) DepositStatus(depositId *big.Int, originChain *big.Int) (uint8, error) {
 	caller, err := Receiver.NewReceiverCaller(w.cfg.receiver, w.conn.conn)
 	if err != nil {
-		log15.Error("failed to init caller instance")
+		log15.Error("failed to init caller instance", "error", err)
 		return 0, err
 	}
 
-	ret, err := caller.DepositProposals(new(bind.CallOpts), &depositId, &originChain)
+	ret, err := caller.DepositProposals(new(bind.CallOpts), depositId, originChain)
 	if err != nil {
-		log15.Error("failed to call DepositProposal")
+		log15.Error("failed to call DepositProposal", "error", err)
 		return 0, err
 	}
 
