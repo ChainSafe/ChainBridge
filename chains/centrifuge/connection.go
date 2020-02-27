@@ -15,11 +15,11 @@ import (
 //var _ chains.Connection = &Connection{}
 
 type Connection struct {
-	api *gsrpc.SubstrateAPI
-	url string
-	meta *types.Metadata
+	api         *gsrpc.SubstrateAPI
+	url         string
+	meta        *types.Metadata
 	genesisHash types.Hash
-	key signature.KeyringPair
+	key         signature.KeyringPair
 }
 
 func NewConnection(url string) *Connection {

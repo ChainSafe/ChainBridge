@@ -14,7 +14,7 @@ import (
 )
 
 type Chain struct {
-	cfg      *core.ChainConfig // The config of the chain
+	cfg *core.ChainConfig // The config of the chain
 	// TODO: Does this have to be an interface?
 	conn     chains.Connection // THe chains connection
 	listener *Listener         // The listener of this chain
