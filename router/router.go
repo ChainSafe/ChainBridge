@@ -41,14 +41,9 @@ func (r *Router) Send(msg msg.Message) error {
 }
 
 // Listen registers a Writer with a ChainId which Router.Send can then use to propagate messages
-func (r *Router) Listen(id msg.ChainId, w chains.Writer) error {
+func (r *Router) Listen(id msg.ChainId, w chains.Writer) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	log.Debug("Registering new chain in router", "id", id)
-	if r.registry[id] != nil {
-		return fmt.Errorf("attempted to register chain that is already registered")
-	}
-
 	r.registry[id] = w
-	return nil
 }
