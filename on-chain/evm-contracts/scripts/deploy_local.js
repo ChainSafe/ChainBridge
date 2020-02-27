@@ -16,6 +16,7 @@ cli
     .option('--deposit-erc', "Make an ERC20 deposit", false)
     .option('--deposit-nft', "Make an ERC721 deposit", false)
     .option('--deposit-asset', "Make a test deployment", false)
+    .option('--deposit-test', "Make a deposit test", false)
     .option('--test-only', "Skip main contract depoyments, only run tests", false)
     .option('--dest <value>', "destination chain", 1)
 cli.parse(process.argv);
@@ -66,7 +67,7 @@ const validatorPrivKeys = [
 let wallet = new ethers.Wallet(deployerPrivKey, provider);
 
 // These are deterministic
-const RECEIVER_ADDRESS = "0x705D4Fa884AF2Ae59C7780A0f201109947E2Bf6D";
+const RECEIVER_ADDRESS = "0x5842B333910Fe0BfA05F5Ea9F1602a40d1AF3584";
 const CENTRIFUGE_ADDRESS = "0x290f41e61374c715C1127974bf08a3993afd0145";
 const EMITTER_ADDRESS = "0x3c747684333605408F9A4907DA043ee4c1A72D9c";
 const TEST_EMITTER_ADDRESS = "0x8090062239c909eB9b0433F1184c7DEf6124cc78";
@@ -83,8 +84,9 @@ const TEST_EMITTER_ADDRESS = "0x8090062239c909eB9b0433F1184c7DEf6124cc78";
     if (cli.depositErc) {
         await erc20Transfer();
     } else if (cli.depositNft) {
-        console.log(cli.dest)
         await erc721Transfer(Number(cli.dest));
+    } else if (cli.depositTest) {
+        await depositTest();
     } else if (cli.depositAsset) {
         await deployAssetTest();
     }
@@ -300,7 +302,14 @@ async function erc721Transfer(chain) {
         // Check the owner
         let owner = await erc721Instance.ownerOf(1);
         console.log("[ERC721 Transfer] Owner of token 1:", owner);
-        
+
+        emitterInstance.on("DepositProposalCreated", (oldValue, newValue, event) => {
+            console.log({oldValue})
+            console.log({newValue})
+            console.log({event})
+        });
+
+
         // // Perform deposit
         const d = await emitterInstance.depositNFT(chain, validatorAddress[1], erc721Instance.address, 1, "0x");
         console.log("[ERC721 Transfer] Created deposit!")
@@ -315,6 +324,28 @@ async function erc721Transfer(chain) {
         // Check the owner
         owner = await erc721Instance.ownerOf(1);
         console.log("[ERC721 Transfer] Owner of token 1:", owner);
+    } catch (e) {
+        console.log({ e });
+    }
+}
+
+async function depositTest() {
+    try {
+        console.log("[Deposit Test] RECEIVER ADDRESS:", RECEIVER_ADDRESS);
+        const minterWallet = new ethers.Wallet(validatorPrivKeys[0], provider);
+
+        // Create receiver instance
+        const receiverInstance = new ethers.Contract(RECEIVER_ADDRESS, ReceiverContract.abi, minterWallet);
+
+        console.log("signature", receiverInstance.interface.events.DepositProposalCreated.signature)
+        console.log("Topic", receiverInstance.interface.events.DepositProposalCreated.topic)
+
+        // // Perform deposit
+        await receiverInstance.createDepositProposal(
+            ethers.utils.formatBytes32String("HASH"), 
+            Math.floor(Math.random() * 10000), 
+            Math.floor(Math.random() * 10000)
+        );
     } catch (e) {
         console.log({ e });
     }

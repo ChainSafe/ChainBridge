@@ -109,7 +109,7 @@ func run(ctx *cli.Context) error {
 		Endpoint: cfg.Chains[0].Endpoint,
 		From:     cfg.Chains[0].From,
 		// TODO remove this in favour of OPTS when config PR lands
-		Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
+		Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer", "DepositProposalCreated"}),
 		Keystore:      ks,
 		Opts:          cfg.Chains[0].Opts,
 	})
@@ -120,7 +120,7 @@ func run(ctx *cli.Context) error {
 		Endpoint: cfg.Chains[1].Endpoint,
 		From:     cfg.Chains[1].From,
 		// TODO remove this in favour of OPTS when config PR lands
-		Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
+		Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer", "DepositProposalCreated"}),
 		Keystore:      ks,
 		Opts:          cfg.Chains[1].Opts,
 	})

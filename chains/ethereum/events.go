@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
+	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -38,6 +39,30 @@ func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 	msg.EncodeCreateDepositProposalData(nftEvent.DepositId, l.cfg.id)
 
 	return msg
+}
+
+func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
+	log15.Debug("handling vote event")
+	event := eventI.(ethtypes.Log)
+
+	contractAbi, err := abi.JSON(strings.NewReader(string(receiver.ReceiverABI)))
+	if err != nil {
+		log15.Error("Unable to decode event", err)
+	}
+
+	var depositProposal receiver.ReceiverDepositProposalCreated
+	err = contractAbi.Unpack(&depositProposal, "DepositProposalCreated", event.Data)
+	if err != nil {
+		log15.Error("Unable to unpack DepositProposalCreated", err)
+	}
+
+	log15.Trace("deposit events", "struct", depositProposal)
+
+	return msg.Message{
+		Type:        msg.VoteDepositProposalType,
+		Destination: l.cfg.id, // We are reading from the receiver, must write to the same contract
+		// Data:        depositProposal, TODO
+	}
 }
 
 func (l *Listener) handleTestDeposit(eventI interface{}) msg.Message {

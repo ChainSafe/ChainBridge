@@ -58,6 +58,12 @@ func (l *Listener) Start() error {
 			if err != nil {
 				log15.Error("failed to register event handler", "err", err)
 			}
+		case DepositProposalSignature:
+			log15.Trace("inside deposit prosoposal vote")
+			err := l.RegisterEventHandler(sub, l.handleVoteEvent)
+			if err != nil {
+				log15.Error("failed to register event handler", "err", err)
+			}
 		default:
 			return fmt.Errorf("Unrecognized event: %s", sub)
 		}
@@ -82,7 +88,13 @@ func (l *Listener) buildQuery(contract ethcommon.Address, sig EventSig) eth.Filt
 // Handler will be called for every instance of event.
 func (l *Listener) RegisterEventHandler(subscription string, handler chains.EvtHandlerFn) error {
 	evt := EventSig(subscription)
-	query := l.buildQuery(l.cfg.emitter, evt)
+	log15.Trace("Event signatures", "sig", evt, "topic", evt.GetTopic().Hex())
+	var query eth.FilterQuery
+	if subscription == DepositProposalSignature {
+		query = l.buildQuery(l.cfg.receiver, evt)
+	} else {
+		query = l.buildQuery(l.cfg.emitter, evt)
+	}
 	eventSubscription, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
