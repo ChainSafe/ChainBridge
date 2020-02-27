@@ -12,7 +12,7 @@ import "./Safe.sol";
  contract Emitter is Safe {
 
     // ChainId => number of deposits
-    mapping(uint => uint) DepositCounts;
+    mapping(uint => uint) public DepositCounts;
 
     event GenericTransfer(uint indexed _destChain, uint indexed _depositId, address _destAddress, bytes _data);
     event ERCTransfer(uint indexed _destChain, uint indexed _depositId, address _to, uint _amount, address _tokenAddress);
