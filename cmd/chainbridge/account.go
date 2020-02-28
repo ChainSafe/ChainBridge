@@ -86,7 +86,7 @@ func handleGenerateCmd(ctx *cli.Context, dHandler *dataHandler) error {
 func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 	// import key
-	if keyimport := ctx.String(ImportFlag.Name); keyimport != "" {
+	if keyimport := ctx.Args().First(); keyimport != "" {
 		log.Info("Importing key...")
 		_, err := importKey(keyimport, dHandler.datadir)
 		if err != nil {
@@ -100,12 +100,9 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 // handleListCmd lists all accounts currently in the bridge
 func handleListCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
-	// list keys
-	if keylist := ctx.Bool(ListFlag.Name); keylist {
-		_, err := listKeys(dHandler.datadir)
-		if err != nil {
-			return fmt.Errorf("failed to list keys: %s", err)
-		}
+	_, err := listKeys(dHandler.datadir)
+	if err != nil {
+		return fmt.Errorf("failed to list keys: %s", err)
 	}
 
 	return nil
