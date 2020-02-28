@@ -308,27 +308,20 @@ async function erc721Transfer(chain) {
         let owner = await erc721Instance.ownerOf(1);
         console.log("[ERC721 Transfer] Owner of token 1:", owner);
 
-        emitterInstance.on("DepositProposalCreated", (oldValue, newValue, event) => {
-            console.log({oldValue})
-            console.log({newValue})
-            console.log({event})
-        });
-
-
         // // Perform deposit
         const d = await emitterInstance.depositNFT(chain, validatorAddress[1], erc721Instance.address, 1, "0x");
         console.log("[ERC721 Transfer] Created deposit!")
         console.log("[ERC721 Transfer] Deposit Hash", d.hash);
 
         // Check post balance
-        const postbal = await erc721Instance.balanceOf(EMITTER_ADDRESS);
-        console.log("[ERC721 Transfer] Pre balance:", postbal.toNumber());
+        // const postbal = await erc721Instance.balanceOf(EMITTER_ADDRESS);
+        // console.log("[ERC721 Transfer] Pre balance:", postbal.toNumber());
         
-        console.log("[ERC20 Transfer] has the balance increased?", postbal.toNumber() > prebal.toNumber());
+        // console.log("[ERC20 Transfer] has the balance increased?", postbal.toNumber() > prebal.toNumber());
 
-        // Check the owner
-        owner = await erc721Instance.ownerOf(1);
-        console.log("[ERC721 Transfer] Owner of token 1:", owner);
+        // // Check the owner
+        // owner = await erc721Instance.ownerOf(1);
+        // console.log("[ERC721 Transfer] Owner of token 1:", owner);
     } catch (e) {
         console.log({ e });
     }

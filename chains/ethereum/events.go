@@ -47,7 +47,7 @@ func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 }
 
 func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
-	log15.Debug("handling vote event")
+	log15.Debug("Handling vote event")
 	event := eventI.(ethtypes.Log)
 
 	contractAbi, err := abi.JSON(strings.NewReader(string(receiver.ReceiverABI)))
@@ -61,10 +61,8 @@ func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
 		log15.Error("Unable to unpack DepositProposalCreated", err)
 	}
 
-	log15.Trace("deposit events", "struct", depositEvent)
-
 	return msg.Message{
-		Source:      msg.ChainId(depositEvent.OriginChain.Bytes()[0]), // Todo handle safely
+		Source:      msg.ChainId(uint8(depositEvent.OriginChain.Uint64())), // Todo handle safely
 		Destination: l.cfg.id, // We are reading from the receiver, must write to the same contract
 		Type:        msg.VoteDepositProposalType,
 		DepositId:   uint32(depositEvent.DepositId.Int64()),

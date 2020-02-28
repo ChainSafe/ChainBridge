@@ -33,6 +33,7 @@ func NewCore(ks *keystore.Keystore) *Core {
 // AddChain registers the chain in the registry and calls Chain.SetRouter()
 func (c *Core) AddChain(chain Chain) {
 	c.registry[chain.Id()] = chain
+	log15.Trace("Chain", "Info", chain)
 	chain.SetRouter(c.route)
 }
 

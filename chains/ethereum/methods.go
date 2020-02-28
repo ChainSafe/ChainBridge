@@ -37,18 +37,21 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 func (w *Writer) createDepositProposal(m msg.Message) bool {
 	log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver)
 
+	log15.Trace("Before", "opts", w.conn)
 	opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
 	if err != nil {
 		log15.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
 
+	log15.Trace("After")
 	_, err = w.receiverContract.Transact(
 		opts,
 		CreateDepositProposalMethod,
 		keccakHash(m.Metadata),
 		u32toBigInt(m.DepositId),
-		m.Source.Big())
+		m.Source.Big(),
+	)
 
 	if err != nil {
 		log15.Error("Failed to submit transaction", "err", err)

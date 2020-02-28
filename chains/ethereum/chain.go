@@ -61,6 +61,7 @@ func InitializeChain(chainCfg *core.ChainConfig) *Chain {
 
 func (c *Chain) SetRouter(r *router.Router) {
 	r.Listen(c.cfg.Id, c.writer)
+	c.listener.SetRouter(r)
 }
 
 func (c *Chain) Start() error {
