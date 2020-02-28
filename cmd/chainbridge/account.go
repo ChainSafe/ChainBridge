@@ -21,6 +21,7 @@ import (
 	"github.com/urfave/cli"
 )
 
+//dataHandler is a struct which wraps any extra data our CMD functions need that cannot be passed through parameters
 type dataHandler struct {
 	datadir string
 }
@@ -92,6 +93,8 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 		if err != nil {
 			return fmt.Errorf("failed to import key: %s", err)
 		}
+	} else {
+		return fmt.Error("Must provide a key to import.")
 	}
 
 	return nil
