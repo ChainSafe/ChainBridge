@@ -17,7 +17,9 @@
 
 # Getting Started
 
-Run the command `make build` to generate the bin files required to manage bridge via the `chainbridge` *command
+First install the Go dependencies using `go install`
+
+Run the command `make build` to generate the bin files, then run `make install`
 
 *Note: in the event that the `chainbridge` command fails, try `./build/chainbridge` instead
 
@@ -30,9 +32,15 @@ To get an example environment up and running quickly:
 * Now we will need to start the bridge in a new terminal using the `make run` command
 
 ## Run the bridge
+Production:
  
 ```
-make run
+chainbridge 
+```
+
+Development:
+```
+chainbridge --testkey alice
 ```
 
 See `--help` for CLI options.
