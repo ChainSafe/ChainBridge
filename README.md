@@ -1,8 +1,7 @@
+# **[WIP]**
 # ChainBridge V2
 
 [![Build Status](https://travis-ci.com/ChainSafe/ChainBridgeV2.svg?branch=master)](https://travis-ci.com/ChainSafe/ChainBridgeV2)
-
-# **[WIP]**
 
 # Index
 
@@ -13,13 +12,22 @@
 
 # Prerequisites
 
-* Go
-* Geth
+* [Go](https://golang.org/)
+* [Geth](https://geth.ethereum.org/)
 
 # Getting Started
 
-Run the command `make build` to generate the bin files required to manage bridge via the `chainbridge` command
+Run the command `make build` to generate the bin files required to manage bridge via the `chainbridge` *command
 
+*Note: in the event that the `chainbridge` command fails, try `./build/chainbridge` instead
+
+## Quick start
+
+To get an example environment up and running quickly:
+* Open 2 terminals
+* Run an instance of a chain using the `make start_eth` or `make start_cent` command (To run a chain on a different port, prefix with `PORT=1234`)
+* Next run the appropriate command to deploy the contracts, `make deploy_eth` or @TODO: Centrifuge command
+* Now we will need to start the bridge in a new terminal using the `make run` command
 
 ## Run the bridge
  
@@ -97,6 +105,8 @@ Setting an emitter address, whitelisting a chain and submitting an asset tx can 
 make cent_auto_run 
 ```
 
+
+
 # Configuration
 
 ## Chain configs
@@ -134,6 +144,7 @@ To manage keys ChainBridge uses a keystore specificed with the `--keystore <path
 Keys can be managed with the `account` sub-command. Please see `chainbridge account --help` for documentation.
 
 Alternatively, an environemnet variable can be used with the key `KEYSTORE_PASSWORD`.
+
 
 # Tests
 
