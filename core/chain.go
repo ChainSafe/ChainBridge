@@ -4,16 +4,15 @@
 package core
 
 import (
-	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridgeV2/router"
 )
 
 type Chain interface {
 	Start() error // Start chain
 	Stop() error  // Stop chain
-	GetWriter() chains.Writer
-	GetListner() chains.Listener
+	SetRouter(*router.Router)
 	Id() msg.ChainId
 }
 
