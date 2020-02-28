@@ -43,6 +43,19 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		return false
 	}
 
+	status, err := w.GetDepositStatus(m.Source.Big(), u32toBigInt(m.DepositId))
+
+	if err != nil {
+		log15.Error("Get deposit status failed", "error", err)
+		return false
+	}
+
+	if status != 0 {
+		// Block Tx
+		log15.Error("Deposit already submitted", "error")
+		return false
+	}
+
 	_, err = w.receiverContract.Transact(
 		opts,
 		CreateDepositProposalMethod,

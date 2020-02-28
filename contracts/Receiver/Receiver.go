@@ -202,7 +202,7 @@ func (_Receiver *ReceiverCaller) DepositProposals(opts *bind.CallOpts, arg0 *big
 	NumNo       *big.Int
 	Status      uint8
 }, error) {
-	ret := new(struct {
+	out := new(struct {
 		Hash        [32]byte
 		Id          *big.Int
 		OriginChain *big.Int
@@ -210,9 +210,8 @@ func (_Receiver *ReceiverCaller) DepositProposals(opts *bind.CallOpts, arg0 *big
 		NumNo       *big.Int
 		Status      uint8
 	})
-	out := ret
 	err := _Receiver.contract.Call(opts, out, "DepositProposals", arg0, arg1)
-	return *ret, err
+	return *out, err
 }
 
 // DepositProposals is a free data retrieval call binding the contract method 0x8a045911.
