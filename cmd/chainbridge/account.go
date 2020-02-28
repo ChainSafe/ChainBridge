@@ -94,7 +94,7 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 			return fmt.Errorf("failed to import key: %s", err)
 		}
 	} else {
-		return fmt.Error("Must provide a key to import.")
+		return fmt.Errorf("Must provide a key to import.")
 	}
 
 	return nil
