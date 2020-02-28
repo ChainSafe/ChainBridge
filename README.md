@@ -4,14 +4,103 @@
 
 # **[WIP]**
 
-# Chain configs
-For chain specific configs, please check [this subdirectory](./chain-documents)
+# Index
+
+* [Prerequisites](#prerequisites)
+* [Getting Started](#getting-started)
+* [Configuration](#configuration)
+* [Tests](#tests)
+
+# Prerequisites
+
+* Go
+* Geth
+
+# Getting Started
+
+Run the command `make build` to generate the bin files required to manage bridge via the `chainbridge` command
+
 
 ## Run the bridge
  
-`make run`
+```
+make run
+```
 
 See `--help` for CLI options.
+
+
+## Ethereum Dev Environment 
+
+To start a ganache instance:
+```
+make start_eth
+```
+
+Bridge contracts can then be deployed with:
+```
+make deploy_eth
+```
+
+Note: The environment variable `PORT=<port>` can be prefixed for these commands, eg:
+```
+PORT=8545 make start_eth
+```
+
+To build the go bindings for the Ethereum contracts:
+```
+make bindings
+```
+
+## Centrifuge Dev Environment
+
+To fetch, build and run centrifuge-chain run:
+```
+make start_cent
+```
+
+Note: The build process takes a while, but will only run once. It currently uses a modified fork of centrifuge-chain
+
+You can run several commands to interact with the bridge module:
+
+### Emitter Address
+
+You can set and get the emitter address with:
+ ```
+ make cent_get_emitter
+``` 
+and 
+```
+make cent_set_emitter CENT_EMITTER_ADDR=<HEX VALUE>
+```
+
+### Whitelist Chain
+
+A chain ID can be whitelisted as a destination with:
+
+```
+make cent_whitelist_chain CENT_CHAIN_ID=<HEX VALUE>
+```
+
+### Asset Transfer
+
+An asset transfer can be executed with:
+
+```
+make cent_asset_tx CENT_CHAIN_ID=<HEX VALUE> CENT_TO=<HEX VALUE> CENT_TOKEN_ID=<HEX VALUE> CENT_METADATA=<HEX VALUE>
+```
+
+### Auto Run
+
+Setting an emitter address, whitelisting a chain and submitting an asset tx can be executed using default values with:
+```
+make cent_auto_run 
+```
+
+# Configuration
+
+## Chain configs
+For chain specific configs, please check [this subdirectory](./chain-documents)
 
 ## Configuring the bridge
 
@@ -46,72 +135,9 @@ Keys can be managed with the `account` sub-command. Please see `chainbridge acco
 
 Alternatively, an environemnet variable can be used with the key `KEYSTORE_PASSWORD`.
 
-## Ethereum Dev Environment 
+# Tests
 
-To start a ganache instance:
-```
-make start_eth
-```
-
-Bridge contracts can then be deployed with:
-```
-make deploy_eth
-```
-
-Note: The environment variable `PORT=<port>` can be provided for these commands (default `PORT=8545`)
-
-To build the go bindings for the Ethereum contracts:
-```
-make bindings
-```
-
-## Centrifuge Dev Environment
-
-To fetch, build and run centrifuge-chain run:
-```
-make start_cent
-```
-
-Note: The build process takes a while, but will only run once. It currently uses a modified fork of centrifuge-chain
-
-You can run several commands to interact with the bridge module:
-
-### Emitter Address
-
-You can set and get the emitter address with:
- ```
- make cent_get_emitter
-``` 
-and 
-```
-make cent_set_emitter CENT_EMITTER_ADDR=<HEX VALUE>
-```
-### Whitelist Chain
-
-A chain ID can be whitelisted as a destination with:
-
-```
-make cent_whitelist_chain CENT_CHAIN_ID=<HEX VALUE>
-```
-
-### Asset Transfer
-
-An asset transfer can be executed with:
-
-```
-make cent_asset_tx CENT_CHAIN_ID=<HEX VALUE> CENT_TO=<HEX VALUE> CENT_TOKEN_ID=<HEX VALUE> CENT_METADATA=<HEX VALUE>
-```
-
-### Auto Run
-
-Setting an emitter address, whitelisting a chain and submitting an asset tx can be executed using default values with:
-```
-make cent_auto_run 
-```
-
-## Tests
-
-### Go tests
+## Go tests
 To run the go tests a fresh ganache instance is required (tests depend on deterministic addresses). 
 A new instance can be started by running these in seperate terminals:
 ```
@@ -122,7 +148,8 @@ Go tests can then be run with:
 ```
 make test
 ```
-### Contract Tests
+
+## Contract Tests
 Truffle tests can be run with just:
 ```
 make truffle_test
