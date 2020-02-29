@@ -15,7 +15,7 @@ const cli = require('commander');
 // Capture argument
 cli
     .option('--validators <value>', 'Number of validators', 2)
-    .option('-v, --validator-threshold <value>', 'Value of validator threshold', 2)
+    .option('-v, --validator-threshold <value>', 'Value of validator threshold', 1)
     .option('-d, --deposit-threshold <value>', 'Value of deposit threshold', 1)
     .option('-p, --port <value>', 'Port of RPC instance', 8545)
     .option('--deposit-erc', "Make an ERC20 deposit", false)
@@ -24,6 +24,7 @@ cli
     .option('--deposit-test', "Make a deposit test", false)
     .option('--test-only', "Skip main contract depoyments, only run tests", false)
     .option('--dest <value>', "destination chain", 1)
+    .option('--watch', "Watch contracts", false)
 cli.parse(process.argv);
 
 // Connect to the network
@@ -76,6 +77,7 @@ const RECEIVER_ADDRESS = "0x5842B333910Fe0BfA05F5Ea9F1602a40d1AF3584";
 const CENTRIFUGE_ADDRESS = "0x290f41e61374c715C1127974bf08a3993afd0145";
 const EMITTER_ADDRESS = "0x3c747684333605408F9A4907DA043ee4c1A72D9c";
 const TEST_EMITTER_ADDRESS = "0x8090062239c909eB9b0433F1184c7DEf6124cc78";
+const ERC20_ADDRESS = "0xafDb02cF791CCaaABe69c67417285825D40543A5";
 
 // Deployment is asynchronous, so we use an async IIFE
 (async function () {
@@ -84,10 +86,11 @@ const TEST_EMITTER_ADDRESS = "0x8090062239c909eB9b0433F1184c7DEf6124cc78";
         await deployCentrifuge();
         await deployEmitter();
         await deployEmitterTest();
+        await deployERC20();
     }
 
     if (cli.depositErc) {
-        await erc20Transfer();
+        await erc20Transfer(Number(cli.dest));
     } else if (cli.depositNft) {
         await erc721Transfer(Number(cli.dest));
     } else if (cli.depositTest) {
@@ -197,7 +200,7 @@ async function deployEmitter() {
         // Done! The contract is deployed.
         // EMITTER_ADDRESS = contract.address;
     } finally {
-        
+
     }
 };
 
@@ -223,6 +226,21 @@ async function deployEmitterTest() {
     // TEST_EMITTER_ADDRESS = contract.address;
 };
 
+async function deployERC20() {
+    const minterWallet = new ethers.Wallet(validatorPrivKeys[0], provider);
+    let tokenFactory = new ethers.ContractFactory(ERC20Contract.abi, ERC20Contract.bytecode, minterWallet);
+    const tokenContract = await tokenFactory.deploy();
+    const contract = await tokenContract.deployed();
+    // The address the Contract WILL have once mined
+    console.log("[Deploy ERC20] Contract address: ", contract.address);
+
+    // The transaction that was sent to the network to deploy the Contract
+    console.log("[Deploy ERC20] Transaction Hash: ", contract.deployTransaction.hash);
+    await contract.mint(minterWallet.address, 100);
+    console.log("[ERC20 Transfer] Minted tokens!");
+    console.log(contract.address)
+}
+
 async function deployAssetTest() {
     try {
         const deployerWallet = new ethers.Wallet(validatorPrivKeys[0], provider);
@@ -234,42 +252,39 @@ async function deployAssetTest() {
         });
         console.log("[Deploy Asset] Tx hash: ", tx.hash);
     } catch (e) {
-        console.log({e})
+        console.log({ e })
     }
 }
 
-async function erc20Transfer() {
+async function erc20Transfer(dest) {
     try {
         const minterWallet = new ethers.Wallet(validatorPrivKeys[0], provider);
-
-        // Create token
-        let tokenFactory = new ethers.ContractFactory(ERC20Contract.abi, ERC20Contract.bytecode, minterWallet);
-        const tokenContract = await tokenFactory.deploy();
-        await tokenContract.deployed();
-        console.log("[ERC20 Transfer] Deployed token!")
         
-        // Mint & Approve tokens
-        let erc20Instance = new ethers.Contract(tokenContract.address, ERC20Contract.abi, minterWallet);
-        await erc20Instance.mint(minterWallet.address, 100);
-        console.log("[ERC20 Transfer] Minted tokens!");
-        
-        await erc20Instance.approve(EMITTER_ADDRESS, 1);
-        console.log("[ERC20 Transfer] Approved tokens!");
-
-        // Perform deposit
+        // Instances
+        const erc20Instance = new ethers.Contract(ERC20_ADDRESS, ERC20Contract.abi, minterWallet);
         const emitterInstance = new ethers.Contract(EMITTER_ADDRESS, EmitterContract.abi, minterWallet);
+        const receiverInstance = new ethers.Contract(RECEIVER_ADDRESS, ReceiverContract.abi, minterWallet);
+        if (cli.watch) {
+            watchBalances(erc20Instance, receiverInstance, emitterInstance.address, minterWallet.address, validatorAddress[1])
+        } else {
+        
+            // Mint & Approve tokens
+            await erc20Instance.approve(EMITTER_ADDRESS, 1);
+            console.log("[ERC20 Transfer] Approved tokens!");
 
-        // Check the balance before the transfer
-        const prebal = await emitterInstance.balances(erc20Instance.address);
-        console.log("[ERC20 Transfer] Pre token balaance: ", prebal.toNumber());
+            // Check the balance before the transfer
+            const prebal = await emitterInstance.balances(erc20Instance.address);
+            console.log("[ERC20 Transfer] Pre token balaance: ", prebal.toNumber());
 
-        // Make the deposit
-        await emitterInstance.depositGenericErc(0, 1, validatorAddress[1], erc20Instance.address);
-        console.log("[ERC20 Transfer] Created deposit!");
+            // Make the deposit
+            const value = 1
+            await emitterInstance.depositGenericErc(dest, value, validatorAddress[1], erc20Instance.address);
+            console.log("[ERC20 Transfer] Created deposit!");
 
-        // Check the balance after the deposit
-        const postbal = await emitterInstance.balances(erc20Instance.address);
-        console.log("[ERC20 Transfer] Post token balaance: ", postbal.toNumber());
+            // Check the balance after the deposit
+            const postbal = await emitterInstance.balances(erc20Instance.address);
+            console.log("[ERC20 Transfer] Post token balaance: ", postbal.toNumber());
+        }
     } catch (e) {
         console.log({ e });
     }
@@ -279,18 +294,18 @@ async function erc721Transfer(chain) {
     try {
         console.log("[ERC721 Transfer] EMITTER_ADDRESS:", EMITTER_ADDRESS);
         const minterWallet = new ethers.Wallet(validatorPrivKeys[0], provider);
-       
+
         // Create token
         let tokenFactory = new ethers.ContractFactory(ERC721Contract.abi, ERC721Contract.bytecode, minterWallet);
         const tokenContract = await tokenFactory.deploy();
         await tokenContract.deployed();
         console.log("[ERC721 Transfer] Deployed token!")
-        
+
         // Mint tokens
         let erc721Instance = new ethers.Contract(tokenContract.address, ERC721Contract.abi, minterWallet);
         await erc721Instance.mint(minterWallet.address, 1);
         console.log("[ERC721 Transfer] Minted tokens!");
-        
+
         // Approve tokens
         await erc721Instance.approve(EMITTER_ADDRESS, 1);
         console.log("[ERC721 Transfer] Approved tokens!");
@@ -301,7 +316,7 @@ async function erc721Transfer(chain) {
         // Check pre balance
         const prebal = await erc721Instance.balanceOf(EMITTER_ADDRESS);
         console.log("[ERC721 Transfer] Pre balance:", prebal.toNumber());
-        
+
         // Check the owner
         let owner = await erc721Instance.ownerOf(1);
         console.log("[ERC721 Transfer] Owner of token 1:", owner);
@@ -325,7 +340,7 @@ async function erc721Transfer(chain) {
         // Check post balance
         // const postbal = await erc721Instance.balanceOf(EMITTER_ADDRESS);
         // console.log("[ERC721 Transfer] Pre balance:", postbal.toNumber());
-        
+
         // console.log("[ERC20 Transfer] has the balance increased?", postbal.toNumber() > prebal.toNumber());
 
         // // Check the owner
@@ -349,11 +364,71 @@ async function depositTest() {
 
         // // Perform deposit
         await receiverInstance.createDepositProposal(
-            ethers.utils.formatBytes32String("HASH"), 
-            Math.floor(Math.random() * 10000), 
+            ethers.utils.formatBytes32String("HASH"),
+            Math.floor(Math.random() * 10000),
             Math.floor(Math.random() * 10000)
         );
     } catch (e) {
         console.log({ e });
+    }
+}
+
+async function watchBalances(tokenInstance, receiverInstance, bridge, from, to) {
+    let depositCount = 0;
+    let bridgeBal = await tokenInstance.balanceOf(bridge)
+    let fromBal = await tokenInstance.balanceOf(from)
+    let toBal = await tokenInstance.balanceOf(to)
+    let proposal = await receiverInstance.getDepositProposal(0, depositCount)
+    let curStatus,curOrigin,curHash;
+    receiverInstance.on("DepositProposalCreated", (hash,count,origin,status) => { 
+        curStatus = status
+        curHash = hash
+        curOrigin = origin
+        depositCount = count
+    })
+    console.log(`
+        Port:             ${cli.port}
+        Bridge balance:   ${bridgeBal}
+        Sender balance:   ${fromBal}
+        Receiver balance: ${toBal}
+        ===================
+        Latest Deposit Info
+        ===================
+        Deposit Count: ${depositCount}
+        Orign Chain:   ${curOrigin}
+        Vote Status:   ${VoteStatus(curStatus)}
+        Deposit Hash:  ${curHash}
+        `)
+    setInterval(async() => {
+        // depositCount += 1
+        bridgeBal = await tokenInstance.balanceOf(bridge)
+        fromBal = await tokenInstance.balanceOf(from)
+        toBal = await tokenInstance.balanceOf(to)
+        receiverX = await receiverInstance.getDepositProposal(0, depositCount)
+        console.log(`
+        Port:             ${cli.port}
+        Bridge balance:   ${bridgeBal}
+        Sender balance:   ${fromBal}
+        Receiver balance: ${toBal}
+        ======
+        Deposit Info
+        Deposit Count: ${depositCount}
+        Orign Chain:   ${curOrigin}
+        Vote Status:   ${VoteStatus(curStatus)}
+        Deposit Hash:  ${curHash}
+        `)
+    }, 1000)    
+}
+
+function VoteStatus(code) {
+    switch (code) {
+        case 0:
+            return "Inactive";
+        case 1:
+            return "Active";
+        case 2:
+            return "Finalized";
+        case 3:
+            return "Transferred";
     }
 }
