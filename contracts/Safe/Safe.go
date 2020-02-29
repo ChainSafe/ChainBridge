@@ -1,6 +1,3 @@
-// Copyright 2020 ChainSafe Systems
-// SPDX-License-Identifier: LGPL-3.0-only
-
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
@@ -31,10 +28,10 @@ var (
 )
 
 // SafeABI is the input ABI used to generate the binding from.
-const SafeABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"balances\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"}],\"name\":\"releaseErc\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"releaseNFT\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const SafeABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"balances\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"}],\"name\":\"releaseErc\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"releaseNFT\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
 
 // SafeBin is the compiled bytecode used for deploying new contracts.
-const SafeBin = `60806040523480156100115760006000fd5b506040516107e83803806107e8833981810160405260208110156100355760006000fd5b81019080805190602001909291905050505b80600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b5061008f565b61074a8061009e6000396000f3fe60806040523480156100115760006000fd5b50600436106100515760003560e01c806327e235e3146100575780632b4380c5146100b0578063344557331461011f5780638da5cb5b1461018e57610051565b60006000fd5b61009a6004803603602081101561006e5760006000fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506101d8565b6040518082815260200191505060405180910390f35b61011d600480360360608110156100c75760006000fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803590602001909291905050506101f3565b005b61018c600480360360608110156101365760006000fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610332565b005b6101966105c5565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60016000506020528060005260406000206000915090505481565b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156102505760006000fd5b60008390508073ffffffffffffffffffffffffffffffffffffffff166323b872dd3085856040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050600060405180830381600087803b1580156103115760006000fd5b505af1158015610326573d600060003e3d6000fd5b50505050505b5b505050565b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561038f5760006000fd5b81600160005060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600050541015151561044f576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601e8152602001807f5769746864726177616c20616d6f756e7420697320746f6f206869676821000081526020015060200191505060405180910390fd5b6104a782600160005060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600050546105f490919063ffffffff16565b600160005060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005081909090555060008390508073ffffffffffffffffffffffffffffffffffffffff1663a9059cbb83856040518363ffffffff1660e01b8152600401808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200182815260200192505050602060405180830381600087803b15801561057f5760006000fd5b505af1158015610594573d600060003e3d6000fd5b505050506040513d60208110156105ab5760006000fd5b810190808051906020019092919050505050505b5b505050565b6000600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690506105f1565b90565b600061063f83836040518060400160405280601e81526020017f536166654d6174683a207375627472616374696f6e206f766572666c6f77000081526020015061064c63ffffffff16565b9050610646565b92915050565b600083831115829015156106fc576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825283818151815260200191508051906020019080838360005b838110156106c15780820151818401525b6020810190506106a5565b50505050905090810190601f1680156106ee5780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b50600083850390508091505061070e56505b939250505056fea265627a7a7231582075b65a19c7a201fced2b5d4de4067fd420909e24a5523ddd7cbf1d79eca6a8bf64736f6c634300050c0032`
+var SafeBin = "0x608060405234801561001057600080fd5b5060405161078b38038061078b8339818101604052602081101561003357600080fd5b8101908080519060200190929190505050806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550506106f7806100946000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c806327e235e3146100515780632b4380c5146100a957806334455733146101175780638da5cb5b14610185575b600080fd5b6100936004803603602081101561006757600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506101cf565b6040518082815260200191505060405180910390f35b610115600480360360608110156100bf57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803590602001909291905050506101e7565b005b6101836004803603606081101561012d57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061031e565b005b61018d61058f565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60016020528060005260406000206000915090505481565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161461024057600080fd5b60008390508073ffffffffffffffffffffffffffffffffffffffff166323b872dd3085856040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050600060405180830381600087803b15801561030057600080fd5b505af1158015610314573d6000803e3d6000fd5b5050505050505050565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161461037757600080fd5b81600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054101561042c576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601e8152602001807f5769746864726177616c20616d6f756e7420697320746f6f206869676821000081525060200191505060405180910390fd5b61047e82600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546105b890919063ffffffff16565b600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208190555060008390508073ffffffffffffffffffffffffffffffffffffffff1663a9059cbb83856040518363ffffffff1660e01b8152600401808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200182815260200192505050602060405180830381600087803b15801561054d57600080fd5b505af1158015610561573d6000803e3d6000fd5b505050506040513d602081101561057757600080fd5b81019080805190602001909291905050505050505050565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905090565b60006105fa83836040518060400160405280601e81526020017f536166654d6174683a207375627472616374696f6e206f766572666c6f770000815250610602565b905092915050565b60008383111582906106af576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825283818151815260200191508051906020019080838360005b83811015610674578082015181840152602081019050610659565b50505050905090810190601f1680156106a15780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b506000838503905080915050939250505056fea265627a7a72315820518fa1a1ce4db0963ccb63e74b3f2f0ed571f3919c0e6c815ccb31f63a909a0364736f6c634300050c0032"
 
 // DeploySafe deploys a new Ethereum contract, binding an instance of Safe to it.
 func DeploySafe(auth *bind.TransactOpts, backend bind.ContractBackend, _owner common.Address) (common.Address, *types.Transaction, *Safe, error) {
@@ -42,6 +39,7 @@ func DeploySafe(auth *bind.TransactOpts, backend bind.ContractBackend, _owner co
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
+
 	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(SafeBin), backend, _owner)
 	if err != nil {
 		return common.Address{}, nil, nil, err
@@ -193,7 +191,7 @@ func (_Safe *SafeTransactorRaw) Transact(opts *bind.TransactOpts, method string,
 
 // Balances is a free data retrieval call binding the contract method 0x27e235e3.
 //
-// Solidity: function balances( address) constant returns(uint256)
+// Solidity: function balances(address ) constant returns(uint256)
 func (_Safe *SafeCaller) Balances(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -205,14 +203,14 @@ func (_Safe *SafeCaller) Balances(opts *bind.CallOpts, arg0 common.Address) (*bi
 
 // Balances is a free data retrieval call binding the contract method 0x27e235e3.
 //
-// Solidity: function balances( address) constant returns(uint256)
+// Solidity: function balances(address ) constant returns(uint256)
 func (_Safe *SafeSession) Balances(arg0 common.Address) (*big.Int, error) {
 	return _Safe.Contract.Balances(&_Safe.CallOpts, arg0)
 }
 
 // Balances is a free data retrieval call binding the contract method 0x27e235e3.
 //
-// Solidity: function balances( address) constant returns(uint256)
+// Solidity: function balances(address ) constant returns(uint256)
 func (_Safe *SafeCallerSession) Balances(arg0 common.Address) (*big.Int, error) {
 	return _Safe.Contract.Balances(&_Safe.CallOpts, arg0)
 }
@@ -245,42 +243,42 @@ func (_Safe *SafeCallerSession) Owner() (common.Address, error) {
 
 // ReleaseErc is a paid mutator transaction binding the contract method 0x34455733.
 //
-// Solidity: function releaseErc(_tokenAddress address, _value uint256, _to address) returns()
+// Solidity: function releaseErc(address _tokenAddress, uint256 _value, address _to) returns()
 func (_Safe *SafeTransactor) ReleaseErc(opts *bind.TransactOpts, _tokenAddress common.Address, _value *big.Int, _to common.Address) (*types.Transaction, error) {
 	return _Safe.contract.Transact(opts, "releaseErc", _tokenAddress, _value, _to)
 }
 
 // ReleaseErc is a paid mutator transaction binding the contract method 0x34455733.
 //
-// Solidity: function releaseErc(_tokenAddress address, _value uint256, _to address) returns()
+// Solidity: function releaseErc(address _tokenAddress, uint256 _value, address _to) returns()
 func (_Safe *SafeSession) ReleaseErc(_tokenAddress common.Address, _value *big.Int, _to common.Address) (*types.Transaction, error) {
 	return _Safe.Contract.ReleaseErc(&_Safe.TransactOpts, _tokenAddress, _value, _to)
 }
 
 // ReleaseErc is a paid mutator transaction binding the contract method 0x34455733.
 //
-// Solidity: function releaseErc(_tokenAddress address, _value uint256, _to address) returns()
+// Solidity: function releaseErc(address _tokenAddress, uint256 _value, address _to) returns()
 func (_Safe *SafeTransactorSession) ReleaseErc(_tokenAddress common.Address, _value *big.Int, _to common.Address) (*types.Transaction, error) {
 	return _Safe.Contract.ReleaseErc(&_Safe.TransactOpts, _tokenAddress, _value, _to)
 }
 
 // ReleaseNFT is a paid mutator transaction binding the contract method 0x2b4380c5.
 //
-// Solidity: function releaseNFT(_tokenAddress address, _to address, _tokenId uint256) returns()
+// Solidity: function releaseNFT(address _tokenAddress, address _to, uint256 _tokenId) returns()
 func (_Safe *SafeTransactor) ReleaseNFT(opts *bind.TransactOpts, _tokenAddress common.Address, _to common.Address, _tokenId *big.Int) (*types.Transaction, error) {
 	return _Safe.contract.Transact(opts, "releaseNFT", _tokenAddress, _to, _tokenId)
 }
 
 // ReleaseNFT is a paid mutator transaction binding the contract method 0x2b4380c5.
 //
-// Solidity: function releaseNFT(_tokenAddress address, _to address, _tokenId uint256) returns()
+// Solidity: function releaseNFT(address _tokenAddress, address _to, uint256 _tokenId) returns()
 func (_Safe *SafeSession) ReleaseNFT(_tokenAddress common.Address, _to common.Address, _tokenId *big.Int) (*types.Transaction, error) {
 	return _Safe.Contract.ReleaseNFT(&_Safe.TransactOpts, _tokenAddress, _to, _tokenId)
 }
 
 // ReleaseNFT is a paid mutator transaction binding the contract method 0x2b4380c5.
 //
-// Solidity: function releaseNFT(_tokenAddress address, _to address, _tokenId uint256) returns()
+// Solidity: function releaseNFT(address _tokenAddress, address _to, uint256 _tokenId) returns()
 func (_Safe *SafeTransactorSession) ReleaseNFT(_tokenAddress common.Address, _to common.Address, _tokenId *big.Int) (*types.Transaction, error) {
 	return _Safe.Contract.ReleaseNFT(&_Safe.TransactOpts, _tokenAddress, _to, _tokenId)
 }

@@ -28,7 +28,7 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 	//TODO: Should this be metadata?
 	_, err = w.receiverContract.Transact(opts, StoreMethod, keccakHash(m.Metadata))
 	if err != nil {
-		log15.Error("Failed to submit transaction", "err", err)
+		log15.Error("Failed to submit depositASset transaction", "err", err)
 		return false
 	}
 	return true
@@ -37,14 +37,12 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 func (w *Writer) createDepositProposal(m msg.Message) bool {
 	log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver)
 
-	log15.Trace("Before", "opts", w.conn)
 	opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
 	if err != nil {
 		log15.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
 
-	log15.Trace("After")
 	_, err = w.receiverContract.Transact(
 		opts,
 		CreateDepositProposalMethod,
@@ -54,7 +52,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 	)
 
 	if err != nil {
-		log15.Error("Failed to submit transaction", "err", err)
+		log15.Error("Failed to submit createDepositProposal transaction", "err", err)
 		return false
 	}
 	return true
@@ -75,9 +73,11 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 		u32toBigInt(m.DepositId),
 		m.Source.Big(),
 		uint8(1),
+		byteSliceTo32Bytes(m.To),
+		m.Metadata,
 	)
 	if err != nil {
-		log15.Error("Failed to submit transaction", "err", err)
+		log15.Error("Failed to submit voteDepositProposal transaction", "depist_count", m.DepositId, "err", err)
 		return false
 	}
 	return true
@@ -101,7 +101,7 @@ func (w *Writer) executeDeposit(m msg.Message) bool {
 		m.Metadata,
 	)
 	if err != nil {
-		log15.Error("Failed to submit transaction", "err", err)
+		log15.Error("Failed to submit executeDeposit transaction", "err", err)
 		return false
 	}
 	return true

@@ -52,8 +52,13 @@ func (l *Listener) Start() error {
 	for _, subscription := range l.cfg.subscriptions {
 		sub := subscription
 		switch sub {
-		case ErcTransferSignature, NftTransferSignature:
-			err := l.RegisterEventHandler(sub, l.handleTransferEvent)
+		case NftTransferSignature:
+			err := l.RegisterEventHandler(sub, l.handleNftTransferEvent)
+			if err != nil {
+				log15.Error("failed to register event handler", "err", err)
+			}
+		case ErcTransferSignature:
+			err := l.RegisterEventHandler(sub, l.handleErcTransferEvent)
 			if err != nil {
 				log15.Error("failed to register event handler", "err", err)
 			}

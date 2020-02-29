@@ -379,7 +379,7 @@ async function watchBalances(tokenInstance, receiverInstance, bridge, from, to) 
     let fromBal = await tokenInstance.balanceOf(from)
     let toBal = await tokenInstance.balanceOf(to)
     let proposal = await receiverInstance.getDepositProposal(0, depositCount)
-    let curStatus,curOrigin,curHash;
+    let curStatus,curOrigin,curHash,threshold;
     receiverInstance.on("DepositProposalCreated", (hash,count,origin,status) => { 
         curStatus = status
         curHash = hash
@@ -391,31 +391,40 @@ async function watchBalances(tokenInstance, receiverInstance, bridge, from, to) 
         Bridge balance:   ${bridgeBal}
         Sender balance:   ${fromBal}
         Receiver balance: ${toBal}
+        Threshold:        ${threshold}
         ===================
         Latest Deposit Info
         ===================
-        Deposit Count: ${depositCount}
-        Orign Chain:   ${curOrigin}
-        Vote Status:   ${VoteStatus(curStatus)}
-        Deposit Hash:  ${curHash}
-        `)
-    setInterval(async() => {
-        // depositCount += 1
-        bridgeBal = await tokenInstance.balanceOf(bridge)
-        fromBal = await tokenInstance.balanceOf(from)
-        toBal = await tokenInstance.balanceOf(to)
-        receiverX = await receiverInstance.getDepositProposal(0, depositCount)
-        console.log(`
-        Port:             ${cli.port}
-        Bridge balance:   ${bridgeBal}
-        Sender balance:   ${fromBal}
-        Receiver balance: ${toBal}
-        ======
         Deposit Info
         Deposit Count: ${depositCount}
         Orign Chain:   ${curOrigin}
         Vote Status:   ${VoteStatus(curStatus)}
         Deposit Hash:  ${curHash}
+        Number Yes:    ${proposal.numYes}
+        `)
+    setInterval(async() => {
+        // depositCount += 1
+        proposal = await receiverInstance.getDepositProposal(0, depositCount)
+        bridgeBal = await tokenInstance.balanceOf(bridge)
+        fromBal = await tokenInstance.balanceOf(from)
+        toBal = await tokenInstance.balanceOf(to)
+        receiverX = await receiverInstance.getDepositProposal(0, depositCount)
+        threshold = await receiverInstance.DepositThreshold()
+        console.log(`
+        Port:             ${cli.port}
+        Bridge balance:   ${bridgeBal}
+        Sender balance:   ${fromBal}
+        Receiver balance: ${toBal}
+        Threshold:        ${threshold}
+        ===================
+        Latest Deposit Info
+        ===================
+        Deposit Info
+        Deposit Count: ${depositCount}
+        Orign Chain:   ${curOrigin}
+        Vote Status:   ${VoteStatus(curStatus)}
+        Deposit Hash:  ${curHash}
+        Number Yes:    ${proposal.numYes}
         `)
     }, 1000)    
 }

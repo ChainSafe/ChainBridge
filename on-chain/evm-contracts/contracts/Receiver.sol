@@ -162,8 +162,8 @@ contract Receiver {
      * @param _depositId - The id assigned to a deposit, generated on the origin chain
      * @param _vote - uint from 0-1 representing the casted vote
      */
-    function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
-        require(DepositProposals[_originChainId][_depositId].status != VoteStatus.Inactive, "There is no active proposal!");
+    function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote, address _to, bytes memory _data) public _isValidator {
+        require(DepositProposals[_originChainId][_depositId].status != VoteStatus.Active, "There is no active proposal!");
         require(DepositProposals[_originChainId][_depositId].status < VoteStatus.Finalized, "Proposal has already been finalized!");
         require(!DepositProposals[_originChainId][_depositId].votes[msg.sender], "Validator has already voted!");
         require(uint(_vote) <= 1, "Invalid vote!");
@@ -183,6 +183,7 @@ contract Receiver {
         if (DepositProposals[_originChainId][_depositId].numYes >= DepositThreshold ||
             TotalValidators - DepositProposals[_originChainId][_depositId].numNo < DepositThreshold) {
             DepositProposals[_originChainId][_depositId].status = VoteStatus.Finalized;
+            executeDeposit(_originChainId, _depositId, _to, _data);
         }
         // Triger event
         emit DepositProposalVote(_originChainId, _depositId, _vote, DepositProposals[_originChainId][_depositId].status);
@@ -198,7 +199,7 @@ contract Receiver {
     function executeDeposit(uint _originChainId, uint _depositId, address _to, bytes memory _data) public {
         DepositProposal storage proposal = DepositProposals[_originChainId][_depositId];
         require(proposal.status == VoteStatus.Finalized, "Vote has not finalized!");
-        require(proposal.numYes >= DepositThreshold, "Vote has not passed!"); // Check that voted passed
+        // require(proposal.numYes >= DepositThreshold, "Vote has not passed!"); // Check that voted passed
         // Ensure that the incoming data is the same as the hashed data from the proposal
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
 

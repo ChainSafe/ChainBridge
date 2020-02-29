@@ -1,6 +1,3 @@
-// Copyright 2020 ChainSafe Systems
-// SPDX-License-Identifier: LGPL-3.0-only
-
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
@@ -31,10 +28,10 @@ var (
 )
 
 // BridgeAssetABI is the input ABI used to generate the binding from.
-const BridgeAssetABI = "[{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"mc\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"asset\",\"type\":\"bytes32\"}],\"name\":\"AssetStored\",\"type\":\"event\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"assets\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"asset\",\"type\":\"bytes32\"}],\"name\":\"isAssetValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"asset\",\"type\":\"bytes32\"}],\"name\":\"store\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const BridgeAssetABI = "[{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"mc\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"asset\",\"type\":\"bytes32\"}],\"name\":\"AssetStored\",\"type\":\"event\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"assets\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"asset\",\"type\":\"bytes32\"}],\"name\":\"store\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"asset\",\"type\":\"bytes32\"}],\"name\":\"isAssetValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
 
 // BridgeAssetBin is the compiled bytecode used for deploying new contracts.
-const BridgeAssetBin = `60806040523480156100115760006000fd5b506040516105303803806105308339818101604052610033919081019061006f565b5b80600060006101000a81548160ff021916908360ff1602179055505b506100c1566100c0565b600081519050610069816100a6565b92915050565b6000602082840312156100825760006000fd5b60006100908482850161005a565b91505092915050565b600060ff82169050919050565b6100af81610099565b811415156100bd5760006000fd5b50565b5b610460806100d06000396000f3fe60806040523480156100115760006000fd5b50600436106100465760003560e01c8063339f16a91461004c578063654cf88c1461007c5780639fda5b661461009857610046565b60006000fd5b610066600480360361006191908101906102ca565b6100c8565b6040516100739190610378565b60405180910390f35b610096600480360361009191908101906102ca565b610118565b005b6100b260048036036100ad91908101906102ca565b61028c565b6040516100bf91906103b3565b60405180910390f35b6000600160016000506000846000191660001916815260200190815260200160002060009054906101000a900460ff1660ff16141561010a5760019050610113565b60009050610113565b919050565b600160016000506000836000191660001916815260200190815260200160002060009054906101000a900460ff1660ff161415151561018c576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161018390610393565b60405180910390fd5b600a60016000506000836000191660001916815260200190815260200160002060008282829054906101000a900460ff160192506101000a81548160ff021916908360ff160217905550600060009054906101000a900460ff1660ff1660016000506000836000191660001916815260200190815260200160002060009054906101000a900460ff1660ff16141561028857600160016000506000836000191660001916815260200190815260200160002060006101000a81548160ff021916908360ff16021790555080600019167f08ae553713effae7116be03743b167b8b803449ee8fb912c2ec43dc2c824f53560405160405180910390a25b5b50565b600160005060205280600052604060002060009150909054906101000a900460ff16815661041c565b6000813590506102c481610402565b92915050565b6000602082840312156102dd5760006000fd5b60006102eb848285016102b5565b91505092915050565b6102fd816103df565b82525050565b60006103106026836103ce565b91507f41737365742063616e6e6f74206265206368616e676564206f6e636520636f6e60008301527f6669726d656400000000000000000000000000000000000000000000000000006020830152604082019050919050565b610372816103f5565b82525050565b600060208201905061038d60008301846102f4565b92915050565b600060208201905081810360008301526103ac81610303565b9050919050565b60006020820190506103c86000830184610369565b92915050565b600082825260208201905092915050565b60008115159050919050565b6000819050919050565b600060ff82169050919050565b61040b816103eb565b811415156104195760006000fd5b50565bfea365627a7a72315820f86d46b1645a10f8d7ff7cdb35ef4fcefe8a632a10cd965df055acfd71e1486c6c6578706572696d656e74616cf564736f6c634300050c0040`
+var BridgeAssetBin = "0x608060405234801561001057600080fd5b506040516104c93803806104c983398181016040526100329190810190610067565b806000806101000a81548160ff021916908360ff160217905550506100b4565b6000815190506100618161009d565b92915050565b60006020828403121561007957600080fd5b600061008784828501610052565b91505092915050565b600060ff82169050919050565b6100a681610090565b81146100b157600080fd5b50565b610406806100c36000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c8063339f16a914610046578063654cf88c146100765780639fda5b6614610092575b600080fd5b610060600480360361005b9190810190610275565b6100c2565b60405161006d9190610322565b60405180910390f35b610090600480360361008b9190810190610275565b610102565b005b6100ac60048036036100a79190810190610275565b610240565b6040516100b9919061035d565b60405180910390f35b6000600180600084815260200190815260200160002060009054906101000a900460ff1660ff1614156100f857600190506100fd565b600090505b919050565b600180600083815260200190815260200160002060009054906101000a900460ff1660ff161415610168576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161015f9061033d565b60405180910390fd5b600a6001600083815260200190815260200160002060008282829054906101000a900460ff160192506101000a81548160ff021916908360ff1602179055506000809054906101000a900460ff1660ff166001600083815260200190815260200160002060009054906101000a900460ff1660ff16141561023d57600180600083815260200190815260200160002060006101000a81548160ff021916908360ff160217905550807f08ae553713effae7116be03743b167b8b803449ee8fb912c2ec43dc2c824f53560405160405180910390a25b50565b60016020528060005260406000206000915054906101000a900460ff1681565b60008135905061026f816103ac565b92915050565b60006020828403121561028757600080fd5b600061029584828501610260565b91505092915050565b6102a781610389565b82525050565b60006102ba602683610378565b91507f41737365742063616e6e6f74206265206368616e676564206f6e636520636f6e60008301527f6669726d656400000000000000000000000000000000000000000000000000006020830152604082019050919050565b61031c8161039f565b82525050565b6000602082019050610337600083018461029e565b92915050565b60006020820190508181036000830152610356816102ad565b9050919050565b60006020820190506103726000830184610313565b92915050565b600082825260208201905092915050565b60008115159050919050565b6000819050919050565b600060ff82169050919050565b6103b581610395565b81146103c057600080fd5b5056fea365627a7a723158204d400c339e522dca1a2e44bdc1bc8982a4509a7ab9bfefe346f267c7dac7a9666c6578706572696d656e74616cf564736f6c634300050c0040"
 
 // DeployBridgeAsset deploys a new Ethereum contract, binding an instance of BridgeAsset to it.
 func DeployBridgeAsset(auth *bind.TransactOpts, backend bind.ContractBackend, mc uint8) (common.Address, *types.Transaction, *BridgeAsset, error) {
@@ -42,6 +39,7 @@ func DeployBridgeAsset(auth *bind.TransactOpts, backend bind.ContractBackend, mc
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
+
 	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(BridgeAssetBin), backend, mc)
 	if err != nil {
 		return common.Address{}, nil, nil, err
@@ -193,7 +191,7 @@ func (_BridgeAsset *BridgeAssetTransactorRaw) Transact(opts *bind.TransactOpts, 
 
 // Assets is a free data retrieval call binding the contract method 0x9fda5b66.
 //
-// Solidity: function assets( bytes32) constant returns(uint8)
+// Solidity: function assets(bytes32 ) constant returns(uint8)
 func (_BridgeAsset *BridgeAssetCaller) Assets(opts *bind.CallOpts, arg0 [32]byte) (uint8, error) {
 	var (
 		ret0 = new(uint8)
@@ -205,21 +203,21 @@ func (_BridgeAsset *BridgeAssetCaller) Assets(opts *bind.CallOpts, arg0 [32]byte
 
 // Assets is a free data retrieval call binding the contract method 0x9fda5b66.
 //
-// Solidity: function assets( bytes32) constant returns(uint8)
+// Solidity: function assets(bytes32 ) constant returns(uint8)
 func (_BridgeAsset *BridgeAssetSession) Assets(arg0 [32]byte) (uint8, error) {
 	return _BridgeAsset.Contract.Assets(&_BridgeAsset.CallOpts, arg0)
 }
 
 // Assets is a free data retrieval call binding the contract method 0x9fda5b66.
 //
-// Solidity: function assets( bytes32) constant returns(uint8)
+// Solidity: function assets(bytes32 ) constant returns(uint8)
 func (_BridgeAsset *BridgeAssetCallerSession) Assets(arg0 [32]byte) (uint8, error) {
 	return _BridgeAsset.Contract.Assets(&_BridgeAsset.CallOpts, arg0)
 }
 
 // IsAssetValid is a free data retrieval call binding the contract method 0x339f16a9.
 //
-// Solidity: function isAssetValid(asset bytes32) constant returns(bool)
+// Solidity: function isAssetValid(bytes32 asset) constant returns(bool)
 func (_BridgeAsset *BridgeAssetCaller) IsAssetValid(opts *bind.CallOpts, asset [32]byte) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -231,35 +229,35 @@ func (_BridgeAsset *BridgeAssetCaller) IsAssetValid(opts *bind.CallOpts, asset [
 
 // IsAssetValid is a free data retrieval call binding the contract method 0x339f16a9.
 //
-// Solidity: function isAssetValid(asset bytes32) constant returns(bool)
+// Solidity: function isAssetValid(bytes32 asset) constant returns(bool)
 func (_BridgeAsset *BridgeAssetSession) IsAssetValid(asset [32]byte) (bool, error) {
 	return _BridgeAsset.Contract.IsAssetValid(&_BridgeAsset.CallOpts, asset)
 }
 
 // IsAssetValid is a free data retrieval call binding the contract method 0x339f16a9.
 //
-// Solidity: function isAssetValid(asset bytes32) constant returns(bool)
+// Solidity: function isAssetValid(bytes32 asset) constant returns(bool)
 func (_BridgeAsset *BridgeAssetCallerSession) IsAssetValid(asset [32]byte) (bool, error) {
 	return _BridgeAsset.Contract.IsAssetValid(&_BridgeAsset.CallOpts, asset)
 }
 
 // Store is a paid mutator transaction binding the contract method 0x654cf88c.
 //
-// Solidity: function store(asset bytes32) returns()
+// Solidity: function store(bytes32 asset) returns()
 func (_BridgeAsset *BridgeAssetTransactor) Store(opts *bind.TransactOpts, asset [32]byte) (*types.Transaction, error) {
 	return _BridgeAsset.contract.Transact(opts, "store", asset)
 }
 
 // Store is a paid mutator transaction binding the contract method 0x654cf88c.
 //
-// Solidity: function store(asset bytes32) returns()
+// Solidity: function store(bytes32 asset) returns()
 func (_BridgeAsset *BridgeAssetSession) Store(asset [32]byte) (*types.Transaction, error) {
 	return _BridgeAsset.Contract.Store(&_BridgeAsset.TransactOpts, asset)
 }
 
 // Store is a paid mutator transaction binding the contract method 0x654cf88c.
 //
-// Solidity: function store(asset bytes32) returns()
+// Solidity: function store(bytes32 asset) returns()
 func (_BridgeAsset *BridgeAssetTransactorSession) Store(asset [32]byte) (*types.Transaction, error) {
 	return _BridgeAsset.Contract.Store(&_BridgeAsset.TransactOpts, asset)
 }
@@ -339,7 +337,7 @@ type BridgeAssetAssetStored struct {
 
 // FilterAssetStored is a free log retrieval operation binding the contract event 0x08ae553713effae7116be03743b167b8b803449ee8fb912c2ec43dc2c824f535.
 //
-// Solidity: e AssetStored(asset indexed bytes32)
+// Solidity: event AssetStored(bytes32 indexed asset)
 func (_BridgeAsset *BridgeAssetFilterer) FilterAssetStored(opts *bind.FilterOpts, asset [][32]byte) (*BridgeAssetAssetStoredIterator, error) {
 
 	var assetRule []interface{}
@@ -356,7 +354,7 @@ func (_BridgeAsset *BridgeAssetFilterer) FilterAssetStored(opts *bind.FilterOpts
 
 // WatchAssetStored is a free log subscription operation binding the contract event 0x08ae553713effae7116be03743b167b8b803449ee8fb912c2ec43dc2c824f535.
 //
-// Solidity: e AssetStored(asset indexed bytes32)
+// Solidity: event AssetStored(bytes32 indexed asset)
 func (_BridgeAsset *BridgeAssetFilterer) WatchAssetStored(opts *bind.WatchOpts, sink chan<- *BridgeAssetAssetStored, asset [][32]byte) (event.Subscription, error) {
 
 	var assetRule []interface{}
@@ -394,4 +392,15 @@ func (_BridgeAsset *BridgeAssetFilterer) WatchAssetStored(opts *bind.WatchOpts, 
 			}
 		}
 	}), nil
+}
+
+// ParseAssetStored is a log parse operation binding the contract event 0x08ae553713effae7116be03743b167b8b803449ee8fb912c2ec43dc2c824f535.
+//
+// Solidity: event AssetStored(bytes32 indexed asset)
+func (_BridgeAsset *BridgeAssetFilterer) ParseAssetStored(log types.Log) (*BridgeAssetAssetStored, error) {
+	event := new(BridgeAssetAssetStored)
+	if err := _BridgeAsset.contract.UnpackLog(event, "AssetStored", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }
