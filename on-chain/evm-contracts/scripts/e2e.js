@@ -16,7 +16,7 @@ const cli = require('commander');
 cli
     .option('--validators <value>', 'Number of validators', 2)
     .option('-v, --validator-threshold <value>', 'Value of validator threshold', 1)
-    .option('-d, --deposit-threshold <value>', 'Value of deposit threshold', 1)
+    .option('-d, --deposit-threshold <value>', 'Value of deposit threshold', 2)
     .option('-p, --port <value>', 'Port of RPC instance', 8545)
     .option('--deposit-erc', "Make an ERC20 deposit", false)
     .option('--deposit-nft', "Make an ERC721 deposit", false)
@@ -384,24 +384,24 @@ async function watchBalances(tokenInstance, receiverInstance, bridge, from, to) 
         curStatus = status
         curHash = hash
         curOrigin = origin
-        depositCount = count
+        depositCount = count.toNumber()
     })
-    console.log(`
-        Port:             ${cli.port}
-        Bridge balance:   ${bridgeBal}
-        Sender balance:   ${fromBal}
-        Receiver balance: ${toBal}
-        Threshold:        ${threshold}
-        ===================
-        Latest Deposit Info
-        ===================
-        Deposit Info
-        Deposit Count: ${depositCount}
-        Orign Chain:   ${curOrigin}
-        Vote Status:   ${VoteStatus(curStatus)}
-        Deposit Hash:  ${curHash}
-        Number Yes:    ${proposal.numYes}
-        `)
+    receiverInstance.on("DepositProposalVote", (origin, count, _, status) => {
+        curOrigin = origin
+        depositCount = count.toNumber()
+        curStatus = status
+    })
+    displayLog({
+        bridgeBal,
+        fromBal,
+        toBal,
+        proposal,
+        curHash,
+        curOrigin,
+        curStatus,
+        threshold,
+        depositCount
+    })
     setInterval(async() => {
         // depositCount += 1
         proposal = await receiverInstance.getDepositProposal(0, depositCount)
@@ -410,23 +410,38 @@ async function watchBalances(tokenInstance, receiverInstance, bridge, from, to) 
         toBal = await tokenInstance.balanceOf(to)
         receiverX = await receiverInstance.getDepositProposal(0, depositCount)
         threshold = await receiverInstance.DepositThreshold()
-        console.log(`
+        displayLog({
+            bridgeBal,
+            fromBal,
+            toBal,
+            proposal,
+            curHash,
+            curOrigin,
+            curStatus,
+            threshold,
+            depositCount
+        })
+    }, 1000)    
+}
+
+function displayLog(vals) {
+    console.log(`
         Port:             ${cli.port}
-        Bridge balance:   ${bridgeBal}
-        Sender balance:   ${fromBal}
-        Receiver balance: ${toBal}
-        Threshold:        ${threshold}
+        Bridge balance:   ${vals.bridgeBal}
+        Sender balance:   ${vals.fromBal}
+        Receiver balance: ${vals.toBal}
+        Threshold:        ${vals.threshold}
         ===================
         Latest Deposit Info
         ===================
         Deposit Info
-        Deposit Count: ${depositCount}
-        Orign Chain:   ${curOrigin}
-        Vote Status:   ${VoteStatus(curStatus)}
-        Deposit Hash:  ${curHash}
-        Number Yes:    ${proposal.numYes}
+        Deposit Count: ${vals.depositCount}
+        Orign Chain:   ${vals.curOrigin}
+        Vote Status:   ${VoteStatus(vals.curStatus)}
+        Deposit Hash:  ${vals.curHash}
+        Number Yes:    ${vals.proposal.numYes}
+        Number No:     ${vals.proposal.numNo}
         `)
-    }, 1000)    
 }
 
 function VoteStatus(code) {
