@@ -162,8 +162,8 @@ contract Receiver {
      * @param _depositId - The id assigned to a deposit, generated on the origin chain
      * @param _vote - uint from 0-1 representing the casted vote
      */
-    function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote, address _to, bytes memory _data) public _isValidator {
-        require(DepositProposals[_originChainId][_depositId].status != VoteStatus.Active, "There is no active proposal!");
+    function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
+        require(DepositProposals[_originChainId][_depositId].status == VoteStatus.Active, "There is no active proposal!");
         require(DepositProposals[_originChainId][_depositId].status < VoteStatus.Finalized, "Proposal has already been finalized!");
         require(!DepositProposals[_originChainId][_depositId].votes[msg.sender], "Validator has already voted!");
         require(uint(_vote) <= 1, "Invalid vote!");
@@ -183,7 +183,6 @@ contract Receiver {
         if (DepositProposals[_originChainId][_depositId].numYes >= DepositThreshold ||
             TotalValidators - DepositProposals[_originChainId][_depositId].numNo < DepositThreshold) {
             DepositProposals[_originChainId][_depositId].status = VoteStatus.Finalized;
-            executeDeposit(_originChainId, _depositId, _to, _data);
         }
         // Triger event
         emit DepositProposalVote(_originChainId, _depositId, _vote, DepositProposals[_originChainId][_depositId].status);
