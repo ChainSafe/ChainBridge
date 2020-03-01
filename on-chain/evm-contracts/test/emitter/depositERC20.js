@@ -7,39 +7,48 @@ const EmitterContract = artifacts.require("Emitter");
 const ERC20Contract = artifacts.require("ERC20Mintable");
 
 contract('Emitter - [deposits::ERC20]', async (accounts) => {
-    let EmitterInstance;
-    let erc20Instance;
+    const minter = accounts[0];
+    const receiver = accounts[1];
+    const destinationChainID = 0;
+    const initialTokenAmount = 100;
+    const depositTokenAmount = 1;
 
-    let minter = accounts[0];
-    let receiver = accounts[1];
+    let EmitterInstance;
+    let ERC20Instance;
 
     beforeEach(async () => {
         EmitterInstance = await EmitterContract.new();
-        erc20Instance = await ERC20Contract.new({ from: minter });
-        await erc20Instance.mint(minter, 100, { from: minter });
-        await erc20Instance.approve(EmitterInstance.address, 100, {from: minter})
+        ERC20Instance = await ERC20Contract.new();
+        await ERC20Instance.mint(minter, initialTokenAmount);
+        await ERC20Instance.approve(EmitterInstance.address, initialTokenAmount);
     });
 
     it('[sanity] test minter balance', async () => {
-        const minterbal = await erc20Instance.balanceOf(minter);
-        assert.strictEqual(minterbal.toNumber(), 100);
-        const allowance = await erc20Instance.allowance(minter, EmitterInstance.address);
-        assert.strictEqual(allowance.toNumber(), 100);
+        const minterBalance = await ERC20Instance.balanceOf(minter);
+        assert.strictEqual(minterBalance.toNumber(), initialTokenAmount);
+        const allowance = await ERC20Instance.allowance(minter, EmitterInstance.address);
+        assert.strictEqual(allowance.toNumber(), initialTokenAmount);
     });
 
     it('deposit', async () => {
-        EmitterInstance.depositGenericErc(0, 1, receiver, erc20Instance.address);
+        EmitterInstance.depositGenericErc(destinationChainID, depositTokenAmount, receiver, ERC20Instance.address);
         
-        const safeBalance = await erc20Instance.balanceOf(EmitterInstance.address);
-        assert.strictEqual(safeBalance.toNumber(), 1);
+        const safeBalance = await ERC20Instance.balanceOf(EmitterInstance.address);
+        assert.strictEqual(safeBalance.toNumber(), depositTokenAmount);
 
-        const minterBalNew = await erc20Instance.balanceOf(minter);
-        assert.strictEqual(minterBalNew.toNumber(), 99)
+        const minterBalNew = await ERC20Instance.balanceOf(minter);
+        assert.strictEqual(minterBalNew.toNumber(), initialTokenAmount - depositTokenAmount)
     });
 
     it('token balance is correct', async () => {
-        EmitterInstance.depositGenericErc(0, 1, receiver, erc20Instance.address);
-        const balance = await EmitterInstance.balances(erc20Instance.address);
-        assert.strictEqual(balance.toNumber(), 1);
+        EmitterInstance.depositGenericErc(destinationChainID, depositTokenAmount, receiver, ERC20Instance.address);
+        const balance = await EmitterInstance.balances(ERC20Instance.address);
+        assert.strictEqual(balance.toNumber(), depositTokenAmount);
+    });
+
+    it('depositId is correct', async () => {
+        EmitterInstance.depositGenericErc(destinationChainID, depositTokenAmount, receiver, ERC20Instance.address);
+        const depositId = await EmitterInstance.DepositCounts.call(destinationChainID);
+        assert.strictEqual(depositId.toNumber(), 1);
     });
 });
