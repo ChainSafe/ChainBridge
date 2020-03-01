@@ -199,7 +199,7 @@ contract Receiver {
     function executeDeposit(uint _originChainId, uint _depositId, address _to, bytes memory _data) public {
         DepositProposal storage proposal = DepositProposals[_originChainId][_depositId];
         require(proposal.status == VoteStatus.Finalized, "Vote has not finalized!");
-        // require(proposal.numYes >= DepositThreshold, "Vote has not passed!"); // Check that voted passed
+        require(proposal.numYes >= DepositThreshold, "Vote has not passed!"); // Check that voted passed
         // Ensure that the incoming data is the same as the hashed data from the proposal
         require(keccak256(_data) == proposal.hash, "Incorrect data supplied for hash");
 
