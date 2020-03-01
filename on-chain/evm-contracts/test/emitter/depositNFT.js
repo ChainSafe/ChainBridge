@@ -4,50 +4,54 @@
  */
 
 const EmitterContract = artifacts.require("Emitter");
-const NFTContract = artifacts.require("ERC721Mintable");
+const ERC721Contract = artifacts.require("ERC721Mintable");
 
 contract('Emitter - [deposits::ERC20]', async (accounts) => {
-    let EmitterInstance;
-    let NFTInstance;
-    let EmitterAddress;
-    let NFTAddress;
+    const minter = accounts[0];
+    const receiver = accounts[1];
+    const destinationChainID = 0;
+    const tokenID = 1;
 
-    let minter = accounts[0];
-    let receiver = accounts[1];
+    let EmitterInstance;
+    let ERC721Instance;
 
     beforeEach(async () => {
         EmitterInstance = await EmitterContract.new();
-        EmitterAddress = EmitterInstance.address;
-        NFTInstance = await NFTContract.new({ from: minter });
-        NFTAddress = NFTInstance.address;
-        await NFTInstance.mint(minter, 1, { from: minter });
-        await NFTInstance.approve(EmitterInstance.address, 1, { from: minter })
+        ERC721Instance = await ERC721Contract.new();
+        await ERC721Instance.mint(minter, tokenID);
+        await ERC721Instance.approve(EmitterInstance.address, tokenID)
     });
 
     it('[sanity] test minter balance', async () => {
-        const tokenOwner = await NFTInstance.ownerOf(1);
+        const tokenOwner = await ERC721Instance.ownerOf(tokenID);
         assert.strictEqual(tokenOwner, minter);
 
-        const minterbal = await NFTInstance.balanceOf(minter);
+        const minterbal = await ERC721Instance.balanceOf(minter);
         assert.strictEqual(minterbal.toNumber(), 1);
 
-        const contractbal = await NFTInstance.balanceOf(EmitterAddress);
+        const contractbal = await ERC721Instance.balanceOf(EmitterInstance.address);
         assert.strictEqual(contractbal.toNumber(), 0);
 
-        const approvedAddress = await NFTInstance.getApproved(1);
-        assert.strictEqual(approvedAddress, EmitterAddress);
+        const approvedAddress = await ERC721Instance.getApproved(tokenID);
+        assert.strictEqual(approvedAddress, EmitterInstance.address);
     });
 
     it('deposit', async () => {
-        EmitterInstance.depositNFT(0, receiver, NFTAddress, 1, "0x");
+        EmitterInstance.depositNFT(destinationChainID, receiver, ERC721Instance.address, tokenID, "0x");
 
-        const safeBalance = await NFTInstance.balanceOf(EmitterAddress);
+        const safeBalance = await ERC721Instance.balanceOf(EmitterInstance.address);
         assert.strictEqual(safeBalance.toNumber(), 1);
 
-        const minterbal = await NFTInstance.balanceOf(minter);
+        const minterbal = await ERC721Instance.balanceOf(minter);
         assert.strictEqual(minterbal.toNumber(), 0);
 
-        const owner = await NFTInstance.ownerOf(1);
-        assert.strictEqual(owner, EmitterAddress);
+        const owner = await ERC721Instance.ownerOf(tokenID);
+        assert.strictEqual(owner, EmitterInstance.address);
+    });
+
+    it('depositId is correct', async () => {
+        EmitterInstance.depositNFT(destinationChainID, receiver, ERC721Instance.address, tokenID, "0x");
+        const depositId = await EmitterInstance.DepositCounts.call(destinationChainID);
+        assert.strictEqual(depositId.toNumber(), 1);
     });
 });
