@@ -117,9 +117,7 @@ func (l *Listener) watchEvent(eventSubscription *Subscription, handler func(inte
 		select {
 		case evt := <-eventSubscription.ch:
 			m := handler(evt)
-			log15.Trace("Succesfully handled event")
 			err := l.router.Send(m)
-			log15.Trace("Succesfully routed message")
 			if err != nil {
 				log15.Error("subscription error: cannot send message", "sub", eventSubscription, "err", err)
 			}

@@ -36,8 +36,7 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 }
 
 func (w *Writer) createDepositProposal(m msg.Message) bool {
-	log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver)
-
+	log15.Trace("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver)
 	opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
 	if err != nil {
 		log15.Error("Failed to build transaction opts", "err", err)
@@ -64,11 +63,12 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		log15.Error("Failed to submit createDepositProposal transaction", "err", err)
 		return false
 	}
+	log15.Info("Succesfully created deposit!", "chain", m.Source, "deposit_id", m.DepositId)
 	return true
 }
 
 func (w *Writer) voteDepositProposal(m msg.Message) bool {
-	log15.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.receiver)
+	log15.Trace("Handling VoteDepositProposal message", "to", w.conn.cfg.receiver)
 
 	opts, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
 	if err != nil {
@@ -76,19 +76,20 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 		return false
 	}
 
+	vote := uint8(0)
+
 	_, err = w.receiverContract.Transact(
 		opts,
 		VoteDepositProposalMethod,
-		u32toBigInt(m.DepositId),
 		m.Source.Big(),
-		uint8(1),
-		byteSliceTo32Bytes(m.To),
-		m.Metadata,
+		u32toBigInt(m.DepositId),
+		vote,
 	)
 	if err != nil {
-		log15.Error("Failed to submit voteDepositProposal transaction", "depist_count", m.DepositId, "err", err)
+		log15.Error("Failed to submit vote!", "chain", m.Source, "deposit_id", m.DepositId, "err", err)
 		return false
 	}
+	log15.Info("Succesfully voted!", "chain", m.Source, "deposit_id", m.DepositId, "Vote", vote)
 	return true
 }
 

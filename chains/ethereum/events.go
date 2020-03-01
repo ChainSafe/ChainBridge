@@ -95,7 +95,7 @@ func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
 
 	return msg.Message{
 		Source:      msg.ChainId(uint8(depositEvent.OriginChain.Uint64())), // Todo handle safely
-		Destination: l.cfg.id, // We are reading from the receiver, must write to the same contract
+		Destination: l.cfg.id,                                              // We are reading from the receiver, must write to the same contract
 		Type:        msg.VoteDepositProposalType,
 		DepositId:   uint32(depositEvent.DepositId.Int64()),
 		Metadata:    depositEvent.Hash[:],
