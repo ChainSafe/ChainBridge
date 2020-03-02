@@ -71,8 +71,8 @@ const validatorPrivKeys = [
 let wallet = new ethers.Wallet(deployerPrivKey, provider);
 
 // These are deterministic
-const RECEIVER_ADDRESS = "0x705D4Fa884AF2Ae59C7780A0f201109947E2Bf6D";
-const CENTRIFUGE_ADDRESS = "0x290f41e61374c715C1127974bf08a3993afd0145";
+const RECEIVER_ADDRESS = "0x5842B333910Fe0BfA05F5Ea9F1602a40d1AF3584";
+const CENTRIFUGE_ADDRESS = "0xcB76d991cFCd621b477d705be7DdF5EA69D39C00";
 const EMITTER_ADDRESS = "0x3c747684333605408F9A4907DA043ee4c1A72D9c";
 const TEST_EMITTER_ADDRESS = "0x8090062239c909eB9b0433F1184c7DEf6124cc78";
 
@@ -109,8 +109,7 @@ async function deployReceiver() {
             depositThreshold,
             validatorThreshold
         );
-        console.log("here");
-
+        console.log(wallet.address)
         // The address the Contract WILL have once mined
         console.log("[Receiver] Contract address: ", contract.address);
 
