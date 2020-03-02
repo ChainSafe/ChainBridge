@@ -1,4 +1,4 @@
-pragma solidity 0.5.12;
+pragma solidity ^0.5.12;
 
 import "../erc/ERC20/ERC20Mintable.sol";
 import "../helpers/Ownable.sol";

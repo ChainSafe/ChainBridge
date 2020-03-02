@@ -1,4 +1,4 @@
-pragma solidity 0.5.12;
+pragma solidity ^0.5.12;
 
 import "../erc/ERC721/ERC721Mintable.sol";
 import "../interfaces/IHandler.sol";
