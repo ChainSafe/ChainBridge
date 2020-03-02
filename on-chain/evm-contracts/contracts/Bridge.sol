@@ -3,6 +3,8 @@ pragma solidity ^0.5.12;
 import "./helpers/SafeMath.sol";
 import "./interfaces/IValidator.sol";
 import "./interfaces/IERC20Handler.sol";
+import "./interfaces/IERC721Handler.sol";
+import "./interfaces/IDepositHandler.sol";
 
 contract Bridge {
     using SafeMath for uint;
@@ -14,13 +16,32 @@ contract Bridge {
     enum ProposalStatus {Inactive, Active, Denied, Passed, Transferred}
     enum ThresholdType {Validator, Deposit}
 
-    struct DepositRecord {
+    struct GenericDepositRecord {
+        address _originChainTokenAddress;
+        address _originChainHandlerAddress;
+        uint    _destinationChainID;
+        address _destinationChainHandlerAddress;
+        address _destinationRecipientAddress;
+        bytes   _data;
+    }
+
+    struct ERC20DepositRecord {
         address _originChainTokenAddress;
         address _originChainHandlerAddress;
         uint    _destinationChainID;
         address _destinationChainHandlerAddress;
         address _destinationRecipientAddress;
         uint    _amount;
+    }
+
+    struct ERC721DepositRecord {
+        address _originChainTokenAddress;
+        address _originChainHandlerAddress;
+        uint    _destinationChainID;
+        address _destinationChainHandlerAddress;
+        address _destinationRecipientAddress;
+        uint    _tokenID;
+        bytes   _data;
     }
 
     struct DepositProposal {
@@ -35,12 +56,18 @@ contract Bridge {
 
     // chainID => number of deposits
     mapping(uint => uint) public _depositCounts;
-    // chainID => depositID => DepositRecord
-    mapping(uint => mapping(uint => DepositRecord)) public _depositRecords;
+    // chainID => depositID => GenericDepositRecord
+    mapping(uint => mapping(uint => GenericDepositRecord)) public _genericDepositRecords;
+    // chainID => depositID => ERC20DepositRecord
+    mapping(uint => mapping(uint => ERC20DepositRecord)) public _erc20DepositRecords;
+    // chainID => depositID => ERC721DepositRecord
+    mapping(uint => mapping(uint => ERC721DepositRecord)) public _erc721DepositRecords;
     // ChainId => DepositID => Proposal
     mapping(uint => mapping(uint => DepositProposal)) public _depositProposals;
 
+    event GenericDeposited(uint indexed depositID);
     event ERC20Deposited(uint indexed depositID);
+    event ERC721Deposited(uint indexed depositID);
     event DepositProposalCreated(uint indexed originChainID, uint indexed depositID, bytes32 indexed dataHash);
     event DepositProposalVote(uint indexed originChainID, uint indexed depositID, Vote indexed vote, ProposalStatus status);
     event DepositProposalFinalized(uint indexed originChainID, uint indexed depositID);
@@ -51,7 +78,46 @@ contract Bridge {
         _;
     }
 
-    constructor() public {}
+    function depositGeneric(
+        uint         destinationChainID,
+        address      destinationRecipientAddress,
+        bytes memory data
+    ) public {
+        uint depositID = _depositCounts[destinationChainID]++;
+
+        _genericDepositRecords[destinationChainID][depositID] = GenericDepositRecord(
+            address(0),
+            address(0),
+            destinationChainID,
+            address(0),
+            destinationRecipientAddress,
+            data
+        );
+
+        emit GenericDeposited(depositID);
+    }
+
+    function depositGeneric(
+        address      originChainContractAddress,
+        address      originChainHandlerAddress,
+        uint         destinationChainID,
+        address      destinationChainHandlerAddress,
+        address      destinationRecipientAddress,
+        bytes memory data
+    ) public {
+        uint depositID = _depositCounts[destinationChainID]++;
+
+        _genericDepositRecords[destinationChainID][depositID] = GenericDepositRecord(
+            originChainContractAddress,
+            originChainHandlerAddress,
+            destinationChainID,
+            destinationChainHandlerAddress,
+            destinationRecipientAddress,
+            data
+        );
+
+        emit GenericDeposited(depositID);
+    }
 
     function depositERC20(
         address originChainTokenAddress,
@@ -66,7 +132,7 @@ contract Bridge {
 
         uint depositID = _depositCounts[destinationChainID]++;
 
-        _depositRecords[destinationChainID][depositID] = DepositRecord(
+        _erc20DepositRecords[destinationChainID][depositID] = ERC20DepositRecord(
             originChainTokenAddress,
             originChainHandlerAddress,
             destinationChainID,
@@ -76,6 +142,33 @@ contract Bridge {
         );
 
         emit ERC20Deposited(depositID);
+    }
+
+    function depositERC721(
+        address      originChainTokenAddress,
+        address      originChainHandlerAddress,
+        uint         destinationChainID,
+        address      destinationChainHandlerAddress,
+        address      destinationRecipientAddress,
+        uint         tokenID,
+        bytes memory data
+    ) public {
+        IERC721Handler erc721Handler = IERC721Handler(originChainHandlerAddress);
+        erc721Handler.depositERC721(originChainTokenAddress, msg.sender, tokenID);
+
+        uint depositID = _depositCounts[destinationChainID]++;
+
+        _erc721DepositRecords[destinationChainID][depositID] = ERC721DepositRecord(
+            originChainTokenAddress,
+            originChainHandlerAddress,
+            destinationChainID,
+            destinationChainHandlerAddress,
+            destinationRecipientAddress,
+            tokenID,
+            data
+        );
+
+        emit ERC721Deposited(depositID);
     }
 
     function createDepositProposal(uint originChainID, uint depositID, bytes32 dataHash) public _onlyValidators {
@@ -144,8 +237,8 @@ contract Bridge {
         require(depositProposal._status == ProposalStatus.Passed, "proposal was not passed");
         require(keccak256(data) == depositProposal._dataHash, "provided data does not match proposal's data hash");
 
-        IERC20Handler erc20Handler = IERC20Handler(destinationChainHandlerAddress);
-        erc20Handler.executeDeposit(data);
+        IDepositHandler depositHandler = IDepositHandler(destinationChainHandlerAddress);
+        depositHandler.executeDeposit(data);
 
         depositProposal._status = ProposalStatus.Transferred;
     }
