@@ -33,3 +33,5 @@ centrifuge-chain/
 
 ./contracts/
 abi/
+
+!on-chain/evm-contracts/test/bridge/
