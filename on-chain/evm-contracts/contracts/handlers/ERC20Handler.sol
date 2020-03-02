@@ -3,8 +3,9 @@ pragma solidity ^0.5.12;
 import "../interfaces/IERC20Handler.sol";
 import "../ERC20Safe.sol";
 import "../erc/ERC20/ERC20Mintable.sol";
+import "../interfaces/IDepositHandler.sol";
 
-contract ERC20Handler is IERC20Handler, ERC20Safe {
+contract ERC20Handler is IERC20Handler, IDepositHandler, ERC20Safe {
     address public _bridgeAddress;
 
     modifier _onlyBridge() {
@@ -12,7 +13,7 @@ contract ERC20Handler is IERC20Handler, ERC20Safe {
         _;
     }
 
-    constructor(address bridgeAddress) ERC20Safe() public {
+    constructor(address bridgeAddress) public {
         _bridgeAddress = bridgeAddress;
     }
 
@@ -33,5 +34,9 @@ contract ERC20Handler is IERC20Handler, ERC20Safe {
 
         ERC20Mintable erc20 = ERC20Mintable(destinationChainTokenAddress);
         erc20.mint(destinationRecipientAddress, amount);
+    }
+
+    function withdrawERC20(address tokenAddress, address recipient, uint amount) public _onlyBridge {
+        releaseERC20(tokenAddress, address(this), recipient, amount);
     }
 }
