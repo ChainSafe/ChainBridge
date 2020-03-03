@@ -59,6 +59,8 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 		_, pass := price.SetString(gasPrice, 10)
 		if pass {
 			config.gasPrice = price
+		} else {
+			panic("Unable to parse gas price.")
 		}
 	}
 
@@ -67,6 +69,8 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 		_, pass := limit.SetString(gasLimit, 10)
 		if pass {
 			config.gasLimit = limit
+		} else {
+			panic("Unable to parse gas limit.")
 		}
 	}
 
