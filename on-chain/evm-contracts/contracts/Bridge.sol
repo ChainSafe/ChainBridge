@@ -279,5 +279,27 @@ contract Bridge {
         _currentValidatorThresholdProposal._votes[msg.sender] = true;
     }
 
-    // function voteThresholdProposal(Vote vote) external;
+    function voteValidatorThresholdProposal(Vote vote) public _onlyValidators {
+        require(_currentValidatorThresholdProposal._status == ValidatorThresholdProposalStatus.Active, "no proposal is currently active");
+        require(!_currentValidatorThresholdProposal._votes[msg.sender], "validator has already voted");
+        require(uint(vote) <= 1, "vote out of the vote enum range");
+
+        // Cast vote
+        if (vote == Vote.Yes) {
+            _currentValidatorThresholdProposal._numYes++;
+        } else {
+            _currentValidatorThresholdProposal._numNo++;
+        }
+
+        _currentValidatorThresholdProposal._votes[msg.sender] = true;
+
+        // Todo: Edge case if validator threshold changes?
+        // Todo: For a proposal to pass does the number of yes votes just need to be higher than the threshold, or does it also have to be greater than the number of no votes?
+        if (_currentValidatorThresholdProposal._numYes >= _validatorThreshold) {
+            _validatorThreshold = _currentValidatorThresholdProposal._proposedValue;
+            _currentValidatorThresholdProposal._status = ValidatorThresholdProposalStatus.Inactive;
+        } else if (_validatorContract.getTotalValidators().sub(_currentValidatorThresholdProposal._numNo) < _validatorThreshold) {
+            _currentValidatorThresholdProposal._status = ValidatorThresholdProposalStatus.Inactive;
+        }
+    }
 }
