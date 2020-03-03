@@ -1,9 +1,14 @@
 pragma solidity ^0.5.12;
 
 interface IValidator {
-    enum ValidatorActionType {Remove, Add}
-    enum ThresholdType {Validator, Deposit}
     enum Vote {No, Yes}
+
+    // ValidatorActionType and _validatorActionTypeStrings must be kept
+    // the same length and order to function properly
+    enum ValidatorActionType {Remove, Add}
+
+    // VoteStatus and _voteStatusStrings must be kept
+    // the same length and order to function properly
     enum VoteStatus {Inactive, Active}
 
     function isValidator(address validatorAddress) external returns (bool);
