@@ -9,6 +9,12 @@ contract Validator is IValidator {
     uint public _validatorThreshold;
     uint public _totalValidators;
     ValidatorThresholdProposal private _currentValidatorThresholdProposal;
+    // ValidatorActionType and _validatorActionTypeStrings must be kept
+    // the same length and order to function properly
+    string[] _validatorActionTypeStrings = ["remove", "add"];
+    // VoteStatus and _voteStatusStrings must be kept
+    // the same length and order to function properly
+    string[] _voteStatusStrings = ["inactive", "active"];
 
     struct ValidatorProposal {
         address                  _proposedAddress;
@@ -41,8 +47,34 @@ contract Validator is IValidator {
         return _validators[validatorAddress];
     }
 
+    function getValidatorThreshold() public view returns (uint) {
+        return _validatorThreshold;
+    }
+
     function getTotalValidators() public returns (uint) {
         return _totalValidators;
+    }
+
+    function getCurrentValidatorThresholdProposal() public view returns (
+        uint, uint, uint, string memory) {
+        return (
+        _currentValidatorThresholdProposal._proposedValue,
+        _currentValidatorThresholdProposal._numYes,
+        _currentValidatorThresholdProposal._numNo,
+        _voteStatusStrings[uint(_currentValidatorThresholdProposal._status)]
+        );
+    }
+
+    function getValidatorProposal(address proposedAddress) public view returns (
+        address, string memory, uint, uint, string memory) {
+        ValidatorProposal memory validatorProposal = _validatorProposals[proposedAddress];
+        return (
+        validatorProposal._proposedAddress,
+        _validatorActionTypeStrings[uint(validatorProposal._action)],
+        validatorProposal._numYes,
+        validatorProposal._numNo,
+        _voteStatusStrings[uint(validatorProposal._status)]
+        );
     }
 
     function createValidatorProposal(address proposedAddress, ValidatorActionType action) public _onlyValidators {
