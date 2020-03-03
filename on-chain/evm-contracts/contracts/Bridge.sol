@@ -14,7 +14,11 @@ contract Bridge {
     ValidatorThresholdProposal public _currentValidatorThresholdProposal;
 
     enum Vote {No, Yes}
+
+    // ValidatorThresholdProposalStatus and _validatorThresholdProposalStatusStrings must be kept
+    // the same length and order to function properly
     enum ValidatorThresholdProposalStatus {Inactive, Active}
+    string[] _validatorThresholdProposalStatusStrings = ["inactive", "active"];
 
     // DepositProposalStatus and _depositProposalStatusStrings must be kept
     // the same length and order to function properly
@@ -95,6 +99,10 @@ contract Bridge {
         _validatorContract = IValidator(validatorContract);
     }
 
+    function getValidatorThreshold() public view returns (uint) {
+        return _validatorThreshold;
+    }
+
     function getDepositCount(uint originChainID) public view returns (uint) {
         return _depositCounts[originChainID];
     }
@@ -139,7 +147,17 @@ contract Bridge {
         );
     }
 
-    function getDepositProposal(uint originChainID, uint depositID) public view returns(
+    function getCurrentValidatorThresholdProposal() public view returns (
+        uint, uint, uint, string memory) {
+        return (
+        _currentValidatorThresholdProposal._proposedValue,
+        _currentValidatorThresholdProposal._numYes,
+        _currentValidatorThresholdProposal._numNo,
+        _validatorThresholdProposalStatusStrings[uint(_currentValidatorThresholdProposal._status)]
+        );
+    }
+
+    function getDepositProposal(uint originChainID, uint depositID) public view returns (
         uint, uint, bytes32, uint, uint, string memory) {
         DepositProposal memory depositProposal = _depositProposals[originChainID][depositID];
         return (
