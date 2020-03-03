@@ -40,14 +40,14 @@ var accountCommand = cli.Command{
 	Usage:    "manage bridge keystore",
 	Category: "KEYSTORE",
 	Description: "The account command is used to manage the bridge keystore.\n" +
-		"\tTo generate a new secp256k1 (Ethereum) account: bridge account generate\n" +
-		"\tTo import a keystore file: bridge account import path/to/file\n" +
-		"\tTo list keys: bridge account list",
+		"\tTo generate a new account, key type generated is based on the flag passed: chainbridge account generate\n" +
+		"\tTo import a keystore file: chainbridge account import path/to/file\n" +
+		"\tTo list keys: chainbridge account list",
 	Subcommands: []cli.Command{
 		{
 			Action:   wrapHandler(handleGenerateCmd),
 			Name:     "generate",
-			Usage:    "generate bridge keystore",
+			Usage:    "generate bridge keystore, key type determined by flag",
 			Flags:    generateFlags,
 			Category: "KEYSTORE",
 			Description: "The generate subcommand is used to generate the bridge keystore.\n" +
