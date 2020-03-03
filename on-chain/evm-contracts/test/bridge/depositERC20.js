@@ -9,7 +9,7 @@ const BridgeContract = artifacts.require("Bridge");
 const ERC20MintableContract = artifacts.require("ERC20Mintable");
 const ERC20HandlerContract = artifacts.require("ERC20Handler");
 
-contract('Bridge- [Deployment]', async (accounts) => {
+contract('Bridge - [Deployment]', async (accounts) => {
     // const minter = accounts[0];
     const originChainDepositerAddress = accounts[1];
     const destinationChainRecipientAddress = accounts[2];
