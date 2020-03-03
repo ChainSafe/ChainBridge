@@ -16,7 +16,7 @@ contract Bridge {
     enum ProposalStatus {Inactive, Active, Denied, Passed, Transferred}
     enum ThresholdType {Validator, Deposit}
 
-    struct GenricDepositRecord {
+    struct GenericDepositRecord {
         address _originChainTokenAddress;
         address _originChainHandlerAddress;
         uint    _destinationChainID;
@@ -56,8 +56,8 @@ contract Bridge {
 
     // chainID => number of deposits
     mapping(uint => uint) public _depositCounts;
-    // chainID => depositID => GenricDepositRecord
-    mapping(uint => mapping(uint => GenricDepositRecord)) public _genericDepositRecords;
+    // chainID => depositID => GenericDepositRecord
+    mapping(uint => mapping(uint => GenericDepositRecord)) public _genericDepositRecords;
     // chainID => depositID => ERC20DepositRecord
     mapping(uint => mapping(uint => ERC20DepositRecord)) public _erc20DepositRecords;
     // chainID => depositID => ERC721DepositRecord
@@ -89,7 +89,7 @@ contract Bridge {
     ) public {
         uint depositID = _depositCounts[destinationChainID]++;
 
-        _genericDepositRecords[destinationChainID][depositID] = GenricDepositRecord(
+        _genericDepositRecords[destinationChainID][depositID] = GenericDepositRecord(
             address(0),
             address(0),
             destinationChainID,
@@ -111,7 +111,7 @@ contract Bridge {
     ) public {
         uint depositID = _depositCounts[destinationChainID]++;
 
-        _genericDepositRecords[destinationChainID][depositID] = GenricDepositRecord(
+        _genericDepositRecords[destinationChainID][depositID] = GenericDepositRecord(
             originChainContractAddress,
             originChainHandlerAddress,
             destinationChainID,
