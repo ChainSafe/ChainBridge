@@ -16,7 +16,7 @@ contract Bridge {
     enum ProposalStatus {Inactive, Active, Denied, Passed, Transferred}
     enum ThresholdType {Validator, Deposit}
 
-    struct GenericDepositRecord {
+    struct GenricDepositRecord {
         address _originChainTokenAddress;
         address _originChainHandlerAddress;
         uint    _destinationChainID;
@@ -56,8 +56,8 @@ contract Bridge {
 
     // chainID => number of deposits
     mapping(uint => uint) public _depositCounts;
-    // chainID => depositID => GenericDepositRecord
-    mapping(uint => mapping(uint => GenericDepositRecord)) public _genericDepositRecords;
+    // chainID => depositID => GenricDepositRecord
+    mapping(uint => mapping(uint => GenricDepositRecord)) public _genericDepositRecords;
     // chainID => depositID => ERC20DepositRecord
     mapping(uint => mapping(uint => ERC20DepositRecord)) public _erc20DepositRecords;
     // chainID => depositID => ERC721DepositRecord
@@ -78,6 +78,10 @@ contract Bridge {
         _;
     }
 
+    function hasVoted(uint originChainID, uint depositID, address validatorAddress) public view returns (bool) {
+        return _depositProposals[originChainID][depositID]._votes[validatorAddress];
+    }
+
     function depositGeneric(
         uint         destinationChainID,
         address      destinationRecipientAddress,
@@ -85,7 +89,7 @@ contract Bridge {
     ) public {
         uint depositID = _depositCounts[destinationChainID]++;
 
-        _genericDepositRecords[destinationChainID][depositID] = GenericDepositRecord(
+        _genericDepositRecords[destinationChainID][depositID] = GenricDepositRecord(
             address(0),
             address(0),
             destinationChainID,
@@ -107,7 +111,7 @@ contract Bridge {
     ) public {
         uint depositID = _depositCounts[destinationChainID]++;
 
-        _genericDepositRecords[destinationChainID][depositID] = GenericDepositRecord(
+        _genericDepositRecords[destinationChainID][depositID] = GenricDepositRecord(
             originChainContractAddress,
             originChainHandlerAddress,
             destinationChainID,
@@ -180,7 +184,7 @@ contract Bridge {
                 _originChainID: originChainID,
                 _depositID: depositID,
                 _dataHash: dataHash,
-                _numYes: 1, // The creator always votes in favour
+                _numYes: 1, // Creator always votes in favour
                 _numNo: 0,
                 _status: ProposalStatus.Passed
                 });
@@ -189,13 +193,13 @@ contract Bridge {
                 _originChainID: originChainID,
                 _depositID: depositID,
                 _dataHash: dataHash,
-                _numYes: 1, // The creator always votes in favour
+                _numYes: 1, // Creator always votes in favour
                 _numNo: 0,
                 _status: ProposalStatus.Active
                 });
         }
 
-        // The creator always votes in favour
+        // Creator always votes in favour
         _depositProposals[originChainID][depositID]._votes[msg.sender] = true;
 
         emit DepositProposalCreated(originChainID, depositID, dataHash);
@@ -242,4 +246,8 @@ contract Bridge {
 
         depositProposal._status = ProposalStatus.Transferred;
     }
+
+//    function createThresholdProposal(uint value) external;
+//
+//    function voteThresholdProposal(Vote vote) external;
 }
