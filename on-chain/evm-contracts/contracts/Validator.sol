@@ -66,23 +66,21 @@ contract Validator is IValidator {
     function getCurrentValidatorThresholdProposal() public view returns (
         uint, uint, uint, string memory) {
         return (
-        _currentValidatorThresholdProposal._proposedValue,
-        _currentValidatorThresholdProposal._numYes,
-        _currentValidatorThresholdProposal._numNo,
-        _voteStatusStrings[uint(_currentValidatorThresholdProposal._status)]
-        );
+            _currentValidatorThresholdProposal._proposedValue,
+            _currentValidatorThresholdProposal._numYes,
+            _currentValidatorThresholdProposal._numNo,
+            _voteStatusStrings[uint(_currentValidatorThresholdProposal._status)]);
     }
 
     function getValidatorProposal(address proposedAddress) public view returns (
         address, string memory, uint, uint, string memory) {
         ValidatorProposal memory validatorProposal = _validatorProposals[proposedAddress];
         return (
-        validatorProposal._proposedAddress,
-        _validatorActionTypeStrings[uint(validatorProposal._action)],
-        validatorProposal._numYes,
-        validatorProposal._numNo,
-        _voteStatusStrings[uint(validatorProposal._status)]
-        );
+            validatorProposal._proposedAddress,
+            _validatorActionTypeStrings[uint(validatorProposal._action)],
+            validatorProposal._numYes,
+            validatorProposal._numNo,
+            _voteStatusStrings[uint(validatorProposal._status)]);
     }
 
     function createValidatorProposal(address proposedAddress, ValidatorActionType action) public _onlyValidators {

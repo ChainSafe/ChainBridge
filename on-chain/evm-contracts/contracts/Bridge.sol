@@ -114,63 +114,58 @@ contract Bridge {
         address, address, uint, address, address, bytes memory) {
         GenericDepositRecord memory genericDepositRecord = _genericDepositRecords[originChainID][depositID];
         return (
-        genericDepositRecord._originChainTokenAddress,
-        genericDepositRecord._originChainHandlerAddress,
-        genericDepositRecord._destinationChainID,
-        genericDepositRecord._destinationChainHandlerAddress,
-        genericDepositRecord._destinationRecipientAddress,
-        genericDepositRecord._data
-        );
+            genericDepositRecord._originChainTokenAddress,
+            genericDepositRecord._originChainHandlerAddress,
+            genericDepositRecord._destinationChainID,
+            genericDepositRecord._destinationChainHandlerAddress,
+            genericDepositRecord._destinationRecipientAddress,
+            genericDepositRecord._data);
     }
 
     function getERC20DepositRecord(uint originChainID, uint depositID) public view returns (
         address, address, uint, address, address, uint) {
         ERC20DepositRecord memory erc20DepositRecord = _erc20DepositRecords[originChainID][depositID];
         return (
-        erc20DepositRecord._originChainTokenAddress,
-        erc20DepositRecord._originChainHandlerAddress,
-        erc20DepositRecord._destinationChainID,
-        erc20DepositRecord._destinationChainHandlerAddress,
-        erc20DepositRecord._destinationRecipientAddress,
-        erc20DepositRecord._amount
-        );
+            erc20DepositRecord._originChainTokenAddress,
+            erc20DepositRecord._originChainHandlerAddress,
+            erc20DepositRecord._destinationChainID,
+            erc20DepositRecord._destinationChainHandlerAddress,
+            erc20DepositRecord._destinationRecipientAddress,
+            erc20DepositRecord._amount);
     }
 
     function getERC721DepositRecord(uint originChainID, uint depositID) public view returns (
         address, address, uint, address, address, uint, bytes memory) {
         ERC721DepositRecord memory erc721DepositRecord = _erc721DepositRecords[originChainID][depositID];
         return (
-        erc721DepositRecord._originChainTokenAddress,
-        erc721DepositRecord._originChainHandlerAddress,
-        erc721DepositRecord._destinationChainID,
-        erc721DepositRecord._destinationChainHandlerAddress,
-        erc721DepositRecord._destinationRecipientAddress,
-        erc721DepositRecord._tokenID,
-        erc721DepositRecord._data
-        );
+            erc721DepositRecord._originChainTokenAddress,
+            erc721DepositRecord._originChainHandlerAddress,
+            erc721DepositRecord._destinationChainID,
+            erc721DepositRecord._destinationChainHandlerAddress,
+            erc721DepositRecord._destinationRecipientAddress,
+            erc721DepositRecord._tokenID,
+            erc721DepositRecord._data);
     }
 
     function getCurrentValidatorThresholdProposal() public view returns (
         uint, uint, uint, string memory) {
         return (
-        _currentValidatorThresholdProposal._proposedValue,
-        _currentValidatorThresholdProposal._numYes,
-        _currentValidatorThresholdProposal._numNo,
-        _validatorThresholdProposalStatusStrings[uint(_currentValidatorThresholdProposal._status)]
-        );
+            _currentValidatorThresholdProposal._proposedValue,
+            _currentValidatorThresholdProposal._numYes,
+            _currentValidatorThresholdProposal._numNo,
+            _validatorThresholdProposalStatusStrings[uint(_currentValidatorThresholdProposal._status)]);
     }
 
     function getDepositProposal(uint originChainID, uint depositID) public view returns (
         uint, uint, bytes32, uint, uint, string memory) {
         DepositProposal memory depositProposal = _depositProposals[originChainID][depositID];
         return (
-        depositProposal._originChainID,
-        depositProposal._depositID,
-        depositProposal._dataHash,
-        depositProposal._numYes,
-        depositProposal._numNo,
-        _depositProposalStatusStrings[uint(depositProposal._status)]
-        );
+            depositProposal._originChainID,
+            depositProposal._depositID,
+            depositProposal._dataHash,
+            depositProposal._numYes,
+            depositProposal._numNo,
+            _depositProposalStatusStrings[uint(depositProposal._status)]);
     }
 
     function hasVoted(uint originChainID, uint depositID, address validatorAddress) public view returns (bool) {
