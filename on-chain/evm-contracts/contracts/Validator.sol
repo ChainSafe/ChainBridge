@@ -42,6 +42,8 @@ contract Validator is IValidator {
     event ValidatorProposalVote(address indexed proposedAddress, Vote vote);
     event ValidatorAdded(address indexed validatorAddress);
     event ValidatorRemoved(address indexed validatorAddress);
+    event ValidatorThresholdProposalCreated(uint indexed proposedValue);
+    event ValidatorThresholdProposalVote(Vote vote);
     event ValidatorThresholdChanged(uint indexed newThreshold);
 
     modifier _onlyValidators() {
@@ -171,6 +173,7 @@ contract Validator is IValidator {
         }
         // Record vote
         _currentValidatorThresholdProposal._votes[msg.sender] = true;
+        emit ValidatorThresholdProposalCreated(proposedValue);
     }
 
     function voteValidatorThresholdProposal(Vote vote) public _onlyValidators {
@@ -186,6 +189,7 @@ contract Validator is IValidator {
         }
 
         _currentValidatorThresholdProposal._votes[msg.sender] = true;
+        emit ValidatorThresholdProposalVote(vote);
 
         // Todo: Edge case if validator threshold changes?
         // Todo: For a proposal to pass does the number of yes votes just need to be higher than the threshold, or does it also have to be greater than the number of no votes?

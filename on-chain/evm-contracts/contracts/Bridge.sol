@@ -25,7 +25,7 @@ contract Bridge {
     enum DepositProposalStatus {Inactive, Active, Denied, Passed, Transferred}
     string[] _depositProposalStatusStrings = ["inactive", "active", "denied", "passed", "transferred"];
 
-    struct GenricDepositRecord {
+    struct GenericDepositRecord {
         address _originChainTokenAddress;
         address _originChainHandlerAddress;
         uint    _destinationChainID;
@@ -73,8 +73,8 @@ contract Bridge {
 
     // chainID => number of deposits
     mapping(uint => uint) public _depositCounts;
-    // chainID => depositID => GenricDepositRecord
-    mapping(uint => mapping(uint => GenricDepositRecord)) public _genericDepositRecords;
+    // chainID => depositID => GenericDepositRecord
+    mapping(uint => mapping(uint => GenericDepositRecord)) public _genericDepositRecords;
     // chainID => depositID => ERC20DepositRecord
     mapping(uint => mapping(uint => ERC20DepositRecord)) public _erc20DepositRecords;
     // chainID => depositID => ERC721DepositRecord
@@ -88,6 +88,8 @@ contract Bridge {
     event DepositProposalCreated(uint indexed originChainID, uint indexed depositID, bytes32 indexed dataHash);
     event DepositProposalVote(uint indexed originChainID, uint indexed depositID, Vote indexed vote, DepositProposalStatus status);
     event DepositProposalFinalized(uint indexed originChainID, uint indexed depositID);
+    event ValidatorThresholdProposalCreated(uint indexed proposedValue);
+    event ValidatorThresholdProposalVote(Vote vote);
     event ValidatorThresholdChanged(uint indexed newThreshold);
 
     modifier _onlyValidators() {
@@ -110,14 +112,14 @@ contract Bridge {
 
     function getGenericDepositRecord(uint originChainID, uint depositID) public view returns (
         address, address, uint, address, address, bytes memory) {
-        GenricDepositRecord memory genricDepositRecord = _genericDepositRecords[originChainID][depositID];
+        GenericDepositRecord memory genericDepositRecord = _genericDepositRecords[originChainID][depositID];
         return (
-        genricDepositRecord._originChainTokenAddress,
-        genricDepositRecord._originChainHandlerAddress,
-        genricDepositRecord._destinationChainID,
-        genricDepositRecord._destinationChainHandlerAddress,
-        genricDepositRecord._destinationRecipientAddress,
-        genricDepositRecord._data
+        genericDepositRecord._originChainTokenAddress,
+        genericDepositRecord._originChainHandlerAddress,
+        genericDepositRecord._destinationChainID,
+        genericDepositRecord._destinationChainHandlerAddress,
+        genericDepositRecord._destinationRecipientAddress,
+        genericDepositRecord._data
         );
     }
 
@@ -182,7 +184,7 @@ contract Bridge {
     ) public {
         uint depositID = _depositCounts[destinationChainID]++;
 
-        _genericDepositRecords[destinationChainID][depositID] = GenricDepositRecord(
+        _genericDepositRecords[destinationChainID][depositID] = GenericDepositRecord(
             address(0),
             address(0),
             destinationChainID,
@@ -204,7 +206,7 @@ contract Bridge {
     ) public {
         uint depositID = _depositCounts[destinationChainID]++;
 
-        _genericDepositRecords[destinationChainID][depositID] = GenricDepositRecord(
+        _genericDepositRecords[destinationChainID][depositID] = GenericDepositRecord(
             originChainContractAddress,
             originChainHandlerAddress,
             destinationChainID,
@@ -358,6 +360,7 @@ contract Bridge {
         }
         // Record vote
         _currentValidatorThresholdProposal._votes[msg.sender] = true;
+        emit ValidatorThresholdProposalCreated(proposedValue);
     }
 
     function voteValidatorThresholdProposal(Vote vote) public _onlyValidators {
@@ -373,6 +376,7 @@ contract Bridge {
         }
 
         _currentValidatorThresholdProposal._votes[msg.sender] = true;
+        emit ValidatorThresholdProposalVote(vote);
 
         // Todo: Edge case if validator threshold changes?
         // Todo: For a proposal to pass does the number of yes votes just need to be higher than the threshold, or does it also have to be greater than the number of no votes?
