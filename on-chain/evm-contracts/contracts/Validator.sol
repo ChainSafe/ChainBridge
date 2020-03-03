@@ -1,15 +1,26 @@
 pragma solidity ^0.5.12;
 
 import "./interfaces/IValidator.sol";
+import "./helpers/SafeMath.sol";
 
 contract Validator is IValidator {
+    using SafeMath for uint;
 
     uint public _validatorThreshold;
     uint public _totalValidators;
+    ValidatorThresholdProposal private _currentValidatorThresholdProposal;
 
     struct ValidatorProposal {
         address                  _proposedAddress;
         ValidatorActionType      _action;
+        mapping(address => bool) _votes;
+        uint                     _numYes;
+        uint                     _numNo;
+        VoteStatus               _status;
+    }
+
+    struct ValidatorThresholdProposal {
+        uint                     _proposedValue;
         mapping(address => bool) _votes;
         uint                     _numYes;
         uint                     _numNo;
@@ -34,7 +45,7 @@ contract Validator is IValidator {
         return _totalValidators;
     }
 
-    function createValidatorProposal(address proposedAddress, ValidatorActionType action) public {
+    function createValidatorProposal(address proposedAddress, ValidatorActionType action) public _onlyValidators {
         require(uint(action) <= 1, "action out of the vote enum range");
         require(action == ValidatorActionType.Remove && _validators[proposedAddress] == true, "address is not a validator");
         require(action == ValidatorActionType.Add && _validators[proposedAddress] == false, "address is currently a validator");
@@ -48,7 +59,7 @@ contract Validator is IValidator {
             _status: VoteStatus.Active
             });
 
-        if (_validatorThreshold == 1) {
+        if (_validatorThreshold <= 1) {
             _validatorProposals[proposedAddress]._status = VoteStatus.Inactive;
             if (action == ValidatorActionType.Add) {
                 // Add validator
@@ -64,9 +75,80 @@ contract Validator is IValidator {
         _validatorProposals[proposedAddress]._votes[msg.sender] = true;
     }
 
-    // function voteValidatorProposal(address validatorAddress, Vote vote) external;
+    function voteValidatorProposal(address proposedAddress, Vote vote) public _onlyValidators {
+        require(_validatorProposals[proposedAddress]._status == VoteStatus.Active, "there is no active proposal for this address");
+        require(!_validatorProposals[proposedAddress]._votes[msg.sender], "validator has already voted");
+        require(uint(vote) <= 1, "vote out of the vote enum range");
 
-    // function createThresholdProposal(uint value, ThresholdType thresholdType) external;
+        // Cast vote
+        if (vote == Vote.Yes) {
+            _validatorProposals[proposedAddress]._numYes++;
+        } else {
+            _validatorProposals[proposedAddress]._numNo++;
+        }
 
-    // function voteThresholdProposal(Vote vote, ThresholdType thresholdType) external;
+        // Record vote
+        _validatorProposals[proposedAddress]._votes[msg.sender] = true;
+
+        // Todo: Edge case if validator threshold changes?
+        // Todo: For a proposal to pass does the number of yes votes just need to be higher than the threshold, or does it also have to be greater than the number of no votes?
+        if (_validatorProposals[proposedAddress]._numYes >= _validatorThreshold) {
+            if (_validatorProposals[proposedAddress]._action == ValidatorActionType.Add) {
+                // Add validator
+                _validators[proposedAddress] = true;
+                _totalValidators++;
+            } else {
+                // Remove validator
+                _validators[proposedAddress] = false;
+                _totalValidators--;
+            }
+
+            _validatorProposals[proposedAddress]._status = VoteStatus.Inactive;
+        } else if (_totalValidators.sub(_validatorProposals[proposedAddress]._numNo) < _validatorThreshold) {
+            _validatorProposals[proposedAddress]._status = VoteStatus.Inactive;
+        }
+    }
+
+    function createValidatorThresholdProposal(uint proposedValue) public _onlyValidators {
+        require(_currentValidatorThresholdProposal._status == VoteStatus.Inactive, "a proposal is currently active");
+        require(proposedValue <= _totalValidators, "proposed value cannot be greater than the total number of validators");
+
+        _currentValidatorThresholdProposal = ValidatorThresholdProposal({
+            _proposedValue: proposedValue,
+            _numYes: 1, // Creator always votes in favour
+            _numNo: 0,
+            _status: VoteStatus.Active
+            });
+
+        if (_validatorThreshold <= 1) {
+            _validatorThreshold = _currentValidatorThresholdProposal._proposedValue;
+            _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
+        }
+        // Record vote
+        _currentValidatorThresholdProposal._votes[msg.sender] = true;
+    }
+
+    function voteValidatorThresholdProposal(Vote vote) public _onlyValidators {
+        require(_currentValidatorThresholdProposal._status == VoteStatus.Active, "no proposal is currently active");
+        require(!_currentValidatorThresholdProposal._votes[msg.sender], "validator has already voted");
+        require(uint(vote) <= 1, "vote out of the vote enum range");
+
+        // Cast vote
+        if (vote == Vote.Yes) {
+            _currentValidatorThresholdProposal._numYes++;
+        } else {
+            _currentValidatorThresholdProposal._numNo++;
+        }
+
+        _currentValidatorThresholdProposal._votes[msg.sender] = true;
+
+        // Todo: Edge case if validator threshold changes?
+        // Todo: For a proposal to pass does the number of yes votes just need to be higher than the threshold, or does it also have to be greater than the number of no votes?
+        if (_currentValidatorThresholdProposal._numYes >= _validatorThreshold) {
+            _validatorThreshold = _currentValidatorThresholdProposal._proposedValue;
+            _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
+        } else if (_totalValidators.sub(_validatorProposals[proposedAddress]._numNo) < _validatorThreshold) {
+            _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
+        }
+    }
 }
