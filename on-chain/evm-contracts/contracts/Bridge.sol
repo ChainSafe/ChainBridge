@@ -15,7 +15,11 @@ contract Bridge {
 
     enum Vote {No, Yes}
     enum ValidatorThresholdProposalStatus {Inactive, Active}
+
+    // DepositProposalStatus and _depositProposalStatusStrings must be kept
+    // the same length and order to function properly
     enum DepositProposalStatus {Inactive, Active, Denied, Passed, Transferred}
+    string[] _depositProposalStatusStrings = ["inactive", "active", "denied", "passed", "transferred"];
 
     struct GenricDepositRecord {
         address _originChainTokenAddress;
@@ -89,6 +93,63 @@ contract Bridge {
 
     constructor (address validatorContract) public {
         _validatorContract = IValidator(validatorContract);
+    }
+
+    function getDepositCount(uint originChainID) public view returns (uint) {
+        return _depositCounts[originChainID];
+    }
+
+    function getGenericDepositRecord(uint originChainID, uint depositID) public view returns (
+        address, address, uint, address, address, bytes memory) {
+        GenricDepositRecord memory genricDepositRecord = _genericDepositRecords[originChainID][depositID];
+        return (
+        genricDepositRecord._originChainTokenAddress,
+        genricDepositRecord._originChainHandlerAddress,
+        genricDepositRecord._destinationChainID,
+        genricDepositRecord._destinationChainHandlerAddress,
+        genricDepositRecord._destinationRecipientAddress,
+        genricDepositRecord._data
+        );
+    }
+
+    function getERC20DepositRecord(uint originChainID, uint depositID) public view returns (
+        address, address, uint, address, address, uint) {
+        ERC20DepositRecord memory erc20DepositRecord = _erc20DepositRecords[originChainID][depositID];
+        return (
+        erc20DepositRecord._originChainTokenAddress,
+        erc20DepositRecord._originChainHandlerAddress,
+        erc20DepositRecord._destinationChainID,
+        erc20DepositRecord._destinationChainHandlerAddress,
+        erc20DepositRecord._destinationRecipientAddress,
+        erc20DepositRecord._amount
+        );
+    }
+
+    function getERC721DepositRecord(uint originChainID, uint depositID) public view returns (
+        address, address, uint, address, address, uint, bytes memory) {
+        ERC721DepositRecord memory erc721DepositRecord = _erc721DepositRecords[originChainID][depositID];
+        return (
+        erc721DepositRecord._originChainTokenAddress,
+        erc721DepositRecord._originChainHandlerAddress,
+        erc721DepositRecord._destinationChainID,
+        erc721DepositRecord._destinationChainHandlerAddress,
+        erc721DepositRecord._destinationRecipientAddress,
+        erc721DepositRecord._tokenID,
+        erc721DepositRecord._data
+        );
+    }
+
+    function getDepositProposal(uint originChainID, uint depositID) public view returns(
+        uint, uint, bytes32, uint, uint, string memory) {
+        DepositProposal memory depositProposal = _depositProposals[originChainID][depositID];
+        return (
+        depositProposal._originChainID,
+        depositProposal._depositID,
+        depositProposal._dataHash,
+        depositProposal._numYes,
+        depositProposal._numNo,
+        _depositProposalStatusStrings[uint(depositProposal._status)]
+        );
     }
 
     function hasVoted(uint originChainID, uint depositID, address validatorAddress) public view returns (bool) {
