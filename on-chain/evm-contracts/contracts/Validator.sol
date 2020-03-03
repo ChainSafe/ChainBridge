@@ -38,6 +38,10 @@ contract Validator is IValidator {
     // Validator Address => ValidatorProposal
     mapping(address => ValidatorProposal) public _validatorProposals;
 
+    event ValidatorAdded(address indexed validatorAddress);
+    event ValidatorRemoved(address indexed validatorAddress);
+    event ValidatorThresholdChanged(uint indexed newThreshold);
+
     modifier _onlyValidators() {
         require(_validators[msg.sender], "sender is not a validator");
         _;
@@ -97,10 +101,12 @@ contract Validator is IValidator {
                 // Add validator
                 _validators[proposedAddress] = true;
                 _totalValidators++;
+                emit ValidatorAdded(proposedAddress);
             } else {
                 // Remove validator
                 _validators[proposedAddress] = false;
                 _totalValidators--;
+                emit ValidatorRemoved(proposedAddress);
             }
         }
         // Record vote
@@ -129,10 +135,12 @@ contract Validator is IValidator {
                 // Add validator
                 _validators[proposedAddress] = true;
                 _totalValidators++;
+                emit ValidatorAdded(proposedAddress);
             } else {
                 // Remove validator
                 _validators[proposedAddress] = false;
                 _totalValidators--;
+                emit ValidatorRemoved(proposedAddress);
             }
 
             _validatorProposals[proposedAddress]._status = VoteStatus.Inactive;
@@ -155,6 +163,7 @@ contract Validator is IValidator {
         if (_validatorThreshold <= 1) {
             _validatorThreshold = _currentValidatorThresholdProposal._proposedValue;
             _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
+            emit ValidatorThresholdChanged(proposedValue);
         }
         // Record vote
         _currentValidatorThresholdProposal._votes[msg.sender] = true;
@@ -179,6 +188,7 @@ contract Validator is IValidator {
         if (_currentValidatorThresholdProposal._numYes >= _validatorThreshold) {
             _validatorThreshold = _currentValidatorThresholdProposal._proposedValue;
             _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
+            emit ValidatorThresholdChanged(proposedValue);
         } else if (_totalValidators.sub(_currentValidatorThresholdProposal._numNo) < _validatorThreshold) {
             _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
         }
