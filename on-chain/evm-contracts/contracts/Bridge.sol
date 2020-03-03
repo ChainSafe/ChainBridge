@@ -88,6 +88,7 @@ contract Bridge {
     event DepositProposalCreated(uint indexed originChainID, uint indexed depositID, bytes32 indexed dataHash);
     event DepositProposalVote(uint indexed originChainID, uint indexed depositID, Vote indexed vote, DepositProposalStatus status);
     event DepositProposalFinalized(uint indexed originChainID, uint indexed depositID);
+    event ValidatorThresholdChanged(uint indexed newThreshold);
 
     modifier _onlyValidators() {
         IValidator validatorContract = IValidator(_validatorContract);
@@ -353,6 +354,7 @@ contract Bridge {
         if (_validatorThreshold <= 1) {
             _validatorThreshold = _currentValidatorThresholdProposal._proposedValue;
             _currentValidatorThresholdProposal._status = ValidatorThresholdProposalStatus.Inactive;
+            emit ValidatorThresholdChanged(proposedValue);
         }
         // Record vote
         _currentValidatorThresholdProposal._votes[msg.sender] = true;
@@ -377,6 +379,7 @@ contract Bridge {
         if (_currentValidatorThresholdProposal._numYes >= _validatorThreshold) {
             _validatorThreshold = _currentValidatorThresholdProposal._proposedValue;
             _currentValidatorThresholdProposal._status = ValidatorThresholdProposalStatus.Inactive;
+            emit ValidatorThresholdChanged(_currentValidatorThresholdProposal._proposedValue);
         } else if (_validatorContract.getTotalValidators().sub(_currentValidatorThresholdProposal._numNo) < _validatorThreshold) {
             _currentValidatorThresholdProposal._status = ValidatorThresholdProposalStatus.Inactive;
         }

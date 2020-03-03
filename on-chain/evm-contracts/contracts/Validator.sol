@@ -188,7 +188,7 @@ contract Validator is IValidator {
         if (_currentValidatorThresholdProposal._numYes >= _validatorThreshold) {
             _validatorThreshold = _currentValidatorThresholdProposal._proposedValue;
             _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
-            emit ValidatorThresholdChanged(proposedValue);
+            emit ValidatorThresholdChanged(_currentValidatorThresholdProposal._proposedValue);
         } else if (_totalValidators.sub(_currentValidatorThresholdProposal._numNo) < _validatorThreshold) {
             _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
         }
