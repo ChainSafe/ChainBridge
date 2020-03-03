@@ -5,6 +5,7 @@
 
 const truffleAssert = require('truffle-assertions');
 
+const ValidatorContract = artifacts.require("Validator");
 const BridgeContract = artifacts.require("Bridge");
 const ERC20MintableContract = artifacts.require("ERC20Mintable");
 const ERC20HandlerContract = artifacts.require("ERC20Handler");
@@ -17,6 +18,7 @@ contract('Bridge - [Deployment]', async (accounts) => {
     const originChainInitialTokenAmount = 100;
     const depositAmount = 10;
 
+    let ValidatorInstance;
     let BridgeInstance;
     let OriginERC20MintableInstance;
     let OriginERC20HandlerInstance;
@@ -24,7 +26,8 @@ contract('Bridge - [Deployment]', async (accounts) => {
     let DestinationERC20HandlerInstance;
 
     before(async () => {
-        BridgeInstance = await BridgeContract.new();
+        ValidatorInstance = await ValidatorContract.new();
+        BridgeInstance = await BridgeContract.new(ValidatorInstance.address);
         OriginERC20MintableInstance = await ERC20MintableContract.new();
         OriginERC20HandlerInstance = await ERC20HandlerContract.new(BridgeInstance.address);
         DestinationERC20MintableInstance = await ERC20MintableContract.new();
