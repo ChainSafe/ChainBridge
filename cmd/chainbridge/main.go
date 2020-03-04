@@ -126,7 +126,7 @@ func run(ctx *cli.Context) error {
 	for _, chain := range cfg.Chains {
 		var chainconfig core.Chain
 		if chain.Type == "ethereum" {
-			chainconfig = ethereum.InitializeChain(&core.ChainConfig{
+			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
 				Id:       chain.Id,
 				Endpoint: chain.Endpoint,
 				From:     chain.From,
@@ -136,7 +136,7 @@ func run(ctx *cli.Context) error {
 				Opts:          chain.Opts,
 			})
 		} else if chain.Type == "substrate" {
-			chainconfig = ethereum.InitializeChain(&core.ChainConfig{
+			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
 				Id:       chain.Id,
 				Endpoint: chain.Endpoint,
 				From:     chain.From,
@@ -148,7 +148,9 @@ func run(ctx *cli.Context) error {
 		} else {
 			return errors.New("Unrecognized Chain Type")
 		}
-
+		if err != nil {
+			return err
+		}
 		c.AddChain(chainconfig)
 	}
 
