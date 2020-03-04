@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"errors"
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/core"
@@ -27,7 +28,7 @@ type Config struct {
 }
 
 // ParseChainConfig uses a core.ChainConfig to construct a corresponding Config
-func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
+func ParseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 
 	config := &Config{
 		id:            chainCfg.Id,
@@ -60,7 +61,7 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 		if pass {
 			config.gasPrice = price
 		} else {
-			panic("Unable to parse gas price.")
+			return nil, errors.New("Unable to parse gas price.")
 		}
 	}
 
@@ -70,9 +71,9 @@ func ParseChainConfig(chainCfg *core.ChainConfig) *Config {
 		if pass {
 			config.gasLimit = limit
 		} else {
-			panic("Unable to parse gas limit.")
+			return nil, errors.New("Unable to parse gas limit.")
 		}
 	}
 
-	return config
+	return config, nil
 }
