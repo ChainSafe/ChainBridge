@@ -44,9 +44,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 	}
 
 	types := []string{"bytes"}
-	values := []interface{}{
-		"0x935F7770265D0797B621c49A5215849c333Cc3ce",
-	}
+	values := []interface{}{m.Metadata}
 	hash := solsha3.SoliditySHA3(types, values)
 
 	var sizedHash [32]byte

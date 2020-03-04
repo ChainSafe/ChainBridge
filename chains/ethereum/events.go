@@ -33,7 +33,7 @@ func (l *Listener) handleNftTransferEvent(eventI interface{}) msg.Message {
 	nftEvent.DestChain = event.Topics[1].Big()
 	nftEvent.DepositId = event.Topics[2].Big()
 
-	msg := msg.Message{
+	return msg.Message{
 		Type:        msg.CreateDepositProposalType,
 		Source:      l.cfg.id,
 		Destination: msg.ChainId(uint8(nftEvent.DestChain.Uint64())),
@@ -42,8 +42,6 @@ func (l *Listener) handleNftTransferEvent(eventI interface{}) msg.Message {
 		To:        nftEvent.To.Bytes(),
 		Metadata:  nftEvent.Data,
 	}
-
-	return msg
 }
 
 func (l *Listener) handleErcTransferEvent(eventI interface{}) msg.Message {
@@ -65,7 +63,7 @@ func (l *Listener) handleErcTransferEvent(eventI interface{}) msg.Message {
 	ercEvent.DestChain = event.Topics[1].Big()
 	ercEvent.DepositId = event.Topics[2].Big()
 
-	msg := msg.Message{
+	return msg.Message{
 		Type:        msg.CreateDepositProposalType,
 		Source:      l.cfg.id,
 		Destination: msg.ChainId(uint8(ercEvent.DestChain.Uint64())),
@@ -74,8 +72,6 @@ func (l *Listener) handleErcTransferEvent(eventI interface{}) msg.Message {
 		To:        ercEvent.To.Bytes(),
 		// Metadata:  ercEvent.Data,
 	}
-
-	return msg
 }
 
 func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
