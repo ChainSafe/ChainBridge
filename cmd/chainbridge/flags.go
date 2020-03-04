@@ -27,18 +27,6 @@ var (
 	}
 )
 
-// Account management flags
-var (
-	ImportFlag = cli.StringFlag{
-		Name:  "import",
-		Usage: "Import encrypted keystore file generated with bridge cli",
-	}
-	ListFlag = cli.BoolFlag{
-		Name:  "list",
-		Usage: "List node keys",
-	}
-)
-
 // Generate subcommand flags
 var (
 	PrivateKeyFlag = cli.StringFlag{
