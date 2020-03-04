@@ -27,6 +27,10 @@ var _ chains.Connection = &Connection{}
 
 var NonceLock = &sync.Mutex{}
 
+// Nonce is a struct that wraps the Nonce with a mutex lock
+// this struct was implemented to prevent race conditions where
+// two transactions try to transact at the same time and recieve
+//the same nonce, causing one to be rejected.
 type Nonce struct {
 	nonce uint64
 	lock  *sync.Mutex
