@@ -21,53 +21,32 @@ import (
 	"github.com/urfave/cli"
 )
 
-// handleAccountsCmd manages the flags for the account subcommand
-// first, if the generate flag is set, if so, it generates a new keypair
-// then, if the import flag is set, if so, it imports a keypair
-// finally, if the list flag is set, it lists all the keys in the keystore
-func handleAccountsCmd(ctx *cli.Context) error {
-	err := startLogger(ctx)
-	if err != nil {
-		return err
-	}
-
-	// key directory is datadir/keystore/
-	datadir, err := getDataDir(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to access the datadir: %s", err)
-	}
-
-	// import key
-	if keyimport := ctx.String(ImportFlag.Name); keyimport != "" {
-		log.Info("Importing key...")
-		_, err = importKey(keyimport, datadir)
-		if err != nil {
-			return fmt.Errorf("failed to import key: %s", err)
-		}
-	}
-
-	// list keys
-	if keylist := ctx.Bool(ListFlag.Name); keylist {
-		_, err = listKeys(datadir)
-		if err != nil {
-			return fmt.Errorf("failed to list keys: %s", err)
-		}
-	}
-
-	return nil
+//dataHandler is a struct which wraps any extra data our CMD functions need that cannot be passed through parameters
+type dataHandler struct {
+	datadir string
 }
 
-func handleGenerateCmd(ctx *cli.Context) error {
-	err := startLogger(ctx)
-	if err != nil {
-		return err
-	}
+// wrapHandler takes in a Cmd function (all declared below) and wraps
+// it in the correct signature for the Cli Commands
+func wrapHandler(hdl func(*cli.Context, *dataHandler) error) cli.ActionFunc {
 
-	// key directory is datadir/keystore/
-	datadir, err := getDataDir(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to access the datadir: %s", err)
+	return func(ctx *cli.Context) error {
+		err := startLogger(ctx)
+		if err != nil {
+			return err
+		}
+
+		datadir, err := getDataDir(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to access the datadir: %s", err)
+		}
+
+		return hdl(ctx, &dataHandler{datadir: datadir})
 	}
+}
+
+// handleGenerateCmd generates a keystore for the accounts
+func handleGenerateCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 	log.Info("Generating keypair...")
 
@@ -97,13 +76,42 @@ func handleGenerateCmd(ctx *cli.Context) error {
 		}
 	}
 
-	_, err = generateKeypair(keytype, datadir, password, privKey)
+	_, err := generateKeypair(keytype, dHandler.datadir, password, privKey)
 	if err != nil {
 		return fmt.Errorf("failed to generate key: %s", err)
 	}
 	return nil
 }
 
+// handleImportCmd imports external keystores into the bridge
+func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
+
+	// import key
+	if keyimport := ctx.Args().First(); keyimport != "" {
+		log.Info("Importing key...")
+		_, err := importKey(keyimport, dHandler.datadir)
+		if err != nil {
+			return fmt.Errorf("failed to import key: %s", err)
+		}
+	} else {
+		return fmt.Errorf("Must provide a key to import.")
+	}
+
+	return nil
+}
+
+// handleListCmd lists all accounts currently in the bridge
+func handleListCmd(ctx *cli.Context, dHandler *dataHandler) error {
+
+	_, err := listKeys(dHandler.datadir)
+	if err != nil {
+		return fmt.Errorf("failed to list keys: %s", err)
+	}
+
+	return nil
+}
+
+// getDataDir obtains the path to the keystore and returns it as a string
 func getDataDir(ctx *cli.Context) (string, error) {
 	// key directory is datadir/keystore/
 	if dir := ctx.GlobalString(KeystorePathFlag.Name); dir != "" {
