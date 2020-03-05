@@ -15,32 +15,30 @@ import (
 
 // Config encapsulates all necessary parameters in ethereum compatible forms
 type Config struct {
-	id            msg.ChainId        // ChainID
-	chainID       *big.Int           // Ethereum chain ID
-	endpoint      string             // url for rpc endpoint
-	from          string             // address of key to use
-	subscriptions []string           // list of events to subscribe to
-	keystore      *keystore.Keystore // Location of keyfiles
-	receiver      common.Address
-	emitter       common.Address
-	gasLimit      *big.Int
-	gasPrice      *big.Int
+	id       msg.ChainId        // ChainID
+	chainID  *big.Int           // Ethereum chain ID
+	endpoint string             // url for rpc endpoint
+	from     string             // address of key to use
+	keystore *keystore.Keystore // Location of keyfiles
+	receiver common.Address
+	emitter  common.Address
+	gasLimit *big.Int
+	gasPrice *big.Int
 }
 
 // ParseChainConfig uses a core.ChainConfig to construct a corresponding Config
 func ParseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 
 	config := &Config{
-		id:            chainCfg.Id,
-		endpoint:      chainCfg.Endpoint,
-		from:          chainCfg.From,
-		subscriptions: chainCfg.Subscriptions,
-		keystore:      chainCfg.Keystore,
-		chainID:       big.NewInt(1),
-		receiver:      common.HexToAddress("0x0"),
-		emitter:       common.HexToAddress("0x0"),
-		gasLimit:      big.NewInt(6721975),
-		gasPrice:      big.NewInt(20000000000),
+		id:       chainCfg.Id,
+		endpoint: chainCfg.Endpoint,
+		from:     chainCfg.From,
+		keystore: chainCfg.Keystore,
+		chainID:  big.NewInt(1),
+		receiver: common.HexToAddress("0x0"),
+		emitter:  common.HexToAddress("0x0"),
+		gasLimit: big.NewInt(6721975),
+		gasPrice: big.NewInt(20000000000),
 	}
 
 	if chainID, ok := chainCfg.Opts["chainID"]; ok {

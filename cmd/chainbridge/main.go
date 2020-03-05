@@ -137,20 +137,16 @@ func run(ctx *cli.Context) error {
 				Id:       chain.Id,
 				Endpoint: chain.Endpoint,
 				From:     chain.From,
-				// TODO remove this in favour of OPTS when config PR lands
-				Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
-				Keystore:      ks,
-				Opts:          chain.Opts,
+				Keystore: ks,
+				Opts:     chain.Opts,
 			})
 		} else if chain.Type == "substrate" {
 			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
 				Id:       chain.Id,
 				Endpoint: chain.Endpoint,
 				From:     chain.From,
-				// TODO remove this in favour of OPTS when config PR lands
-				Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
-				Keystore:      ks,
-				Opts:          chain.Opts,
+				Keystore: ks,
+				Opts:     chain.Opts,
 			})
 		} else {
 			return errors.New("Unrecognized Chain Type")
