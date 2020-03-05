@@ -94,6 +94,7 @@ func (l *Listener) buildQuery(contract ethcommon.Address, sig EventSig) eth.Filt
 func (l *Listener) RegisterEventHandler(subscription string, handler chains.EvtHandlerFn) error {
 	evt := EventSig(subscription)
 	log15.Trace("Event signatures", "sig", evt, "topic", evt.GetTopic().Hex())
+	// TODO remove this when the contract refactor finalizes
 	var query eth.FilterQuery
 	if subscription == DepositProposalSignature {
 		query = l.buildQuery(l.cfg.receiver, evt)
