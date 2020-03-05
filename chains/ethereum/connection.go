@@ -42,6 +42,7 @@ type Connection struct {
 	conn   *ethclient.Client
 	signer ethtypes.Signer
 	kp     crypto.Keypair
+	lock   sync.Mutex
 }
 
 func NewConnection(cfg *Config) *Connection {
@@ -51,6 +52,7 @@ func NewConnection(cfg *Config) *Connection {
 		cfg: *cfg,
 		// TODO: add network to use to config
 		signer: signer,
+		lock:   sync.Mutex{},
 	}
 }
 
@@ -117,17 +119,17 @@ func (c *Connection) SubmitTx(data []byte) error {
 
 // PendingNonceAt returns the pending nonce of the given account and the given block
 func (c *Connection) PendingNonceAt(account [20]byte) (*Nonce, error) {
-	NonceLock.Lock()
+	c.lock.Lock()
 	nonce, err := c.conn.PendingNonceAt(c.ctx, ethcommon.Address(account))
 	if err != nil {
-		NonceLock.Unlock()
+		c.lock.Unlock()
 		return nil, err
 	}
 
 	return &Nonce{
 		nonce,
-		NonceLock,
-	}, err
+		&c.lock,
+	}, nil
 }
 
 // NonceAt returns the nonce of the given account and the given block
