@@ -19,6 +19,8 @@ var testConfig = &Config{
 	receiver: TestCentrifugeContractAddress,
 	keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 	from:     keystore.AliceKey,
+	gasLimit: big.NewInt(6721975),
+	gasPrice: big.NewInt(20000000000),
 }
 
 var randomHash = []byte{0x12, 0x34}
@@ -180,5 +182,29 @@ func TestWriter_executeDeposit(t *testing.T) {
 	ok := w.ResolveMessage(m)
 	if !ok {
 		t.Fatal("Transaction failed")
+	}
+}
+
+func TestWriter_ConfigureGasPrice(t *testing.T) {
+	cfg := &Config{
+		endpoint: TestEndpoint,
+		receiver: TestCentrifugeContractAddress,
+		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+		from:     keystore.AliceKey,
+		gasPrice: big.NewInt(10000),
+		gasLimit: big.NewInt(200),
+	}
+
+	conn := NewConnection(cfg)
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	w := NewWriter(conn, cfg)
+
+	if w.cfg.gasPrice.Cmp(big.NewInt(10000)) != 0 || w.cfg.gasLimit.Cmp(big.NewInt(200)) != 0 {
+		t.Errorf("Gas Prices set incorrectly.")
 	}
 }

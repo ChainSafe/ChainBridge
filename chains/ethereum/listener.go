@@ -4,7 +4,6 @@
 package ethereum
 
 import (
-	"fmt"
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
@@ -18,6 +17,11 @@ import (
 var _ chains.Listener = &Listener{}
 
 type Subscription struct {
+	signature string
+	handler   chains.EvtHandlerFn
+}
+
+type ActiveSubscription struct {
 	ch  <-chan ethtypes.Log
 	sub eth.Subscription
 }
@@ -25,7 +29,7 @@ type Subscription struct {
 type Listener struct {
 	cfg             Config
 	conn            *Connection
-	subscriptions   map[EventSig]*Subscription
+	subscriptions   map[EventSig]*ActiveSubscription
 	router          chains.Router
 	emitterContract EmitterContract // instance of bound emitter contract
 }
@@ -34,7 +38,7 @@ func NewListener(conn *Connection, cfg *Config) *Listener {
 	return &Listener{
 		cfg:           *cfg,
 		conn:          conn,
-		subscriptions: make(map[EventSig]*Subscription),
+		subscriptions: make(map[EventSig]*ActiveSubscription),
 	}
 }
 
@@ -46,24 +50,32 @@ func (l *Listener) SetRouter(r chains.Router) {
 	l.router = r
 }
 
+func (l *Listener) GetSubscriptions() []*Subscription {
+	return []*Subscription{
+		{
+			signature: ErcTransfer,
+			handler:   l.handleTransferEvent,
+		},
+		{
+			signature: NftTransfer,
+			handler:   l.handleTransferEvent,
+		},
+		{
+			signature: DepositAsset,
+			handler:   l.handleTestDeposit,
+		},
+	}
+
+}
+
 // Start registers all subscriptions provided by the config
 func (l *Listener) Start() error {
-	log15.Debug("Starting listener...", "chainID", l.cfg.id, "subs", l.cfg.subscriptions)
-	for _, subscription := range l.cfg.subscriptions {
-		sub := subscription
-		switch sub {
-		case ErcTransferSignature, NftTransferSignature:
-			err := l.RegisterEventHandler(sub, l.handleTransferEvent)
-			if err != nil {
-				log15.Error("failed to register event handler", "err", err)
-			}
-		case DepositAssetSignature:
-			err := l.RegisterEventHandler(sub, l.handleTestDeposit)
-			if err != nil {
-				log15.Error("failed to register event handler", "err", err)
-			}
-		default:
-			return fmt.Errorf("Unrecognized event: %s", sub)
+	log15.Debug("Starting listener...", "chainID", l.cfg.id)
+	subscriptions := l.GetSubscriptions()
+	for _, sub := range subscriptions {
+		err := l.RegisterEventHandler(sub.signature, sub.handler)
+		if err != nil {
+			log15.Error("failed to register event handler", "err", err)
 		}
 	}
 	return nil
@@ -100,7 +112,7 @@ func (l *Listener) RegisterEventHandler(subscription string, handler chains.EvtH
 
 // watchEvent will call the handler for every occurrence of the corresponding event. It should be run in a separate
 // goroutine to monitor the subscription channel.
-func (l *Listener) watchEvent(eventSubscription *Subscription, handler func(interface{}) msg.Message) {
+func (l *Listener) watchEvent(eventSubscription *ActiveSubscription, handler func(interface{}) msg.Message) {
 	for {
 		select {
 		case evt := <-eventSubscription.ch:

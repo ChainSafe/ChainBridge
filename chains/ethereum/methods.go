@@ -12,14 +12,11 @@ const CreateDepositProposalMethod = "createDepositProposal"
 const VoteDepositProposalMethod = "voteDepositProposal"
 const ExecuteDepositMethod = "executeDeposit"
 
-// TODO: make this configurable
-var gasLimit = big.NewInt(6721975)
-var gasPrice = big.NewInt(20000000000)
-
 func (w *Writer) depositAsset(m msg.Message) bool {
+
 	log15.Info("Handling DepositAsset message", "to", w.conn.cfg.receiver)
 
-	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
+	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	if err != nil {
 		log15.Error("Failed to build transaction opts", "err", err)
 		return false
@@ -38,7 +35,7 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 func (w *Writer) createDepositProposal(m msg.Message) bool {
 	log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.receiver)
 
-	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
+	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	if err != nil {
 		log15.Error("Failed to build transaction opts", "err", err)
 		return false
@@ -63,7 +60,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 func (w *Writer) voteDepositProposal(m msg.Message) bool {
 	log15.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.receiver)
 
-	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
+	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	if err != nil {
 		log15.Error("Failed to build transaction opts", "err", err)
 		return false
@@ -89,7 +86,7 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 func (w *Writer) executeDeposit(m msg.Message) bool {
 	log15.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.receiver)
 
-	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), gasLimit, gasPrice)
+	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	if err != nil {
 		log15.Error("Failed to build transaction opts", "err", err)
 		return false
