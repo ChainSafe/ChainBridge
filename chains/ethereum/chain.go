@@ -23,10 +23,13 @@ type Chain struct {
 }
 
 func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
-	cfg := ParseChainConfig(chainCfg)
+	cfg, err := ParseChainConfig(chainCfg)
+	if err != nil {
+		return nil, err
+	}
 
 	conn := NewConnection(cfg)
-	err := conn.Connect()
+	err = conn.Connect()
 	if err != nil {
 		return nil, err
 	}
