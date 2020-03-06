@@ -18,12 +18,16 @@ type Writer struct {
 	cfg              Config
 	conn             *Connection
 	receiverContract ReceiverContract // instance of bound receiver contract
+	gasPrice         *big.Int
+	gasLimit         *big.Int
 }
 
 func NewWriter(conn *Connection, cfg *Config) *Writer {
 	return &Writer{
-		cfg:  *cfg,
-		conn: conn,
+		cfg:      *cfg,
+		conn:     conn,
+		gasPrice: cfg.gasPrice,
+		gasLimit: cfg.gasLimit,
 	}
 }
 
