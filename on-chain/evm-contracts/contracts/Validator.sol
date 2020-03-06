@@ -51,6 +51,14 @@ contract Validator is IValidator {
         _;
     }
 
+    constructor (address[] memory initialValidators, uint initialValidatorThreshold) public {
+        for (uint i; i < initialValidators.length; i++) {
+            _addValidator(initialValidators[i]);
+        }
+
+        _validatorThreshold = initialValidatorThreshold;
+    }
+
     function isValidator(address validatorAddress) public returns (bool) {
         return _validators[validatorAddress];
     }
@@ -66,21 +74,21 @@ contract Validator is IValidator {
     function getCurrentValidatorThresholdProposal() public view returns (
         uint, uint, uint, string memory) {
         return (
-            _currentValidatorThresholdProposal._proposedValue,
-            _currentValidatorThresholdProposal._numYes,
-            _currentValidatorThresholdProposal._numNo,
-            _voteStatusStrings[uint(_currentValidatorThresholdProposal._status)]);
+        _currentValidatorThresholdProposal._proposedValue,
+        _currentValidatorThresholdProposal._numYes,
+        _currentValidatorThresholdProposal._numNo,
+        _voteStatusStrings[uint(_currentValidatorThresholdProposal._status)]);
     }
 
     function getValidatorProposal(address proposedAddress) public view returns (
         address, string memory, uint, uint, string memory) {
         ValidatorProposal memory validatorProposal = _validatorProposals[proposedAddress];
         return (
-            validatorProposal._proposedAddress,
-            _validatorActionTypeStrings[uint(validatorProposal._action)],
-            validatorProposal._numYes,
-            validatorProposal._numNo,
-            _voteStatusStrings[uint(validatorProposal._status)]);
+        validatorProposal._proposedAddress,
+        _validatorActionTypeStrings[uint(validatorProposal._action)],
+        validatorProposal._numYes,
+        validatorProposal._numNo,
+        _voteStatusStrings[uint(validatorProposal._status)]);
     }
 
     function createValidatorProposal(address proposedAddress, ValidatorActionType action) public _onlyValidators {
@@ -100,15 +108,9 @@ contract Validator is IValidator {
         if (_validatorThreshold <= 1) {
             _validatorProposals[proposedAddress]._status = VoteStatus.Inactive;
             if (action == ValidatorActionType.Add) {
-                // Add validator
-                _validators[proposedAddress] = true;
-                _totalValidators++;
-                emit ValidatorAdded(proposedAddress);
+                _addValidator(proposedAddress);
             } else {
-                // Remove validator
-                _validators[proposedAddress] = false;
-                _totalValidators--;
-                emit ValidatorRemoved(proposedAddress);
+                _removeValidator(proposedAddress);
             }
         }
         // Record vote
@@ -136,15 +138,9 @@ contract Validator is IValidator {
         // Todo: For a proposal to pass does the number of yes votes just need to be higher than the threshold, or does it also have to be greater than the number of no votes?
         if (_validatorProposals[proposedAddress]._numYes >= _validatorThreshold) {
             if (_validatorProposals[proposedAddress]._action == ValidatorActionType.Add) {
-                // Add validator
-                _validators[proposedAddress] = true;
-                _totalValidators++;
-                emit ValidatorAdded(proposedAddress);
+                _addValidator(proposedAddress);
             } else {
-                // Remove validator
-                _validators[proposedAddress] = false;
-                _totalValidators--;
-                emit ValidatorRemoved(proposedAddress);
+                _removeValidator(proposedAddress);
             }
 
             _validatorProposals[proposedAddress]._status = VoteStatus.Inactive;
@@ -198,5 +194,17 @@ contract Validator is IValidator {
         } else if (_totalValidators.sub(_currentValidatorThresholdProposal._numNo) < _validatorThreshold) {
             _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
         }
+    }
+
+    function _addValidator(address addr) internal {
+        _validators[addr] = true;
+        _totalValidators++;
+        emit ValidatorAdded(addr);
+    }
+
+    function _removeValidator(address addr) internal {
+        _validators[addr] = false;
+        _totalValidators--;
+        emit ValidatorRemoved(addr);
     }
 }
