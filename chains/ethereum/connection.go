@@ -25,8 +25,6 @@ import (
 
 var _ chains.Connection = &Connection{}
 
-var NonceLock = &sync.Mutex{}
-
 // Nonce is a struct that wraps the Nonce with a mutex lock
 // this struct was implemented to prevent race conditions where
 // two transactions try to transact at the same time and recieve
@@ -37,12 +35,12 @@ type Nonce struct {
 }
 
 type Connection struct {
-	cfg    Config
-	ctx    context.Context
-	conn   *ethclient.Client
-	signer ethtypes.Signer
-	kp     crypto.Keypair
-	lock   sync.Mutex
+	cfg       Config
+	ctx       context.Context
+	conn      *ethclient.Client
+	signer    ethtypes.Signer
+	kp        crypto.Keypair
+	nonceLock sync.Mutex
 }
 
 func NewConnection(cfg *Config) *Connection {
@@ -51,8 +49,8 @@ func NewConnection(cfg *Config) *Connection {
 		ctx: context.Background(),
 		cfg: *cfg,
 		// TODO: add network to use to config
-		signer: signer,
-		lock:   sync.Mutex{},
+		signer:    signer,
+		nonceLock: sync.Mutex{},
 	}
 }
 
@@ -119,16 +117,16 @@ func (c *Connection) SubmitTx(data []byte) error {
 
 // PendingNonceAt returns the pending nonce of the given account and the given block
 func (c *Connection) PendingNonceAt(account [20]byte) (*Nonce, error) {
-	c.lock.Lock()
+	c.nonceLock.Lock()
 	nonce, err := c.conn.PendingNonceAt(c.ctx, ethcommon.Address(account))
 	if err != nil {
-		c.lock.Unlock()
+		c.nonceLock.Unlock()
 		return nil, err
 	}
 
 	return &Nonce{
 		nonce,
-		&c.lock,
+		&c.nonceLock,
 	}, nil
 }
 
