@@ -28,8 +28,8 @@ contract('Bridge - [depositERC721]', async (accounts) => {
     let expectedDepositRecord;
 
     beforeEach(async () => {
-        ValidatorInstance = await ValidatorContract.new();
-        BridgeInstance = await BridgeContract.new(ValidatorInstance.address);
+        ValidatorInstance = await ValidatorContract.new([], 0);
+        BridgeInstance = await BridgeContract.new(ValidatorInstance.address, 0);
         OriginERC721MintableInstance = await ERC721MintableContract.new();
         OriginERC721HandlerInstance = await ERC721HandlerContract.new(BridgeInstance.address);
         DestinationERC721MintableInstance = await ERC721MintableContract.new();
@@ -62,6 +62,19 @@ contract('Bridge - [depositERC721]', async (accounts) => {
     it("[sanity] test OriginERC721HandlerInstance.address' allowance", async () => {
         const allowanceHolder = await OriginERC721MintableInstance.getApproved(originChainTokenID);
         assert.strictEqual(allowanceHolder, OriginERC721HandlerInstance.address);
+    });
+
+    it('ERC721 deposit can be made', async () => {
+        truffleAssert.passes(await BridgeInstance.depositERC721(
+            OriginERC721MintableInstance.address,
+            OriginERC721HandlerInstance.address,
+            destinationChainID,
+            DestinationERC721HandlerInstance.address,
+            destinationChainRecipientAddress,
+            originChainTokenID,
+            genericBytes,
+            { from: originChainDepositerAddress }
+        ));
     });
 
     it('_depositCounts should be increments from 0 to 1', async () => {

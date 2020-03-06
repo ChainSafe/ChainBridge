@@ -28,8 +28,8 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
     let expectedDepositRecord_AllArguments;
 
     beforeEach(async () => {
-        ValidatorInstance = await ValidatorContract.new();
-        BridgeInstance = await BridgeContract.new(ValidatorInstance.address);
+        ValidatorInstance = await ValidatorContract.new([], 0);
+        BridgeInstance = await BridgeContract.new(ValidatorInstance.address, 0);
         OriginERC20MintableInstance = await ERC20MintableContract.new();
         OriginERC20HandlerInstance = await ERC20HandlerContract.new(BridgeInstance.address);
         DestinationERC20MintableInstance = await ERC20MintableContract.new();

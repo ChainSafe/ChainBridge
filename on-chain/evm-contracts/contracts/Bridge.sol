@@ -98,8 +98,9 @@ contract Bridge {
         _;
     }
 
-    constructor (address validatorContract) public {
+    constructor (address validatorContract, uint initialValidatorThreshold) public {
         _validatorContract = IValidator(validatorContract);
+        _validatorThreshold = initialValidatorThreshold;
     }
 
     function getValidatorThreshold() public view returns (uint) {
