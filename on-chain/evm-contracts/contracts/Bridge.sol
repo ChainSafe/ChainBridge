@@ -177,7 +177,7 @@ contract Bridge {
         address      destinationRecipientAddress,
         bytes memory data
     ) public {
-        uint depositID = _depositCounts[destinationChainID]++;
+        uint depositID = ++_depositCounts[destinationChainID];
 
         _genericDepositRecords[destinationChainID][depositID] = GenericDepositRecord(
             address(0),
@@ -199,7 +199,7 @@ contract Bridge {
         address      destinationRecipientAddress,
         bytes memory data
     ) public {
-        uint depositID = _depositCounts[destinationChainID]++;
+        uint depositID = ++_depositCounts[destinationChainID];
 
         _genericDepositRecords[destinationChainID][depositID] = GenericDepositRecord(
             originChainContractAddress,
@@ -224,7 +224,7 @@ contract Bridge {
         IERC20Handler erc20Handler = IERC20Handler(originChainHandlerAddress);
         erc20Handler.depositERC20(originChainTokenAddress, msg.sender, amount);
 
-        uint depositID = _depositCounts[destinationChainID]++;
+        uint depositID = ++_depositCounts[destinationChainID];
 
         _erc20DepositRecords[destinationChainID][depositID] = ERC20DepositRecord(
             originChainTokenAddress,
@@ -250,7 +250,7 @@ contract Bridge {
         IERC721Handler erc721Handler = IERC721Handler(originChainHandlerAddress);
         erc721Handler.depositERC721(originChainTokenAddress, msg.sender, tokenID);
 
-        uint depositID = _depositCounts[destinationChainID]++;
+        uint depositID = ++_depositCounts[destinationChainID];
 
         _erc721DepositRecords[destinationChainID][depositID] = ERC721DepositRecord(
             originChainTokenAddress,
