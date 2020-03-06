@@ -11,7 +11,7 @@ const BridgeContract = artifacts.require("Bridge");
 const ERC20MintableContract = artifacts.require("ERC20Mintable");
 const ERC20HandlerContract = artifacts.require("ERC20Handler");
 
-contract('Bridge - [depositProposal with validatorThreshold = 1]', async (accounts) => {
+contract('Bridge - [createDepositProposal with validatorThreshold = 1]', async (accounts) => {
     // const minterAndValidator = accounts[0];
     const originChainValidatorAddress = accounts[1];
     const originChainDepositerAddress = accounts[2];
@@ -199,7 +199,7 @@ contract('Bridge - [depositProposal with validatorThreshold = 1]', async (accoun
     });
 });
 
-contract('Bridge - [depositProposal with validatorThreshold > 1]', async (accounts) => {
+contract('Bridge - [createDepositProposal with validatorThreshold > 1]', async (accounts) => {
     // const minterAndValidator = accounts[0];
     const originChainValidatorAddress = accounts[1];
     const originChainDepositerAddress = accounts[2];
@@ -334,7 +334,7 @@ contract('Bridge - [depositProposal with validatorThreshold > 1]', async (accoun
         ));
     });
 
-    it('originChainValidatorAddress should be marked as vote for proposal', async () => {
+    it('originChainValidatorAddress should be marked as voted for proposal', async () => {
         await BridgeInstance.createDepositProposal(
             originChainID,
             expectedDepositID,
