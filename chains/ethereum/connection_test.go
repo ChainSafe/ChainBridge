@@ -4,11 +4,15 @@
 package ethereum
 
 import (
+	"bytes"
+	"encoding/hex"
+	"fmt"
 	"math/big"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -138,12 +142,24 @@ func TestContractCode(t *testing.T) {
 	}
 	defer conn.Close()
 
-	code1, err := conn.checkByteCode(TestReceiverContractAddress)
+	code1, err := conn.checkByteCode(TestEmitterContractAddress)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if len(code1) == 0 {
 		t.Fatalf("No bytecode on chain.")
+	}
+
+	fmt.Println(hex.EncodeToString(code1))
+
+	basecode, err := hex.DecodeString(Emitter.EmitterBin)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if bytes.Compare(basecode, code1) != 0 {
+		t.Fatalf("Bytecode incorrect")
 	}
 
 }
