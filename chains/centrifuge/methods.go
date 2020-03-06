@@ -10,12 +10,26 @@ const PalletName = "Bridge"
 // An available method on the substrate chain
 type Method string
 
+func createMethod(method string) Method {
+	return Method(fmt.Sprintf("%s.%s", PalletName, method))
+}
+
 func (m Method) String() string {
 	return string(m)
 }
 
-var SetAddressMethod = Method(fmt.Sprintf("%s.%s", PalletName, "set_address"))
+var SetAddressMethod = createMethod("set_address")
 
-var WhitelistChainMethod = Method(fmt.Sprintf("%s.%s", PalletName, "whitelist_chain"))
+var WhitelistChainMethod = createMethod("whitelist_chain")
 
-var AssetTxMethod = Method(fmt.Sprintf("%s.%s", PalletName, "transfer_asset"))
+var AssetTxMethod = createMethod("transfer_asset")
+
+var CreateProposal = createMethod("create_proposal")
+
+var Vote = createMethod("vote")
+
+var NativeTransfer = createMethod("transfer")
+
+// TODO: May not be needed outside of testing
+var AddValidator = createMethod("add_validator")
+var RemoveValidator = createMethod("remove_validator")

@@ -4,6 +4,8 @@
 package substrate
 
 import (
+	"fmt"
+
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/author"
@@ -62,6 +64,9 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 		method.String(),
 		args...,
 	)
+	if err != nil {
+		return fmt.Errorf("failed to construct call: %s", err.Error())
+	}
 	ext := types.NewExtrinsic(call)
 
 	// Get latest runtime version
@@ -71,7 +76,7 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	}
 
 	// Fetch account nonce
-	key, err := types.CreateStorageKey(c.meta, "System", "AccountNonce", signature.TestKeyringPairAlice.PublicKey, nil)
+	key, err := types.CreateStorageKey(c.meta, "System", "Account", signature.TestKeyringPairAlice.PublicKey, nil)
 	if err != nil {
 		return err
 	}
@@ -98,7 +103,7 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	// Submit and watch the extrinsic
 	sub, err := c.api.RPC.Author.SubmitAndWatchExtrinsic(ext)
 	if err != nil {
-		return err
+		return fmt.Errorf("submission of extrinsic failed: %s", err.Error())
 	}
 	log15.Debug("Extrinsic submission succeeded")
 	defer sub.Unsubscribe()
@@ -109,11 +114,21 @@ func watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 	for {
 		select {
 		case status := <-sub.Chan():
-			if status.IsFinalized {
-				log15.Trace("Successful extrinsic finalized")
+			switch {
+			case status.IsInBlock:
+				log15.Trace("Successful extrinsic finalized", "hash", status.AsInBlock.Hex())
 				return nil
+			case status.IsRetracted:
+				return fmt.Errorf("extrinsic retracted: %s", status.AsRetracted.Hex())
+			case status.IsDropped:
+				return fmt.Errorf("extrinsic dropped from network")
+			case status.IsInvalid:
+				return fmt.Errorf("extrinsic invalid")
+			default:
+				log15.Trace("Other status", "status", fmt.Sprintf("%+v", status))
 			}
 		case err := <-sub.Err():
+			log15.Trace("Extrinsic subscription error", "err", err)
 			return err
 		}
 	}
