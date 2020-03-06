@@ -153,7 +153,7 @@ func TestContractCode(t *testing.T) {
 
 	fmt.Println(hex.EncodeToString(code1))
 
-	basecode, err := hex.DecodeString(Emitter.EmitterBin)
+	basecode, err := hex.DecodeString(Emitter.EmitterBin[2:])
 	if err != nil {
 		t.Fatal(err)
 	}
