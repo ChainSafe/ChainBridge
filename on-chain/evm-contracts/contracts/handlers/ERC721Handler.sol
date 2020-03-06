@@ -30,6 +30,15 @@ contract ERC721Handler is IERC721Handler, IDepositHandler, ERC721Safe {
         assembly {
             destinationChainTokenAddress := mload(add(data, 32))
             destinationRecipientAddress := mload(add(data, 64))
+            tokenID := mload(add(data, 96))
+            extraData := mload(0x40)
+            let lenextra := mload(add(0x80, data))
+            mstore(0x40, add(0x60, add(extraData, lenextra)))
+                calldatacopy(
+                extraData,                // copy to extra
+                0xA4,                      // copy from calldata @ 0xA4
+                sub(calldatasize, 0xA4)    // copy size (calldatasize - 0xA4)
+            )
         }
 
         ERC721Mintable erc721 = ERC721Mintable(destinationChainTokenAddress);
