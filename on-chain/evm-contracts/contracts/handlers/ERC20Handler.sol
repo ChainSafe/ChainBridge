@@ -27,9 +27,9 @@ contract ERC20Handler is IERC20Handler, IDepositHandler, ERC20Safe {
         uint amount;
 
         assembly {
-            destinationChainTokenAddress := mload(add(data, 32))
-            destinationRecipientAddress := mload(add(data, 64))
-            amount := mload(add(data, 96))
+            destinationChainTokenAddress := mload(add(data, 0x20))
+            destinationRecipientAddress := mload(add(data, 0x40))
+            amount := mload(add(data, 0x60))
         }
 
         ERC20Mintable erc20 = ERC20Mintable(destinationChainTokenAddress);
