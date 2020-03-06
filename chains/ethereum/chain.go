@@ -22,18 +22,21 @@ type Chain struct {
 	writer   *Writer           // The writer of the chain
 }
 
-func InitializeChain(chainCfg *core.ChainConfig) *Chain {
-	cfg := ParseChainConfig(chainCfg)
+func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
+	cfg, err := ParseChainConfig(chainCfg)
+	if err != nil {
+		return nil, err
+	}
 
 	conn := NewConnection(cfg)
-	err := conn.Connect()
+	err = conn.Connect()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	emitterContract, err := emitter.NewEmitter(cfg.emitter, conn.conn)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	listener := NewListener(conn, cfg)
@@ -41,7 +44,7 @@ func InitializeChain(chainCfg *core.ChainConfig) *Chain {
 
 	receiverContract, err := receiver.NewReceiver(cfg.receiver, conn.conn)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	instance := &receiver.ReceiverRaw{
@@ -56,7 +59,7 @@ func InitializeChain(chainCfg *core.ChainConfig) *Chain {
 		conn:     conn,
 		writer:   writer,
 		listener: listener,
-	}
+	}, nil
 }
 
 func (c *Chain) SetRouter(r *router.Router) {
