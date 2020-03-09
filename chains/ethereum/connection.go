@@ -6,6 +6,7 @@ package ethereum
 import (
 	"context"
 	"math/big"
+	"sync"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
@@ -24,12 +25,22 @@ import (
 
 var _ chains.Connection = &Connection{}
 
+// Nonce is a struct that wraps the Nonce with a mutex lock
+// this struct was implemented to prevent race conditions where
+// two transactions try to transact at the same time and recieve
+//the same nonce, causing one to be rejected.
+type Nonce struct {
+	nonce uint64
+	lock  *sync.Mutex
+}
+
 type Connection struct {
-	cfg    Config
-	ctx    context.Context
-	conn   *ethclient.Client
-	signer ethtypes.Signer
-	kp     crypto.Keypair
+	cfg       Config
+	ctx       context.Context
+	conn      *ethclient.Client
+	signer    ethtypes.Signer
+	kp        crypto.Keypair
+	nonceLock sync.Mutex
 }
 
 func NewConnection(cfg *Config) *Connection {
@@ -38,7 +49,8 @@ func NewConnection(cfg *Config) *Connection {
 		ctx: context.Background(),
 		cfg: *cfg,
 		// TODO: add network to use to config
-		signer: signer,
+		signer:    signer,
+		nonceLock: sync.Mutex{},
 	}
 }
 
@@ -104,8 +116,18 @@ func (c *Connection) SubmitTx(data []byte) error {
 }
 
 // PendingNonceAt returns the pending nonce of the given account and the given block
-func (c *Connection) PendingNonceAt(account [20]byte) (uint64, error) {
-	return c.conn.PendingNonceAt(c.ctx, ethcommon.Address(account))
+func (c *Connection) PendingNonceAt(account [20]byte) (*Nonce, error) {
+	c.nonceLock.Lock()
+	nonce, err := c.conn.PendingNonceAt(c.ctx, ethcommon.Address(account))
+	if err != nil {
+		c.nonceLock.Unlock()
+		return nil, err
+	}
+
+	return &Nonce{
+		nonce,
+		&c.nonceLock,
+	}, nil
 }
 
 // NonceAt returns the nonce of the given account and the given block
@@ -119,22 +141,22 @@ func (c *Connection) LatestBlock() (*ethtypes.Block, error) {
 }
 
 // newTransactOpts builds the TransactOpts for the connection's keypair.
-func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, error) {
+func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, *Nonce, error) {
 	pub := c.kp.Public().(*secp256k1.PublicKey).Key()
 	address := ethcrypto.PubkeyToAddress(pub)
 
 	nonce, err := c.PendingNonceAt(address)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	privateKey := c.kp.Private().(*secp256k1.PrivateKey).Key()
 	auth := bind.NewKeyedTransactor(privateKey)
-	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Nonce = big.NewInt(int64(nonce.nonce))
 	auth.Value = big.NewInt(0)               // in wei
 	auth.GasLimit = uint64(gasLimit.Int64()) // in units
 	auth.GasPrice = gasPrice
 	auth.Context = c.ctx
 
-	return auth, nil
+	return auth, nonce, nil
 }
