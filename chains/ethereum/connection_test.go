@@ -4,9 +4,7 @@
 package ethereum
 
 import (
-	"bytes"
 	"encoding/hex"
-	"fmt"
 	"math/big"
 	"strings"
 	"testing"
@@ -142,24 +140,37 @@ func TestContractCode(t *testing.T) {
 	}
 	defer conn.Close()
 
-	code1, err := conn.checkByteCode(TestEmitterContractAddress)
+	instance, err := Emitter.NewEmitter(ethcmn.HexToAddress("0x3c747684333605408F9A4907DA043ee4c1A72D9d"), conn.conn)
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if len(code1) == 0 {
-		t.Fatalf("No bytecode on chain.")
-	}
-
-	fmt.Println(hex.EncodeToString(code1))
-
-	basecode, err := hex.DecodeString(Emitter.EmitterBin[2:])
+	version, err := instance.Owner(nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if bytes.Compare(basecode, code1) != 0 {
-		t.Fatalf("Bytecode incorrect")
-	}
+	t.Log(hex.EncodeToString(version.Bytes()))
+
+	// code1, err := conn.checkByteCode(TestEmitterContractAddress)
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+
+	// if len(code1) == 0 {
+	// 	t.Fatalf("No bytecode on chain.")
+	// }
+
+	// fmt.Println(hex.EncodeToString(code1))
+
+	// basecode, err := hex.DecodeString(Emitter.EmitterBin[2:])
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+
+	// if bytes.Compare(basecode, code1) != 0 {
+	// 	t.Fatalf("Bytecode incorrect")
+	// }
 
 }
