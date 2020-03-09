@@ -174,7 +174,7 @@ func TestContractCode(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(byteCode) == 0 {
-		t.Fatal("BridgeAseet Contract doesn't exist")
+		t.Fatal("BridgeAsset Contract doesn't exist")
 	}
 
 	// This section attempts to make the correct Contract type, trying to ensure that the contract at the addresses are the correct types

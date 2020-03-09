@@ -115,6 +115,7 @@ func TestWriteToReceiverContract(t *testing.T) {
 }
 
 func TestWriter_createDepositProposal(t *testing.T) {
+
 	m := msg.Message{
 		Type:      msg.CreateDepositProposalType,
 		DepositId: depositId,
@@ -141,7 +142,7 @@ func TestWriter_voteDepositProposal(t *testing.T) {
 	m := msg.Message{
 		Type:      msg.VoteDepositProposalType,
 		Source:    sourceChain,
-		DepositId: 0,
+		DepositId: depositId,
 		Metadata:  []byte{1},
 	}
 
