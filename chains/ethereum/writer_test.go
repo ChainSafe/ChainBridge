@@ -16,7 +16,6 @@ import (
 
 var testConfig = &Config{
 	endpoint: TestEndpoint,
-	receiver: TestCentrifugeContractAddress,
 	keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 	from:     keystore.AliceKey,
 	gasLimit: big.NewInt(6721975),

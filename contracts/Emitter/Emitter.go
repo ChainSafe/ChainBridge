@@ -1,6 +1,3 @@
-// Copyright 2020 ChainSafe Systems
-// SPDX-License-Identifier: LGPL-3.0-only
-
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
@@ -31,10 +28,10 @@ var (
 )
 
 // EmitterABI is the input ABI used to generate the binding from.
-const EmitterABI = "[{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_depositId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"}],\"name\":\"ERCTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_depositId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_destAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"GenericTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_depositId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"NFTTransfer\",\"type\":\"event\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"balances\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_destAddress\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"deposit\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"}],\"name\":\"depositGenericErc\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_metaData\",\"type\":\"bytes\"}],\"name\":\"depositNFT\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"}],\"name\":\"releaseErc\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"releaseNFT\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const EmitterABI = "[{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_depositId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"}],\"name\":\"ERCTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_depositId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_destAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"GenericTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_depositId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"NFTTransfer\",\"type\":\"event\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"DepositCounts\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"balances\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"}],\"name\":\"releaseErc\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"releaseNFT\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_destAddress\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"deposit\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"}],\"name\":\"depositGenericErc\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_destChain\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_metaData\",\"type\":\"bytes\"}],\"name\":\"depositNFT\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // EmitterBin is the compiled bytecode used for deploying new contracts.
-const EmitterBin = `60806040523480156100115760006000fd5b505b305b80600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b505b61005e565b6110af8061006d6000396000f3fe60806040523480156100115760006000fd5b50600436106100825760003560e01c8063344557331161005c57806334455733146101c95780638da5cb5b14610238578063faa9bce914610282578063fcf861651461036f57610082565b80631d4241dd1461008857806327e235e3146101015780632b4380c51461015a57610082565b60006000fd5b6100ff6004803603608081101561009f5760006000fd5b810190808035906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610486565b005b610144600480360360208110156101185760006000fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610589565b6040518082815260200191505060405180910390f35b6101c7600480360360608110156101715760006000fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803590602001909291905050506105a4565b005b610236600480360360608110156101e05760006000fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506106e3565b005b610240610976565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b61036d600480360360608110156102995760006000fd5b8101908080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803590602001906401000000008111156102e15760006000fd5b8201836020820111156102f45760006000fd5b803590602001918460018302840111640100000000831117156103175760006000fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f820116905080830192505050505050509090919290909192905050506109a5565b005b610484600480360360a08110156103865760006000fd5b8101908080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190803590602001906401000000008111156103f85760006000fd5b82018360208201111561040b5760006000fd5b8035906020019184600183028401116401000000008311171561042e5760006000fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f82011690508083019250505050505050909091929090919290505050610ac7565b005b6002600050600085815260200190815260200160002060008181505480929190600101919050909055506000600260005060008681526020019081526020016000206000505490506104e082853033610c3963ffffffff16565b80857f12a20368a5b6a9eb35068693542bef5613d39588e50c62fca6312f1b7d9242fe858786604051808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018381526020018273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001935050505060405180910390a3505b50505050565b60016000506020528060005260406000206000915090505481565b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156106015760006000fd5b60008390508073ffffffffffffffffffffffffffffffffffffffff166323b872dd3085856040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050600060405180830381600087803b1580156106c25760006000fd5b505af11580156106d7573d600060003e3d6000fd5b50505050505b5b505050565b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156107405760006000fd5b81600160005060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000505410151515610800576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601e8152602001807f5769746864726177616c20616d6f756e7420697320746f6f206869676821000081526020015060200191505060405180910390fd5b61085882600160005060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005054610de390919063ffffffff16565b600160005060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005081909090555060008390508073ffffffffffffffffffffffffffffffffffffffff1663a9059cbb83856040518363ffffffff1660e01b8152600401808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200182815260200192505050602060405180830381600087803b1580156109305760006000fd5b505af1158015610945573d600060003e3d6000fd5b505050506040513d602081101561095c5760006000fd5b810190808051906020019092919050505050505b5b505050565b6000600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690506109a2565b90565b60026000506000848152602001908152602001600020600081815054809291906001019190509090555060006002600050600085815260200190815260200160002060005054905080847f6cc01912ea1b73308485cfdf6b52b3a8c1e8f33825352b5d5fc0b5ddec3a2a2b8585604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200180602001828103825283818151815260200191508051906020019080838360005b83811015610a855780820151818401525b602081019050610a69565b50505050905090810190601f168015610ab25780820380516001836020036101000a031916815260200191505b50935050505060405180910390a3505b505050565b600260005060008681526020019081526020016000206000818150548092919060010191905090905550600060026000506000878152602001908152602001600020600050549050610b2184303386610e3b63ffffffff16565b80867f0e6815b49056b27f8b1a0f27453bdd5caedf0eb14fa1e1c1f4f11be9cba05f0587878787604051808573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200183815260200180602001828103825283818151815260200191508051906020019080838360005b83811015610bf35780820151818401525b602081019050610bd7565b50505050905090810190601f168015610c205780820380516001836020036101000a031916815260200191505b509550505050505060405180910390a3505b5050505050565b610c9183600160005060008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005054610f1d90919063ffffffff16565b600160005060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005081909090555060008490508073ffffffffffffffffffffffffffffffffffffffff166323b872dd8385876040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b158015610d9d5760006000fd5b505af1158015610db2573d600060003e3d6000fd5b505050506040513d6020811015610dc95760006000fd5b810190808051906020019092919050505050505b50505050565b6000610e2e83836040518060400160405280601e81526020017f536166654d6174683a207375627472616374696f6e206f766572666c6f770000815260200150610fb163ffffffff16565b9050610e35565b92915050565b60008490508073ffffffffffffffffffffffffffffffffffffffff166323b872dd8486856040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050600060405180830381600087803b158015610efc5760006000fd5b505af1158015610f11573d600060003e3d6000fd5b50505050505b50505050565b600060008284019050838110151515610fa1576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601b8152602001807f536166654d6174683a206164646974696f6e206f766572666c6f77000000000081526020015060200191505060405180910390fd5b80915050610fab56505b92915050565b60008383111582901515611061576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825283818151815260200191508051906020019080838360005b838110156110265780820151818401525b60208101905061100a565b50505050905090810190601f1680156110535780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b50600083850390508091505061107356505b939250505056fea265627a7a72315820965ab29e0fa65dd28497f313fb95430a53217986dc3d000299defe3ed99629d864736f6c634300050c0032`
+var EmitterBin = "0x608060405234801561001057600080fd5b5030806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555050611057806100626000396000f3fe608060405234801561001057600080fd5b50600436106100885760003560e01c80635ac28d951161005b5780635ac28d95146102395780638da5cb5b1461027b578063faa9bce9146102c5578063fcf86165146103aa57610088565b80631d4241dd1461008d57806327e235e3146101055780632b4380c51461015d57806334455733146101cb575b600080fd5b610103600480360360808110156100a357600080fd5b810190808035906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506104b9565b005b6101476004803603602081101561011b57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506105a8565b6040518082815260200191505060405180910390f35b6101c96004803603606081101561017357600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803590602001909291905050506105c0565b005b610237600480360360608110156101e157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506106f7565b005b6102656004803603602081101561024f57600080fd5b8101908080359060200190929190505050610968565b6040518082815260200191505060405180910390f35b610283610980565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6103a8600480360360608110156102db57600080fd5b8101908080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019064010000000081111561032257600080fd5b82018360208201111561033457600080fd5b8035906020019184600183028401116401000000008311171561035657600080fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f8201169050808301925050505050505091929192905050506109a9565b005b6104b7600480360360a08110156103c057600080fd5b8101908080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803590602001909291908035906020019064010000000081111561043157600080fd5b82018360208201111561044357600080fd5b8035906020019184600183028401116401000000008311171561046557600080fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f820116905080830192505050505050509192919290505050610abc565b005b600260008581526020019081526020016000206000815480929190600101919050555060006002600086815260200190815260200160002054905061050082853033610c19565b80857f12a20368a5b6a9eb35068693542bef5613d39588e50c62fca6312f1b7d9242fe858786604051808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018381526020018273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001935050505060405180910390a35050505050565b60016020528060005260406000206000915090505481565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161461061957600080fd5b60008390508073ffffffffffffffffffffffffffffffffffffffff166323b872dd3085856040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050600060405180830381600087803b1580156106d957600080fd5b505af11580156106ed573d6000803e3d6000fd5b5050505050505050565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161461075057600080fd5b81600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020541015610805576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601e8152602001807f5769746864726177616c20616d6f756e7420697320746f6f206869676821000081525060200191505060405180910390fd5b61085782600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054610db190919063ffffffff16565b600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208190555060008390508073ffffffffffffffffffffffffffffffffffffffff1663a9059cbb83856040518363ffffffff1660e01b8152600401808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200182815260200192505050602060405180830381600087803b15801561092657600080fd5b505af115801561093a573d6000803e3d6000fd5b505050506040513d602081101561095057600080fd5b81019080805190602001909291905050505050505050565b60026020528060005260406000206000915090505481565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905090565b600260008481526020019081526020016000206000815480929190600101919050555060006002600085815260200190815260200160002054905080847f6cc01912ea1b73308485cfdf6b52b3a8c1e8f33825352b5d5fc0b5ddec3a2a2b8585604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200180602001828103825283818151815260200191508051906020019080838360005b83811015610a7b578082015181840152602081019050610a60565b50505050905090810190601f168015610aa85780820380516001836020036101000a031916815260200191505b50935050505060405180910390a350505050565b6002600086815260200190815260200160002060008154809291906001019190505550600060026000878152602001908152602001600020549050610b0384303386610dfb565b80867f0e6815b49056b27f8b1a0f27453bdd5caedf0eb14fa1e1c1f4f11be9cba05f0587878787604051808573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200183815260200180602001828103825283818151815260200191508051906020019080838360005b83811015610bd4578082015181840152602081019050610bb9565b50505050905090810190601f168015610c015780820380516001836020036101000a031916815260200191505b509550505050505060405180910390a3505050505050565b610c6b83600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054610eda90919063ffffffff16565b600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208190555060008490508073ffffffffffffffffffffffffffffffffffffffff166323b872dd8385876040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b158015610d6e57600080fd5b505af1158015610d82573d6000803e3d6000fd5b505050506040513d6020811015610d9857600080fd5b8101908080519060200190929190505050505050505050565b6000610df383836040518060400160405280601e81526020017f536166654d6174683a207375627472616374696f6e206f766572666c6f770000815250610f62565b905092915050565b60008490508073ffffffffffffffffffffffffffffffffffffffff166323b872dd8486856040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050600060405180830381600087803b158015610ebb57600080fd5b505af1158015610ecf573d6000803e3d6000fd5b505050505050505050565b600080828401905083811015610f58576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601b8152602001807f536166654d6174683a206164646974696f6e206f766572666c6f77000000000081525060200191505060405180910390fd5b8091505092915050565b600083831115829061100f576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825283818151815260200191508051906020019080838360005b83811015610fd4578082015181840152602081019050610fb9565b50505050905090810190601f1680156110015780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b506000838503905080915050939250505056fea265627a7a72315820690dbec183349014267cd25d7574ab3d7a7ab0a8de54fc3f71ca1d843337c95264736f6c63430005100032"
 
 // DeployEmitter deploys a new Ethereum contract, binding an instance of Emitter to it.
 func DeployEmitter(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *Emitter, error) {
@@ -42,6 +39,7 @@ func DeployEmitter(auth *bind.TransactOpts, backend bind.ContractBackend) (commo
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
+
 	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(EmitterBin), backend)
 	if err != nil {
 		return common.Address{}, nil, nil, err
@@ -191,9 +189,35 @@ func (_Emitter *EmitterTransactorRaw) Transact(opts *bind.TransactOpts, method s
 	return _Emitter.Contract.contract.Transact(opts, method, params...)
 }
 
+// DepositCounts is a free data retrieval call binding the contract method 0x5ac28d95.
+//
+// Solidity: function DepositCounts(uint256 ) constant returns(uint256)
+func (_Emitter *EmitterCaller) DepositCounts(opts *bind.CallOpts, arg0 *big.Int) (*big.Int, error) {
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := _Emitter.contract.Call(opts, out, "DepositCounts", arg0)
+	return *ret0, err
+}
+
+// DepositCounts is a free data retrieval call binding the contract method 0x5ac28d95.
+//
+// Solidity: function DepositCounts(uint256 ) constant returns(uint256)
+func (_Emitter *EmitterSession) DepositCounts(arg0 *big.Int) (*big.Int, error) {
+	return _Emitter.Contract.DepositCounts(&_Emitter.CallOpts, arg0)
+}
+
+// DepositCounts is a free data retrieval call binding the contract method 0x5ac28d95.
+//
+// Solidity: function DepositCounts(uint256 ) constant returns(uint256)
+func (_Emitter *EmitterCallerSession) DepositCounts(arg0 *big.Int) (*big.Int, error) {
+	return _Emitter.Contract.DepositCounts(&_Emitter.CallOpts, arg0)
+}
+
 // Balances is a free data retrieval call binding the contract method 0x27e235e3.
 //
-// Solidity: function balances( address) constant returns(uint256)
+// Solidity: function balances(address ) constant returns(uint256)
 func (_Emitter *EmitterCaller) Balances(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -205,14 +229,14 @@ func (_Emitter *EmitterCaller) Balances(opts *bind.CallOpts, arg0 common.Address
 
 // Balances is a free data retrieval call binding the contract method 0x27e235e3.
 //
-// Solidity: function balances( address) constant returns(uint256)
+// Solidity: function balances(address ) constant returns(uint256)
 func (_Emitter *EmitterSession) Balances(arg0 common.Address) (*big.Int, error) {
 	return _Emitter.Contract.Balances(&_Emitter.CallOpts, arg0)
 }
 
 // Balances is a free data retrieval call binding the contract method 0x27e235e3.
 //
-// Solidity: function balances( address) constant returns(uint256)
+// Solidity: function balances(address ) constant returns(uint256)
 func (_Emitter *EmitterCallerSession) Balances(arg0 common.Address) (*big.Int, error) {
 	return _Emitter.Contract.Balances(&_Emitter.CallOpts, arg0)
 }
@@ -245,105 +269,105 @@ func (_Emitter *EmitterCallerSession) Owner() (common.Address, error) {
 
 // Deposit is a paid mutator transaction binding the contract method 0xfaa9bce9.
 //
-// Solidity: function deposit(_destChain uint256, _destAddress address, _data bytes) returns()
+// Solidity: function deposit(uint256 _destChain, address _destAddress, bytes _data) returns()
 func (_Emitter *EmitterTransactor) Deposit(opts *bind.TransactOpts, _destChain *big.Int, _destAddress common.Address, _data []byte) (*types.Transaction, error) {
 	return _Emitter.contract.Transact(opts, "deposit", _destChain, _destAddress, _data)
 }
 
 // Deposit is a paid mutator transaction binding the contract method 0xfaa9bce9.
 //
-// Solidity: function deposit(_destChain uint256, _destAddress address, _data bytes) returns()
+// Solidity: function deposit(uint256 _destChain, address _destAddress, bytes _data) returns()
 func (_Emitter *EmitterSession) Deposit(_destChain *big.Int, _destAddress common.Address, _data []byte) (*types.Transaction, error) {
 	return _Emitter.Contract.Deposit(&_Emitter.TransactOpts, _destChain, _destAddress, _data)
 }
 
 // Deposit is a paid mutator transaction binding the contract method 0xfaa9bce9.
 //
-// Solidity: function deposit(_destChain uint256, _destAddress address, _data bytes) returns()
+// Solidity: function deposit(uint256 _destChain, address _destAddress, bytes _data) returns()
 func (_Emitter *EmitterTransactorSession) Deposit(_destChain *big.Int, _destAddress common.Address, _data []byte) (*types.Transaction, error) {
 	return _Emitter.Contract.Deposit(&_Emitter.TransactOpts, _destChain, _destAddress, _data)
 }
 
 // DepositGenericErc is a paid mutator transaction binding the contract method 0x1d4241dd.
 //
-// Solidity: function depositGenericErc(_destChain uint256, _value uint256, _to address, _tokenAddress address) returns()
+// Solidity: function depositGenericErc(uint256 _destChain, uint256 _value, address _to, address _tokenAddress) returns()
 func (_Emitter *EmitterTransactor) DepositGenericErc(opts *bind.TransactOpts, _destChain *big.Int, _value *big.Int, _to common.Address, _tokenAddress common.Address) (*types.Transaction, error) {
 	return _Emitter.contract.Transact(opts, "depositGenericErc", _destChain, _value, _to, _tokenAddress)
 }
 
 // DepositGenericErc is a paid mutator transaction binding the contract method 0x1d4241dd.
 //
-// Solidity: function depositGenericErc(_destChain uint256, _value uint256, _to address, _tokenAddress address) returns()
+// Solidity: function depositGenericErc(uint256 _destChain, uint256 _value, address _to, address _tokenAddress) returns()
 func (_Emitter *EmitterSession) DepositGenericErc(_destChain *big.Int, _value *big.Int, _to common.Address, _tokenAddress common.Address) (*types.Transaction, error) {
 	return _Emitter.Contract.DepositGenericErc(&_Emitter.TransactOpts, _destChain, _value, _to, _tokenAddress)
 }
 
 // DepositGenericErc is a paid mutator transaction binding the contract method 0x1d4241dd.
 //
-// Solidity: function depositGenericErc(_destChain uint256, _value uint256, _to address, _tokenAddress address) returns()
+// Solidity: function depositGenericErc(uint256 _destChain, uint256 _value, address _to, address _tokenAddress) returns()
 func (_Emitter *EmitterTransactorSession) DepositGenericErc(_destChain *big.Int, _value *big.Int, _to common.Address, _tokenAddress common.Address) (*types.Transaction, error) {
 	return _Emitter.Contract.DepositGenericErc(&_Emitter.TransactOpts, _destChain, _value, _to, _tokenAddress)
 }
 
 // DepositNFT is a paid mutator transaction binding the contract method 0xfcf86165.
 //
-// Solidity: function depositNFT(_destChain uint256, _to address, _tokenAddress address, _tokenId uint256, _metaData bytes) returns()
+// Solidity: function depositNFT(uint256 _destChain, address _to, address _tokenAddress, uint256 _tokenId, bytes _metaData) returns()
 func (_Emitter *EmitterTransactor) DepositNFT(opts *bind.TransactOpts, _destChain *big.Int, _to common.Address, _tokenAddress common.Address, _tokenId *big.Int, _metaData []byte) (*types.Transaction, error) {
 	return _Emitter.contract.Transact(opts, "depositNFT", _destChain, _to, _tokenAddress, _tokenId, _metaData)
 }
 
 // DepositNFT is a paid mutator transaction binding the contract method 0xfcf86165.
 //
-// Solidity: function depositNFT(_destChain uint256, _to address, _tokenAddress address, _tokenId uint256, _metaData bytes) returns()
+// Solidity: function depositNFT(uint256 _destChain, address _to, address _tokenAddress, uint256 _tokenId, bytes _metaData) returns()
 func (_Emitter *EmitterSession) DepositNFT(_destChain *big.Int, _to common.Address, _tokenAddress common.Address, _tokenId *big.Int, _metaData []byte) (*types.Transaction, error) {
 	return _Emitter.Contract.DepositNFT(&_Emitter.TransactOpts, _destChain, _to, _tokenAddress, _tokenId, _metaData)
 }
 
 // DepositNFT is a paid mutator transaction binding the contract method 0xfcf86165.
 //
-// Solidity: function depositNFT(_destChain uint256, _to address, _tokenAddress address, _tokenId uint256, _metaData bytes) returns()
+// Solidity: function depositNFT(uint256 _destChain, address _to, address _tokenAddress, uint256 _tokenId, bytes _metaData) returns()
 func (_Emitter *EmitterTransactorSession) DepositNFT(_destChain *big.Int, _to common.Address, _tokenAddress common.Address, _tokenId *big.Int, _metaData []byte) (*types.Transaction, error) {
 	return _Emitter.Contract.DepositNFT(&_Emitter.TransactOpts, _destChain, _to, _tokenAddress, _tokenId, _metaData)
 }
 
 // ReleaseErc is a paid mutator transaction binding the contract method 0x34455733.
 //
-// Solidity: function releaseErc(_tokenAddress address, _value uint256, _to address) returns()
+// Solidity: function releaseErc(address _tokenAddress, uint256 _value, address _to) returns()
 func (_Emitter *EmitterTransactor) ReleaseErc(opts *bind.TransactOpts, _tokenAddress common.Address, _value *big.Int, _to common.Address) (*types.Transaction, error) {
 	return _Emitter.contract.Transact(opts, "releaseErc", _tokenAddress, _value, _to)
 }
 
 // ReleaseErc is a paid mutator transaction binding the contract method 0x34455733.
 //
-// Solidity: function releaseErc(_tokenAddress address, _value uint256, _to address) returns()
+// Solidity: function releaseErc(address _tokenAddress, uint256 _value, address _to) returns()
 func (_Emitter *EmitterSession) ReleaseErc(_tokenAddress common.Address, _value *big.Int, _to common.Address) (*types.Transaction, error) {
 	return _Emitter.Contract.ReleaseErc(&_Emitter.TransactOpts, _tokenAddress, _value, _to)
 }
 
 // ReleaseErc is a paid mutator transaction binding the contract method 0x34455733.
 //
-// Solidity: function releaseErc(_tokenAddress address, _value uint256, _to address) returns()
+// Solidity: function releaseErc(address _tokenAddress, uint256 _value, address _to) returns()
 func (_Emitter *EmitterTransactorSession) ReleaseErc(_tokenAddress common.Address, _value *big.Int, _to common.Address) (*types.Transaction, error) {
 	return _Emitter.Contract.ReleaseErc(&_Emitter.TransactOpts, _tokenAddress, _value, _to)
 }
 
 // ReleaseNFT is a paid mutator transaction binding the contract method 0x2b4380c5.
 //
-// Solidity: function releaseNFT(_tokenAddress address, _to address, _tokenId uint256) returns()
+// Solidity: function releaseNFT(address _tokenAddress, address _to, uint256 _tokenId) returns()
 func (_Emitter *EmitterTransactor) ReleaseNFT(opts *bind.TransactOpts, _tokenAddress common.Address, _to common.Address, _tokenId *big.Int) (*types.Transaction, error) {
 	return _Emitter.contract.Transact(opts, "releaseNFT", _tokenAddress, _to, _tokenId)
 }
 
 // ReleaseNFT is a paid mutator transaction binding the contract method 0x2b4380c5.
 //
-// Solidity: function releaseNFT(_tokenAddress address, _to address, _tokenId uint256) returns()
+// Solidity: function releaseNFT(address _tokenAddress, address _to, uint256 _tokenId) returns()
 func (_Emitter *EmitterSession) ReleaseNFT(_tokenAddress common.Address, _to common.Address, _tokenId *big.Int) (*types.Transaction, error) {
 	return _Emitter.Contract.ReleaseNFT(&_Emitter.TransactOpts, _tokenAddress, _to, _tokenId)
 }
 
 // ReleaseNFT is a paid mutator transaction binding the contract method 0x2b4380c5.
 //
-// Solidity: function releaseNFT(_tokenAddress address, _to address, _tokenId uint256) returns()
+// Solidity: function releaseNFT(address _tokenAddress, address _to, uint256 _tokenId) returns()
 func (_Emitter *EmitterTransactorSession) ReleaseNFT(_tokenAddress common.Address, _to common.Address, _tokenId *big.Int) (*types.Transaction, error) {
 	return _Emitter.Contract.ReleaseNFT(&_Emitter.TransactOpts, _tokenAddress, _to, _tokenId)
 }
@@ -427,7 +451,7 @@ type EmitterERCTransfer struct {
 
 // FilterERCTransfer is a free log retrieval operation binding the contract event 0x12a20368a5b6a9eb35068693542bef5613d39588e50c62fca6312f1b7d9242fe.
 //
-// Solidity: e ERCTransfer(_destChain indexed uint256, _depositId indexed uint256, _to address, _amount uint256, _tokenAddress address)
+// Solidity: event ERCTransfer(uint256 indexed _destChain, uint256 indexed _depositId, address _to, uint256 _amount, address _tokenAddress)
 func (_Emitter *EmitterFilterer) FilterERCTransfer(opts *bind.FilterOpts, _destChain []*big.Int, _depositId []*big.Int) (*EmitterERCTransferIterator, error) {
 
 	var _destChainRule []interface{}
@@ -448,7 +472,7 @@ func (_Emitter *EmitterFilterer) FilterERCTransfer(opts *bind.FilterOpts, _destC
 
 // WatchERCTransfer is a free log subscription operation binding the contract event 0x12a20368a5b6a9eb35068693542bef5613d39588e50c62fca6312f1b7d9242fe.
 //
-// Solidity: e ERCTransfer(_destChain indexed uint256, _depositId indexed uint256, _to address, _amount uint256, _tokenAddress address)
+// Solidity: event ERCTransfer(uint256 indexed _destChain, uint256 indexed _depositId, address _to, uint256 _amount, address _tokenAddress)
 func (_Emitter *EmitterFilterer) WatchERCTransfer(opts *bind.WatchOpts, sink chan<- *EmitterERCTransfer, _destChain []*big.Int, _depositId []*big.Int) (event.Subscription, error) {
 
 	var _destChainRule []interface{}
@@ -490,6 +514,17 @@ func (_Emitter *EmitterFilterer) WatchERCTransfer(opts *bind.WatchOpts, sink cha
 			}
 		}
 	}), nil
+}
+
+// ParseERCTransfer is a log parse operation binding the contract event 0x12a20368a5b6a9eb35068693542bef5613d39588e50c62fca6312f1b7d9242fe.
+//
+// Solidity: event ERCTransfer(uint256 indexed _destChain, uint256 indexed _depositId, address _to, uint256 _amount, address _tokenAddress)
+func (_Emitter *EmitterFilterer) ParseERCTransfer(log types.Log) (*EmitterERCTransfer, error) {
+	event := new(EmitterERCTransfer)
+	if err := _Emitter.contract.UnpackLog(event, "ERCTransfer", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }
 
 // EmitterGenericTransferIterator is returned from FilterGenericTransfer and is used to iterate over the raw logs and unpacked data for GenericTransfer events raised by the Emitter contract.
@@ -570,7 +605,7 @@ type EmitterGenericTransfer struct {
 
 // FilterGenericTransfer is a free log retrieval operation binding the contract event 0x6cc01912ea1b73308485cfdf6b52b3a8c1e8f33825352b5d5fc0b5ddec3a2a2b.
 //
-// Solidity: e GenericTransfer(_destChain indexed uint256, _depositId indexed uint256, _destAddress address, _data bytes)
+// Solidity: event GenericTransfer(uint256 indexed _destChain, uint256 indexed _depositId, address _destAddress, bytes _data)
 func (_Emitter *EmitterFilterer) FilterGenericTransfer(opts *bind.FilterOpts, _destChain []*big.Int, _depositId []*big.Int) (*EmitterGenericTransferIterator, error) {
 
 	var _destChainRule []interface{}
@@ -591,7 +626,7 @@ func (_Emitter *EmitterFilterer) FilterGenericTransfer(opts *bind.FilterOpts, _d
 
 // WatchGenericTransfer is a free log subscription operation binding the contract event 0x6cc01912ea1b73308485cfdf6b52b3a8c1e8f33825352b5d5fc0b5ddec3a2a2b.
 //
-// Solidity: e GenericTransfer(_destChain indexed uint256, _depositId indexed uint256, _destAddress address, _data bytes)
+// Solidity: event GenericTransfer(uint256 indexed _destChain, uint256 indexed _depositId, address _destAddress, bytes _data)
 func (_Emitter *EmitterFilterer) WatchGenericTransfer(opts *bind.WatchOpts, sink chan<- *EmitterGenericTransfer, _destChain []*big.Int, _depositId []*big.Int) (event.Subscription, error) {
 
 	var _destChainRule []interface{}
@@ -633,6 +668,17 @@ func (_Emitter *EmitterFilterer) WatchGenericTransfer(opts *bind.WatchOpts, sink
 			}
 		}
 	}), nil
+}
+
+// ParseGenericTransfer is a log parse operation binding the contract event 0x6cc01912ea1b73308485cfdf6b52b3a8c1e8f33825352b5d5fc0b5ddec3a2a2b.
+//
+// Solidity: event GenericTransfer(uint256 indexed _destChain, uint256 indexed _depositId, address _destAddress, bytes _data)
+func (_Emitter *EmitterFilterer) ParseGenericTransfer(log types.Log) (*EmitterGenericTransfer, error) {
+	event := new(EmitterGenericTransfer)
+	if err := _Emitter.contract.UnpackLog(event, "GenericTransfer", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }
 
 // EmitterNFTTransferIterator is returned from FilterNFTTransfer and is used to iterate over the raw logs and unpacked data for NFTTransfer events raised by the Emitter contract.
@@ -715,7 +761,7 @@ type EmitterNFTTransfer struct {
 
 // FilterNFTTransfer is a free log retrieval operation binding the contract event 0x0e6815b49056b27f8b1a0f27453bdd5caedf0eb14fa1e1c1f4f11be9cba05f05.
 //
-// Solidity: e NFTTransfer(_destChain indexed uint256, _depositId indexed uint256, _to address, _tokenAddress address, _tokenId uint256, _data bytes)
+// Solidity: event NFTTransfer(uint256 indexed _destChain, uint256 indexed _depositId, address _to, address _tokenAddress, uint256 _tokenId, bytes _data)
 func (_Emitter *EmitterFilterer) FilterNFTTransfer(opts *bind.FilterOpts, _destChain []*big.Int, _depositId []*big.Int) (*EmitterNFTTransferIterator, error) {
 
 	var _destChainRule []interface{}
@@ -736,7 +782,7 @@ func (_Emitter *EmitterFilterer) FilterNFTTransfer(opts *bind.FilterOpts, _destC
 
 // WatchNFTTransfer is a free log subscription operation binding the contract event 0x0e6815b49056b27f8b1a0f27453bdd5caedf0eb14fa1e1c1f4f11be9cba05f05.
 //
-// Solidity: e NFTTransfer(_destChain indexed uint256, _depositId indexed uint256, _to address, _tokenAddress address, _tokenId uint256, _data bytes)
+// Solidity: event NFTTransfer(uint256 indexed _destChain, uint256 indexed _depositId, address _to, address _tokenAddress, uint256 _tokenId, bytes _data)
 func (_Emitter *EmitterFilterer) WatchNFTTransfer(opts *bind.WatchOpts, sink chan<- *EmitterNFTTransfer, _destChain []*big.Int, _depositId []*big.Int) (event.Subscription, error) {
 
 	var _destChainRule []interface{}
@@ -778,4 +824,15 @@ func (_Emitter *EmitterFilterer) WatchNFTTransfer(opts *bind.WatchOpts, sink cha
 			}
 		}
 	}), nil
+}
+
+// ParseNFTTransfer is a log parse operation binding the contract event 0x0e6815b49056b27f8b1a0f27453bdd5caedf0eb14fa1e1c1f4f11be9cba05f05.
+//
+// Solidity: event NFTTransfer(uint256 indexed _destChain, uint256 indexed _depositId, address _to, address _tokenAddress, uint256 _tokenId, bytes _data)
+func (_Emitter *EmitterFilterer) ParseNFTTransfer(log types.Log) (*EmitterNFTTransfer, error) {
+	event := new(EmitterNFTTransfer)
+	if err := _Emitter.contract.UnpackLog(event, "NFTTransfer", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }
