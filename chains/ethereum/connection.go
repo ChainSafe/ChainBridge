@@ -161,7 +161,7 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 	return auth, nonce, nil
 }
 
-//checkByte Code grabs the bytecode of the contract, to help determine if a contract is deployed
+//checkByteCode grabs the bytecode of the contract, to help determine if a contract is deployed
 func (c *Connection) checkByteCode(account ethcommon.Address) ([]byte, error) {
 	return c.conn.CodeAt(c.ctx, account, nil)
 
