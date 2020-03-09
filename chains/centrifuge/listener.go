@@ -15,6 +15,11 @@ import (
 
 var _ chains.Listener = &Listener{}
 
+type Subscription struct {
+	signature string
+	handler   chains.EvtHandlerFn
+}
+
 type Listener struct {
 	cfg           core.ChainConfig
 	conn          *Connection
@@ -35,29 +40,29 @@ func (l *Listener) SetRouter(r chains.Router) {
 	l.router = r
 }
 
+func (l *Listener) GetSubscriptions() []*Subscription {
+	return []*Subscription{
+		{
+			signature: "nfts",
+			handler:   nftHandler,
+		},
+		{
+			signature: "assetTx",
+			handler:   assetTransferHandler,
+		},
+	}
+}
+
 // Start creates the initial subscription for all events
 func (l *Listener) Start() error {
-	log15.Info("Starting centrifuge listener...", "chainID", l.cfg.Id, "subs", l.cfg.Subscriptions)
+	log15.Info("Starting centrifuge listener...", "chainID", l.cfg.Id)
 
-	for _, sub := range l.cfg.Subscriptions {
-		switch sub {
-		case "nfts":
-			err := l.RegisterEventHandler("nfts", nftHandler)
-
-			if err != nil {
-				return err
-			}
-		case "assetTx":
-			err := l.RegisterEventHandler("assetTx", assetTransferHandler)
-
-			if err != nil {
-				return err
-			}
-
-		default:
-			return fmt.Errorf("unrecognized event: %s", sub)
+	subscriptions := l.GetSubscriptions()
+	for _, sub := range subscriptions {
+		err := l.RegisterEventHandler(sub.signature, sub.handler)
+		if err != nil {
+			log15.Error("failed to register event handler", "err", err)
 		}
-
 	}
 
 	sub, err := l.conn.Subscribe()
