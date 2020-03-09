@@ -69,14 +69,14 @@ func (c *Connection) NetworkId() (*big.Int, error) {
 }
 
 // subscribeToEvent registers an rpc subscription for the event with the signature sig for contract at address
-func (c *Connection) subscribeToEvent(query eth.FilterQuery) (*Subscription, error) {
+func (c *Connection) subscribeToEvent(query eth.FilterQuery) (*ActiveSubscription, error) {
 	ch := make(chan ethtypes.Log)
 	sub, err := c.conn.SubscribeFilterLogs(c.ctx, query, ch)
 	if err != nil {
 		close(ch)
 		return nil, err
 	}
-	return &Subscription{
+	return &ActiveSubscription{
 		ch:  ch,
 		sub: sub,
 	}, nil

@@ -133,29 +133,27 @@ func run(ctx *cli.Context) error {
 	for _, chain := range cfg.Chains {
 		var chainconfig core.Chain
 		if chain.Type == "ethereum" {
-			chainconfig = ethereum.InitializeChain(&core.ChainConfig{
+			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
 				Id:       chain.Id,
 				Endpoint: chain.Endpoint,
 				From:     chain.From,
-				// TODO remove this in favour of OPTS when config PR lands
-				Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer", "DepositProposalCreated"}),
-				Keystore:      ks,
-				Opts:          chain.Opts,
+				Keystore: ks,
+				Opts:     chain.Opts,
 			})
 		} else if chain.Type == "substrate" {
-			chainconfig = ethereum.InitializeChain(&core.ChainConfig{
+			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
 				Id:       chain.Id,
 				Endpoint: chain.Endpoint,
 				From:     chain.From,
-				// TODO remove this in favour of OPTS when config PR lands
-				Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer", "DepositProposalCreated"}),
-				Keystore:      ks,
-				Opts:          chain.Opts,
+				Keystore: ks,
+				Opts:     chain.Opts,
 			})
 		} else {
 			return errors.New("Unrecognized Chain Type")
 		}
-
+		if err != nil {
+			return err
+		}
 		c.AddChain(chainconfig)
 	}
 
