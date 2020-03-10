@@ -201,7 +201,7 @@ func TestContractCode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if bytes.Compare(TestEmitterContractAddress.Bytes(), owner.Bytes()) != 0 {
+	if !bytes.Equal(TestEmitterContractAddress.Bytes(), owner.Bytes()) {
 		t.Fatal("Incorrect Contract")
 	}
 
