@@ -21,7 +21,7 @@ const EveKey = "Eve"
 
 // The Chain type Constants
 const ETHChain = "ethereum"
-const CTFGChain = "centrifuge"
+const CTFGChain = "substrate"
 
 var TestKeyRing *TestKeyRingHolder
 var TestKeyStoreMap map[string]*Keystore
