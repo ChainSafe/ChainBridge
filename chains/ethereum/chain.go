@@ -33,7 +33,7 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	bridgeInstance, err := bridge.NewBridge(cfg.bridge, conn.conn)
+	bridgeInstance, err := bridge.NewBridge(cfg.contract, conn.conn)
 	if err != nil {
 		return nil, err
 	}

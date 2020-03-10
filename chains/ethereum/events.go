@@ -28,7 +28,7 @@ func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 	depositID := event.Topics[1].Big() // Only item in log is indexed.
 	deposit, err := UnpackGenericDepositRecord(l.bridgeContract.BridgeCaller.GetGenericDepositRecord(&bind.CallOpts{}, l.cfg.id.Big(), depositID))
 	if err != nil {
-		// TODO
+		log15.Error("Unable to decode event", err)
 	}
 
 	msg := msg.Message{

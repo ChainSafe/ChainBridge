@@ -42,8 +42,8 @@ func NewListener(conn *Connection, cfg *Config) *Listener {
 	}
 }
 
-func (l *Listener) SetBridgeContract(bridge BridgeContract) {
-	l.bridgeContract = bridge
+func (l *Listener) SetBridgeContract(contract BridgeContract) {
+	l.bridgeContract = contract
 }
 
 func (l *Listener) SetRouter(r chains.Router) {
@@ -99,14 +99,14 @@ func (l *Listener) buildQuery(contract ethcommon.Address, sig EventSig) eth.Filt
 // Handler will be called for every instance of event.
 func (l *Listener) RegisterEventHandler(subscription string, handler chains.EvtHandlerFn) error {
 	evt := EventSig(subscription)
-	query := l.buildQuery(l.cfg.bridge, evt)
+	query := l.buildQuery(l.cfg.contract, evt)
 	eventSubscription, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
 	}
 	l.subscriptions[EventSig(subscription)] = eventSubscription
 	go l.watchEvent(eventSubscription, handler)
-	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.bridge, "sig", subscription)
+	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.contract, "sig", subscription)
 	return nil
 }
 

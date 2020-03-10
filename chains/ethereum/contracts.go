@@ -11,7 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
-type GenericDepositRecord struct {
+// genericDepositRecord is the return value from the solidity function getGenericDepositRecord()
+type genericDepositRecord struct {
 	OriginChainTokenAddress   common.Address
 	OriginChainHandlerAddress common.Address
 	DestChainID               *big.Int
@@ -20,7 +21,8 @@ type GenericDepositRecord struct {
 	Data                      []byte
 }
 
-type DepositProposal struct {
+// depositProposal is the return value from the solidity function getDepositProposal()
+type depositProposal struct {
 	OriginChainID *big.Int
 	DepositID     *big.Int
 	DataHash      [32]byte
@@ -53,11 +55,11 @@ type BridgeRaw interface {
 	// 	FilterNFTTransfer(opts *bind.FilterOpts, _destChain []*big.Int, _depositId []*big.Int) (*bridge.BridgeNFTTransferIterator, error)
 }
 
-func UnpackGenericDepositRecord(args ...interface{}) (GenericDepositRecord, error) {
+func UnpackGenericDepositRecord(args ...interface{}) (genericDepositRecord, error) {
 	if args[6].(error) != nil {
-		return GenericDepositRecord{}, args[6].(error)
+		return genericDepositRecord{}, args[6].(error)
 	}
-	return GenericDepositRecord{
+	return genericDepositRecord{
 			OriginChainTokenAddress:   args[0].(common.Address),
 			OriginChainHandlerAddress: args[1].(common.Address),
 			DestChainID:               args[2].(*big.Int),
@@ -68,11 +70,11 @@ func UnpackGenericDepositRecord(args ...interface{}) (GenericDepositRecord, erro
 		nil
 }
 
-func UnpackDepositProposal(args ...interface{}) (DepositProposal, error) {
+func UnpackDepositProposal(args ...interface{}) (depositProposal, error) {
 	if args[6].(error) != nil {
-		return DepositProposal{}, args[6].(error)
+		return depositProposal{}, args[6].(error)
 	}
-	return DepositProposal{
+	return depositProposal{
 			OriginChainID: args[0].(*big.Int),
 			DepositID:     args[1].(*big.Int),
 			DataHash:      args[2].([32]byte),

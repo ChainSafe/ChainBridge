@@ -20,7 +20,7 @@ type Config struct {
 	endpoint string             // url for rpc endpoint
 	from     string             // address of key to use
 	keystore *keystore.Keystore // Location of keyfiles
-	bridge   common.Address
+	contract common.Address
 	gasLimit *big.Int
 	gasPrice *big.Int
 }
@@ -34,7 +34,7 @@ func ParseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		from:     chainCfg.From,
 		keystore: chainCfg.Keystore,
 		chainID:  big.NewInt(1),
-		bridge:   common.HexToAddress("0x0"),
+		contract: common.HexToAddress("0x0"),
 		gasLimit: big.NewInt(6721975),
 		gasPrice: big.NewInt(20000000000),
 	}
@@ -43,8 +43,8 @@ func ParseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		config.chainID.SetString(chainID, 10)
 	}
 
-	if bridge, ok := chainCfg.Opts["bridge"]; ok {
-		config.bridge = common.HexToAddress(bridge)
+	if bridge, ok := chainCfg.Opts["contract"]; ok {
+		config.contract = common.HexToAddress(bridge)
 	}
 
 	if gasPrice, ok := chainCfg.Opts["gasPrice"]; ok {
