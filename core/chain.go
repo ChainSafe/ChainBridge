@@ -17,10 +17,9 @@ type Chain interface {
 }
 
 type ChainConfig struct {
-	Id            msg.ChainId        // ChainID
-	Endpoint      string             // url for rpc endpoint
-	From          string             // address of key to use
-	Keystore      *keystore.Keystore // Location of key files
-	Subscriptions []string           // list of events to subscribe too
-	Opts          map[string]string  // Per chain options
+	Id       msg.ChainId        // ChainID
+	Endpoint string             // url for rpc endpoint
+	From     string             // address of key to use
+	Keystore *keystore.Keystore // Location of key files
+	Opts     map[string]string  // Per chain options
 }
