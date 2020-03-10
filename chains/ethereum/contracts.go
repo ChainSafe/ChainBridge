@@ -30,13 +30,16 @@ type DepositProposal struct {
 }
 
 type BridgeContract struct {
-	BridgeRaw    BridgeRaw
-	BridgeCaller BridgeCaller
+	BridgeFilterer
+	BridgeCaller
+	BridgeRaw
+}
+
+type BridgeFilterer interface {
 }
 
 type BridgeCaller interface {
 	GetGenericDepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositID *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, []byte, error)
-	// GetDepositProposal(opts *bind.CallOpts, originChainID *big.Int, depositID *big.Int) DepositProposal
 	GetDepositProposal(opts *bind.CallOpts, originChainID *big.Int, depositID *big.Int) (*big.Int, *big.Int, [32]byte, *big.Int, *big.Int, string, error)
 }
 
