@@ -4,13 +4,9 @@
 package ethereum
 
 import (
-	"strings"
-
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
-	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -30,29 +26,19 @@ func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 	log15.Debug("Handling deposit proposal event")
 	event := eventI.(ethtypes.Log)
 
-	contractAbi, err := abi.JSON(strings.NewReader(emitter.EmitterABI))
+	depositID := event.Topics[1].Big() // Only item in log is indexed.
+	deposit, err := UnpackGenericDepositRecord(l.bridgeContract.BridgeCaller.GetGenericDepositRecord(&bind.CallOpts{}, l.cfg.id.Big(), depositID))
 	if err != nil {
 		log15.Error("Unable to decode event", err)
 	}
 
-	var nftEvent emitter.EmitterNFTTransfer
-	err = contractAbi.Unpack(&nftEvent, "NFTTransfer", event.Data)
-	if err != nil {
-		log15.Error("Unable to unpack NFTTransfer", err)
-	}
-
-	// Capture indexed values
-	nftEvent.DestChain = event.Topics[1].Big()
-	nftEvent.DepositId = event.Topics[2].Big()
-
 	return msg.Message{
 		Type:        msg.CreateDepositProposalType,
 		Source:      l.cfg.id,
-		Destination: msg.ChainId(uint8(nftEvent.DestChain.Uint64())),
-		// TODO: Can we safely downsize?
-		DepositId: uint32(nftEvent.DepositId.Uint64()),
-		To:        nftEvent.To.Bytes(),
-		Metadata:  nftEvent.Data,
+		Destination: msg.ChainId(deposit.DestChainID.Uint64()),
+		DepositId:   uint32(depositID.Uint64()),
+		To:          deposit.DestChainHandlerAddress.Bytes(),
+		Metadata:    deposit.Data,
 	}
 }
 
