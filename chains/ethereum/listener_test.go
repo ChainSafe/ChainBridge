@@ -4,14 +4,10 @@
 package ethereum
 
 import (
-	"context"
 	"testing"
-	"time"
 
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 )
 
@@ -19,7 +15,7 @@ func newLocalConnection(t *testing.T, emitter ethcmn.Address) *Connection {
 
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		receiver: TestCentrifugeContractAddress,
+		contract: TestCentrifugeContractAddress,
 		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 		from:     keystore.AliceKey,
 	}
@@ -46,56 +42,56 @@ func newLocalConnection(t *testing.T, emitter ethcmn.Address) *Connection {
 //}
 
 func TestListener(t *testing.T) {
-	// TODO: this works locally, but not on CI for some reason. need to debug.
+	// TODO: Re-write tests based on update bridge contract
 	t.Skip()
 
-	conn := newLocalConnection(t, TestCentrifugeContractAddress)
-	defer conn.Close()
+	// conn := newLocalConnection(t, TestCentrifugeContractAddress)
+	// defer conn.Close()
 
-	// send tx to trigger event in EmitterContract
-	addressBytes := TestEmitterContractAddress.Bytes()
+	// // send tx to trigger event in EmitterContract
+	// addressBytes := TestEmitterContractAddress.Bytes()
 
-	address := [20]byte{}
-	copy(address[:], addressBytes)
+	// address := [20]byte{}
+	// copy(address[:], addressBytes)
 
-	contract, err := emitter.NewSimpleEmitter(address, conn.conn)
-	if err != nil {
-		t.Fatal(err)
-	}
+	// contract, err := bridge.NewBridge(address, conn.conn)
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
 
-	instance := &emitter.SimpleEmitterRaw{
-		Contract: contract,
-	}
+	// instance := &bridge.BridgeRaw{
+	// 	Contract: contract,
+	// }
 
-	auth := createTestAuth(t, conn)
+	// auth := createTestAuth(t, conn)
 
-	eventIterator, err := instance.Contract.SimpleEmitterFilterer.FilterDepositAsset(&bind.FilterOpts{
-		Start:   0,
-		End:     nil,
-		Context: context.Background(),
-	}, []ethcmn.Address{TestAddress})
-	if err != nil {
-		t.Fatal(err)
-	}
+	// eventIterator, err := instance.Contract.SimpleEmitterFilterer.FilterDepositAsset(&bind.FilterOpts{
+	// 	Start:   0,
+	// 	End:     nil,
+	// 	Context: context.Background(),
+	// }, []ethcmn.Address{TestAddress})
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
 
-	// call fallback to trigger event
-	_, err = instance.Transact(auth, "")
-	if err != nil {
-		t.Fatal(err)
-	}
+	// // call fallback to trigger event
+	// _, err = instance.Transact(auth, "")
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
 
-	time.Sleep(5 * time.Second)
+	// time.Sleep(5 * time.Second)
 
-	eventIterator.Next()
-	if eventIterator.Event == nil {
-		t.Fatal("Did not get event")
-	} else {
-		t.Log(eventIterator.Event)
-		return
-	}
+	// eventIterator.Next()
+	// if eventIterator.Event == nil {
+	// 	t.Fatal("Did not get event")
+	// } else {
+	// 	t.Log(eventIterator.Event)
+	// 	return
+	// }
 
-	<-time.After(TestTimeout)
-	t.Fatal("timeout")
+	// <-time.After(TestTimeout)
+	// t.Fatal("timeout")
 }
 
 func TestListenerAndWriter(t *testing.T) {
