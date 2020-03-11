@@ -4,6 +4,8 @@
 package keystore
 
 import (
+	"bytes"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
@@ -18,6 +20,16 @@ const BobKey = "Bob"
 const CharlieKey = "Charlie"
 const DaveKey = "Dave"
 const EveKey = "Eve"
+
+// A list to show all valid test keys, for testing and documentation purposes
+var KeyList = []string{AliceKey, BobKey, CharlieKey, DaveKey, EveKey}
+
+// The Constants for Substrate Keys
+const AliceSeed = "e5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a"
+const BobSeed = "398f0c28f98885e046333d4a41c19cee4c37368a9832c6502f6cfd182e2aef89"
+const CharlieSeed = "bc1ede780f784bb6991a585e4f6e61522c14e1cae6ad0895fb57b9a205a8f938"
+const DaveSeed = "868020ae0687dda7d57565093a69090211449845a7e11453612800b663307246"
+const EveSeed = "786ad0e2df456fe43dd1f91ebca22e235bc162e0bb8d53c633e8c85b2af68b7a"
 
 // The Chain type Constants
 const ETHChain = "ethereum"
@@ -79,6 +91,36 @@ func createKeyRing(chain string) KeyRing {
 
 }
 
+func getSeed(key []byte) []byte {
+	var seed = make([]byte, 0)
+	var err error
+	if bytes.Equal(key, []byte(AliceKey)) {
+		seed, err = hex.DecodeString(AliceSeed)
+	}
+	if bytes.Equal(key, []byte(BobKey)) {
+		seed, err = hex.DecodeString(BobSeed)
+	}
+	if bytes.Equal(key, []byte(CharlieKey)) {
+		seed, err = hex.DecodeString(CharlieSeed)
+	}
+	if bytes.Equal(key, []byte(DaveKey)) {
+		seed, err = hex.DecodeString(DaveSeed)
+	}
+	if bytes.Equal(key, []byte(EveKey)) {
+		seed, err = hex.DecodeString(EveSeed)
+	}
+
+	if err != nil {
+		panic(err)
+	}
+
+	if len(seed) == 0 {
+		panic("Seed Not Found!")
+	}
+
+	return seed
+}
+
 // createKeypair creates keypairs based on the private key seed inputted for the specfied chain
 func createKeypair(key []byte, chain string) crypto.Keypair {
 	switch chain {
@@ -86,7 +128,8 @@ func createKeypair(key []byte, chain string) crypto.Keypair {
 		secpPrivateKey := errorWrap(secp256k1.NewPrivateKey(padWithZeros(key, secp256k1.PrivateKeyLength))).(*secp256k1.PrivateKey)
 		return errorWrap(secp256k1.NewKeypairFromPrivate(secpPrivateKey)).(*secp256k1.Keypair)
 	case CTFGChain:
-		return errorWrap(sr25519.NewKeypairFromSeed(padWithZeros(key, sr25519.PrivateKeyLength))).(*sr25519.Keypair)
+		seed := getSeed(key)
+		return errorWrap(sr25519.NewKeypairFromSeed(seed)).(*sr25519.Keypair)
 	}
 	return nil
 
