@@ -3,24 +3,17 @@
 
 package ethereum
 
-import (
-	"math/big"
-
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
-)
-
-var testConfig = &Config{
-	endpoint: TestEndpoint,
-	keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-	from:     keystore.AliceKey,
-	gasLimit: big.NewInt(6721975),
-	gasPrice: big.NewInt(20000000000),
-}
-
-var randomHash = []byte{0x12, 0x34}
-var sourceChain = msg.ChainId(1)
-var depositId uint32 = 0
+//var testConfig = &Config{
+//	endpoint: TestEndpoint,
+//	keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+//	from:     keystore.AliceKey,
+//	gasLimit: big.NewInt(6721975),
+//	gasPrice: big.NewInt(20000000000),
+//}
+//
+//var randomHash = []byte{0x12, 0x34}
+//var sourceChain = msg.ChainId(1)
+//var depositId uint32 = 0
 
 // func createTestReceiverContract(t *testing.T, conn *Connection) ReceiverContract {
 // 	addressBytes := TestReceiverContractAddress.Bytes()
