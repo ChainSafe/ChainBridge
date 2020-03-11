@@ -14,7 +14,7 @@ const ExecuteDepositMethod = "executeDeposit"
 
 func (w *Writer) depositAsset(m msg.Message) bool {
 
-	log15.Info("Handling DepositAsset message", "to", w.conn.cfg.bridge)
+	log15.Info("Handling DepositAsset message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
@@ -34,7 +34,7 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 }
 
 func (w *Writer) createDepositProposal(m msg.Message) bool {
-	log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.bridge)
+	log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
@@ -58,7 +58,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 }
 
 func (w *Writer) voteDepositProposal(m msg.Message) bool {
-	log15.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.bridge)
+	log15.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
@@ -83,7 +83,7 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 }
 
 func (w *Writer) executeDeposit(m msg.Message) bool {
-	log15.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.bridge)
+	log15.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
