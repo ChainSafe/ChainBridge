@@ -123,7 +123,7 @@ func (l *Listener) RegisterEventHandler(name string, handler chains.EvtHandlerFn
 }
 
 var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
-var BlockRetryInterval = time.Second * 5
+var BlockRetryInterval = time.Second * 1
 
 func (l *Listener) pollBlocks() error {
 	var latestBlock uint64 = 0
@@ -137,21 +137,15 @@ func (l *Listener) pollBlocks() error {
 		} else if err != nil {
 			return err
 		}
-		err = l.processBlock(hash)
+		err = l.processEvents(hash)
 		if err != nil {
 			return err
 		}
-		//block, err := l.conn.api.RPC.Chain.GetBlock(hash)
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//go l.processBlock(block)
 		latestBlock++
 	}
 }
 
-func (l *Listener) processBlock(hash types.Hash) error {
+func (l *Listener) processEvents(hash types.Hash) error {
 	log15.Trace("Fetching block", "hash", hash)
 	key, err := types.CreateStorageKey(l.conn.meta, "System", "Events", nil, nil)
 	if err != nil {

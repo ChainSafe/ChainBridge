@@ -8,6 +8,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
 	log "github.com/ChainSafe/log15"
@@ -22,8 +23,19 @@ type Chain struct {
 	writer   *Writer           // The writer of the chain
 }
 
-func InitializeChain(cfg *core.ChainConfig) *Chain {
-	conn := NewConnection(cfg.Endpoint)
+func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
+	kp, err := cfg.Keystore.KeypairFromAddress(cfg.From, keystore.SubChain)
+	if err != nil {
+		return nil, err
+	}
+	key := signature.KeyringPair{
+		URI:     kp.Public().Address(),
+		Address: kp.Public().Address(),
+		// TODO: Check that this works
+		PublicKey: kp.Public().Encode(),
+	}
+
+	conn := NewConnection(cfg.Endpoint, &key)
 	l := NewListener(conn, cfg)
 	w := NewWriter(conn)
 	return &Chain{

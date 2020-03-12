@@ -56,7 +56,7 @@ func NewConnection(cfg *Config) *Connection {
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	kp, err := c.cfg.keystore.KeypairFromAddress(c.cfg.from, keystore.ETHChain)
+	kp, err := c.cfg.keystore.KeypairFromAddress(c.cfg.from, keystore.EthChain)
 	if err != nil {
 		return err
 	}
