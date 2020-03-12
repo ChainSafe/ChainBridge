@@ -35,6 +35,8 @@ type Args struct {
 func newArgs() *Args {
 	return &Args{
 		accounts: BaseAccounts,
+		port:     "8545",
+		amount:   "100000000000000000000",
 	}
 }
 
@@ -95,6 +97,12 @@ func (a *Args) ConvertToStringArray() []string {
 		args = append(args, "-m", a.mnemonic)
 	}
 	return args
+}
+
+func CallDefaultArgs() error {
+	gopath := os.Getenv("GOPATH")
+	args := newArgs()
+	return RunGanache(args.ConvertToStringArray(), gopath)
 }
 
 // RunGanache takes an input string and the gopath and run ganache-cli with the given inputs
