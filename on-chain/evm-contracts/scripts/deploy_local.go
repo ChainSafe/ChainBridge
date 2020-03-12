@@ -15,7 +15,7 @@ import (
     "github.com/ethereum/go-ethereum/common"
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
-	reciever "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
+	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
 	simpleEmitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
 
 )
@@ -61,7 +61,7 @@ func main() {
 	testOnly := flag.Bool("test-only", false, "Skip main contract depoyments, only run tests")
 	dest := flag.Int("dest", 1, "destination chain")
 
-	deploy_local(validators, validatorThreshold, depositThreshold, port, depositERC20, depositNFT, depositAsset, testOnly, dest)
+	deploy_local(*validators, *validatorThreshold, *depositThreshold, *port, *depositERC20, *depositNFT, *depositAsset, *testOnly, *dest)
 
 }
 
@@ -79,8 +79,8 @@ func createValidatorSlice(valAddr []string, numValidators int) []common.Address 
 }
 
 
-func deploy_local(validators *int, validatorThreshold *int, depositThreshold *int, port *int, erc20 *bool, nft *bool, asset *bool, test *bool, dest *int) {
-    client, err := ethclient.Dial("https://localhost:"+*port)
+func deploy_local(validators int, validatorThreshold int, depositThreshold int, port int, erc20 bool, nft bool, asset bool, test bool, dest int) {
+    client, err := ethclient.Dial("https://localhost:"+strconv.Itoa(port))
     if err != nil {
         log.Fatal(err)
     }
@@ -112,31 +112,15 @@ func deploy_local(validators *int, validatorThreshold *int, depositThreshold *in
     auth.Value = big.NewInt(0)    
     auth.GasLimit = uint64(300000) 
     auth.GasPrice = gasPrice
+
+    validatorAddresses := createValidatorSlice(VALIDATOR_ADDRESS, validators)
+    valThres := big.NewInt(int64(validatorThreshold))
+    depThres := big.NewInt(int64(depositThreshold))
 	
-	if !testOnly {
-		recieverAddress, recieverTx, recieverInstance, recieverErr := deployReciever(auth, client,)
-		emitterAddress, emitterTx, emitterInstance, emitterErr := deployEmitter(auth, client,)
-		emitterAddress, emitterTx, emitterInstance, emitter := ErrdeploySimpleEmitter()
-		deployBridgeAsset()
+	if !test {
+		recieverAddr, recieverTx, recieverInstance, recieverErr := receiver.DeployReceiver(auth, client, validatorAddresses, depThres,valThres)
+		emitterAddr, emitterTx, emitterInstance, emitterErr := emitter.DeployEmitter(auth, client)
+		sEmitterAddr, sEmitterTx, sEmitterInstance, sEmitterErr := simpleEmitter.DeploySimpleEmitter(auth, client)
+		bridgeAssetAddr, bridgeAssetTx, bridgeAssetInstance, bridgeAssetErr := bridgeAsset.DeployBridgeAsset(auth, client, 10)
 	}
-}
-
-func deployReciever(auth *bind.TransactOpts, client *bind.ContractBackend) (common.Address, *types.Transaction, *Receiver, error) {
-    //_addrs []common.Address, _depositThreshold *big.Int, _validatorThreshold *big.Int
-    return reciever.DeployReciever(auth, client,)
-
-
-}
-
-func deployEmitter(auth *bind.TransactOpts, client *bind.ContractBackend) {
-
-    return emitter.DeployEmitter(auth, client,)
-}
-func deploySimpleEmitter(auth *bind.TransactOpts, client *bind.ContractBackend) {
-    
-    return simpleEmitter.DeploySimpleEmitter(auth, client,)
-}
-
-func deployBridgeAsset(auth *bind.TransactOpts, client *bind.ContractBackend) {
-    return bridgeAsset.DeployBridgeAsset(auth, client)
 }
