@@ -7,7 +7,7 @@ import (
 )
 
 func TestListener(t *testing.T) {
-	alice := NewConnection(TestEndpoint, &Alice)
+	alice := NewConnection(TestEndpoint, &TestKeyringPairAlice)
 	err := alice.Connect()
 	if err != nil {
 		t.Fatal(err)

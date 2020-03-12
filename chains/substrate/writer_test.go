@@ -8,7 +8,7 @@ import (
 )
 
 func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
-	conn := NewConnection(TestEndpoint, &Alice)
+	conn := NewConnection(TestEndpoint, &TestKeyringPairAlice)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)

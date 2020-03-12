@@ -4,7 +4,6 @@
 package substrate
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
@@ -24,57 +23,39 @@ var TestKeyringPairBob = signature.KeyringPair{
 }
 
 var TestEndpoint = "ws://127.0.0.1:9944"
-var Alice = TestKeyringPairAlice
-var Bob = TestKeyringPairBob
 
-func TestConnect(t *testing.T) {
+func TestConnect_QueryStorage(t *testing.T) {
 	// Create connection with Alice key
-	alice := NewConnection(TestEndpoint, &Alice)
-	err := alice.Connect()
-
+	conn := NewConnection(TestEndpoint, &TestKeyringPairAlice)
+	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer alice.Close()
+	defer conn.Close()
 
-	// Create connection with Bob key
-	bob := NewConnection(TestEndpoint, &Bob)
-	err = bob.Connect()
+	// Query storage
+	var nonce uint32
+	err = conn.queryStorage("System", "Account", conn.key.PublicKey, nil, &nonce)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer bob.Close()
+}
 
-	// Add Bob as a validator. Currently genesis defautls to only Alice
-	err = alice.SubmitTx(AddValidator, types.NewAccountID([]byte(Bob.Address)))
+func TestConnect_SubmitTx(t *testing.T) {
+	// Create connection with Alice key
+	conn := NewConnection(TestEndpoint, &TestKeyringPairAlice)
+	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer conn.Close()
 
-	proposal, err := types.NewCall(
-		alice.meta,
-		NativeTransfer.String(),
-		types.NewAccountID(Bob.PublicKey),
-		types.U32(500_000),
-	)
+	// Source: https://pkg.go.dev/github.com/centrifuge/go-substrate-rpc-client?tab=doc#example-package-MakeASimpleTransfer
+	bob, err := types.NewAddressFromHexAccountID("0x8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	// TODO: Hash needs deposit ID
-	hash, err := types.GetHash(proposal)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	fmt.Printf("Proposal hash: %s\n", hash.Hex())
-
-	err = alice.SubmitTx(CreateProposal, hash, proposal)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = bob.SubmitTx(Vote, hash, types.Bool(true))
+	err = conn.SubmitTx("Balances.transfer", bob, types.UCompact(10))
 	if err != nil {
 		t.Fatal(err)
 	}

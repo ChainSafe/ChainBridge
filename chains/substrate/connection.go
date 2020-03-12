@@ -17,8 +17,9 @@ import (
 //var _ chains.Connection = &Connection{}
 
 type Connection struct {
-	api         *gsrpc.SubstrateAPI
-	url         string
+	api *gsrpc.SubstrateAPI
+	url string
+	// TODO: RWLock this as we have multiple readers and one writer
 	meta        *types.Metadata
 	genesisHash types.Hash
 	key         *signature.KeyringPair
@@ -49,7 +50,7 @@ func (c *Connection) Connect() error {
 		return err
 	}
 	c.genesisHash = genesisHash
-	log15.Debug("Fetched substrate genesis hash", "hash", genesisHash)
+	log15.Debug("Fetched substrate genesis hash", "hash", genesisHash.Hex())
 	return nil
 }
 
@@ -75,13 +76,9 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 		return err
 	}
 
-	// Fetch account nonce
-	key, err := types.CreateStorageKey(c.meta, "System", "Account", c.key.PublicKey, nil)
-	if err != nil {
-		return err
-	}
+	// TODO: Does this actually return more than nonce?
 	var nonce uint32
-	err = c.api.RPC.State.GetStorageLatest(key, &nonce)
+	err = c.queryStorage("System", "Account", c.key.PublicKey, nil, &nonce)
 	if err != nil {
 		return err
 	}
