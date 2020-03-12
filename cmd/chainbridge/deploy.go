@@ -44,39 +44,30 @@ func handleDeployCmd(ctx *cli.Context) error {
 	log.Info("Starting Ganache")
 	gopath := os.Getenv("GOPATH")
 
-	args := []string{}
+	args := newArgs()
 
-	port := "8545"
 	if newPort := ctx.String(PortFlag.Name); newPort != "" {
-		port = newPort
+		args.port = newPort
 	}
-	args = append(args, "-p", string(port))
-
-	accounts := BaseAccounts
 
 	if newAccounts := ctx.String(AccountFlag.Name); newAccounts != "" {
 		accountList := strings.Split(newAccounts, ",")
 		if reset := ctx.Bool(ResetFlag.Name); reset {
-			accounts = accountList
+			args.accounts = accountList
 		} else {
-			accounts = append(accounts, accountList...)
+			args.accounts = append(args.accounts, accountList...)
 		}
 	}
-	amount := "100000000000000000000"
-	if newAmount := ctx.String(AmountFlag.Name); newAmount != "" {
-		amount = newAmount
-	}
 
-	for _, account := range accounts {
-		input := account + "," + amount
-		args = append(args, "--account", input)
+	if newAmount := ctx.String(AmountFlag.Name); newAmount != "" {
+		args.amount = newAmount
 	}
 
 	if mnem := ctx.String(MnemFlag.Name); mnem != "" {
-		args = append(args, "-m", mnem)
+		args.mnemonic = mnem
 	}
 
-	err := RunGanache(args, gopath)
+	err := RunGanache(args.ConvertToStringArray(), gopath)
 	if err != nil {
 		return err
 	}
@@ -97,12 +88,6 @@ func (a *Args) ConvertToStringArray() []string {
 		args = append(args, "-m", a.mnemonic)
 	}
 	return args
-}
-
-func CallDefaultArgs() error {
-	gopath := os.Getenv("GOPATH")
-	args := newArgs()
-	return RunGanache(args.ConvertToStringArray(), gopath)
 }
 
 // RunGanache takes an input string and the gopath and run ganache-cli with the given inputs
