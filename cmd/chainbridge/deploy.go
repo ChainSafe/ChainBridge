@@ -21,10 +21,18 @@ var deployCommand = cli.Command{
 		"\tTo use a mnemonic, -mnemonic",
 }
 
+var BaseAccounts = []string{"0x000000000000000000000000000000000000000000000000000000416c696365", "0x0000000000000000000000000000000000000000000000000000000000426f62", "0x00000000000000000000000000000000000000000000000000436861726c6965", "0x0000000000000000000000000000000000000000000000000000000044617665", "0x0000000000000000000000000000000000000000000000000000000000457665"}
+
+type Args struct {
+	port     string
+	amount   string
+	mnemonic string
+	accounts []string
+}
+
 func handleDeployCmd(ctx *cli.Context) error {
 	log.Info("Starting Ganache")
 	gopath := os.Getenv("GOPATH")
-	accounts := []string{"0x000000000000000000000000000000000000000000000000000000416c696365", "0x0000000000000000000000000000000000000000000000000000000000426f62", "0x00000000000000000000000000000000000000000000000000436861726c6965", "0x0000000000000000000000000000000000000000000000000000000044617665", "0x0000000000000000000000000000000000000000000000000000000000457665"}
 
 	args := []string{}
 
@@ -33,6 +41,8 @@ func handleDeployCmd(ctx *cli.Context) error {
 		port = newPort
 	}
 	args = append(args, "-p", string(port))
+
+	accounts := BaseAccounts
 
 	if newAccounts := ctx.String(AccountFlag.Name); newAccounts != "" {
 		accountList := strings.Split(newAccounts, ",")
@@ -56,7 +66,7 @@ func handleDeployCmd(ctx *cli.Context) error {
 		args = append(args, "-m", mnem)
 	}
 
-	err := runGanache(args, gopath)
+	err := RunGanache(args, gopath)
 	if err != nil {
 		return err
 	}
@@ -64,7 +74,21 @@ func handleDeployCmd(ctx *cli.Context) error {
 	return nil
 }
 
-func runGanache(args []string, gopath string) error {
+func (a *Args) ConvertToStringArray() []string {
+	args := []string{}
+
+	args = append(args, "-p", a.port)
+	for _, val := range a.accounts {
+		input := val + "," + a.amount
+		args = append(args, "--account", input)
+	}
+	if a.mnemonic != "" {
+		args = append(args, "-m", a.mnemonic)
+	}
+	return args
+}
+
+func RunGanache(args []string, gopath string) error {
 
 	log.Info("Running npm install")
 	command := exec.Command("npm", "install")
