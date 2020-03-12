@@ -154,7 +154,7 @@ func deploy_local(validators int, validatorThreshold int, depositThreshold int, 
 
         if erc {
 
-            erc20Addr, erc20Tx, erc20Instance, err := erc20.DeployERC20Mintable(auth, client)
+            erc20Addr, _, erc20Instance, err := erc20.DeployERC20Mintable(auth, client)
             log.Info("[ERC20 Transfer] deployed token!")
     
             if err != nil {
@@ -168,8 +168,8 @@ func deploy_local(validators int, validatorThreshold int, depositThreshold int, 
                 return err
             }
         
-            pubKey := privateKey.Public()
-            pubKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+            pubKey := priKey.Public()
+            pubKeyECDSA, ok := pubKey.(*ecdsa.PublicKey)
             if !ok {
                 log.Error(err.Error())
                 return err
