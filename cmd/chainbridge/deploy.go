@@ -75,14 +75,12 @@ func runGanache(args []string, gopath string) error {
 	if err != nil {
 		return err
 	}
-	for _, entry := range args {
-		log.Info(entry)
-	}
+
 	command = exec.Command("./node_modules/.bin/ganache-cli", args...)
 	command.Dir = gopath + "/src/github.com/ChainSafe/ChainBridgeV2/on-chain/evm-contracts"
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
-	err = command.Run()
+	err = command.Start()
 	if err != nil {
 		return err
 	}
