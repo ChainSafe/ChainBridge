@@ -32,6 +32,12 @@ type Args struct {
 	accounts []string
 }
 
+func newArgs() *Args {
+	return &Args{
+		accounts: BaseAccounts,
+	}
+}
+
 func handleDeployCmd(ctx *cli.Context) error {
 	log.Info("Starting Ganache")
 	gopath := os.Getenv("GOPATH")
@@ -104,7 +110,7 @@ func RunGanache(args []string, gopath string) error {
 		return err
 	}
 
-	command = exec.Command("./node_modules/.bin/ganache-cli", args...)
+	command = exec.Command("./node_modules/.bin/ganache-cli", args...) //nolint:gosec
 	command.Dir = gopath + "/src/github.com/ChainSafe/ChainBridgeV2/on-chain/evm-contracts"
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
