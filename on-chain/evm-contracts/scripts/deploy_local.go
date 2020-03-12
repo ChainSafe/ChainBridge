@@ -14,9 +14,8 @@ import (
     "github.com/ethereum/go-ethereum/ethclient"
     "github.com/ethereum/go-ethereum/common"
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
-	erc20 "github.com/ChainSafe/ChainBridgeV2/contracts/ERC20"
 	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
-	reciever "github.com/ChainSafe/ChainBridgeV2/contracts/Reciever"
+	reciever "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
 	simpleEmitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
 
 )
@@ -50,6 +49,7 @@ var (
 
 
 // dunno if the cli should look like this
+// TODO: Use The Library
 func main() {
 	validators := flag.Int("validators", 2, "Number of validators")
 	validatorThreshold := flag.Int("validator-threshold", 2, "Value of validator threshold")
@@ -63,6 +63,19 @@ func main() {
 
 	deploy_local(validators, validatorThreshold, depositThreshold, port, depositERC20, depositNFT, depositAsset, testOnly, dest)
 
+}
+
+
+func createValidatorSlice(valAddr []string, numValidators int) []common.Address {
+    
+    validatorAddresses := make([]common.Address, numValidators)
+
+    for i := 0; i < numValidators; i++ {
+        validatorAddresses[i] = common.HexToAddress(valAddr[i])
+
+    }
+
+    return validatorAddresses
 }
 
 
@@ -99,27 +112,31 @@ func deploy_local(validators *int, validatorThreshold *int, depositThreshold *in
     auth.Value = big.NewInt(0)    
     auth.GasLimit = uint64(300000) 
     auth.GasPrice = gasPrice
-
-
-
-	_ = instance
 	
 	if !testOnly {
-		recieverAddress, recieverTx, recieverInstance, recieverErr := deployReciever()
-		emitterAddress, emitterTx, emitterInstance, emitterErr := deployEmitter()
-		deploySimpleEmitter()
+		recieverAddress, recieverTx, recieverInstance, recieverErr := deployReciever(auth, client,)
+		emitterAddress, emitterTx, emitterInstance, emitterErr := deployEmitter(auth, client,)
+		emitterAddress, emitterTx, emitterInstance, emitter := ErrdeploySimpleEmitter()
 		deployBridgeAsset()
 	}
 }
 
 func deployReciever(auth *bind.TransactOpts, client *bind.ContractBackend) (common.Address, *types.Transaction, *Receiver, error) {
     //_addrs []common.Address, _depositThreshold *big.Int, _validatorThreshold *big.Int
-    return reciever.deployReciever(auth, client,)
+    return reciever.DeployReciever(auth, client,)
 
 
 }
 
-func deployEmitter(auth *bind.TransactOpts, client *bind.ContractBackend) {}
-func deploySimpleEmitter(auth *bind.TransactOpts, client *bind.ContractBackend) {}
+func deployEmitter(auth *bind.TransactOpts, client *bind.ContractBackend) {
 
-func deployBridgeAsset(auth *bind.TransactOpts, client *bind.ContractBackend) {}
+    return emitter.DeployEmitter(auth, client,)
+}
+func deploySimpleEmitter(auth *bind.TransactOpts, client *bind.ContractBackend) {
+    
+    return simpleEmitter.DeploySimpleEmitter(auth, client,)
+}
+
+func deployBridgeAsset(auth *bind.TransactOpts, client *bind.ContractBackend) {
+    return bridgeAsset.DeployBridgeAsset(auth, client)
+}
