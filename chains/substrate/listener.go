@@ -39,9 +39,9 @@ func (l *Listener) SetRouter(r chains.Router) {
 
 // Start creates the initial subscription for all events
 func (l *Listener) Start() error {
-	log15.Info("Starting substrate listener...", "chainID", l.cfg.Id, "subs", l.cfg.Subscriptions)
+	log15.Info("Starting substrate listener...", "chainID", l.cfg.Id, "subs", Subscriptions)
 
-	for _, sub := range l.cfg.Subscriptions {
+	for _, sub := range Subscriptions {
 		switch sub {
 		case "nfts":
 			err := l.RegisterEventHandler("nfts", nftHandler)
@@ -53,36 +53,36 @@ func (l *Listener) Start() error {
 			if err != nil {
 				return err
 			}
-		case ValidatorAdded:
-			err := l.RegisterEventHandler(ValidatorAdded, validatorAddedHandler)
-			if err != nil {
-				return err
-			}
-		case ValidatorRemoved:
-			err := l.RegisterEventHandler(ValidatorRemoved, validatorRemovedHandler)
-			if err != nil {
-				return err
-			}
-		case VoteFor:
-			err := l.RegisterEventHandler(VoteFor, voteForHandler)
-			if err != nil {
-				return err
-			}
-		case VoteAgainst:
-			err := l.RegisterEventHandler(VoteAgainst, voteAgainstHandler)
-			if err != nil {
-				return err
-			}
-		case ProposalSucceeded:
-			err := l.RegisterEventHandler(ProposalSucceeded, proposalSucceededHandler)
-			if err != nil {
-				return err
-			}
-		case ProposalFailed:
-			err := l.RegisterEventHandler(ProposalFailed, proposalFailedHandler)
-			if err != nil {
-				return err
-			}
+		//case ValidatorAdded:
+		//	err := l.RegisterEventHandler(ValidatorAdded, validatorAddedHandler)
+		//	if err != nil {
+		//		return err
+		//	}
+		//case ValidatorRemoved:
+		//	err := l.RegisterEventHandler(ValidatorRemoved, validatorRemovedHandler)
+		//	if err != nil {
+		//		return err
+		//	}
+		//case VoteFor:
+		//	err := l.RegisterEventHandler(VoteFor, voteForHandler)
+		//	if err != nil {
+		//		return err
+		//	}
+		//case VoteAgainst:
+		//	err := l.RegisterEventHandler(VoteAgainst, voteAgainstHandler)
+		//	if err != nil {
+		//		return err
+		//	}
+		//case ProposalSucceeded:
+		//	err := l.RegisterEventHandler(ProposalSucceeded, proposalSucceededHandler)
+		//	if err != nil {
+		//		return err
+		//	}
+		//case ProposalFailed:
+		//	err := l.RegisterEventHandler(ProposalFailed, proposalFailedHandler)
+		//	if err != nil {
+		//		return err
+		//	}
 		default:
 			return fmt.Errorf("unrecognized event: %s", sub)
 		}
@@ -123,9 +123,9 @@ func (l *Listener) RegisterEventHandler(name string, handler chains.EvtHandlerFn
 }
 
 var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
-var BlockRetryInterval = time.Second
+var BlockRetryInterval = time.Second * 5
 
-func (l *Listener) pollBlocks() error{
+func (l *Listener) pollBlocks() error {
 	var latestBlock uint64 = 0
 	for {
 		log15.Trace("Polling for block", "number", latestBlock)
@@ -147,6 +147,7 @@ func (l *Listener) pollBlocks() error{
 		//}
 		//
 		//go l.processBlock(block)
+		latestBlock++
 	}
 }
 

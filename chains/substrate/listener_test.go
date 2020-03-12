@@ -7,22 +7,20 @@ import (
 )
 
 func TestListener(t *testing.T) {
-	alice := NewConnection(TestEndpoint)
-	alice.key = Alice
+	alice := NewConnection(TestEndpoint, &Alice)
 	err := alice.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	cfg := core.ChainConfig{
-		Id:            0,
-		Endpoint:      "",
-		From:          "",
-		Keystore:      nil,
-		Subscriptions: []string{ValidatorAdded, ValidatorRemoved, VoteFor, VoteAgainst, ProposalSucceeded, ProposalFailed},
-		Opts:          nil,
+		Id:       0,
+		Endpoint: "",
+		From:     "",
+		Keystore: nil,
+		Opts:     nil,
 	}
-	
+
 	l := NewListener(alice, &cfg)
 
 	err = l.Start()
@@ -30,5 +28,5 @@ func TestListener(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for {}
+	select {}
 }

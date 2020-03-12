@@ -11,6 +11,7 @@ import (
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
 	log "github.com/ChainSafe/log15"
+	"github.com/centrifuge/go-substrate-rpc-client/signature"
 )
 
 type Chain struct {
@@ -30,7 +31,7 @@ func InitializeChain(cfg *core.ChainConfig) *Chain {
 		conn:     conn,
 		listener: l,
 		writer:   w,
-	}
+	}, nil
 }
 
 func (c *Chain) Start() error {

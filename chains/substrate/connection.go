@@ -21,11 +21,11 @@ type Connection struct {
 	url         string
 	meta        *types.Metadata
 	genesisHash types.Hash
-	key         signature.KeyringPair
+	key         *signature.KeyringPair
 }
 
-func NewConnection(url string) *Connection {
-	return &Connection{url: url}
+func NewConnection(url string, key *signature.KeyringPair) *Connection {
+	return &Connection{url: url, key: key}
 }
 
 func (c *Connection) Connect() error {
@@ -76,7 +76,7 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	}
 
 	// Fetch account nonce
-	key, err := types.CreateStorageKey(c.meta, "System", "Account", signature.TestKeyringPairAlice.PublicKey, nil)
+	key, err := types.CreateStorageKey(c.meta, "System", "Account", c.key.PublicKey, nil)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 		SpecVersion: rv.SpecVersion,
 		Tip:         0,
 	}
-	err = ext.Sign(c.key, o)
+	err = ext.Sign(*c.key, o)
 	if err != nil {
 		return err
 	}
@@ -150,6 +150,20 @@ func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
 		return nil, err
 	}
 	return sub, nil
+}
+
+// queryStorage performs a storage lookup. Arguments may be nil, result must be a pointer.
+func (c *Connection) queryStorage(prefix, method string, arg1, arg2 []byte, result interface{}) error {
+	// Fetch account nonce
+	key, err := types.CreateStorageKey(c.meta, prefix, method, arg1, arg2)
+	if err != nil {
+		return err
+	}
+	err = c.api.RPC.State.GetStorageLatest(key, result)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *Connection) Close() {

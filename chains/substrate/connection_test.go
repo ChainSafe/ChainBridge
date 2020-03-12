@@ -29,8 +29,7 @@ var Bob = TestKeyringPairBob
 
 func TestConnect(t *testing.T) {
 	// Create connection with Alice key
-	alice := NewConnection(TestEndpoint)
-	alice.key = Alice
+	alice := NewConnection(TestEndpoint, &Alice)
 	err := alice.Connect()
 
 	if err != nil {
@@ -39,8 +38,7 @@ func TestConnect(t *testing.T) {
 	defer alice.Close()
 
 	// Create connection with Bob key
-	bob := NewConnection(TestEndpoint)
-	bob.key = Bob
+	bob := NewConnection(TestEndpoint, &Bob)
 	err = bob.Connect()
 	if err != nil {
 		t.Fatal(err)

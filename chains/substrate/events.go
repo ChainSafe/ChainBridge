@@ -17,6 +17,8 @@ const VoteAgainst = "VoteAgainst"
 const ProposalSucceeded = "ProposalSucceeded"
 const ProposalFailed = "ProposalFailed"
 
+var Subscriptions = []string{AssetTx}
+
 type EventNFTDeposited struct {
 	Phase  types.Phase
 	Asset  types.Hash
