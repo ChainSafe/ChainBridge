@@ -21,8 +21,10 @@ var deployCommand = cli.Command{
 		"\tTo use a mnemonic, -mnemonic",
 }
 
+// The Private Keys of Alice, Bob, Etc
 var BaseAccounts = []string{"0x000000000000000000000000000000000000000000000000000000416c696365", "0x0000000000000000000000000000000000000000000000000000000000426f62", "0x00000000000000000000000000000000000000000000000000436861726c6965", "0x0000000000000000000000000000000000000000000000000000000044617665", "0x0000000000000000000000000000000000000000000000000000000000457665"}
 
+// Args holds the args to run tests with ganache
 type Args struct {
 	port     string
 	amount   string
@@ -74,6 +76,7 @@ func handleDeployCmd(ctx *cli.Context) error {
 	return nil
 }
 
+// Takes the Args struct and converts it to a string array to be passed into RunGanache
 func (a *Args) ConvertToStringArray() []string {
 	args := []string{}
 
@@ -88,6 +91,7 @@ func (a *Args) ConvertToStringArray() []string {
 	return args
 }
 
+// RunGanache takes an input string and the gopath and run ganache-cli with the given inputs
 func RunGanache(args []string, gopath string) error {
 
 	log.Info("Running npm install")
