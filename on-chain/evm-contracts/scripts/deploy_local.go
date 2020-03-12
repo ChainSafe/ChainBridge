@@ -1,13 +1,13 @@
 package scripts
 
 import (
-	"flag"
+    "flag"
+    "os"
     "context"
     "crypto/ecdsa"
-    "fmt"
-    "log"
 	"math/big"
-	"strconv"
+    "strconv"
+    "fmt"
 
     "github.com/ethereum/go-ethereum/accounts/abi/bind"
     "github.com/ethereum/go-ethereum/crypto"
@@ -16,7 +16,10 @@ import (
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
-	simpleEmitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
+    simpleEmitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
+    erc20 "github.com/ChainSafe/ChainBridgeV2/contracts/ERC20Mintable"
+    erc721 "github.com/ChainSafe/ChainBridgeV2/contracts/ERC721Mintable"
+    log "github.com/ChainSafe/log15"
 
 )
 
@@ -61,7 +64,11 @@ func main() {
 	testOnly := flag.Bool("test-only", false, "Skip main contract depoyments, only run tests")
 	dest := flag.Int("dest", 1, "destination chain")
 
-	deploy_local(*validators, *validatorThreshold, *depositThreshold, *port, *depositERC20, *depositNFT, *depositAsset, *testOnly, *dest)
+    err := deploy_local(*validators, *validatorThreshold, *depositThreshold, *port, *depositERC20, *depositNFT, *depositAsset, *testOnly, *dest)
+    if err != nil {
+        log.Error(err.Error())
+		os.Exit(1)
+    }
 
 }
 
@@ -79,32 +86,37 @@ func createValidatorSlice(valAddr []string, numValidators int) []common.Address 
 }
 
 
-func deploy_local(validators int, validatorThreshold int, depositThreshold int, port int, erc20 bool, nft bool, asset bool, test bool, dest int) {
+func deploy_local(validators int, validatorThreshold int, depositThreshold int, port int, erc bool, nft bool, asset bool, test bool, dest int) error {
     client, err := ethclient.Dial("https://localhost:"+strconv.Itoa(port))
     if err != nil {
-        log.Fatal(err)
+        log.Error(err.Error())
+        return err
     }
 
     privateKey, err := crypto.HexToECDSA(DEPLOYER_PRIV_KEY)
     if err != nil {
-        log.Fatal(err)
+        log.Error(err.Error())
+        return err
     }
 
     publicKey := privateKey.Public()
     publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
     if !ok {
-        log.Fatal("error casting public key to ECDSA")
+        log.Error(err.Error())
+        return err
     }
 
     deployAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
     nonce, err := client.PendingNonceAt(context.Background(), deployAddress)
     if err != nil {
-        log.Fatal(err)
+        log.Error(err.Error())
+        return err
     }
 
     gasPrice, err := client.SuggestGasPrice(context.Background())
     if err != nil {
-        log.Fatal(err)
+        log.Error(err.Error())
+        return err
     }
 
     auth := bind.NewKeyedTransactor(privateKey)
@@ -116,11 +128,101 @@ func deploy_local(validators int, validatorThreshold int, depositThreshold int, 
     validatorAddresses := createValidatorSlice(VALIDATOR_ADDRESS, validators)
     valThres := big.NewInt(int64(validatorThreshold))
     depThres := big.NewInt(int64(depositThreshold))
+
+
+    if !test {
+        _, _, _, err := receiver.DeployReceiver(auth, client, validatorAddresses, depThres,valThres)
+        if err != nil {
+            log.Error("error deploying reciever instance")
+            return err
+        }
+        emitterAddr, _, emitterInstance, err := emitter.DeployEmitter(auth, client)
+        if err != nil {
+            log.Error("error deploying emitter instance")
+            return err
+        }
+        _, _, _, err = simpleEmitter.DeploySimpleEmitter(auth, client)
+        if err != nil {
+            log.Error("error deploying simple emitter instance")
+            return err
+        }
+        _,_,_, err = bridgeAsset.DeployBridgeAsset(auth, client, 10)
+        if err != nil {
+            log.Error("error deploying bridge asset instance")
+            return err
+        }
+
+        if erc {
+
+            erc20Addr, erc20Tx, erc20Instance, err := erc20.DeployERC20Mintable(auth, client)
+            log.Info("[ERC20 Transfer] deployed token!")
+    
+            if err != nil {
+                log.Error("error deploying ERC20 instance")
+                return err
+            }
+    
+            priKey, err := crypto.GenerateKey()
+            if err != nil {
+                log.Error(err.Error())
+                return err
+            }
+        
+            pubKey := privateKey.Public()
+            pubKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+            if !ok {
+                log.Error(err.Error())
+                return err
+            }
+        
+            // Mint and Approve tokens
+            mintAddress := crypto.PubkeyToAddress(*pubKeyECDSA)
+    
+            _, err = erc20Instance.Mint(auth, mintAddress, big.NewInt(100))
+            if err != nil {
+                log.Error(err.Error())
+                return err
+            }
+
+            log.Info("[ERC20 Transfer] Minted tokens!")
+    
+            _, err = erc20Instance.Approve(auth, emitterAddr, big.NewInt(1))
+            if err != nil {
+                log.Error(err.Error())
+                return err
+            }
+
+            log.Info("[ERC20 Transfer] Approved tokens!")
+
+            // pre transfer balance
+            prebal, err := emitterInstance.Balances(&bind.CallOpts{}, erc20Addr)
+            if err != nil {
+                log.Error(err.Error())
+                return err
+            }
+
+
+            // make deposit
+            _, err = emitterInstance.DepositGenericErc(auth, big.NewInt(0), big.NewInt(1), validatorAddresses[1], erc20Addr)
+            if err != nil {
+                log.Error(err.Error())
+                return err
+            }
+            log.Info("[ERC20 Transfer] Created Deposit!")
+
+            postbal, err := emitterInstance.Balances(&bind.CallOpts{}, erc20Addr)
+
+            log.Info(strconv.FormatBool(prebal.Cmp(postbal)== 1))
+
+            
+    
+        } 
+        
+
+    }
+
+
+
+    return nil
 	
-	if !test {
-		recieverAddr, recieverTx, recieverInstance, recieverErr := receiver.DeployReceiver(auth, client, validatorAddresses, depThres,valThres)
-		emitterAddr, emitterTx, emitterInstance, emitterErr := emitter.DeployEmitter(auth, client)
-		sEmitterAddr, sEmitterTx, sEmitterInstance, sEmitterErr := simpleEmitter.DeploySimpleEmitter(auth, client)
-		bridgeAssetAddr, bridgeAssetTx, bridgeAssetInstance, bridgeAssetErr := bridgeAsset.DeployBridgeAsset(auth, client, 10)
-	}
 }
