@@ -7,8 +7,7 @@ import (
 	"fmt"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
-	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
+	bridge "github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
@@ -34,25 +33,25 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	emitterContract, err := emitter.NewEmitter(cfg.emitter, conn.conn)
+	bridgeInstance, err := bridge.NewBridge(cfg.contract, conn.conn)
 	if err != nil {
 		return nil, err
+	}
+
+	raw := &bridge.BridgeRaw{
+		Contract: bridgeInstance,
+	}
+
+	bridgeContract := BridgeContract{
+		BridgeRaw:    raw,
+		BridgeCaller: &bridgeInstance.BridgeCaller,
 	}
 
 	listener := NewListener(conn, cfg)
-	listener.SetEmitterContract(&emitterContract.EmitterFilterer)
-
-	receiverContract, err := receiver.NewReceiver(cfg.receiver, conn.conn)
-	if err != nil {
-		return nil, err
-	}
-
-	instance := &receiver.ReceiverRaw{
-		Contract: receiverContract,
-	}
+	listener.SetBridgeContract(bridgeContract)
 
 	writer := NewWriter(conn, cfg)
-	writer.SetReceiverContract(instance)
+	writer.SetBridgeContract(bridgeContract)
 
 	return &Chain{
 		cfg:      chainCfg,
