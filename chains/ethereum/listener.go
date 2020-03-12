@@ -27,11 +27,11 @@ type ActiveSubscription struct {
 }
 
 type Listener struct {
-	cfg             Config
-	conn            *Connection
-	subscriptions   map[EventSig]*ActiveSubscription
-	router          chains.Router
-	emitterContract EmitterContract // instance of bound emitter contract
+	cfg            Config
+	conn           *Connection
+	subscriptions  map[EventSig]*ActiveSubscription
+	router         chains.Router
+	bridgeContract BridgeContract // instance of bound bridge contract
 }
 
 func NewListener(conn *Connection, cfg *Config) *Listener {
@@ -42,8 +42,8 @@ func NewListener(conn *Connection, cfg *Config) *Listener {
 	}
 }
 
-func (l *Listener) SetEmitterContract(ec EmitterContract) {
-	l.emitterContract = ec
+func (l *Listener) SetBridgeContract(bridge BridgeContract) {
+	l.bridgeContract = bridge
 }
 
 func (l *Listener) SetRouter(r chains.Router) {
@@ -53,16 +53,16 @@ func (l *Listener) SetRouter(r chains.Router) {
 func (l *Listener) GetSubscriptions() []*Subscription {
 	return []*Subscription{
 		{
-			signature: ErcTransfer,
-			handler:   l.handleTransferEvent,
+			signature: DepositedErc20Signature,
+			handler:   l.handleErc20DepositedEvent,
 		},
+		// {
+		// 	signature: NftTransfer,
+		// 	handler:   l.handleTransferEvent,
+		// },
 		{
-			signature: NftTransfer,
-			handler:   l.handleTransferEvent,
-		},
-		{
-			signature: DepositAsset,
-			handler:   l.handleTestDeposit,
+			signature: DepositProposalCreatedSignature,
+			handler:   l.handleVoteEvent,
 		},
 	}
 
@@ -95,18 +95,20 @@ func (l *Listener) buildQuery(contract ethcommon.Address, sig EventSig) eth.Filt
 	return query
 }
 
-// RegisterEventHandler creates a subscription for the provided event on the emitter contract.
+// RegisterEventHandler creates a subscription for the provided event on the bridge contract.
 // Handler will be called for every instance of event.
 func (l *Listener) RegisterEventHandler(subscription string, handler chains.EvtHandlerFn) error {
 	evt := EventSig(subscription)
-	query := l.buildQuery(l.cfg.emitter, evt)
+	log15.Trace("Event signatures", "sig", evt, "topic", evt.GetTopic().Hex())
+
+	query := l.buildQuery(l.cfg.bridge, evt)
 	eventSubscription, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
 	}
 	l.subscriptions[EventSig(subscription)] = eventSubscription
 	go l.watchEvent(eventSubscription, handler)
-	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.emitter, "sig", subscription)
+	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.bridge, "sig", subscription)
 	return nil
 }
 
@@ -116,7 +118,6 @@ func (l *Listener) watchEvent(eventSubscription *ActiveSubscription, handler fun
 	for {
 		select {
 		case evt := <-eventSubscription.ch:
-			log15.Trace("Event found")
 			m := handler(evt)
 			err := l.router.Send(m)
 			if err != nil {
