@@ -60,7 +60,7 @@ truffle_compile:
 	@echo " > \033[32mCompiling evm contracts... \033[0m "
 	./scripts/evm/compile.sh
 
-start_eth:
+start_eth: build
 	@echo " > \033[32mStarting ganache... \033[0m "
 	./scripts/local_test/start_ganache.sh
 

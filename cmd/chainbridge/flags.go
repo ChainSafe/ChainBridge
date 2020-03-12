@@ -58,3 +58,27 @@ var (
 		Usage: "Applies a predetermined test keystore to the chains",
 	}
 )
+
+//Deploy Flags
+var (
+	PortFlag = cli.StringFlag{
+		Name:  "port",
+		Usage: "Specifies the port where ganache will run",
+	}
+	ResetFlag = cli.BoolFlag{
+		Name:  "reset",
+		Usage: "Removes the default keyring flags, used if a replacement is wanted",
+	}
+	MnemFlag = cli.StringFlag{
+		Name:  "mnemonic",
+		Usage: "Allows a custom mnemonic to be inputted",
+	}
+	AccountFlag = cli.StringFlag{
+		Name:  "account",
+		Usage: "Allows a user to add a test account to the Ganache Instance. Input as one comma seperated string",
+	}
+	AmountFlag = cli.StringFlag{
+		Name:  "amount",
+		Usage: "Sets the starting amount of eth for each account",
+	}
+)
