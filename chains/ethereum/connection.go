@@ -9,9 +9,7 @@ import (
 	"sync"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	"github.com/ChainSafe/log15"
 
 	eth "github.com/ethereum/go-ethereum"
@@ -39,28 +37,24 @@ type Connection struct {
 	ctx       context.Context
 	conn      *ethclient.Client
 	signer    ethtypes.Signer
-	kp        crypto.Keypair
+	kp        *secp256k1.Keypair
 	nonceLock sync.Mutex
 }
 
-func NewConnection(cfg *Config) *Connection {
+func NewConnection(cfg *Config, kp *secp256k1.Keypair) *Connection {
 	signer := ethtypes.HomesteadSigner{}
 	return &Connection{
 		ctx: context.Background(),
 		cfg: *cfg,
 		// TODO: add network to use to config
 		signer:    signer,
+		kp:        kp,
 		nonceLock: sync.Mutex{},
 	}
 }
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	kp, err := c.cfg.keystore.KeypairFromAddress(c.cfg.from, keystore.ETHChain)
-	if err != nil {
-		return err
-	}
-	c.kp = kp
 	log15.Info("Connecting to ethereum...", "url", c.cfg.endpoint)
 	rpcClient, err := rpc.DialWebsocket(c.ctx, c.cfg.endpoint, "/ws")
 	if err != nil {

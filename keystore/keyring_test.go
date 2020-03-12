@@ -15,8 +15,7 @@ func TestByteLength(t *testing.T) {
 	}
 }
 func TestInsecureAddresses(t *testing.T) {
-	tks := NewTestKeystore(AliceKey)
-	tkp, err := tks.insecureKeypairFromAddress(AliceKey, ETHChain)
+	tkp, err := insecureKeypairFromAddress(AliceKey, EthChain)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -25,7 +24,7 @@ func TestInsecureAddresses(t *testing.T) {
 		t.Fatalf("Key is not being returned correctly")
 	}
 
-	tkp, err = tks.insecureKeypairFromAddress(AliceKey, CTFGChain)
+	tkp, err = insecureKeypairFromAddress(AliceKey, SubChain)
 	if err != nil {
 		t.Fatal(err)
 	}
