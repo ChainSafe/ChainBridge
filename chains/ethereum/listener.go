@@ -53,15 +53,15 @@ func (l *Listener) SetRouter(r chains.Router) {
 func (l *Listener) GetSubscriptions() []*Subscription {
 	return []*Subscription{
 		{
-			signature: ErcTransfer,
-			handler:   l.handleTransferEvent,
+			signature: DepositedErc20Signature,
+			handler:   l.handleErc20DepositedEvent,
 		},
+		// {
+		// 	signature: NftTransfer,
+		// 	handler:   l.handleTransferEvent,
+		// },
 		{
-			signature: NftTransfer,
-			handler:   l.handleTransferEvent,
-		},
-		{
-			signature: DepositProposalCreated,
+			signature: DepositProposalCreatedSignature,
 			handler:   l.handleVoteEvent,
 		},
 	}
