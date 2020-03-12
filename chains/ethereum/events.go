@@ -15,21 +15,32 @@ const (
 	NftTransfer            = "NftTransfer"
 	ErcTransfer            = "ErcTransfer"
 	DepositProposalCreated = "DepositProposalCreated"
+	DepositedErc20         = "DepositedErc20"
 
-	DepositAssetSignature    = "DepositAsset(address,bytes32)"
-	NftTransferSignature     = "NFTTransfer(uint256,uint256,address,address,uint256,bytes)"
-	ErcTransferSignature     = "ERCTransfer(uint256,uint256,address,uint256,address)"
-	DepositProposalSignature = "DepositProposalCreated(bytes32,uint256,uint256,uint8)"
+	DepositedErc20Signature         = "ERC20Deposited(uint256)"
+	DepositAssetSignature           = "DepositAsset(address,bytes32)"
+	NftTransferSignature            = "NFTTransfer(uint256,uint256,address,address,uint256,bytes)"
+	ErcTransferSignature            = "ERCTransfer(uint256,uint256,address,uint256,address)"
+	DepositProposalCreatedSignature = "DepositProposalCreated(uint256,uint256,bytes32)"
 )
 
-func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
-	log15.Debug("Handling deposit proposal event")
+func (l *Listener) handleErc20DepositedEvent(eventI interface{}) msg.Message {
+	log15.Debug("Handling deposited event")
 	event := eventI.(ethtypes.Log)
 
 	depositID := event.Topics[1].Big() // Only item in log is indexed.
-	deposit, err := UnpackGenericDepositRecord(l.bridgeContract.BridgeCaller.GetGenericDepositRecord(&bind.CallOpts{}, l.cfg.id.Big(), depositID))
+
+	// TODO remove when issue addressed https://github.com/ChainSafe/ChainBridgeV2/issues/173
+	var destID msg.ChainId
+	if l.cfg.id == 0 {
+		destID = msg.ChainId(1)
+	} else {
+		destID = msg.ChainId(0)
+	}
+
+	deposit, err := UnpackErc20DepositRecord(l.bridgeContract.BridgeCaller.GetERC20DepositRecord(&bind.CallOpts{}, destID.Big(), depositID))
 	if err != nil {
-		log15.Error("Unable to decode event", err)
+		log15.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
 
 	return msg.Message{
@@ -38,7 +49,24 @@ func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 		Destination: msg.ChainId(deposit.DestChainID.Uint64()),
 		DepositId:   uint32(depositID.Uint64()),
 		To:          deposit.DestChainHandlerAddress.Bytes(),
-		Metadata:    deposit.Data,
+		Metadata:    deposit.Amount.Bytes(),
+	}
+}
+
+func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
+	log15.Debug("Handling vote event")
+	event := eventI.(ethtypes.Log)
+
+	originChainID := event.Topics[1].Big()
+	depositID := event.Topics[2].Big()
+	hash := event.Topics[3]
+
+	return msg.Message{
+		Source:      msg.ChainId(uint8(originChainID.Uint64())), // Todo handle safely
+		Destination: l.cfg.id,                                   // Must write to the same contract
+		Type:        msg.VoteDepositProposalType,
+		DepositId:   uint32(depositID.Int64()),
+		Metadata:    hash[:],
 	}
 }
 
@@ -71,27 +99,3 @@ func (l *Listener) handleTransferEvent(eventI interface{}) msg.Message {
 // 		// Metadata:  ercEvent.Data,
 // 	}
 // }
-
-func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
-	log15.Debug("Handling vote event")
-	event := eventI.(ethtypes.Log)
-
-	contractAbi, err := abi.JSON(strings.NewReader(string(receiver.ReceiverABI)))
-	if err != nil {
-		log15.Error("Unable to decode event", err)
-	}
-
-	var depositEvent receiver.ReceiverDepositProposalCreated
-	err = contractAbi.Unpack(&depositEvent, "DepositProposalCreated", event.Data)
-	if err != nil {
-		log15.Error("Unable to unpack DepositProposalCreated", err)
-	}
-
-	return msg.Message{
-		Source:      msg.ChainId(uint8(depositEvent.OriginChain.Uint64())), // Todo handle safely
-		Destination: l.cfg.id,                                              // We are reading from the receiver, must write to the same contract
-		Type:        msg.VoteDepositProposalType,
-		DepositId:   uint32(depositEvent.DepositId.Int64()),
-		Metadata:    depositEvent.Hash[:],
-	}
-}

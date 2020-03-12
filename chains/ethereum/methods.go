@@ -54,9 +54,9 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		CreateDepositProposalMethod,
-		sizedHash,
-		u32toBigInt(m.DepositId),
 		m.Source.Big(),
+		u32toBigInt(m.DepositId),
+		&sizedHash,
 	)
 
 	if err != nil {
@@ -77,12 +77,13 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 		return false
 	}
 
+	vote := uint8(0)
+
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		VoteDepositProposalMethod,
 		m.Source.Big(),
 		u32toBigInt(m.DepositId),
-		uint8(0),
 	)
 
 	if err != nil {

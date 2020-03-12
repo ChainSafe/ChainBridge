@@ -21,6 +21,15 @@ type genericDepositRecord struct {
 	Data                      []byte
 }
 
+type erc20DepositRecord struct {
+	OriginChainTokenAddress   common.Address
+	OriginChainHandlerAddress common.Address
+	DestChainID               *big.Int
+	DestChainHandlerAddress   common.Address
+	DestRecipientAddress      common.Address
+	Amount                    *big.Int
+}
+
 // depositProposal is the return value from the solidity function getDepositProposal()
 type depositProposal struct {
 	OriginChainID *big.Int
@@ -42,6 +51,7 @@ type BridgeFilterer interface {
 
 type BridgeCaller interface {
 	GetGenericDepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositID *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, []byte, error)
+	GetERC20DepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositID *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, *big.Int, error)
 	GetDepositProposal(opts *bind.CallOpts, originChainID *big.Int, depositID *big.Int) (*big.Int, *big.Int, [32]byte, *big.Int, *big.Int, string, error)
 }
 
@@ -56,7 +66,7 @@ type BridgeRaw interface {
 }
 
 func UnpackGenericDepositRecord(args ...interface{}) (genericDepositRecord, error) {
-	if args[6].(error) != nil {
+	if args[6] != nil {
 		return genericDepositRecord{}, args[6].(error)
 	}
 	return genericDepositRecord{
@@ -70,8 +80,23 @@ func UnpackGenericDepositRecord(args ...interface{}) (genericDepositRecord, erro
 		nil
 }
 
+func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
+	if args[6] != nil {
+		return erc20DepositRecord{}, args[6].(error)
+	}
+	return erc20DepositRecord{
+			OriginChainTokenAddress:   args[0].(common.Address),
+			OriginChainHandlerAddress: args[1].(common.Address),
+			DestChainID:               args[2].(*big.Int),
+			DestChainHandlerAddress:   args[3].(common.Address),
+			DestRecipientAddress:      args[4].(common.Address),
+			Amount:                    args[5].(*big.Int),
+		},
+		nil
+}
+
 func UnpackDepositProposal(args ...interface{}) (depositProposal, error) {
-	if args[6].(error) != nil {
+	if args[6] != nil {
 		return depositProposal{}, args[6].(error)
 	}
 	return depositProposal{
