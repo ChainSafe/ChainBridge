@@ -1,4 +1,4 @@
-package scripts
+package main
 
 import (
     "flag"
@@ -7,7 +7,6 @@ import (
     "crypto/ecdsa"
 	"math/big"
     "strconv"
-    "fmt"
 
     "github.com/ethereum/go-ethereum/accounts/abi/bind"
     "github.com/ethereum/go-ethereum/crypto"
@@ -18,7 +17,7 @@ import (
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
     simpleEmitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
     erc20 "github.com/ChainSafe/ChainBridgeV2/contracts/ERC20Mintable"
-    erc721 "github.com/ChainSafe/ChainBridgeV2/contracts/ERC721Mintable"
+    //erc721 "github.com/ChainSafe/ChainBridgeV2/contracts/ERC721Mintable"
     log "github.com/ChainSafe/log15"
 
 )
@@ -87,7 +86,7 @@ func createValidatorSlice(valAddr []string, numValidators int) []common.Address 
 
 
 func deploy_local(validators int, validatorThreshold int, depositThreshold int, port int, erc bool, nft bool, asset bool, test bool, dest int) error {
-    client, err := ethclient.Dial("https://localhost:"+strconv.Itoa(port))
+    client, err := ethclient.Dial("http://localhost:"+strconv.Itoa(port))
     if err != nil {
         log.Error(err.Error())
         return err
@@ -122,7 +121,7 @@ func deploy_local(validators int, validatorThreshold int, depositThreshold int, 
     auth := bind.NewKeyedTransactor(privateKey)
     auth.Nonce = big.NewInt(int64(nonce))
     auth.Value = big.NewInt(0)    
-    auth.GasLimit = uint64(300000) 
+    auth.GasLimit = uint64(6721975) 
     auth.GasPrice = gasPrice
 
     validatorAddresses := createValidatorSlice(VALIDATOR_ADDRESS, validators)
@@ -136,6 +135,7 @@ func deploy_local(validators int, validatorThreshold int, depositThreshold int, 
             log.Error("error deploying reciever instance")
             return err
         }
+
         emitterAddr, _, emitterInstance, err := emitter.DeployEmitter(auth, client)
         if err != nil {
             log.Error("error deploying emitter instance")
@@ -226,3 +226,5 @@ func deploy_local(validators int, validatorThreshold int, depositThreshold int, 
     return nil
 	
 }
+
+ 
