@@ -64,6 +64,7 @@ var (
 	PortFlag = cli.StringFlag{
 		Name:  "port",
 		Usage: "Specifies the port where ganache will run",
+		Value: "8545",
 	}
 	ResetFlag = cli.BoolFlag{
 		Name:  "reset",
@@ -72,6 +73,7 @@ var (
 	MnemFlag = cli.StringFlag{
 		Name:  "mnemonic",
 		Usage: "Allows a custom mnemonic to be inputted",
+		Value: "",
 	}
 	AccountFlag = cli.StringFlag{
 		Name:  "account",
@@ -80,5 +82,6 @@ var (
 	AmountFlag = cli.StringFlag{
 		Name:  "amount",
 		Usage: "Sets the starting amount of eth for each account",
+		Value: "100000000000000000000",
 	}
 )

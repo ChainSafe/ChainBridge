@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/hex"
 	"os"
 	"os/exec"
 	"strings"
 
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -14,7 +16,7 @@ var deployCommand = cli.Command{
 	Name:     "testdeploy",
 	Usage:    "deploys test ganache",
 	Category: "TESTING",
-	Flags:    TestFlags,
+	Flags:    DeployFlags,
 	Description: "\tThe testdeploy command is used to deploy a ganache instance for testing\n" +
 		"\tTo add additional accounts, -testaccount\n" +
 		"\tTo only use custom accounts, -reset\n" +
@@ -22,21 +24,28 @@ var deployCommand = cli.Command{
 }
 
 // The Private Keys of Alice, Bob, Etc
-var BaseAccounts = []string{"0x000000000000000000000000000000000000000000000000000000416c696365", "0x0000000000000000000000000000000000000000000000000000000000426f62", "0x00000000000000000000000000000000000000000000000000436861726c6965", "0x0000000000000000000000000000000000000000000000000000000044617665", "0x0000000000000000000000000000000000000000000000000000000000457665"}
+var BaseAccounts = []string{
+	hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Private().Encode()),
+	hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Private().Encode()),
+	hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Private().Encode()),
+	hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Private().Encode()),
+	hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Private().Encode()),
+}
 
-// Args holds the args to run tests with ganache
-type Args struct {
+// deployArgd holds the args to run tests with ganache
+type deployArgs struct {
 	port     string
 	amount   string
 	mnemonic string
 	accounts []string
 }
 
-func newArgs() *Args {
-	return &Args{
+func newdeployArgs() *deployArgs {
+	return &deployArgs{
 		accounts: BaseAccounts,
 		port:     "8545",
 		amount:   "100000000000000000000",
+		mnemonic: "",
 	}
 }
 
@@ -44,30 +53,22 @@ func handleDeployCmd(ctx *cli.Context) error {
 	log.Info("Starting Ganache")
 	gopath := os.Getenv("GOPATH")
 
-	args := newArgs()
+	args := newdeployArgs()
 
-	if newPort := ctx.String(PortFlag.Name); newPort != "" {
-		args.port = newPort
-	}
+	args.port = ctx.String(PortFlag.Name)
+	args.amount = ctx.String(AmountFlag.Name)
+	args.mnemonic = ctx.String(MnemFlag.Name)
 
 	if newAccounts := ctx.String(AccountFlag.Name); newAccounts != "" {
 		accountList := strings.Split(newAccounts, ",")
-		if reset := ctx.Bool(ResetFlag.Name); reset {
+		if ctx.Bool(ResetFlag.Name) {
 			args.accounts = accountList
 		} else {
 			args.accounts = append(args.accounts, accountList...)
 		}
 	}
 
-	if newAmount := ctx.String(AmountFlag.Name); newAmount != "" {
-		args.amount = newAmount
-	}
-
-	if mnem := ctx.String(MnemFlag.Name); mnem != "" {
-		args.mnemonic = mnem
-	}
-
-	err := RunGanache(args.ConvertToStringArray(), gopath)
+	err := RunGanache(args, gopath)
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,7 @@ func handleDeployCmd(ctx *cli.Context) error {
 }
 
 // Takes the Args struct and converts it to a string array to be passed into RunGanache
-func (a *Args) ConvertToStringArray() []string {
+func (a *deployArgs) ConvertToStringArray() []string {
 	args := []string{}
 
 	args = append(args, "-p", a.port)
@@ -91,7 +92,7 @@ func (a *Args) ConvertToStringArray() []string {
 }
 
 // RunGanache takes an input string and the gopath and run ganache-cli with the given inputs
-func RunGanache(args []string, gopath string) error {
+func RunGanache(args *deployArgs, gopath string) error {
 
 	log.Info("Running npm install")
 	command := exec.Command("npm", "install")
@@ -103,7 +104,7 @@ func RunGanache(args []string, gopath string) error {
 		return err
 	}
 
-	command = exec.Command("./node_modules/.bin/ganache-cli", args...) //nolint:gosec
+	command = exec.Command("./node_modules/.bin/ganache-cli", args.ConvertToStringArray()...) //nolint:gosec
 	command.Dir = gopath + "/src/github.com/ChainSafe/ChainBridgeV2/on-chain/evm-contracts"
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
