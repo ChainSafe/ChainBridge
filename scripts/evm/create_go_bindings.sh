@@ -34,8 +34,6 @@ do
     
     # Build the go package
     abigen --abi $ABI_DIR/${value}.abi --pkg $value --type $value --bin $BIN_DIR/${value}.bin --out $GO_DIR/$value/$value.go
-
-    echo "var RuntimeBytecode = $DEPLOYED"
 done
 
 # Remove old bindings
