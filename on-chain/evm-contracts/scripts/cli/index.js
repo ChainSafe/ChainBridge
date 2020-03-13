@@ -6,7 +6,7 @@
 const ethers = require('ethers');
 const cli = require('commander');
 
-const deploy = require('./cmd/delpoyment');
+const deploy = require('./cmd/deployment');
 const trasnfer = require('./cmd/transfer');
 const constants = require('./constants');
 
