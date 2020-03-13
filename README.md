@@ -127,3 +127,14 @@ Truffle tests can be run with just:
 ```
 make truffle_test
 ```
+
+## Simulations
+Currently, we can run simulations by using node scripts found in `./on-chain/evm-contracts/scripts/cli`. These scripts can simulate ERC & NFT transfers.
+
+### Running the simulations
+Navigate to `./on-chain/evm-contracts`
+
+Things you can run:
+Deploy contracts: `node ./scripts/cli/index.js -p <port_number>`
+Mint tokens: `node ./scripts/cli/index.js --test-only --mint-erc20 --value <amount of token>`
+ERC transfer: (not must mint tokens first) `node ./scripts/cli/index.js --test-only --deposit-erc --value <amount_to_deposit> --dest <destination_chain_id>`
