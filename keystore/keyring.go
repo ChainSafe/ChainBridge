@@ -61,11 +61,11 @@ func errorWrap(in interface{}, err error) interface{} {
 // createKeyRing creates a KeyRing for the specfied chain/key type
 func createKeyRing(chain string) KeyRing {
 	ring := map[string]crypto.Keypair{
-		AliceKey:   createKeypair([]byte(AliceKey), chain),
-		BobKey:     createKeypair([]byte(BobKey), chain),
-		CharlieKey: createKeypair([]byte(CharlieKey), chain),
-		DaveKey:    createKeypair([]byte(DaveKey), chain),
-		EveKey:     createKeypair([]byte(EveKey), chain),
+		AliceKey:   createKeypair(AliceKey, chain),
+		BobKey:     createKeypair(BobKey, chain),
+		CharlieKey: createKeypair(CharlieKey, chain),
+		DaveKey:    createKeypair(DaveKey, chain),
+		EveKey:     createKeypair(EveKey, chain),
 	}
 
 	return ring
@@ -73,13 +73,13 @@ func createKeyRing(chain string) KeyRing {
 }
 
 // createKeypair creates keypairs based on the private key seed inputted for the specfied chain
-func createKeypair(key []byte, chain string) crypto.Keypair {
+func createKeypair(key, chain string) crypto.Keypair {
 	switch chain {
 	case EthChain:
-		secpPrivateKey := errorWrap(secp256k1.NewPrivateKey(padWithZeros(key, secp256k1.PrivateKeyLength))).(*secp256k1.PrivateKey)
-		return errorWrap(secp256k1.NewKeypairFromPrivate(secpPrivateKey)).(*secp256k1.Keypair)
+		bz := padWithZeros([]byte(key), secp256k1.PrivateKeyLength)
+		return errorWrap(secp256k1.NewKeypairFromPrivateKey(bz)).(*secp256k1.Keypair)
 	case SubChain:
-		return errorWrap(sr25519.NewKeypairFromSeed(padWithZeros(key, sr25519.PrivateKeyLength))).(*sr25519.Keypair)
+		return errorWrap(sr25519.NewKeypairFromSeed("//" + key)).(*sr25519.Keypair)
 	}
 	return nil
 

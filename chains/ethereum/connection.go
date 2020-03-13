@@ -100,7 +100,7 @@ func (c *Connection) SubmitTx(data []byte) error {
 	log15.Debug("Submitting new tx", "to", tx.To(), "nonce", tx.Nonce(), "value", tx.Value(),
 		"gasLimit", tx.Gas(), "gasPrice", tx.GasPrice(), "calldata", tx.Data())
 
-	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.Private().(*secp256k1.PrivateKey).Key())
+	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.PrivateKey())
 	if err != nil {
 		log15.Trace("Signing tx failed", "err", err)
 		return err
@@ -136,15 +136,14 @@ func (c *Connection) LatestBlock() (*ethtypes.Block, error) {
 
 // newTransactOpts builds the TransactOpts for the connection's keypair.
 func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, *Nonce, error) {
-	pub := c.kp.Public().(*secp256k1.PublicKey).Key()
-	address := ethcrypto.PubkeyToAddress(pub)
+	privateKey := c.kp.PrivateKey()
+	address := ethcrypto.PubkeyToAddress(privateKey.PublicKey)
 
 	nonce, err := c.PendingNonceAt(address)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	privateKey := c.kp.Private().(*secp256k1.PrivateKey).Key()
 	auth := bind.NewKeyedTransactor(privateKey)
 	auth.Nonce = big.NewInt(int64(nonce.nonce))
 	auth.Value = big.NewInt(0)               // in wei

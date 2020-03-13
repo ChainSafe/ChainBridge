@@ -31,10 +31,10 @@ func KeypairFromAddress(addr, chainType, path string, insecure bool) (crypto.Key
 		pswd = GetPassword(fmt.Sprintf("Enter password for key %s:", path))
 	}
 
-	priv, err := ReadFromFileAndDecrypt(path, pswd)
+	kp, err := ReadFromFileAndDecrypt(path, pswd)
 	if err != nil {
 		return nil, err
 	}
 
-	return PrivateKeyToKeypair(priv)
+	return kp, nil
 }
