@@ -153,7 +153,7 @@ func TestContractCode(t *testing.T) {
 	defer conn.Close()
 
 	// The following section checks if the byteCode exists on the chain at the specificed Addresses
-	byteCode, err := conn.checkByteCode(TestEmitterContractAddress)
+	byteCode, err := conn.getByteCode(TestEmitterContractAddress)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -161,7 +161,7 @@ func TestContractCode(t *testing.T) {
 		t.Fatal("Emitter Contract doesn't exist")
 	}
 
-	byteCode, err = conn.checkByteCode(TestReceiverContractAddress)
+	byteCode, err = conn.getByteCode(TestReceiverContractAddress)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -169,7 +169,7 @@ func TestContractCode(t *testing.T) {
 		t.Fatal("Receiver Contract doesn't exist")
 	}
 
-	byteCode, err = conn.checkByteCode(TestCentrifugeContractAddress)
+	byteCode, err = conn.getByteCode(TestCentrifugeContractAddress)
 	if err != nil {
 		t.Fatal(err)
 	}
