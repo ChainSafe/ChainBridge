@@ -13,11 +13,11 @@ import (
 
 var deployCommand = cli.Command{
 	Action:   handleDeployCmd,
-	Name:     "testdeploy",
+	Name:     "deploy",
 	Usage:    "deploys test ganache",
 	Category: "TESTING",
 	Flags:    DeployFlags,
-	Description: "\tThe testdeploy command is used to deploy a ganache instance for testing\n" +
+	Description: "\tThe deploy command is used to deploy a ganache instance for testing\n" +
 		"\tTo add additional accounts, -testaccount\n" +
 		"\tTo only use custom accounts, -reset\n" +
 		"\tTo use a mnemonic, -mnemonic",
