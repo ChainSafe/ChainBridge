@@ -17,7 +17,6 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	eth "github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
@@ -107,29 +106,6 @@ func TestSubscribe(t *testing.T) {
 	}
 }
 
-func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
-	currBlock, err := conn.LatestBlock()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
-	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
-	auth := bind.NewKeyedTransactor(privateKey)
-	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0)     // in wei
-	auth.GasLimit = uint64(300000) // in units
-	auth.GasPrice = big.NewInt(10)
-
-	return auth
-}
-
 func panicOnTimeout(d time.Duration) {
 	<-time.After(d)
 	panic("Test timed out")
@@ -211,3 +187,27 @@ func TestContractCode(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// Unused, may be useful in the future
+//func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
+//	currBlock, err := conn.LatestBlock()
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
+//	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
+//
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
+//	auth := bind.NewKeyedTransactor(privateKey)
+//	auth.Nonce = big.NewInt(int64(nonce))
+//	auth.Value = big.NewInt(0)     // in wei
+//	auth.GasLimit = uint64(300000) // in units
+//	auth.GasPrice = big.NewInt(10)
+//
+//	return auth
+//}

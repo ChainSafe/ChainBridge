@@ -31,5 +31,5 @@ node_modules/
 
 centrifuge-chain/
 
-./contracts/
+/contracts
 abi/

@@ -10,20 +10,26 @@ cache:
     - $HOME/.cache/go-build
     - $GOPATH/pkg/mod
 
+before_script:
+    - sudo add-apt-repository -y ppa:ethereum/ethereum
+    - sudo apt-get update
+    - sudo apt-get install ethereum
+    
 matrix:
   include:
     - language: go
       go: 1.13.x
       name: "Golang-ci Linter"
-      script: make lint
+      script:
+        - make lint
 
     - language: go
       go: 1.13.x
       name: "Run Go tests"
       script:
-          - SILENT=true make start_eth
-          - make deploy_eth
-          - make test
+        - SILENT=true make start_eth
+        - make deploy_eth
+        - make test
 
     - language: node_js
       node_js: 12
