@@ -208,7 +208,6 @@ func deployReceiver(auth *bind.TransactOpts, client *ethclient.Client, validator
 		return ZERO_ADDRESS, err
 	}
 
-
 	recAddr, _, _, err := receiver.DeployReceiver(auth, client, validatorAddresses, depositThreshold, validatorThreshold)
 	if err != nil {
 		log.Error("error deploying reciever instance")
