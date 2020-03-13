@@ -75,10 +75,6 @@ func EncryptAndWriteToFile(file *os.File, kp crypto.Keypair, password []byte) er
 
 	keytype := ""
 
-	//if _, ok := kp.(*ed25519.Keypair); ok {
-	//	keytype = crypto.Ed25519Type
-	//}
-
 	if _, ok := kp.(*sr25519.Keypair); ok {
 		keytype = crypto.Sr25519Type
 	}

@@ -34,7 +34,6 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	// TODO: Remove the need for this
 	kp, _ := kpI.(*secp256k1.Keypair)
 
 	conn := NewConnection(cfg, kp)

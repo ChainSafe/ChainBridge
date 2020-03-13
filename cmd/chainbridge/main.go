@@ -25,7 +25,6 @@ var cliFlags = []cli.Flag{
 var generateFlags = []cli.Flag{
 	PrivateKeyFlag,
 	PasswordFlag,
-	Ed25519Flag,
 	Sr25519Flag,
 	Secp256k1Flag,
 }

@@ -51,8 +51,6 @@ func handleGenerateCmd(ctx *cli.Context, dHandler *dataHandler) error {
 	keytype := crypto.Secp256k1Type
 	if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
 		keytype = crypto.Sr25519Type
-	} else if flagtype := ctx.Bool(Ed25519Flag.Name); flagtype {
-		keytype = crypto.Ed25519Type
 	} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
 		keytype = crypto.Secp256k1Type
 	}
@@ -225,7 +223,7 @@ func generateKeypair(keytype, datadir string, password []byte, privateKey string
 			}
 		}
 	} else if keytype == crypto.Secp256k1Type {
-		// generate secp256k1 keys1
+		// generate secp256k1 keys
 		if privateKey != "" {
 			kp, err = secp256k1.NewKeypairFromString(privateKey)
 			if err != nil {
