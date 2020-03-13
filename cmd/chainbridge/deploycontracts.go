@@ -4,12 +4,13 @@ import (
     "context"
     "crypto/ecdsa"
 	"math/big"
-    "strconv"
 
     "github.com/ethereum/go-ethereum/accounts/abi/bind"
     "github.com/ethereum/go-ethereum/crypto"
     "github.com/ethereum/go-ethereum/ethclient"
-    "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/urfave/cli"
+
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
@@ -17,6 +18,15 @@ import (
     log "github.com/ChainSafe/log15"
 
 )
+
+var deployContractsLocalCmd = cli.Command{
+	Action:   deployContractsLocal,
+	Name:     "deploycontractslocal",
+	Usage:    "deploys contracts",
+	Category: "tests",
+	Flags:    deployContractLocalFlags,
+	Description: "\tthe deploycontractslocal command is used to deploy contracts on a local network for testing purposes\n",
+}
 
 
 var (
@@ -41,6 +51,82 @@ var (
 
     ZERO_ADDRESS = common.HexToAddress("0x0000000000000000000000000000000000000000")
 )
+
+func deployContractsLocal(ctx *cli.Context) (common.Address, common.Address, common.Address, common.Address, error){
+
+	deployPK, port, validators, validatorThreshold, depositThreshold, mc, err := parseCommands(ctx)
+	if err != nil {
+        log.Error(err.Error())
+        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+    }
+
+
+    client, auth, deployAddress, validatorAddresses, err := accountSetUp(port, validators, deployPK)
+    if err != nil {
+        log.Error(err.Error())
+        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+    }
+
+    
+    recieverAddr, err := deployReceiver(auth, client, validatorAddresses, depositThreshold, validatorThreshold, deployAddress)
+    if err != nil {
+        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+    }
+
+    emitterAddr, err := deployEmitter(auth, client, deployAddress)
+    if err != nil {
+        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+    }
+
+    simpleEmitterAddress, err := deploySimpleEmitter(auth, client, deployAddress)
+    if err != nil {
+        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+    }
+
+    bridgeAssetAddr, err := deployBridgeAsset(auth, client, mc, deployAddress)
+    if err != nil {
+        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+	}
+
+    return recieverAddr, emitterAddr, simpleEmitterAddress, bridgeAssetAddr, nil
+
+}
+
+func parseCommands(ctx *cli.Context) (string, string, int, *big.Int, *big.Int, uint8, error) {
+	log.Info("Deploying Contracts")
+
+	port := ctx.String(PortFlag.Name)
+	if port != "" {
+		port = "8545"
+	}
+
+	validators := ctx.Int(NumValidatorsFlag.Name)
+	if validators == 0 {
+		validators = 2
+	}
+
+	validatorThreshold := ctx.Int(ValidatorThresholdFlag.Name)
+	if validatorThreshold == 0 {
+		validatorThreshold = 2
+	}
+
+	depositThreshold := ctx.Int(DepositThresholdFlag.Name)
+	if depositThreshold == 0 {
+		depositThreshold = 2
+	}
+
+	minCount := ctx.Int(MinCountFlag.Name)
+	if minCount == 0 {
+		minCount = 10
+	}
+
+	deployPK := ctx.String(DeployPKFlag.Name)
+	if deployPK == "" {
+		deployPK = DEPLOYER_PRIV_KEY
+	}
+
+	return deployPK, port, validators, big.NewInt(int64(validatorThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount), nil
+}
 
 func createValidatorSlice(valAddr []string, numValidators int) []common.Address {
     
@@ -68,38 +154,38 @@ func updateNonce(auth *bind.TransactOpts, client *ethclient.Client, deployAddres
 
 }
 
-func AccountSetUp(port int, validators int) (*ethclient.Client, *bind.TransactOpts, []common.Address, error) {
+func accountSetUp(port string, validators int, deployPK string) (*ethclient.Client, *bind.TransactOpts, common.Address, []common.Address, error) {
 
-    client, err := ethclient.Dial("http://localhost:"+strconv.Itoa(port))
+    client, err := ethclient.Dial("http://localhost:"+port)
     if err != nil {
         log.Error(err.Error())
-        return nil, nil, nil, err
+        return nil, nil, ZERO_ADDRESS, nil, err
     }
 
-    privateKey, err := crypto.HexToECDSA(DEPLOYER_PRIV_KEY)
+    privateKey, err := crypto.HexToECDSA(deployPK)
     if err != nil {
         log.Error(err.Error())
-        return nil, nil, nil, err
+        return nil, nil, ZERO_ADDRESS, nil, err
     }
 
     publicKey := privateKey.Public()
     publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
     if !ok {
         log.Error(err.Error())
-        return nil, nil, nil, err
+        return nil, nil, ZERO_ADDRESS, nil, err
     }
 
     deployAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
     nonce, err := client.PendingNonceAt(context.Background(), deployAddress)
     if err != nil {
         log.Error(err.Error())
-        return nil, nil, nil, err
+        return nil, nil, ZERO_ADDRESS, nil, err
     }
 
     gasPrice, err := client.SuggestGasPrice(context.Background())
     if err != nil {
         log.Error(err.Error())
-        return nil, nil, nil, err
+        return nil, nil, ZERO_ADDRESS, nil, err
     }
 
     auth := bind.NewKeyedTransactor(privateKey)
@@ -111,11 +197,11 @@ func AccountSetUp(port int, validators int) (*ethclient.Client, *bind.TransactOp
     validatorAddresses := createValidatorSlice(VALIDATOR_ADDRESS, validators)
 
 
-    return client, auth, validatorAddresses, nil
+    return client, auth, deployAddress, validatorAddresses, nil
 
 }
 
-func DeployReceiver(auth *bind.TransactOpts, client *ethclient.Client, validatorAddresses []common.Address, depositThreshold *big.Int, validatorThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
+func deployReceiver(auth *bind.TransactOpts, client *ethclient.Client, validatorAddresses []common.Address, depositThreshold *big.Int, validatorThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
     
     auth, err := updateNonce(auth, client, deployAddress)
     
@@ -128,7 +214,7 @@ func DeployReceiver(auth *bind.TransactOpts, client *ethclient.Client, validator
     return recAddr, nil
 }
 
-func DeployEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddress common.Address) (common.Address, error) {
+func deployEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddress common.Address) (common.Address, error) {
 
     auth, err := updateNonce(auth, client, deployAddress)
 
@@ -142,7 +228,7 @@ func DeployEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddr
 
 }
 
-func DeploySimpleEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddress common.Address) (common.Address, error) {
+func deploySimpleEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddress common.Address) (common.Address, error) {
 
     auth, err := updateNonce(auth, client, deployAddress)
 
@@ -155,7 +241,7 @@ func DeploySimpleEmitter(auth *bind.TransactOpts, client *ethclient.Client, depl
     return sEmitterAddr, nil
 }
 
-func DeployBridgeAsset(auth *bind.TransactOpts, client *ethclient.Client, mc uint8, deployAddress common.Address) (common.Address, error) {
+func deployBridgeAsset(auth *bind.TransactOpts, client *ethclient.Client, mc uint8, deployAddress common.Address) (common.Address, error) {
 
     auth, err := updateNonce(auth, client, deployAddress)
 
@@ -167,40 +253,6 @@ func DeployBridgeAsset(auth *bind.TransactOpts, client *ethclient.Client, mc uin
     }
 
     return bridgeAssetAddr, nil
-
-}
-
-func DeployLocal(port int, validators int, validatorThreshold *big.Int, depositThreshold *big.Int, deployAddress common.Address, mc uint8) (common.Address, common.Address, common.Address, common.Address, error){
-
-    client, auth, validatorAddresses, err := AccountSetUp(port, validators)
-    if err != nil {
-        log.Error(err.Error())
-        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-    }
-
-    
-    recieverAddr, err := DeployReceiver(auth, client, validatorAddresses, depositThreshold, validatorThreshold, deployAddress)
-    if err != nil {
-        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-    }
-
-    emitterAddr, err := DeployEmitter(auth, client, deployAddress)
-    if err != nil {
-        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-    }
-
-    simpleEmitterAddress, err := DeploySimpleEmitter(auth, client, deployAddress)
-    if err != nil {
-        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-    }
-
-    bridgeAssetAddr, err := DeployBridgeAsset(auth, client, mc, deployAddress)
-    if err != nil {
-        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-    }
-
-    return recieverAddr, emitterAddr, simpleEmitterAddress, bridgeAssetAddr, nil
-
 
 }
 

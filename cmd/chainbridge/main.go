@@ -35,6 +35,14 @@ var devFlags = []cli.Flag{
 	TestKeyFlag,
 }
 
+var deployContractLocalFlags = []cli.Flag{
+	PortFlag,
+	NumValidatorsFlag,
+	ValidatorThresholdFlag,
+	DepositThresholdFlag,
+	MinCountFlag,
+}
+
 var accountCommand = cli.Command{
 	Name:     "accounts",
 	Usage:    "manage bridge keystore",
