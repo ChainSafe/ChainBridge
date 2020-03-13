@@ -39,13 +39,13 @@ var (
 		"0x251e6F841549D519dE6De1e99241695bc1000A26", // Eve Public Address
 	}
 
-	VALIDATOR_PRIV_KEYS = []string{
-		"0x000000000000000000000000000000000000000000000000000000416c696365", // Alice Private Key
-		"0x0000000000000000000000000000000000000000000000000000000000426f62", // Bob Private Key
-		"0x00000000000000000000000000000000000000000000000000436861726c6965", // Charlie Private Key
-		"0x0000000000000000000000000000000000000000000000000000000044617665", // Dave Private Key
-		"0x0000000000000000000000000000000000000000000000000000000000457665", // Eve Private Key
-	}
+	// VALIDATOR_PRIV_KEYS = []string{
+	// 	"0x000000000000000000000000000000000000000000000000000000416c696365", // Alice Private Key
+	// 	"0x0000000000000000000000000000000000000000000000000000000000426f62", // Bob Private Key
+	// 	"0x00000000000000000000000000000000000000000000000000436861726c6965", // Charlie Private Key
+	// 	"0x0000000000000000000000000000000000000000000000000000000044617665", // Dave Private Key
+	// 	"0x0000000000000000000000000000000000000000000000000000000000457665", // Eve Private Key
+	// }
 
 	ZERO_ADDRESS = common.HexToAddress("0x0000000000000000000000000000000000000000")
 )
@@ -203,6 +203,11 @@ func accountSetUp(port string, validators int, deployPK string) (*ethclient.Clie
 func deployReceiver(auth *bind.TransactOpts, client *ethclient.Client, validatorAddresses []common.Address, depositThreshold *big.Int, validatorThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
 
 	auth, err := updateNonce(auth, client, deployAddress)
+	if err != nil {
+		log.Error("error getting most recent nonce!")
+		return ZERO_ADDRESS, err
+	}
+
 
 	recAddr, _, _, err := receiver.DeployReceiver(auth, client, validatorAddresses, depositThreshold, validatorThreshold)
 	if err != nil {
@@ -216,6 +221,10 @@ func deployReceiver(auth *bind.TransactOpts, client *ethclient.Client, validator
 func deployEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddress common.Address) (common.Address, error) {
 
 	auth, err := updateNonce(auth, client, deployAddress)
+	if err != nil {
+		log.Error("error getting most recent nonce!")
+		return ZERO_ADDRESS, err
+	}
 
 	emitterAddr, _, _, err := emitter.DeployEmitter(auth, client)
 	if err != nil {
@@ -230,6 +239,10 @@ func deployEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddr
 func deploySimpleEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddress common.Address) (common.Address, error) {
 
 	auth, err := updateNonce(auth, client, deployAddress)
+	if err != nil {
+		log.Error("error getting most recent nonce!")
+		return ZERO_ADDRESS, err
+	}
 
 	sEmitterAddr, _, _, err := simpleEmitter.DeploySimpleEmitter(auth, client)
 	if err != nil {
@@ -243,6 +256,10 @@ func deploySimpleEmitter(auth *bind.TransactOpts, client *ethclient.Client, depl
 func deployBridgeAsset(auth *bind.TransactOpts, client *ethclient.Client, mc uint8, deployAddress common.Address) (common.Address, error) {
 
 	auth, err := updateNonce(auth, client, deployAddress)
+	if err != nil {
+		log.Error("error getting most recent nonce!")
+		return ZERO_ADDRESS, err
+	}
 
 	bridgeAssetAddr, _, _, err := bridgeAsset.DeployBridgeAsset(auth, client, mc)
 	if err != nil {
