@@ -129,12 +129,20 @@ make truffle_test
 ```
 
 ## Simulations
-Currently, we can run simulations by using node scripts found in `./on-chain/evm-contracts/scripts/cli`. These scripts can simulate ERC & NFT transfers.
+If you have a bridge instance running, and access to an ethereum node, transactions can be run that simulate different types of transfer events. These scripts can be found at `./on-chain/evm-contracts/scripts/cli`. 
 
 ### Running the simulations
-Navigate to `./on-chain/evm-contracts`
+1. `./on-chain/evm-contracts`
+2. Run one of the following:
+###### Deploy contracts
+`node ./scripts/cli/index.js -p <port_number>`
+###### Mint tokens
+`node ./scripts/cli/index.js --test-only --mint-erc20 --value <amount of token>`
+###### ERC transfer (note must mint tokens first) 
+`node ./scripts/cli/index.js --test-only --deposit-erc --value <amount_to_deposit> --dest <destination_chain_id>`
+###### NFT transfer
+// Outdated
 
-Things you can run:
-Deploy contracts: `node ./scripts/cli/index.js -p <port_number>`
-Mint tokens: `node ./scripts/cli/index.js --test-only --mint-erc20 --value <amount of token>`
-ERC transfer: (not must mint tokens first) `node ./scripts/cli/index.js --test-only --deposit-erc --value <amount_to_deposit> --dest <destination_chain_id>`
+Notes: 
+- `--test-only` ensures we don't re-deploy the contracts (this must be refactored out in favor of commands)
+- `--dest` allows you to specify which chain_id you want to the transfer to go to 
