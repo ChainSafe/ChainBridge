@@ -19,8 +19,8 @@ import (
 
 )
 
-var deployContractsLocalCmd = cli.Command{
-	Action:   deployContractsLocal,
+var deployContractsLocalCommand = cli.Command{
+	Action:   parseCommands,
 	Name:     "deploycontractslocal",
 	Usage:    "deploys contracts",
 	Category: "tests",
@@ -52,51 +52,11 @@ var (
     ZERO_ADDRESS = common.HexToAddress("0x0000000000000000000000000000000000000000")
 )
 
-func deployContractsLocal(ctx *cli.Context) (common.Address, common.Address, common.Address, common.Address, error){
-
-	deployPK, port, validators, validatorThreshold, depositThreshold, mc, err := parseCommands(ctx)
-	if err != nil {
-        log.Error(err.Error())
-        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-    }
-
-
-    client, auth, deployAddress, validatorAddresses, err := accountSetUp(port, validators, deployPK)
-    if err != nil {
-        log.Error(err.Error())
-        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-    }
-
-    
-    recieverAddr, err := deployReceiver(auth, client, validatorAddresses, depositThreshold, validatorThreshold, deployAddress)
-    if err != nil {
-        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-    }
-
-    emitterAddr, err := deployEmitter(auth, client, deployAddress)
-    if err != nil {
-        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-    }
-
-    simpleEmitterAddress, err := deploySimpleEmitter(auth, client, deployAddress)
-    if err != nil {
-        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-    }
-
-    bridgeAssetAddr, err := deployBridgeAsset(auth, client, mc, deployAddress)
-    if err != nil {
-        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-	}
-
-    return recieverAddr, emitterAddr, simpleEmitterAddress, bridgeAssetAddr, nil
-
-}
-
-func parseCommands(ctx *cli.Context) (string, string, int, *big.Int, *big.Int, uint8, error) {
+func parseCommands(ctx *cli.Context) error {
 	log.Info("Deploying Contracts")
 
 	port := ctx.String(PortFlag.Name)
-	if port != "" {
+	if port == "" {
 		port = "8545"
 	}
 
@@ -125,7 +85,51 @@ func parseCommands(ctx *cli.Context) (string, string, int, *big.Int, *big.Int, u
 		deployPK = DEPLOYER_PRIV_KEY
 	}
 
-	return deployPK, port, validators, big.NewInt(int64(validatorThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount), nil
+	recieverAddr, emitterAddr, simpleEmitterAddr, bridgeAssetAddr, err := deployContractsLocal(deployPK, port, validators, big.NewInt(int64(validatorThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount))
+	if err != nil {
+        return err
+	}
+	
+	log.Info("Reciever Contract Deployed at: " + recieverAddr.Hex())
+	log.Info("Emitter Contract Deployed at: " + emitterAddr.Hex())
+	log.Info("Simple Emitter Contract Deployed at: " + simpleEmitterAddr.Hex())
+	log.Info("Bridge Asset Contract Deployed at: " + bridgeAssetAddr.Hex())
+
+	return nil
+}
+
+func deployContractsLocal(deployPK string, port string, validators int, validatorThreshold *big.Int, depositThreshold *big.Int, minCount uint8) (common.Address, common.Address, common.Address, common.Address, error){
+
+
+    client, auth, deployAddress, validatorAddresses, err := accountSetUp(port, validators, deployPK)
+    if err != nil {
+        log.Error(err.Error())
+        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+    }
+
+    
+    recieverAddr, err := deployReceiver(auth, client, validatorAddresses, depositThreshold, validatorThreshold, deployAddress)
+    if err != nil {
+        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+    }
+
+    emitterAddr, err := deployEmitter(auth, client, deployAddress)
+    if err != nil {
+        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+    }
+
+    simpleEmitterAddr, err := deploySimpleEmitter(auth, client, deployAddress)
+    if err != nil {
+        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+    }
+
+    bridgeAssetAddr, err := deployBridgeAsset(auth, client, minCount, deployAddress)
+    if err != nil {
+        return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+	}
+
+    return recieverAddr, emitterAddr, simpleEmitterAddr, bridgeAssetAddr, nil
+
 }
 
 func createValidatorSlice(valAddr []string, numValidators int) []common.Address {

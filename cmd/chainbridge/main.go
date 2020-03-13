@@ -88,6 +88,7 @@ func init() {
 	app.Version = "0.0.1"
 	app.Commands = []cli.Command{
 		accountCommand,
+		deployContractsLocalCommand,
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)
