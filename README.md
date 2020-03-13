@@ -7,6 +7,21 @@
 # Chain configs
 For chain specific configs, please check [this subdirectory](./chain-documents)
 
+#### Required Setup
+1. Validator must have a config passed to `--config` (or assume the default location `./config.tml`). The config must be organized as follows:
+```bash
+[[chains]]
+name = string # This is displayed in the logs
+type = <"substrate" | "ethereum">
+id = number # Every defined chain must be unqiue eg: 1
+endpoint = string # eg: "ws://localhost:8546" 
+from = string # Public key found inside of ./keysores. Use `chainbridge acounts --help` to generate a key. eg: "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c"
+opts = object # Unique per chain. eg: { contract = "0x1..." }
+```
+2. For every chain listed in the `config.toml`, the `endpoint` must be accessible or running.
+3. The bridge should have a set (probably harcoded) list of on-chain events that it must listen for.
+4. When one or more of the events are triggered, the event information should be parsed accordingly.
+
 ## Run the bridge
  
 `make run`
