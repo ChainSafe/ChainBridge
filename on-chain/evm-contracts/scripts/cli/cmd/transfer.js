@@ -1,17 +1,17 @@
 const ethers = require('ethers');
-const constants = require('./constants');
+const constants = require('./../constants');
 
-const BridgeContract = require("../../build/contracts/Bridge.json");
-const ValidatorContract = require("../../build/contracts/Validator.json");
-const ERC20HandlerContract = require("../../build/contracts/ERC20Handler.json");
-const ERC20MintableContract = require("../../build/contracts/ERC20Mintable.json");
+const BridgeContract = require("../../../build/contracts/Bridge.json");
+const ValidatorContract = require("../../../build/contracts/Validator.json");
+const ERC20HandlerContract = require("../../../build/contracts/ERC20Handler.json");
+const ERC20MintableContract = require("../../../build/contracts/ERC20Mintable.json");
 
 // old
-const ReceiverContract = require("../../build/contracts/Receiver.json");
-const EmitterContract = require("../../build/contracts/Emitter.json");
-const TestEmitterContract = require("../../build/contracts/SimpleEmitter.json");
-const ERC20Contract = require("../../build/contracts/ERC20Mintable.json");
-const ERC721Contract = require("../../build/contracts/ERC721Mintable.json");
+const ReceiverContract = require("../../../build/contracts/Receiver.json");
+const EmitterContract = require("../../../build/contracts/Emitter.json");
+const TestEmitterContract = require("../../../build/contracts/SimpleEmitter.json");
+const ERC20Contract = require("../../../build/contracts/ERC20Mintable.json");
+const ERC721Contract = require("../../../build/contracts/ERC721Mintable.json");
 
 async function assetTestTransfer(cfg) {
     try {

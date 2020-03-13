@@ -6,8 +6,8 @@
 const ethers = require('ethers');
 const cli = require('commander');
 
-const deploy = require('./delpoyment');
-const trasnfer = require('./transfer');
+const deploy = require('./cmd/delpoyment');
+const trasnfer = require('./cmd/transfer');
 const constants = require('./constants');
 
 // Capture argument
