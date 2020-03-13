@@ -51,7 +51,6 @@ var (
 	}
 )
 
-
 // Deploy Contracts Flags
 var (
 	PortFlag = cli.StringFlag{
@@ -78,7 +77,6 @@ var (
 		Name:  "pk",
 		Usage: "Specify private key of account you wish to deploy contracts from",
 	}
-
 )
 
 // Test Setting Flags
