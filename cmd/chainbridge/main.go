@@ -35,7 +35,7 @@ var devFlags = []cli.Flag{
 	TestKeyFlag,
 }
 
-var TestFlags = []cli.Flag{
+var DeployFlags = []cli.Flag{
 	PortFlag,
 	ResetFlag,
 	MnemFlag,

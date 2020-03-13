@@ -25,11 +25,11 @@ var deployCommand = cli.Command{
 
 // The Private Keys of Alice, Bob, Etc
 var BaseAccounts = []string{
-	hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Private().Encode()),
-	hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Private().Encode()),
-	hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Private().Encode()),
-	hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Private().Encode()),
-	hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Private().Encode()),
+	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Private().Encode()),
+	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Private().Encode()),
+	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Private().Encode()),
+	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Private().Encode()),
+	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Private().Encode()),
 }
 
 // deployArgd holds the args to run tests with ganache
