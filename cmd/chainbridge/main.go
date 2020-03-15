@@ -10,7 +10,6 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -26,7 +25,6 @@ var cliFlags = []cli.Flag{
 var generateFlags = []cli.Flag{
 	PrivateKeyFlag,
 	PasswordFlag,
-	Ed25519Flag,
 	Sr25519Flag,
 	Secp256k1Flag,
 }
@@ -121,32 +119,32 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-	var ks *keystore.Keystore
+	var ks string
 	if key := ctx.GlobalString(TestKeyFlag.Name); key != "" {
-		ks = keystore.NewTestKeystore(ctx.GlobalString(TestKeyFlag.Name))
+		ks = ctx.GlobalString(TestKeyFlag.Name)
 	} else {
-		ks = keystore.NewKeystore(cfg.keystorePath)
+		ks = cfg.keystorePath
 	}
 
-	c := core.NewCore(nil)
+	c := core.NewCore()
 
 	for _, chain := range cfg.Chains {
 		var chainconfig core.Chain
 		if chain.Type == "ethereum" {
 			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
-				Id:       chain.Id,
-				Endpoint: chain.Endpoint,
-				From:     chain.From,
-				Keystore: ks,
-				Opts:     chain.Opts,
+				Id:           chain.Id,
+				Endpoint:     chain.Endpoint,
+				From:         chain.From,
+				KeystorePath: ks,
+				Opts:         chain.Opts,
 			})
 		} else if chain.Type == "substrate" {
 			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
-				Id:       chain.Id,
-				Endpoint: chain.Endpoint,
-				From:     chain.From,
-				Keystore: ks,
-				Opts:     chain.Opts,
+				Id:           chain.Id,
+				Endpoint:     chain.Endpoint,
+				From:         chain.From,
+				KeystorePath: ks,
+				Opts:         chain.Opts,
 			})
 		} else {
 			return errors.New("Unrecognized Chain Type")

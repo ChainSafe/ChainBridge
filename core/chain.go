@@ -4,7 +4,6 @@
 package core
 
 import (
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
 )
@@ -17,9 +16,9 @@ type Chain interface {
 }
 
 type ChainConfig struct {
-	Id       msg.ChainId        // ChainID
-	Endpoint string             // url for rpc endpoint
-	From     string             // address of key to use
-	Keystore *keystore.Keystore // Location of key files
-	Opts     map[string]string  // Per chain options
+	Id           msg.ChainId       // ChainID
+	Endpoint     string            // url for rpc endpoint
+	From         string            // address of key to use
+	KeystorePath string            // Location of key files
+	Opts         map[string]string // Per chain options
 }
