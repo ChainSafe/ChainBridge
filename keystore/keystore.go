@@ -25,10 +25,8 @@ func KeypairFromAddress(addr, chainType, path string, insecure bool) (crypto.Key
 	}
 
 	var pswd []byte
-	if os.Getenv("") != "" {
-		pswd = []byte(os.Getenv(EnvPassword))
-	} else {
-		pswd = GetPassword(fmt.Sprintf("Enter password for key %s:", path))
+	if pswd := os.Getenv(EnvPassword); pswd == "" {
+		GetPassword(fmt.Sprintf("Enter password for key %s:", path))
 	}
 
 	kp, err := ReadFromFileAndDecrypt(path, pswd)

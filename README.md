@@ -7,6 +7,18 @@
 # Chain configs
 For chain specific configs, please check [this subdirectory](./chain-documents)
 
+## Dependencies
+
+- [Subkey](https://github.com/paritytech/substrate): 
+Required for substrate key management.
+
+  `make install-subkey`
+
+- [abigen](https://geth.ethereum.org/docs/dapp/native-bindings):
+Builds go bindings for Solidity contract interactions.
+
+  See [Installation Instructions](https://geth.ethereum.org/docs/install-and-build/installing-geth).
+
 ## Run the bridge
  
 `make run`
