@@ -12,6 +12,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 )
 
@@ -112,12 +113,12 @@ func TestListKeys(t *testing.T) {
 		var err error
 		var keyfile string
 		if i%2 == 0 {
-			keyfile, err = generateKeypair("sr25519", testKeystoreDir, testPassword, "")
+			keyfile, err = generateKeypair(crypto.Sr25519Type, testKeystoreDir, testPassword, "")
 			if err != nil {
 				t.Fatal(err)
 			}
 		} else {
-			keyfile, err = generateKeypair("ed25519", testKeystoreDir, testPassword, "")
+			keyfile, err = generateKeypair(crypto.Secp256k1Type, testKeystoreDir, testPassword, "")
 			if err != nil {
 				t.Fatal(err)
 			}

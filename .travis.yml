@@ -6,16 +6,18 @@ env:
     - GO111MODULE=on
 
 cache:
+  cargo: true
   directories:
     - $HOME/.cache/go-build
     - $GOPATH/pkg/mod
 
-before_script:
+install:
     - sudo add-apt-repository -y ppa:ethereum/ethereum
     - sudo apt-get update
     - sudo apt-get install ethereum
-    
-matrix:
+    - wget -P $HOME/bin/ https://storage.googleapis.com/centrifuge-dev-public/subkey  && chmod +x $HOME/bin/subkey
+
+jobs:
   include:
     - language: go
       go: 1.13.x
