@@ -1,3 +1,8 @@
+/**
+ * Copyright 2020 ChainSafe Systems
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 // Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
 module.exports.deployerAddress = "0x0c6CD6Dc5258EF556eA7c6dab2abE302fB60e0b6";
 module.exports.deployerPrivKey = "0x000000000000000000000000000000000000000000000000000000416c696365";
