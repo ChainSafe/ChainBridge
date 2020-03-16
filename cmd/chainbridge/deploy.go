@@ -25,11 +25,11 @@ var deployCommand = cli.Command{
 
 // The Private Keys of Alice, Bob, Etc
 var BaseAccounts = []string{
-	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Private().Encode()),
-	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Private().Encode()),
-	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Private().Encode()),
-	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Private().Encode()),
-	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Private().Encode()),
+	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Encode()),
+	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Encode()),
+	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Encode()),
+	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Encode()),
+	"0x" + hex.EncodeToString(keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Encode()),
 }
 
 // deployArgd holds the args to run tests with ganache
@@ -51,7 +51,6 @@ func newdeployArgs() *deployArgs {
 
 func handleDeployCmd(ctx *cli.Context) error {
 	log.Info("Starting Ganache")
-	gopath := os.Getenv("GOPATH")
 
 	args := newdeployArgs()
 
@@ -68,7 +67,7 @@ func handleDeployCmd(ctx *cli.Context) error {
 		}
 	}
 
-	err := RunGanache(args, gopath)
+	err := RunGanache(args)
 	if err != nil {
 		return err
 	}
@@ -92,11 +91,11 @@ func (a *deployArgs) ConvertToStringArray() []string {
 }
 
 // RunGanache takes an input string and the gopath and run ganache-cli with the given inputs
-func RunGanache(args *deployArgs, gopath string) error {
+func RunGanache(args *deployArgs) error {
 
 	log.Info("Running npm install")
 	command := exec.Command("npm", "install")
-	command.Dir = gopath + "/src/github.com/ChainSafe/ChainBridgeV2/on-chain/evm-contracts"
+	command.Dir = "./on-chain/evm-contracts"
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	err := command.Run()
@@ -104,8 +103,9 @@ func RunGanache(args *deployArgs, gopath string) error {
 		return err
 	}
 
+	log.Info("Executing Ganache")
 	command = exec.Command("./node_modules/.bin/ganache-cli", args.ConvertToStringArray()...) //nolint:gosec
-	command.Dir = gopath + "/src/github.com/ChainSafe/ChainBridgeV2/on-chain/evm-contracts"
+	command.Dir = "./on-chain/evm-contracts"
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	err = command.Start()

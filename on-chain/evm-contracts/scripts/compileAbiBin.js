@@ -34,10 +34,12 @@ fs.readdir("./build/contracts", function (err, files) {
         const path = './build/contracts/' + file
         let rawdata = fs.readFileSync(path);
         let contract = JSON.parse(rawdata);
-        let { abi, bytecode } = contract;
+        let { abi, bytecode, deployedBytecode } = contract;
         bytecode = bytecode.substring(2);
+        deployedBytecode = deployedBytecode.substring(2);
         if (abi.length === 0) return;
         fs.writeFileSync(ABI_PATH + basename + ".abi"  , JSON.stringify(abi))
         fs.writeFileSync(BIN_PATH + basename + ".bin", bytecode)
+        fs.writeFileSync(BIN_PATH + basename + + "_deployed.bin", deployedBytecode)
     });
 });
