@@ -1,10 +1,8 @@
-pragma solidity 0.6.1;
+pragma solidity 0.6.4;
 pragma experimental ABIEncoderV2;
 
 import "./helpers/SafeMath.sol";
 import "./interfaces/IValidator.sol";
-import "./interfaces/IERC20Handler.sol";
-import "./interfaces/IERC721Handler.sol";
 import "./interfaces/IDepositHandler.sol";
 
 contract Bridge {
@@ -18,9 +16,6 @@ contract Bridge {
     enum ValidatorThresholdProposalStatus {Inactive, Active}
     enum DepositProposalStatus {Inactive, Active, Denied, Passed, Transferred}
 
-    struct DepositRecord {
-        bytes   _data;
-    }
     struct DepositProposal {
         bytes32                  _dataHash;
         mapping(address => bool) _votes;
@@ -36,17 +31,17 @@ contract Bridge {
         ValidatorThresholdProposalStatus _status;
     }
 
-    // handler address => number of deposits
+    // originChainHandlerAddress address => number of deposits
     mapping(address => uint256) public _depositCounts;
-    // handler address => depositID => DepositRecord
-    mapping(address => mapping(uint256 => DepositRecord)) public _depositRecords;
-    // originChainID => handler address => depositID => depositProposal
+    // originChainHandlerAddress => depositID => bytes
+    mapping(address => mapping(uint256 => bytes)) public _depositRecords;
+    // originChainID => originChainHandlerAddress => depositID => depositProposal
     mapping(uint256 => mapping(address => mapping(uint256 => DepositProposal))) public _depositProposals;
 
     event ValidatorThresholdProposalCreated(uint indexed proposedValue);
     event ValidatorThresholdProposalVote(Vote vote);
     event ValidatorThresholdChanged(uint indexed newThreshold);
-    event Deposit(address indexed handlerAddress, uint256 indexed depositID);
+    event Deposit(address indexed originChainHandlerAddress, uint256 indexed depositID);
     event DepositProposalCreated(
         uint256 indexed originChainID,
         address indexed originChainHandlerAddress,
@@ -86,24 +81,12 @@ contract Bridge {
         return _validatorThreshold;
     }
 
-    function getCurrentValidatorThresholdProposal() public view returns (ValidatorThresholdProposal memory) {
-        return _currentValidatorThresholdProposal;
+    function getDepositCount(address originChainHandlerAddress) public view returns (uint256) {
+        return _depositCounts[originChainHandlerAddress];
     }
 
-    function getDepositCount(uint originChainID) public view returns (uint256) {
-        return _depositCounts[originChainID];
-    }
-
-    function getDepositRecord(address handlerAddress, uint256 depositID) public view returns (DepositRecord memory) {
-        return _depositRecords[handlerAddress][depositID];
-    }
-
-    function getDepositProposal(
-        uint256 originChainID,
-        address originChainHandlerAddress,
-        uint256 depositID
-    ) public view returns (DepositProposal memory) {
-        return _depositProposals[originChainID][originChainHandlerAddress][depositID];
+    function getDepositRecord(address originChainHandlerAddress, uint256 depositID) public view returns (bytes memory) {
+        return _depositRecords[originChainHandlerAddress][depositID];
     }
 
     function hasVoted(
@@ -116,19 +99,16 @@ contract Bridge {
     }
 
     function deposit(
-        address      handlerAddress,
+        address      originChainHandlerAddress,
         bytes memory data
     ) public {
-        uint depositID = ++_depositCounts[handlerAddress];
+        uint depositID = ++_depositCounts[originChainHandlerAddress];
+        _depositRecords[originChainHandlerAddress][depositID] = data;
 
-        _depositRecords[handlerAddress][depositID] = DepositRecord(
-            data
-        );
-
-        IDepositHandler depositHandler = IDepositHandler(handlerAddress);
+        IDepositHandler depositHandler = IDepositHandler(originChainHandlerAddress);
         depositHandler.deposit(depositID, data);
 
-        emit Deposit(handlerAddress, depositID);
+        emit Deposit(originChainHandlerAddress, depositID);
     }
 
     function createDepositProposal(
@@ -137,24 +117,22 @@ contract Bridge {
         uint256 depositID,
         bytes32 dataHash
     ) public _onlyValidators {
-        DepositProposal storage depositProposal = _depositProposals[originChainID][originChainHandlerAddress][depositID];
-
         require(
-            depositProposal._status == DepositProposalStatus.Inactive ||
-            depositProposal._status == DepositProposalStatus.Denied,
+            _depositProposals[originChainID][originChainHandlerAddress][depositID]._status == DepositProposalStatus.Inactive ||
+            _depositProposals[originChainID][originChainHandlerAddress][depositID]._status == DepositProposalStatus.Denied,
             "proposal is either currently active or has already been passed/transferred"
         );
 
         // If _depositThreshold is set to 1, then auto finalize
         if (_validatorThreshold <= 1) {
-            depositProposal = DepositProposal({
+            _depositProposals[originChainID][originChainHandlerAddress][depositID] = DepositProposal({
                 _dataHash: dataHash,
                 _numYes: 1, // Creator always votes in favour
                 _numNo: 0,
                 _status: DepositProposalStatus.Passed
             });
         } else {
-            depositProposal = DepositProposal({
+            _depositProposals[originChainID][originChainHandlerAddress][depositID] = DepositProposal({
                 _dataHash: dataHash,
                 _numYes: 1, // Creator always votes in favour
                 _numNo: 0,
@@ -163,7 +141,7 @@ contract Bridge {
         }
 
         // Creator always votes in favour
-        depositProposal._votes[msg.sender] = true;
+        _depositProposals[originChainID][originChainHandlerAddress][depositID]._votes[msg.sender] = true;
 
         emit DepositProposalCreated(originChainID, originChainHandlerAddress, depositID, dataHash);
     }
@@ -172,7 +150,7 @@ contract Bridge {
         uint256 originChainID,
         address originChainHandlerAddress,
         uint256 depositID,
-        Vote vote
+        Vote    vote
     ) public _onlyValidators {
         DepositProposal storage depositProposal = _depositProposals[originChainID][originChainHandlerAddress][depositID];
 

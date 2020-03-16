@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity 0.6.4;
 
 import "./interfaces/IValidator.sol";
 import "./helpers/SafeMath.sol";
@@ -59,7 +59,7 @@ contract Validator is IValidator {
         _validatorThreshold = initialValidatorThreshold;
     }
 
-    function isValidator(address validatorAddress) public returns (bool) {
+    function isValidator(address validatorAddress) public override returns (bool) {
         return _validators[validatorAddress];
     }
 
@@ -67,7 +67,7 @@ contract Validator is IValidator {
         return _validatorThreshold;
     }
 
-    function getTotalValidators() public returns (uint) {
+    function getTotalValidators() public override returns (uint) {
         return _totalValidators;
     }
 
@@ -91,7 +91,7 @@ contract Validator is IValidator {
         _voteStatusStrings[uint(validatorProposal._status)]);
     }
 
-    function createValidatorProposal(address proposedAddress, ValidatorActionType action) public _onlyValidators {
+    function createValidatorProposal(address proposedAddress, ValidatorActionType action) public override _onlyValidators {
         require(uint(action) <= 1, "action out of the vote enum range");
         require(action == ValidatorActionType.Remove && _validators[proposedAddress] == true, "address is not a validator");
         require(action == ValidatorActionType.Add && _validators[proposedAddress] == false, "address is currently a validator");
@@ -118,7 +118,7 @@ contract Validator is IValidator {
         emit ValidatorProposalCreated(proposedAddress, action);
     }
 
-    function voteValidatorProposal(address proposedAddress, Vote vote) public _onlyValidators {
+    function voteValidatorProposal(address proposedAddress, Vote vote) public override _onlyValidators {
         require(_validatorProposals[proposedAddress]._status == VoteStatus.Active, "there is no active proposal for this address");
         require(!_validatorProposals[proposedAddress]._votes[msg.sender], "validator has already voted");
         require(uint(vote) <= 1, "vote out of the vote enum range");
@@ -149,7 +149,7 @@ contract Validator is IValidator {
         }
     }
 
-    function createValidatorThresholdProposal(uint proposedValue) public _onlyValidators {
+    function createValidatorThresholdProposal(uint proposedValue) public override _onlyValidators {
         require(_currentValidatorThresholdProposal._status == VoteStatus.Inactive, "a proposal is currently active");
         require(proposedValue <= _totalValidators, "proposed value cannot be greater than the total number of validators");
 
@@ -170,7 +170,7 @@ contract Validator is IValidator {
         emit ValidatorThresholdProposalCreated(proposedValue);
     }
 
-    function voteValidatorThresholdProposal(Vote vote) public _onlyValidators {
+    function voteValidatorThresholdProposal(Vote vote) public override _onlyValidators {
         require(_currentValidatorThresholdProposal._status == VoteStatus.Active, "no proposal is currently active");
         require(!_currentValidatorThresholdProposal._votes[msg.sender], "validator has already voted");
         require(uint(vote) <= 1, "vote out of the vote enum range");

@@ -2,19 +2,18 @@ pragma solidity 0.6.4;
 pragma experimental ABIEncoderV2;
 
 import "../ERC20Safe.sol";
-import "../erc/ERC20/ERC20Mintable.sol";
 import "../interfaces/IDepositHandler.sol";
 
-contract ERC20Handler is IDepositHandler, ERC20Safe {
+contract GenericHandler is IDepositHandler, ERC20Safe {
     address public _bridgeAddress;
 
     struct DepositRecord {
         address _originChainTokenAddress;
-        uint    _destinationChainID;
+        uint256 _destinationChainID;
         address _destinationChainHandlerAddress;
         address _destinationRecipientAddress;
         address _depositer;
-        uint    _amount;
+        bytes   _metaData;
     }
 
     // DepositID => Deposit Record
@@ -34,12 +33,12 @@ contract ERC20Handler is IDepositHandler, ERC20Safe {
     }
 
     function deposit(uint256 depositID, bytes memory data) public override _onlyBridge {
-        address originChainTokenAddress;
-        uint256 destinationChainID;
-        address destinationChainHandlerAddress;
-        address destinationRecipientAddress;
-        address depositer;
-        uint256 amount;
+        address       originChainTokenAddress;
+        uint256       destinationChainID;
+        address       destinationChainHandlerAddress;
+        address       destinationRecipientAddress;
+        address       depositer;
+        bytes memory  metaData;
 
         assembly {
             originChainTokenAddress        := mload(add(data, 0x20))
@@ -47,10 +46,15 @@ contract ERC20Handler is IDepositHandler, ERC20Safe {
             destinationChainHandlerAddress := mload(add(data, 0x60))
             destinationRecipientAddress    := mload(add(data, 0x80))
             depositer                      := mload(add(data, 0xA0))
-            amount                         := mload(add(data, 0xC0))
+            metaData                       := mload(add(data, 0xC0))
+            let lenextra := mload(add(0x80, data))
+            mstore(0x40, add(0x60, add(metaData, lenextra)))
+                calldatacopy(
+                metaData,                  // copy to extra
+                0xA0,                      // copy from calldata @ 0xA0
+                sub(calldatasize(), 0xA0)  // copy size (calldatasize - 0xA0)
+            )
         }
-
-        lockERC20(originChainTokenAddress, depositer, address(this), amount);
 
         _depositRecords[depositID] = DepositRecord(
             originChainTokenAddress,
@@ -58,26 +62,10 @@ contract ERC20Handler is IDepositHandler, ERC20Safe {
             destinationChainHandlerAddress,
             destinationRecipientAddress,
             depositer,
-            amount
+            metaData
         );
     }
 
-    function executeDeposit(bytes memory data) public override {
-        address destinationChainTokenAddress;
-        address destinationRecipientAddress;
-        uint256 amount;
-
-        assembly {
-            destinationChainTokenAddress := mload(add(data, 0x20))
-            destinationRecipientAddress  := mload(add(data, 0x40))
-            amount                       := mload(add(data, 0x60))
-        }
-
-        ERC20Mintable erc20 = ERC20Mintable(destinationChainTokenAddress);
-        erc20.mint(destinationRecipientAddress, amount);
-    }
-
-    function withdraw(address tokenAddress, address recipient, uint amount) public _onlyBridge {
-        releaseERC20(tokenAddress, address(this), recipient, amount);
-    }
+    // Todo: Implement example of generic deposit
+    function executeDeposit(bytes memory data) public override {}
 }
