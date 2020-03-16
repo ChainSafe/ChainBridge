@@ -9,6 +9,8 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	bridge "github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
 	log "github.com/ChainSafe/log15"
@@ -27,7 +29,14 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	conn := NewConnection(cfg)
+	kpI, err := keystore.KeypairFromAddress(cfg.from, keystore.EthChain, cfg.keystorePath, false)
+	if err != nil {
+		return nil, err
+	}
+
+	kp, _ := kpI.(*secp256k1.Keypair)
+
+	conn := NewConnection(cfg, kp)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err

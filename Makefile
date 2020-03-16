@@ -104,3 +104,7 @@ license:
 	go get -u github.com/google/addlicense
 	@echo "  >  \033[32mAdding license headers...\033[0m "
 	addlicense -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .
+
+install-subkey:
+	curl https://getsubstrate.io -sSf | bash -s -- --fast
+	cargo install --force --git https://github.com/paritytech/substrate subkey

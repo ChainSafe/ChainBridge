@@ -5,29 +5,7 @@ package ethereum
 
 import (
 	"testing"
-
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-
-	ethcmn "github.com/ethereum/go-ethereum/common"
 )
-
-func newLocalConnection(t *testing.T, emitter ethcmn.Address) *Connection {
-
-	cfg := &Config{
-		endpoint: TestEndpoint,
-		contract: TestCentrifugeContractAddress,
-		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-		from:     keystore.AliceKey,
-	}
-
-	conn := NewConnection(cfg)
-	err := conn.Connect()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return conn
-}
 
 // TODO: See TestListenerAndWriter
 // test handler function for events
