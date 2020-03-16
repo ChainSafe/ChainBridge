@@ -18,8 +18,8 @@ import (
 )
 
 const TestEndpoint = "ws://localhost:8545"
-const TestPrivateKey = "39a9ea0dce63086c64a80ce045b796bebed2006554e3992d92601515c7b19807"
-const TestPrivateKey2 = "5de3b6992e5ad40dc346cfd3b00595f58bd16ea38b43511e7a00a2a60d380225"
+
+var Alice = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair)
 
 var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4")
 var TestAddress2 = ethcmn.HexToAddress("0a4c3620AF8f3F182e203609f90f7133e018Bf5D")
@@ -29,22 +29,30 @@ var TestEmitterContractAddress = ethcmn.HexToAddress("60F9363AaF4993ABA818D5438d
 
 const TestTimeout = time.Second * 10
 
-func TestConnect(t *testing.T) {
+func newLocalConnection(t *testing.T) *Connection {
+
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		from:     "ethereum",
-		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+		contract: TestCentrifugeContractAddress,
+		from:     keystore.AliceKey,
 	}
-	conn := NewConnection(cfg)
+
+	conn := NewConnection(cfg, Alice)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	return conn
+}
+
+func TestConnect(t *testing.T) {
+	conn := newLocalConnection(t)
 	conn.Close()
 }
 
 func TestSendTx(t *testing.T) {
-	conn := newLocalConnection(t, ethcmn.HexToAddress("0x0"))
+	conn := newLocalConnection(t)
 	defer conn.Close()
 
 	currBlock, err := conn.LatestBlock()
@@ -52,7 +60,7 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
+	TestAddr := Alice.Address()
 	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
 	if err != nil {
 		t.Fatal(err)
@@ -82,11 +90,10 @@ func TestSubscribe(t *testing.T) {
 	cfg := &Config{
 		id:       msg.EthereumId,
 		endpoint: TestEndpoint,
-		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-		from:     "ethereum",
+		from:     keystore.AliceKey,
 	}
 
-	conn := NewConnection(cfg)
+	conn := NewConnection(cfg, Alice)
 	l := NewListener(conn, cfg)
 	err := conn.Connect()
 	if err != nil {

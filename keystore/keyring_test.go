@@ -5,32 +5,34 @@ package keystore
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
 )
 
 func TestByteLength(t *testing.T) {
 	res := padWithZeros([]byte("Alice"), 32)
-	if len(res) != 32 {
-		t.Errorf("Length is incorrect.")
+
+	exp := append([]byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, []byte("Alice")...)
+	if !bytes.Equal(exp, res) {
+		t.Fatalf("Fail. Got: %#v\n\tExpected: %#v\n", res, exp)
 	}
 }
 func TestInsecureAddresses(t *testing.T) {
-	tks := NewTestKeystore(AliceKey)
-	tkp, err := tks.insecureKeypairFromAddress(AliceKey, ETHChain)
+	tkp, err := insecureKeypairFromAddress(AliceKey, EthChain)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if !bytes.Equal(tkp.Private().Encode(), TestKeyRing.EthereumKeys[AliceKey].Private().Encode()) {
+	if !reflect.DeepEqual(tkp, TestKeyRing.EthereumKeys[AliceKey]) {
 		t.Fatalf("Key is not being returned correctly")
 	}
 
-	tkp, err = tks.insecureKeypairFromAddress(AliceKey, CTFGChain)
+	tkp, err = insecureKeypairFromAddress(AliceKey, SubChain)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if !bytes.Equal(tkp.Private().Encode(), TestKeyRing.CentrifugeKeys[AliceKey].Private().Encode()) {
+	if !reflect.DeepEqual(tkp, TestKeyRing.CentrifugeKeys[AliceKey]) {
 		t.Fatalf("Key is not being returned correctly")
 	}
 

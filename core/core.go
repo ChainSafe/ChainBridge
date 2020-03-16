@@ -12,21 +12,18 @@ import (
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
 
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	"github.com/ChainSafe/log15"
 )
 
 type Core struct {
 	registry map[msg.ChainId]Chain
 	route    *router.Router
-	ks       *keystore.Keystore
 }
 
-func NewCore(ks *keystore.Keystore) *Core {
+func NewCore() *Core {
 	return &Core{
 		registry: make(map[msg.ChainId]Chain),
 		route:    router.NewRouter(),
-		ks:       ks,
 	}
 }
 
