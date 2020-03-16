@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
 )
 
 func TestEncryptAndDecrypt(t *testing.T) {
@@ -33,32 +34,32 @@ func TestEncryptAndDecrypt(t *testing.T) {
 	}
 }
 
-func TestEncryptAndDecryptPrivateKey(t *testing.T) {
+func TestEncryptAndDecryptKeypair(t *testing.T) {
 	buf := make([]byte, 32)
 	_, err := rand.Read(buf)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	priv, err := secp256k1.NewPrivateKey(buf)
+	kp, err := secp256k1.NewKeypairFromPrivateKey(buf)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	password := []byte("noot")
 
-	data, err := EncryptPrivateKey(priv, password)
+	data, err := EncryptKeypair(kp, password)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	res, err := DecryptPrivateKey(data, password, "secp256k1")
+	res, err := DecryptKeypair(kp.PublicKey(), data, password, "secp256k1")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if !reflect.DeepEqual(priv, res) {
-		t.Fatalf("Fail: got %v expected %v", res, priv)
+	if !reflect.DeepEqual(kp, res) {
+		t.Fatalf("Fail: got %#v expected %#v", res, kp)
 	}
 }
 
@@ -87,9 +88,8 @@ func TestEncryptAndDecryptFromFile_Secp256k1(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	priv := kp.Private()
 
-	err = EncryptAndWriteToFile(file, priv, password)
+	err = EncryptAndWriteToFile(file, kp, password)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,7 +99,32 @@ func TestEncryptAndDecryptFromFile_Secp256k1(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !bytes.Equal(priv.Encode(), res.Encode()) {
-		t.Fatalf("Fail: got %v expected %v", res, priv)
+	if !bytes.Equal(kp.Encode(), res.Encode()) {
+		t.Fatalf("Fail: got %#v expected %#v", res, kp)
+	}
+}
+
+func TestEncryptAndDecryptFromFile_Sr25519(t *testing.T) {
+	password := []byte("ansermino")
+	file, fp := createTestFile(t)
+	defer os.Remove(fp)
+
+	kp, err := sr25519.NewKeypairFromSeed("//seed")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = EncryptAndWriteToFile(file, kp, password)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := ReadFromFileAndDecrypt(fp, password)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !bytes.Equal(kp.Encode(), res.Encode()) {
+		t.Fatalf("Fail: got %#v expected %#v", res, kp)
 	}
 }

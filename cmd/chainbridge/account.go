@@ -4,7 +4,6 @@
 package main
 
 import (
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,11 +11,9 @@ import (
 	"path/filepath"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/ed25519"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
-
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -54,8 +51,6 @@ func handleGenerateCmd(ctx *cli.Context, dHandler *dataHandler) error {
 	keytype := crypto.Secp256k1Type
 	if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
 		keytype = crypto.Sr25519Type
-	} else if flagtype := ctx.Bool(Ed25519Flag.Name); flagtype {
-		keytype = crypto.Ed25519Type
 	} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
 		keytype = crypto.Secp256k1Type
 	}
@@ -216,15 +211,16 @@ func generateKeypair(keytype, datadir string, password []byte, privateKey string
 
 	if keytype == crypto.Sr25519Type {
 		// generate sr25519 keys
-		kp, err = sr25519.GenerateKeypair()
-		if err != nil {
-			return "", fmt.Errorf("could not generate sr25519 keypair: %s", err)
-		}
-	} else if keytype == crypto.Ed25519Type {
-		// generate ed25519 keys
-		kp, err = ed25519.GenerateKeypair()
-		if err != nil {
-			return "", fmt.Errorf("could not generate ed25519 keypair: %s", err)
+		if privateKey != "" {
+			kp, err = sr25519.NewKeypairFromSeed(privateKey)
+			if err != nil {
+				return "", fmt.Errorf("could not generate secp256k1 keypair from given string: %s", err)
+			}
+		} else {
+			kp, err = sr25519.GenerateKeypair()
+			if err != nil {
+				return "", fmt.Errorf("could not generate sr25519 keypair: %s", err)
+			}
 		}
 	} else if keytype == crypto.Secp256k1Type {
 		// generate secp256k1 keys
@@ -239,6 +235,8 @@ func generateKeypair(keytype, datadir string, password []byte, privateKey string
 				return "", fmt.Errorf("could not generate secp256k1 keypair: %s", err)
 			}
 		}
+	} else {
+		return "", fmt.Errorf("invalid key type: %s", keytype)
 	}
 
 	keystorepath, err := keystoreDir(datadir)
@@ -246,8 +244,7 @@ func generateKeypair(keytype, datadir string, password []byte, privateKey string
 		return "", fmt.Errorf("could not get keystore directory: %s", err)
 	}
 
-	pub := hex.EncodeToString(kp.Public().Encode())
-	fp, err := filepath.Abs(keystorepath + "/" + pub + ".key")
+	fp, err := filepath.Abs(keystorepath + "/" + kp.PublicKey() + ".key")
 	if err != nil {
 		return "", fmt.Errorf("invalid filepath: %s", err)
 	}
@@ -264,12 +261,12 @@ func generateKeypair(keytype, datadir string, password []byte, privateKey string
 		}
 	}()
 
-	err = keystore.EncryptAndWriteToFile(file, kp.Private(), password)
+	err = keystore.EncryptAndWriteToFile(file, kp, password)
 	if err != nil {
 		return "", fmt.Errorf("could not write key to file: %s", err)
 	}
 
-	log.Info("key generated", "public key", pub, "type", keytype, "file", fp)
+	log.Info("key generated", "public key", kp.PublicKey(), "type", keytype, "file", fp)
 	return fp, nil
 }
 
