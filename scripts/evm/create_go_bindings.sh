@@ -40,7 +40,9 @@ do
     
     # Capture build temp 
     bytecode=`cat ./build/tmp/runtime/Bridge.bin`
-    variable="var RuntimeBytecode = '${bytecode}'"
+    # prefix="var RuntimeBytecode = "
+    # variable=$prefix"$bytecode"
+    variable="var RuntimeBytecode = \"${bytecode}\""
     echo $variable >> $GO_DIR/$value/$value.go
 done
 
