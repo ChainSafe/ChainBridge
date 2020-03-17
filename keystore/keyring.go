@@ -37,18 +37,17 @@ type TestKeyRingHolder struct {
 type KeyRing map[string]crypto.Keypair
 
 type ETHKeyRing map[string]*secp256k1.Keypair
-
 type SUBKeyRing map[string]*sr25519.Keypair
 
 // Init function to create a keyRing that can be accessed anywhere without having to recreate the data
 func init() {
 	TestKeyRing = &TestKeyRingHolder{
-		EthereumKeys:   convertToETH(createKeyRing(EthChain)),
-		CentrifugeKeys: convertToSUB(createKeyRing(SubChain)),
+		EthereumKeys:   makeETHRing(createKeyRing(EthChain)),
+		CentrifugeKeys: makeSUBRing(createKeyRing(SubChain)),
 	}
 }
 
-func convertToETH(k KeyRing) ETHKeyRing {
+func makeETHRing(k KeyRing) ETHKeyRing {
 	ring := map[string]*secp256k1.Keypair{}
 	for key, pair := range k {
 		ring[key] = pair.(*secp256k1.Keypair)
@@ -57,7 +56,7 @@ func convertToETH(k KeyRing) ETHKeyRing {
 	return ring
 }
 
-func convertToSUB(k KeyRing) SUBKeyRing {
+func makeSUBRing(k KeyRing) SUBKeyRing {
 	ring := map[string]*sr25519.Keypair{}
 	for key, pair := range k {
 		ring[key] = pair.(*sr25519.Keypair)

@@ -12,8 +12,8 @@ import (
 )
 
 var deployCommand = cli.Command{
-	Action:   handleDeployCmd,
-	Name:     "deploy",
+	Action:   handleGanacheCmd,
+	Name:     "ganache",
 	Usage:    "deploys test ganache",
 	Category: "TESTING",
 	Flags:    DeployFlags,
@@ -40,7 +40,7 @@ type deployArgs struct {
 	accounts []string
 }
 
-func newdeployArgs() *deployArgs {
+func newDeployArgs() *deployArgs {
 	return &deployArgs{
 		accounts: BaseAccounts,
 		port:     "8545",
@@ -49,10 +49,10 @@ func newdeployArgs() *deployArgs {
 	}
 }
 
-func handleDeployCmd(ctx *cli.Context) error {
+func handleGanacheCmd(ctx *cli.Context) error {
 	log.Info("Starting Ganache")
 
-	args := newdeployArgs()
+	args := newDeployArgs()
 
 	args.port = ctx.String(PortFlag.Name)
 	args.amount = ctx.String(AmountFlag.Name)
@@ -67,7 +67,7 @@ func handleDeployCmd(ctx *cli.Context) error {
 		}
 	}
 
-	err := RunGanache(args)
+	err := runGanache(args)
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func (a *deployArgs) ConvertToStringArray() []string {
 }
 
 // RunGanache takes an input string and the gopath and run ganache-cli with the given inputs
-func RunGanache(args *deployArgs) error {
+func runGanache(args *deployArgs) error {
 
 	log.Info("Running npm install")
 	command := exec.Command("npm", "install")
@@ -108,7 +108,7 @@ func RunGanache(args *deployArgs) error {
 	command.Dir = "./on-chain/evm-contracts"
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
-	err = command.Start()
+	err = command.Run()
 	if err != nil {
 		return err
 	}
