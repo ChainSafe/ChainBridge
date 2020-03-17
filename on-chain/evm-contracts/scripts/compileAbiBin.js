@@ -9,6 +9,8 @@ const rimraf = require("rimraf");
 const BUILD_PATH = "./bindings/";
 const ABI_PATH = BUILD_PATH + "abi/"
 const BIN_PATH = BUILD_PATH + "bin/"
+const RUNTIME_PATH = BUILD_PATH + "runtime/"
+
 // Loop through all the files in the temp directory
 fs.readdir("./build/contracts", function (err, files) {
     if (err) {
@@ -27,6 +29,9 @@ fs.readdir("./build/contracts", function (err, files) {
     if (!fs.existsSync(BIN_PATH)) {
         fs.mkdirSync(BIN_PATH);
     }
+    if (!fs.existsSync(RUNTIME_PATH)) {
+        fs.mkdirSync(RUNTIME_PATH);
+    }
     
 
     files.forEach(function (file, index) {
@@ -34,10 +39,12 @@ fs.readdir("./build/contracts", function (err, files) {
         const path = './build/contracts/' + file
         let rawdata = fs.readFileSync(path);
         let contract = JSON.parse(rawdata);
-        let { abi, bytecode } = contract;
+        let { abi, bytecode, deployedBytecode } = contract;
         bytecode = bytecode.substring(2);
+
         if (abi.length === 0) return;
-        fs.writeFileSync(ABI_PATH + basename + ".abi"  , JSON.stringify(abi))
-        fs.writeFileSync(BIN_PATH + basename + ".bin", bytecode)
+        fs.writeFileSync(ABI_PATH + basename + ".abi"  , JSON.stringify(abi));
+        fs.writeFileSync(BIN_PATH + basename + ".bin", bytecode);
+        fs.writeFileSync(RUNTIME_PATH + basename + ".bin", deployedBytecode);
     });
 });

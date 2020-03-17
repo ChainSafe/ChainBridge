@@ -7,6 +7,18 @@
 # Chain configs
 For chain specific configs, please check [this subdirectory](./chain-documents)
 
+## Dependencies
+
+- [Subkey](https://github.com/paritytech/substrate): 
+Required for substrate key management.
+
+  `make install-subkey`
+
+- [abigen](https://geth.ethereum.org/docs/dapp/native-bindings):
+Builds go bindings for Solidity contract interactions.
+
+  See [Installation Instructions](https://geth.ethereum.org/docs/install-and-build/installing-geth).
+
 ## Run the bridge
  
 `make run`
@@ -127,3 +139,22 @@ Truffle tests can be run with just:
 ```
 make truffle_test
 ```
+
+## Simulations
+If you have a bridge instance running, and access to an ethereum node, transactions can be run that simulate different types of transfer events. These scripts can be found at `./on-chain/evm-contracts/scripts/cli`. 
+
+### Running the simulations
+1. `./on-chain/evm-contracts`
+2. Run one of the following:
+###### Deploy contracts
+`node ./scripts/cli/index.js -p <port_number>`
+###### Mint tokens
+`node ./scripts/cli/index.js --test-only --mint-erc20 --value <amount of token>`
+###### ERC transfer (note must mint tokens first) 
+`node ./scripts/cli/index.js --test-only --deposit-erc --value <amount_to_deposit> --dest <destination_chain_id>`
+###### NFT transfer
+// Outdated
+
+Notes: 
+- `--test-only` ensures we don't re-deploy the contracts (this must be refactored out in favor of commands)
+- `--dest` allows you to specify which chain_id you want to the transfer to go to 

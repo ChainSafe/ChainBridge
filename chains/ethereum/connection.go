@@ -9,9 +9,7 @@ import (
 	"sync"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/crypto"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	"github.com/ChainSafe/log15"
 
 	eth "github.com/ethereum/go-ethereum"
@@ -39,28 +37,24 @@ type Connection struct {
 	ctx       context.Context
 	conn      *ethclient.Client
 	signer    ethtypes.Signer
-	kp        crypto.Keypair
+	kp        *secp256k1.Keypair
 	nonceLock sync.Mutex
 }
 
-func NewConnection(cfg *Config) *Connection {
+func NewConnection(cfg *Config, kp *secp256k1.Keypair) *Connection {
 	signer := ethtypes.HomesteadSigner{}
 	return &Connection{
 		ctx: context.Background(),
 		cfg: *cfg,
 		// TODO: add network to use to config
 		signer:    signer,
+		kp:        kp,
 		nonceLock: sync.Mutex{},
 	}
 }
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	kp, err := c.cfg.keystore.KeypairFromAddress(c.cfg.from, keystore.ETHChain)
-	if err != nil {
-		return err
-	}
-	c.kp = kp
 	log15.Info("Connecting to ethereum...", "url", c.cfg.endpoint)
 	rpcClient, err := rpc.DialWebsocket(c.ctx, c.cfg.endpoint, "/ws")
 	if err != nil {
@@ -106,7 +100,7 @@ func (c *Connection) SubmitTx(data []byte) error {
 	log15.Debug("Submitting new tx", "to", tx.To(), "nonce", tx.Nonce(), "value", tx.Value(),
 		"gasLimit", tx.Gas(), "gasPrice", tx.GasPrice(), "calldata", tx.Data())
 
-	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.Private().(*secp256k1.PrivateKey).Key())
+	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.PrivateKey())
 	if err != nil {
 		log15.Trace("Signing tx failed", "err", err)
 		return err
@@ -142,15 +136,14 @@ func (c *Connection) LatestBlock() (*ethtypes.Block, error) {
 
 // newTransactOpts builds the TransactOpts for the connection's keypair.
 func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, *Nonce, error) {
-	pub := c.kp.Public().(*secp256k1.PublicKey).Key()
-	address := ethcrypto.PubkeyToAddress(pub)
+	privateKey := c.kp.PrivateKey()
+	address := ethcrypto.PubkeyToAddress(privateKey.PublicKey)
 
 	nonce, err := c.PendingNonceAt(address)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	privateKey := c.kp.Private().(*secp256k1.PrivateKey).Key()
 	auth := bind.NewKeyedTransactor(privateKey)
 	auth.Nonce = big.NewInt(int64(nonce.nonce))
 	auth.Value = big.NewInt(0)               // in wei

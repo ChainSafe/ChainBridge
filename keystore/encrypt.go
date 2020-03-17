@@ -11,15 +11,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 	"syscall"
 
 	"github.com/ChainSafe/ChainBridgeV2/crypto"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/ed25519"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
+	sr25519 "github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -63,63 +60,26 @@ func Encrypt(msg, password []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-// Decrypt uses AES to decrypt ciphertext with the symmetric key deterministically created from `password`
-func Decrypt(data, password []byte) ([]byte, error) {
-	gcm, err := gcmFromPassphrase(password)
-	if err != nil {
-		return nil, err
-	}
-
-	nonceSize := gcm.NonceSize()
-	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
-	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return plaintext, nil
-}
-
-// EncryptPrivateKey uses AES to encrypt an encoded `crypto.PrivateKey` with a symmetric key deterministically
+// EncryptKeypair uses AES to encrypt an encoded `crypto.Keypair` with a symmetric key deterministically
 // created from `password`
-func EncryptPrivateKey(pk crypto.PrivateKey, password []byte) ([]byte, error) {
-	return Encrypt(pk.Encode(), password)
-}
-
-// DecryptPrivateKey uses AES to decrypt the ciphertext into a `crypto.PrivateKey` with a symmetric key deterministically
-// created from `password`
-func DecryptPrivateKey(data, password []byte, keytype string) (crypto.PrivateKey, error) {
-	pk, err := Decrypt(data, password)
-	if err != nil {
-		return nil, err
-	}
-
-	return DecodePrivateKey(pk, keytype)
+func EncryptKeypair(kp crypto.Keypair, password []byte) ([]byte, error) {
+	return Encrypt(kp.Encode(), password)
 }
 
 // EncryptAndWriteToFile encrypts the `crypto.PrivateKey` using the password and saves it to the specified file
-func EncryptAndWriteToFile(file *os.File, pk crypto.PrivateKey, password []byte) error {
-	ciphertext, err := EncryptPrivateKey(pk, password)
+func EncryptAndWriteToFile(file *os.File, kp crypto.Keypair, password []byte) error {
+	ciphertext, err := EncryptKeypair(kp, password)
 	if err != nil {
 		return err
 	}
 
-	pub, err := pk.Public()
-	if err != nil {
-		return fmt.Errorf("cannot get public key: %s", err)
-	}
-
 	keytype := ""
 
-	if _, ok := pk.(*ed25519.PrivateKey); ok {
-		keytype = crypto.Ed25519Type
-	}
-
-	if _, ok := pk.(*sr25519.PrivateKey); ok {
+	if _, ok := kp.(*sr25519.Keypair); ok {
 		keytype = crypto.Sr25519Type
 	}
 
-	if _, ok := pk.(*secp256k1.PrivateKey); ok {
+	if _, ok := kp.(*secp256k1.Keypair); ok {
 		keytype = crypto.Secp256k1Type
 	}
 
@@ -129,7 +89,7 @@ func EncryptAndWriteToFile(file *os.File, pk crypto.PrivateKey, password []byte)
 
 	keydata := &EncryptedKeystore{
 		Type:       keytype,
-		PublicKey:  pub.Hex(),
+		PublicKey:  kp.PublicKey(),
 		Ciphertext: ciphertext,
 	}
 
@@ -140,27 +100,6 @@ func EncryptAndWriteToFile(file *os.File, pk crypto.PrivateKey, password []byte)
 
 	_, err = file.Write(append(data, byte('\n')))
 	return err
-}
-
-// ReadFromFileAndDecrypt reads ciphertext from a file and decrypts it using the password into a `crypto.PrivateKey`
-func ReadFromFileAndDecrypt(filename string, password []byte) (crypto.PrivateKey, error) {
-	fp, err := filepath.Abs(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	data, err := ioutil.ReadFile(filepath.Clean(fp))
-	if err != nil {
-		return nil, err
-	}
-
-	keydata := new(EncryptedKeystore)
-	err = json.Unmarshal(data, keydata)
-	if err != nil {
-		return nil, err
-	}
-
-	return DecryptPrivateKey(keydata.Ciphertext, password, keydata.Type)
 }
 
 // prompt user to enter password for encrypted keystore

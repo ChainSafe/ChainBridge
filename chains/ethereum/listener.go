@@ -53,16 +53,16 @@ func (l *Listener) SetRouter(r chains.Router) {
 func (l *Listener) GetSubscriptions() []*Subscription {
 	return []*Subscription{
 		{
-			signature: ErcTransfer,
-			handler:   l.handleTransferEvent,
+			signature: DepositedErc20Signature,
+			handler:   l.handleErc20DepositedEvent,
 		},
+		// {
+		// 	signature: NftTransfer,
+		// 	handler:   l.handleTransferEvent,
+		// },
 		{
-			signature: NftTransfer,
-			handler:   l.handleTransferEvent,
-		},
-		{
-			signature: DepositAsset,
-			handler:   l.handleTestDeposit,
+			signature: DepositProposalCreatedSignature,
+			handler:   l.handleVoteEvent,
 		},
 	}
 
@@ -116,7 +116,6 @@ func (l *Listener) watchEvent(eventSubscription *ActiveSubscription, handler fun
 	for {
 		select {
 		case evt := <-eventSubscription.ch:
-			log15.Trace("Event found")
 			m := handler(evt)
 			err := l.router.Send(m)
 			if err != nil {
