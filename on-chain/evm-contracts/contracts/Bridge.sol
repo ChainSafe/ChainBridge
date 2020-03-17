@@ -19,15 +19,15 @@ contract Bridge {
     struct DepositProposal {
         bytes32                  _dataHash;
         mapping(address => bool) _votes;
-        uint8                    _numYes;
-        uint8                    _numNo;
+        uint256                  _numYes;
+        uint256                  _numNo;
         DepositProposalStatus    _status;
     }
     struct ValidatorThresholdProposal {
         uint256                          _proposedValue;
         mapping(address => bool)         _votes;
-        uint8                            _numYes;
-        uint8                            _numNo;
+        uint256                          _numYes;
+        uint256                          _numNo;
         ValidatorThresholdProposalStatus _status;
     }
 
