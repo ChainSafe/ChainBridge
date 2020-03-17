@@ -77,18 +77,6 @@ contract Bridge {
         _validatorThreshold = initialValidatorThreshold;
     }
 
-    function getValidatorThreshold() public view returns (uint256) {
-        return _validatorThreshold;
-    }
-
-    function getDepositCount(address originChainHandlerAddress) public view returns (uint256) {
-        return _depositCounts[originChainHandlerAddress];
-    }
-
-    function getDepositRecord(address originChainHandlerAddress, uint256 depositID) public view returns (bytes memory) {
-        return _depositRecords[originChainHandlerAddress][depositID];
-    }
-
     function hasVoted(
         uint256 originChainID,
         address originChainHandlerAddress,
