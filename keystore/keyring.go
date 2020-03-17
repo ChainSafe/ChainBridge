@@ -29,19 +29,41 @@ var TestKeyRing *TestKeyRingHolder
 
 // TestKeyStore is a struct that holds a Keystore of all the test keys
 type TestKeyRingHolder struct {
-	EthereumKeys   KeyRing
-	CentrifugeKeys KeyRing
+	EthereumKeys   ETHKeyRing
+	CentrifugeKeys SUBKeyRing
 }
 
 // KeyRing holds the keypair related to a specfic keypair type
 type KeyRing map[string]crypto.Keypair
 
+type ETHKeyRing map[string]*secp256k1.Keypair
+
+type SUBKeyRing map[string]*sr25519.Keypair
+
 // Init function to create a keyRing that can be accessed anywhere without having to recreate the data
 func init() {
 	TestKeyRing = &TestKeyRingHolder{
-		EthereumKeys:   createKeyRing(EthChain),
-		CentrifugeKeys: createKeyRing(SubChain),
+		EthereumKeys:   convertToETH(createKeyRing(EthChain)),
+		CentrifugeKeys: convertToSUB(createKeyRing(SubChain)),
 	}
+}
+
+func convertToETH(k KeyRing) ETHKeyRing {
+	ring := map[string]*secp256k1.Keypair{}
+	for key, pair := range k {
+		ring[key] = pair.(*secp256k1.Keypair)
+	}
+
+	return ring
+}
+
+func convertToSUB(k KeyRing) SUBKeyRing {
+	ring := map[string]*sr25519.Keypair{}
+	for key, pair := range k {
+		ring[key] = pair.(*sr25519.Keypair)
+	}
+
+	return ring
 }
 
 // padWithZeros adds on extra 0 bytes to make a byte array of a specified length
