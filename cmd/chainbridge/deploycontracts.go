@@ -137,7 +137,7 @@ func updateNonce(auth *bind.TransactOpts, client *ethclient.Client, deployAddres
 
 	newNonce, err := client.PendingNonceAt(context.Background(), deployAddress)
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("error fetching latest nonce")
 		return nil, err
 	}
 
@@ -151,33 +151,32 @@ func accountSetUp(port string, validators int, deployPK string) (*ethclient.Clie
 
 	client, err := ethclient.Dial("http://localhost:" + port)
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("error connecting to client")
 		return nil, nil, ZERO_ADDRESS, nil, err
 	}
 
 	privateKey, err := crypto.HexToECDSA(deployPK)
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("error casting private key to ECDSA")
 		return nil, nil, ZERO_ADDRESS, nil, err
 	}
 
 	publicKey := privateKey.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
 	if !ok {
-		log.Error(err.Error())
+		log.Error("error casting public key to EDCSA")
 		return nil, nil, ZERO_ADDRESS, nil, err
 	}
 
 	deployAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
 	nonce, err := client.PendingNonceAt(context.Background(), deployAddress)
 	if err != nil {
-		log.Error(err.Error())
 		return nil, nil, ZERO_ADDRESS, nil, err
 	}
 
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("error fetching latest gas price")
 		return nil, nil, ZERO_ADDRESS, nil, err
 	}
 
@@ -197,7 +196,6 @@ func deployReceiver(auth *bind.TransactOpts, client *ethclient.Client, validator
 
 	auth, err := updateNonce(auth, client, deployAddress)
 	if err != nil {
-		log.Error("error getting most recent nonce!")
 		return ZERO_ADDRESS, err
 	}
 
@@ -214,7 +212,6 @@ func deployEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddr
 
 	auth, err := updateNonce(auth, client, deployAddress)
 	if err != nil {
-		log.Error("error getting most recent nonce!")
 		return ZERO_ADDRESS, err
 	}
 
@@ -232,7 +229,6 @@ func deployBridgeAsset(auth *bind.TransactOpts, client *ethclient.Client, mc uin
 
 	auth, err := updateNonce(auth, client, deployAddress)
 	if err != nil {
-		log.Error("error getting most recent nonce!")
 		return ZERO_ADDRESS, err
 	}
 
