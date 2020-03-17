@@ -20,11 +20,11 @@ import (
 
 var deployContractsLocalCommand = cli.Command{
 	Action:      parseCommands,
-	Name:        "deploycontractslocal",
+	Name:        "localdeploy",
 	Usage:       "deploys contracts",
 	Category:    "tests",
 	Flags:       deployContractLocalFlags,
-	Description: "\tthe deploycontractslocal command is used to deploy contracts on a local network for testing purposes\n",
+	Description: "\tthe localdeploy command is used to deploy contracts on a local network for testing purposes\n",
 }
 
 var (
