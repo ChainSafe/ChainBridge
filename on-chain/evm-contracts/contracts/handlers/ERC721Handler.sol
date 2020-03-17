@@ -95,11 +95,11 @@ contract ERC721Handler is IDepositHandler, ERC721Safe {
             let lenextra                 := mload(add(0x80, data))
             mstore(0x40, add(0x60, add(metaData, lenextra)))
             
-            // in the calldata
+            // in the calldata the metaData is stored at 0xA4 after accounting for the function signature
             calldatacopy(
                 metaData,                  // copy to metaData
                 0xA4,                      // copy from calldata @ 0xA4
-                sub(calldatasize(), 0xA0)    // copy size (calldatasize - 0xA0)
+                sub(calldatasize(), 0xA4)    // copy size (calldatasize - 0xA0)
             )
         }
 
