@@ -14,7 +14,6 @@ import (
 	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
-	simpleEmitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
 	log "github.com/ChainSafe/log15"
 )
 
@@ -83,48 +82,42 @@ func parseCommands(ctx *cli.Context) error {
 		deployPK = DEPLOYER_PRIV_KEY
 	}
 
-	recieverAddr, emitterAddr, simpleEmitterAddr, bridgeAssetAddr, err := deployContractsLocal(deployPK, port, validators, big.NewInt(int64(validatorThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount))
+	recieverAddr, emitterAddr, bridgeAssetAddr, err := deployContractsLocal(deployPK, port, validators, big.NewInt(int64(validatorThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount))
 	if err != nil {
 		return err
 	}
 
 	log.Info("Reciever Contract Deployed at: " + recieverAddr.Hex())
 	log.Info("Emitter Contract Deployed at: " + emitterAddr.Hex())
-	log.Info("Simple Emitter Contract Deployed at: " + simpleEmitterAddr.Hex())
 	log.Info("Bridge Asset Contract Deployed at: " + bridgeAssetAddr.Hex())
 
 	return nil
 }
 
-func deployContractsLocal(deployPK string, port string, validators int, validatorThreshold *big.Int, depositThreshold *big.Int, minCount uint8) (common.Address, common.Address, common.Address, common.Address, error) {
+func deployContractsLocal(deployPK string, port string, validators int, validatorThreshold *big.Int, depositThreshold *big.Int, minCount uint8) (common.Address, common.Address, common.Address, error) {
 
 	client, auth, deployAddress, validatorAddresses, err := accountSetUp(port, validators, deployPK)
 	if err != nil {
 		log.Error(err.Error())
-		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
 	}
 
 	recieverAddr, err := deployReceiver(auth, client, validatorAddresses, depositThreshold, validatorThreshold, deployAddress)
 	if err != nil {
-		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
 	}
 
 	emitterAddr, err := deployEmitter(auth, client, deployAddress)
 	if err != nil {
-		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
-	}
-
-	simpleEmitterAddr, err := deploySimpleEmitter(auth, client, deployAddress)
-	if err != nil {
-		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
 	}
 
 	bridgeAssetAddr, err := deployBridgeAsset(auth, client, minCount, deployAddress)
 	if err != nil {
-		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
 	}
 
-	return recieverAddr, emitterAddr, simpleEmitterAddr, bridgeAssetAddr, nil
+	return recieverAddr, emitterAddr, bridgeAssetAddr, nil
 
 }
 
@@ -233,23 +226,6 @@ func deployEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddr
 
 	return emitterAddr, nil
 
-}
-
-func deploySimpleEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddress common.Address) (common.Address, error) {
-
-	auth, err := updateNonce(auth, client, deployAddress)
-	if err != nil {
-		log.Error("error getting most recent nonce!")
-		return ZERO_ADDRESS, err
-	}
-
-	sEmitterAddr, _, _, err := simpleEmitter.DeploySimpleEmitter(auth, client)
-	if err != nil {
-		log.Error("error deploying simple emitter instance")
-		return ZERO_ADDRESS, err
-	}
-
-	return sEmitterAddr, nil
 }
 
 func deployBridgeAsset(auth *bind.TransactOpts, client *ethclient.Client, mc uint8, deployAddress common.Address) (common.Address, error) {
