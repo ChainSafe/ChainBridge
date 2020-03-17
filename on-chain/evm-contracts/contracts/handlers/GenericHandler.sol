@@ -8,11 +8,8 @@ contract GenericHandler is IDepositHandler, ERC20Safe {
     address public _bridgeAddress;
 
     struct DepositRecord {
-        address _originChainTokenAddress;
         uint256 _destinationChainID;
-        address _destinationChainHandlerAddress;
         address _destinationRecipientAddress;
-        address _depositer;
         bytes   _metaData;
     }
 
@@ -33,22 +30,16 @@ contract GenericHandler is IDepositHandler, ERC20Safe {
     }
 
     function deposit(uint256 depositID, bytes memory data) public override _onlyBridge {
-        address       originChainTokenAddress;
         uint256       destinationChainID;
-        address       destinationChainHandlerAddress;
         address       destinationRecipientAddress;
-        address       depositer;
         bytes memory  metaData;
 
         assembly {
-            originChainTokenAddress        := mload(add(data, 0x20))
-            destinationChainID             := mload(add(data, 0x40))
-            destinationChainHandlerAddress := mload(add(data, 0x60))
-            destinationRecipientAddress    := mload(add(data, 0x80))
-            depositer                      := mload(add(data, 0xA0))
-            metaData                       := mload(add(data, 0xC0))
-            let lenextra := mload(add(0x80, data))
-            mstore(0x40, add(0x60, add(metaData, lenextra)))
+            destinationChainID             := mload(add(data, 0x20))
+            destinationRecipientAddress    := mload(add(data, 0x40))
+            metaData                       := mload(add(data, 0x60))
+            let lenExtra := mload(add(data, 0x80))
+            mstore(0x60, add(0x60, add(metaData, lenExtra)))
                 calldatacopy(
                 metaData,                  // copy to extra
                 0xA0,                      // copy from calldata @ 0xA0
@@ -57,11 +48,8 @@ contract GenericHandler is IDepositHandler, ERC20Safe {
         }
 
         _depositRecords[depositID] = DepositRecord(
-            originChainTokenAddress,
             destinationChainID,
-            destinationChainHandlerAddress,
             destinationRecipientAddress,
-            depositer,
             metaData
         );
     }
