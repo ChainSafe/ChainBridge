@@ -98,7 +98,6 @@ func deployContractsLocal(deployPK string, port string, validators int, validato
 
 	client, auth, deployAddress, validatorAddresses, err := accountSetUp(port, validators, deployPK)
 	if err != nil {
-		log.Error(err.Error())
 		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
 	}
 
