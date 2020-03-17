@@ -1,31 +1,31 @@
 pragma solidity ^0.5.12;
 
-import "./interfaces/IValidator.sol";
+import "./interfaces/IRelayer.sol";
 import "./helpers/SafeMath.sol";
 
-contract Validator is IValidator {
+contract Relayer is IRelayer {
     using SafeMath for uint;
 
-    uint public _validatorThreshold;
-    uint public _totalValidators;
-    ValidatorThresholdProposal private _currentValidatorThresholdProposal;
-    // ValidatorActionType and _validatorActionTypeStrings must be kept
+    uint public _relayerThreshold;
+    uint public _totalRelayers;
+    RelayerThresholdProposal private _currentRelayerThresholdProposal;
+    // RelayerActionType and _relayerActionTypeStrings must be kept
     // the same length and order to function properly
-    string[] _validatorActionTypeStrings = ["remove", "add"];
+    string[] _relayerActionTypeStrings = ["remove", "add"];
     // VoteStatus and _voteStatusStrings must be kept
     // the same length and order to function properly
     string[] _voteStatusStrings = ["inactive", "active"];
 
-    struct ValidatorProposal {
+    struct RelayerProposal {
         address                  _proposedAddress;
-        ValidatorActionType      _action;
+        RelayerActionType      _action;
         mapping(address => bool) _votes;
         uint                     _numYes;
         uint                     _numNo;
         VoteStatus               _status;
     }
 
-    struct ValidatorThresholdProposal {
+    struct RelayerThresholdProposal {
         uint                     _proposedValue;
         mapping(address => bool) _votes;
         uint                     _numYes;
@@ -33,71 +33,71 @@ contract Validator is IValidator {
         VoteStatus               _status;
     }
 
-    // Validator Address => whether they are a Validator
-    mapping(address => bool) public _validators;
-    // Validator Address => ValidatorProposal
-    mapping(address => ValidatorProposal) public _validatorProposals;
+    // Relayer Address => whether they are a Relayer
+    mapping(address => bool) public _relayers;
+    // Relayer Address => RelayerProposal
+    mapping(address => RelayerProposal) public _relayerProposals;
 
-    event ValidatorProposalCreated(address indexed proposedAddress, ValidatorActionType indexed validatorActionType);
-    event ValidatorProposalVote(address indexed proposedAddress, Vote vote);
-    event ValidatorAdded(address indexed validatorAddress);
-    event ValidatorRemoved(address indexed validatorAddress);
-    event ValidatorThresholdProposalCreated(uint indexed proposedValue);
-    event ValidatorThresholdProposalVote(Vote vote);
-    event ValidatorThresholdChanged(uint indexed newThreshold);
+    event RelayerProposalCreated(address indexed proposedAddress, RelayerActionType indexed relayerActionType);
+    event RelayerProposalVote(address indexed proposedAddress, Vote vote);
+    event RelayerAdded(address indexed relayerAddress);
+    event RelayerRemoved(address indexed relayerAddress);
+    event RelayerThresholdProposalCreated(uint indexed proposedValue);
+    event RelayerThresholdProposalVote(Vote vote);
+    event RelayerThresholdChanged(uint indexed newThreshold);
 
-    modifier _onlyValidators() {
-        require(_validators[msg.sender], "sender is not a validator");
+    modifier _onlyRelayers() {
+        require(_relayers[msg.sender], "sender is not a relayer");
         _;
     }
 
-    constructor (address[] memory initialValidators, uint initialValidatorThreshold) public {
-        for (uint i; i < initialValidators.length; i++) {
-            _addValidator(initialValidators[i]);
+    constructor (address[] memory initialRelayers, uint initialRelayerThreshold) public {
+        for (uint i; i < initialRelayers.length; i++) {
+            _addRelayer(initialRelayers[i]);
         }
 
-        _validatorThreshold = initialValidatorThreshold;
+        _relayerThreshold = initialRelayerThreshold;
     }
 
-    function isValidator(address validatorAddress) public returns (bool) {
-        return _validators[validatorAddress];
+    function isRelayer(address relayerAddress) public returns (bool) {
+        return _relayers[relayerAddress];
     }
 
-    function getValidatorThreshold() public view returns (uint) {
-        return _validatorThreshold;
+    function getRelayerThreshold() public view returns (uint) {
+        return _relayerThreshold;
     }
 
-    function getTotalValidators() public returns (uint) {
-        return _totalValidators;
+    function getTotalRelayers() public returns (uint) {
+        return _totalRelayers;
     }
 
-    function getCurrentValidatorThresholdProposal() public view returns (
+    function getCurrentRelayerThresholdProposal() public view returns (
         uint, uint, uint, string memory) {
         return (
-        _currentValidatorThresholdProposal._proposedValue,
-        _currentValidatorThresholdProposal._numYes,
-        _currentValidatorThresholdProposal._numNo,
-        _voteStatusStrings[uint(_currentValidatorThresholdProposal._status)]);
+        _currentRelayerThresholdProposal._proposedValue,
+        _currentRelayerThresholdProposal._numYes,
+        _currentRelayerThresholdProposal._numNo,
+        _voteStatusStrings[uint(_currentRelayerThresholdProposal._status)]);
     }
 
-    function getValidatorProposal(address proposedAddress) public view returns (
+    function getRelayerProposal(address proposedAddress) public view returns (
         address, string memory, uint, uint, string memory) {
-        ValidatorProposal memory validatorProposal = _validatorProposals[proposedAddress];
+        RelayerProposal memory relayerProposal = _relayerProposals[proposedAddress];
         return (
-        validatorProposal._proposedAddress,
-        _validatorActionTypeStrings[uint(validatorProposal._action)],
-        validatorProposal._numYes,
-        validatorProposal._numNo,
-        _voteStatusStrings[uint(validatorProposal._status)]);
+        relayerProposal._proposedAddress,
+        _relayerActionTypeStrings[uint(relayerProposal._action)],
+        relayerProposal._numYes,
+        relayerProposal._numNo,
+        _voteStatusStrings[uint(relayerProposal._status)]);
     }
 
-    function createValidatorProposal(address proposedAddress, ValidatorActionType action) public _onlyValidators {
+    function createRelayerProposal(address proposedAddress, RelayerActionType action) public _onlyRelayers {
         require(uint(action) <= 1, "action out of the vote enum range");
-        require(action == ValidatorActionType.Remove && _validators[proposedAddress] == true, "address is not a validator");
-        require(action == ValidatorActionType.Add && _validators[proposedAddress] == false, "address is currently a validator");
-        require(_validatorProposals[proposedAddress]._status == VoteStatus.Inactive, "there is already an active proposal for this address");
+        require(action == RelayerActionType.Remove && _relayers[proposedAddress] == true, "address is not a relayer");
+        require(action == RelayerActionType.Add && _relayers[proposedAddress] == false, "address is currently a relayer");
+        require(_relayerProposals[proposedAddress]._status == VoteStatus.Inactive, "there is already an active proposal for this address");
 
-        _validatorProposals[proposedAddress] = ValidatorProposal({
+        _relayerProposals[proposedAddress] = RelayerProposal({
             _proposedAddress: proposedAddress,
             _action: action,
             _numYes: 1, // Creator always votes in favour
@@ -105,106 +105,106 @@ contract Validator is IValidator {
             _status: VoteStatus.Active
             });
 
-        if (_validatorThreshold <= 1) {
-            _validatorProposals[proposedAddress]._status = VoteStatus.Inactive;
-            if (action == ValidatorActionType.Add) {
-                _addValidator(proposedAddress);
+        if (_relayerThreshold <= 1) {
+            _relayerProposals[proposedAddress]._status = VoteStatus.Inactive;
+            if (action == RelayerActionType.Add) {
+                _addRelayer(proposedAddress);
             } else {
-                _removeValidator(proposedAddress);
+                _removeRelayer(proposedAddress);
             }
         }
         // Record vote
-        _validatorProposals[proposedAddress]._votes[msg.sender] = true;
-        emit ValidatorProposalCreated(proposedAddress, action);
+        _relayerProposals[proposedAddress]._votes[msg.sender] = true;
+        emit RelayerProposalCreated(proposedAddress, action);
     }
 
-    function voteValidatorProposal(address proposedAddress, Vote vote) public _onlyValidators {
-        require(_validatorProposals[proposedAddress]._status == VoteStatus.Active, "there is no active proposal for this address");
-        require(!_validatorProposals[proposedAddress]._votes[msg.sender], "validator has already voted");
+    function voteRelayerProposal(address proposedAddress, Vote vote) public _onlyRelayers {
+        require(_relayerProposals[proposedAddress]._status == VoteStatus.Active, "there is no active proposal for this address");
+        require(!_relayerProposals[proposedAddress]._votes[msg.sender], "relayer has already voted");
         require(uint(vote) <= 1, "vote out of the vote enum range");
 
         // Cast vote
         if (vote == Vote.Yes) {
-            _validatorProposals[proposedAddress]._numYes++;
+            _relayerProposals[proposedAddress]._numYes++;
         } else {
-            _validatorProposals[proposedAddress]._numNo++;
+            _relayerProposals[proposedAddress]._numNo++;
         }
 
         // Record vote
-        _validatorProposals[proposedAddress]._votes[msg.sender] = true;
-        emit ValidatorProposalVote(proposedAddress, vote);
+        _relayerProposals[proposedAddress]._votes[msg.sender] = true;
+        emit RelayerProposalVote(proposedAddress, vote);
 
-        // Todo: Edge case if validator threshold changes?
+        // Todo: Edge case if relayer threshold changes?
         // Todo: For a proposal to pass does the number of yes votes just need to be higher than the threshold, or does it also have to be greater than the number of no votes?
-        if (_validatorProposals[proposedAddress]._numYes >= _validatorThreshold) {
-            if (_validatorProposals[proposedAddress]._action == ValidatorActionType.Add) {
-                _addValidator(proposedAddress);
+        if (_relayerProposals[proposedAddress]._numYes >= _relayerThreshold) {
+            if (_relayerProposals[proposedAddress]._action == RelayerActionType.Add) {
+                _addRelayer(proposedAddress);
             } else {
-                _removeValidator(proposedAddress);
+                _removeRelayer(proposedAddress);
             }
 
-            _validatorProposals[proposedAddress]._status = VoteStatus.Inactive;
-        } else if (_totalValidators.sub(_validatorProposals[proposedAddress]._numNo) < _validatorThreshold) {
-            _validatorProposals[proposedAddress]._status = VoteStatus.Inactive;
+            _relayerProposals[proposedAddress]._status = VoteStatus.Inactive;
+        } else if (_totalRelayers.sub(_relayerProposals[proposedAddress]._numNo) < _relayerThreshold) {
+            _relayerProposals[proposedAddress]._status = VoteStatus.Inactive;
         }
     }
 
-    function createValidatorThresholdProposal(uint proposedValue) public _onlyValidators {
-        require(_currentValidatorThresholdProposal._status == VoteStatus.Inactive, "a proposal is currently active");
-        require(proposedValue <= _totalValidators, "proposed value cannot be greater than the total number of validators");
+    function createRelayerThresholdProposal(uint proposedValue) public _onlyRelayers {
+        require(_currentRelayerThresholdProposal._status == VoteStatus.Inactive, "a proposal is currently active");
+        require(proposedValue <= _totalRelayers, "proposed value cannot be greater than the total number of relayers");
 
-        _currentValidatorThresholdProposal = ValidatorThresholdProposal({
+        _currentRelayerThresholdProposal = RelayerThresholdProposal({
             _proposedValue: proposedValue,
             _numYes: 1, // Creator always votes in favour
             _numNo: 0,
             _status: VoteStatus.Active
             });
 
-        if (_validatorThreshold <= 1) {
-            _validatorThreshold = _currentValidatorThresholdProposal._proposedValue;
-            _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
-            emit ValidatorThresholdChanged(proposedValue);
+        if (_relayerThreshold <= 1) {
+            _relayerThreshold = _currentRelayerThresholdProposal._proposedValue;
+            _currentRelayerThresholdProposal._status = VoteStatus.Inactive;
+            emit RelayerThresholdChanged(proposedValue);
         }
         // Record vote
-        _currentValidatorThresholdProposal._votes[msg.sender] = true;
-        emit ValidatorThresholdProposalCreated(proposedValue);
+        _currentRelayerThresholdProposal._votes[msg.sender] = true;
+        emit RelayerThresholdProposalCreated(proposedValue);
     }
 
-    function voteValidatorThresholdProposal(Vote vote) public _onlyValidators {
-        require(_currentValidatorThresholdProposal._status == VoteStatus.Active, "no proposal is currently active");
-        require(!_currentValidatorThresholdProposal._votes[msg.sender], "validator has already voted");
+    function voteRelayerThresholdProposal(Vote vote) public _onlyRelayers {
+        require(_currentRelayerThresholdProposal._status == VoteStatus.Active, "no proposal is currently active");
+        require(!_currentRelayerThresholdProposal._votes[msg.sender], "relayer has already voted");
         require(uint(vote) <= 1, "vote out of the vote enum range");
 
         // Cast vote
         if (vote == Vote.Yes) {
-            _currentValidatorThresholdProposal._numYes++;
+            _currentRelayerThresholdProposal._numYes++;
         } else {
-            _currentValidatorThresholdProposal._numNo++;
+            _currentRelayerThresholdProposal._numNo++;
         }
 
-        _currentValidatorThresholdProposal._votes[msg.sender] = true;
-        emit ValidatorThresholdProposalVote(vote);
+        _currentRelayerThresholdProposal._votes[msg.sender] = true;
+        emit RelayerThresholdProposalVote(vote);
 
-        // Todo: Edge case if validator threshold changes?
+        // Todo: Edge case if relayer threshold changes?
         // Todo: For a proposal to pass does the number of yes votes just need to be higher than the threshold, or does it also have to be greater than the number of no votes?
-        if (_currentValidatorThresholdProposal._numYes >= _validatorThreshold) {
-            _validatorThreshold = _currentValidatorThresholdProposal._proposedValue;
-            _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
-            emit ValidatorThresholdChanged(_currentValidatorThresholdProposal._proposedValue);
-        } else if (_totalValidators.sub(_currentValidatorThresholdProposal._numNo) < _validatorThreshold) {
-            _currentValidatorThresholdProposal._status = VoteStatus.Inactive;
+        if (_currentRelayerThresholdProposal._numYes >= _relayerThreshold) {
+            _relayerThreshold = _currentRelayerThresholdProposal._proposedValue;
+            _currentRelayerThresholdProposal._status = VoteStatus.Inactive;
+            emit RelayerThresholdChanged(_currentRelayerThresholdProposal._proposedValue);
+        } else if (_totalRelayers.sub(_currentRelayerThresholdProposal._numNo) < _relayerThreshold) {
+            _currentRelayerThresholdProposal._status = VoteStatus.Inactive;
         }
     }
 
-    function _addValidator(address addr) internal {
-        _validators[addr] = true;
-        _totalValidators++;
-        emit ValidatorAdded(addr);
+    function _addRelayer(address addr) internal {
+        _relayers[addr] = true;
+        _totalRelayers++;
+        emit RelayerAdded(addr);
     }
 
-    function _removeValidator(address addr) internal {
-        _validators[addr] = false;
-        _totalValidators--;
-        emit ValidatorRemoved(addr);
+    function _removeRelayer(address addr) internal {
+        _relayers[addr] = false;
+        _totalRelayers--;
+        emit RelayerRemoved(addr);
     }
 }
