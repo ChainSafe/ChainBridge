@@ -163,7 +163,7 @@ contract Receiver {
      * @param _vote - uint from 0-1 representing the casted vote
      */
     function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
-        require(DepositProposals[_originChainId][_depositId].status != VoteStatus.Inactive, "There is no active proposal!");
+        require(DepositProposals[_originChainId][_depositId].status >= VoteStatus.Active, "There is no active proposal!");
         require(DepositProposals[_originChainId][_depositId].status < VoteStatus.Finalized, "Proposal has already been finalized!");
         require(!DepositProposals[_originChainId][_depositId].votes[msg.sender], "Validator has already voted!");
         require(uint(_vote) <= 1, "Invalid vote!");
