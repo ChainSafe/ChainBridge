@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: LGPL-3.0-only
  */
 
-const truffleAssert = require('truffle-assertions');
-const ethers = require('ethers');
+const TruffleAssert = require('truffle-assertions');
+const Ethers = require('ethers');
 
 const ValidatorContract = artifacts.require("Validator");
 const BridgeContract = artifacts.require("Bridge");
@@ -16,13 +16,14 @@ contract('Bridge - [voteDepositProposal with validatorThreshold > 1]', async (ac
     const originChainValidatorAddress = accounts[1];
     const originChainValidator2Address = accounts[4];
     const originChainValidator3Address = accounts[5];
-    const originChainDepositerAddress = accounts[2];
+    const depositerAddress = accounts[2];
     const destinationChainRecipientAddress = accounts[3];
     const originChainID = 0;
     const destinationChainID = 0;
     const originChainInitialTokenAmount = 100;
     const depositAmount = 10;
     const expectedDepositID = 1;
+    const validatorThreshold = 2;
 
     let ValidatorInstance;
     let BridgeInstance;
@@ -37,72 +38,37 @@ contract('Bridge - [voteDepositProposal with validatorThreshold > 1]', async (ac
         ValidatorInstance = await ValidatorContract.new([
             originChainValidatorAddress,
             originChainValidator2Address,
-            originChainValidator3Address], 1);
-        BridgeInstance = await BridgeContract.new(ValidatorInstance.address, 2);
+            originChainValidator3Address], validatorThreshold);
+        BridgeInstance = await BridgeContract.new(ValidatorInstance.address, validatorThreshold);
         OriginERC20MintableInstance = await ERC20MintableContract.new();
         OriginERC20HandlerInstance = await ERC20HandlerContract.new(BridgeInstance.address);
         DestinationERC20MintableInstance = await ERC20MintableContract.new();
         DestinationERC20HandlerInstance = await ERC20HandlerContract.new(BridgeInstance.address);
 
-        await OriginERC20MintableInstance.mint(originChainDepositerAddress, originChainInitialTokenAmount);
-        await OriginERC20MintableInstance.approve(OriginERC20HandlerInstance.address, depositAmount, { from: originChainDepositerAddress });
-        await BridgeInstance.depositERC20(
-            OriginERC20MintableInstance.address,
-            OriginERC20HandlerInstance.address,
-            destinationChainID,
-            DestinationERC20HandlerInstance.address,
-            destinationChainRecipientAddress,
-            depositAmount,
-            { from: originChainDepositerAddress }
-        );
-
-        data = '0x' + ethers.utils.hexZeroPad(DestinationERC20MintableInstance.address, 32).substr(2) +
-            ethers.utils.hexZeroPad(DestinationERC20HandlerInstance.address, 32).substr(2) +
-            ethers.utils.hexZeroPad(ethers.utils.hexlify(depositAmount), 32).substr(2);
-        dataHash = ethers.utils.keccak256(data);
+        data = '0x' +
+            Ethers.utils.hexZeroPad(DestinationERC20MintableInstance.address, 32).substr(2) +
+            Ethers.utils.hexZeroPad(DestinationERC20HandlerInstance.address, 32).substr(2) +
+            Ethers.utils.hexZeroPad(Ethers.utils.hexlify(depositAmount), 32).substr(2);
+        dataHash = Ethers.utils.keccak256(data);
 
         await BridgeInstance.createDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             dataHash,
             { from: originChainValidatorAddress });
     });
 
-    it('[sanity] ERC20 deposit record is created with expected depositID and values', async () => {
-        const expectedDepositRecord = {
-            _originChainTokenAddress: OriginERC20MintableInstance.address,
-            _originChainHandlerAddress: OriginERC20HandlerInstance.address,
-            _destinationChainID: destinationChainID,
-            _destinationChainHandlerAddress: DestinationERC20HandlerInstance.address,
-            _destinationRecipientAddress: destinationChainRecipientAddress,
-            _amount: depositAmount
-        };
-
-        const depositRecord = await BridgeInstance._erc20DepositRecords.call(destinationChainID, expectedDepositID);
-        for (const expectedProperty of Object.keys(expectedDepositRecord)) {
-            // Testing all expected object properties
-            assert.property(depositRecord, expectedProperty, `property: ${expectedProperty} does not exist in depositRecord`);
-
-            // Testing all expected object values
-            const depositRecordValue = depositRecord[expectedProperty].toNumber !== undefined ?
-                depositRecord[expectedProperty].toNumber() : depositRecord[expectedProperty];
-            assert.strictEqual(
-                depositRecordValue, expectedDepositRecord[expectedProperty],
-                `property: ${expectedProperty}'s value: ${depositRecordValue} does not match expected value: ${expectedDepositRecord[expectedProperty]}`)
-        }
-    });
-
-    it('[sanity] depositProposal is created with expected values', async () => {
+    it('[sanity] depositProposal should be created with expected values', async () => {
         const expectedDepositProposal = {
-            _originChainID: originChainID,
-            _depositID: expectedDepositID,
             _dataHash: dataHash,
             _numYes: 1,
             _numNo: 0,
-            _status: 1 // passed
+            _status: 1 // active
         };
 
-        const depositProposal = await BridgeInstance._depositProposals.call(originChainID, expectedDepositID);
+        const depositProposal = await BridgeInstance._depositProposals.call(
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
         for (const expectedProperty of Object.keys(expectedDepositProposal)) {
             // Testing all expected object properties
             assert.property(depositProposal, expectedProperty, `property: ${expectedProperty} does not exist in depositRecord`);
@@ -116,152 +82,186 @@ contract('Bridge - [voteDepositProposal with validatorThreshold > 1]', async (ac
         }
     });
 
-    it('depositProposal can be voted on', async () => {
-        await truffleAssert.passes(BridgeInstance.voteDepositProposal(
+    it('should vote on depositProposal successfully', async () => {
+        await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             1, // vote in favor
             { from: originChainValidator2Address }
         ));
     });
 
-    it('Only validators should be able to vote on a deposit proposal', async () => {
-        await truffleAssert.reverts(BridgeInstance.voteDepositProposal(
+    it('should revert because depositerAddress is not a validator', async () => {
+        await TruffleAssert.reverts(BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
-            1, // vote in favor
-            { from: originChainDepositerAddress }
+            1,
+            { from: depositerAddress }
         ));
     });
 
-    it('Can only vote on a proposal that has active status', async () => {
-        await truffleAssert.reverts(BridgeInstance.voteDepositProposal(
+    it("depositProposal shouldn't be voted on if it has an Inactive status", async () => {
+        await TruffleAssert.passes(BridgeInstance.createDepositProposal(
             originChainID,
-            400, // fake depositID
+            OriginERC20HandlerInstance.address,
+            42, // non existent depositID
+            dataHash,
+            { from: originChainValidatorAddress }
+        ));
+    });
+
+    xit("depositProposal shouldn't be voted on if it has a Passed status", async () => {
+        
+    });
+
+    xit("depositProposal shouldn't be voted on if it has a Denied status", async () => {
+        
+    });
+
+    xit("depositProposal shouldn't be voted on if it has a Transferred status", async () => {
+        
+    });
+
+    it("validator shouldn't be able to vote on a depositProposal more than once", async () => {
+        await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
+            originChainID,
+            OriginERC20HandlerInstance.address,
+            expectedDepositID,
+            1, // vote in favor
+            { from: originChainValidator2Address }
+        ));
+
+        await TruffleAssert.reverts(BridgeInstance.voteDepositProposal(
+            originChainID,
+            OriginERC20HandlerInstance.address,
+            expectedDepositID,
             1, // vote in favor
             { from: originChainValidator2Address }
         ));
     });
 
-    it("Can only vote on a proposal if validator hasn't already voted for it", async () => {
-        await truffleAssert.passes(BridgeInstance.voteDepositProposal(
+    it("validator shouldn't be able to provide an invalid vote", async () => {
+        await TruffleAssert.reverts(BridgeInstance.voteDepositProposal(
             originChainID,
-            expectedDepositID,
-            1, // vote in favor
-            { from: originChainValidator2Address }
-        ));
-
-        await truffleAssert.reverts(BridgeInstance.voteDepositProposal(
-            originChainID,
-            expectedDepositID,
-            1, // vote in favor
-            { from: originChainValidator2Address }
-        ));
-    });
-
-    it('Validator must provide a valid vote', async () => {
-        await truffleAssert.fails(BridgeInstance.voteDepositProposal(
-            originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             42, // invalid vote, out of range
             { from: originChainValidator2Address }
-        ), truffleAssert.ErrorType.INVALID_OPCODE);
+        ));
     });
 
     it("Validator's vote should be recorded correctly - yes vote", async () => {
-        const depositProposalBeforeSecondVote = await BridgeInstance._depositProposals.call(originChainID, expectedDepositID);
+        const depositProposalBeforeSecondVote = await BridgeInstance._depositProposals.call(
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
         assert.strictEqual(depositProposalBeforeSecondVote._numYes.toNumber(), 1);
         assert.strictEqual(depositProposalBeforeSecondVote._numNo.toNumber(), 0);
 
-        await truffleAssert.passes(BridgeInstance.voteDepositProposal(
+        await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             1, // vote in favor
             { from: originChainValidator2Address }
         ));
 
-        const depositProposalAfterSecondVote = await BridgeInstance._depositProposals.call(originChainID, expectedDepositID);
+        const depositProposalAfterSecondVote = await BridgeInstance._depositProposals.call(
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
         assert.strictEqual(depositProposalAfterSecondVote._numYes.toNumber(), 2);
         assert.strictEqual(depositProposalAfterSecondVote._numNo.toNumber(), 0);
     });
 
     it("Validator's vote should be recorded correctly - no vote", async () => {
-        const depositProposalBeforeSecondVote = await BridgeInstance._depositProposals.call(originChainID, expectedDepositID);
+        const depositProposalBeforeSecondVote = await BridgeInstance._depositProposals.call(
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
         assert.strictEqual(depositProposalBeforeSecondVote._numYes.toNumber(), 1);
         assert.strictEqual(depositProposalBeforeSecondVote._numNo.toNumber(), 0);
 
-        await truffleAssert.passes(BridgeInstance.voteDepositProposal(
+        await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             0, // vote against
             { from: originChainValidator2Address }
         ));
 
-        const depositProposalAfterSecondVote = await BridgeInstance._depositProposals.call(originChainID, expectedDepositID);
+        const depositProposalAfterSecondVote = await BridgeInstance._depositProposals.call(
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
         assert.strictEqual(depositProposalAfterSecondVote._numYes.toNumber(), 1);
         assert.strictEqual(depositProposalAfterSecondVote._numNo.toNumber(), 1);
     });
 
     it("Validator's address should be marked as voted for proposal", async () => {
-        await truffleAssert.passes(BridgeInstance.voteDepositProposal(
+        await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             1, // vote in favor
             { from: originChainValidator2Address }
         ));
 
-        const hasVoted = await BridgeInstance.hasVoted(originChainID, expectedDepositID, originChainValidator2Address);
+        const hasVoted = await BridgeInstance.hasVoted(
+            originChainID, OriginERC20HandlerInstance.address,
+            expectedDepositID, originChainValidator2Address);
         assert.isTrue(hasVoted);
     });
 
     it('Proposal status should be updated to passed after numYes >= validatorThreshold', async () => {
-        await truffleAssert.passes(BridgeInstance.voteDepositProposal(
+        await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             1, // vote in favor
             { from: originChainValidator2Address }
         ));
 
-        const depositProposal = await BridgeInstance._depositProposals(originChainID, expectedDepositID);
+        const depositProposal = await BridgeInstance._depositProposals(
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
         assert.strictEqual(depositProposal._status.toNumber(), 3);
     });
 
-    it('DepositProposalFinalized event fired when proposal status updated to passed after numYes >= validatorThreshold', async () => {
+    it('DepositProposalFinalized event should be emitted when proposal status updated to passed after numYes >= validatorThreshold', async () => {
         const voteTx = await BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             1, // vote in favor
             { from: originChainValidator2Address }
         );
 
-        truffleAssert.eventEmitted(voteTx, 'DepositProposalFinalized', (event) => {
+        TruffleAssert.eventEmitted(voteTx, 'DepositProposalFinalized', (event) => {
             return event.originChainID.toNumber() === originChainID &&
                 event.depositID.toNumber() === expectedDepositID
         });
     });
 
     it('Proposal status should be updated to denied if majority of validators vote no', async () => {
-        await truffleAssert.passes(BridgeInstance.voteDepositProposal(
+        await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             0, // vote in favor
             { from: originChainValidator2Address }
         ));
 
-        await truffleAssert.passes(BridgeInstance.voteDepositProposal(
+        await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             0, // vote in favor
             { from: originChainValidator3Address }
         ));
 
-        const depositProposal = await BridgeInstance._depositProposals(originChainID, expectedDepositID);
+        const depositProposal = await BridgeInstance._depositProposals(
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
         assert.strictEqual(depositProposal._status.toNumber(), 2);
     });
 
     it('DepositProposalFinalized event fired when proposal status updated to denied if majority of validators vote no', async () => {
-        await truffleAssert.passes(BridgeInstance.voteDepositProposal(
+        await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             0, // vote in favor
             { from: originChainValidator2Address }
@@ -269,12 +269,13 @@ contract('Bridge - [voteDepositProposal with validatorThreshold > 1]', async (ac
 
         const voteTx = await BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             0, // vote in favor
             { from: originChainValidator3Address }
         );
 
-        truffleAssert.eventEmitted(voteTx, 'DepositProposalFinalized', (event) => {
+        TruffleAssert.eventEmitted(voteTx, 'DepositProposalFinalized', (event) => {
             return event.originChainID.toNumber() === originChainID &&
                 event.depositID.toNumber() === expectedDepositID
         });
@@ -283,12 +284,13 @@ contract('Bridge - [voteDepositProposal with validatorThreshold > 1]', async (ac
     it('DepositProposalVote event fired when proposal vote made', async () => {
         const voteTx = await BridgeInstance.voteDepositProposal(
             originChainID,
+            OriginERC20HandlerInstance.address,
             expectedDepositID,
             0, // vote in favor
             { from: originChainValidator2Address }
         );
 
-        truffleAssert.eventEmitted(voteTx, 'DepositProposalVote', (event) => {
+        TruffleAssert.eventEmitted(voteTx, 'DepositProposalVote', (event) => {
             return event.originChainID.toNumber() === originChainID &&
                 event.depositID.toNumber() === expectedDepositID &&
                 event.vote.toNumber() === 0 &&
