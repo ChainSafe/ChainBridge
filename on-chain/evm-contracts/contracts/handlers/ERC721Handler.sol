@@ -45,6 +45,7 @@ contract ERC721Handler is IDepositHandler, ERC721Safe {
 
         assembly {
             // These are all fixed 32 bytes
+            // first 32 bytes of bytes is the length
             originChainTokenAddress        := mload(add(data, 0x20))
             destinationChainID             := mload(add(data, 0x40))
             destinationChainHandlerAddress := mload(add(data, 0x60))
@@ -53,16 +54,17 @@ contract ERC721Handler is IDepositHandler, ERC721Safe {
             tokenID                        := mload(add(data, 0xC0))
 
             // metadata has variable length
+            // load free memory pointer to store metadata
             metaData := mload(0x40)
             // first 32 bytes of variable length in storage refer to length
             let lenMeta := mload(add(0xE0, data))
-
-            // store metadata
             mstore(0x40, add(0xC0, add(metaData, lenMeta)))
+
+            // in the calldata, metadata is stored @0x124 after accounting for function signature and the depositID
             calldatacopy(
                 metaData,                     // copy to metaData
-                0x100,                        // copy from data after metaData length declaration @0x100
-                sub(calldatasize(), 0x100)   // copy size (calldatasize - 0xA0)
+                0x124,                        // copy from calldata after metaData length declaration @0x124
+                sub(calldatasize(), 0x124)   // copy size (calldatasize - 0x124)
             )
         }
 
@@ -93,9 +95,10 @@ contract ERC721Handler is IDepositHandler, ERC721Safe {
             let lenextra                 := mload(add(0x80, data))
             mstore(0x40, add(0x60, add(metaData, lenextra)))
             
+            // in the calldata
             calldatacopy(
                 metaData,                  // copy to metaData
-                0xA0,                      // copy from calldata @ 0xA0
+                0xA4,                      // copy from calldata @ 0xA4
                 sub(calldatasize(), 0xA0)    // copy size (calldatasize - 0xA0)
             )
         }
