@@ -5,6 +5,7 @@ package ethereum
 
 import (
 	"bytes"
+	"encoding/hex"
 	"math/big"
 	"strings"
 	"testing"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	"github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
-	"github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -121,14 +121,13 @@ func panicOnTimeout(d time.Duration) {
 // TestContractCode is used to make sure the contracts are deployed correctly.
 // This is probably the least intrusive way to check if the contracts exists
 func TestContractCode(t *testing.T) {
+	cfg := &Config{
+		id:       msg.EthereumId,
+		endpoint: TestEndpoint,
+		from:     keystore.AliceKey,
+	}
 
-	// We set a custom timeout for this test
-	// This is because of a ganache bug
-	// To reproduce the bug, attempt to create a contract Object (eg Emitter) with a valid Address of a different contract type (eg RecieverAddress)
-	// It will cause the test to hang forever, this code is to prevent the hanging in that case.
-	go panicOnTimeout(TestTimeout)
-
-	conn := NewConnection(testConfig)
+	conn := NewConnection(cfg, Alice)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -140,15 +139,19 @@ func TestContractCode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(byteCode) == 0 {
-		t.Fatal("Emitter Contract doesn't exist")
+	deployedCode, err := hex.DecodeString(Emitter.RuntimeBytecode[2:])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if Emitter.RuntimeBytecode == Emitter.EmitterBin {
+		t.Fatalf("Emitter Contract Address is incorrect %x", bytes.Compare(byteCode, deployedCode))
 	}
 
 	byteCode, err = conn.getByteCode(TestReceiverContractAddress)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(byteCode) == 0 {
+	if len(byteCode) == 0 || BridgeAsset.RuntimeBytecode != hex.EncodeToString(byteCode) {
 		t.Fatal("Receiver Contract doesn't exist")
 	}
 
@@ -156,43 +159,10 @@ func TestContractCode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(byteCode) == 0 {
+	if len(byteCode) == 0 || BridgeAsset.RuntimeBytecode != hex.EncodeToString(byteCode) {
 		t.Fatal("BridgeAsset Contract doesn't exist")
 	}
 
-	// This section attempts to make the correct Contract type, trying to ensure that the contract at the addresses are the correct types
-	emit, err := Emitter.NewEmitter(TestEmitterContractAddress, conn.conn)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rec, err := Receiver.NewReceiver(TestReceiverContractAddress, conn.conn)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, err = BridgeAsset.NewBridgeAsset(TestCentrifugeContractAddress, conn.conn)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// This following section attempts to make calls on Emitter and Receiver.
-	// There is no simple call that can be made on BridgeAsset, so unfortunately it is not called.
-
-	// This is a call on the emitter, it checks if the owner is the same as the address.
-	owner, err := emit.Owner(nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !bytes.Equal(TestEmitterContractAddress.Bytes(), owner.Bytes()) {
-		t.Fatal("Incorrect Contract")
-	}
-
-	// We don't know what value this should be checking agaisnt, so we just make sure this call doesn't error out.
-	_, err = rec.TotalValidators(nil)
-	if err != nil {
-		t.Fatal(err)
-	}
 }
 
 // Unused, may be useful in the future

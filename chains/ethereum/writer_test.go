@@ -11,7 +11,6 @@ import (
 
 var testConfig = &Config{
 	endpoint: TestEndpoint,
-	keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
 	from:     keystore.AliceKey,
 	gasLimit: big.NewInt(6721975),
 	gasPrice: big.NewInt(20000000000),
