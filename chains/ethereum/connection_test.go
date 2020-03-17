@@ -4,7 +4,6 @@
 package ethereum
 
 import (
-	"bytes"
 	"encoding/hex"
 	"math/big"
 	"strings"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	"github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
+	"github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -139,19 +139,16 @@ func TestContractCode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	deployedCode, err := hex.DecodeString(Emitter.RuntimeBytecode[2:])
-	if err != nil {
-		t.Fatal(err)
-	}
-	if Emitter.RuntimeBytecode == Emitter.EmitterBin {
-		t.Fatalf("Emitter Contract Address is incorrect %x", bytes.Compare(byteCode, deployedCode))
+	codeLength := len(hex.EncodeToString(byteCode))
+	if Emitter.EmitterBin[2:codeLength+2] != hex.EncodeToString(byteCode) {
+		t.Fatalf("Emitter Contract Address is incorrect %s, %s, %d, %d", Emitter.RuntimeBytecode[2:12], hex.EncodeToString(byteCode)[0:10], len(Emitter.RuntimeBytecode), len(hex.EncodeToString(byteCode)))
 	}
 
 	byteCode, err = conn.getByteCode(TestReceiverContractAddress)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(byteCode) == 0 || BridgeAsset.RuntimeBytecode != hex.EncodeToString(byteCode) {
+	if len(byteCode) == 0 || Receiver.RuntimeBytecode != hex.EncodeToString(byteCode) {
 		t.Fatal("Receiver Contract doesn't exist")
 	}
 
