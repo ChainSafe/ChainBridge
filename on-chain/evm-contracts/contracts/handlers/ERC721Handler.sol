@@ -22,7 +22,7 @@ contract ERC721Handler is IDepositHandler, ERC721Safe {
     mapping (uint256 => DepositRecord) public _depositRecords;
 
     modifier _onlyBridge() {
-        require(msg.sender == _bridgeAddress, "sneder must be bridge contract");
+        require(msg.sender == _bridgeAddress, "sender must be bridge contract");
         _;
     }
 
