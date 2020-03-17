@@ -23,6 +23,12 @@ contract Bridge {
         uint256                  _numNo;
         DepositProposalStatus    _status;
     }
+    struct ReturnDepositProposal {
+        bytes32                  _dataHash;
+        uint256                  _numYes;
+        uint256                  _numNo;
+        DepositProposalStatus    _status;
+    }
     struct ValidatorThresholdProposal {
         uint256                          _proposedValue;
         mapping(address => bool)         _votes;
@@ -75,6 +81,20 @@ contract Bridge {
     constructor (address validatorContract, uint initialValidatorThreshold) public {
         _validatorContract = IValidator(validatorContract);
         _validatorThreshold = initialValidatorThreshold;
+    }
+
+    function getDepositProposal(
+        uint256 originChainID,
+        address originChainHandlerAddress,
+        uint256 depositID
+    ) public view returns (ReturnDepositProposal memory) {
+        DepositProposal memory depositProposal = _depositProposals[originChainID][originChainHandlerAddress][depositID];
+        return ReturnDepositProposal(
+            depositProposal._dataHash,
+            depositProposal._numYes,
+            depositProposal._numNo,
+            depositProposal._status
+        );
     }
 
     function hasVoted(
