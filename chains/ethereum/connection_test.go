@@ -139,9 +139,10 @@ func TestContractCode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Logf("EmitterBin Length: %d\n EmitterRunTimeBytecode Length %d\n CodeAt result length %d\n", len(Emitter.EmitterBin), len(Emitter.RuntimeBytecode), len(hex.EncodeToString(byteCode)))
 	codeLength := len(hex.EncodeToString(byteCode))
-	if Emitter.EmitterBin[2:codeLength+2] != hex.EncodeToString(byteCode) {
-		t.Fatalf("Emitter Contract Address is incorrect %s, %s, %d, %d", Emitter.RuntimeBytecode[2:12], hex.EncodeToString(byteCode)[0:10], len(Emitter.RuntimeBytecode), len(hex.EncodeToString(byteCode)))
+	if Emitter.RuntimeBytecode[2:codeLength+2] != hex.EncodeToString(byteCode) {
+		t.Fatalf("Emitter Contract Address is incorrect %s, %s", Emitter.RuntimeBytecode[2:12], hex.EncodeToString(byteCode)[0:10])
 	}
 
 	byteCode, err = conn.getByteCode(TestReceiverContractAddress)
