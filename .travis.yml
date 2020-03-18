@@ -33,6 +33,7 @@ jobs:
         - make bindings
         - SILENT=true make start_eth
         - make deploy_eth
+        - ./scripts/centrifuge/run_chain_ci.sh
         - make test
 
     - language: node_js
