@@ -26,21 +26,19 @@ get_lint:
 	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s latest
 
 .PHONY: lint
-lint: bindings
+lint:
 	if [ ! -f ./bin/golangci-lint ]; then \
 		$(MAKE) get_lint; \
 	fi;
 	./bin/golangci-lint run ./... --timeout 5m0s
 
-fmt:
-	@echo "  >  \033[32mFormatting project...\033[0m "
-	gofmt -s -w .
+ci-lint: bindings lint
 
 build: bindings
 	@echo "  >  \033[32mBuilding binary...\033[0m "
 	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge
 
-run: build bindings
+run: build
 	@echo "  >  \033[32mRunning bridge...\033[0m "
 	./build/chainbridge
 
@@ -48,7 +46,7 @@ install: bindings
 	@echo "  >  \033[32mInstalling bridge...\033[0m "
 	cd cmd/chainbridge && go install
 
-test: bindings
+test:
 	@echo "  >  \033[32mRunning tests...\033[0m "
 	./scripts/test.sh
 	
