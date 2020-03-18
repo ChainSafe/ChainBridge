@@ -1,22 +1,11 @@
-/**
- * Copyright 2020 ChainSafe Systems
- * SPDX-License-Identifier: LGPL-3.0-only
- */
-
 const ethers = require('ethers');
-const constants = require('./../constants');
+const constants = require('./constants');
 
-const BridgeContract = require("../../../build/contracts/Bridge.json");
-const ValidatorContract = require("../../../build/contracts/Validator.json");
-const ERC20HandlerContract = require("../../../build/contracts/ERC20Handler.json");
-const ERC20MintableContract = require("../../../build/contracts/ERC20Mintable.json");
-
-// old
-const ReceiverContract = require("../../../build/contracts/Receiver.json");
-const EmitterContract = require("../../../build/contracts/Emitter.json");
-const TestEmitterContract = require("../../../build/contracts/SimpleEmitter.json");
-const ERC20Contract = require("../../../build/contracts/ERC20Mintable.json");
-const ERC721Contract = require("../../../build/contracts/ERC721Mintable.json");
+const ReceiverContract = require("../../build/contracts/Receiver.json");
+const EmitterContract = require("../../build/contracts/Emitter.json");
+const TestEmitterContract = require("../../build/contracts/SimpleEmitter.json");
+const ERC20Contract = require("../../build/contracts/ERC20Mintable.json");
+const ERC721Contract = require("../../build/contracts/ERC721Mintable.json");
 
 async function assetTestTransfer(cfg) {
     try {
@@ -33,55 +22,34 @@ async function assetTestTransfer(cfg) {
     }
 }
 
-async function mintErc20(cfg) {
-    const depositer = constants.validatorAddresses[1];
-    const erc20Instance = new ethers.Contract(constants.ERC20_ADDRESS, ERC20MintableContract.abi, cfg.mainWallet);
-    
-    try {
-        await erc20Instance.mint(depositer, cfg.value);
-        console.log(`Succesfully minted ${cfg.value} tokens to ${depositer}`);
-    } catch (e) {
-        console.log({ e })
-    }
-}
-
 async function erc20Transfer(cfg) {
     try {
-        // consts
-        const depositer = constants.validatorAddresses[1];
-        const depositerPriv = constants.validatorPrivKeys[1];
-        const depositerWallet = new ethers.Wallet(depositerPriv, cfg.provider);
-        const recipient = constants.validatorAddresses[2];
+        const minterWallet = new ethers.Wallet(constants.validatorPrivKeys[0], cfg.provider);
 
         // Instances
-        const erc20Instance = new ethers.Contract(constants.ERC20_ADDRESS, ERC20Contract.abi, depositerWallet);
-        const bridgeInstance = new ethers.Contract(constants.BRIDGE_ADDRESS, BridgeContract.abi, depositerWallet);
+        const erc20Instance = new ethers.Contract(constants.ERC20_ADDRESS, ERC20Contract.abi, minterWallet);
+        const emitterInstance = new ethers.Contract(constants.EMITTER_ADDRESS, EmitterContract.abi, minterWallet);
+        const receiverInstance = new ethers.Contract(constants.RECEIVER_ADDRESS, ReceiverContract.abi, minterWallet);
+        if (cfg.watchMode) {
+            watchBalances(cfg, erc20Instance, receiverInstance, emitterInstance.address, minterWallet.address, constants.validatorAddresses[1])
+        } else {
 
-        // Mint & Approve tokens
-        await erc20Instance.approve(constants.ERC20_HANDLER_ADDRESS, cfg.value);
-        console.log("[ERC20 Transfer] Approved tokens!");
+            // Mint & Approve tokens
+            await erc20Instance.approve(constants.EMITTER_ADDRESS, 1);
+            console.log("[ERC20 Transfer] Approved tokens!");
 
-        const depositerPreBal = await erc20Instance.balanceOf(depositer);
-        const handlerPreBal = await erc20Instance.balanceOf(constants.ERC20_HANDLER_ADDRESS);
-        console.log("[ERC20 Transfer] Depositer token balance: ", depositerPreBal.toNumber());
-        console.log("[ERC20 Transfer] Handler token balance: ", handlerPreBal.toNumber());
-        console.log(cfg.dest)
-        // Make the deposit
-        await bridgeInstance.depositERC20(
-            constants.ERC20_ADDRESS, // home
-            constants.ERC20_HANDLER_ADDRESS, // home
-            cfg.dest, // destination
-            constants.ERC20_HANDLER_ADDRESS, // away, same as home
-            recipient,
-            cfg.value,
-        );
-        console.log("[ERC20 Transfer] Created deposit!");
+            // Check the balance before the transfer
+            const prebal = await emitterInstance.balances(erc20Instance.address);
+            console.log("[ERC20 Transfer] Pre token balaance: ", prebal.toNumber());
 
-        // Check the balance after the deposit
-        const depositerPostBal = await erc20Instance.balanceOf(depositer);
-        const handlerPostBal = await erc20Instance.balanceOf(constants.ERC20_HANDLER_ADDRESS);
-        console.log("[ERC20 Transfer] Depositer token balance: ", depositerPostBal.toNumber());
-        console.log("[ERC20 Transfer] Handler token balance: ", handlerPostBal.toNumber());
+            // Make the deposit
+            await emitterInstance.depositGenericErc(cfg.dest, cfg.value, constants.validatorAddresses[1], erc20Instance.address);
+            console.log("[ERC20 Transfer] Created deposit!");
+
+            // Check the balance after the deposit
+            const postbal = await emitterInstance.balances(erc20Instance.address);
+            console.log("[ERC20 Transfer] Post token balaance: ", postbal.toNumber());
+        }
     } catch (e) {
         console.log({ e });
     }
@@ -247,8 +215,6 @@ function VoteStatus(code) {
 }
 
 module.exports = {
-    mintErc20,
-    //old
     assetTestTransfer,
     erc20Transfer,
     erc721Transfer,
