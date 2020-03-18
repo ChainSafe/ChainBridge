@@ -10,9 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
-	"github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
-	"github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
+	"github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -27,7 +25,7 @@ var Alice = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Key
 
 var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4")
 var TestAddress2 = ethcmn.HexToAddress("0a4c3620AF8f3F182e203609f90f7133e018Bf5D")
-var TestCentrifugeContractAddress = ethcmn.HexToAddress("0xcB76d991cFCd621b477d705be7DdF5EA69D39C00")
+var TestBridgeContractAddress = ethcmn.HexToAddress("0xcB76d991cFCd621b477d705be7DdF5EA69D39C00")
 var TestReceiverContractAddress = ethcmn.HexToAddress("0x5842B333910Fe0BfA05F5Ea9F1602a40d1AF3584")
 var TestEmitterContractAddress = ethcmn.HexToAddress("0x3c747684333605408F9A4907DA043ee4c1A72D9c")
 
@@ -37,7 +35,7 @@ func newLocalConnection(t *testing.T) *Connection {
 
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		contract: TestCentrifugeContractAddress,
+		contract: TestBridgeContractAddress,
 		from:     keystore.AliceKey,
 	}
 
@@ -135,29 +133,11 @@ func TestContractCode(t *testing.T) {
 	defer conn.Close()
 
 	// The following section checks if the byteCode exists on the chain at the specificed Addresses
-	byteCode, err := conn.getByteCode(TestEmitterContractAddress)
+	byteCode, err := conn.getByteCode(TestBridgeContractAddress)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("EmitterBin Length: %d\n EmitterRunTimeBytecode Length %d\n CodeAt result length %d\n", len(Emitter.EmitterBin), len(Emitter.RuntimeBytecode), len(hex.EncodeToString(byteCode)))
-	codeLength := len(hex.EncodeToString(byteCode))
-	if Emitter.RuntimeBytecode[2:codeLength+2] != hex.EncodeToString(byteCode) {
-		t.Fatalf("Emitter Contract Address is incorrect %s, %s", Emitter.RuntimeBytecode[2:12], hex.EncodeToString(byteCode)[0:10])
-	}
-
-	byteCode, err = conn.getByteCode(TestReceiverContractAddress)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(byteCode) == 0 || Receiver.RuntimeBytecode != hex.EncodeToString(byteCode) {
-		t.Fatal("Receiver Contract doesn't exist")
-	}
-
-	byteCode, err = conn.getByteCode(TestCentrifugeContractAddress)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(byteCode) == 0 || BridgeAsset.RuntimeBytecode != hex.EncodeToString(byteCode) {
+	if len(byteCode) == 0 || Bridge.RuntimeBytecode != "0x"+hex.EncodeToString(byteCode) {
 		t.Fatal("BridgeAsset Contract doesn't exist")
 	}
 
