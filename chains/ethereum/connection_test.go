@@ -109,11 +109,6 @@ func TestSubscribe(t *testing.T) {
 	}
 }
 
-func panicOnTimeout(d time.Duration) {
-	<-time.After(d)
-	panic("Test timed out")
-}
-
 // TestContractCode is used to make sure the contracts are deployed correctly.
 // This is probably the least intrusive way to check if the contracts exists
 func TestContractCode(t *testing.T) {
