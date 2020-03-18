@@ -4,13 +4,11 @@
 package ethereum
 
 import (
-	"encoding/hex"
 	"math/big"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -133,12 +131,9 @@ func TestContractCode(t *testing.T) {
 	defer conn.Close()
 
 	// The following section checks if the byteCode exists on the chain at the specificed Addresses
-	byteCode, err := conn.getByteCode(TestBridgeContractAddress)
+	err = conn.CheckBridgeContract(TestBridgeContractAddress)
 	if err != nil {
 		t.Fatal(err)
-	}
-	if len(byteCode) == 0 || Bridge.RuntimeBytecode != "0x"+hex.EncodeToString(byteCode) {
-		t.Fatal("BridgeAsset Contract doesn't exist")
 	}
 
 }
