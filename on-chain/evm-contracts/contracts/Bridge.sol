@@ -8,6 +8,8 @@ import "./interfaces/IDepositHandler.sol";
 contract Bridge {
     using SafeMath for uint;
 
+    uint256 constant public CHAIN_ID = 0;
+
     IValidator                 public _validatorContract;
     uint256                    public _validatorThreshold;
     ValidatorThresholdProposal public _currentValidatorThresholdProposal;
@@ -47,7 +49,11 @@ contract Bridge {
     event ValidatorThresholdProposalCreated(uint indexed proposedValue);
     event ValidatorThresholdProposalVote(Vote vote);
     event ValidatorThresholdChanged(uint indexed newThreshold);
-    event Deposit(address indexed originChainHandlerAddress, uint256 indexed depositID);
+    event Deposit(
+        uint256 indexed originChainID,
+        address indexed originChainHandlerAddress,
+        uint256 indexed depositID
+    );
     event DepositProposalCreated(
         uint256 indexed originChainID,
         address indexed originChainHandlerAddress,
@@ -116,7 +122,7 @@ contract Bridge {
         IDepositHandler depositHandler = IDepositHandler(originChainHandlerAddress);
         depositHandler.deposit(depositID, data);
 
-        emit Deposit(originChainHandlerAddress, depositID);
+        emit Deposit(CHAIN_ID, originChainHandlerAddress, depositID);
     }
 
     function createDepositProposal(
