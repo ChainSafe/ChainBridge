@@ -23,9 +23,9 @@ jobs:
       go: 1.13.x
       name: "Golang-ci Linter"
       script:
+        - make license-check
         - make bindings
         - make lint
-        - make license-check
 
     - language: go
       go: 1.13.x
