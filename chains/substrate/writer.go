@@ -36,9 +36,9 @@ func (w *Writer) ResolveMessage(m msg.Message) bool {
 		}
 		if w.proposalExists(prop) {
 			log15.Debug("Voting for an existing proposal", "hash", prop.hash)
-			err = w.conn.SubmitTx(VoteFor, prop.hash)
+			err = w.conn.SubmitTx(Vote, prop.hash, true)
 		} else {
-			log15.Trace("Creating a new proposal", "hash", prop.hash)
+			log15.Trace("Creating a new proposal", "hash", prop.hash.Hex())
 			err = w.conn.SubmitTx(CreateProposal, prop.hash, prop.call)
 		}
 		if err != nil {
@@ -62,7 +62,7 @@ func (w *Writer) proposalExists(prop *proposal) bool {
 	}
 	// TODO: We want to know if it exists on chain, but this actually tell us they aren't equal.
 	// If prop is a valid proposal we might want to freak out.
-	if types.Eq(expected, prop) {
+	if types.Eq(expected, prop.call) {
 		return true
 	} else {
 		return false

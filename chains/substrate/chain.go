@@ -8,11 +8,11 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
 	log "github.com/ChainSafe/log15"
-	"github.com/centrifuge/go-substrate-rpc-client/signature"
 )
 
 type Chain struct {
@@ -24,18 +24,12 @@ type Chain struct {
 }
 
 func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
-	kp, err := cfg.Keystore.KeypairFromAddress(cfg.From, keystore.SubChain)
+	kp, err := keystore.KeypairFromAddress(cfg.From, keystore.SubChain, cfg.KeystorePath, false)
 	if err != nil {
 		return nil, err
 	}
-	key := signature.KeyringPair{
-		URI:     kp.Public().Address(),
-		Address: kp.Public().Address(),
-		// TODO: Check that this works
-		PublicKey: kp.Public().Encode(),
-	}
-
-	conn := NewConnection(cfg.Endpoint, &key)
+	krp := kp.(*sr25519.Keypair).AsKeyringPair()
+	conn := NewConnection(cfg.Endpoint, krp)
 	l := NewListener(conn, cfg)
 	w := NewWriter(conn)
 	return &Chain{

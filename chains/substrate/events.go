@@ -9,15 +9,17 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
-const AssetTx = "AssetTx"
-const ValidatorAdded = "ValidatorAdded"
-const ValidatorRemoved = "ValidatorRemoved"
-const VoteFor = "VoteFor"
-const VoteAgainst = "VoteAgainst"
-const ProposalSucceeded = "ProposalSucceeded"
-const ProposalFailed = "ProposalFailed"
+type eventName string
 
-var Subscriptions = []string{AssetTx}
+const AssetTx eventName = "AssetTx"
+const ValidatorAdded eventName = "ValidatorAdded"
+const ValidatorRemoved eventName = "ValidatorRemoved"
+const VoteFor eventName = "VoteFor"
+const VoteAgainst eventName = "VoteAgainst"
+const ProposalSucceeded eventName = "ProposalSucceeded"
+const ProposalFailed eventName = "ProposalFailed"
+
+var Subscriptions = []eventName{AssetTx}
 
 type EventNFTDeposited struct {
 	Phase  types.Phase

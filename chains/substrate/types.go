@@ -43,7 +43,6 @@ func createProposalFromAssetTx(m msg.Message, meta *types.Metadata) (*proposal, 
 	if err != nil {
 		return nil, err
 	}
-
 	return &proposal{
 		depositId: depositId,
 		recipient: recipient,
@@ -51,4 +50,10 @@ func createProposalFromAssetTx(m msg.Message, meta *types.Metadata) (*proposal, 
 		hash:      hash,
 		call:      call,
 	}, nil
+}
+
+type VoteState struct {
+	VotesFor     []types.AccountID
+	VotesAgainst []types.AccountID
+	Hash         types.Hash
 }
