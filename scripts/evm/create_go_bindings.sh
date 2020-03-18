@@ -39,9 +39,7 @@ do
     abigen --abi $ABI_DIR/${value}.abi --pkg $value --type $value --bin $BIN_DIR/${value}.bin --out $GO_DIR/$value/$value.go
     
     # Capture build temp 
-    bytecode=`cat ./build/tmp/runtime/Bridge.bin`
-    # prefix="var RuntimeBytecode = "
-    # variable=$prefix"$bytecode"
+    bytecode=`cat ./build/tmp/runtime/${value}.bin`
     variable="var RuntimeBytecode = \"${bytecode}\""
     echo $variable >> $GO_DIR/$value/$value.go
 done
