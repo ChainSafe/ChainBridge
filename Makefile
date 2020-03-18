@@ -1,7 +1,4 @@
 PROJECTNAME=$(shell basename "$(PWD)")
-GOLANGCI := $(shell go env GOPATH)
-GOLANGCI_BIN := $(GOLANGCI)/bin
-GOLANGCI := $(GOLANGCI)/bin/golangci-lint
 
 CENT_EMITTER_ADDR?=0x1
 CENT_CHAIN_ID?=0x1
@@ -24,14 +21,14 @@ get:
 	go mod tidy && go mod download
 
 get_lint:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOLANGCI_BIN) v1.24.0
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s latest
 
 .PHONY: lint
 lint:
-	if [ ! -f $(GOLANGCI) ]; then \
+	if [ ! -f ./bin/golangci-lint ]; then \
 		$(MAKE) get_lint; \
 	fi;
-	$(GOLANGCI) run ./... --timeout 5m0s
+	./bin/golangci-lint run ./... --timeout 5m0s
 
 build: bindings
 	@echo "  >  \033[32mBuilding binary...\033[0m "
