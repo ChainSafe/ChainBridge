@@ -29,7 +29,7 @@ keys/
 # nodejs
 node_modules/
 
-centrifuge-chain/
+./centrifuge-chain
 
 /contracts
 abi/
