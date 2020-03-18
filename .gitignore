@@ -32,4 +32,5 @@ node_modules/
 ./centrifuge-chain
 
 /contracts
+/on-chain/evm-contracts/bindings
 abi/
