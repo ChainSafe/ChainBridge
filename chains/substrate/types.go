@@ -1,9 +1,12 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package substrate
 
 import (
 	"encoding/binary"
 
-	"github.com/ChainSafe/ChainBridgeV2/message"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 

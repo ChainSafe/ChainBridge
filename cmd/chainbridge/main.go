@@ -140,7 +140,7 @@ func run(ctx *cli.Context) error {
 				Opts:         chain.Opts,
 			})
 		} else if chain.Type == "substrate" {
-			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
+			chainconfig, err = substrate.InitializeChain(&core.ChainConfig{
 				Id:           chain.Id,
 				Endpoint:     chain.Endpoint,
 				From:         chain.From,

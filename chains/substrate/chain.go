@@ -4,9 +4,6 @@
 package substrate
 
 import (
-	"fmt"
-
-	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
@@ -18,9 +15,9 @@ import (
 type Chain struct {
 	cfg *core.ChainConfig // The config of the chain
 	// TODO: Does this have to be an interface?
-	conn     chains.Connection // THe chains connection
-	listener *Listener         // The listener of this chain
-	writer   *Writer           // The writer of the chain
+	conn     *Connection // THe chains connection
+	listener *Listener   // The listener of this chain
+	writer   *Writer     // The writer of the chain
 }
 
 func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
@@ -41,16 +38,6 @@ func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
 }
 
 func (c *Chain) Start() error {
-	if c.conn == nil {
-		return fmt.Errorf("no connection specified")
-	}
-	if c.listener == nil {
-		return fmt.Errorf("no listener specified")
-	}
-	if c.writer == nil {
-		return fmt.Errorf("no Writer specified")
-	}
-
 	err := c.listener.Start()
 	if err != nil {
 		return err
@@ -61,7 +48,7 @@ func (c *Chain) Start() error {
 		return err
 	}
 
-	log.Debug("Successfully started chain")
+	log.Debug("Successfully started chain", "id", c.cfg.Id.String())
 	return nil
 }
 

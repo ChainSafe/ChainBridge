@@ -1,9 +1,13 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package substrate
 
 import (
 	"testing"
 
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
+	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
 var TestKeyringPairAlice = signature.KeyringPair{
@@ -20,6 +24,7 @@ var TestKeyringPairBob = signature.KeyringPair{
 
 var TestEndpoint = "ws://127.0.0.1:9944"
 
+// createAliceAndBobConnections creates and calls `Connect()` on two Connections using the Alice and Bob keypairs
 func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
 	alice := NewConnection(TestEndpoint, &TestKeyringPairAlice)
 	err := alice.Connect()
@@ -34,4 +39,24 @@ func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
 	}
 
 	return alice, bob
+}
+
+// getFreeBalance queries the balance for an account, storing the result in `res`
+func getFreeBalance(c *Connection, res *types.U128) {
+	acct := struct {
+		Nonce    types.U32
+		Refcount types.UCompact
+		Data     struct {
+			Free       types.U128
+			Reserved   types.U128
+			MiscFrozen types.U128
+			FreeFrozen types.U128
+		}
+	}{}
+
+	err := c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
+	if err != nil {
+		panic(err)
+	}
+	*res = acct.Data.Free
 }

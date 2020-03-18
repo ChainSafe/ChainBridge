@@ -16,9 +16,7 @@ type Router interface {
 	Send(message msg.Message) error
 }
 
-type Listener interface {
-	// RegisterEventHandler(string, EvtHandlerFn) error
-}
+type Listener interface{}
 
 type EvtHandlerFn func(interface{}) msg.Message
 

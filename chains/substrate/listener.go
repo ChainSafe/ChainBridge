@@ -53,36 +53,36 @@ func (l *Listener) Start() error {
 			if err != nil {
 				return err
 			}
-		//case ValidatorAdded:
-		//	err := l.RegisterEventHandler(ValidatorAdded, validatorAddedHandler)
-		//	if err != nil {
-		//		return err
-		//	}
-		//case ValidatorRemoved:
-		//	err := l.RegisterEventHandler(ValidatorRemoved, validatorRemovedHandler)
-		//	if err != nil {
-		//		return err
-		//	}
-		//case VoteFor:
-		//	err := l.RegisterEventHandler(VoteFor, voteForHandler)
-		//	if err != nil {
-		//		return err
-		//	}
-		//case VoteAgainst:
-		//	err := l.RegisterEventHandler(VoteAgainst, voteAgainstHandler)
-		//	if err != nil {
-		//		return err
-		//	}
-		//case ProposalSucceeded:
-		//	err := l.RegisterEventHandler(ProposalSucceeded, proposalSucceededHandler)
-		//	if err != nil {
-		//		return err
-		//	}
-		//case ProposalFailed:
-		//	err := l.RegisterEventHandler(ProposalFailed, proposalFailedHandler)
-		//	if err != nil {
-		//		return err
-		//	}
+		case ValidatorAdded:
+			err := l.RegisterEventHandler(ValidatorAdded, validatorAddedHandler)
+			if err != nil {
+				return err
+			}
+		case ValidatorRemoved:
+			err := l.RegisterEventHandler(ValidatorRemoved, validatorRemovedHandler)
+			if err != nil {
+				return err
+			}
+		case VoteFor:
+			err := l.RegisterEventHandler(VoteFor, voteForHandler)
+			if err != nil {
+				return err
+			}
+		case VoteAgainst:
+			err := l.RegisterEventHandler(VoteAgainst, voteAgainstHandler)
+			if err != nil {
+				return err
+			}
+		case ProposalSucceeded:
+			err := l.RegisterEventHandler(ProposalSucceeded, proposalSucceededHandler)
+			if err != nil {
+				return err
+			}
+		case ProposalFailed:
+			err := l.RegisterEventHandler(ProposalFailed, proposalFailedHandler)
+			if err != nil {
+				return err
+			}
 		default:
 			return fmt.Errorf("unrecognized event: %s", sub)
 		}
@@ -90,14 +90,6 @@ func (l *Listener) Start() error {
 	}
 
 	log15.Trace("Registered event handlers", "events", l.subscriptions)
-
-	//sub, err := l.conn.Subscribe()
-	//if err != nil {
-	//	return err
-	//}
-	//l.sub = sub
-	//
-	//go l.watchForEvents(sub)
 
 	go func() {
 		err := l.pollBlocks()
@@ -154,7 +146,10 @@ func (l *Listener) processEvents(hash types.Hash) error {
 
 	var records types.EventRecordsRaw
 	err = l.conn.api.RPC.State.GetStorage(key, &records, hash)
-	log15.Trace("Fetched storage")
+	if err != nil {
+		return err
+	}
+
 	e := Events{}
 	err = records.DecodeEventRecords(l.conn.meta, &e)
 	if err != nil {
@@ -169,7 +164,7 @@ func (l *Listener) processEvents(hash types.Hash) error {
 
 // watchForEvents is a blocking function that watches the subscription's event and error channels.
 // New events are handled by calling handleEvents. Errors are simply logged.
-func (l *Listener) watchForEvents(sub *state.StorageSubscription) {
+func (l *Listener) watchForEvents(sub *state.StorageSubscription) { //nolint:unused
 	for {
 		select {
 		case evt := <-sub.Chan():

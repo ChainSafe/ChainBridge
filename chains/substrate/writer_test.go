@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package substrate
 
 import (
@@ -11,29 +14,6 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"gotest.tools/assert"
 )
-
-const StartingBalance = "149500000000000000000000000"
-
-// const StartingBalance = "1152921504606846976"
-
-func getFreeBalance(c *Connection, res *types.U128) {
-	acct := struct {
-		Nonce    types.U32
-		Refcount types.UCompact
-		Data     struct {
-			Free       types.U128
-			Reserved   types.U128
-			MiscFrozen types.U128
-			FreeFrozen types.U128
-		}
-	}{}
-
-	err := c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
-	if err != nil {
-		panic(err)
-	}
-	*res = acct.Data.Free
-}
 
 func assertProposalState(conn *Connection, hash types.Hash, prop *proposal, votes VoteState) error {
 	var callRes types.Call
@@ -64,14 +44,9 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 	alice := NewWriter(ac)
 	bob := NewWriter(bc)
 
-	// Assert Bob's starting balances to ensure we have a fresh chain
-	sb, _ := big.NewInt(0).SetString(StartingBalance, 10)
-	startingBalance := types.NewU128(*sb)
-	var bBal types.U128
-	getFreeBalance(bob.conn, &bBal)
-	if !types.Eq(bBal, startingBalance) {
-		t.Fatalf("Bob has incorrect starting balance, need to purge the chain. Got: %d Expected: %d", bBal, startingBalance)
-	}
+	// Assert Bob's starting balances
+	var startingBalance types.U128
+	getFreeBalance(bob.conn, &startingBalance)
 
 	// Construct the message to initiate a vote
 	amount := types.MustHexDecodeString("1000000000")
@@ -126,7 +101,8 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 	assert.NilError(t, assertProposalState(alice.conn, prop.hash, prop, finalVoteState))
 
 	// Assert balance has updated
-	// TODO: This doesn't account for gas, will update once example chain is implemented
+	// TODO: This doesn't account for gas and stakng rewards, will update once example chain is implemented
+	var bBal types.U128
 	getFreeBalance(bob.conn, &bBal)
 	if bBal == startingBalance {
 		t.Fatalf("Internal transaction failed to update Bobs balance")
