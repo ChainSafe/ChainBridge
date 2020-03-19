@@ -23,14 +23,18 @@ jobs:
       go: 1.13.x
       name: "Golang-ci Linter"
       script:
+        - make license-check
+        - make bindings
         - make lint
 
     - language: go
       go: 1.13.x
       name: "Run Go tests"
       script:
+        - make bindings
         - SILENT=true make start_eth
         - make deploy_eth
+        - ./scripts/centrifuge/run_chain_ci.sh
         - make test
 
     - language: node_js
