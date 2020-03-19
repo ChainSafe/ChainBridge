@@ -65,10 +65,12 @@ func GenerateKeypair() (*Keypair, error) {
 	return NewKeypair(*priv), nil
 }
 
+// Encode dumps the private key as bytes
 func (kp *Keypair) Encode() []byte {
 	return secp256k1.FromECDSA(kp.private)
 }
 
+// Decode initializes the keypair using the input
 func (kp *Keypair) Decode(in []byte) error {
 	key, err := secp256k1.ToECDSA(in)
 	if err != nil {
@@ -81,14 +83,17 @@ func (kp *Keypair) Decode(in []byte) error {
 	return nil
 }
 
+// Address returns the Ethereum address format
 func (kp *Keypair) Address() string {
 	return secp256k1.PubkeyToAddress(*kp.public).String()
 }
 
+// PublicKey returns the public key hex encoded
 func (kp *Keypair) PublicKey() string {
 	return hexutil.Encode(secp256k1.CompressPubkey(kp.public))
 }
 
+// PrivateKey returns the keypair's private key
 func (kp *Keypair) PrivateKey() *ecdsa.PrivateKey {
 	return kp.private
 }

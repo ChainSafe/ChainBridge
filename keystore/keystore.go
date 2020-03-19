@@ -16,7 +16,7 @@ const EnvPassword = "KEYSTORE_PASSWORD"
 // prompting the user for the password.
 func KeypairFromAddress(addr, chainType, path string, insecure bool) (crypto.Keypair, error) {
 	if insecure {
-		return insecureKeypairFromAddress(addr, chainType)
+		return insecureKeypairFromAddress(path, chainType)
 	}
 	path = fmt.Sprintf("%s/%s.key", path, addr)
 	// Make sure key exists before prompting password
