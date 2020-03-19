@@ -1,6 +1,4 @@
 PROJECTNAME=$(shell basename "$(PWD)")
-GOLANGCI := $(GOPATH)/bin/golangci-lint
-
 
 CENT_EMITTER_ADDR?=0x1
 CENT_CHAIN_ID?=0x1
@@ -26,21 +24,17 @@ get_lint:
 	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s latest
 
 .PHONY: lint
-lint: bindings
+lint:
 	if [ ! -f ./bin/golangci-lint ]; then \
 		$(MAKE) get_lint; \
 	fi;
 	./bin/golangci-lint run ./... --timeout 5m0s
 
-fmt:
-	@echo "  >  \033[32mFormatting project...\033[0m "
-	gofmt -s -w .
-
 build: bindings
 	@echo "  >  \033[32mBuilding binary...\033[0m "
 	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge
 
-run: build bindings
+run: build
 	@echo "  >  \033[32mRunning bridge...\033[0m "
 	./build/chainbridge
 
@@ -48,7 +42,29 @@ install: bindings
 	@echo "  >  \033[32mInstalling bridge...\033[0m "
 	cd cmd/chainbridge && go install
 
-test: bindings
+## Builds the Go bindings for the solidity contracts
+bindings:
+	@echo " > \033[32mCreating go bindings for ethereum contracts... \033[0m "
+	./scripts/evm/create_bindings.sh
+
+## license: Adds license header to missing files.
+license:
+	@echo "  >  \033[32mAdding license headers...\033[0m "
+	GO111MODULE=off go get -u github.com/google/addlicense
+	addlicense -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .
+
+## license-check: Checks for missing license headers
+license-check:
+	@echo "  >  \033[Checking for license headers...\033[0m "
+	GO111MODULE=off go get -u github.com/google/addlicense
+	addlicense -check -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .
+
+## Install dependency subkey
+install-subkey:
+	curl https://getsubstrate.io -sSf | bash -s -- --fast
+	cargo install --force --git https://github.com/paritytech/substrate subkey
+
+test:
 	@echo "  >  \033[32mRunning tests...\033[0m "
 	./scripts/test.sh
 	
@@ -94,17 +110,3 @@ cent_whitelist_chain:
 cent_asset_tx:
 	@echo " > \033[32mExecuting centrifuge interaction... \033[0m "
 	./scripts/centrifuge/run_interaction.sh asset-tx $(CENT_CHAIN_ID) $(CENT_TO) $(CENT_TOKEN_ID) $(CENT_METADATA)
-
-bindings:
-	@echo " > \033[32mCreating go bindings for ethereum contracts... \033[0m "
-	./scripts/evm/create_bindings.sh
-
-## license: Adds license header to missing files, go gets addLicense if missing. Runs `addlicense -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .` on project files.
-license: 
-	go get -u github.com/google/addlicense
-	@echo "  >  \033[32mAdding license headers...\033[0m "
-	addlicense -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .
-
-install-subkey:
-	curl https://getsubstrate.io -sSf | bash -s -- --fast
-	cargo install --force --git https://github.com/paritytech/substrate subkey
