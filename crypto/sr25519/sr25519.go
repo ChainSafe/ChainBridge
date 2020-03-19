@@ -32,24 +32,29 @@ func NewKeypairFromSeed(seed string) (*Keypair, error) {
 	return &Keypair{&kp}, err
 }
 
+// AsKeyringPair returns the underlying KeyringPair
 func (kp *Keypair) AsKeyringPair() *signature.KeyringPair {
 	return kp.keyringPair
 }
 
+// Encode uses scale to encode underlying KeyringPair
 func (kp *Keypair) Encode() []byte {
 	out, _ := types.EncodeToBytes(kp.keyringPair)
 	return out
 }
 
+// Decode initializes keypair by decoding input as a KeyringPair
 func (kp *Keypair) Decode(in []byte) error {
 	kp.keyringPair = &signature.KeyringPair{}
 	return types.DecodeFromBytes(in, kp.keyringPair)
 }
 
+// Address returns the ss58 formated address
 func (kp *Keypair) Address() string {
 	return kp.keyringPair.Address
 }
 
+// PublicKey returns the publickey encoded as a string
 func (kp *Keypair) PublicKey() string {
 	return hexutil.Encode(kp.keyringPair.PublicKey)
 }
