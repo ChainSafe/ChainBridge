@@ -162,7 +162,7 @@ func (c *Connection) getByteCode(account ethcommon.Address) ([]byte, error) {
 	return c.conn.CodeAt(c.ctx, account, nil)
 }
 
-func (c *Connection) CheckBridgeContract(contract ethcommon.Address) error {
+func (c *Connection) checkBridgeContract(contract ethcommon.Address) error {
 	byteCode, err := c.getByteCode(contract)
 	if err != nil {
 		return err

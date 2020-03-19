@@ -125,7 +125,7 @@ func TestContractCode(t *testing.T) {
 	defer conn.Close()
 
 	// The following section checks if the byteCode exists on the chain at the specificed Addresses
-	err = conn.CheckBridgeContract(TestBridgeContractAddress)
+	err = conn.checkBridgeContract(TestBridgeContractAddress)
 	if err != nil {
 		t.Fatal(err)
 	}
