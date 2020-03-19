@@ -9,18 +9,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	eth "github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 const TestEndpoint = "ws://localhost:8545"
-const TestPrivateKey = "39a9ea0dce63086c64a80ce045b796bebed2006554e3992d92601515c7b19807"
-const TestPrivateKey2 = "5de3b6992e5ad40dc346cfd3b00595f58bd16ea38b43511e7a00a2a60d380225"
+
+var Alice = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 
 var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4")
 var TestAddress2 = ethcmn.HexToAddress("0a4c3620AF8f3F182e203609f90f7133e018Bf5D")
@@ -31,22 +29,30 @@ var TestEmitterContractAddress = ethcmn.HexToAddress("8090062239c909eB9b0433F118
 
 const TestTimeout = time.Second * 10
 
-func TestConnect(t *testing.T) {
+func newLocalConnection(t *testing.T) *Connection {
+
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		from:     "ethereum",
-		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
+		contract: TestCentrifugeContractAddress,
+		from:     keystore.AliceKey,
 	}
-	conn := NewConnection(cfg)
+
+	conn := NewConnection(cfg, Alice)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	return conn
+}
+
+func TestConnect(t *testing.T) {
+	conn := newLocalConnection(t)
 	conn.Close()
 }
 
 func TestSendTx(t *testing.T) {
-	conn := newLocalConnection(t, ethcmn.HexToAddress("0x0"))
+	conn := newLocalConnection(t)
 	defer conn.Close()
 
 	currBlock, err := conn.LatestBlock()
@@ -54,7 +60,7 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
+	TestAddr := Alice.Address()
 	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
 	if err != nil {
 		t.Fatal(err)
@@ -84,11 +90,10 @@ func TestSubscribe(t *testing.T) {
 	cfg := &Config{
 		id:       msg.EthereumId,
 		endpoint: TestEndpoint,
-		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-		from:     "ethereum",
+		from:     keystore.AliceKey,
 	}
 
-	conn := NewConnection(cfg)
+	conn := NewConnection(cfg, Alice)
 	l := NewListener(conn, cfg)
 	err := conn.Connect()
 	if err != nil {
@@ -104,25 +109,26 @@ func TestSubscribe(t *testing.T) {
 	}
 }
 
-func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
-	currBlock, err := conn.LatestBlock()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
-	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
-	auth := bind.NewKeyedTransactor(privateKey)
-	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0)     // in wei
-	auth.GasLimit = uint64(300000) // in units
-	auth.GasPrice = big.NewInt(10)
-
-	return auth
-}
+// Unused, may be useful in the future
+//func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
+//	currBlock, err := conn.LatestBlock()
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
+//	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
+//
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
+//	auth := bind.NewKeyedTransactor(privateKey)
+//	auth.Nonce = big.NewInt(int64(nonce))
+//	auth.Value = big.NewInt(0)     // in wei
+//	auth.GasLimit = uint64(300000) // in units
+//	auth.GasPrice = big.NewInt(10)
+//
+//	return auth
+//}

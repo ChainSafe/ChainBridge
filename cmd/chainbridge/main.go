@@ -10,7 +10,6 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	"github.com/ChainSafe/ChainBridgeV2/core"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -23,15 +22,9 @@ var cliFlags = []cli.Flag{
 	KeystorePathFlag,
 }
 
-var accountFlags = []cli.Flag{
-	ImportFlag,
-	ListFlag,
-}
-
 var generateFlags = []cli.Flag{
 	PrivateKeyFlag,
 	PasswordFlag,
-	Ed25519Flag,
 	Sr25519Flag,
 	Secp256k1Flag,
 }
@@ -41,24 +34,36 @@ var devFlags = []cli.Flag{
 }
 
 var accountCommand = cli.Command{
-	Action:   handleAccountsCmd,
 	Name:     "accounts",
 	Usage:    "manage bridge keystore",
-	Flags:    accountFlags,
 	Category: "KEYSTORE",
 	Description: "The account command is used to manage the bridge keystore.\n" +
-		"\tTo generate a new secp256k1 (Ethereum) account: bridge account --generate\n" +
-		"\tTo import a keystore file: bridge account --import=path/to/file\n" +
-		"\tTo list keys: bridge account --list",
+		"\tTo generate a new account, key type generated is based on the flag passed: chainbridge account generate\n" +
+		"\tTo import a keystore file: chainbridge account import path/to/file\n" +
+		"\tTo list keys: chainbridge account list",
 	Subcommands: []cli.Command{
 		{
-			Action:   handleGenerateCmd,
+			Action:   wrapHandler(handleGenerateCmd),
 			Name:     "generate",
-			Usage:    "generate bridge keystore",
+			Usage:    "generate bridge keystore, key type determined by flag",
 			Flags:    generateFlags,
 			Category: "KEYSTORE",
 			Description: "The generate subcommand is used to generate the bridge keystore.\n" +
 				"\tIf no options are specified, a secp256k1 key will be made.",
+		},
+		{
+			Action:      wrapHandler(handleImportCmd),
+			Name:        "import",
+			Usage:       "import bridge keystore",
+			Category:    "KEYSTORE",
+			Description: "The import subcommand is used to import a keystore for the bridge.\n",
+		},
+		{
+			Action:      wrapHandler(handleListCmd),
+			Name:        "list",
+			Usage:       "list bridge keystore",
+			Category:    "KEYSTORE",
+			Description: "The list subcommand is used to list all of the bridge keystores.\n",
 		},
 	},
 }
@@ -71,6 +76,7 @@ func init() {
 	app.Usage = "ChainBridge V2"
 	app.Author = "ChainSafe Systems 2019"
 	app.Version = "0.0.1"
+	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
 		accountCommand,
 	}
@@ -114,41 +120,43 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-	var ks *keystore.Keystore
+	var ks string
+	var insecure bool
 	if key := ctx.GlobalString(TestKeyFlag.Name); key != "" {
-		ks = keystore.NewTestKeystore(ctx.GlobalString(TestKeyFlag.Name))
+		ks = key
+		insecure = true
 	} else {
-		ks = keystore.NewKeystore(cfg.keystorePath)
+		ks = cfg.keystorePath
 	}
 
-	c := core.NewCore(nil)
+	c := core.NewCore()
 
 	for _, chain := range cfg.Chains {
 		var chainconfig core.Chain
 		if chain.Type == "ethereum" {
-			chainconfig = ethereum.InitializeChain(&core.ChainConfig{
-				Id:       chain.Id,
-				Endpoint: chain.Endpoint,
-				From:     chain.From,
-				// TODO remove this in favour of OPTS when config PR lands
-				Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
-				Keystore:      ks,
-				Opts:          chain.Opts,
+			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
+				Id:           chain.Id,
+				Endpoint:     chain.Endpoint,
+				From:         chain.From,
+				KeystorePath: ks,
+				Insecure:     insecure,
+				Opts:         chain.Opts,
 			})
 		} else if chain.Type == "substrate" {
-			chainconfig = ethereum.InitializeChain(&core.ChainConfig{
-				Id:       chain.Id,
-				Endpoint: chain.Endpoint,
-				From:     chain.From,
-				// TODO remove this in favour of OPTS when config PR lands
-				Subscriptions: ethereum.BuildEventSubscriptions([]string{"DepositAsset", "NftTransfer", "ErcTransfer"}),
-				Keystore:      ks,
-				Opts:          chain.Opts,
+			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
+				Id:           chain.Id,
+				Endpoint:     chain.Endpoint,
+				From:         chain.From,
+				KeystorePath: ks,
+				Insecure:     insecure,
+				Opts:         chain.Opts,
 			})
 		} else {
 			return errors.New("Unrecognized Chain Type")
 		}
-
+		if err != nil {
+			return err
+		}
 		c.AddChain(chainconfig)
 	}
 

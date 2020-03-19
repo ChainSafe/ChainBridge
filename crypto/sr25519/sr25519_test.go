@@ -4,100 +4,53 @@
 package sr25519
 
 import (
-	"crypto/rand"
 	"reflect"
 	"testing"
+
+	"github.com/centrifuge/go-substrate-rpc-client/signature"
 )
 
 func TestNewKeypairFromSeed(t *testing.T) {
-	seed := make([]byte, 32)
-	_, err := rand.Read(seed)
+	kp, err := NewKeypairFromSeed("//Alice")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	kp, err := NewKeypairFromSeed(seed)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if kp.public == nil || kp.private == nil {
-		t.Fatal("key is nil")
+	if kp.PublicKey() == "" || kp.Address() == "" {
+		t.Fatalf("key is missing data: %#v", kp)
 	}
 }
 
-func TestSignAndVerify(t *testing.T) {
-	kp, err := GenerateKeypair()
+func TestKeypair_AsKeyringPair(t *testing.T) {
+	kp, err := NewKeypairFromSeed("//Alice")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	msg := []byte("helloworld")
-	sig, err := kp.Sign(msg)
-	if err != nil {
-		t.Fatal(err)
+	krp := kp.AsKeyringPair()
+
+	// TODO: Add expected output from subkey
+
+	if !reflect.DeepEqual(&signature.TestKeyringPairAlice, krp) {
+		t.Fatalf("unexpected result.\n\tGot: %#v\n\texpected: %#v\n", krp, &signature.TestKeyringPairAlice)
 	}
 
-	pub := kp.Public().(*PublicKey)
-	ok, err := pub.Verify(msg, sig)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !ok {
-		t.Fatal("Fail: did not verify sr25519 sig")
-	}
 }
 
-func TestPublicKeys(t *testing.T) {
-	kp, err := GenerateKeypair()
+func TestEncodeAndDecodeKeypair(t *testing.T) {
+	kp, err := NewKeypairFromSeed("//Alice")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	priv := kp.Private().(*PrivateKey)
-	kp2, err := NewKeypair(priv.key)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(kp.Public(), kp2.Public()) {
-		t.Fatalf("Fail: pubkeys do not match got %x expected %x", kp2.Public(), kp.Public())
-	}
-}
-
-func TestEncodeAndDecodePrivateKey(t *testing.T) {
-	kp, err := GenerateKeypair()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	enc := kp.Private().Encode()
-	res := new(PrivateKey)
+	enc := kp.Encode()
+	res := new(Keypair)
 	err = res.Decode(enc)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	exp := kp.Private().(*PrivateKey).key.Encode()
-	if !reflect.DeepEqual(res.key.Encode(), exp) {
-		t.Fatalf("Fail: got %x expected %x", res.key.Encode(), exp)
-	}
-}
-
-func TestEncodeAndDecodePublicKey(t *testing.T) {
-	kp, err := GenerateKeypair()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	enc := kp.Public().Encode()
-	res := new(PublicKey)
-	err = res.Decode(enc)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	exp := kp.Public().(*PublicKey).key.Encode()
-	if !reflect.DeepEqual(res.key.Encode(), exp) {
-		t.Fatalf("Fail: got %v expected %v", res.key, exp)
+	if !reflect.DeepEqual(res, kp) {
+		t.Fatalf("Fail: got %#v expected %#v", res, kp)
 	}
 }

@@ -7,9 +7,10 @@ import (
 	"fmt"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
-	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
+	bridge "github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
 	log "github.com/ChainSafe/log15"
@@ -22,45 +23,56 @@ type Chain struct {
 	writer   *Writer           // The writer of the chain
 }
 
-func InitializeChain(chainCfg *core.ChainConfig) *Chain {
-	cfg := ParseChainConfig(chainCfg)
-
-	conn := NewConnection(cfg)
-	err := conn.Connect()
+func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
+	cfg, err := ParseChainConfig(chainCfg)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	emitterContract, err := emitter.NewEmitter(cfg.emitter, conn.conn)
+	kpI, err := keystore.KeypairFromAddress(cfg.from, keystore.EthChain, cfg.keystorePath, chainCfg.Insecure)
 	if err != nil {
-		panic(err)
+		return nil, err
+	}
+
+	kp, _ := kpI.(*secp256k1.Keypair)
+
+	conn := NewConnection(cfg, kp)
+	err = conn.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	bridgeInstance, err := bridge.NewBridge(cfg.contract, conn.conn)
+	if err != nil {
+		return nil, err
+	}
+
+	raw := &bridge.BridgeRaw{
+		Contract: bridgeInstance,
+	}
+
+	bridgeContract := BridgeContract{
+		BridgeRaw:    raw,
+		BridgeCaller: &bridgeInstance.BridgeCaller,
 	}
 
 	listener := NewListener(conn, cfg)
-	listener.SetEmitterContract(&emitterContract.EmitterFilterer)
-
-	receiverContract, err := receiver.NewReceiver(cfg.receiver, conn.conn)
-	if err != nil {
-		panic(err)
-	}
-
-	instance := &receiver.ReceiverRaw{
-		Contract: receiverContract,
-	}
+	listener.SetBridgeContract(bridgeContract)
 
 	writer := NewWriter(conn, cfg)
-	writer.SetReceiverContract(instance)
+	writer.SetBridgeContract(bridgeContract)
 
 	return &Chain{
 		cfg:      chainCfg,
 		conn:     conn,
 		writer:   writer,
 		listener: listener,
-	}
+	}, nil
 }
 
 func (c *Chain) SetRouter(r *router.Router) {
 	r.Listen(c.cfg.Id, c.writer)
+	c.listener.SetRouter(r)
 }
 
 func (c *Chain) Start() error {

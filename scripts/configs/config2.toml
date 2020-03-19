@@ -1,0 +1,17 @@
+
+[[chains]]
+name = "ethereum"
+type = "ethereum"
+id = 0
+endpoint = "ws://localhost:8545"
+from = "0256e9cd885e02497bedbd9b780d9ff05fba77fab5c757f35530461681879206ee"
+opts = { chainID = "1337", bridge = "0xcB76d991cFCd621b477d705be7DdF5EA69D39C00" }
+
+[[chains]]
+name = "ETC"
+type = "ethereum"
+id = 1
+endpoint = "ws://localhost:8546"
+from = "0256e9cd885e02497bedbd9b780d9ff05fba77fab5c757f35530461681879206ee"
+opts = { chainID = "1337", bridge = "0xcB76d991cFCd621b477d705be7DdF5EA69D39C00" }
+
