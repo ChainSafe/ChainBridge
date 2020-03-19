@@ -14,8 +14,6 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
-//var _ chains.Connection = &Connection{}
-
 type Connection struct {
 	api *gsrpc.SubstrateAPI
 	url string

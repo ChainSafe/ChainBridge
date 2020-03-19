@@ -15,8 +15,6 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
-var _ chains.Listener = &Listener{}
-
 type Listener struct {
 	cfg           *core.ChainConfig
 	conn          *Connection
