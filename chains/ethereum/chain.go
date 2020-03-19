@@ -42,7 +42,7 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	err = conn.CheckBridgeContract(cfg.contract)
+	err = conn.checkBridgeContract(cfg.contract)
 	if err != nil {
 		return nil, err
 	}
