@@ -97,14 +97,18 @@ func (l *Listener) watchForEvents(sub *state.StorageSubscription) {
 			log15.Trace("Received new block", "chainID", l.cfg.Id)
 			for _, chng := range evt.Changes {
 				events := Events{}
+				MetaLock.Lock()
 				meta, err := l.conn.api.RPC.State.GetMetadataLatest()
 				if err != nil {
+					MetaLock.Unlock()
 					log15.Error("Failed to get metadata", "err", err)
 				}
 				err = types.EventRecordsRaw(chng.StorageData).DecodeEventRecords(meta, &events)
 				if err != nil {
+					MetaLock.Unlock()
 					panic(err)
 				}
+				MetaLock.Unlock()
 				l.handleEvents(events)
 			}
 		case err := <-sub.Err():

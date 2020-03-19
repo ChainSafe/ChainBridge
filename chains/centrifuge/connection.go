@@ -4,6 +4,8 @@
 package centrifuge
 
 import (
+	"sync"
+
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/state"
@@ -11,6 +13,8 @@ import (
 )
 
 var _ chains.Connection = &Connection{}
+
+var MetaLock = &sync.RWMutex{}
 
 type Connection struct {
 	api *gsrpc.SubstrateAPI
@@ -36,6 +40,8 @@ func (c *Connection) SubmitTx(data []byte) error {
 
 // Subscribe creates a subscription to all events
 func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
+	MetaLock.Lock()
+	defer MetaLock.Unlock()
 	meta, err := c.api.RPC.State.GetMetadataLatest()
 	if err != nil {
 		return nil, err
