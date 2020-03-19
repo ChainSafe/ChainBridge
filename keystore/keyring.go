@@ -13,11 +13,11 @@ import (
 
 // The Constant "keys". These are the name that the keys are based on. This can be expanded, but
 // any additions must be added to TestKeyRing and to insecureKeyFromAddress
-const AliceKey = "Alice"
-const BobKey = "Bob"
-const CharlieKey = "Charlie"
-const DaveKey = "Dave"
-const EveKey = "Eve"
+const AliceKey = "alice"
+const BobKey = "bob"
+const CharlieKey = "charlie"
+const DaveKey = "dave"
+const EveKey = "eve"
 
 // The Chain type Constants
 const EthChain = "ethereum"
@@ -29,8 +29,8 @@ var TestKeyRing *TestKeyRingHolder
 
 // TestKeyStore is a struct that holds a Keystore of all the test keys
 type TestKeyRingHolder struct {
-	EthereumKeys   KeyRing
-	CentrifugeKeys KeyRing
+	EthereumKeys   map[string]*secp256k1.Keypair
+	CentrifugeKeys map[string]*sr25519.Keypair
 }
 
 // KeyRing holds the keypair related to a specfic keypair type
@@ -39,9 +39,27 @@ type KeyRing map[string]crypto.Keypair
 // Init function to create a keyRing that can be accessed anywhere without having to recreate the data
 func init() {
 	TestKeyRing = &TestKeyRingHolder{
-		EthereumKeys:   createKeyRing(EthChain),
-		CentrifugeKeys: createKeyRing(SubChain),
+		EthereumKeys:   makeETHRing(createKeyRing(EthChain)),
+		CentrifugeKeys: makeSUBRing(createKeyRing(SubChain)),
 	}
+}
+
+func makeETHRing(k KeyRing) map[string]*secp256k1.Keypair {
+	ring := map[string]*secp256k1.Keypair{}
+	for key, pair := range k {
+		ring[key] = pair.(*secp256k1.Keypair)
+	}
+
+	return ring
+}
+
+func makeSUBRing(k KeyRing) map[string]*sr25519.Keypair {
+	ring := map[string]*sr25519.Keypair{}
+	for key, pair := range k {
+		ring[key] = pair.(*sr25519.Keypair)
+	}
+
+	return ring
 }
 
 // padWithZeros adds on extra 0 bytes to make a byte array of a specified length
@@ -85,15 +103,22 @@ func createKeypair(key, chain string) crypto.Keypair {
 
 }
 
-// insecureKeypairFromAddress is used for resolving address in an insecure keystore.
-// Instead of providing an address a chain reference can be used to fetch a default keypair (eg. "ethereum").
-func insecureKeypairFromAddress(keyType string, chainType string) (crypto.Keypair, error) {
+// insecureKeypairFromAddress is used for resolving addresses to test keypairs.
+func insecureKeypairFromAddress(key string, chainType string) (crypto.Keypair, error) {
+	var kp crypto.Keypair
+	var ok bool
+
 	if chainType == EthChain {
-		return TestKeyRing.EthereumKeys[keyType], nil
+		kp, ok = TestKeyRing.EthereumKeys[key]
 	} else if chainType == SubChain {
-		return TestKeyRing.CentrifugeKeys[keyType], nil
+		kp, ok = TestKeyRing.CentrifugeKeys[key]
 	} else {
-		fmt.Println(chainType)
-		panic("unrecognized key type")
+		return nil, fmt.Errorf("unrecognized chain type: %s", chainType)
 	}
+
+	if !ok {
+		return nil, fmt.Errorf("invalid test key selection: %s", key)
+	}
+
+	return kp, nil
 }
