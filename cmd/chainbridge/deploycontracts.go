@@ -1,52 +1,49 @@
 package main
 
 import (
-	"context"
-	"crypto/ecdsa"
+    "context"
+    "crypto/ecdsa"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+    "github.com/ethereum/go-ethereum/accounts/abi/bind"
+    "github.com/ethereum/go-ethereum/crypto"
+    "github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/urfave/cli"
-
-	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
+    "github.com/urfave/cli"
+    
+    keyCrypto "github.com/ChainSafe/ChainBridgeV2/crypto"
+    "github.com/ChainSafe/ChainBridgeV2/keystore"
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
+	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
-	log "github.com/ChainSafe/log15"
+    simpleEmitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
+    log "github.com/ChainSafe/log15"
+
 )
 
-var deployContractsLocalCommand = cli.Command{
-	Action:      parseCommands,
-	Name:        "localdeploy",
-	Usage:       "deploys contracts",
-	Category:    "tests",
-	Flags:       deployContractLocalFlags,
-	Description: "\tthe localdeploy command is used to deploy contracts on a local network for testing purposes\n",
+var deployContractsLocalCmd = cli.Command{
+	Action:   deployContractsLocal,
+	Name:     "deploycontractslocal",
+	Usage:    "deploys contracts",
+	Category: "tests",
+	Flags:    deployContractLocalFlags,
+	Description: "\tthe deploycontractslocal command is used to deploy contracts on a local network for testing purposes\n",
 }
+
 
 var (
 	// Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
-	DEPLOYER_PRIV_KEY = "000000000000000000000000000000000000000000000000000000416c696365"
+    DEPLOYER_PRIV_KEY = "000000000000000000000000000000000000000000000000000000416c696365";
+    
+    VALIDATOR_ADDRESS = []string{
+        keyCrypto.PublicKeyToAddress(keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Public()),
+        keyCrypto.PublicKeyToAddress(keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Public()),
+        keyCrypto.PublicKeyToAddress(keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Public()),
+        keyCrypto.PublicKeyToAddress(keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Public()),
+        keyCrypto.PublicKeyToAddress(keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Public()),
+    }
 
-	VALIDATOR_ADDRESS = []string{
-		"0x0c6CD6Dc5258EF556eA7c6dab2abE302fB60e0b6", // Alice Public Address
-		"0x0E17A926c6525b59921846c85E1efD7a5396a47B", // Bob Public Address
-		"0x0f05849291a309EC001bbd2dAd7DC6F989c40c80", // Charlie Public Address
-		"0x3003d03276434dd23429D4D33090DA5948b7b510", // Dave Public Address
-		"0x251e6F841549D519dE6De1e99241695bc1000A26", // Eve Public Address
-	}
-
-	// VALIDATOR_PRIV_KEYS = []string{
-	// 	"0x000000000000000000000000000000000000000000000000000000416c696365", // Alice Private Key
-	// 	"0x0000000000000000000000000000000000000000000000000000000000426f62", // Bob Private Key
-	// 	"0x00000000000000000000000000000000000000000000000000436861726c6965", // Charlie Private Key
-	// 	"0x0000000000000000000000000000000000000000000000000000000044617665", // Dave Private Key
-	// 	"0x0000000000000000000000000000000000000000000000000000000000457665", // Eve Private Key
-	// }
-
-	ZERO_ADDRESS = common.HexToAddress("0x0000000000000000000000000000000000000000")
+    ZERO_ADDRESS = common.HexToAddress("0x0000000000000000000000000000000000000000")
 )
 
 func parseCommands(ctx *cli.Context) error {
