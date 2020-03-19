@@ -11,17 +11,15 @@ import (
 	"github.com/ethereum/go-ethereum/common"
     "github.com/urfave/cli"
     
-    keyCrypto "github.com/ChainSafe/ChainBridgeV2/crypto"
     "github.com/ChainSafe/ChainBridgeV2/keystore"
 	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
 	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
-    simpleEmitter "github.com/ChainSafe/ChainBridgeV2/contracts/SimpleEmitter"
     log "github.com/ChainSafe/log15"
 
 )
 
-var deployContractsLocalCmd = cli.Command{
+var deployContractsLocalCommand = cli.Command{
 	Action:   deployContractsLocal,
 	Name:     "deploycontractslocal",
 	Usage:    "deploys contracts",
@@ -36,11 +34,11 @@ var (
     DEPLOYER_PRIV_KEY = "000000000000000000000000000000000000000000000000000000416c696365";
     
     VALIDATOR_ADDRESS = []string{
-        keyCrypto.PublicKeyToAddress(keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Public()),
-        keyCrypto.PublicKeyToAddress(keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Public()),
-        keyCrypto.PublicKeyToAddress(keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Public()),
-        keyCrypto.PublicKeyToAddress(keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Public()),
-        keyCrypto.PublicKeyToAddress(keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Public()),
+        "0x" + keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Address(),
+        "0x" + keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Address(),
+        "0x" + keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Address(),
+        "0x" + keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Address(),
+        "0x" + keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Address(),
     }
 
     ZERO_ADDRESS = common.HexToAddress("0x0000000000000000000000000000000000000000")
