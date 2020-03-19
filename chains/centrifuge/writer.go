@@ -11,10 +11,10 @@ import (
 var _ chains.Writer = &Writer{}
 
 type Writer struct {
-	conn chains.Connection
+	conn *Connection
 }
 
-func NewWriter(conn chains.Connection) *Writer {
+func NewWriter(conn *Connection) *Writer {
 	return &Writer{
 		conn: conn,
 	}

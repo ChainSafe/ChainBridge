@@ -7,18 +7,15 @@ import (
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-var _ chains.Listener = &Listener{}
-
 type Subscription struct {
 	signature string
-	handler   chains.EvtHandlerFn
+	handler   evtHandlerFn
 }
 
 type ActiveSubscription struct {
@@ -97,7 +94,7 @@ func (l *Listener) buildQuery(contract ethcommon.Address, sig EventSig) eth.Filt
 
 // RegisterEventHandler creates a subscription for the provided event on the bridge contract.
 // Handler will be called for every instance of event.
-func (l *Listener) RegisterEventHandler(subscription string, handler chains.EvtHandlerFn) error {
+func (l *Listener) RegisterEventHandler(subscription string, handler evtHandlerFn) error {
 	evt := EventSig(subscription)
 	query := l.buildQuery(l.cfg.contract, evt)
 	eventSubscription, err := l.conn.subscribeToEvent(query)
@@ -112,7 +109,7 @@ func (l *Listener) RegisterEventHandler(subscription string, handler chains.EvtH
 
 // watchEvent will call the handler for every occurrence of the corresponding event. It should be run in a separate
 // goroutine to monitor the subscription channel.
-func (l *Listener) watchEvent(eventSubscription *ActiveSubscription, handler func(interface{}) msg.Message) {
+func (l *Listener) watchEvent(eventSubscription *ActiveSubscription, handler evtHandlerFn) {
 	for {
 		select {
 		case evt := <-eventSubscription.ch:

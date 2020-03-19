@@ -31,7 +31,7 @@ type Events struct {
 	Bridge_AssetTransfer []EventAssetTransfer //nolint:stylecheck,golint
 }
 
-func nftHandler(evtI interface{}) msg.Message {
+func nftHandler(evtI interface{}) msg.Message { //nolint:deadcode,unused
 	evt, ok := evtI.(EventNFTDeposited)
 	if !ok {
 		log15.Error("failed to cast EventNFTDeposited type")
@@ -47,7 +47,7 @@ func nftHandler(evtI interface{}) msg.Message {
 	}
 }
 
-func assetTransferHandler(evtI interface{}) msg.Message {
+func assetTransferHandler(evtI interface{}) msg.Message { //nolint:deadcode,unused
 	evt, ok := evtI.(EventAssetTransfer)
 	if !ok {
 		log15.Error("failed to cast EventAssetTransfer type")
