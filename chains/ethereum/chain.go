@@ -29,7 +29,7 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	kpI, err := keystore.KeypairFromAddress(cfg.from, keystore.EthChain, cfg.keystorePath, false)
+	kpI, err := keystore.KeypairFromAddress(cfg.from, keystore.EthChain, cfg.keystorePath, chainCfg.Insecure)
 	if err != nil {
 		return nil, err
 	}

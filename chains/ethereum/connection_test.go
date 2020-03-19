@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	eth "github.com/ethereum/go-ethereum"
@@ -19,7 +18,7 @@ import (
 
 const TestEndpoint = "ws://localhost:8545"
 
-var Alice = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair)
+var Alice = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 
 var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4")
 var TestAddress2 = ethcmn.HexToAddress("0a4c3620AF8f3F182e203609f90f7133e018Bf5D")
