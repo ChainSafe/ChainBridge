@@ -29,7 +29,7 @@ var deployContractsLocalCommand = cli.Command{
 
 var (
 	// Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
-	DEPLOYER_PRIV_KEY = "000000000000000000000000000000000000000000000000000000416c696365"
+	// DEPLOYER_PRIV_KEY = "000000000000000000000000000000000000000000000000000000416c696365"
 
 	VALIDATOR_ADDRESS = []string{
 		keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Address(),
