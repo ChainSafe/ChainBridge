@@ -9,16 +9,16 @@ const { Vote, VoteStatus, ThresholdType } = require("../helpers");
 contract('Receiver - [Thresholds::Create]', async (accounts) => {
     let ReceiverInstance;
 
-    // Set validators
+    // Set relayers
     let v1 = accounts[0];
     let v2 = accounts[1];
     let v3 = accounts[3];
 
     beforeEach(async () => {
         ReceiverInstance = await ReceiverContract.new(
-            [v1, v2, v3], // bridge validators
+            [v1, v2, v3], // bridge relayers
             2,            // depoist threshold
-            2             // validator threshold
+            2             // relayer threshold
         )
     });
 
@@ -27,8 +27,8 @@ contract('Receiver - [Thresholds::Create]', async (accounts) => {
         assert.strictEqual(receipt.status, true);
     });
 
-    it('create validator threshold proposal', async () => {
-        const { receipt } = await ReceiverInstance.createThresholdProposal(3, ThresholdType.Validator);
+    it('create relayer threshold proposal', async () => {
+        const { receipt } = await ReceiverInstance.createThresholdProposal(3, ThresholdType.Relayer);
         assert.strictEqual(receipt.status, true);
     });
 });
@@ -36,16 +36,16 @@ contract('Receiver - [Thresholds::Create]', async (accounts) => {
 contract('Receiver - [Thresholds::Voting]', async (accounts) => {
     let ReceiverInstance;
 
-    // Set validators
+    // Set relayers
     let v1 = accounts[0];
     let v2 = accounts[1];
     let v3 = accounts[3];
 
     beforeEach(async () => {
         ReceiverInstance = await ReceiverContract.new(
-            [v1, v2, v3], // bridge validators
+            [v1, v2, v3], // bridge relayers
             2,            // depoist threshold
-            2             // validator threshold
+            2             // relayer threshold
         )
     });
 
@@ -53,7 +53,7 @@ contract('Receiver - [Thresholds::Voting]', async (accounts) => {
         const before = await ReceiverInstance.DepositThreshold();
         assert.strictEqual(before.toNumber(), 2);
         // Create & vote
-        // This should pass because we have 3 validators
+        // This should pass because we have 3 relayers
         await ReceiverInstance.createThresholdProposal(3, ThresholdType.Deposit, { from: v1 });
         await ReceiverInstance.voteThresholdProposal(Vote.Yes, ThresholdType.Deposit, { from: v2 });
         // Check success
@@ -67,7 +67,7 @@ contract('Receiver - [Thresholds::Voting]', async (accounts) => {
         const before = await ReceiverInstance.DepositThreshold();
         assert.strictEqual(before.toNumber(), 2);
         // Create & vote
-        // This should pass because we have 3 validators
+        // This should pass because we have 3 relayers
         await ReceiverInstance.createThresholdProposal(1, ThresholdType.Deposit, { from: v1 });
         await ReceiverInstance.voteThresholdProposal(Vote.Yes, ThresholdType.Deposit, { from: v2 });
         // Check success
@@ -77,31 +77,31 @@ contract('Receiver - [Thresholds::Voting]', async (accounts) => {
         assert.strictEqual(after.toNumber(), 1);
     });
 
-    it('can increment validator threshold', async () => {
-        const before = await ReceiverInstance.ValidatorThreshold();
+    it('can increment relayer threshold', async () => {
+        const before = await ReceiverInstance.RelayerThreshold();
         assert.strictEqual(before.toNumber(), 2);
         // Create & vote
-        // This should pass because we have 3 validators
-        await ReceiverInstance.createThresholdProposal(3, ThresholdType.Validator, { from: v1 });
-        await ReceiverInstance.voteThresholdProposal(Vote.Yes, ThresholdType.Validator, { from: v2 });
+        // This should pass because we have 3 relayers
+        await ReceiverInstance.createThresholdProposal(3, ThresholdType.Relayer, { from: v1 });
+        await ReceiverInstance.voteThresholdProposal(Vote.Yes, ThresholdType.Relayer, { from: v2 });
         // Check success
-        const vote = await ReceiverInstance.ThresholdProposals(ThresholdType.Validator);
+        const vote = await ReceiverInstance.ThresholdProposals(ThresholdType.Relayer);
         assert.strictEqual(vote.status.toNumber(), VoteStatus.Finalized);
-        const after = await ReceiverInstance.ValidatorThreshold();
+        const after = await ReceiverInstance.RelayerThreshold();
         assert.strictEqual(after.toNumber(), 3);
     });
 
-    it('can decrement validator threshold', async () => {
-        const before = await ReceiverInstance.ValidatorThreshold();
+    it('can decrement relayer threshold', async () => {
+        const before = await ReceiverInstance.RelayerThreshold();
         assert.strictEqual(before.toNumber(), 2);
         // Create & vote
-        // This should pass because we have 3 validators
-        await ReceiverInstance.createThresholdProposal(1, ThresholdType.Validator, { from: v1 });
-        await ReceiverInstance.voteThresholdProposal(Vote.Yes, ThresholdType.Validator, { from: v2 });
+        // This should pass because we have 3 relayers
+        await ReceiverInstance.createThresholdProposal(1, ThresholdType.Relayer, { from: v1 });
+        await ReceiverInstance.voteThresholdProposal(Vote.Yes, ThresholdType.Relayer, { from: v2 });
         // Check success
-        const vote = await ReceiverInstance.ThresholdProposals(ThresholdType.Validator);
+        const vote = await ReceiverInstance.ThresholdProposals(ThresholdType.Relayer);
         assert.strictEqual(vote.status.toNumber(), VoteStatus.Finalized);
-        const after = await ReceiverInstance.ValidatorThreshold();
+        const after = await ReceiverInstance.RelayerThreshold();
         assert.strictEqual(after.toNumber(), 1);
     });
 });

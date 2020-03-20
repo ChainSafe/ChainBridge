@@ -14,7 +14,7 @@ const ERC721Contract = require("../../build/contracts/ERC721Mintable.json");
 
 async function assetTestTransfer(cfg) {
     try {
-        const deployerWallet = new ethers.Wallet(constants.validatorPrivKeys[0], cfg.provider);
+        const deployerWallet = new ethers.Wallet(constants.relayerPrivKeys[0], cfg.provider);
         let emitterInstance = new ethers.Contract(constants.TEST_EMITTER_ADDRESS, TestEmitterContract.abi, deployerWallet);
         // Trigger fallback
         const tx = await cfg.mainWallet.sendTransaction({
@@ -29,14 +29,14 @@ async function assetTestTransfer(cfg) {
 
 async function erc20Transfer(cfg) {
     try {
-        const minterWallet = new ethers.Wallet(constants.validatorPrivKeys[0], cfg.provider);
+        const minterWallet = new ethers.Wallet(constants.relayerPrivKeys[0], cfg.provider);
 
         // Instances
         const erc20Instance = new ethers.Contract(constants.ERC20_ADDRESS, ERC20Contract.abi, minterWallet);
         const emitterInstance = new ethers.Contract(constants.EMITTER_ADDRESS, EmitterContract.abi, minterWallet);
         const receiverInstance = new ethers.Contract(constants.RECEIVER_ADDRESS, ReceiverContract.abi, minterWallet);
         if (cfg.watchMode) {
-            watchBalances(cfg, erc20Instance, receiverInstance, emitterInstance.address, minterWallet.address, constants.validatorAddresses[1])
+            watchBalances(cfg, erc20Instance, receiverInstance, emitterInstance.address, minterWallet.address, constants.relayerAddresses[1])
         } else {
 
             // Mint & Approve tokens
@@ -48,7 +48,7 @@ async function erc20Transfer(cfg) {
             console.log("[ERC20 Transfer] Pre token balaance: ", prebal.toNumber());
 
             // Make the deposit
-            await emitterInstance.depositGenericErc(cfg.dest, cfg.value, constants.validatorAddresses[1], erc20Instance.address);
+            await emitterInstance.depositGenericErc(cfg.dest, cfg.value, constants.relayerAddresses[1], erc20Instance.address);
             console.log("[ERC20 Transfer] Created deposit!");
 
             // Check the balance after the deposit
@@ -63,7 +63,7 @@ async function erc20Transfer(cfg) {
 async function erc721Transfer(cfg) {
     try {
         console.log("[ERC721 Transfer] EMITTER_ADDRESS:", constants.EMITTER_ADDRESS);
-        const minterWallet = new ethers.Wallet(constants.validatorPrivKeys[0], cfg.provider);
+        const minterWallet = new ethers.Wallet(constants.relayerPrivKeys[0], cfg.provider);
 
         // Create token
         let tokenFactory = new ethers.ContractFactory(ERC721Contract.abi, ERC721Contract.bytecode, minterWallet);
@@ -103,7 +103,7 @@ async function erc721Transfer(cfg) {
         })
 
         // // Perform deposit
-        const d = await emitterInstance.depositNFT(cfg.dest, constants.validatorAddresses[1], erc721Instance.address, 1, "0x");
+        const d = await emitterInstance.depositNFT(cfg.dest, constants.relayerAddresses[1], erc721Instance.address, 1, "0x");
         console.log("[ERC721 Transfer] Created deposit!")
         console.log("[ERC721 Transfer] Deposit Hash", d.hash);
     } catch (e) {
@@ -114,7 +114,7 @@ async function erc721Transfer(cfg) {
 async function depositTest(cfg) {
     try {
         console.log("[Deposit Test] RECEIVER ADDRESS:", constants.RECEIVER_ADDRESS);
-        const minterWallet = new ethers.Wallet(constants.validatorPrivKeys[0], cfg.provider);
+        const minterWallet = new ethers.Wallet(constants.relayerPrivKeys[0], cfg.provider);
 
         // Create receiver instance
         const receiverInstance = new ethers.Contract(constants.RECEIVER_ADDRESS, ReceiverContract.abi, minterWallet);
