@@ -20,7 +20,7 @@ import (
 )
 
 var deployContractsLocalCommand = cli.Command{
-	Action:   deployContractsLocal,
+	Action:   parseCommands,
 	Name:     "deploycontractslocal",
 	Usage:    "deploys contracts",
 	Category: "tests",
@@ -34,18 +34,19 @@ var (
     DEPLOYER_PRIV_KEY = "000000000000000000000000000000000000000000000000000000416c696365";
     
     VALIDATOR_ADDRESS = []string{
-        "0x" + keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Address(),
-        "0x" + keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Address(),
-        "0x" + keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Address(),
-        "0x" + keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Address(),
-        "0x" + keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Address(),
+        keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Address(),
+        keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Address(),
+        keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Address(),
+        keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Address(),
+        keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Address(),
     }
 
     ZERO_ADDRESS = common.HexToAddress("0x0000000000000000000000000000000000000000")
 )
 
 func parseCommands(ctx *cli.Context) error {
-	log.Info("Deploying Contracts")
+    log.Info("Deploying Contracts")
+    log.Info(VALIDATOR_ADDRESS[0])
 
 	port := ctx.String(PortFlag.Name)
 	if port == "" {
