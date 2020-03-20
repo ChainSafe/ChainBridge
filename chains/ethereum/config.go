@@ -22,6 +22,7 @@ type Config struct {
 	contract     common.Address
 	gasLimit     *big.Int
 	gasPrice     *big.Int
+	Http         bool // Config for type of connection
 }
 
 // ParseChainConfig uses a core.ChainConfig to construct a corresponding Config
@@ -36,6 +37,7 @@ func ParseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		contract:     common.HexToAddress("0x0"),
 		gasLimit:     big.NewInt(6721975),
 		gasPrice:     big.NewInt(20000000000),
+		Http:         chainCfg.Http,
 	}
 
 	if chainID, ok := chainCfg.Opts["chainID"]; ok {

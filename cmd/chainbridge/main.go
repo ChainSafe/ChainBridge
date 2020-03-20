@@ -20,6 +20,7 @@ var cliFlags = []cli.Flag{
 	ConfigFileFlag,
 	VerbosityFlag,
 	KeystorePathFlag,
+	HTTPConnectionFlag,
 }
 
 var generateFlags = []cli.Flag{
@@ -129,6 +130,8 @@ func run(ctx *cli.Context) error {
 		ks = cfg.keystorePath
 	}
 
+	http := ctx.GlobalBool(HTTPConnectionFlag.Name)
+
 	c := core.NewCore()
 
 	for _, chain := range cfg.Chains {
@@ -141,6 +144,7 @@ func run(ctx *cli.Context) error {
 				KeystorePath: ks,
 				Insecure:     insecure,
 				Opts:         chain.Opts,
+				Http:         http,
 			})
 		} else if chain.Type == "substrate" {
 			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
@@ -150,6 +154,7 @@ func run(ctx *cli.Context) error {
 				KeystorePath: ks,
 				Insecure:     insecure,
 				Opts:         chain.Opts,
+				Http:         http,
 			})
 		} else {
 			return errors.New("Unrecognized Chain Type")

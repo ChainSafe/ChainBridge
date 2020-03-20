@@ -25,6 +25,11 @@ var (
 		Usage: "Path to keystore directory",
 		Value: DefaultKeystorePath,
 	}
+
+	HTTPConnectionFlag = cli.BoolFlag{
+		Name:  "http",
+		Usage: "Enables RPC HTTP Client",
+	}
 )
 
 // Generate subcommand flags

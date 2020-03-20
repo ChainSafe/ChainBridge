@@ -21,5 +21,6 @@ type ChainConfig struct {
 	From         string            // address of key to use
 	KeystorePath string            // Location of key files
 	Insecure     bool              // Indicated whether the test keyring should be used
+	Http         bool              // Indicates whether to use http in the rpc connection
 	Opts         map[string]string // Per chain options
 }
