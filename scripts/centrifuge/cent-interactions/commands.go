@@ -47,8 +47,7 @@ func setEmitterAddress(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	centrifuge.MetaLock.Lock()
-	defer centrifuge.MetaLock.Unlock()
+
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
 		return err
@@ -73,8 +72,6 @@ func getEmitterAddress(ctx *cli.Context) error {
 		panic(err)
 	}
 
-	centrifuge.MetaLock.Lock()
-	defer centrifuge.MetaLock.Unlock()
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
 		panic(err)
@@ -108,8 +105,6 @@ func whitelistChain(ctx *cli.Context) error {
 		return err
 	}
 
-	centrifuge.MetaLock.Lock()
-	defer centrifuge.MetaLock.Unlock()
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
 		return err
@@ -156,8 +151,6 @@ func submitAssetTx(ctx *cli.Context) error {
 	}
 
 	// dest, to token_id, metadata
-	centrifuge.MetaLock.Lock()
-	defer centrifuge.MetaLock.Unlock()
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
 		panic(err)
