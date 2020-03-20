@@ -9,7 +9,7 @@ module.exports.deployerPrivKey = "0x00000000000000000000000000000000000000000000
 
 
 // TODO Remove these and cycle through mnemonic
-module.exports.validatorAddresses = [
+module.exports.relayerAddresses = [
     "0xff93B45308FD417dF303D6515aB04D9e89a750Ca", // Alice Public Address
     "0x8e0a907331554AF72563Bd8D43051C2E64Be5d35", // Bob Public Address
     "0x24962717f8fA5BA3b931bACaF9ac03924EB475a0", // Charlie Public Address
@@ -17,7 +17,7 @@ module.exports.validatorAddresses = [
     "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485", // Eve Public Address
 ]
 
-module.exports.validatorPrivKeys = [
+module.exports.relayerPrivKeys = [
     "0x000000000000000000000000000000000000000000000000000000616c696365", // Alice Private Key
     "0x0000000000000000000000000000000000000000000000000000000000626f62", // Bob Private Key
     "0x00000000000000000000000000000000000000000000000000636861726c6965", // Charlie Private Key
@@ -26,7 +26,7 @@ module.exports.validatorPrivKeys = [
 ]
 
 // These are deterministic
-module.exports.VALIDATOR_ADDRESS = "0x5842B333910Fe0BfA05F5Ea9F1602a40d1AF3584";
+module.exports.RELAYER_ADDRESS = "0x5842B333910Fe0BfA05F5Ea9F1602a40d1AF3584";
 module.exports.BRIDGE_ADDRESS = "0xcB76d991cFCd621b477d705be7DdF5EA69D39C00";
 module.exports.ERC20_HANDLER_ADDRESS = "0x3c747684333605408F9A4907DA043ee4c1A72D9c";
 module.exports.ERC20_ADDRESS = "0x8090062239c909eB9b0433F1184c7DEf6124cc78";
