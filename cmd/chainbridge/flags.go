@@ -52,26 +52,32 @@ var (
 	PortFlag = cli.StringFlag{
 		Name:  "port",
 		Usage: "The port at which your local chain instance is running",
+		Value: "8545",
 	}
 	NumValidatorsFlag = cli.IntFlag{
 		Name:  "validators",
 		Usage: "Specify total number of validators",
+		Value: 2,
 	}
 	ValidatorThresholdFlag = cli.IntFlag{
 		Name:  "validatorthreshold",
 		Usage: "Specify validator threshold",
+		Value: 2,
 	}
 	DepositThresholdFlag = cli.IntFlag{
 		Name:  "depositthreshold",
 		Usage: "Specify deposit threshold",
+		Value: 2,
+	}
+	PKFlag = cli.StringFlag{
+		Name:  "pk",
+		Usage: "Specify private key of account you wish to deploy contracts from",
+		Value: "000000000000000000000000000000000000000000000000000000416c696365",
 	}
 	MinCountFlag = cli.IntFlag{
 		Name:  "mincount",
 		Usage: "Specify min count for bridge asset",
-	}
-	DeployPKFlag = cli.StringFlag{
-		Name:  "pk",
-		Usage: "Specify private key of account you wish to deploy contracts from",
+		Value: 10,
 	}
 )
 

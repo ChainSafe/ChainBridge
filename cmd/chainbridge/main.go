@@ -39,6 +39,7 @@ var deployContractLocalFlags = []cli.Flag{
 	ValidatorThresholdFlag,
 	DepositThresholdFlag,
 	MinCountFlag,
+	PKFlag,
 }
 
 var accountCommand = cli.Command{

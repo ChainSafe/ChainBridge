@@ -49,36 +49,14 @@ func parseCommands(ctx *cli.Context) error {
     log.Info(VALIDATOR_ADDRESS[0])
 
 	port := ctx.String(PortFlag.Name)
-	if port == "" {
-		port = "8545"
-	}
+    validators := ctx.Int(NumValidatorsFlag.Name)
+    validatorThreshold := ctx.Int(ValidatorThresholdFlag.Name)
+    depositThreshold := ctx.Int(DepositThresholdFlag.Name)
+    minCount := ctx.Int(MinCountFlag.Name)
+    deployPK := ctx.String(PKFlag.Name)
 
-	validators := ctx.Int(NumValidatorsFlag.Name)
-	if validators == 0 {
-		validators = 2
-	}
-
-	validatorThreshold := ctx.Int(ValidatorThresholdFlag.Name)
-	if validatorThreshold == 0 {
-		validatorThreshold = 2
-	}
-
-	depositThreshold := ctx.Int(DepositThresholdFlag.Name)
-	if depositThreshold == 0 {
-		depositThreshold = 2
-	}
-
-	minCount := ctx.Int(MinCountFlag.Name)
-	if minCount == 0 {
-		minCount = 10
-	}
-
-	deployPK := ctx.String(DeployPKFlag.Name)
-	if deployPK == "" {
-		deployPK = DEPLOYER_PRIV_KEY
-	}
-
-	recieverAddr, emitterAddr, bridgeAssetAddr, err := deployContractsLocal(deployPK, port, validators, big.NewInt(int64(validatorThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount))
+    
+    recieverAddr, emitterAddr, bridgeAssetAddr, err := deployContractsLocal(deployPK, port, validators, big.NewInt(int64(validatorThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount))
 	if err != nil {
 		return err
 	}
@@ -236,3 +214,5 @@ func deployBridgeAsset(auth *bind.TransactOpts, client *ethclient.Client, mc uin
 	return bridgeAssetAddr, nil
 
 }
+
+
