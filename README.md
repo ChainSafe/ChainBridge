@@ -26,13 +26,11 @@ Builds go bindings for Solidity contract interactions.
 
   See [Installation Instructions](https://geth.ethereum.org/docs/install-and-build/installing-geth).
 
-## Building & Running
+## Building
 
-`make run`
+`make build`: Builds `chainbridge` in `./build`.
 
-`make build`
-
-`make install`
+`make install`: Uses `go install` to add `chainbridge` to your GOBIN.
 
 ## Configuration
 
@@ -70,7 +68,7 @@ There are presently no additional config options for substrate chains.
 
 ChainBridge requires keys to sign and submit transactions, and to identify each bridge node on chain.
 
-To use secure keys, see `chainbridge accounts --help`. (TODO: Document `KEYSTORE_PASSWORD` env var and keystore path flag).
+To use secure keys, see `chainbridge accounts --help`. The keystore password can be supplied with the `KEYSTORE_PASSWORD` environment variable.
 
 For testing purposes, chainbridge provides 5 test keys. The can be used with `--testkey <name>`, where `name` is one of `Alice`, `Bob`, `Charlie`, `Dave`, or `Eve`. 
 
