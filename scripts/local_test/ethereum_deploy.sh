@@ -13,4 +13,4 @@ PORT=${PORT:-8545}
 
 # Deploy contracts
 echo "Deploying contracts..."
-node ./on-chain/evm-contracts/scripts/cli/index.js --validators 3 --port $PORT
+node ./on-chain/evm-contracts/scripts/cli/index.js --relayers 3 --port $PORT
