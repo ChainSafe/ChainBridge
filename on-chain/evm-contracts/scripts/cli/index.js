@@ -12,8 +12,8 @@ const constants = require('./constants');
 
 // Capture argument
 cli
-    .option('--validators <value>', 'Number of validators', 2)
-    .option('-v, --validator-threshold <value>', 'Value of validator threshold', 1)
+    .option('--relayers <value>', 'Number of relayers', 2)
+    .option('-v, --relayer-threshold <value>', 'Value of relayer threshold', 1)
     .option('-d, --deposit-threshold <value>', 'Value of deposit threshold', 1)
     .option('-p, --port <value>', 'Port of RPC instance', 8545)
     .option('--deposit-erc', "Make an ERC20 deposit", false)
@@ -31,13 +31,13 @@ cli.parse(process.argv);
 cli.url = `http://${process.env.BASE_URL || "localhost"}:${cli.port}`;
 cli.provider = new ethers.providers.JsonRpcProvider(cli.url);
 // Only support up to 10 in this setup
-cli.numValidators = cli.validators > 10 ? 10 : cli.validators;
+cli.numRelayers = cli.relayers > 10 ? 10 : cli.relayers;
 
-if (cli.validatorThreshold <= cli.numValidators) {
-    cli.validatorThreshold = cli.numValidators;
+if (cli.relayerThreshold <= cli.numRelayers) {
+    cli.relayerThreshold = cli.numRelayers;
 }
-if (cli.depositThreshold <= cli.numValidators) {
-    cli.depositThreshold = cli.numValidators;
+if (cli.depositThreshold <= cli.numRelayers) {
+    cli.depositThreshold = cli.numRelayers;
 }
 if (cli.dest) {
     cli.dest = Number(cli.dest);
@@ -52,7 +52,7 @@ cli.mainWallet = new ethers.Wallet(constants.deployerPrivKey, cli.provider);
 // Deployment is asynchronous, so we use an async IIFE
 (async function () {
     if (!cli.testOnly) {
-        await deploy.deployValidatorContract(cli);
+        await deploy.deployRelayerContract(cli);
         await deploy.deployBridgeContract(cli);
         await deploy.deployERC20Handler(cli);
 

@@ -9,30 +9,30 @@ const { Vote, VoteStatus, CreateDepositData } = require("../helpers");
 contract('Receiver - [Deposit::Create::Basic]', async (accounts) => {
     let ReceiverInstance;
 
-    // Set validators
+    // Set relayers
     let v1 = accounts[0];
     let v2 = accounts[1];
 
     beforeEach(async () => {
         ReceiverInstance = await ReceiverContract.new(
-            [v1, v2], // bridge validators
+            [v1, v2], // bridge relayers
             2,        // depoist threshold
-            2         // validator threshold
+            2         // relayer threshold
         )
     });
 
-    it('validators can create proposals', async () => {
+    it('relayers can create proposals', async () => {
         let { receipt } = await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
         assert.strictEqual(receipt.status, true);
     });
 
-    it('only validators can create proposals', async () => {
+    it('only relayers can create proposals', async () => {
         try {
             let { receipt } = await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: accounts[4] });
             // This case shouldn't be hit, fail safe.
             assert.strictEqual(receipt.status, false);
         } catch (e) {
-            assert.include(e.message, "Sender is not a validator");
+            assert.include(e.message, "Sender is not a relayer");
         }
     });
 
@@ -52,15 +52,15 @@ contract('Receiver - [Deposit::Create::Basic]', async (accounts) => {
 contract('Receiver - [Deposit::Create::low-threshold]', async (accounts) => {
     let ReceiverInstance;
 
-    // Set validators
+    // Set relayers
     let v1 = accounts[0];
     let v2 = accounts[1];
 
     beforeEach(async () => {
         ReceiverInstance = await ReceiverContract.new(
-            [v1, v2], // bridge validators
+            [v1, v2], // bridge relayers
             1,        // depoist threshold
-            2         // validator threshold
+            2         // relayer threshold
         )
     });
 
@@ -74,15 +74,15 @@ contract('Receiver - [Deposit::Create::low-threshold]', async (accounts) => {
 contract('Receiver - [Deposit::Create::Advanced]', async (accounts) => {
     let ReceiverInstance;
 
-    // Set validators
+    // Set relayers
     let v1 = accounts[0];
     let v2 = accounts[1];
 
     beforeEach(async () => {
         ReceiverInstance = await ReceiverContract.new(
-            [v1, v2], // bridge validators
+            [v1, v2], // bridge relayers
             2,        // depoist threshold
-            2         // validator threshold
+            2         // relayer threshold
         )
     });
 
@@ -101,16 +101,16 @@ contract('Receiver - [Deposit::Create::Advanced]', async (accounts) => {
 contract('Receiver - [Deposit::Voting::Basic]', async (accounts) => {
     let ReceiverInstance;
 
-    // Set validators
+    // Set relayers
     let v1 = accounts[0];
     let v2 = accounts[1];
     let v3 = accounts[3];
 
     beforeEach(async () => {
         ReceiverInstance = await ReceiverContract.new(
-            [v1, v2, v3], // bridge validators
+            [v1, v2, v3], // bridge relayers
             2,            // depoist threshold
-            2             // validator threshold
+            2             // relayer threshold
         )
     });
 
@@ -132,11 +132,11 @@ contract('Receiver - [Deposit::Voting::Basic]', async (accounts) => {
             let { receipt } = await ReceiverInstance.voteDepositProposal(0, 0, Vote.Yes, { from: v1 });
             assert.strictEqual(receipt.status, false);
         } catch (e) {
-            assert.include(e.message, "Validator has already voted!");
+            assert.include(e.message, "Relayer has already voted!");
         }
     });
 
-    it('only validators can vote on proposals', async () => {
+    it('only relayers can vote on proposals', async () => {
         await ReceiverInstance.createDepositProposal(...CreateDepositData(), { from: v1 });
         let before = await ReceiverInstance.getDepositProposal.call(0, 0);
         assert.strictEqual(before.numYes.toNumber(), 1);
@@ -147,7 +147,7 @@ contract('Receiver - [Deposit::Voting::Basic]', async (accounts) => {
             let after = await ReceiverInstance.getDepositProposal(0, 0);
             assert.strictEqual(after.numYes.toNumber(), 1);
         } catch (e) {
-            assert.include(e.message, "Sender is not a validator");
+            assert.include(e.message, "Sender is not a relayer");
         }
     });
 
@@ -204,16 +204,16 @@ contract('Receiver - [Deposit::Voting::Basic]', async (accounts) => {
 contract('Receiver - [Deposit::Voting::Advanced]', async (accounts) => {
     let ReceiverInstance;
 
-    // Set validators
+    // Set relayers
     let v1 = accounts[0];
     let v2 = accounts[1];
     let v3 = accounts[3];
 
     beforeEach(async () => {
         ReceiverInstance = await ReceiverContract.new(
-            [v1, v2, v3], // bridge validators
+            [v1, v2, v3], // bridge relayers
             2,            // depoist threshold
-            2             // validator threshold
+            2             // relayer threshold
         )
     });
 
