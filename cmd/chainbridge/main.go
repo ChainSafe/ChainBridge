@@ -87,7 +87,7 @@ func init() {
 	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
 		accountCommand,
-		deployCommand,
+		ganacheCommand,
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)

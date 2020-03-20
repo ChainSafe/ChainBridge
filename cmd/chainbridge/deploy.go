@@ -14,7 +14,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-var deployCommand = cli.Command{
+var ganacheCommand = cli.Command{
 	Action:   handleGanacheCmd,
 	Name:     "ganache",
 	Usage:    "deploys test ganache",
