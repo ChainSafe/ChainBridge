@@ -1,62 +1,59 @@
 package main
 
 import (
-    "context"
-    "crypto/ecdsa"
+	"context"
+	"crypto/ecdsa"
 	"math/big"
 
-    "github.com/ethereum/go-ethereum/accounts/abi/bind"
-    "github.com/ethereum/go-ethereum/crypto"
-    "github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-    "github.com/urfave/cli"
-    
-    "github.com/ChainSafe/ChainBridgeV2/keystore"
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
-	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
-	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
-    log "github.com/ChainSafe/log15"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/urfave/cli"
 
+	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
+	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
+	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	log "github.com/ChainSafe/log15"
 )
 
 var deployContractsLocalCommand = cli.Command{
-	Action:   parseCommands,
-	Name:     "deploycontractslocal",
-	Usage:    "deploys contracts",
-	Category: "tests",
-	Flags:    deployContractLocalFlags,
+	Action:      parseCommands,
+	Name:        "deploycontractslocal",
+	Usage:       "deploys contracts",
+	Category:    "tests",
+	Flags:       deployContractLocalFlags,
 	Description: "\tthe deploycontractslocal command is used to deploy contracts on a local network for testing purposes\n",
 }
 
-
 var (
 	// Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
-    DEPLOYER_PRIV_KEY = "000000000000000000000000000000000000000000000000000000416c696365";
-    
-    VALIDATOR_ADDRESS = []string{
-        keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Address(),
-        keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Address(),
-        keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Address(),
-        keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Address(),
-        keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Address(),
-    }
+	DEPLOYER_PRIV_KEY = "000000000000000000000000000000000000000000000000000000416c696365"
 
-    ZERO_ADDRESS = common.HexToAddress("0x0000000000000000000000000000000000000000")
+	VALIDATOR_ADDRESS = []string{
+		keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Address(),
+		keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Address(),
+		keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Address(),
+		keystore.TestKeyRing.EthereumKeys[keystore.DaveKey].Address(),
+		keystore.TestKeyRing.EthereumKeys[keystore.EveKey].Address(),
+	}
+
+	ZERO_ADDRESS = common.HexToAddress("0x0000000000000000000000000000000000000000")
 )
 
 func parseCommands(ctx *cli.Context) error {
-    log.Info("Deploying Contracts")
-    log.Info(VALIDATOR_ADDRESS[0])
+	log.Info("Deploying Contracts")
+	log.Info(VALIDATOR_ADDRESS[0])
 
 	port := ctx.String(PortFlag.Name)
-    validators := ctx.Int(NumValidatorsFlag.Name)
-    validatorThreshold := ctx.Int(ValidatorThresholdFlag.Name)
-    depositThreshold := ctx.Int(DepositThresholdFlag.Name)
-    minCount := ctx.Int(MinCountFlag.Name)
-    deployPK := ctx.String(PKFlag.Name)
+	validators := ctx.Int(NumValidatorsFlag.Name)
+	validatorThreshold := ctx.Int(ValidatorThresholdFlag.Name)
+	depositThreshold := ctx.Int(DepositThresholdFlag.Name)
+	minCount := ctx.Int(MinCountFlag.Name)
+	deployPK := ctx.String(PKFlag.Name)
 
-    
-    recieverAddr, emitterAddr, bridgeAssetAddr, err := deployContractsLocal(deployPK, port, validators, big.NewInt(int64(validatorThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount))
+	recieverAddr, emitterAddr, bridgeAssetAddr, err := deployContractsLocal(deployPK, port, validators, big.NewInt(int64(validatorThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount))
 	if err != nil {
 		return err
 	}
@@ -214,5 +211,3 @@ func deployBridgeAsset(auth *bind.TransactOpts, client *ethclient.Client, mc uin
 	return bridgeAssetAddr, nil
 
 }
-
-
