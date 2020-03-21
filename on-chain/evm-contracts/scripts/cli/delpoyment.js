@@ -18,14 +18,14 @@ async function deployReceiver(cfg) {
         // Create an instance of a Contract Factory
         let factory = new ethers.ContractFactory(ReceiverContract.abi, ReceiverContract.bytecode, cfg.mainWallet);
 
-        // Set validators
-        const validators = constants.validatorAddresses.slice(0, cfg.numValidators);
+        // Set relayers
+        const relayers = constants.relayerAddresses.slice(0, cfg.numRelayers);
 
         // Deploy
         let contract = await factory.deploy(
-            validators,
+            relayers,
             cfg.depositThreshold,
-            cfg.validatorThreshold
+            cfg.relayerThreshold
         );
 
         console.log("[Receiver] Contract address: ", contract.address);
@@ -34,17 +34,17 @@ async function deployReceiver(cfg) {
 
         // Test it worked correctly
         let ReceiverInstance = new ethers.Contract(contract.address, ReceiverContract.abi, cfg.provider);
-        // Ensure validators are set correctly
-        // note validators[] is sorted in order, so we'll check the top arrays
+        // Ensure relayers are set correctly
+        // note relayers[] is sorted in order, so we'll check the top arrays
         let failure = false;
-        validators.forEach(async (v, i) => {
-            const value = await ReceiverInstance.Validators(v);
+        relayers.forEach(async (v, i) => {
+            const value = await ReceiverInstance.Relayers(v);
             if (value) {
                 const wei = await cfg.provider.getBalance(v);
                 const balance = ethers.utils.formatEther(wei);
-                console.log(`[Receiver] ${v} (${balance} ETH) is a validator!`);
+                console.log(`[Receiver] ${v} (${balance} ETH) is a relayer!`);
             } else {
-                console.log(`ERROR: ${v} was not set as a validator!`);
+                console.log(`ERROR: ${v} was not set as a relayer!`);
                 failure = true;
             }
         });
@@ -102,7 +102,7 @@ async function deployEmitterTest(cfg) {
 };
 
 async function deployERC20(cfg) {
-    const minterWallet = new ethers.Wallet(constants.validatorPrivKeys[0], cfg.provider);
+    const minterWallet = new ethers.Wallet(constants.relayerPrivKeys[0], cfg.provider);
     let tokenFactory = new ethers.ContractFactory(ERC20Contract.abi, ERC20Contract.bytecode, minterWallet);
     const tokenContract = await tokenFactory.deploy();
     const contract = await tokenContract.deployed();
