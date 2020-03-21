@@ -157,20 +157,18 @@ make truffle_test
 ```
 
 ## Simulations
-If you have a bridge instance running, and access to an ethereum node, transactions can be run that simulate different types of transfer events. These scripts can be found at `./on-chain/evm-contracts/scripts/cli`. 
-
-### Running the simulations
-1. `./on-chain/evm-contracts`
-2. Run one of the following:
-###### Deploy contracts
-`node ./scripts/cli/index.js -p <port_number>`
-###### Mint tokens
-`node ./scripts/cli/index.js --test-only --mint-erc20 --value <amount of token>`
-###### ERC transfer (note must mint tokens first) 
-`node ./scripts/cli/index.js --test-only --deposit-erc --value <amount_to_deposit> --dest <destination_chain_id>`
-###### NFT transfer
-// Outdated
+Start the chains
+1. make start_eth (terminal 1)
+2. PORT=8546 make start_eth (terminal 2)
+Deploy the contracts
+3. make deploy_eth && PORT=8546 make start_eth (terminal 3)
+Mint tokens
+4. node on-chain/evm-contracts/scripts/cli/index.js --test-only --mint-erc20 (terminal 3)
+Build the latest ChainBridge binary & run it
+5. make build (terminal 3)
+6. ./build/chainbridge --verbosity=trace --config ./scripts/configs/config1.toml --testkey alice (terminal 3)
+7. node on-chain/evm-contracts/scripts/cli/index.js --test-only --deposit-erc —dest 1 (terminal 4)
 
 Notes: 
-- `--test-only` ensures we don't re-deploy the contracts (this must be refactored out in favor of commands)
-- `--dest` allows you to specify which chain_id you want to the transfer to go to 
+- `--test-only` ensures we don't re-deploy the contracts
+- `--dest` allows you to specify which chain_id you want to the transfer to go to
