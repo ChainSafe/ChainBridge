@@ -170,5 +170,14 @@ Build the latest ChainBridge binary & run it
 7. node on-chain/evm-contracts/scripts/cli/index.js --test-only --deposit-erc —dest 1 (terminal 4)
 
 Notes: 
+- Alice (from the keyring) is always the deployer, if that key changes, then the constants will be different
+- Validators start from the keyring and move alphabetically down the list. For example if you specify `--validators 3`, the validators would be `Alice`, `Bob`, `Charlie`. If you said 4, `David` would join
 - `--test-only` ensures we don't re-deploy the contracts
 - `--dest` allows you to specify which chain_id you want to the transfer to go to
+
+#### Debugging
+Node script errors:
+"Contract not found" or similar:
+- Check the deployments in step 3, do the addresses listed there match with the addresses saved in `.on-chain/evm-contracts/scripts/cli/constants.js`? The constants file should be updated accordingly
+"Sender doesn't have funds" or similar when executing an erc20 transfer:
+- Check that the you ran `--mint <value>` (step 4) if you didn't the account has no tokens to deposit
