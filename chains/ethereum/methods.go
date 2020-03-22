@@ -87,6 +87,7 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 		VoteDepositProposalMethod,
 		m.Source.Big(),
 		u32toBigInt(m.DepositId),
+		vote,
 	)
 
 	if err != nil {
