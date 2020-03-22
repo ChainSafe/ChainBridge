@@ -9,7 +9,7 @@ contract ERC721Handler is IERC721Handler, IDepositHandler, ERC721Safe {
     address public _bridgeAddress;
 
     modifier _onlyBridge() {
-        require(msg.sender == _bridgeAddress, "sender must be bridge contract"));
+        require(msg.sender == _bridgeAddress, "sender must be bridge contract");
         _;
     }
 
