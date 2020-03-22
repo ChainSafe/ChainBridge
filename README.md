@@ -157,20 +157,39 @@ make truffle_test
 ```
 
 ## Simulations
-If you have a bridge instance running, and access to an ethereum node, transactions can be run that simulate different types of transfer events. These scripts can be found at `./on-chain/evm-contracts/scripts/cli`. 
-
-### Running the simulations
-1. `./on-chain/evm-contracts`
-2. Run one of the following:
-###### Deploy contracts
-`node ./scripts/cli/index.js -p <port_number>`
-###### Mint tokens
-`node ./scripts/cli/index.js --test-only --mint-erc20 --value <amount of token>`
-###### ERC transfer (note must mint tokens first) 
-`node ./scripts/cli/index.js --test-only --deposit-erc --value <amount_to_deposit> --dest <destination_chain_id>`
-###### NFT transfer
-// Outdated
+### Ethereum ERC20 Transfer
+Start chain 1 (terminal 1)
+```shell
+make start_eth
+```
+Start chain 2 (terminal 2)
+```shell
+PORT=8546 make start_eth
+```
+Deploy the contracts (terminal 3)
+```shell
+make deploy_eth && PORT=8546 make deploy_eth
+```
+Build the latest ChainBridge binary & run it (terminal 3)
+```shell
+make build
+./build/chainbridge --verbosity=trace --config ./scripts/configs/config1.toml --testkey alice
+```
+Mint & make a deposit (terminal 4)
+```shell
+node on-chain/evm-contracts/scripts/cli/index.js --test-only --mint-erc20 --value 100
+node on-chain/evm-contracts/scripts/cli/index.js --test-only --deposit-erc —dest 1
+```
 
 Notes: 
-- `--test-only` ensures we don't re-deploy the contracts (this must be refactored out in favor of commands)
-- `--dest` allows you to specify which chain_id you want to the transfer to go to 
+- Alice (from the keyring) is always the deployer, if that key changes, then the constants will be different
+- Validators start from the keyring and move alphabetically down the list. For example if you specify `--validators 3`, the validators would be `Alice`, `Bob`, `Charlie`. If you said 4, `Dave` would join
+- `--test-only` ensures we don't re-deploy the contracts
+- `--dest` allows you to specify which chain_id you want to the transfer to go to
+
+#### Debugging
+Node script errors:
+"Contract not found" or similar:
+- Check the deployments in step 3, do the addresses listed there match with the addresses saved in `.on-chain/evm-contracts/scripts/cli/constants.js`? The constants file should be updated accordingly
+"Sender doesn't have funds" or similar when executing an erc20 transfer:
+- Check that the you ran `--mint <value>` (step 4) if you didn't the account has no tokens to deposit
