@@ -7,11 +7,7 @@ pragma solidity 0.6.4;
 contract SimpleEmitter {
 	event DepositAsset(address indexed _addr, bytes32 _hash);
 
-<<<<<<< HEAD:on-chain/evm-contracts/contracts/test/SimpleEmitter.sol
 	fallback() external {
-=======
-	fallback () external {
->>>>>>> master:on-chain/evm-contracts/contracts/tests/SimpleEmitter.sol
 		bytes32 hash = sha256(abi.encodePacked(msg.sender, block.number));
 		emit DepositAsset(msg.sender, hash);
 	}

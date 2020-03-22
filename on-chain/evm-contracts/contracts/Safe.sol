@@ -46,11 +46,7 @@ contract Safe is ISafe {
         ERC20 token = ERC20(_tokenAddress);
         token.transfer(_to, _value);
     }
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> master
     function releaseNFT(address _tokenAddress, address _to, uint _tokenId) public override onlyOwner {
         ERC721 nft = ERC721(_tokenAddress);
         nft.transferFrom(address(this), _to, _tokenId);
