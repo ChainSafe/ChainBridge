@@ -157,21 +157,38 @@ make truffle_test
 ```
 
 ## Simulations
-Start the chains
-1. make start_eth (terminal 1)
-2. PORT=8546 make start_eth (terminal 2)
-Deploy the contracts
-3. make deploy_eth && PORT=8546 make start_eth (terminal 3)
-Mint tokens
-4. node on-chain/evm-contracts/scripts/cli/index.js --test-only --mint-erc20 (terminal 3)
-Build the latest ChainBridge binary & run it
-5. make build (terminal 3)
-6. ./build/chainbridge --verbosity=trace --config ./scripts/configs/config1.toml --testkey alice (terminal 3)
-7. node on-chain/evm-contracts/scripts/cli/index.js --test-only --deposit-erc —dest 1 (terminal 4)
+Start chain 1 (terminal 1)
+```shell
+make start_eth
+```
+Start chain 2 (terminal 2)
+```shell
+PORT=8546 make start_eth
+```
+Deploy the contracts (terminal 3)
+```shell
+make deploy_eth && PORT=8546 make start_eth
+```
+Mint tokens (terminal 3)
+```shell
+node on-chain/evm-contracts/scripts/cli/index.js --test-only --mint-erc20
+```
+Build the latest ChainBridge binary & run it (terminal 3)
+```shell
+make build
+```
+Run the binary (terminal 3)
+```shell
+./build/chainbridge --verbosity=trace --config ./scripts/configs/config1.toml --testkey alice
+```
+Makea  deposit (terminal 4)
+```shell
+node on-chain/evm-contracts/scripts/cli/index.js --test-only --deposit-erc —dest 1
+```
 
 Notes: 
 - Alice (from the keyring) is always the deployer, if that key changes, then the constants will be different
-- Validators start from the keyring and move alphabetically down the list. For example if you specify `--validators 3`, the validators would be `Alice`, `Bob`, `Charlie`. If you said 4, `David` would join
+- Validators start from the keyring and move alphabetically down the list. For example if you specify `--validators 3`, the validators would be `Alice`, `Bob`, `Charlie`. If you said 4, `Dave` would join
 - `--test-only` ensures we don't re-deploy the contracts
 - `--dest` allows you to specify which chain_id you want to the transfer to go to
 
