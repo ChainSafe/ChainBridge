@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
+	"github.com/ChainSafe/ChainBridgeV2/chains/substrate"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
@@ -143,7 +144,7 @@ func run(ctx *cli.Context) error {
 				Opts:         chain.Opts,
 			})
 		} else if chain.Type == "substrate" {
-			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
+			chainconfig, err = substrate.InitializeChain(&core.ChainConfig{
 				Id:           chain.Id,
 				Endpoint:     chain.Endpoint,
 				From:         chain.From,
