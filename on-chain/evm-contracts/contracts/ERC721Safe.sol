@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity 0.6.4;
 
 import "./helpers/SafeMath.sol";
 import "./erc/ERC721/IERC721.sol";

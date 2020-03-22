@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity 0.6.4;
 
 interface IERC721Handler {
     function depositERC721(address tokenAddress, address owner, uint tokenID) external;
