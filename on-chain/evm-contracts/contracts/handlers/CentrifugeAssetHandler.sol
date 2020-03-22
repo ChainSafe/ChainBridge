@@ -21,7 +21,7 @@ contract CentrifugeAssetHandler is IDepositHandler {
 
     function depositAsset(bytes32 metaDataHash) public _onlyBridge {
         require(_assetDepositStatuses[metaDataHash] == AssetDepositStatus.Uninitialized,
-        "asset has already been initialized and cannot be changed");
+        "asset has already been deposited and cannot be changed");
         _assetDepositStatuses[metaDataHash] = AssetDepositStatus.Active;
     }
 
