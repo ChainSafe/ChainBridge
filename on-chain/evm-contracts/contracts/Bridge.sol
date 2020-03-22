@@ -4,6 +4,7 @@ import "./helpers/SafeMath.sol";
 import "./interfaces/IRelayer.sol";
 import "./interfaces/IERC20Handler.sol";
 import "./interfaces/IERC721Handler.sol";
+import "./interfaces/ICentrifugeAssetHandler.sol";
 import "./interfaces/IDepositHandler.sol";
 
 contract Bridge {
@@ -53,7 +54,7 @@ contract Bridge {
         bytes   _data;
     }
 
-    struct CentrifugeDepositRecord {
+    struct CentrifugeAssetDepositRecord {
         address   _originChainTokenAddress;
         address   _originChainHandlerAddress;
         uint      _destinationChainID;
@@ -88,15 +89,15 @@ contract Bridge {
     mapping(uint => mapping(uint => ERC20DepositRecord)) public _erc20DepositRecords;
     // chainID => depositID => ERC721DepositRecord
     mapping(uint => mapping(uint => ERC721DepositRecord)) public _erc721DepositRecords;
-    // chainID => depositID => CentrifugeDepositRecord
-    mapping(uint => mapping(uint => CentrifugeDepositRecord)) public _centrifugeDepositRecords;
+    // chainID => depositID => CentrifugeAssetDepositRecord
+    mapping(uint => mapping(uint => CentrifugeAssetDepositRecord)) public _centrifugeDepositRecords;
     // ChainId => DepositID => Proposal
     mapping(uint => mapping(uint => DepositProposal)) public _depositProposals;
 
     event GenericDeposited(uint indexed destinationChainID, uint indexed depositID);
     event ERC20Deposited(uint indexed destinationChainID, uint indexed depositID);
     event ERC721Deposited(uint indexed destinationChainID, uint indexed depositID);
-    event CentrifugeDeposited(uint indexed destinationChainID, uint indexed depositID);
+    event CentrifugeAssetDeposited(uint indexed destinationChainID, uint indexed depositID);
     event DepositProposalCreated(uint indexed destinationChainID, uint indexed depositID, bytes32 indexed dataHash);
     event DepositProposalVote(uint indexed destinationChainID, uint indexed depositID, Vote indexed vote, DepositProposalStatus status);
     event DepositProposalFinalized(uint indexed destinationChainID, uint indexed depositID);
@@ -160,9 +161,9 @@ contract Bridge {
             erc721DepositRecord._data);
     }
 
-    function getCentrifugeDepositRecord(uint destinationChainID, uint depositID) public view returns (
+    function getCentrifugeAssetDepositRecord(uint destinationChainID, uint depositID) public view returns (
         address, address, uint, address, address, bytes32) {
-        CentrifugeDepositRecord memory centrifugeDepositRecord = _centrifugeDepositRecords[destinationChainID][depositID];
+        CentrifugeAssetDepositRecord memory centrifugeDepositRecord = _centrifugeDepositRecords[destinationChainID][depositID];
         return (
             centrifugeDepositRecord._originChainTokenAddress,
             centrifugeDepositRecord._originChainHandlerAddress,
@@ -290,7 +291,7 @@ contract Bridge {
         emit ERC721Deposited(destinationChainID, depositID);
     }
 
-    function depositCentrifuge(
+    function depositCentrifugeAsset(
         address originChainContractAddress,
         address originChainHandlerAddress,
         uint    destinationChainID,
@@ -298,9 +299,12 @@ contract Bridge {
         address destinationRecipientAddress,
         bytes32 metaDataHash
     ) public {
+        ICentrifugeAssetHandler centrifugeAssetHandler = ICentrifugeAssetHandler(originChainHandlerAddress);
+        centrifugeAssetHandler.depositAsset(metaDataHash);
+
         uint depositID = ++_depositCounts[destinationChainID];
 
-        _centrifugeDepositRecords[destinationChainID][depositID] = CentrifugeDepositRecord(
+        _centrifugeDepositRecords[destinationChainID][depositID] = CentrifugeAssetDepositRecord(
             originChainContractAddress,
             originChainHandlerAddress,
             destinationChainID,
@@ -309,7 +313,7 @@ contract Bridge {
             metaDataHash
         );
 
-        emit CentrifugeDeposited(destinationChainID, depositID);
+        emit CentrifugeAssetDeposited(destinationChainID, depositID);
     }
 
     function createDepositProposal(uint destinationChainID, uint depositID, bytes32 dataHash) public _onlyRelayers {
