@@ -5,7 +5,7 @@
 
 const ethers = require("ethers");
 
-const ValidatorActionType = {
+const RelayerActionType = {
     Add: 0,
     Remove: 1
 };
@@ -22,7 +22,7 @@ const VoteStatus = {
 }
 
 const ThresholdType = {
-    Validator: 0,
+    Relayer: 0,
     Deposit: 1,
 }
 
@@ -44,7 +44,7 @@ const CreateDepositData = (data = dummyData, depositId = 0, originChain = 0) => 
 }
 
 module.exports = {
-    ValidatorActionType,
+    RelayerActionType,
     Vote,
     VoteStatus,
     CreateDepositData,

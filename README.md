@@ -2,10 +2,17 @@
 
 [![Build Status](https://travis-ci.com/ChainSafe/ChainBridgeV2.svg?branch=master)](https://travis-ci.com/ChainSafe/ChainBridgeV2)
 
-# **[WIP]**
+<h3><b>[WIP]</b></h3>
 
-# Chain configs
-For chain specific configs, please check [this subdirectory](./chain-documents)
+# Contents
+
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Running](#running)
+- [Testing](#testing)
+- [Simulations](#simulations)
+
+# Installation
 
 ## Dependencies
 
@@ -19,44 +26,53 @@ Builds go bindings for Solidity contract interactions.
 
   See [Installation Instructions](https://geth.ethereum.org/docs/install-and-build/installing-geth).
 
-## Run the bridge
- 
-`make run`
+## Building
 
-See `--help` for CLI options.
+`make build`: Builds `chainbridge` in `./build`.
 
-## Configuring the bridge
+`make install`: Uses `go install` to add `chainbridge` to your GOBIN.
 
-### Selecting Chains
-
-Presently chains must be manually inserted into `cmd/chainbridge/main.go`. In future this will be more flexible and require less manual configuration.
-
-For the time being we have `ethereum` and `centrifuge` chains configured.
+## Configuration
 
 ### Configuring Chains
 
 A chain configurations take this form:
 ```toml
 [[chains]]
-id = 0 # see ./message/id.go
-endpoint = "ws://localhost:8545" # RPC (WS) endpoint
-receiver = "0x1234" # bridge receiver contract address
-emitter = "0x1234" # bridge emitter contract address>
-from = "0x1234" # public key to use for txs
+name = "ethereum" // Human-readable name
+type = "ethereum" // Either "ethereum" or "substrate"
+id = 0            // Chain Id
+endpoint = "ws://host:port" // API endpoint
+from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c" // Public key of desired key, not required for test keys
+opts = {}         // Chain-specific configuration options (see below)
 ```
 
-See `config.toml` for an example configuration. 
+See `config.toml.example` for an example configuration. 
 
-Note: presently a home and away contracts can be specified, these can be the same contract.
+#### Ethereum Options
 
+Ethereum chains support the following additional options:
+
+```
+chainID = "1337"         // The network id for the specific Ethereum chain
+contract = ""0x12345..." // The address of the bridge contract
+gasPrice = "0x1234"      // Gas price for transactions 
+gasLimit = "0x1234"      // Gas limit for transactions
+```
+
+#### Substrate Options
+
+There are presently no additional config options for substrate chains.
 
 ### Keystore
 
-To manage keys ChainBridge uses a keystore specificed with the `--keystore <path>` flag. By default it uses `./keys`. The public key specified in the config will be used to identify which keys to load.
+ChainBridge requires keys to sign and submit transactions, and to identify each bridge node on chain.
 
-Keys can be managed with the `account` sub-command. Please see `chainbridge account --help` for documentation.
+To use secure keys, see `chainbridge accounts --help`. The keystore password can be supplied with the `KEYSTORE_PASSWORD` environment variable.
 
-Alternatively, an environemnet variable can be used with the key `KEYSTORE_PASSWORD`.
+For testing purposes, chainbridge provides 5 test keys. The can be used with `--testkey <name>`, where `name` is one of `Alice`, `Bob`, `Charlie`, `Dave`, or `Eve`. 
+
+# Testing
 
 ## Ethereum Dev Environment 
 

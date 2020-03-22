@@ -7,7 +7,7 @@ const ethers = require('ethers');
 const constants = require('./../constants');
 
 const BridgeContract = require("../../../build/contracts/Bridge.json");
-const ValidatorContract = require("../../../build/contracts/Validator.json");
+const RelayerContract = require("../../../build/contracts/Relayer.json");
 const ERC20HandlerContract = require("../../../build/contracts/ERC20Handler.json");
 const ERC20MintableContract = require("../../../build/contracts/ERC20Mintable.json");
 
@@ -17,20 +17,20 @@ const CentrifugeContract = require("../../../build/contracts/BridgeAsset.json");
 const ERC20Contract = require("../../../build/contracts/ERC20Mintable.json");
 const ERC721Contract = require("../../../build/contracts/ERC721Mintable.json");
 
-async function deployValidatorContract(cfg) {
+async function deployRelayerContract(cfg) {
     // Create an instance of a Contract Factory
-    let factory = new ethers.ContractFactory(ValidatorContract.abi, ValidatorContract.bytecode, cfg.mainWallet);
+    let factory = new ethers.ContractFactory(RelayerContract.abi, RelayerContract.bytecode, cfg.mainWallet);
 
-    // Set validators
-    const validators = constants.validatorAddresses.slice(0, cfg.numValidators);
+    // Set relayers
+    const relayers = constants.relayerAddresses.slice(0, cfg.numRelayers);
 
     // Deploy
     let contract = await factory.deploy(
-        validators,
-        cfg.validatorThreshold
+        relayers,
+        cfg.relayerThreshold
     );
-    console.log("[Validator] Contract address: ", contract.address);
-    console.log("[Validator] Transaction Hash: ", contract.deployTransaction.hash);
+    console.log("[Relayer] Contract address: ", contract.address);
+    console.log("[Relayer] Transaction Hash: ", contract.deployTransaction.hash);
     await contract.deployed();
 }
 
@@ -41,7 +41,7 @@ async function deployBridgeContract(cfg) {
 
         // Deploy
         let contract = await factory.deploy(
-            constants.VALIDATOR_ADDRESS,
+            constants.RELAYER_ADDRESS,
             1
         );
 
@@ -96,7 +96,7 @@ async function deployEmitterTest(cfg) {
 };
 
 module.exports = {
-    deployValidatorContract,
+    deployRelayerContract,
     deployBridgeContract,
     deployERC20Handler,
     // old
