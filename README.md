@@ -170,17 +170,14 @@ Deploy the contracts (terminal 3)
 ```shell
 make deploy_eth && PORT=8546 make deploy_eth
 ```
-Mint tokens (terminal 3)
-```shell
-node on-chain/evm-contracts/scripts/cli/index.js --test-only --mint-erc20 --value 100
-```
 Build the latest ChainBridge binary & run it (terminal 3)
 ```shell
 make build
 ./build/chainbridge --verbosity=trace --config ./scripts/configs/config1.toml --testkey alice
 ```
-Makea  deposit (terminal 4)
+Mint & make a deposit (terminal 4)
 ```shell
+node on-chain/evm-contracts/scripts/cli/index.js --test-only --mint-erc20 --value 100
 node on-chain/evm-contracts/scripts/cli/index.js --test-only --deposit-erc —dest 1
 ```
 
