@@ -11,12 +11,6 @@ const RelayerContract = require("../../../build/contracts/Relayer.json");
 const ERC20HandlerContract = require("../../../build/contracts/ERC20Handler.json");
 const ERC20MintableContract = require("../../../build/contracts/ERC20Mintable.json");
 
-// old
-const TestEmitterContract = require("../../../build/contracts/SimpleEmitter.json");
-const CentrifugeContract = require("../../../build/contracts/BridgeAsset.json");
-const ERC20Contract = require("../../../build/contracts/ERC20Mintable.json");
-const ERC721Contract = require("../../../build/contracts/ERC721Mintable.json");
-
 async function deployRelayerContract(cfg) {
     // Create an instance of a Contract Factory
     let factory = new ethers.ContractFactory(RelayerContract.abi, RelayerContract.bytecode, cfg.mainWallet);
@@ -66,41 +60,8 @@ async function deployERC20Handler(cfg) {
     console.log("[ERC20 Token] Transaction Hash: ", erc20MintableContract.deployTransaction.hash);
 }
 
-// Deployment is asynchronous, so we use an async IIFE
-async function deployCentrifuge(cfg) {
-    try {
-        // Create an instance of a Contract Factory
-        let factory = new ethers.ContractFactory(CentrifugeContract.abi, CentrifugeContract.bytecode, cfg.mainWallet);
-        let contract = await factory.deploy(
-            10
-        );
-
-        console.log("[Centrifuge] Contract address: ", contract.address);
-        console.log("[Centrifuge] Transaction Hash: ", contract.deployTransaction.hash);
-        await contract.deployed();
-    } catch (e) {
-        console.log({ e });
-    }
-};
-
-// Deployment is asynchronous, so we use an async IIFE
-async function deployEmitterTest(cfg) {
-
-    // Create an instance of a Contract Factory
-    let factory = new ethers.ContractFactory(TestEmitterContract.abi, TestEmitterContract.bytecode, cfg.mainWallet);
-    let contract = await factory.deploy();
-
-    console.log("[Test Emitter] Contract address: ", contract.address);
-    console.log("[Test Emitter] Transaction Hash: ", contract.deployTransaction.hash);
-    await contract.deployed()
-};
-
 module.exports = {
     deployRelayerContract,
     deployBridgeContract,
     deployERC20Handler,
-    // old
-    // deployCentrifuge,
-    // deployEmitterTest,
-    // deployERC20,
 }
