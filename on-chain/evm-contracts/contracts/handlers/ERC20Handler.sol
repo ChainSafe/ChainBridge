@@ -1,5 +1,8 @@
 pragma solidity 0.6.4;
+<<<<<<< HEAD
 pragma experimental ABIEncoderV2;
+=======
+>>>>>>> master
 
 import "../ERC20Safe.sol";
 import "../erc/ERC20/ERC20Mintable.sol";
@@ -29,6 +32,7 @@ contract ERC20Handler is IDepositHandler, ERC20Safe {
         _bridgeAddress = bridgeAddress;
     }
 
+<<<<<<< HEAD
     function getDepositRecord(uint256 depositID) public view returns (DepositRecord memory) {
         return _depositRecords[depositID];
     }
@@ -60,6 +64,10 @@ contract ERC20Handler is IDepositHandler, ERC20Safe {
             depositer,
             amount
         );
+=======
+    function depositERC20(address tokenAddress, address owner, uint amount) public override _onlyBridge {
+        lockERC20(tokenAddress, owner, address(this), amount);
+>>>>>>> master
     }
 
     function executeDeposit(bytes memory data) public override {
@@ -77,7 +85,11 @@ contract ERC20Handler is IDepositHandler, ERC20Safe {
         erc20.mint(destinationRecipientAddress, amount);
     }
 
+<<<<<<< HEAD
     function withdraw(address tokenAddress, address recipient, uint amount) public _onlyBridge {
+=======
+    function withdrawERC20(address tokenAddress, address recipient, uint amount) public override _onlyBridge {
+>>>>>>> master
         releaseERC20(tokenAddress, address(this), recipient, amount);
     }
 }

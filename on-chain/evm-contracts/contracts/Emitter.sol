@@ -7,7 +7,7 @@ import "./Safe.sol";
  * @dev The emitter is found on the origin chain,it is the on-chain
  * user interacted portion of the bridge, and it prepares an asset for
  * transfer. It is responsible for generating the necessary information
- * for the bridge validators to successfully perform a transfer.
+ * for the bridge relayers to successfully perform a transfer.
  */
  contract Emitter is Safe {
 

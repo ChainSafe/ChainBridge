@@ -9,13 +9,19 @@ interface ISafe {
      * @dev Takes custody of an ERC token
      */
     // function lockErc(address _tokenAddress, uint _value, address _to, address _from) external;
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
     // function lockNFT(address _tokenAddress, address _to, address _from, uint _tokenId) external;
 
     /**
      * @dev Transfers a custodied ERC token to a user.
      */
     function releaseErc(address _tokenAddress, uint _value, address _to) external;
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
     function releaseNFT(address _tokenAddress, address _to, uint _tokenId) external;
 }

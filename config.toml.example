@@ -1,16 +1,15 @@
-
 [[chains]]
 name = "ethereum"
 type = "ethereum"
 id = 0
 endpoint = "ws://localhost:8545"
 from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c"
-opts = { chainID = "1337", emitter = "0x3c747684333605408F9A4907DA043ee4c1A72D9c", receiver = "0x5842B333910Fe0BfA05F5Ea9F1602a40d1AF3584" }
+opts = { chainID = "1337", contract = "0x3c747684333605408F9A4907DA043ee4c1A72D9c" }
 
 [[chains]]
-name = "centrifuge"
+name = "ethereum2"
 type = "ethereum"
 id = 1
 endpoint = "ws://localhost:8546"
 from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c"
-opts = { chainID = "1337", emitter = "0x3c747684333605408F9A4907DA043ee4c1A72D9c", receiver = "0x5842B333910Fe0BfA05F5Ea9F1602a40d1AF3584" }
+opts = { chainID = "1337", contract = "0x3c747684333605408F9A4907DA043ee4c1A72D9c" }

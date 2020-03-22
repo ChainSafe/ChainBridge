@@ -5,8 +5,8 @@ import "./interfaces/IHandler.sol";
 /**
  * @title Receiver
  * @dev The receiver is found on the destination chain,
- * it can only be written to by the validators, and is
- * the location where a validator would write the deposit
+ * it can only be written to by the relayers, and is
+ * the location where a relayer would write the deposit
  * too. A receiver doesn't directly handle the asset,
  * rather it sends it to the respective handler.
  */
@@ -14,15 +14,15 @@ contract Receiver {
 
     // These are the required number of YES votes for the respectful proposals
     uint public DepositThreshold;
-    uint public ValidatorThreshold;
+    uint public RelayerThreshold;
 
     enum Vote {Yes, No}
-    enum ValidatorActionType {Add, Remove}
+    enum RelayerActionType {Add, Remove}
     enum VoteStatus {Inactive, Active, Finalized, Transferred}
-    enum ThresholdType {Validator, Deposit}
+    enum ThresholdType {Relayer, Deposit}
 
-    // Used by validators to vote on deposits
-    // A validator should submit a 32 byte keccak hash of the deposit data
+    // Used by relayers to vote on deposits
+    // A relayer should submit a 32 byte keccak hash of the deposit data
     // The hash will be verified when finalizing the deposit
     struct DepositProposal {
         // 32 byte hash of the deposit object
@@ -41,12 +41,12 @@ contract Receiver {
 	    VoteStatus status;
     }
 
-    // Proposal to add/remove a bridge validator
-    struct ValidatorProposal {
-        // Address of the proposed validator
-        address validator;
-        // validator action
-        ValidatorActionType action;
+    // Proposal to add/remove a bridge relayer
+    struct RelayerProposal {
+        // Address of the proposed relayer
+        address relayer;
+        // relayer action
+        RelayerActionType action;
         // Keeps track if a user has voted
         mapping(address => bool) votes;
         // Number of votes in favour
@@ -73,25 +73,25 @@ contract Receiver {
         VoteStatus status;
     }
 
-    // List of validators
-    mapping(address => bool) public Validators;
-    uint public TotalValidators;
+    // List of relayers
+    mapping(address => bool) public Relayers;
+    uint public TotalRelayers;
 
     // Current threshold proposals
     // ThresholdType => ThersholdProposal
     mapping(uint => ThresholdProposal) public ThresholdProposals;
 
-    // Validator proposals
-    // Address = validator to add/remove
-    mapping(address => ValidatorProposal) public ValidatorProposals;
+    // Relayer proposals
+    // Address = relayer to add/remove
+    mapping(address => RelayerProposal) public RelayerProposals;
 
     // keep track of all proposed deposits per origin chain
     // ChainId => DepositId => Proposal
     mapping(uint => mapping(uint => DepositProposal)) public DepositProposals;
 
-    // Ensure user is a validator
-    modifier _isValidator() {
-        require(Validators[msg.sender], "Sender is not a validator.");
+    // Ensure user is a relayer
+    modifier _isRelayer() {
+        require(Relayers[msg.sender], "Sender is not a relayer.");
         _;
     }
 
@@ -100,32 +100,32 @@ contract Receiver {
     event DepositExecuted(uint _originChainId, uint _depositId, address _to);
 
     /**
-     * @param _addrs - Bridge validator addresses
+     * @param _addrs - Bridge relayer addresses
      * @param _depositThreshold - The number of votes required for a deposit vote to pass
-     * @param _validatorThreshold - The number of votes required for a validator vote to pass
+     * @param _relayerThreshold - The number of votes required for a relayer vote to pass
      */
-    constructor (address[] memory _addrs, uint _depositThreshold, uint _validatorThreshold) public {
+    constructor (address[] memory _addrs, uint _depositThreshold, uint _relayerThreshold) public {
         require(_depositThreshold > 0, "Deposit threshold must be greater than 0!");
-        require(_validatorThreshold > 0, "Validator threshold must be greater than 0!");
-        // set the validators
+        require(_relayerThreshold > 0, "Relayer threshold must be greater than 0!");
+        // set the relayers
         for (uint i = 0; i<_addrs.length; i++) {
-          Validators[_addrs[i]] = true;
+          Relayers[_addrs[i]] = true;
         }
-        // Set total validators
-        TotalValidators = _addrs.length;
+        // Set total relayers
+        TotalRelayers = _addrs.length;
 
     	// Set the thresholds
         DepositThreshold = _depositThreshold;
-        ValidatorThreshold = _validatorThreshold;
+        RelayerThreshold = _relayerThreshold;
     }
 
     /**
-     * Validators propose to make a deposit, this isn't final and requires the validators to reach majority consensus
+     * Relayers propose to make a deposit, this isn't final and requires the relayers to reach majority consensus
      * @param _hash - 32 bytes hash of the Deposit data
      * @param _depositId - The deposit id generated from the origin chain
      * @param _originChain - The chain id from which the deposit was originally made
      */
-    function createDepositProposal(bytes32 _hash, uint _depositId, uint _originChain) public _isValidator {
+    function createDepositProposal(bytes32 _hash, uint _depositId, uint _originChain) public _isRelayer {
         // Ensure this proposal hasn't already been made
 	    require(DepositProposals[_originChain][_depositId].status == VoteStatus.Inactive, "A proposal already exists!");
 
@@ -162,10 +162,10 @@ contract Receiver {
      * @param _depositId - The id assigned to a deposit, generated on the origin chain
      * @param _vote - uint from 0-1 representing the casted vote
      */
-    function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isValidator {
+    function voteDepositProposal(uint _originChainId, uint _depositId, Vote _vote) public _isRelayer {
         require(DepositProposals[_originChainId][_depositId].status >= VoteStatus.Active, "There is no active proposal!");
         require(DepositProposals[_originChainId][_depositId].status < VoteStatus.Finalized, "Proposal has already been finalized!");
-        require(!DepositProposals[_originChainId][_depositId].votes[msg.sender], "Validator has already voted!");
+        require(!DepositProposals[_originChainId][_depositId].votes[msg.sender], "Relayer has already voted!");
         require(uint(_vote) <= 1, "Invalid vote!");
 
         // Add vote signoff
@@ -175,13 +175,13 @@ contract Receiver {
             DepositProposals[_originChainId][_depositId].numNo++;
         }
 
-        // Mark that the validator voted
+        // Mark that the relayer voted
         DepositProposals[_originChainId][_depositId].votes[msg.sender] = true;
 
         // Check if the threshold has been met
-        // Todo: Edge case if validator threshold changes?
+        // Todo: Edge case if relayer threshold changes?
         if (DepositProposals[_originChainId][_depositId].numYes >= DepositThreshold ||
-            TotalValidators - DepositProposals[_originChainId][_depositId].numNo < DepositThreshold) {
+            TotalRelayers - DepositProposals[_originChainId][_depositId].numNo < DepositThreshold) {
             DepositProposals[_originChainId][_depositId].status = VoteStatus.Finalized;
         }
         // Triger event
@@ -214,38 +214,38 @@ contract Receiver {
     }
 
     /**
-     * Creates a new proposal to add or remove a validator
-     * Note: There is no `Finalized` state for Validator proposals they are either active or inacive
-     * @param _addr - Address of the validator to be added or removed
-     * @param _action - Action to either remove or add validator
+     * Creates a new proposal to add or remove a relayer
+     * Note: There is no `Finalized` state for Relayer proposals they are either active or inacive
+     * @param _addr - Address of the relayer to be added or removed
+     * @param _action - Action to either remove or add relayer
      */
-    function createValidatorProposal(address _addr,  ValidatorActionType _action) public _isValidator {
+    function createRelayerProposal(address _addr,  RelayerActionType _action) public _isRelayer {
         require(uint(_action) <= 1, "Action out of the vote enum range!");
-        require(!(_action == ValidatorActionType.Remove && Validators[_addr] == false), "Validator is not active!");
-        require(!(_action == ValidatorActionType.Add && Validators[_addr] == true), "Validator is already active!");
-        require(ValidatorProposals[_addr].status == VoteStatus.Inactive, "There is already an active proposal!");
+        require(!(_action == RelayerActionType.Remove && Relayers[_addr] == false), "Relayer is not active!");
+        require(!(_action == RelayerActionType.Add && Relayers[_addr] == true), "Relayer is already active!");
+        require(RelayerProposals[_addr].status == VoteStatus.Inactive, "There is already an active proposal!");
 
-        if (ValidatorThreshold == 1) {
+        if (RelayerThreshold == 1) {
             // If the threshold is set to 1, auto complete
-            ValidatorProposals[_addr] = ValidatorProposal({
-                validator: _addr,
+            RelayerProposals[_addr] = RelayerProposal({
+                relayer: _addr,
                 action: _action,
                 numYes: 1, // Creator must vote in favour
                 numNo: 0,
                 status: VoteStatus.Inactive
             });
-            if (ValidatorProposals[_addr].action == ValidatorActionType.Add) {
-                // Add validator
-                Validators[_addr] = true;
-                TotalValidators++;
+            if (RelayerProposals[_addr].action == RelayerActionType.Add) {
+                // Add relayer
+                Relayers[_addr] = true;
+                TotalRelayers++;
             } else {
-                // Remove validator
-                Validators[_addr] = false;
-                TotalValidators--;
+                // Remove relayer
+                Relayers[_addr] = false;
+                TotalRelayers--;
             }
         } else {
-            ValidatorProposals[_addr] = ValidatorProposal({
-                validator: _addr,
+            RelayerProposals[_addr] = RelayerProposal({
+                relayer: _addr,
                 action: _action,
                 numYes: 1, // Creator must vote in favour
                 numNo: 0,
@@ -253,45 +253,45 @@ contract Receiver {
             });
         }
         // Record vote
-        ValidatorProposals[_addr].votes[msg.sender] = true;
+        RelayerProposals[_addr].votes[msg.sender] = true;
     }
 
     /**
-     * Casts vote to add or remove a validator, if the vote succeeds it will perform the action
-     * @param _addr - Address of the validator to be added or removed
-     * @param _vote - Vote to either remove or add validator
+     * Casts vote to add or remove a relayer, if the vote succeeds it will perform the action
+     * @param _addr - Address of the relayer to be added or removed
+     * @param _vote - Vote to either remove or add relayer
      */
-    function voteValidatorProposal(address _addr, Vote _vote) public _isValidator {
-        require(ValidatorProposals[_addr].status != VoteStatus.Inactive, "There is no active proposal!");
-        require(!ValidatorProposals[_addr].votes[msg.sender], "Validator has already voted!");
+    function voteRelayerProposal(address _addr, Vote _vote) public _isRelayer {
+        require(RelayerProposals[_addr].status != VoteStatus.Inactive, "There is no active proposal!");
+        require(!RelayerProposals[_addr].votes[msg.sender], "Relayer has already voted!");
         require(uint(_vote) <= 1, "Vote out of the vote enum range!");
 
         // Cast vote
         if (_vote == Vote.Yes) {
-            ValidatorProposals[_addr].numYes++;
+            RelayerProposals[_addr].numYes++;
         } else {
-            ValidatorProposals[_addr].numNo++;
+            RelayerProposals[_addr].numNo++;
         }
 
         // Record vote
-        ValidatorProposals[_addr].votes[msg.sender] = true;
+        RelayerProposals[_addr].votes[msg.sender] = true;
 
         // Check if vote has met the threshold
-        if (ValidatorProposals[_addr].numYes >= ValidatorThreshold ||
-            TotalValidators - ValidatorProposals[_addr].numNo < ValidatorThreshold) {
+        if (RelayerProposals[_addr].numYes >= RelayerThreshold ||
+            TotalRelayers - RelayerProposals[_addr].numNo < RelayerThreshold) {
 
             // Vote succeeded, perform action
-            if (ValidatorProposals[_addr].numYes > ValidatorProposals[_addr].numNo) {
-                if (ValidatorProposals[_addr].action == ValidatorActionType.Add) {
-                    // Add validator
-                    Validators[_addr] = true;
-                    TotalValidators++;
-                    ValidatorProposals[_addr].status = VoteStatus.Inactive;
+            if (RelayerProposals[_addr].numYes > RelayerProposals[_addr].numNo) {
+                if (RelayerProposals[_addr].action == RelayerActionType.Add) {
+                    // Add relayer
+                    Relayers[_addr] = true;
+                    TotalRelayers++;
+                    RelayerProposals[_addr].status = VoteStatus.Inactive;
                 } else {
-                    // Remove validator
-                    Validators[_addr] = false;
-                    TotalValidators--;
-                    ValidatorProposals[_addr].status = VoteStatus.Inactive;
+                    // Remove relayer
+                    Relayers[_addr] = false;
+                    TotalRelayers--;
+                    RelayerProposals[_addr].status = VoteStatus.Inactive;
                 }
             }
         }
@@ -302,10 +302,10 @@ contract Receiver {
      * @param _value - The proposed new value for the given threshold
      * @param _type - The threshold type that the proposal is for
      */
-    function createThresholdProposal(uint _value, ThresholdType _type) public _isValidator {
+    function createThresholdProposal(uint _value, ThresholdType _type) public _isRelayer {
         uint key = uint(_type);
 
-        require(_value <= TotalValidators, "Total value must be lower than total Validators!");
+        require(_value <= TotalRelayers, "Total value must be lower than total Relayers!");
         require(ThresholdProposals[key].status != VoteStatus.Active, "A proposal is active!");
 
         ThresholdProposals[key] = ThresholdProposal({
@@ -321,14 +321,14 @@ contract Receiver {
 
     /**
      * Vote on a given threshold vote.
-     * @param _vote - The vote that a validator is making
+     * @param _vote - The vote that a relayer is making
      * @param _type - The type of threshold that is being proposed
      */
-    function voteThresholdProposal(Vote _vote, ThresholdType _type) public _isValidator {
+    function voteThresholdProposal(Vote _vote, ThresholdType _type) public _isRelayer {
         uint key = uint(_type);
 
         require(ThresholdProposals[key].status == VoteStatus.Active, "There is no active proposal!");
-        require(!ThresholdProposals[key].votes[msg.sender], "Validator has already voted!");
+        require(!ThresholdProposals[key].votes[msg.sender], "Relayer has already voted!");
 
         if (_vote == Vote.Yes) {
             ThresholdProposals[key].numYes++;
@@ -337,14 +337,14 @@ contract Receiver {
         }
         ThresholdProposals[key].votes[msg.sender] = true;
 
-        if (ThresholdProposals[key].numYes >= ValidatorThreshold ||
-            TotalValidators - ThresholdProposals[key].numNo < ValidatorThreshold) {
+        if (ThresholdProposals[key].numYes >= RelayerThreshold ||
+            TotalRelayers - ThresholdProposals[key].numNo < RelayerThreshold) {
             // Finalize the vote
             ThresholdProposals[key].status = VoteStatus.Finalized;
 
             if (ThresholdProposals[key].numYes > ThresholdProposals[key].numNo) {
-                if (_type == ThresholdType.Validator) {
-                    ValidatorThreshold = ThresholdProposals[key].newValue;
+                if (_type == ThresholdType.Relayer) {
+                    RelayerThreshold = ThresholdProposals[key].newValue;
                 } else if (_type == ThresholdType.Deposit) {
                     DepositThreshold = ThresholdProposals[key].newValue;
                 }
