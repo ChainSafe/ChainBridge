@@ -54,7 +54,6 @@ See `config.toml.example` for an example configuration.
 Ethereum chains support the following additional options:
 
 ```
-chainID = "1337"         // The network id for the specific Ethereum chain
 contract = ""0x12345..." // The address of the bridge contract
 gasPrice = "0x1234"      // Gas price for transactions 
 gasLimit = "0x1234"      // Gas limit for transactions

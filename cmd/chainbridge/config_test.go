@@ -17,8 +17,12 @@ import (
 func createTempConfigFile() (*os.File, *Config) {
 	testConfig := NewConfig()
 	ethCfg := RawChainConfig{
-		Endpoint: "",
-		From:     "",
+		Name:     "chain",
+		Type:     "ethereum",
+		Id:       1,
+		Endpoint: "endpoint",
+		From:     "0x0",
+		Opts:     nil,
 	}
 	testConfig.Chains = []RawChainConfig{ethCfg}
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "prefix-")
