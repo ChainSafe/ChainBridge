@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity 0.6.4;
 
 import "./helpers/SafeMath.sol";
 import "./erc/ERC20/ERC20.sol";
@@ -38,7 +38,7 @@ contract Safe is ISafe {
         nft.transferFrom(_from, _to, _tokenId);
     }
 
-    function releaseErc(address _tokenAddress, uint _value, address _to) public onlyOwner {
+    function releaseErc(address _tokenAddress, uint _value, address _to) public override onlyOwner {
         require(balances[_tokenAddress] >= _value, "Withdrawal amount is too high!");
         balances[_tokenAddress] = balances[_tokenAddress].sub(_value);
 
@@ -46,12 +46,12 @@ contract Safe is ISafe {
         ERC20 token = ERC20(_tokenAddress);
         token.transfer(_to, _value);
     }
-    
-    function releaseNFT(address _tokenAddress, address _to, uint _tokenId) public onlyOwner {
+
+    function releaseNFT(address _tokenAddress, address _to, uint _tokenId) public override onlyOwner {
         ERC721 nft = ERC721(_tokenAddress);
         nft.transferFrom(address(this), _to, _tokenId);
     }
-    
+
     function owner() public view returns (address) {
        return Owner;
     }

@@ -16,6 +16,9 @@ then
   cd centrifuge-chain
   cargo build --release
   cd ..
+else
+  echo "Centrifuge-chain found. Will not fetch."
+  ls -la ./centrifuge-chain
 fi
 
 ./centrifuge-chain/target/release/centrifuge-chain purge-chain --dev
