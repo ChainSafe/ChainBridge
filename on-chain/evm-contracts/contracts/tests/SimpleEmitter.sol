@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity 0.6.4;
 
 /**
  * @title SimpleEmitter
@@ -7,7 +7,7 @@ pragma solidity ^0.5.12;
 contract SimpleEmitter {
 	event DepositAsset(address indexed _addr, bytes32 _hash);
 
-	function () external {
+	fallback () external {
 		bytes32 hash = sha256(abi.encodePacked(msg.sender, block.number));
 		emit DepositAsset(msg.sender, hash);
 	}
