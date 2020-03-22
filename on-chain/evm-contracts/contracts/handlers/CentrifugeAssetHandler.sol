@@ -32,7 +32,7 @@ contract CentrifugeAssetHandler is IDepositHandler {
             metaDataHash := mload(add(data, 0x20))
         }
 
-        require(_assetDepositStatuses[metaDataHash] == AssetDepositStatus.Active, "asset hasn't been deposited");
+        require(_assetDepositStatuses[metaDataHash] == AssetDepositStatus.Active, "asset hasn't been deposited or has already been finalized");
         _assetDepositStatuses[metaDataHash] = AssetDepositStatus.Confirmed;
     }
 }
