@@ -66,3 +66,81 @@ func TestLoadConfig(t *testing.T) {
 		t.Errorf("did not match\ngot: %+v\nexpected: %+v", res.Chains[0], cfg.Chains[0])
 	}
 }
+
+func TestValdiateConfig(t *testing.T) {
+	valid := RawChainConfig{
+		Name:     "chain",
+		Type:     "ethereum",
+		Id:       1,
+		Endpoint: "endpoint",
+		From:     "0x0",
+		Opts:     nil,
+	}
+
+	missingType := RawChainConfig{
+		Name:     "chain",
+		Type:     "",
+		Id:       1,
+		Endpoint: "endpoint",
+		From:     "0x0",
+		Opts:     nil,
+	}
+
+	missingEndpoint := RawChainConfig{
+		Name:     "chain",
+		Type:     "ethereum",
+		Id:       1,
+		Endpoint: "",
+		From:     "0x0",
+		Opts:     nil,
+	}
+
+	missingName := RawChainConfig{
+		Name:     "",
+		Type:     "ethereum",
+		Id:       1,
+		Endpoint: "endpoint",
+		From:     "0x0",
+		Opts:     nil,
+	}
+
+	cfg := Config{
+		Chains:       []RawChainConfig{valid},
+		keystorePath: "",
+	}
+
+	err := cfg.validate()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cfg = Config{
+		Chains:       []RawChainConfig{missingType},
+		keystorePath: "",
+	}
+
+	err = cfg.validate()
+	if err == nil {
+		t.Fatal("must require type field")
+	}
+
+	cfg = Config{
+		Chains:       []RawChainConfig{missingEndpoint},
+		keystorePath: "",
+	}
+
+	err = cfg.validate()
+	if err == nil {
+		t.Fatal("must require endpoint field")
+	}
+
+	cfg = Config{
+		Chains:       []RawChainConfig{missingName},
+		keystorePath: "",
+	}
+
+	err = cfg.validate()
+	if err == nil {
+		t.Fatal("must require name field")
+	}
+}

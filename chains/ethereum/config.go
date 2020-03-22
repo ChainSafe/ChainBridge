@@ -5,6 +5,7 @@ package ethereum
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/core"
@@ -12,10 +13,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+const DefaultGasLimit = 6721975
+const DefaultGasPrice = 20000000000
+
 // Config encapsulates all necessary parameters in ethereum compatible forms
 type Config struct {
+	name         string      // Human-readable chain name
 	id           msg.ChainId // ChainID
-	chainID      *big.Int    // Ethereum chain ID
 	endpoint     string      // url for rpc endpoint
 	from         string      // address of key to use
 	keystorePath string      // Location of keyfiles
@@ -24,26 +28,24 @@ type Config struct {
 	gasPrice     *big.Int
 }
 
-// ParseChainConfig uses a core.ChainConfig to construct a corresponding Config
-func ParseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
+// parseChainConfig uses a core.ChainConfig to construct a corresponding Config
+func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 
 	config := &Config{
+		name:         chainCfg.Name,
 		id:           chainCfg.Id,
 		endpoint:     chainCfg.Endpoint,
 		from:         chainCfg.From,
 		keystorePath: chainCfg.KeystorePath,
-		chainID:      big.NewInt(1),
 		contract:     common.HexToAddress("0x0"),
-		gasLimit:     big.NewInt(6721975),
-		gasPrice:     big.NewInt(20000000000),
+		gasLimit:     big.NewInt(DefaultGasLimit),
+		gasPrice:     big.NewInt(DefaultGasPrice),
 	}
 
-	if chainID, ok := chainCfg.Opts["chainID"]; ok {
-		config.chainID.SetString(chainID, 10)
-	}
-
-	if bridge, ok := chainCfg.Opts["contract"]; ok {
-		config.contract = common.HexToAddress(bridge)
+	if contract, ok := chainCfg.Opts["contract"]; ok && contract != "" {
+		config.contract = common.HexToAddress(contract)
+	} else {
+		return nil, fmt.Errorf("must provide opts.contract field for ethereum config")
 	}
 
 	if gasPrice, ok := chainCfg.Opts["gasPrice"]; ok {
