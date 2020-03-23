@@ -21,7 +21,6 @@ var cliFlags = []cli.Flag{
 	ConfigFileFlag,
 	VerbosityFlag,
 	KeystorePathFlag,
-	HTTPConnectionFlag,
 }
 
 var generateFlags = []cli.Flag{

@@ -42,6 +42,7 @@ func TestParseChainConfig(t *testing.T) {
 		contract:     common.HexToAddress("0x1234"),
 		gasLimit:     big.NewInt(10),
 		gasPrice:     big.NewInt(20),
+		http:         false,
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
