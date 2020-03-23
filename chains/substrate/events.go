@@ -10,6 +10,7 @@ import (
 )
 
 type eventName string
+type eventHandler func(interface{}) msg.Message
 
 const AssetTx eventName = "AssetTx"
 const ValidatorAdded eventName = "ValidatorAdded"

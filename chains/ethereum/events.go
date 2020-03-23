@@ -24,9 +24,10 @@ const (
 	DepositProposalCreatedSignature = "DepositProposalCreated(uint256,uint256,bytes32)"
 )
 
-func (l *Listener) handleErc20DepositedEvent(eventI interface{}) msg.Message {
+type evtHandlerFn func(ethtypes.Log) msg.Message
+
+func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	log15.Debug("Handling deposited event")
-	event := eventI.(ethtypes.Log)
 
 	depositNonce := event.Topics[1].Big() // Only item in log is indexed.
 
@@ -53,9 +54,8 @@ func (l *Listener) handleErc20DepositedEvent(eventI interface{}) msg.Message {
 	}
 }
 
-func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
+func (l *Listener) handleVoteEvent(event ethtypes.Log) msg.Message {
 	log15.Debug("Handling vote event")
-	event := eventI.(ethtypes.Log)
 
 	originChainID := event.Topics[1].Big()
 	depositNonce := event.Topics[2].Big()

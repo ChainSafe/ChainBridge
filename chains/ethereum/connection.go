@@ -10,7 +10,6 @@ import (
 	"math/big"
 	"sync"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
@@ -24,12 +23,10 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-var _ chains.Connection = &Connection{}
-
 // Nonce is a struct that wraps the Nonce with a mutex lock
 // this struct was implemented to prevent race conditions where
 // two transactions try to transact at the same time and recieve
-//the same nonce, causing one to be rejected.
+// the same nonce, causing one to be rejected.
 type Nonce struct {
 	nonce uint64
 	lock  *sync.Mutex
