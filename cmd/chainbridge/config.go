@@ -68,6 +68,23 @@ func (c *Config) ToTOML(file string) *os.File {
 	return newFile
 }
 
+func (c *Config) validate() error {
+	for _, chain := range c.Chains {
+		if chain.Type == "" {
+			return fmt.Errorf("required field chain.Type empty for chain %d", chain.Id)
+		}
+
+		if chain.Endpoint == "" {
+			return fmt.Errorf("required field chain.Endpoint empty for chain %d", chain.Id)
+		}
+
+		if chain.Name == "" {
+			return fmt.Errorf("required field chain.Name empty for chain %d", chain.Id)
+		}
+	}
+	return nil
+}
+
 func getConfig(ctx *cli.Context) (*Config, error) {
 	var fig Config
 	path := DefaultConfigPath
@@ -83,6 +100,10 @@ func getConfig(ctx *cli.Context) (*Config, error) {
 		fig.keystorePath = ksPath
 	}
 	log.Debug("Loaded config", "path", path)
+	err = fig.validate()
+	if err != nil {
+		return nil, err
+	}
 	return &fig, nil
 }
 

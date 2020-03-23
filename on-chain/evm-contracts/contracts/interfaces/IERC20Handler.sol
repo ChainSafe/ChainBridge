@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity 0.6.4;
 
 interface IERC20Handler {
     function depositERC20(address tokenAddress, address owner, uint amount) external;

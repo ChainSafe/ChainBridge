@@ -34,10 +34,6 @@ build: bindings
 	@echo "  >  \033[32mBuilding binary...\033[0m "
 	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge
 
-run: build
-	@echo "  >  \033[32mRunning bridge...\033[0m "
-	./build/chainbridge
-
 install: bindings
 	@echo "  >  \033[32mInstalling bridge...\033[0m "
 	cd cmd/chainbridge && go install

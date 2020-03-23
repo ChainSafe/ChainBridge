@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
+	"github.com/ChainSafe/ChainBridgeV2/chains/substrate"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
@@ -130,39 +131,31 @@ func run(ctx *cli.Context) error {
 		ks = cfg.keystorePath
 	}
 
-	http := ctx.GlobalBool(HTTPConnectionFlag.Name)
-
 	c := core.NewCore()
 
 	for _, chain := range cfg.Chains {
-		var chainconfig core.Chain
-		if chain.Type == "ethereum" {
-			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
-				Id:           chain.Id,
-				Endpoint:     chain.Endpoint,
-				From:         chain.From,
-				KeystorePath: ks,
-				Insecure:     insecure,
-				Opts:         chain.Opts,
-				Http:         http,
-			})
-		} else if chain.Type == "substrate" {
-			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
-				Id:           chain.Id,
-				Endpoint:     chain.Endpoint,
-				From:         chain.From,
-				KeystorePath: ks,
-				Insecure:     insecure,
-				Opts:         chain.Opts,
-				Http:         http,
-			})
-		} else {
-			return errors.New("Unrecognized Chain Type")
+		chainConfig := &core.ChainConfig{
+			Name:         chain.Name,
+			Id:           chain.Id,
+			Endpoint:     chain.Endpoint,
+			From:         chain.From,
+			KeystorePath: ks,
+			Insecure:     insecure,
+			Opts:         chain.Opts,
 		}
+		var newChain core.Chain
+		if chain.Type == "ethereum" {
+			newChain, err = ethereum.InitializeChain(chainConfig)
+		} else if chain.Type == "substrate" {
+			newChain, err = substrate.InitializeChain(chainConfig)
+		} else {
+			return errors.New("unrecognized Chain Type")
+		}
+
 		if err != nil {
 			return err
 		}
-		c.AddChain(chainconfig)
+		c.AddChain(newChain)
 	}
 
 	c.Start()

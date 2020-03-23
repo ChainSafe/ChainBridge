@@ -2,10 +2,17 @@
 
 [![Build Status](https://travis-ci.com/ChainSafe/ChainBridgeV2.svg?branch=master)](https://travis-ci.com/ChainSafe/ChainBridgeV2)
 
-# **[WIP]**
+<h3><b>[WIP]</b></h3>
 
-# Chain configs
-For chain specific configs, please check [this subdirectory](./chain-documents)
+# Contents
+
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Running](#running)
+- [Testing](#testing)
+- [Simulations](#simulations)
+
+# Installation
 
 ## Dependencies
 
@@ -19,44 +26,52 @@ Builds go bindings for Solidity contract interactions.
 
   See [Installation Instructions](https://geth.ethereum.org/docs/install-and-build/installing-geth).
 
-## Run the bridge
- 
-`make run`
+## Building
 
-See `--help` for CLI options.
+`make build`: Builds `chainbridge` in `./build`.
 
-## Configuring the bridge
+`make install`: Uses `go install` to add `chainbridge` to your GOBIN.
 
-### Selecting Chains
-
-Presently chains must be manually inserted into `cmd/chainbridge/main.go`. In future this will be more flexible and require less manual configuration.
-
-For the time being we have `ethereum` and `centrifuge` chains configured.
+## Configuration
 
 ### Configuring Chains
 
 A chain configurations take this form:
 ```toml
 [[chains]]
-id = 0 # see ./message/id.go
-endpoint = "ws://localhost:8545" # RPC (WS) endpoint
-receiver = "0x1234" # bridge receiver contract address
-emitter = "0x1234" # bridge emitter contract address>
-from = "0x1234" # public key to use for txs
+name = "ethereum" // Human-readable name
+type = "ethereum" // Either "ethereum" or "substrate"
+id = 0            // Chain Id
+endpoint = "ws://host:port" // API endpoint
+from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c" // Public key of desired key, not required for test keys
+opts = {}         // Chain-specific configuration options (see below)
 ```
 
-See `config.toml` for an example configuration. 
+See `config.toml.example` for an example configuration. 
 
-Note: presently a home and away contracts can be specified, these can be the same contract.
+#### Ethereum Options
 
+Ethereum chains support the following additional options:
+
+```
+contract = ""0x12345..." // The address of the bridge contract
+gasPrice = "0x1234"      // Gas price for transactions 
+gasLimit = "0x1234"      // Gas limit for transactions
+```
+
+#### Substrate Options
+
+There are presently no additional config options for substrate chains.
 
 ### Keystore
 
-To manage keys ChainBridge uses a keystore specificed with the `--keystore <path>` flag. By default it uses `./keys`. The public key specified in the config will be used to identify which keys to load.
+ChainBridge requires keys to sign and submit transactions, and to identify each bridge node on chain.
 
-Keys can be managed with the `account` sub-command. Please see `chainbridge account --help` for documentation.
+To use secure keys, see `chainbridge accounts --help`. The keystore password can be supplied with the `KEYSTORE_PASSWORD` environment variable.
 
-Alternatively, an environemnet variable can be used with the key `KEYSTORE_PASSWORD`.
+For testing purposes, chainbridge provides 5 test keys. The can be used with `--testkey <name>`, where `name` is one of `Alice`, `Bob`, `Charlie`, `Dave`, or `Eve`. 
+
+# Testing
 
 ## Ethereum Dev Environment 
 
@@ -141,20 +156,39 @@ make truffle_test
 ```
 
 ## Simulations
-If you have a bridge instance running, and access to an ethereum node, transactions can be run that simulate different types of transfer events. These scripts can be found at `./on-chain/evm-contracts/scripts/cli`. 
-
-### Running the simulations
-1. `./on-chain/evm-contracts`
-2. Run one of the following:
-###### Deploy contracts
-`node ./scripts/cli/index.js -p <port_number>`
-###### Mint tokens
-`node ./scripts/cli/index.js --test-only --mint-erc20 --value <amount of token>`
-###### ERC transfer (note must mint tokens first) 
-`node ./scripts/cli/index.js --test-only --deposit-erc --value <amount_to_deposit> --dest <destination_chain_id>`
-###### NFT transfer
-// Outdated
+### Ethereum ERC20 Transfer
+Start chain 1 (terminal 1)
+```shell
+make start_eth
+```
+Start chain 2 (terminal 2)
+```shell
+PORT=8546 make start_eth
+```
+Deploy the contracts (terminal 3)
+```shell
+make deploy_eth && PORT=8546 make deploy_eth
+```
+Build the latest ChainBridge binary & run it (terminal 3)
+```shell
+make build
+./build/chainbridge --verbosity=trace --config ./scripts/configs/config1.toml --testkey alice
+```
+Mint & make a deposit (terminal 4)
+```shell
+node on-chain/evm-contracts/scripts/cli/index.js --test-only --mint-erc20 --value 100
+node on-chain/evm-contracts/scripts/cli/index.js --test-only --deposit-erc —dest 1
+```
 
 Notes: 
-- `--test-only` ensures we don't re-deploy the contracts (this must be refactored out in favor of commands)
-- `--dest` allows you to specify which chain_id you want to the transfer to go to 
+- Alice (from the keyring) is always the deployer, if that key changes, then the constants will be different
+- Validators start from the keyring and move alphabetically down the list. For example if you specify `--validators 3`, the validators would be `Alice`, `Bob`, `Charlie`. If you said 4, `Dave` would join
+- `--test-only` ensures we don't re-deploy the contracts
+- `--dest` allows you to specify which chain_id you want to the transfer to go to
+
+#### Debugging
+Node script errors:
+"Contract not found" or similar:
+- Check the deployments in step 3, do the addresses listed there match with the addresses saved in `.on-chain/evm-contracts/scripts/cli/constants.js`? The constants file should be updated accordingly
+"Sender doesn't have funds" or similar when executing an erc20 transfer:
+- Check that the you ran `--mint <value>` (step 4) if you didn't the account has no tokens to deposit
