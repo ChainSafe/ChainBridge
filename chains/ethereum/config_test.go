@@ -21,9 +21,10 @@ func TestParseChainConfig(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"contract": "0x1234",
-			"gasLimit": "10",
-			"gasPrice": "20",
+			"contract":       "0x1234",
+			"gasLimit":       "10",
+			"gasPrice":       "20",
+			"connectionType": "rpc",
 		},
 	}
 
