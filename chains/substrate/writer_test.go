@@ -52,12 +52,12 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 	amount := types.MustHexDecodeString("1000000000")
 	data := append(bob.conn.key.PublicKey, amount...)
 	m := message.Message{
-		Source:      0,
-		Destination: 1,
-		Type:        message.DepositAssetType,
-		DepositId:   0,
-		To:          bob.conn.key.PublicKey,
-		Metadata:    data,
+		Source:       0,
+		Destination:  1,
+		Type:         message.DepositAssetType,
+		DepositNonce: 0,
+		To:           bob.conn.key.PublicKey,
+		Metadata:     data,
 	}
 
 	// Create a proposal to help us check results
