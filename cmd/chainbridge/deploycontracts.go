@@ -64,11 +64,10 @@ func parseCommands(ctx *cli.Context) error {
 	port := ctx.String(PortFlag.Name)
 	relayers := ctx.Int(NumRelayersFlag.Name)
 	relayerThreshold := ctx.Int(RelayerThresholdFlag.Name)
-	depositThreshold := ctx.Int(DepositThresholdFlag.Name)
 	minCount := ctx.Int(MinCountFlag.Name)
 	deployPK := ctx.String(PKFlag.Name)
 
-	deployedContracts, err := deployContractsLocal(deployPK, port, relayers, big.NewInt(int64(relayerThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount))
+	deployedContracts, err := deployContractsLocal(deployPK, port, relayers, big.NewInt(int64(relayerThreshold)), uint8(minCount))
 	if err != nil {
 		return err
 	}
@@ -83,7 +82,7 @@ func parseCommands(ctx *cli.Context) error {
 	return nil
 }
 
-func deployContractsLocal(deployPK string, port string, relayers int, initialRelayerThreshold *big.Int, depositThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
+func deployContractsLocal(deployPK string, port string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
 
 	client, auth, deployAddress, initialRelayerAddresses, err := accountSetUp(port, relayers, deployPK)
 	if err != nil {

@@ -64,11 +64,6 @@ var (
 		Usage: "Specify validator threshold",
 		Value: 2,
 	}
-	DepositThresholdFlag = cli.IntFlag{
-		Name:  "depositthreshold",
-		Usage: "Specify deposit threshold",
-		Value: 2,
-	}
 	PKFlag = cli.StringFlag{
 		Name:  "pk",
 		Usage: "Specify private key of account you wish to deploy contracts from",

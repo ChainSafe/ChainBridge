@@ -38,7 +38,6 @@ var deployContractLocalFlags = []cli.Flag{
 	PortFlag,
 	NumRelayersFlag,
 	RelayerThresholdFlag,
-	DepositThresholdFlag,
 	MinCountFlag,
 	PKFlag,
 }
