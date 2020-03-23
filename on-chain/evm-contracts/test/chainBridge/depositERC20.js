@@ -5,7 +5,7 @@
 
 const truffleAssert = require('truffle-assertions');
 
-const ValidatorContract = artifacts.require("Validator");
+const RelayerContract = artifacts.require("Relayer");
 const BridgeContract = artifacts.require("Bridge");
 const ERC20MintableContract = artifacts.require("ERC20Mintable");
 const ERC20HandlerContract = artifacts.require("ERC20Handler");
@@ -17,9 +17,9 @@ contract('Bridge - [depositERC20]', async (accounts) => {
     const destinationChainID = 0;
     const originChainInitialTokenAmount = 100;
     const depositAmount = 10;
-    const expectedDepositID = 1;
+    const expectedDepositNonce = 1;
 
-    let ValidatorInstance;
+    let RelayerInstance;
     let BridgeInstance;
     let OriginERC20MintableInstance;
     let OriginERC20HandlerInstance;
@@ -28,8 +28,8 @@ contract('Bridge - [depositERC20]', async (accounts) => {
     let expectedDepositRecord;
 
     beforeEach(async () => {
-        ValidatorInstance = await ValidatorContract.new([], 0);
-        BridgeInstance = await BridgeContract.new(ValidatorInstance.address, 0);
+        RelayerInstance = await RelayerContract.new([], 0);
+        BridgeInstance = await BridgeContract.new(RelayerInstance.address, 0);
         OriginERC20MintableInstance = await ERC20MintableContract.new();
         OriginERC20HandlerInstance = await ERC20HandlerContract.new(BridgeInstance.address);
         DestinationERC20MintableInstance = await ERC20MintableContract.new();
@@ -82,10 +82,10 @@ contract('Bridge - [depositERC20]', async (accounts) => {
         );
 
         const depositCount = await BridgeInstance._depositCounts.call(destinationChainID);
-        assert.strictEqual(depositCount.toNumber(), expectedDepositID);
+        assert.strictEqual(depositCount.toNumber(), expectedDepositNonce);
     });
 
-    it('getDepositCounts should return correct expectedDepositID', async () => {
+    it('getDepositCounts should return correct expectedDepositNonce', async () => {
         await BridgeInstance.depositERC20(
             OriginERC20MintableInstance.address,
             OriginERC20HandlerInstance.address,
@@ -97,7 +97,7 @@ contract('Bridge - [depositERC20]', async (accounts) => {
         );
 
         const depositCount = await BridgeInstance.getDepositCount(destinationChainID);
-        assert.strictEqual(depositCount.toNumber(), expectedDepositID);
+        assert.strictEqual(depositCount.toNumber(), expectedDepositNonce);
     });
 
     it('ERC20 can be deposited with correct balances', async () => {
@@ -118,7 +118,7 @@ contract('Bridge - [depositERC20]', async (accounts) => {
         assert.strictEqual(originChainHandlerBalance.toNumber(), depositAmount);
     });
 
-    it('ERC20 deposit record is created with expected depositID and values', async () => {
+    it('ERC20 deposit record is created with expected depositNonce and values', async () => {
         await BridgeInstance.depositERC20(
             OriginERC20MintableInstance.address,
             OriginERC20HandlerInstance.address,
@@ -129,7 +129,7 @@ contract('Bridge - [depositERC20]', async (accounts) => {
             { from: originChainDepositerAddress }
         );
 
-        const depositRecord = await BridgeInstance._erc20DepositRecords.call(destinationChainID, expectedDepositID);
+        const depositRecord = await BridgeInstance._erc20DepositRecords.call(destinationChainID, expectedDepositNonce);
         for (const expectedProperty of Object.keys(expectedDepositRecord)) {
             // Testing all expected object properties
             assert.property(depositRecord, expectedProperty, `property: ${expectedProperty} does not exist in depositRecord`);
@@ -155,11 +155,11 @@ contract('Bridge - [depositERC20]', async (accounts) => {
         );
 
         truffleAssert.eventEmitted(depositTx, 'ERC20Deposited', (event) => {
-            return event.depositID.toNumber() === expectedDepositID
+            return event.depositNonce.toNumber() === expectedDepositNonce
         });
     });
 
-    it('getERC20DepositRecord should return correct depositID with values in expected order', async () => {
+    it('getERC20DepositRecord should return correct depositNonce with values in expected order', async () => {
         await BridgeInstance.depositERC20(
             OriginERC20MintableInstance.address,
             OriginERC20HandlerInstance.address,
@@ -170,7 +170,7 @@ contract('Bridge - [depositERC20]', async (accounts) => {
             { from: originChainDepositerAddress }
         );
 
-        const depositRecord = await BridgeInstance.getERC20DepositRecord(destinationChainID, expectedDepositID);
+        const depositRecord = await BridgeInstance.getERC20DepositRecord(destinationChainID, expectedDepositNonce);
         const depositRecordValues = Object.values(depositRecord);
         depositRecordValues.forEach((depositRecordValue, index) => {
             depositRecordValues[index] = depositRecordValue.toNumber !== undefined ?

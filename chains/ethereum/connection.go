@@ -5,9 +5,13 @@ package ethereum
 
 import (
 	"context"
+	"encoding/hex"
+	"errors"
 	"math/big"
 	"sync"
 
+	"github.com/ChainSafe/ChainBridgeV2/chains"
+	"github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
 
@@ -52,7 +56,7 @@ func NewConnection(cfg *Config, kp *secp256k1.Keypair) *Connection {
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	log15.Info("Connecting to ethereum...", "url", c.cfg.endpoint)
+	log15.Info("Connecting to ethereum chain...", "chain", c.cfg.name, "url", c.cfg.endpoint)
 	rpcClient, err := rpc.DialWebsocket(c.ctx, c.cfg.endpoint, "/ws")
 	if err != nil {
 		return err
@@ -149,4 +153,22 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 	auth.Context = c.ctx
 
 	return auth, nonce, nil
+}
+
+//getByteCode grabs the bytecode of the contract, to help determine if a contract is deployed
+func (c *Connection) getByteCode(account ethcommon.Address) ([]byte, error) {
+	return c.conn.CodeAt(c.ctx, account, nil)
+}
+
+func (c *Connection) checkBridgeContract(contract ethcommon.Address) error {
+	byteCode, err := c.getByteCode(contract)
+	if err != nil {
+		return err
+	}
+
+	if len(byteCode) == 0 || Bridge.RuntimeBytecode != "0x"+hex.EncodeToString(byteCode) {
+		return errors.New("Bridge Bytecode does not match.")
+	}
+
+	return nil
 }

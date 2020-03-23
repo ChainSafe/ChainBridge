@@ -5,7 +5,7 @@
 
 const truffleAssert = require('truffle-assertions');
 
-const ValidatorContract = artifacts.require("Validator");
+const RelayerContract = artifacts.require("Relayer");
 const BridgeContract = artifacts.require("Bridge");
 const ERC20MintableContract = artifacts.require("ERC20Mintable");
 const ERC20HandlerContract = artifacts.require("ERC20Handler");
@@ -15,10 +15,10 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
     const originChainDepositerAddress = accounts[1];
     const destinationChainRecipientAddress = accounts[2];
     const destinationChainID = 0;
-    const expectedDepositID = 1;
+    const expectedDepositNonce = 1;
     const genericBytes = '0x736f796c656e745f677265656e5f69735f70656f706c65';
 
-    let ValidatorInstance;
+    let RelayerInstance;
     let BridgeInstance;
     let OriginERC20MintableInstance;
     let OriginERC20HandlerInstance;
@@ -28,8 +28,8 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
     let expectedDepositRecord_AllArguments;
 
     beforeEach(async () => {
-        ValidatorInstance = await ValidatorContract.new([], 0);
-        BridgeInstance = await BridgeContract.new(ValidatorInstance.address, 0);
+        RelayerInstance = await RelayerContract.new([], 0);
+        BridgeInstance = await BridgeContract.new(RelayerInstance.address, 0);
         OriginERC20MintableInstance = await ERC20MintableContract.new();
         OriginERC20HandlerInstance = await ERC20HandlerContract.new(BridgeInstance.address);
         DestinationERC20MintableInstance = await ERC20MintableContract.new();
@@ -70,7 +70,7 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
         );
 
         const depositCount = await BridgeInstance._depositCounts.call(destinationChainID);
-        assert.strictEqual(depositCount.toNumber(), expectedDepositID);
+        assert.strictEqual(depositCount.toNumber(), expectedDepositNonce);
     });
 
     it('Generic deposit with partial arguments is stored correctly', async () => {
@@ -80,7 +80,7 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
             genericBytes
         );
 
-        const depositRecord = await BridgeInstance._genericDepositRecords.call(destinationChainID, expectedDepositID);
+        const depositRecord = await BridgeInstance._genericDepositRecords.call(destinationChainID, expectedDepositNonce);
         for (const expectedProperty of Object.keys(expectedDepositRecord_PartialArguments)) {
             // Testing all expected object properties
             assert.property(depositRecord, expectedProperty, `property: ${expectedProperty} does not exist in depositRecord`);
@@ -102,18 +102,18 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
         );
 
         truffleAssert.eventEmitted(depositTx, 'GenericDeposited', (event) => {
-            return event.depositID.toNumber() === expectedDepositID
+            return event.depositNonce.toNumber() === expectedDepositNonce
         });
     });
 
-    it('getGenericDepositRecord should return correct depositID with values in expected order for Generic deposit with partial arguments', async () => {
+    it('getGenericDepositRecord should return correct depositNonce with values in expected order for Generic deposit with partial arguments', async () => {
         await BridgeInstance.depositGeneric(
             destinationChainID,
             destinationChainRecipientAddress,
             genericBytes
         );
 
-        const depositRecord = await BridgeInstance.getGenericDepositRecord(destinationChainID, expectedDepositID);
+        const depositRecord = await BridgeInstance.getGenericDepositRecord(destinationChainID, expectedDepositNonce);
         const depositRecordValues = Object.values(depositRecord);
         depositRecordValues.forEach((depositRecordValue, index) => {
             depositRecordValues[index] = depositRecordValue.toNumber !== undefined ?
@@ -146,7 +146,7 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
         );
 
         const depositCount = await BridgeInstance._depositCounts.call(destinationChainID);
-        assert.strictEqual(depositCount.toNumber(), expectedDepositID);
+        assert.strictEqual(depositCount.toNumber(), expectedDepositNonce);
     });
 
     it('Generic deposit with all arguments is stored correctly', async () => {
@@ -160,7 +160,7 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
             { from: originChainDepositerAddress }
         );
 
-        const depositRecord = await BridgeInstance._genericDepositRecords.call(destinationChainID, expectedDepositID);
+        const depositRecord = await BridgeInstance._genericDepositRecords.call(destinationChainID, expectedDepositNonce);
         for (const expectedProperty of Object.keys(expectedDepositRecord_AllArguments)) {
             // Testing all expected object properties
             assert.property(depositRecord, expectedProperty, `property: ${expectedProperty} does not exist in depositRecord`);
@@ -186,11 +186,11 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
         );
 
         truffleAssert.eventEmitted(depositTx, 'GenericDeposited', (event) => {
-            return event.depositID.toNumber() === expectedDepositID
+            return event.depositNonce.toNumber() === expectedDepositNonce
         });
     });
 
-    it('getGenericDepositRecord should return correct depositID with values in expected order for Generic deposit with all arguments', async () => {
+    it('getGenericDepositRecord should return correct depositNonce with values in expected order for Generic deposit with all arguments', async () => {
         await BridgeInstance.depositGeneric(
             OriginERC20MintableInstance.address,
             OriginERC20HandlerInstance.address,
@@ -201,7 +201,7 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
             { from: originChainDepositerAddress }
         );
 
-        const depositRecord = await BridgeInstance.getGenericDepositRecord(destinationChainID, expectedDepositID);
+        const depositRecord = await BridgeInstance.getGenericDepositRecord(destinationChainID, expectedDepositNonce);
         const depositRecordValues = Object.values(depositRecord);
         depositRecordValues.forEach((depositRecordValue, index) => {
             depositRecordValues[index] = depositRecordValue.toNumber !== undefined ?
