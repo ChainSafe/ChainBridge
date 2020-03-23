@@ -15,7 +15,6 @@ import (
 	"github.com/urfave/cli"
 
 	bridge "github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
-	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
 	centrifugeHandler "github.com/ChainSafe/ChainBridgeV2/contracts/CentrifugeAssetHandler"
 	erc20Handler "github.com/ChainSafe/ChainBridgeV2/contracts/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridgeV2/contracts/ERC721Handler"
@@ -51,7 +50,6 @@ var (
 type DeployedContracts struct {
 	BridgeAddress            common.Address
 	RelayerAddress           common.Address
-	BridgeAssetAddress       common.Address
 	ERC20HandlerAddress      common.Address
 	ERC721HandlerAddress     common.Address
 	CentrifugeHandlerAddress common.Address
@@ -99,11 +97,6 @@ func deployContracts(deployPK string, port string, relayers int, initialRelayerT
 		return nil, err
 	}
 
-	bridgeAssetAddr, err := deployBridgeAsset(auth, client, minCount, deployAddress)
-	if err != nil {
-		return nil, err
-	}
-
 	erc20HandlerAddr, err := deployERC20Handler(auth, client, bridgeAddr, deployAddress)
 	if err != nil {
 		return nil, err
@@ -119,7 +112,7 @@ func deployContracts(deployPK string, port string, relayers int, initialRelayerT
 		return nil, err
 	}
 
-	deployedContracts := DeployedContracts{bridgeAddr, relayerAddr, bridgeAssetAddr, erc20HandlerAddr, erc721HandlerAddr, centrifugeHandlerAddr}
+	deployedContracts := DeployedContracts{bridgeAddr, relayerAddr, erc20HandlerAddr, erc721HandlerAddr, centrifugeHandlerAddr}
 
 	return &deployedContracts, nil
 
@@ -277,21 +270,4 @@ func deployCentrifugeHandler(auth *bind.TransactOpts, client *ethclient.Client, 
 	}
 
 	return centrifugeHandlerAddr, nil
-}
-
-func deployBridgeAsset(auth *bind.TransactOpts, client *ethclient.Client, mc uint8, deployAddress common.Address) (common.Address, error) {
-
-	auth, err := updateNonce(auth, client, deployAddress)
-	if err != nil {
-		return ZERO_ADDRESS, err
-	}
-
-	bridgeAssetAddr, _, _, err := bridgeAsset.DeployBridgeAsset(auth, client, mc)
-	if err != nil {
-		log.Error("error deploying bridge asset instance")
-		return ZERO_ADDRESS, err
-	}
-
-	return bridgeAssetAddr, nil
-
 }
