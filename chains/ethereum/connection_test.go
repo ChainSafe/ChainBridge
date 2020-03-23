@@ -20,11 +20,7 @@ const TestEndpoint = "ws://localhost:8545"
 
 var Alice = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 
-var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4")
-var TestAddress2 = ethcmn.HexToAddress("0a4c3620AF8f3F182e203609f90f7133e018Bf5D")
 var TestBridgeContractAddress = ethcmn.HexToAddress("0x3167776db165D8eA0f51790CA2bbf44Db5105ADF")
-var TestReceiverContractAddress = ethcmn.HexToAddress("0x5842B333910Fe0BfA05F5Ea9F1602a40d1AF3584")
-var TestEmitterContractAddress = ethcmn.HexToAddress("0x3c747684333605408F9A4907DA043ee4c1A72D9c")
 
 const TestTimeout = time.Second * 10
 
