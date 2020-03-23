@@ -9,14 +9,13 @@ RUN cd geth && make devtools
 RUN wget -O /usr/bin/Subkey https://storage.googleapis.com/centrifuge-dev-public/subkey
 RUN chmod +x /usr/bin/Subkey
 
-RUN ls -la /usr/bin/
+RUN ls -la /usr/bin/ | grep Subkey
 
-RUN /usr/bin/subkey --version
+CMD /usr/bin/Subkey --version
 
 # Copy assets
 ADD . /src
 WORKDIR /src
 RUN make build
 
-CMD /bin/sh -c 'KEYSTORE_PASSWORD=chainsafe ./build/chainbridge'
-
+ENTRYPOINT /bin/sh -c 'KEYSTORE_PASSWORD=chainsafe ./build/chainbridge'
