@@ -28,7 +28,7 @@ func (l *Listener) handleErc20DepositedEvent(eventI interface{}) msg.Message {
 	log15.Debug("Handling deposited event")
 	event := eventI.(ethtypes.Log)
 
-	depositID := event.Topics[1].Big() // Only item in log is indexed.
+	depositNonce := event.Topics[1].Big() // Only item in log is indexed.
 
 	// TODO remove when issue addressed https://github.com/ChainSafe/ChainBridgeV2/issues/173
 	var destID msg.ChainId
@@ -38,18 +38,18 @@ func (l *Listener) handleErc20DepositedEvent(eventI interface{}) msg.Message {
 		destID = msg.ChainId(0)
 	}
 
-	deposit, err := UnpackErc20DepositRecord(l.bridgeContract.BridgeCaller.GetERC20DepositRecord(&bind.CallOpts{}, destID.Big(), depositID))
+	deposit, err := UnpackErc20DepositRecord(l.bridgeContract.BridgeCaller.GetERC20DepositRecord(&bind.CallOpts{}, destID.Big(), depositNonce))
 	if err != nil {
 		log15.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
 
 	return msg.Message{
-		Type:        msg.CreateDepositProposalType,
-		Source:      l.cfg.id,
-		Destination: msg.ChainId(deposit.DestChainID.Uint64()),
-		DepositId:   uint32(depositID.Uint64()),
-		To:          deposit.DestChainHandlerAddress.Bytes(),
-		Metadata:    deposit.Amount.Bytes(),
+		Type:         msg.CreateDepositProposalType,
+		Source:       l.cfg.id,
+		Destination:  msg.ChainId(deposit.DestChainID.Uint64()),
+		DepositNonce: uint32(depositNonce.Uint64()),
+		To:           deposit.DestChainHandlerAddress.Bytes(),
+		Metadata:     deposit.Amount.Bytes(),
 	}
 }
 
@@ -58,15 +58,15 @@ func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
 	event := eventI.(ethtypes.Log)
 
 	originChainID := event.Topics[1].Big()
-	depositID := event.Topics[2].Big()
+	depositNonce := event.Topics[2].Big()
 	hash := event.Topics[3]
 
 	return msg.Message{
-		Source:      msg.ChainId(uint8(originChainID.Uint64())), // Todo handle safely
-		Destination: l.cfg.id,                                   // Must write to the same contract
-		Type:        msg.VoteDepositProposalType,
-		DepositId:   uint32(depositID.Int64()),
-		Metadata:    hash[:],
+		Source:       msg.ChainId(uint8(originChainID.Uint64())), // Todo handle safely
+		Destination:  l.cfg.id,                                   // Must write to the same contract
+		Type:         msg.VoteDepositProposalType,
+		DepositNonce: uint32(depositNonce.Int64()),
+		Metadata:     hash[:],
 	}
 }
 
@@ -87,14 +87,14 @@ func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
 
 // 	// Capture indexed values
 // 	ercEvent.DestChain = event.Topics[1].Big()
-// 	ercEvent.DepositId = event.Topics[2].Big()
+// 	ercEvent.DepositNonce = event.Topics[2].Big()
 
 // 	return msg.Message{
 // 		Type:        msg.CreateDepositProposalType,
 // 		Source:      l.cfg.id,
 // 		Destination: msg.ChainId(uint8(ercEvent.DestChain.Uint64())),
 // 		// TODO: Can we safely downsize?
-// 		DepositId: uint32(ercEvent.DepositId.Uint64()),
+// 		DepositNonce: uint32(ercEvent.DepositNonce.Uint64()),
 // 		To:        ercEvent.To.Bytes(),
 // 		// Metadata:  ercEvent.Data,
 // 	}
