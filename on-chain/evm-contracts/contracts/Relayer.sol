@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity 0.6.4;
 
 import "./interfaces/IRelayer.sol";
 import "./helpers/SafeMath.sol";
@@ -59,7 +59,7 @@ contract Relayer is IRelayer {
         _relayerThreshold = initialRelayerThreshold;
     }
 
-    function isRelayer(address relayerAddress) public returns (bool) {
+    function isRelayer(address relayerAddress) public override returns (bool) {
         return _relayers[relayerAddress];
     }
 
@@ -67,7 +67,7 @@ contract Relayer is IRelayer {
         return _relayerThreshold;
     }
 
-    function getTotalRelayers() public returns (uint) {
+    function getTotalRelayers() public override returns (uint) {
         return _totalRelayers;
     }
 
@@ -91,7 +91,7 @@ contract Relayer is IRelayer {
         _voteStatusStrings[uint(relayerProposal._status)]);
     }
 
-    function createRelayerProposal(address proposedAddress, RelayerActionType action) public _onlyRelayers {
+    function createRelayerProposal(address proposedAddress, RelayerActionType action) public override _onlyRelayers {
         require(uint(action) <= 1, "action out of the vote enum range");
         require(action == RelayerActionType.Remove && _relayers[proposedAddress] == true, "address is not a relayer");
         require(action == RelayerActionType.Add && _relayers[proposedAddress] == false, "address is currently a relayer");
@@ -118,7 +118,7 @@ contract Relayer is IRelayer {
         emit RelayerProposalCreated(proposedAddress, action);
     }
 
-    function voteRelayerProposal(address proposedAddress, Vote vote) public _onlyRelayers {
+    function voteRelayerProposal(address proposedAddress, Vote vote) public override _onlyRelayers {
         require(_relayerProposals[proposedAddress]._status == VoteStatus.Active, "there is no active proposal for this address");
         require(!_relayerProposals[proposedAddress]._votes[msg.sender], "relayer has already voted");
         require(uint(vote) <= 1, "vote out of the vote enum range");
@@ -149,7 +149,7 @@ contract Relayer is IRelayer {
         }
     }
 
-    function createRelayerThresholdProposal(uint proposedValue) public _onlyRelayers {
+    function createRelayerThresholdProposal(uint proposedValue) public override _onlyRelayers {
         require(_currentRelayerThresholdProposal._status == VoteStatus.Inactive, "a proposal is currently active");
         require(proposedValue <= _totalRelayers, "proposed value cannot be greater than the total number of relayers");
 
@@ -170,7 +170,7 @@ contract Relayer is IRelayer {
         emit RelayerThresholdProposalCreated(proposedValue);
     }
 
-    function voteRelayerThresholdProposal(Vote vote) public _onlyRelayers {
+    function voteRelayerThresholdProposal(Vote vote) public override _onlyRelayers {
         require(_currentRelayerThresholdProposal._status == VoteStatus.Active, "no proposal is currently active");
         require(!_currentRelayerThresholdProposal._votes[msg.sender], "relayer has already voted");
         require(uint(vote) <= 1, "vote out of the vote enum range");
