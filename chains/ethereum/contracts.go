@@ -33,7 +33,7 @@ type erc20DepositRecord struct {
 // depositProposal is the return value from the solidity function getDepositProposal()
 type depositProposal struct {
 	OriginChainID *big.Int
-	DepositNonce     *big.Int
+	DepositNonce  *big.Int
 	DataHash      [32]byte
 	NumYes        *big.Int
 	NumNo         *big.Int
@@ -101,7 +101,7 @@ func UnpackDepositProposal(args ...interface{}) (depositProposal, error) {
 	}
 	return depositProposal{
 			OriginChainID: args[0].(*big.Int),
-			DepositNonce:     args[1].(*big.Int),
+			DepositNonce:  args[1].(*big.Int),
 			DataHash:      args[2].([32]byte),
 			NumYes:        args[3].(*big.Int),
 			NumNo:         args[4].(*big.Int),

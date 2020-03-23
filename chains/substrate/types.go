@@ -13,10 +13,10 @@ import (
 // proposal represents an on-chain proposal
 type proposal struct {
 	depositNonce types.U32
-	recipient types.AccountID
-	amount    types.U32
-	hash      types.Hash
-	call      types.Call
+	recipient    types.AccountID
+	amount       types.U32
+	hash         types.Hash
+	call         types.Call
 }
 
 // createProposalFromAssetTx requires a DepositAsset message to construct a proposal
@@ -28,8 +28,8 @@ func createProposalFromAssetTx(m msg.Message, meta *types.Metadata) (*proposal, 
 	// Create hash
 	data := struct {
 		DepositNonce types.U32
-		Recipient types.AccountID
-		Amount    types.U32
+		Recipient    types.AccountID
+		Amount       types.U32
 	}{depositNonce, recipient, amount}
 	hash, err := types.GetHash(data)
 	if err != nil {
@@ -48,10 +48,10 @@ func createProposalFromAssetTx(m msg.Message, meta *types.Metadata) (*proposal, 
 	}
 	return &proposal{
 		depositNonce: depositNonce,
-		recipient: recipient,
-		amount:    amount,
-		hash:      hash,
-		call:      call,
+		recipient:    recipient,
+		amount:       amount,
+		hash:         hash,
+		call:         call,
 	}, nil
 }
 

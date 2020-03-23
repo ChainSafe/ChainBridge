@@ -44,12 +44,12 @@ func (l *Listener) handleErc20DepositedEvent(eventI interface{}) msg.Message {
 	}
 
 	return msg.Message{
-		Type:        msg.CreateDepositProposalType,
-		Source:      l.cfg.id,
-		Destination: msg.ChainId(deposit.DestChainID.Uint64()),
-		DepositNonce:   uint32(depositNonce.Uint64()),
-		To:          deposit.DestChainHandlerAddress.Bytes(),
-		Metadata:    deposit.Amount.Bytes(),
+		Type:         msg.CreateDepositProposalType,
+		Source:       l.cfg.id,
+		Destination:  msg.ChainId(deposit.DestChainID.Uint64()),
+		DepositNonce: uint32(depositNonce.Uint64()),
+		To:           deposit.DestChainHandlerAddress.Bytes(),
+		Metadata:     deposit.Amount.Bytes(),
 	}
 }
 
@@ -62,11 +62,11 @@ func (l *Listener) handleVoteEvent(eventI interface{}) msg.Message {
 	hash := event.Topics[3]
 
 	return msg.Message{
-		Source:      msg.ChainId(uint8(originChainID.Uint64())), // Todo handle safely
-		Destination: l.cfg.id,                                   // Must write to the same contract
-		Type:        msg.VoteDepositProposalType,
-		DepositNonce:   uint32(depositNonce.Int64()),
-		Metadata:    hash[:],
+		Source:       msg.ChainId(uint8(originChainID.Uint64())), // Todo handle safely
+		Destination:  l.cfg.id,                                   // Must write to the same contract
+		Type:         msg.VoteDepositProposalType,
+		DepositNonce: uint32(depositNonce.Int64()),
+		Metadata:     hash[:],
 	}
 }
 
