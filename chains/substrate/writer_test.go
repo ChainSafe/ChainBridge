@@ -55,7 +55,7 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 		Source:      0,
 		Destination: 1,
 		Type:        message.DepositAssetType,
-		DepositId:   0,
+		DepositNonce:   0,
 		To:          bob.conn.key.PublicKey,
 		Metadata:    data,
 	}

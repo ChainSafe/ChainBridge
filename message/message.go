@@ -15,7 +15,7 @@ type Message struct {
 	Source      ChainId     // Source where message was initiated
 	Destination ChainId     // Destination chain of message
 	Type        MessageType // type of bridge transfer
-	DepositId   uint32      // Nonce for the deposit
+	DepositNonce   uint32      // Nonce for the deposit
 	To          []byte      // Recipient
 	Metadata    []byte      // data associated with event sequence
 }

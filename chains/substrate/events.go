@@ -30,7 +30,7 @@ type EventNFTDeposited struct {
 type EventAssetTransfer struct {
 	Phase       types.Phase
 	Destination types.Bytes
-	DepositID   types.U32
+	DepositNonce   types.U32
 	To          types.Bytes
 	TokenID     types.Bytes
 	Metadata    types.Bytes
