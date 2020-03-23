@@ -34,6 +34,14 @@ var devFlags = []cli.Flag{
 	TestKeyFlag,
 }
 
+var deployContractsFlags = []cli.Flag{
+	PortFlag,
+	NumRelayersFlag,
+	RelayerThresholdFlag,
+	MinCountFlag,
+	PKFlag,
+}
+
 var accountCommand = cli.Command{
 	Name:     "accounts",
 	Usage:    "manage bridge keystore",
@@ -80,6 +88,7 @@ func init() {
 	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
 		accountCommand,
+		deployContractsCommand,
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)
