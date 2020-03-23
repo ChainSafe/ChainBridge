@@ -72,7 +72,6 @@ func parseCommands(ctx *cli.Context) error {
 
 	log.Info("Bridge Contract Deployed at: " + deployedContracts.BridgeAddress.Hex())
 	log.Info("Relayer Contract Deployed at: " + deployedContracts.RelayerAddress.Hex())
-	log.Info("Bridge Asset Contract Deployed at: " + deployedContracts.BridgeAssetAddress.Hex())
 	log.Info("ERC20 Handler Contract Deployed at: " + deployedContracts.ERC20HandlerAddress.Hex())
 	log.Info("ERC721 Handler Contract Deployed at: " + deployedContracts.ERC721HandlerAddress.Hex())
 	log.Info("Centrifuge Asset Handler Contract Deployed at: " + deployedContracts.CentrifugeHandlerAddress.Hex())
