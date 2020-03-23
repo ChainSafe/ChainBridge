@@ -17,7 +17,7 @@ const (
 	DepositProposalCreated = "DepositProposalCreated"
 	DepositedErc20         = "DepositedErc20"
 
-	DepositedErc20Signature         = "ERC20Deposited(uint256)"
+	DepositedErc20Signature         = "ERC20Deposited(uint256,uint256)"
 	DepositAssetSignature           = "DepositAsset(address,bytes32)"
 	NftTransferSignature            = "NFTTransfer(uint256,uint256,address,address,uint256,bytes)"
 	ErcTransferSignature            = "ERCTransfer(uint256,uint256,address,uint256,address)"
