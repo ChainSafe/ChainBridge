@@ -5,7 +5,7 @@ type = "ethereum"
 id = 0
 endpoint = "ws://localhost:8545"
 from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c"
-opts = { chainID = "1337", bridge = "0xcB76d991cFCd621b477d705be7DdF5EA69D39C00" }
+opts = { chainID = "1337", contract = "0x3167776db165D8eA0f51790CA2bbf44Db5105ADF" }
 
 [[chains]]
 name = "ETC"
@@ -13,4 +13,4 @@ type = "ethereum"
 id = 1
 endpoint = "ws://localhost:8546"
 from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c"
-opts = { chainID = "1337", bridge = "0xcB76d991cFCd621b477d705be7DdF5EA69D39C00" }
+opts = { chainID = "1337", contract = "0x3167776db165D8eA0f51790CA2bbf44Db5105ADF" }

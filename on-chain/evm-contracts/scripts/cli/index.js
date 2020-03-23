@@ -59,7 +59,6 @@ cli.mainWallet = new ethers.Wallet(constants.deployerPrivKey, cli.provider);
         //old
         // await deploy.deployCentrifuge(cli);
         // await deploy.deployEmitterTest(cli);
-        // await deploy.deployERC20(cli);
     }
 
     if (cli.depositErc) {

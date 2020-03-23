@@ -24,7 +24,7 @@ type Chain struct {
 }
 
 func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
-	cfg, err := ParseChainConfig(chainCfg)
+	cfg, err := parseChainConfig(chainCfg)
 	if err != nil {
 		return nil, err
 	}

@@ -17,7 +17,7 @@ func (id ChainId) String() string {
 	case EthereumId:
 		return "ethereum"
 	case CentrifugeId:
-		return "centrifuge"
+		return "substrate"
 	default:
 		return "unknown"
 	}
