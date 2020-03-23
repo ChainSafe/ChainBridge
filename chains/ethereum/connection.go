@@ -10,7 +10,6 @@ import (
 	"math/big"
 	"sync"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
