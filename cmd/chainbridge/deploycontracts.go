@@ -24,13 +24,13 @@ import (
 	log "github.com/ChainSafe/log15"
 )
 
-var deployContractsLocalCommand = cli.Command{
+var deployContractsCommand = cli.Command{
 	Action:      parseCommands,
-	Name:        "deploycontractslocal",
+	Name:        "deploycontracts",
 	Usage:       "deploys contracts",
 	Category:    "tests",
-	Flags:       deployContractLocalFlags,
-	Description: "\tthe deploycontractslocal command is used to deploy contracts on a local network for testing purposes\n",
+	Flags:       deployContractsFlags,
+	Description: "\tthe deploycontracts command is used to deploy contracts on a local network for testing purposes\n",
 }
 
 var (
@@ -67,7 +67,7 @@ func parseCommands(ctx *cli.Context) error {
 	minCount := ctx.Int(MinCountFlag.Name)
 	deployPK := ctx.String(PKFlag.Name)
 
-	deployedContracts, err := deployContractsLocal(deployPK, port, relayers, big.NewInt(int64(relayerThreshold)), uint8(minCount))
+	deployedContracts, err := deployContracts(deployPK, port, relayers, big.NewInt(int64(relayerThreshold)), uint8(minCount))
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func parseCommands(ctx *cli.Context) error {
 	return nil
 }
 
-func deployContractsLocal(deployPK string, port string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
+func deployContracts(deployPK string, port string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
 
 	client, auth, deployAddress, initialRelayerAddresses, err := accountSetUp(port, relayers, deployPK)
 	if err != nil {

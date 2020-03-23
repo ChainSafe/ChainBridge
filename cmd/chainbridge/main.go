@@ -34,7 +34,7 @@ var devFlags = []cli.Flag{
 	TestKeyFlag,
 }
 
-var deployContractLocalFlags = []cli.Flag{
+var deployContractsFlags = []cli.Flag{
 	PortFlag,
 	NumRelayersFlag,
 	RelayerThresholdFlag,
@@ -88,7 +88,7 @@ func init() {
 	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
 		accountCommand,
-		deployContractsLocalCommand,
+		deployContractsCommand,
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)
