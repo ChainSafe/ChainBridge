@@ -5,10 +5,13 @@ package ethereum
 
 import (
 	"context"
+	"encoding/hex"
+	"errors"
 	"math/big"
 	"sync"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
+	"github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
 
@@ -152,4 +155,22 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 	auth.Context = c.ctx
 
 	return auth, nonce, nil
+}
+
+//getByteCode grabs the bytecode of the contract, to help determine if a contract is deployed
+func (c *Connection) getByteCode(account ethcommon.Address) ([]byte, error) {
+	return c.conn.CodeAt(c.ctx, account, nil)
+}
+
+func (c *Connection) checkBridgeContract(contract ethcommon.Address) error {
+	byteCode, err := c.getByteCode(contract)
+	if err != nil {
+		return err
+	}
+
+	if len(byteCode) == 0 || Bridge.RuntimeBytecode != "0x"+hex.EncodeToString(byteCode) {
+		return errors.New("Bridge Bytecode does not match.")
+	}
+
+	return nil
 }
