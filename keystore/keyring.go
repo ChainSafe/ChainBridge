@@ -36,9 +36,6 @@ type TestKeyRingHolder struct {
 // KeyRing holds the keypair related to a specfic keypair type
 type KeyRing map[string]crypto.Keypair
 
-type ETHKeyRing map[string]*secp256k1.Keypair
-type SUBKeyRing map[string]*sr25519.Keypair
-
 // Init function to create a keyRing that can be accessed anywhere without having to recreate the data
 func init() {
 	TestKeyRing = &TestKeyRingHolder{
