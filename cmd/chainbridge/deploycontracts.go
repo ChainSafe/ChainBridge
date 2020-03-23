@@ -14,9 +14,12 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/urfave/cli"
 
+	bridge "github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	bridgeAsset "github.com/ChainSafe/ChainBridgeV2/contracts/BridgeAsset"
-	emitter "github.com/ChainSafe/ChainBridgeV2/contracts/Emitter"
-	receiver "github.com/ChainSafe/ChainBridgeV2/contracts/Receiver"
+	centrifugeHandler "github.com/ChainSafe/ChainBridgeV2/contracts/CentrifugeAssetHandler"
+	erc20Handler "github.com/ChainSafe/ChainBridgeV2/contracts/ERC20Handler"
+	erc721Handler "github.com/ChainSafe/ChainBridgeV2/contracts/ERC721Handler"
+	relayer "github.com/ChainSafe/ChainBridgeV2/contracts/Relayer"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	log "github.com/ChainSafe/log15"
 )
@@ -34,7 +37,7 @@ var (
 	// Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
 	// DEPLOYER_PRIV_KEY = "000000000000000000000000000000000000000000000000000000416c696365"
 
-	VALIDATOR_ADDRESS = []string{
+	RELAYER_ADDRESS = []string{
 		keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].Address(),
 		keystore.TestKeyRing.EthereumKeys[keystore.BobKey].Address(),
 		keystore.TestKeyRing.EthereumKeys[keystore.CharlieKey].Address(),
@@ -45,65 +48,94 @@ var (
 	ZERO_ADDRESS = common.HexToAddress("0x0000000000000000000000000000000000000000")
 )
 
+type DeployedContracts struct {
+	BridgeAddress            common.Address
+	RelayerAddress           common.Address
+	BridgeAssetAddress       common.Address
+	ERC20HandlerAddress      common.Address
+	ERC721HandlerAddress     common.Address
+	CentrifugeHandlerAddress common.Address
+}
+
 func parseCommands(ctx *cli.Context) error {
 	log.Info("Deploying Contracts")
-	log.Info(VALIDATOR_ADDRESS[0])
+	log.Info(RELAYER_ADDRESS[0])
 
 	port := ctx.String(PortFlag.Name)
-	validators := ctx.Int(NumValidatorsFlag.Name)
-	validatorThreshold := ctx.Int(ValidatorThresholdFlag.Name)
+	relayers := ctx.Int(NumRelayersFlag.Name)
+	relayerThreshold := ctx.Int(RelayerThresholdFlag.Name)
 	depositThreshold := ctx.Int(DepositThresholdFlag.Name)
 	minCount := ctx.Int(MinCountFlag.Name)
 	deployPK := ctx.String(PKFlag.Name)
 
-	recieverAddr, emitterAddr, bridgeAssetAddr, err := deployContractsLocal(deployPK, port, validators, big.NewInt(int64(validatorThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount))
+	deployedContracts, err := deployContractsLocal(deployPK, port, relayers, big.NewInt(int64(relayerThreshold)), big.NewInt(int64(depositThreshold)), uint8(minCount))
 	if err != nil {
 		return err
 	}
 
-	log.Info("Reciever Contract Deployed at: " + recieverAddr.Hex())
-	log.Info("Emitter Contract Deployed at: " + emitterAddr.Hex())
-	log.Info("Bridge Asset Contract Deployed at: " + bridgeAssetAddr.Hex())
+	log.Info("Bridge Contract Deployed at: " + deployedContracts.BridgeAddress.Hex())
+	log.Info("Relayer Contract Deployed at: " + deployedContracts.RelayerAddress.Hex())
+	log.Info("Bridge Asset Contract Deployed at: " + deployedContracts.BridgeAssetAddress.Hex())
+	log.Info("ERC20 Handler Contract Deployed at: " + deployedContracts.ERC20HandlerAddress.Hex())
+	log.Info("ERC721 Handler Contract Deployed at: " + deployedContracts.ERC721HandlerAddress.Hex())
+	log.Info("Centrifuge Asset Handler Contract Deployed at: " + deployedContracts.CentrifugeHandlerAddress.Hex())
 
 	return nil
 }
 
-func deployContractsLocal(deployPK string, port string, validators int, validatorThreshold *big.Int, depositThreshold *big.Int, minCount uint8) (common.Address, common.Address, common.Address, error) {
+func deployContractsLocal(deployPK string, port string, relayers int, initialRelayerThreshold *big.Int, depositThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
 
-	client, auth, deployAddress, validatorAddresses, err := accountSetUp(port, validators, deployPK)
+	client, auth, deployAddress, initialRelayerAddresses, err := accountSetUp(port, relayers, deployPK)
 	if err != nil {
-		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+		return nil, err
 	}
 
-	recieverAddr, err := deployReceiver(auth, client, validatorAddresses, depositThreshold, validatorThreshold, deployAddress)
+	relayerAddr, err := deployRelayer(auth, client, initialRelayerAddresses, initialRelayerThreshold, deployAddress)
 	if err != nil {
-		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+		return nil, err
 	}
 
-	emitterAddr, err := deployEmitter(auth, client, deployAddress)
+	bridgeAddr, err := deployBridge(auth, client, relayerAddr, initialRelayerThreshold, deployAddress)
 	if err != nil {
-		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+		return nil, err
 	}
 
 	bridgeAssetAddr, err := deployBridgeAsset(auth, client, minCount, deployAddress)
 	if err != nil {
-		return ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, err
+		return nil, err
 	}
 
-	return recieverAddr, emitterAddr, bridgeAssetAddr, nil
+	erc20HandlerAddr, err := deployERC20Handler(auth, client, bridgeAddr, deployAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	erc721HandlerAddr, err := deployERC721Handler(auth, client, bridgeAddr, deployAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	centrifugeHandlerAddr, err := deployCentrifugeHandler(auth, client, bridgeAddr, deployAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	deployedContracts := DeployedContracts{bridgeAddr, relayerAddr, bridgeAssetAddr, erc20HandlerAddr, erc721HandlerAddr, centrifugeHandlerAddr}
+
+	return &deployedContracts, nil
 
 }
 
-func createValidatorSlice(valAddr []string, numValidators int) []common.Address {
+func createRelayerSlice(valAddr []string, numRelayers int) []common.Address {
 
-	validatorAddresses := make([]common.Address, numValidators)
+	relayerAddresses := make([]common.Address, numRelayers)
 
-	for i := 0; i < numValidators; i++ {
-		validatorAddresses[i] = common.HexToAddress(valAddr[i])
+	for i := 0; i < numRelayers; i++ {
+		relayerAddresses[i] = common.HexToAddress(valAddr[i])
 
 	}
 
-	return validatorAddresses
+	return relayerAddresses
 }
 
 func updateNonce(auth *bind.TransactOpts, client *ethclient.Client, deployAddress common.Address) (*bind.TransactOpts, error) {
@@ -120,7 +152,7 @@ func updateNonce(auth *bind.TransactOpts, client *ethclient.Client, deployAddres
 
 }
 
-func accountSetUp(port string, validators int, deployPK string) (*ethclient.Client, *bind.TransactOpts, common.Address, []common.Address, error) {
+func accountSetUp(port string, relayers int, deployPK string) (*ethclient.Client, *bind.TransactOpts, common.Address, []common.Address, error) {
 
 	client, err := ethclient.Dial("http://localhost:" + port)
 	if err != nil {
@@ -159,43 +191,93 @@ func accountSetUp(port string, validators int, deployPK string) (*ethclient.Clie
 	auth.GasLimit = uint64(6721975)
 	auth.GasPrice = gasPrice
 
-	validatorAddresses := createValidatorSlice(VALIDATOR_ADDRESS, validators)
+	relayerAddresses := createRelayerSlice(RELAYER_ADDRESS, relayers)
 
-	return client, auth, deployAddress, validatorAddresses, nil
+	return client, auth, deployAddress, relayerAddresses, nil
 
 }
 
-func deployReceiver(auth *bind.TransactOpts, client *ethclient.Client, validatorAddresses []common.Address, depositThreshold *big.Int, validatorThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
+func deployBridge(auth *bind.TransactOpts, client *ethclient.Client, relayerContract common.Address, initialRelayerThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
 
 	auth, err := updateNonce(auth, client, deployAddress)
 	if err != nil {
 		return ZERO_ADDRESS, err
 	}
 
-	recAddr, _, _, err := receiver.DeployReceiver(auth, client, validatorAddresses, depositThreshold, validatorThreshold)
+	bridgeAddr, _, _, err := bridge.DeployBridge(auth, client, relayerContract, initialRelayerThreshold)
 	if err != nil {
-		log.Error("error deploying reciever instance")
+		log.Error("error deploying bridge instance")
 		return ZERO_ADDRESS, err
 	}
 
-	return recAddr, nil
+	return bridgeAddr, nil
+
 }
 
-func deployEmitter(auth *bind.TransactOpts, client *ethclient.Client, deployAddress common.Address) (common.Address, error) {
+func deployRelayer(auth *bind.TransactOpts, client *ethclient.Client, initialRelayers []common.Address, initialRelayerThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
 
 	auth, err := updateNonce(auth, client, deployAddress)
 	if err != nil {
 		return ZERO_ADDRESS, err
 	}
 
-	emitterAddr, _, _, err := emitter.DeployEmitter(auth, client)
+	relAddr, _, _, err := relayer.DeployRelayer(auth, client, initialRelayers, initialRelayerThreshold)
 	if err != nil {
-		log.Error("error deploying emitter instance")
+		log.Error("error deploying relayer instance")
 		return ZERO_ADDRESS, err
 	}
 
-	return emitterAddr, nil
+	return relAddr, nil
+}
 
+func deployERC20Handler(auth *bind.TransactOpts, client *ethclient.Client, bridgeAddress common.Address, deployAddress common.Address) (common.Address, error) {
+
+	auth, err := updateNonce(auth, client, deployAddress)
+	if err != nil {
+		return ZERO_ADDRESS, err
+	}
+
+	erc20HandlerAddr, _, _, err := erc20Handler.DeployERC20Handler(auth, client, bridgeAddress)
+	if err != nil {
+		log.Error("error deploying ERC20 Handler instance")
+		return ZERO_ADDRESS, err
+	}
+
+	return erc20HandlerAddr, nil
+
+}
+
+func deployERC721Handler(auth *bind.TransactOpts, client *ethclient.Client, bridgeAddress common.Address, deployAddress common.Address) (common.Address, error) {
+
+	auth, err := updateNonce(auth, client, deployAddress)
+	if err != nil {
+		return ZERO_ADDRESS, err
+	}
+
+	erc721HandlerAddr, _, _, err := erc721Handler.DeployERC721Handler(auth, client, bridgeAddress)
+	if err != nil {
+		log.Error("error deploying ERC20 Handler instance")
+		return ZERO_ADDRESS, err
+	}
+
+	return erc721HandlerAddr, nil
+
+}
+
+func deployCentrifugeHandler(auth *bind.TransactOpts, client *ethclient.Client, bridgeAddress common.Address, deployAddress common.Address) (common.Address, error) {
+
+	auth, err := updateNonce(auth, client, deployAddress)
+	if err != nil {
+		return ZERO_ADDRESS, err
+	}
+
+	centrifugeHandlerAddr, _, _, err := centrifugeHandler.DeployCentrifugeAssetHandler(auth, client, bridgeAddress)
+	if err != nil {
+		log.Error("error deploying Centrifuge Asset Handler instance")
+		return ZERO_ADDRESS, err
+	}
+
+	return centrifugeHandlerAddr, nil
 }
 
 func deployBridgeAsset(auth *bind.TransactOpts, client *ethclient.Client, mc uint8, deployAddress common.Address) (common.Address, error) {

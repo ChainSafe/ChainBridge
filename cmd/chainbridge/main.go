@@ -36,8 +36,8 @@ var devFlags = []cli.Flag{
 
 var deployContractLocalFlags = []cli.Flag{
 	PortFlag,
-	NumValidatorsFlag,
-	ValidatorThresholdFlag,
+	NumRelayersFlag,
+	RelayerThresholdFlag,
 	DepositThresholdFlag,
 	MinCountFlag,
 	PKFlag,

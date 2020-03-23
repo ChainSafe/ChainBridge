@@ -54,12 +54,12 @@ var (
 		Usage: "The port at which your local chain instance is running",
 		Value: "8545",
 	}
-	NumValidatorsFlag = cli.IntFlag{
+	NumRelayersFlag = cli.IntFlag{
 		Name:  "validators",
 		Usage: "Specify total number of validators",
 		Value: 2,
 	}
-	ValidatorThresholdFlag = cli.IntFlag{
+	RelayerThresholdFlag = cli.IntFlag{
 		Name:  "validatorthreshold",
 		Usage: "Specify validator threshold",
 		Value: 2,
