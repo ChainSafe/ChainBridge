@@ -21,10 +21,10 @@ func TestParseChainConfig(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"contract":       "0x1234",
-			"gasLimit":       "10",
-			"gasPrice":       "20",
-			"connectionType": "rpc",
+			"contract": "0x1234",
+			"gasLimit": "10",
+			"gasPrice": "20",
+			"http":     "true",
 		},
 	}
 
@@ -43,7 +43,7 @@ func TestParseChainConfig(t *testing.T) {
 		contract:     common.HexToAddress("0x1234"),
 		gasLimit:     big.NewInt(10),
 		gasPrice:     big.NewInt(20),
-		http:         false,
+		http:         true,
 	}
 
 	if !reflect.DeepEqual(&expected, out) {

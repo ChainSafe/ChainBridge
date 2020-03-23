@@ -70,7 +70,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		}
 	}
 
-	if HTTP, ok := chainCfg.Opts["connectionType"]; ok && HTTP == "http" {
+	if HTTP, ok := chainCfg.Opts["http"]; ok && HTTP == "true" {
 		config.http = true
 	}
 
