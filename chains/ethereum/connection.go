@@ -55,7 +55,7 @@ func NewConnection(cfg *Config, kp *secp256k1.Keypair) *Connection {
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	log15.Info("Connecting to ethereum...", "url", c.cfg.endpoint)
+	log15.Info("Connecting to ethereum chain...", "chain", c.cfg.name, "url", c.cfg.endpoint)
 	rpcClient, err := rpc.DialWebsocket(c.ctx, c.cfg.endpoint, "/ws")
 	if err != nil {
 		return err

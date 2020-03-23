@@ -6,8 +6,7 @@ require (
 	github.com/ChainSafe/log15 v1.0.0
 	github.com/aristanetworks/goarista v0.0.0-20200129185426-4481d91782e5 // indirect
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
-	github.com/centrifuge/go-substrate-rpc-client v0.0.4-0.20200117100327-4dc63dc6b2e6
-	github.com/deckarep/golang-set v1.7.1 // indirect
+	github.com/centrifuge/go-substrate-rpc-client v1.1.1-0.20200310150725-e088497b941f
 	github.com/ethereum/go-ethereum v1.9.10
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
@@ -23,4 +22,5 @@ require (
 	golang.org/x/sys v0.0.0-20200124204421-9fbb57f87de9 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
+	gotest.tools v2.2.0+incompatible
 )
