@@ -6,12 +6,12 @@ RUN git clone https://github.com/ethereum/go-ethereum.git geth
 RUN cd geth && make devtools
 
 # Install Parity/Subkey
-RUN wget -P /usr/bin/ https://storage.googleapis.com/centrifuge-dev-public/subkey
-RUN chmod +x /usr/bin/subkey
+RUN wget -O /usr/bin/Subkey https://storage.googleapis.com/centrifuge-dev-public/subkey
+RUN chmod +x /usr/bin/Subkey
+
+RUN ls -la /usr/bin/
 
 RUN /usr/bin/subkey --version
-
-ENTRYPOINT ["/usr/bin/subkey"]
 
 # Copy assets
 ADD . /src
