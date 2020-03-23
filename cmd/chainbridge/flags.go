@@ -51,7 +51,7 @@ var (
 var (
 	PortFlag = cli.StringFlag{
 		Name:  "port",
-		Usage: "The port at which your local chain instance is running",
+		Usage: "The port at which your local chain instance or ganache running",
 		Value: "8545",
 	}
 	NumRelayersFlag = cli.IntFlag{
@@ -84,13 +84,8 @@ var (
 	}
 )
 
-//Deploy Flags
+//Ganache Flags
 var (
-	PortFlag = cli.StringFlag{
-		Name:  "port",
-		Usage: "Specifies the port where ganache will run",
-		Value: "8545",
-	}
 	ResetFlag = cli.BoolFlag{
 		Name:  "reset",
 		Usage: "Removes the default keyring flags, used if a replacement is wanted",
