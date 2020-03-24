@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package main
+package ethereum
 
 import (
 	"context"
@@ -12,7 +12,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/urfave/cli"
 
 	bridge "github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	centrifugeHandler "github.com/ChainSafe/ChainBridgeV2/contracts/CentrifugeAssetHandler"
@@ -22,15 +21,6 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	log "github.com/ChainSafe/log15"
 )
-
-var deployContractsCommand = cli.Command{
-	Action:      parseCommands,
-	Name:        "deploycontracts",
-	Usage:       "deploys contracts",
-	Category:    "tests",
-	Flags:       deployContractsFlags,
-	Description: "\tthe deploycontracts command is used to deploy contracts on a local network for testing purposes\n",
-}
 
 var (
 	// Keys generate from: when sound uniform light fee face forum huge impact talent exhaust arrow
@@ -55,31 +45,7 @@ type DeployedContracts struct {
 	CentrifugeHandlerAddress common.Address
 }
 
-func parseCommands(ctx *cli.Context) error {
-	log.Info("Deploying Contracts")
-	log.Info(RELAYER_ADDRESS[0])
-
-	port := ctx.String(PortFlag.Name)
-	relayers := ctx.Int(NumRelayersFlag.Name)
-	relayerThreshold := ctx.Int(RelayerThresholdFlag.Name)
-	minCount := ctx.Int(MinCountFlag.Name)
-	deployPK := ctx.String(PKFlag.Name)
-
-	deployedContracts, err := deployContracts(deployPK, port, relayers, big.NewInt(int64(relayerThreshold)), uint8(minCount))
-	if err != nil {
-		return err
-	}
-
-	log.Info("Bridge Contract Deployed at: " + deployedContracts.BridgeAddress.Hex())
-	log.Info("Relayer Contract Deployed at: " + deployedContracts.RelayerAddress.Hex())
-	log.Info("ERC20 Handler Contract Deployed at: " + deployedContracts.ERC20HandlerAddress.Hex())
-	log.Info("ERC721 Handler Contract Deployed at: " + deployedContracts.ERC721HandlerAddress.Hex())
-	log.Info("Centrifuge Asset Handler Contract Deployed at: " + deployedContracts.CentrifugeHandlerAddress.Hex())
-
-	return nil
-}
-
-func deployContracts(deployPK string, port string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
+func DeployContracts(deployPK string, port string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
 
 	client, auth, deployAddress, initialRelayerAddresses, err := accountSetUp(port, relayers, deployPK)
 	if err != nil {
