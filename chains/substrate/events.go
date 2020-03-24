@@ -10,6 +10,7 @@ import (
 )
 
 type eventName string
+type eventHandler func(interface{}) msg.Message
 
 const AssetTx eventName = "AssetTx"
 const ValidatorAdded eventName = "ValidatorAdded"
@@ -28,13 +29,13 @@ type EventNFTDeposited struct {
 }
 
 type EventAssetTransfer struct {
-	Phase       types.Phase
-	Destination types.Bytes
-	DepositID   types.U32
-	To          types.Bytes
-	TokenID     types.Bytes
-	Metadata    types.Bytes
-	Topics      []types.Hash
+	Phase        types.Phase
+	Destination  types.Bytes
+	DepositNonce types.U32
+	To           types.Bytes
+	TokenID      types.Bytes
+	Metadata     types.Bytes
+	Topics       []types.Hash
 }
 
 type EventValidatorAdded struct {
