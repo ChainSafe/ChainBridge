@@ -19,4 +19,4 @@ RUN cd /workdir/bridge && make build
 ADD https://storage.googleapis.com/centrifuge-dev-public/subkey /workdir/bridge
 RUN cd /workdir/bridge && chmod +x ./subkey && cp subkey /usr/local/bin && subkey --version
 
-ENTRYPOINT cd /workdir/bridge && KEYSTORE_PASSWORD=chainsafe ./build/chainbridge
+ENTRYPOINT KEYSTORE_PASSWORD=chainsafe ./bridge/build/chainbridge
