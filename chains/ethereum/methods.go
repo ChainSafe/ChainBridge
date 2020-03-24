@@ -58,7 +58,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		opts,
 		CreateDepositProposalMethod,
 		m.Source.Big(),
-		u32toBigInt(m.DepositId),
+		u32toBigInt(m.DepositNonce),
 		&sizedHash,
 	)
 
@@ -66,7 +66,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		log15.Error("Failed to submit createDepositProposal transaction", "err", err)
 		return false
 	}
-	log15.Info("Succesfully created deposit!", "chain", m.Source, "deposit_id", m.DepositId)
+	log15.Info("Succesfully created deposit!", "chain", m.Source, "deposit_id", m.DepositNonce)
 	return true
 }
 
@@ -86,15 +86,15 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 		opts,
 		VoteDepositProposalMethod,
 		m.Source.Big(),
-		u32toBigInt(m.DepositId),
+		u32toBigInt(m.DepositNonce),
 		vote,
 	)
 
 	if err != nil {
-		log15.Error("Failed to submit vote!", "chain", m.Source, "deposit_id", m.DepositId, "err", err)
+		log15.Error("Failed to submit vote!", "chain", m.Source, "deposit_id", m.DepositNonce, "err", err)
 		return false
 	}
-	log15.Info("Succesfully voted!", "chain", m.Source, "deposit_id", m.DepositId, "Vote", vote)
+	log15.Info("Succesfully voted!", "chain", m.Source, "deposit_id", m.DepositNonce, "Vote", vote)
 	return true
 }
 
@@ -112,7 +112,7 @@ func (w *Writer) executeDeposit(m msg.Message) bool {
 		opts,
 		ExecuteDepositMethod,
 		m.Source.Big(),
-		u32toBigInt(m.DepositId),
+		u32toBigInt(m.DepositNonce),
 		byteSliceTo32Bytes(m.To),
 		m.Metadata,
 	)
