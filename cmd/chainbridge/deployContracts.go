@@ -6,9 +6,9 @@ package main
 import (
 	"math/big"
 
-	"github.com/urfave/cli"
 	eth "github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
 	log "github.com/ChainSafe/log15"
+	"github.com/urfave/cli"
 )
 
 var deployContractsCommand = cli.Command{
