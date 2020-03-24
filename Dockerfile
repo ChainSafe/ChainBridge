@@ -1,21 +1,22 @@
-FROM golang:1.13-alpine
-RUN apk --no-cache add gcc build-base git make musl-dev linux-headers bash nodejs wget
+FROM golang:1.13-buster
+
+WORKDIR /workdir
+
+# Node 12 setup
+RUN curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh
+RUN chmod +x ./nodesource_setup.sh && ./nodesource_setup.sh && apt install -y nodejs
+RUN node -v && npm -v
 
 # Install Go-Ethereum
 RUN git clone https://github.com/ethereum/go-ethereum.git geth
 RUN cd geth && make devtools
 
-# Install Parity/Subkey
-RUN wget -O /usr/bin/Subkey https://storage.googleapis.com/centrifuge-dev-public/subkey
-RUN chmod +x /usr/bin/Subkey
+# Copy bridge
+ADD . /workdir/bridge
+RUN cd /workdir/bridge && make build
 
-RUN ls -la /usr/bin/ | grep Subkey
+# Add Parity/Subkey
+ADD https://storage.googleapis.com/centrifuge-dev-public/subkey /workdir/bridge
+RUN cd /workdir/bridge && chmod +x ./subkey && cp subkey /usr/local/bin && subkey --version
 
-CMD /usr/bin/Subkey --version
-
-# Copy assets
-ADD . /src
-WORKDIR /src
-RUN make build
-
-ENTRYPOINT /bin/sh -c 'KEYSTORE_PASSWORD=chainsafe ./build/chainbridge'
+ENTRYPOINT cd /workdir/bridge && ls -la && KEYSTORE_PASSWORD=chainsafe ./build/chainbridge
