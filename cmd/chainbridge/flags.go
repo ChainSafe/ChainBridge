@@ -47,6 +47,35 @@ var (
 	}
 )
 
+// Deploy Contracts Flags
+var (
+	PortFlag = cli.StringFlag{
+		Name:  "port",
+		Usage: "The port at which your local chain instance is running",
+		Value: "8545",
+	}
+	NumRelayersFlag = cli.IntFlag{
+		Name:  "validators",
+		Usage: "Specify total number of validators",
+		Value: 2,
+	}
+	RelayerThresholdFlag = cli.IntFlag{
+		Name:  "validatorthreshold",
+		Usage: "Specify validator threshold",
+		Value: 2,
+	}
+	PKFlag = cli.StringFlag{
+		Name:  "pk",
+		Usage: "Specify private key of account you wish to deploy contracts from",
+		Value: "000000000000000000000000000000000000000000000000000000416c696365",
+	}
+	MinCountFlag = cli.IntFlag{
+		Name:  "mincount",
+		Usage: "Specify min count for bridge asset",
+		Value: 10,
+	}
+)
+
 // Test Setting Flags
 var (
 	TestKeyFlag = cli.StringFlag{

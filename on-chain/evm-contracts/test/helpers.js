@@ -5,7 +5,7 @@
 
 const ethers = require("ethers");
 
-const ValidatorActionType = {
+const RelayerActionType = {
     Add: 0,
     Remove: 1
 };
@@ -22,7 +22,7 @@ const VoteStatus = {
 }
 
 const ThresholdType = {
-    Validator: 0,
+    Relayer: 0,
     Deposit: 1,
 }
 
@@ -34,17 +34,17 @@ const dummyData = {
     from: "0x2"
 }
 
-const CreateDepositData = (data = dummyData, depositId = 0, originChain = 0) => {
+const CreateDepositData = (data = dummyData, depositNonce = 0, originChain = 0) => {
     const hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(data));
     return [
         hash,
-        depositId,
+        depositNonce,
         originChain,
     ];
 }
 
 module.exports = {
-    ValidatorActionType,
+    RelayerActionType,
     Vote,
     VoteStatus,
     CreateDepositData,

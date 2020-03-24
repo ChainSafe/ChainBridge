@@ -20,12 +20,7 @@ const TestEndpoint = "ws://localhost:8545"
 
 var Alice = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 
-var TestAddress = ethcmn.HexToAddress("34c59fBf82C9e31BA9CBB5faF4fe6df05de18Ad4")
-var TestAddress2 = ethcmn.HexToAddress("0a4c3620AF8f3F182e203609f90f7133e018Bf5D")
-
-var TestReceiverContractAddress = ethcmn.HexToAddress("5842B333910Fe0BfA05F5Ea9F1602a40d1AF3584")
-var TestCentrifugeContractAddress = ethcmn.HexToAddress("cB76d991cFCd621b477d705be7DdF5EA69D39C00")
-var TestEmitterContractAddress = ethcmn.HexToAddress("8090062239c909eB9b0433F1184c7DEf6124cc78")
+var TestBridgeContractAddress = ethcmn.HexToAddress("0x3167776db165D8eA0f51790CA2bbf44Db5105ADF")
 
 const TestTimeout = time.Second * 10
 
@@ -33,7 +28,7 @@ func newLocalConnection(t *testing.T) *Connection {
 
 	cfg := &Config{
 		endpoint: TestEndpoint,
-		contract: TestCentrifugeContractAddress,
+		contract: TestBridgeContractAddress,
 		from:     keystore.AliceKey,
 	}
 
@@ -107,6 +102,30 @@ func TestSubscribe(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+// TestContractCode is used to make sure the contracts are deployed correctly.
+// This is probably the least intrusive way to check if the contracts exists
+func TestContractCode(t *testing.T) {
+	cfg := &Config{
+		id:       msg.EthereumId,
+		endpoint: TestEndpoint,
+		from:     keystore.AliceKey,
+	}
+
+	conn := NewConnection(cfg, Alice)
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	// The following section checks if the byteCode exists on the chain at the specificed Addresses
+	err = conn.checkBridgeContract(TestBridgeContractAddress)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 }
 
 // Unused, may be useful in the future
