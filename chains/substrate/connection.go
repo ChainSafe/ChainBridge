@@ -37,8 +37,8 @@ func (c *Connection) Connect() error {
 	c.api = api
 
 	// Fetch metadata
-	// c.metaLock.Lock()
-	// defer c.metaLock.Unlock()
+	c.metaLock.Lock()
+	defer c.metaLock.Unlock()
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
 		return err
@@ -62,8 +62,8 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	log15.Debug("Submitting substrate call...", "method", method)
 
 	// Create call and extrinsic
-	// c.metaLock.Lock()
-	// defer c.metaLock.Unlock()
+	c.metaLock.Lock()
+	defer c.metaLock.Unlock()
 	call, err := types.NewCall(
 		c.meta,
 		method.String(),
@@ -156,8 +156,6 @@ func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
 // queryStorage performs a storage lookup. Arguments may be nil, result must be a pointer.
 func (c *Connection) queryStorage(prefix, method string, arg1, arg2 []byte, result interface{}) error {
 	// Fetch account nonce
-	// c.metaLock.Lock()
-	// defer c.metaLock.Unlock()
 	key, err := types.CreateStorageKey(c.meta, prefix, method, arg1, arg2)
 	if err != nil {
 		return err
