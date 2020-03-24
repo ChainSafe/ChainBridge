@@ -15,6 +15,10 @@ RUN cd geth && make devtools
 ADD . /workdir/bridge
 RUN cd /workdir/bridge && make build
 
+# Rename default config
+RUN ls -la
+RUN mv bridge/config.toml.example bridge/config.toml
+
 # Add Parity/Subkey
 ADD https://storage.googleapis.com/centrifuge-dev-public/subkey /workdir/bridge
 RUN cd /workdir/bridge && chmod +x ./subkey && cp subkey /usr/local/bin && subkey --version
