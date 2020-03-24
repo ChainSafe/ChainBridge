@@ -151,6 +151,7 @@ contract('Bridge - [createDepositProposal with relayerThreshold = 1]', async (ac
             dataHash,
             { from: originChainRelayerAddress }
         );
+
         const hasVoted = await BridgeInstance._hasVotedOnDepositProposal.call(destinationChainID, expectedDepositNonce, originChainRelayerAddress);
         assert.isTrue(hasVoted);
     });
@@ -337,6 +338,7 @@ contract('Bridge - [createDepositProposal with relayerThreshold > 1]', async (ac
             dataHash,
             { from: originChainRelayerAddress }
         );
+
         const hasVoted = await BridgeInstance._hasVotedOnDepositProposal.call(destinationChainID, expectedDepositNonce, originChainRelayerAddress);
         assert.isTrue(hasVoted);
     });
