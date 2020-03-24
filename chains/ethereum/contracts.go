@@ -103,8 +103,8 @@ func UnpackDepositProposal(args ...interface{}) (depositProposal, error) {
 			OriginChainID: args[0].(*big.Int),
 			DepositNonce:  args[1].(*big.Int),
 			DataHash:      args[2].([32]byte),
-			NumYes:        args[3].(*big.Int),
-			NumNo:         args[4].(*big.Int),
+			YesVotes:      args[3].([]common.Address),
+			NoVotes:       args[4].([]common.Address),
 			Status:        args[5].(string),
 		},
 		nil
