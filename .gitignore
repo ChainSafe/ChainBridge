@@ -16,6 +16,7 @@ coverage.txt
 # IDE
 .idea/
 .vscode/
+.history
 
 # Builds
 build/
@@ -29,6 +30,9 @@ keys/
 # nodejs
 node_modules/
 
+
+# Chainbridge
+config.toml
 ./centrifuge-chain
 
 /contracts
