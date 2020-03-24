@@ -42,6 +42,7 @@ func init() {
 		EthereumKeys:   makeETHRing(createKeyRing(EthChain)),
 		CentrifugeKeys: makeSUBRing(createKeyRing(SubChain)),
 	}
+
 }
 
 func makeETHRing(k KeyRing) map[string]*secp256k1.Keypair {
