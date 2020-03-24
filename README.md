@@ -32,6 +32,12 @@ Builds go bindings for Solidity contract interactions.
 
 `make install`: Uses `go install` to add `chainbridge` to your GOBIN.
 
+### Dockerfile
+```
+docker image build -t chianbridge
+docker run chainbridge 
+```
+
 ## Configuration
 
 ### Configuring Chains
