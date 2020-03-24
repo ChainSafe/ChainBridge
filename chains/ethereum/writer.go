@@ -9,7 +9,7 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/chains"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
-	ethcrypto "github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 var _ chains.Writer = &Writer{}
@@ -65,9 +65,10 @@ func (w *Writer) Stop() error {
 }
 
 func keccakHash(data []byte) [32]byte {
-	hash := [32]byte{}
-	copy(hash[:], ethcrypto.Keccak256Hash(data).Bytes())
-	return hash
+	var sized [32]byte
+	hash := crypto.Keccak256(data)
+	copy(sized[:], hash)
+	return sized
 }
 
 func u32toBigInt(n uint32) *big.Int {
