@@ -34,6 +34,14 @@ var devFlags = []cli.Flag{
 	TestKeyFlag,
 }
 
+var deployContractsFlags = []cli.Flag{
+	PortFlag,
+	NumRelayersFlag,
+	RelayerThresholdFlag,
+	MinCountFlag,
+	PKFlag,
+}
+
 var accountCommand = cli.Command{
 	Name:     "accounts",
 	Usage:    "manage bridge keystore",
@@ -80,6 +88,7 @@ func init() {
 	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
 		accountCommand,
+		deployContractsCommand,
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)
@@ -133,32 +142,28 @@ func run(ctx *cli.Context) error {
 	c := core.NewCore()
 
 	for _, chain := range cfg.Chains {
-		var chainconfig core.Chain
-		if chain.Type == "ethereum" {
-			chainconfig, err = ethereum.InitializeChain(&core.ChainConfig{
-				Id:           chain.Id,
-				Endpoint:     chain.Endpoint,
-				From:         chain.From,
-				KeystorePath: ks,
-				Insecure:     insecure,
-				Opts:         chain.Opts,
-			})
-		} else if chain.Type == "substrate" {
-			chainconfig, err = substrate.InitializeChain(&core.ChainConfig{
-				Id:           chain.Id,
-				Endpoint:     chain.Endpoint,
-				From:         chain.From,
-				KeystorePath: ks,
-				Insecure:     insecure,
-				Opts:         chain.Opts,
-			})
-		} else {
-			return errors.New("Unrecognized Chain Type")
+		chainConfig := &core.ChainConfig{
+			Name:         chain.Name,
+			Id:           chain.Id,
+			Endpoint:     chain.Endpoint,
+			From:         chain.From,
+			KeystorePath: ks,
+			Insecure:     insecure,
+			Opts:         chain.Opts,
 		}
+		var newChain core.Chain
+		if chain.Type == "ethereum" {
+			newChain, err = ethereum.InitializeChain(chainConfig)
+		} else if chain.Type == "substrate" {
+			newChain, err = substrate.InitializeChain(chainConfig)
+		} else {
+			return errors.New("unrecognized Chain Type")
+		}
+
 		if err != nil {
 			return err
 		}
-		c.AddChain(chainconfig)
+		c.AddChain(newChain)
 	}
 
 	c.Start()

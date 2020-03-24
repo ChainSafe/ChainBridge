@@ -3,6 +3,12 @@ pragma experimental ABIEncoderV2;
 
 import "./helpers/SafeMath.sol";
 import "./interfaces/IRelayer.sol";
+<<<<<<< HEAD
+=======
+import "./interfaces/IERC20Handler.sol";
+import "./interfaces/IERC721Handler.sol";
+import "./interfaces/ICentrifugeAssetHandler.sol";
+>>>>>>> master
 import "./interfaces/IDepositHandler.sol";
 
 contract Bridge {
@@ -18,8 +24,23 @@ contract Bridge {
     enum RelayerThresholdProposalStatus {Inactive, Active}
     enum DepositProposalStatus {Inactive, Active, Denied, Passed, Transferred}
 
+    struct CentrifugeAssetDepositRecord {
+        address   _originChainTokenAddress;
+        address   _originChainHandlerAddress;
+        uint      _destinationChainID;
+        address   _destinationChainHandlerAddress;
+        address   _destinationRecipientAddress;
+        bytes32   _metaDataHash;
+    }
+
     struct DepositProposal {
+<<<<<<< HEAD
         bytes32                  _dataHash;
+=======
+        uint _destinationChainID;
+        uint _depositNonce;
+        bytes32 _dataHash;
+>>>>>>> master
         mapping(address => bool) _votes;
         uint256                  _numYes;
         uint256                  _numNo;
@@ -40,6 +61,7 @@ contract Bridge {
         RelayerThresholdProposalStatus _status;
     }
 
+<<<<<<< HEAD
     // originChainHandlerAddress address => number of deposits
     mapping(address => uint256) public _depositCounts;
     // originChainHandlerAddress => depositID => bytes
@@ -47,6 +69,28 @@ contract Bridge {
     // originChainID => originChainHandlerAddress => depositID => depositProposal
     mapping(uint256 => mapping(address => mapping(uint256 => DepositProposal))) public _depositProposals;
 
+=======
+    // chainID => number of deposits
+    mapping(uint => uint) public _depositCounts;
+    // chainID => depositNonce => GenericDepositRecord
+    mapping(uint => mapping(uint => GenericDepositRecord)) public _genericDepositRecords;
+    // chainID => depositNonce => ERC20DepositRecord
+    mapping(uint => mapping(uint => ERC20DepositRecord)) public _erc20DepositRecords;
+    // chainID => depositNonce => ERC721DepositRecord
+    mapping(uint => mapping(uint => ERC721DepositRecord)) public _erc721DepositRecords;
+    // chainID => depositNonce => CentrifugeAssetDepositRecord
+    mapping(uint => mapping(uint => CentrifugeAssetDepositRecord)) public _centrifugeDepositRecords;
+    // ChainId => DepositNonce => Proposal
+    mapping(uint => mapping(uint => DepositProposal)) public _depositProposals;
+
+    event GenericDeposited(uint indexed destinationChainID, uint indexed depositNonce);
+    event ERC20Deposited(uint indexed destinationChainID, uint indexed depositNonce);
+    event ERC721Deposited(uint indexed destinationChainID, uint indexed depositNonce);
+    event CentrifugeAssetDeposited(uint indexed destinationChainID, uint indexed depositNonce);
+    event DepositProposalCreated(uint indexed destinationChainID, uint indexed depositNonce, bytes32 indexed dataHash);
+    event DepositProposalVote(uint indexed destinationChainID, uint indexed depositNonce, Vote indexed vote, DepositProposalStatus status);
+    event DepositProposalFinalized(uint indexed destinationChainID, uint indexed depositNonce);
+>>>>>>> master
     event RelayerThresholdProposalCreated(uint indexed proposedValue);
     event RelayerThresholdProposalVote(Vote vote);
     event RelayerThresholdChanged(uint indexed newThreshold);
@@ -81,7 +125,11 @@ contract Bridge {
 
     modifier _onlyRelayers() {
         IRelayer relayerContract = IRelayer(_relayerContract);
+<<<<<<< HEAD
         require(relayerContract.isRelayer(msg.sender), "sender is not a relayer");
+=======
+        require(relayerContract.isRelayer(msg.sender), "sender must be a relayer");
+>>>>>>> master
         _;
     }
 
@@ -90,6 +138,7 @@ contract Bridge {
         _relayerThreshold = initialRelayerThreshold;
     }
 
+<<<<<<< HEAD
     function getDepositProposal(
         uint256 originChainID,
         address originChainHandlerAddress,
@@ -111,12 +160,161 @@ contract Bridge {
         address relayerAddress
     ) public view returns (bool) {
         return _depositProposals[originChainID][originChainHandlerAddress][depositID]._votes[relayerAddress];
+=======
+    function getRelayerThreshold() public view returns (uint) {
+        return _relayerThreshold;
+    }
+
+    function getDepositCount(uint destinationChainID) public view returns (uint) {
+        return _depositCounts[destinationChainID];
+    }
+
+    function getGenericDepositRecord(uint destinationChainID, uint depositNonce) public view returns (
+        address, address, uint, address, address, bytes memory) {
+        GenericDepositRecord memory genericDepositRecord = _genericDepositRecords[destinationChainID][depositNonce];
+        return (
+            genericDepositRecord._originChainTokenAddress,
+            genericDepositRecord._originChainHandlerAddress,
+            genericDepositRecord._destinationChainID,
+            genericDepositRecord._destinationChainHandlerAddress,
+            genericDepositRecord._destinationRecipientAddress,
+            genericDepositRecord._data);
+    }
+
+    function getERC20DepositRecord(uint destinationChainID, uint depositNonce) public view returns (
+        address, address, uint, address, address, uint) {
+        ERC20DepositRecord memory erc20DepositRecord = _erc20DepositRecords[destinationChainID][depositNonce];
+        return (
+            erc20DepositRecord._originChainTokenAddress,
+            erc20DepositRecord._originChainHandlerAddress,
+            erc20DepositRecord._destinationChainID,
+            erc20DepositRecord._destinationChainHandlerAddress,
+            erc20DepositRecord._destinationRecipientAddress,
+            erc20DepositRecord._amount);
+    }
+
+    function getERC721DepositRecord(uint destinationChainID, uint depositNonce) public view returns (
+        address, address, uint, address, address, uint, bytes memory) {
+        ERC721DepositRecord memory erc721DepositRecord = _erc721DepositRecords[destinationChainID][depositNonce];
+        return (
+            erc721DepositRecord._originChainTokenAddress,
+            erc721DepositRecord._originChainHandlerAddress,
+            erc721DepositRecord._destinationChainID,
+            erc721DepositRecord._destinationChainHandlerAddress,
+            erc721DepositRecord._destinationRecipientAddress,
+            erc721DepositRecord._tokenID,
+            erc721DepositRecord._data);
+    }
+
+    function getCentrifugeAssetDepositRecord(uint destinationChainID, uint depositNonce) public view returns (
+        address, address, uint, address, address, bytes32) {
+        CentrifugeAssetDepositRecord memory centrifugeDepositRecord = _centrifugeDepositRecords[destinationChainID][depositNonce];
+        return (
+            centrifugeDepositRecord._originChainTokenAddress,
+            centrifugeDepositRecord._originChainHandlerAddress,
+            centrifugeDepositRecord._destinationChainID,
+            centrifugeDepositRecord._destinationChainHandlerAddress,
+            centrifugeDepositRecord._destinationRecipientAddress,
+            centrifugeDepositRecord._metaDataHash);
+    }
+
+    function getCurrentRelayerThresholdProposal() public view returns (
+        uint, uint, uint, string memory) {
+        return (
+            _currentRelayerThresholdProposal._proposedValue,
+            _currentRelayerThresholdProposal._numYes,
+            _currentRelayerThresholdProposal._numNo,
+            _relayerThresholdProposalStatusStrings[uint(_currentRelayerThresholdProposal._status)]);
+    }
+
+    function getDepositProposal(uint destinationChainID, uint depositNonce) public view returns (
+        uint, uint, bytes32, uint, uint, string memory) {
+        DepositProposal memory depositProposal = _depositProposals[destinationChainID][depositNonce];
+        return (
+            depositProposal._destinationChainID,
+            depositProposal._depositNonce,
+            depositProposal._dataHash,
+            depositProposal._numYes,
+            depositProposal._numNo,
+            _depositProposalStatusStrings[uint(depositProposal._status)]);
+    }
+
+    function hasVoted(uint destinationChainID, uint depositNonce, address relayerAddress) public view returns (bool) {
+        return _depositProposals[destinationChainID][depositNonce]._votes[relayerAddress];
+    }
+
+    function depositGeneric(
+        uint         destinationChainID,
+        address      destinationRecipientAddress,
+        bytes memory data
+    ) public {
+        uint depositNonce = ++_depositCounts[destinationChainID];
+
+        _genericDepositRecords[destinationChainID][depositNonce] = GenericDepositRecord(
+            address(0),
+            address(0),
+            destinationChainID,
+            address(0),
+            destinationRecipientAddress,
+            data
+        );
+
+        emit GenericDeposited(destinationChainID, depositNonce);
+    }
+
+    function depositGeneric(
+        address      originChainContractAddress,
+        address      originChainHandlerAddress,
+        uint         destinationChainID,
+        address      destinationChainHandlerAddress,
+        address      destinationRecipientAddress,
+        bytes memory data
+    ) public {
+        uint depositNonce = ++_depositCounts[destinationChainID];
+
+        _genericDepositRecords[destinationChainID][depositNonce] = GenericDepositRecord(
+            originChainContractAddress,
+            originChainHandlerAddress,
+            destinationChainID,
+            destinationChainHandlerAddress,
+            destinationRecipientAddress,
+            data
+        );
+
+        emit GenericDeposited(destinationChainID, depositNonce);
+    }
+
+    function depositERC20(
+        address originChainTokenAddress,
+        address originChainHandlerAddress,
+        uint    destinationChainID,
+        address destinationChainHandlerAddress,
+        address destinationRecipientAddress,
+        uint    amount
+    ) public {
+        IERC20Handler erc20Handler = IERC20Handler(originChainHandlerAddress);
+        erc20Handler.depositERC20(originChainTokenAddress, msg.sender, amount);
+
+        uint depositNonce = ++_depositCounts[destinationChainID];
+
+        _erc20DepositRecords[destinationChainID][depositNonce] = ERC20DepositRecord(
+            originChainTokenAddress,
+            originChainHandlerAddress,
+            destinationChainID,
+            destinationChainHandlerAddress,
+            destinationRecipientAddress,
+            amount
+        );
+
+        emit ERC20Deposited(destinationChainID, depositNonce);
+>>>>>>> master
     }
 
     function deposit(
         address      originChainHandlerAddress,
         bytes memory data
     ) public {
+<<<<<<< HEAD
         uint depositID = ++_depositCounts[originChainHandlerAddress];
         _depositRecords[originChainHandlerAddress][depositID] = data;
 
@@ -141,13 +339,73 @@ contract Bridge {
         // If _depositThreshold is set to 1, then auto finalize
         if (_relayerThreshold <= 1) {
             _depositProposals[originChainID][originChainHandlerAddress][depositID] = DepositProposal({
+=======
+        IERC721Handler erc721Handler = IERC721Handler(originChainHandlerAddress);
+        erc721Handler.depositERC721(originChainTokenAddress, msg.sender, tokenID);
+
+        uint depositNonce = ++_depositCounts[destinationChainID];
+
+        _erc721DepositRecords[destinationChainID][depositNonce] = ERC721DepositRecord(
+            originChainTokenAddress,
+            originChainHandlerAddress,
+            destinationChainID,
+            destinationChainHandlerAddress,
+            destinationRecipientAddress,
+            tokenID,
+            data
+        );
+
+        emit ERC721Deposited(destinationChainID, depositNonce);
+    }
+
+    function depositCentrifugeAsset(
+        address originChainContractAddress,
+        address originChainHandlerAddress,
+        uint    destinationChainID,
+        address destinationChainHandlerAddress,
+        address destinationRecipientAddress,
+        bytes32 metaDataHash
+    ) public {
+        ICentrifugeAssetHandler centrifugeAssetHandler = ICentrifugeAssetHandler(originChainHandlerAddress);
+        centrifugeAssetHandler.depositAsset(metaDataHash);
+
+        uint depositNonce = ++_depositCounts[destinationChainID];
+
+        _centrifugeDepositRecords[destinationChainID][depositNonce] = CentrifugeAssetDepositRecord(
+            originChainContractAddress,
+            originChainHandlerAddress,
+            destinationChainID,
+            destinationChainHandlerAddress,
+            destinationRecipientAddress,
+            metaDataHash
+        );
+
+        emit CentrifugeAssetDeposited(destinationChainID, depositNonce);
+    }
+
+    function createDepositProposal(uint destinationChainID, uint depositNonce, bytes32 dataHash) public _onlyRelayers {
+        require(_depositProposals[destinationChainID][depositNonce]._status == DepositProposalStatus.Inactive ||
+        _depositProposals[destinationChainID][depositNonce]._status == DepositProposalStatus.Denied, "this proposal is either currently active or has already been passed/transferred");
+
+        // If _depositThreshold is set to 1, then auto finalize
+        if (_relayerThreshold <= 1) {
+            _depositProposals[destinationChainID][depositNonce] = DepositProposal({
+                _destinationChainID: destinationChainID,
+                _depositNonce: depositNonce,
+>>>>>>> master
                 _dataHash: dataHash,
                 _numYes: 1, // Creator always votes in favour
                 _numNo: 0,
                 _status: DepositProposalStatus.Passed
             });
         } else {
+<<<<<<< HEAD
             _depositProposals[originChainID][originChainHandlerAddress][depositID] = DepositProposal({
+=======
+            _depositProposals[destinationChainID][depositNonce] = DepositProposal({
+                _destinationChainID: destinationChainID,
+                _depositNonce: depositNonce,
+>>>>>>> master
                 _dataHash: dataHash,
                 _numYes: 1, // Creator always votes in favour
                 _numNo: 0,
@@ -156,6 +414,7 @@ contract Bridge {
         }
 
         // Creator always votes in favour
+<<<<<<< HEAD
         _depositProposals[originChainID][originChainHandlerAddress][depositID]._votes[msg.sender] = true;
 
         emit DepositProposalCreated(originChainID, originChainHandlerAddress, depositID, dataHash);
@@ -168,6 +427,15 @@ contract Bridge {
         Vote    vote
     ) public _onlyRelayers {
         DepositProposal storage depositProposal = _depositProposals[originChainID][originChainHandlerAddress][depositID];
+=======
+        _depositProposals[destinationChainID][depositNonce]._votes[msg.sender] = true;
+
+        emit DepositProposalCreated(destinationChainID, depositNonce, dataHash);
+    }
+
+    function voteDepositProposal(uint destinationChainID, uint depositNonce, Vote vote) public _onlyRelayers {
+        DepositProposal storage depositProposal = _depositProposals[destinationChainID][depositNonce];
+>>>>>>> master
 
         require(depositProposal._status != DepositProposalStatus.Inactive, "proposal is not active");
         require(depositProposal._status == DepositProposalStatus.Active, "proposal has been finalized");
@@ -185,6 +453,7 @@ contract Bridge {
         // Todo: Edge case if relayer threshold changes?
         if (depositProposal._numYes >= _relayerThreshold) {
             depositProposal._status = DepositProposalStatus.Passed;
+<<<<<<< HEAD
             emit DepositProposalFinalized(originChainID, originChainHandlerAddress, depositID);
         } else if (_relayerContract.getTotalRelayers().sub(depositProposal._numNo) < _relayerThreshold) {
             depositProposal._status = DepositProposalStatus.Denied;
@@ -202,6 +471,19 @@ contract Bridge {
         bytes memory data
     ) public {
         DepositProposal storage depositProposal = _depositProposals[originChainID][originChainHandlerAddress][depositID];
+=======
+            emit DepositProposalFinalized(destinationChainID, depositNonce);
+        } else if (_relayerContract.getTotalRelayers().sub(depositProposal._numNo) < _relayerThreshold) {
+            depositProposal._status = DepositProposalStatus.Denied;
+            emit DepositProposalFinalized(destinationChainID, depositNonce);
+        }
+
+        emit DepositProposalVote(destinationChainID, depositNonce, vote, depositProposal._status);
+    }
+
+    function executeDepositProposal(uint destinationChainID, uint depositNonce, address destinationChainHandlerAddress, bytes memory data) public {
+        DepositProposal storage depositProposal = _depositProposals[destinationChainID][depositNonce];
+>>>>>>> master
 
         require(depositProposal._status != DepositProposalStatus.Inactive, "proposal is not active");
         require(depositProposal._status == DepositProposalStatus.Passed, "proposal was not passed or has already been transferred");

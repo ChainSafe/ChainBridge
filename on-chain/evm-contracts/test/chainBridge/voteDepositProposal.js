@@ -22,7 +22,7 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
     const destinationChainID = 0;
     const originChainInitialTokenAmount = 100;
     const depositAmount = 10;
-    const expectedDepositID = 1;
+    const expectedDepositNonce = 1;
     const relayerThreshold = 2;
 
     let RelayerInstance;
@@ -54,7 +54,7 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         await BridgeInstance.createDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             dataHash,
             { from: originChainRelayerAddress });
     });
@@ -68,7 +68,7 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         };
 
         const depositProposal = await BridgeInstance._depositProposals.call(
-            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositNonce);
         for (const expectedProperty of Object.keys(expectedDepositProposal)) {
             // Testing all expected object properties
             assert.property(depositProposal, expectedProperty, `property: ${expectedProperty} does not exist in depositRecord`);
@@ -86,7 +86,7 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             1, // vote in favor
             { from: originChainRelayer2Address }
         ));
@@ -96,7 +96,7 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         await TruffleAssert.reverts(BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             1,
             { from: depositerAddress }
         ));
@@ -136,7 +136,7 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         await TruffleAssert.reverts(BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             1, // vote in favor
             { from: originChainRelayer2Address }
         ));
@@ -146,7 +146,7 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         await TruffleAssert.reverts(BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             42, // invalid vote, out of range
             { from: originChainRelayer2Address }
         ));
@@ -154,40 +154,40 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
 
     it("Relayer's vote should be recorded correctly - yes vote", async () => {
         const depositProposalBeforeSecondVote = await BridgeInstance._depositProposals.call(
-            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositNonce);
         assert.strictEqual(depositProposalBeforeSecondVote._numYes.toNumber(), 1);
         assert.strictEqual(depositProposalBeforeSecondVote._numNo.toNumber(), 0);
 
         await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             1, // vote in favor
             { from: originChainRelayer2Address }
         ));
 
         const depositProposalAfterSecondVote = await BridgeInstance._depositProposals.call(
-            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositNonce);
         assert.strictEqual(depositProposalAfterSecondVote._numYes.toNumber(), 2);
         assert.strictEqual(depositProposalAfterSecondVote._numNo.toNumber(), 0);
     });
 
     it("Relayer's vote should be recorded correctly - no vote", async () => {
         const depositProposalBeforeSecondVote = await BridgeInstance._depositProposals.call(
-            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositNonce);
         assert.strictEqual(depositProposalBeforeSecondVote._numYes.toNumber(), 1);
         assert.strictEqual(depositProposalBeforeSecondVote._numNo.toNumber(), 0);
 
         await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             0, // vote against
             { from: originChainRelayer2Address }
         ));
 
         const depositProposalAfterSecondVote = await BridgeInstance._depositProposals.call(
-            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositNonce);
         assert.strictEqual(depositProposalAfterSecondVote._numYes.toNumber(), 1);
         assert.strictEqual(depositProposalAfterSecondVote._numNo.toNumber(), 1);
     });
@@ -196,14 +196,14 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             1, // vote in favor
             { from: originChainRelayer2Address }
         ));
 
         const hasVoted = await BridgeInstance.hasVoted(
             originChainID, OriginERC20HandlerInstance.address,
-            expectedDepositID, originChainRelayer2Address);
+            expectedDepositNonce, originChainRelayer2Address);
         assert.isTrue(hasVoted);
     });
 
@@ -211,13 +211,13 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             1, // vote in favor
             { from: originChainRelayer2Address }
         ));
 
         const depositProposal = await BridgeInstance._depositProposals(
-            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositNonce);
         assert.strictEqual(depositProposal._status.toNumber(), 3);
     });
 
@@ -225,14 +225,14 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         const voteTx = await BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             1, // vote in favor
             { from: originChainRelayer2Address }
         );
 
         TruffleAssert.eventEmitted(voteTx, 'DepositProposalFinalized', (event) => {
             return event.originChainID.toNumber() === originChainID &&
-                event.depositID.toNumber() === expectedDepositID
+                event.depositNonce.toNumber() === expectedDepositNonce
         });
     });
 
@@ -240,7 +240,7 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             0, // vote in favor
             { from: originChainRelayer2Address }
         ));
@@ -248,13 +248,13 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             0, // vote in favor
             { from: originChainRelayer3Address }
         ));
 
         const depositProposal = await BridgeInstance._depositProposals(
-            originChainID, OriginERC20HandlerInstance.address, expectedDepositID);
+            originChainID, OriginERC20HandlerInstance.address, expectedDepositNonce);
         assert.strictEqual(depositProposal._status.toNumber(), 2);
     });
 
@@ -262,7 +262,7 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         await TruffleAssert.passes(BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             0, // vote in favor
             { from: originChainRelayer2Address }
         ));
@@ -270,14 +270,14 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         const voteTx = await BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             0, // vote in favor
             { from: originChainRelayer3Address }
         );
 
         TruffleAssert.eventEmitted(voteTx, 'DepositProposalFinalized', (event) => {
             return event.originChainID.toNumber() === originChainID &&
-                event.depositID.toNumber() === expectedDepositID
+                event.depositNonce.toNumber() === expectedDepositNonce
         });
     });
 
@@ -285,14 +285,14 @@ contract('Bridge - [voteDepositProposal with relayerThreshold > 1]', async (acco
         const voteTx = await BridgeInstance.voteDepositProposal(
             originChainID,
             OriginERC20HandlerInstance.address,
-            expectedDepositID,
+            expectedDepositNonce,
             0, // vote in favor
             { from: originChainRelayer2Address }
         );
 
         TruffleAssert.eventEmitted(voteTx, 'DepositProposalVote', (event) => {
             return event.originChainID.toNumber() === originChainID &&
-                event.depositID.toNumber() === expectedDepositID &&
+                event.depositNonce.toNumber() === expectedDepositNonce &&
                 event.vote.toNumber() === 0 &&
                 event.status.toNumber() === 1
         });

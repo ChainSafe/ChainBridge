@@ -13,7 +13,7 @@ package ethereum
 //
 //var randomHash = []byte{0x12, 0x34}
 //var sourceChain = msg.ChainId(1)
-//var depositId uint32 = 0
+//var depositNonce uint32 = 0
 
 // func createTestReceiverContract(t *testing.T, conn *Connection) ReceiverContract {
 // 	addressBytes := TestReceiverContractAddress.Bytes()
@@ -90,13 +90,13 @@ package ethereum
 // 	contract := createTestReceiverContract(t, conn)
 // 	auth := createTestAuth(t, conn)
 
-// 	depositId := big.NewInt(421)
+// 	depositNonce := big.NewInt(421)
 // 	originChain := big.NewInt(1)
 
 // 	data := []byte("nootwashere")
 // 	hash := ethcrypto.Keccak256Hash(data)
 
-// 	_, err = contract.Transact(auth, "createDepositProposal", hash, depositId, originChain)
+// 	_, err = contract.Transact(auth, "createDepositProposal", hash, depositNonce, originChain)
 // 	if err != nil {
 // 		t.Fatal(err)
 // 	}
@@ -105,7 +105,7 @@ package ethereum
 // func TestWriter_createDepositProposal(t *testing.T) {
 // 	m := msg.Message{
 // 		Type:      msg.CreateDepositProposalType,
-// 		DepositId: depositId,
+// 		DepositNonce: depositNonce,
 // 		Source:    sourceChain,
 // 	}
 
@@ -129,7 +129,7 @@ package ethereum
 // 	m := msg.Message{
 // 		Type:      msg.VoteDepositProposalType,
 // 		Source:    sourceChain,
-// 		DepositId: 0,
+// 		DepositNonce: 0,
 // 		Metadata:  []byte{1},
 // 	}
 
@@ -154,7 +154,7 @@ package ethereum
 // 		Source:    sourceChain,
 // 		Type:      msg.ExecuteDepositType,
 // 		To:        TestAddress.Bytes(),
-// 		DepositId: depositId,
+// 		DepositNonce: depositNonce,
 // 	}
 
 // 	conn := NewConnection(testConfig)

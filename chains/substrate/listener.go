@@ -18,8 +18,8 @@ import (
 type Listener struct {
 	cfg           *core.ChainConfig
 	conn          *Connection
-	sub           *state.StorageSubscription        // Subscription to all events
-	subscriptions map[eventName]chains.EvtHandlerFn // Handlers for specific events
+	sub           *state.StorageSubscription // Subscription to all events
+	subscriptions map[eventName]eventHandler // Handlers for specific events
 	router        chains.Router
 }
 
@@ -27,7 +27,7 @@ func NewListener(conn *Connection, cfg *core.ChainConfig) *Listener {
 	return &Listener{
 		cfg:           cfg,
 		conn:          conn,
-		subscriptions: make(map[eventName]chains.EvtHandlerFn),
+		subscriptions: make(map[eventName]eventHandler),
 	}
 }
 
@@ -100,7 +100,7 @@ func (l *Listener) Start() error {
 }
 
 // RegisterEventHandler enables a handler for a given event. This cannot be used after Start is called.
-func (l *Listener) RegisterEventHandler(name eventName, handler chains.EvtHandlerFn) error {
+func (l *Listener) RegisterEventHandler(name eventName, handler eventHandler) error {
 	if l.sub == nil {
 		if l.subscriptions[name] != nil {
 			return fmt.Errorf("event %s already registered", name)
