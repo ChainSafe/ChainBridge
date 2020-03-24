@@ -18,7 +18,7 @@ import (
 
 type Chain struct {
 	cfg      *core.ChainConfig // The config of the chain
-	conn     chains.Connection // THe chains connection
+	conn     *Connection       // THe chains connection
 	listener *Listener         // The listener of this chain
 	writer   *Writer           // The writer of the chain
 }
@@ -109,16 +109,8 @@ func (c *Chain) Id() msg.ChainId {
 	return c.cfg.Id
 }
 
-func (c *Chain) Connection() chains.Connection {
-	return c.conn
-}
-
 func (c *Chain) GetWriter() chains.Writer {
 	return c.writer
-}
-
-func (c *Chain) GetListner() chains.Listener {
-	return c.listener
 }
 
 func (c *Chain) Stop() error {

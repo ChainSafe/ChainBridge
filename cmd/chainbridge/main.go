@@ -38,6 +38,14 @@ var importFlags = []cli.Flag{
 	EthereumImportFlag,
 }
 
+var DeployFlags = []cli.Flag{
+	PortFlag,
+	ResetFlag,
+	MnemFlag,
+	AccountFlag,
+	AmountFlag,
+}
+
 var deployContractsFlags = []cli.Flag{
 	PortFlag,
 	NumRelayersFlag,
@@ -93,6 +101,7 @@ func init() {
 	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
 		accountCommand,
+		ganacheCommand,
 		deployContractsCommand,
 	}
 
