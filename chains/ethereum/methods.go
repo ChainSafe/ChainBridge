@@ -27,7 +27,7 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 	}
 
 	//TODO: Should this be metadata?
-	_, err = w.bridgeContract.BridgeRaw.Transact(opts, StoreMethod, keccakHash(m.Metadata))
+	_, err = w.bridgeContract.BridgeRaw.Transact(opts, StoreMethod, hash(m.Metadata))
 
 	if err != nil {
 		log15.Error("Failed to submit depositASset transaction", "err", err)
@@ -38,7 +38,6 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 
 func (w *Writer) createDepositProposal(m msg.Message) bool {
 	log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.contract)
-
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
 	if err != nil {
@@ -46,8 +45,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	hash := keccakHash(m.Metadata)
-
+	hash := hash(m.Metadata)
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		CreateDepositProposalMethod,

@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"testing"
 
+	bridge "github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 
@@ -18,6 +19,8 @@ var methodTestConfig = &Config{
 	id:       msg.EthereumId,
 	endpoint: TestEndpoint,
 	from:     keystore.AliceKey,
+	gasLimit: big.NewInt(6721975),
+	gasPrice: big.NewInt(20000000000),
 }
 
 func method_deployContracts(t *testing.T) {
@@ -35,11 +38,25 @@ func method_deployContracts(t *testing.T) {
 
 func setupWriter(t *testing.T) *Writer {
 	conn := newLocalConnection(t, methodTestConfig)
-	defer conn.Close()
+
+	bridgeInstance, err := bridge.NewBridge(methodTestConfig.contract, conn.conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	raw := &bridge.BridgeRaw{
+		Contract: bridgeInstance,
+	}
+
+	bridgeContract := BridgeContract{
+		BridgeRaw:    raw,
+		BridgeCaller: &bridgeInstance.BridgeCaller,
+	}
 
 	writer := NewWriter(conn, methodTestConfig)
+	writer.SetBridgeContract(bridgeContract)
 
-	err := writer.Start()
+	err = writer.Start()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,13 +73,13 @@ func generateMessage() msg.Message {
 	}
 }
 
-// func TestWriter_createDepositProposal(t *testing.T) {
-// 	method_deployContracts(t)
-// 	w := setupWriter(t)
-// 	m := generateMessage()
+func TestWriter_createDepositProposal(t *testing.T) {
+	method_deployContracts(t)
+	w := setupWriter(t)
+	m := generateMessage()
 
-// 	res := w.createDepositProposal(m)
-// 	if res != true {
-// 		t.Fatal("Failed to create deposit proposal")
-// 	}
-// }
+	res := w.createDepositProposal(m)
+	if res != true {
+		t.Fatal("Failed to create deposit proposal")
+	}
+}

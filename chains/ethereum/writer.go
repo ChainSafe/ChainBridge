@@ -64,7 +64,7 @@ func (w *Writer) Stop() error {
 	return nil
 }
 
-func keccakHash(data []byte) [32]byte {
+func hash(data []byte) [32]byte {
 	return crypto.Keccak256Hash(data)
 }
 

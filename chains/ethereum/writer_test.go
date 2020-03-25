@@ -50,7 +50,7 @@ func TestWriter_start_stop(t *testing.T) {
 	}
 }
 
-func TestKeccak(t *testing.T) {
+func TestHash(t *testing.T) {
 	args := []string{
 		"Hello World",
 		"testing",
@@ -63,7 +63,7 @@ func TestKeccak(t *testing.T) {
 	}
 
 	for i, str := range args {
-		res := keccakHash([]byte(str))
+		res := hash([]byte(str))
 
 		if expected[i] != common.Hash(res).Hex() {
 			t.Fatalf("Input: %s, Expected: %s, Output: %s", str, expected[i], common.Hash(res).String())
