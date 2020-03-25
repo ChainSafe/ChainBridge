@@ -22,7 +22,7 @@ var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 
 type deployOpts struct {
 	pk               string
-	port             string
+	url              string
 	numRelayers      int
 	relayerThreshold *big.Int
 	minCount         uint8
@@ -30,7 +30,7 @@ type deployOpts struct {
 
 var defaultDeployOpts = deployOpts{
 	pk:               hexutil.Encode(AliceKp.Encode())[2:],
-	port:             "8545",
+	url:              "http://localhost:8545",
 	numRelayers:      2,
 	relayerThreshold: big.NewInt(1),
 	minCount:         uint8(0),
@@ -38,7 +38,7 @@ var defaultDeployOpts = deployOpts{
 
 var emptyDeployOpts = deployOpts{
 	pk:               "",
-	port:             "",
+	url:              "",
 	numRelayers:      0,
 	relayerThreshold: nil,
 	minCount:         0,
@@ -49,8 +49,8 @@ func setOpts(opts deployOpts) deployOpts {
 	if opts.pk != "" {
 		cfg.pk = opts.pk
 	}
-	if opts.port != "" {
-		cfg.port = opts.port
+	if opts.url != "" {
+		cfg.url = opts.url
 	}
 	if opts.numRelayers != 0 {
 		cfg.numRelayers = opts.numRelayers
@@ -66,7 +66,7 @@ func setOpts(opts deployOpts) deployOpts {
 
 func testDeployContracts(t *testing.T, customOpts deployOpts) *Config {
 	opts := setOpts(customOpts)
-	deployedContracts, err := DeployContracts(opts.pk, opts.port, opts.numRelayers, opts.relayerThreshold, opts.minCount)
+	deployedContracts, err := DeployContracts(opts.pk, opts.url, opts.numRelayers, opts.relayerThreshold, opts.minCount)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -137,15 +137,11 @@ func TestSubscribe(t *testing.T) {
 	cfg := testDeployContracts(t, emptyDeployOpts)
 	conn := newLocalConnection(t, cfg)
 	l := NewListener(conn, cfg)
-	err := conn.Connect()
-	if err != nil {
-		t.Fatal(err)
-	}
 	defer conn.Close()
 
 	q := eth.FilterQuery{}
 
-	_, err = l.conn.subscribeToEvent(q)
+	_, err := l.conn.subscribeToEvent(q)
 	if err != nil {
 		t.Fatal(err)
 	}
