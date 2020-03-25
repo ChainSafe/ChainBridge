@@ -43,6 +43,10 @@ bindings:
 	@echo " > \033[32mCreating go bindings for ethereum contracts... \033[0m "
 	./scripts/evm/create_bindings.sh
 
+setup-contracts:
+	@echo " > \033[32mSetting up ethereum contracts... \033[0m "
+	./scripts/setup_contracts.sh
+
 ## license: Adds license header to missing files.
 license:
 	@echo "  >  \033[32mAdding license headers...\033[0m "
@@ -63,14 +67,7 @@ install-subkey:
 test:
 	@echo "  >  \033[32mRunning tests...\033[0m "
 	./scripts/test.sh
-	
-truffle_test:
-	@echo " > \033[32mTesting evm contracts... \033[0m "
-	@cd on-chain/evm-contracts && node_modules/.bin/truffle test
 
-truffle_compile:
-	@echo " > \033[32mCompiling evm contracts... \033[0m "
-	./scripts/evm/compile.sh
 
 start_eth:
 	@echo " > \033[32mStarting ganache... \033[0m "
