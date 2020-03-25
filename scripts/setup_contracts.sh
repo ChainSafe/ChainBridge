@@ -4,7 +4,7 @@
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
 CONTRACTS_DIR="./solidity"
-DEST_DIR="./contracts"
+DEST_DIR="./bindings"
 
 set -e
 
