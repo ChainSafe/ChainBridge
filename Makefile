@@ -98,3 +98,6 @@ cent-whitelist-chain:
 cent-asset-tx:
 	@echo " > \033[32mExecuting centrifuge interaction... \033[0m "
 	./scripts/centrifuge/run_interaction.sh asset-tx $(CENT_CHAIN_ID) $(CENT_TO) $(CENT_TOKEN_ID) $(CENT_METADATA)
+
+clean:
+	rm -rf build/ bindings/ solidity/
