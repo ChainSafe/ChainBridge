@@ -29,7 +29,7 @@ func (w *Writer) Start() error {
 func (w *Writer) ResolveMessage(m msg.Message) bool {
 	switch m.Type {
 	case msg.DepositAssetType:
-		prop, err := createProposalFromAssetTx(m, w.conn.meta)
+		prop, err := createProposalFromAssetTx(m, w.conn.getMetadata())
 		if err != nil {
 			log15.Error("Failed to construct proposal from message", "err", err)
 			return false

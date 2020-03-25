@@ -61,7 +61,7 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 	}
 
 	// Create a proposal to help us check results
-	prop, err := createProposalFromAssetTx(m, alice.conn.meta)
+	prop, err := createProposalFromAssetTx(m, alice.conn.getMetadata())
 	if err != nil {
 		t.Fatal(err)
 	}
