@@ -13,7 +13,7 @@ import (
 const StoreMethod = "store"
 const CreateDepositProposalMethod = "createDepositProposal"
 const VoteDepositProposalMethod = "voteDepositProposal"
-const ExecuteDepositMethod = "executeDeposit"
+const ExecuteDepositMethod = "executeDepositProposal"
 
 func (w *Writer) depositAsset(m msg.Message) bool {
 
@@ -44,6 +44,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		log15.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
+	log15.Info("opts", "from", opts.From.String())
 
 	hash := hash(m.Metadata)
 	_, err = w.bridgeContract.BridgeRaw.Transact(
@@ -98,7 +99,7 @@ func (w *Writer) executeDeposit(m msg.Message) bool {
 		log15.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
-
+	log15.Info("opts", "from", opts.From.String())
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		ExecuteDepositMethod,

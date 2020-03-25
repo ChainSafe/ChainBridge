@@ -70,6 +70,3 @@ func TestHash(t *testing.T) {
 		}
 	}
 }
-
-// TODO TESTS
-// Test ResolveMessage

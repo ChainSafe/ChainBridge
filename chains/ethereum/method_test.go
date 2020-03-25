@@ -95,6 +95,7 @@ func TestWriter_voteDepositProposal(t *testing.T) {
 	w := setupWriter(t, methodTestConfig)
 	m := generateMessage()
 
+	// Succeeds Vote: 1/2
 	createRes := w.createDepositProposal(m)
 	if createRes != true {
 		t.Fatal("failed to create deposit proposal")
@@ -105,8 +106,20 @@ func TestWriter_voteDepositProposal(t *testing.T) {
 	config2.from = keystore.BobKey
 	w2 := setupWriter(t, &config2)
 
+	// Succeeds Vote: 2/2
 	voteRes := w2.voteDepositProposal(m)
 	if voteRes != true {
+		t.Fatal("Failed to vote")
+	}
+
+	// Switch signer
+	config3 := *methodTestConfig
+	config3.from = keystore.BobKey
+	w3 := setupWriter(t, &config3)
+
+	// Vote is finalized already
+	voteRes = w3.voteDepositProposal(m)
+	if voteRes != false {
 		t.Fatal("Failed to vote")
 	}
 }
@@ -126,5 +139,42 @@ func TestWriter_voteDepositProposalFailed(t *testing.T) {
 	voteRes := w.voteDepositProposal(m)
 	if voteRes != false {
 		t.Fatal("Vote was supposed to fail, but passed")
+	}
+}
+
+func TestWriter_executeDeposit(t *testing.T) {
+	method_deployContracts(t)
+	w := setupWriter(t, methodTestConfig)
+	m := generateMessage()
+
+	createRes := w.createDepositProposal(m)
+	if createRes != true {
+		t.Fatal("failed to create deposit proposal")
+	}
+
+	// Switch signer
+	config2 := *methodTestConfig
+	config2.from = keystore.BobKey
+	w2 := setupWriter(t, &config2)
+
+	voteRes := w2.voteDepositProposal(m)
+	if voteRes != true {
+		t.Fatal("Failed to vote")
+	}
+
+	// Switch signer
+	config3 := *methodTestConfig
+	config3.from = keystore.BobKey
+	w3 := setupWriter(t, &config3)
+
+	// Vote is finalized already
+	voteRes = w3.voteDepositProposal(m)
+	if voteRes != false {
+		t.Fatal("Failed to vote")
+	}
+
+	executeRes := w3.executeDeposit(m)
+	if executeRes != true {
+		t.Fatal("Failed to execute the proposal")
 	}
 }
