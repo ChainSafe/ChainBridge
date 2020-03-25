@@ -61,9 +61,10 @@ install-subkey:
 	curl https://getsubstrate.io -sSf | bash -s -- --fast
 	cargo install --force --git https://github.com/paritytech/substrate subkey
 
+## Runs go test for all packages except the solidity bindings
 test:
 	@echo "  >  \033[32mRunning tests...\033[0m "
-	./scripts/test.sh
+	go test `go list ./... | grep -v bindings`
 
 start-eth:
 	SOL_DIR=${SOL_DIR} ./scripts/start_eth.sh
