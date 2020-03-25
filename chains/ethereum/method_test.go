@@ -162,18 +162,7 @@ func TestWriter_executeDeposit(t *testing.T) {
 		t.Fatal("Failed to vote")
 	}
 
-	// Switch signer
-	config3 := *methodTestConfig
-	config3.from = keystore.BobKey
-	w3 := setupWriter(t, &config3)
-
-	// Vote is finalized already
-	voteRes = w3.voteDepositProposal(m)
-	if voteRes != false {
-		t.Fatal("Failed to vote")
-	}
-
-	executeRes := w3.executeDeposit(m)
+	executeRes := w.executeDeposit(m)
 	if executeRes != true {
 		t.Fatal("Failed to execute the proposal")
 	}

@@ -73,7 +73,7 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	vote := uint8(0)
+	vote := uint8(1)
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		VoteDepositProposalMethod,
@@ -99,7 +99,7 @@ func (w *Writer) executeDeposit(m msg.Message) bool {
 		log15.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
-	log15.Info("opts", "from", opts.From.String())
+
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		ExecuteDepositMethod,
