@@ -142,10 +142,11 @@ func TestWriter_voteDepositProposalFailed(t *testing.T) {
 	}
 }
 
-func TestWriter_executeDeposit(t *testing.T) {
+// Helper function that allows us to create, vote, and execute a proposal
+// This should be only be used when testing a handler
+func createAndVote(t *testing.T, m msg.Message) {
 	method_deployContracts(t)
 	w := setupWriter(t, methodTestConfig)
-	m := generateMessage()
 
 	createRes := w.createDepositProposal(m)
 	if createRes != true {
@@ -162,6 +163,7 @@ func TestWriter_executeDeposit(t *testing.T) {
 		t.Fatal("Failed to vote")
 	}
 
+	// Requires that the handler in `m` is actually deployed
 	executeRes := w.executeDeposit(m)
 	if executeRes != true {
 		t.Fatal("Failed to execute the proposal")
