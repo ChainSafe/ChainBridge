@@ -323,7 +323,7 @@ contract Bridge {
             _destinationChainID: destinationChainID,
             _depositNonce: depositNonce,
             _dataHash: dataHash,
-            _yesVotes: new address[](0),
+            _yesVotes: new address[](1),
             _noVotes: new address[](0),
             _status: DepositProposalStatus.Active
         });
@@ -334,7 +334,7 @@ contract Bridge {
         }
 
         // Creator always votes in favour
-        _depositProposals[destinationChainID][depositNonce]._yesVotes.push(msg.sender);
+        _depositProposals[destinationChainID][depositNonce]._yesVotes[0] = msg.sender;
         _hasVotedOnDepositProposal[destinationChainID][depositNonce][msg.sender] = true;
 
         emit DepositProposalCreated(destinationChainID, depositNonce, dataHash);
@@ -392,7 +392,7 @@ contract Bridge {
 
         _currentRelayerThresholdProposal = RelayerThresholdProposal({
             _proposedValue: proposedValue,
-            _yesVotes: new address[](0),
+            _yesVotes: new address[](1),
             _noVotes: new address[](0),
             _status: RelayerThresholdProposalStatus.Active
         });
@@ -402,8 +402,11 @@ contract Bridge {
             _currentRelayerThresholdProposal._status = RelayerThresholdProposalStatus.Inactive;
             emit RelayerThresholdChanged(proposedValue);
         }
-        // Record vote
+
+        // Creator always votes in favour
+        _currentRelayerThresholdProposal._yesVotes[0] = msg.sender;
         _currentRelayerThresholdProposal._hasVoted[msg.sender] = true;
+
         emit RelayerThresholdProposalCreated(proposedValue);
     }
 
