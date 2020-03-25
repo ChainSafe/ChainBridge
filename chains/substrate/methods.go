@@ -29,9 +29,9 @@ var AssetTxMethod = createMethod("transfer_asset")
 
 var CreateProposal = createMethod("create_proposal")
 
-var Vote = createMethod("vote")
+var Approve = createMethod("approve")
 
-var NativeTransfer = createMethod("transfer")
+var ExampleTransfer = "Example.transfer"
 
 // TODO: May not be needed outside of testing
 var AddValidator = createMethod("add_validator")
