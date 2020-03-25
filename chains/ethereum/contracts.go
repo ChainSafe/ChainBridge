@@ -35,8 +35,8 @@ type depositProposal struct {
 	OriginChainID *big.Int
 	DepositNonce  *big.Int
 	DataHash      [32]byte
-	NumYes        *big.Int
-	NumNo         *big.Int
+	YesVotes      []common.Address
+	NoVotes       []common.Address
 	Status        string
 }
 
@@ -52,7 +52,7 @@ type BridgeFilterer interface {
 type BridgeCaller interface {
 	GetGenericDepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, []byte, error)
 	GetERC20DepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, *big.Int, error)
-	GetDepositProposal(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (*big.Int, *big.Int, [32]byte, *big.Int, *big.Int, string, error)
+	GetDepositProposal(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (*big.Int, *big.Int, [32]byte, []common.Address, []common.Address, string, error)
 }
 
 type BridgeRaw interface {
@@ -103,8 +103,8 @@ func UnpackDepositProposal(args ...interface{}) (depositProposal, error) {
 			OriginChainID: args[0].(*big.Int),
 			DepositNonce:  args[1].(*big.Int),
 			DataHash:      args[2].([32]byte),
-			NumYes:        args[3].(*big.Int),
-			NumNo:         args[4].(*big.Int),
+			YesVotes:      args[3].([]common.Address),
+			NoVotes:       args[4].([]common.Address),
 			Status:        args[5].(string),
 		},
 		nil
