@@ -1,4 +1,5 @@
 pragma solidity 0.6.4;
+pragma experimental ABIEncoderV2;
 
 import "./helpers/SafeMath.sol";
 import "./interfaces/IRelayer.sol";
@@ -64,20 +65,19 @@ contract Bridge {
     }
 
     struct DepositProposal {
-        uint _destinationChainID;
-        uint _depositNonce;
-        bytes32 _dataHash;
-        mapping(address => bool) _votes;
-        uint _numYes;
-        uint _numNo;
+        uint                  _destinationChainID;
+        uint                  _depositNonce;
+        bytes32               _dataHash;
+        address[]             _yesVotes;
+        address[]             _noVotes;
         DepositProposalStatus _status;
     }
 
     struct RelayerThresholdProposal {
-        uint                             _proposedValue;
-        mapping(address => bool)         _votes;
-        uint                             _numYes;
-        uint                             _numNo;
+        uint                           _proposedValue;
+        mapping(address => bool)       _hasVoted;
+        address[]                      _yesVotes;
+        address[]                      _noVotes;
         RelayerThresholdProposalStatus _status;
     }
 
@@ -91,8 +91,10 @@ contract Bridge {
     mapping(uint => mapping(uint => ERC721DepositRecord)) public _erc721DepositRecords;
     // chainID => depositNonce => CentrifugeAssetDepositRecord
     mapping(uint => mapping(uint => CentrifugeAssetDepositRecord)) public _centrifugeDepositRecords;
-    // ChainId => DepositNonce => Proposal
+    // chainID => depositNonce => Proposal
     mapping(uint => mapping(uint => DepositProposal)) public _depositProposals;
+    // destinationChainID => depositNonce => relayerAddress => bool
+    mapping(uint256 => mapping(uint256 => mapping(address => bool))) public _hasVotedOnDepositProposal;
 
     event GenericDeposited(uint indexed destinationChainID, uint indexed depositNonce);
     event ERC20Deposited(uint indexed destinationChainID, uint indexed depositNonce);
@@ -174,28 +176,24 @@ contract Bridge {
     }
 
     function getCurrentRelayerThresholdProposal() public view returns (
-        uint, uint, uint, string memory) {
+        uint, address[] memory, address[] memory, string memory) {
         return (
             _currentRelayerThresholdProposal._proposedValue,
-            _currentRelayerThresholdProposal._numYes,
-            _currentRelayerThresholdProposal._numNo,
+            _currentRelayerThresholdProposal._yesVotes,
+            _currentRelayerThresholdProposal._noVotes,
             _relayerThresholdProposalStatusStrings[uint(_currentRelayerThresholdProposal._status)]);
     }
 
     function getDepositProposal(uint destinationChainID, uint depositNonce) public view returns (
-        uint, uint, bytes32, uint, uint, string memory) {
+        uint, uint, bytes32, address[] memory, address[]memory, string memory) {
         DepositProposal memory depositProposal = _depositProposals[destinationChainID][depositNonce];
         return (
             depositProposal._destinationChainID,
             depositProposal._depositNonce,
             depositProposal._dataHash,
-            depositProposal._numYes,
-            depositProposal._numNo,
+            depositProposal._yesVotes,
+            depositProposal._noVotes,
             _depositProposalStatusStrings[uint(depositProposal._status)]);
-    }
-
-    function hasVoted(uint destinationChainID, uint depositNonce, address relayerAddress) public view returns (bool) {
-        return _depositProposals[destinationChainID][depositNonce]._votes[relayerAddress];
     }
 
     function depositGeneric(
@@ -318,31 +316,26 @@ contract Bridge {
 
     function createDepositProposal(uint destinationChainID, uint depositNonce, bytes32 dataHash) public _onlyRelayers {
         require(_depositProposals[destinationChainID][depositNonce]._status == DepositProposalStatus.Inactive ||
-        _depositProposals[destinationChainID][depositNonce]._status == DepositProposalStatus.Denied, "this proposal is either currently active or has already been passed/transferred");
+            _depositProposals[destinationChainID][depositNonce]._status == DepositProposalStatus.Denied,
+            "this proposal is currently active or has already been passed/transferred");
+
+        _depositProposals[destinationChainID][depositNonce] = DepositProposal({
+            _destinationChainID: destinationChainID,
+            _depositNonce: depositNonce,
+            _dataHash: dataHash,
+            _yesVotes: new address[](1),
+            _noVotes: new address[](0),
+            _status: DepositProposalStatus.Active
+        });
 
         // If _depositThreshold is set to 1, then auto finalize
         if (_relayerThreshold <= 1) {
-            _depositProposals[destinationChainID][depositNonce] = DepositProposal({
-                _destinationChainID: destinationChainID,
-                _depositNonce: depositNonce,
-                _dataHash: dataHash,
-                _numYes: 1, // Creator always votes in favour
-                _numNo: 0,
-                _status: DepositProposalStatus.Passed
-                });
-        } else {
-            _depositProposals[destinationChainID][depositNonce] = DepositProposal({
-                _destinationChainID: destinationChainID,
-                _depositNonce: depositNonce,
-                _dataHash: dataHash,
-                _numYes: 1, // Creator always votes in favour
-                _numNo: 0,
-                _status: DepositProposalStatus.Active
-                });
+            _depositProposals[destinationChainID][depositNonce]._status = DepositProposalStatus.Passed;
         }
 
         // Creator always votes in favour
-        _depositProposals[destinationChainID][depositNonce]._votes[msg.sender] = true;
+        _depositProposals[destinationChainID][depositNonce]._yesVotes[0] = msg.sender;
+        _hasVotedOnDepositProposal[destinationChainID][depositNonce][msg.sender] = true;
 
         emit DepositProposalCreated(destinationChainID, depositNonce, dataHash);
     }
@@ -352,22 +345,22 @@ contract Bridge {
 
         require(depositProposal._status != DepositProposalStatus.Inactive, "proposal is not active");
         require(depositProposal._status == DepositProposalStatus.Active, "proposal has been finalized");
-        require(!depositProposal._votes[msg.sender], "relayer has already voted");
+        require(!_hasVotedOnDepositProposal[destinationChainID][depositNonce][msg.sender], "relayer has already voted");
         require(uint(vote) <= 1, "invalid vote");
 
         if (vote == Vote.Yes) {
-            depositProposal._numYes++;
+            depositProposal._yesVotes.push(msg.sender);
         } else {
-            depositProposal._numNo++;
+            depositProposal._noVotes.push(msg.sender);
         }
 
-        depositProposal._votes[msg.sender] = true;
+        _hasVotedOnDepositProposal[destinationChainID][depositNonce][msg.sender] = true;
 
         // Todo: Edge case if relayer threshold changes?
-        if (depositProposal._numYes >= _relayerThreshold) {
+        if (depositProposal._yesVotes.length >= _relayerThreshold) {
             depositProposal._status = DepositProposalStatus.Passed;
             emit DepositProposalFinalized(destinationChainID, depositNonce);
-        } else if (_relayerContract.getTotalRelayers().sub(depositProposal._numNo) < _relayerThreshold) {
+        } else if (_relayerContract.getTotalRelayers().sub(depositProposal._noVotes.length) < _relayerThreshold) {
             depositProposal._status = DepositProposalStatus.Denied;
             emit DepositProposalFinalized(destinationChainID, depositNonce);
         }
@@ -375,7 +368,12 @@ contract Bridge {
         emit DepositProposalVote(destinationChainID, depositNonce, vote, depositProposal._status);
     }
 
-    function executeDepositProposal(uint destinationChainID, uint depositNonce, address destinationChainHandlerAddress, bytes memory data) public {
+    function executeDepositProposal(
+        uint destinationChainID,
+        uint depositNonce,
+        address destinationChainHandlerAddress,
+        bytes memory data
+    ) public {
         DepositProposal storage depositProposal = _depositProposals[destinationChainID][depositNonce];
 
         require(depositProposal._status != DepositProposalStatus.Inactive, "proposal is not active");
@@ -394,43 +392,46 @@ contract Bridge {
 
         _currentRelayerThresholdProposal = RelayerThresholdProposal({
             _proposedValue: proposedValue,
-            _numYes: 1, // Creator always votes in favour
-            _numNo: 0,
+            _yesVotes: new address[](1),
+            _noVotes: new address[](0),
             _status: RelayerThresholdProposalStatus.Active
-            });
+        });
 
         if (_relayerThreshold <= 1) {
             _relayerThreshold = _currentRelayerThresholdProposal._proposedValue;
             _currentRelayerThresholdProposal._status = RelayerThresholdProposalStatus.Inactive;
             emit RelayerThresholdChanged(proposedValue);
         }
-        // Record vote
-        _currentRelayerThresholdProposal._votes[msg.sender] = true;
+
+        // Creator always votes in favour
+        _currentRelayerThresholdProposal._yesVotes[0] = msg.sender;
+        _currentRelayerThresholdProposal._hasVoted[msg.sender] = true;
+
         emit RelayerThresholdProposalCreated(proposedValue);
     }
 
     function voteRelayerThresholdProposal(Vote vote) public _onlyRelayers {
         require(_currentRelayerThresholdProposal._status == RelayerThresholdProposalStatus.Active, "no proposal is currently active");
-        require(!_currentRelayerThresholdProposal._votes[msg.sender], "relayer has already voted");
+        require(!_currentRelayerThresholdProposal._hasVoted[msg.sender], "relayer has already voted");
         require(uint(vote) <= 1, "vote out of the vote enum range");
 
         // Cast vote
         if (vote == Vote.Yes) {
-            _currentRelayerThresholdProposal._numYes++;
+            _currentRelayerThresholdProposal._yesVotes.push(msg.sender);
         } else {
-            _currentRelayerThresholdProposal._numNo++;
+            _currentRelayerThresholdProposal._noVotes.push(msg.sender);
         }
 
-        _currentRelayerThresholdProposal._votes[msg.sender] = true;
+        _currentRelayerThresholdProposal._hasVoted[msg.sender] = true;
         emit RelayerThresholdProposalVote(vote);
 
         // Todo: Edge case if relayer threshold changes?
         // Todo: For a proposal to pass does the number of yes votes just need to be higher than the threshold, or does it also have to be greater than the number of no votes?
-        if (_currentRelayerThresholdProposal._numYes >= _relayerThreshold) {
+        if (_currentRelayerThresholdProposal._yesVotes.length >= _relayerThreshold) {
             _relayerThreshold = _currentRelayerThresholdProposal._proposedValue;
             _currentRelayerThresholdProposal._status = RelayerThresholdProposalStatus.Inactive;
             emit RelayerThresholdChanged(_currentRelayerThresholdProposal._proposedValue);
-        } else if (_relayerContract.getTotalRelayers().sub(_currentRelayerThresholdProposal._numNo) < _relayerThreshold) {
+        } else if (_relayerContract.getTotalRelayers().sub(_currentRelayerThresholdProposal._noVotes.length) < _relayerThreshold) {
             _currentRelayerThresholdProposal._status = RelayerThresholdProposalStatus.Inactive;
         }
     }

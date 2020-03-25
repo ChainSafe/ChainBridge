@@ -104,8 +104,6 @@ contract('Bridge - [createDepositProposal with relayerThreshold = 1]', async (ac
             _destinationChainID: destinationChainID,
             _depositNonce: expectedDepositNonce,
             _dataHash: dataHash,
-            _numYes: 1,
-            _numNo: 0,
             _status: 3 // passed
         };
 
@@ -153,7 +151,8 @@ contract('Bridge - [createDepositProposal with relayerThreshold = 1]', async (ac
             dataHash,
             { from: originChainRelayerAddress }
         );
-        const hasVoted = await BridgeInstance.hasVoted(destinationChainID, expectedDepositNonce, originChainRelayerAddress);
+
+        const hasVoted = await BridgeInstance._hasVotedOnDepositProposal.call(destinationChainID, expectedDepositNonce, originChainRelayerAddress);
         assert.isTrue(hasVoted);
     });
 
@@ -174,12 +173,12 @@ contract('Bridge - [createDepositProposal with relayerThreshold = 1]', async (ac
 
     it('getDepositProposal should return correct values in expected order', async () => {
         const expectedDepositProposal = {
-            _destinationChainID: destinationChainID,
-            _depositNonce: expectedDepositNonce,
-            _dataHash: dataHash,
-            _numYes: 1,
-            _numNo: 0,
-            _status: 'passed'
+            0: destinationChainID,
+            1: expectedDepositNonce,
+            2: dataHash,
+            3: [originChainRelayerAddress],
+            4: [],
+            5: 'passed' // passed
         };
 
         await BridgeInstance.createDepositProposal(
@@ -195,7 +194,7 @@ contract('Bridge - [createDepositProposal with relayerThreshold = 1]', async (ac
             depositProposalValues[index] = depositRecordValue.toNumber !== undefined ?
                 depositRecordValue.toNumber() : depositRecordValue;
         });
-        assert.sameOrderedMembers(depositProposalValues, Object.values(expectedDepositProposal));
+        assert.deepEqual(depositProposalValues, Object.values(expectedDepositProposal));
     });
 });
 
@@ -292,8 +291,6 @@ contract('Bridge - [createDepositProposal with relayerThreshold > 1]', async (ac
             _destinationChainID: destinationChainID,
             _depositNonce: expectedDepositNonce,
             _dataHash: dataHash,
-            _numYes: 1,
-            _numNo: 0,
             _status: 1 // passed
         };
 
@@ -341,7 +338,8 @@ contract('Bridge - [createDepositProposal with relayerThreshold > 1]', async (ac
             dataHash,
             { from: originChainRelayerAddress }
         );
-        const hasVoted = await BridgeInstance.hasVoted(destinationChainID, expectedDepositNonce, originChainRelayerAddress);
+
+        const hasVoted = await BridgeInstance._hasVotedOnDepositProposal.call(destinationChainID, expectedDepositNonce, originChainRelayerAddress);
         assert.isTrue(hasVoted);
     });
 
@@ -365,8 +363,8 @@ contract('Bridge - [createDepositProposal with relayerThreshold > 1]', async (ac
             _destinationChainID: destinationChainID,
             _depositNonce: expectedDepositNonce,
             _dataHash: dataHash,
-            _numYes: 1,
-            _numNo: 0,
+            _yesVotes: [originChainRelayerAddress],
+            _noVotes: [],
             _status: 'active'
         };
 
@@ -383,6 +381,6 @@ contract('Bridge - [createDepositProposal with relayerThreshold > 1]', async (ac
             depositProposalValues[index] = depositRecordValue.toNumber !== undefined ?
                 depositRecordValue.toNumber() : depositRecordValue;
         });
-        assert.sameOrderedMembers(depositProposalValues, Object.values(expectedDepositProposal));
+        assert.deepEqual(depositProposalValues, Object.values(expectedDepositProposal));
     });
 });
