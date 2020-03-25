@@ -126,6 +126,7 @@ func getDataDir(ctx *cli.Context) (string, error) {
 	return "", fmt.Errorf("datadir flag not supplied")
 }
 
+//Imports ether keys
 func importEthKey(filename, datadir string) (string, error) {
 	keystorepath, err := keystoreDir(datadir)
 	if err != nil {
@@ -137,7 +138,7 @@ func importEthKey(filename, datadir string) (string, error) {
 		return "", fmt.Errorf("could not read import file: %s", err)
 	}
 
-	password := keystore.GetPassword("Enter password to encrypt keystore file:")
+	password := keystore.GetPassword("Enter password to decrypt keystore file:")
 
 	key, err := gokeystore.DecryptKey(importdata, string(password))
 	if err != nil {
@@ -163,7 +164,9 @@ func importEthKey(filename, datadir string) (string, error) {
 		}
 	}()
 
-	err = keystore.EncryptAndWriteToFile(file, kp, password)
+	newPassword := keystore.GetPassword("Enter password to encrypt new keystore file:")
+
+	err = keystore.EncryptAndWriteToFile(file, kp, newPassword)
 	if err != nil {
 		return "", fmt.Errorf("could not write key to file: %s", err)
 	}
