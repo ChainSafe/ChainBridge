@@ -4,31 +4,16 @@
 package ethereum
 
 import (
-	"math/big"
 	"testing"
 
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 var listenerTestConfig = &Config{
 	id:       msg.EthereumId,
 	endpoint: TestEndpoint,
 	from:     keystore.AliceKey,
-}
-
-func listener_deployContracts(t *testing.T) {
-	port := "8545"
-	numRelayers := 2
-	relayerThreshold := big.NewInt(1)
-	pk := hexutil.Encode(AliceKp.Encode())[2:]
-	DeployedContracts, err := DeployContracts(pk, port, numRelayers, relayerThreshold, uint8(0))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	listenerTestConfig.contract = DeployedContracts.BridgeAddress
 }
 
 func TestListener_start_stop(t *testing.T) {
