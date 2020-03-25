@@ -7,7 +7,6 @@ import (
 	"math/big"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
@@ -21,12 +20,64 @@ const TestEndpoint = "ws://localhost:8545"
 
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 
-const TestTimeout = time.Second * 10
+type deployOpts struct {
+	pk               string
+	port             string
+	numRelayers      int
+	relayerThreshold *big.Int
+	minCount         uint8
+}
 
-var connectionTestConfig = &Config{
-	id:       msg.EthereumId,
-	endpoint: TestEndpoint,
-	from:     keystore.AliceKey,
+var defaultDeployOpts = deployOpts{
+	pk:               hexutil.Encode(AliceKp.Encode())[2:],
+	port:             "8545",
+	numRelayers:      2,
+	relayerThreshold: big.NewInt(1),
+	minCount:         uint8(0),
+}
+
+var emptyDeployOpts = deployOpts{
+	pk:               "",
+	port:             "",
+	numRelayers:      0,
+	relayerThreshold: nil,
+	minCount:         0,
+}
+
+func setOpts(opts deployOpts) deployOpts {
+	cfg := defaultDeployOpts
+	if opts.pk != "" {
+		cfg.pk = opts.pk
+	}
+	if opts.port != "" {
+		cfg.port = opts.port
+	}
+	if opts.numRelayers != 0 {
+		cfg.numRelayers = opts.numRelayers
+	}
+	if opts.relayerThreshold != nil {
+		cfg.relayerThreshold = opts.relayerThreshold
+	}
+	if opts.minCount != 0 {
+		cfg.minCount = opts.minCount
+	}
+	return cfg
+}
+
+func testDeployContracts(t *testing.T, customOpts deployOpts) *Config {
+	opts := setOpts(customOpts)
+	deployedContracts, err := DeployContracts(opts.pk, opts.port, opts.numRelayers, opts.relayerThreshold, opts.minCount)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return &Config{
+		id:       msg.EthereumId,
+		endpoint: TestEndpoint,
+		from:     keystore.AliceKey,
+		gasLimit: big.NewInt(6721975),
+		gasPrice: big.NewInt(20000000000),
+		contract: deployedContracts.BridgeAddress,
+	}
 }
 
 func newLocalConnection(t *testing.T, cfg *Config) *Connection {
@@ -40,28 +91,15 @@ func newLocalConnection(t *testing.T, cfg *Config) *Connection {
 	return conn
 }
 
-func conn_deployContracts(t *testing.T) {
-	port := "8545"
-	numRelayers := 2
-	relayerThreshold := big.NewInt(1)
-	pk := hexutil.Encode(AliceKp.Encode())[2:]
-	DeployedContracts, err := DeployContracts(pk, port, numRelayers, relayerThreshold, uint8(0))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	connectionTestConfig.contract = DeployedContracts.BridgeAddress
-}
-
 func TestConnect(t *testing.T) {
-	conn_deployContracts(t)
-	conn := newLocalConnection(t, connectionTestConfig)
+	cfg := testDeployContracts(t, emptyDeployOpts)
+	conn := newLocalConnection(t, cfg)
 	conn.Close()
 }
 
 func TestSendTx(t *testing.T) {
-	conn_deployContracts(t)
-	conn := newLocalConnection(t, connectionTestConfig)
+	cfg := testDeployContracts(t, emptyDeployOpts)
+	conn := newLocalConnection(t, cfg)
 	defer conn.Close()
 
 	currBlock, err := conn.LatestBlock()
@@ -96,9 +134,9 @@ func TestSendTx(t *testing.T) {
 }
 
 func TestSubscribe(t *testing.T) {
-	conn_deployContracts(t)
-	conn := newLocalConnection(t, connectionTestConfig)
-	l := NewListener(conn, connectionTestConfig)
+	cfg := testDeployContracts(t, emptyDeployOpts)
+	conn := newLocalConnection(t, cfg)
+	l := NewListener(conn, cfg)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -116,38 +154,14 @@ func TestSubscribe(t *testing.T) {
 // TestContractCode is used to make sure the contracts are deployed correctly.
 // This is probably the least intrusive way to check if the contracts exists
 func TestContractCode(t *testing.T) {
-	conn_deployContracts(t)
-	conn := newLocalConnection(t, connectionTestConfig)
+	cfg := testDeployContracts(t, emptyDeployOpts)
+	conn := newLocalConnection(t, cfg)
 	defer conn.Close()
 
 	// The following section checks if the byteCode exists on the chain at the specificed Addresses
-	err := conn.checkBridgeContract(connectionTestConfig.contract)
+	err := conn.checkBridgeContract(cfg.contract)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 }
-
-// Unused, may be useful in the future
-//func createTestAuth(t *testing.T, conn *Connection) *bind.TransactOpts {
-//	currBlock, err := conn.LatestBlock()
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//
-//	TestAddr := keystore.TestKeyRing.EthereumKeys[keystore.AliceKey].(*secp256k1.Keypair).Public().Address()
-//	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
-//
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//
-//	privateKey := conn.kp.Private().(*secp256k1.PrivateKey).Key()
-//	auth := bind.NewKeyedTransactor(privateKey)
-//	auth.Nonce = big.NewInt(int64(nonce))
-//	auth.Value = big.NewInt(0)     // in wei
-//	auth.GasLimit = uint64(300000) // in units
-//	auth.GasPrice = big.NewInt(10)
-//
-//	return auth
-//}

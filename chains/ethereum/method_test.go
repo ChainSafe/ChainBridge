@@ -12,34 +12,12 @@ import (
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 )
-
-var methodTestConfig = &Config{
-	id:       msg.EthereumId,
-	endpoint: TestEndpoint,
-	from:     keystore.AliceKey,
-	gasLimit: big.NewInt(6721975),
-	gasPrice: big.NewInt(20000000000),
-}
-
-func method_deployContracts(t *testing.T) {
-	port := "8545"
-	numRelayers := 2
-	relayerThreshold := big.NewInt(2)
-	pk := hexutil.Encode(AliceKp.Encode())[2:]
-	DeployedContracts, err := DeployContracts(pk, port, numRelayers, relayerThreshold, uint8(0))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	methodTestConfig.contract = DeployedContracts.BridgeAddress
-}
 
 func setupWriter(t *testing.T, config *Config) *Writer {
 	conn := newLocalConnection(t, config)
 
-	bridgeInstance, err := bridge.NewBridge(methodTestConfig.contract, conn.conn)
+	bridgeInstance, err := bridge.NewBridge(config.contract, conn.conn)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +31,7 @@ func setupWriter(t *testing.T, config *Config) *Writer {
 		BridgeCaller: &bridgeInstance.BridgeCaller,
 	}
 
-	writer := NewWriter(conn, methodTestConfig)
+	writer := NewWriter(conn, config)
 	writer.SetBridgeContract(bridgeContract)
 
 	err = writer.Start()
@@ -74,8 +52,10 @@ func generateMessage() msg.Message {
 }
 
 func TestWriter_createDepositProposal(t *testing.T) {
-	method_deployContracts(t)
-	w := setupWriter(t, methodTestConfig)
+	opts := emptyDeployOpts
+	opts.relayerThreshold = big.NewInt(2)
+	cfg := testDeployContracts(t, opts)
+	w := setupWriter(t, cfg)
 	m := generateMessage()
 
 	res := w.createDepositProposal(m)
@@ -91,8 +71,10 @@ func TestWriter_createDepositProposal(t *testing.T) {
 }
 
 func TestWriter_voteDepositProposal(t *testing.T) {
-	method_deployContracts(t)
-	w := setupWriter(t, methodTestConfig)
+	opts := emptyDeployOpts
+	opts.relayerThreshold = big.NewInt(2)
+	cfg := testDeployContracts(t, opts)
+	w := setupWriter(t, cfg)
 	m := generateMessage()
 
 	// Succeeds Vote: 1/2
@@ -102,7 +84,7 @@ func TestWriter_voteDepositProposal(t *testing.T) {
 	}
 
 	// Switch signer
-	config2 := *methodTestConfig
+	config2 := *cfg
 	config2.from = keystore.BobKey
 	w2 := setupWriter(t, &config2)
 
@@ -113,7 +95,7 @@ func TestWriter_voteDepositProposal(t *testing.T) {
 	}
 
 	// Switch signer
-	config3 := *methodTestConfig
+	config3 := *cfg
 	config3.from = keystore.BobKey
 	w3 := setupWriter(t, &config3)
 
@@ -125,8 +107,10 @@ func TestWriter_voteDepositProposal(t *testing.T) {
 }
 
 func TestWriter_voteDepositProposalFailed(t *testing.T) {
-	method_deployContracts(t)
-	w := setupWriter(t, methodTestConfig)
+	opts := emptyDeployOpts
+	opts.relayerThreshold = big.NewInt(2)
+	cfg := testDeployContracts(t, opts)
+	w := setupWriter(t, cfg)
 	m := generateMessage()
 
 	createRes := w.createDepositProposal(m)
@@ -144,14 +128,14 @@ func TestWriter_voteDepositProposalFailed(t *testing.T) {
 
 // Helper function that allows us to create, vote, and execute a proposal
 // This should be only be used when testing a handler
-func createAndVote(t *testing.T, w *Writer, m msg.Message) {
+func createAndVote(t *testing.T, cfg *Config, w *Writer, m msg.Message) {
 	createRes := w.createDepositProposal(m)
 	if createRes != true {
 		t.Fatal("failed to create deposit proposal")
 	}
 
 	// Switch signer
-	config2 := *methodTestConfig
+	config2 := *cfg
 	config2.from = keystore.BobKey
 	w2 := setupWriter(t, &config2)
 
@@ -168,8 +152,10 @@ func createAndVote(t *testing.T, w *Writer, m msg.Message) {
 }
 
 func Test_createAndVote(t *testing.T) {
-	method_deployContracts(t)
-	w := setupWriter(t, methodTestConfig)
+	opts := emptyDeployOpts
+	opts.relayerThreshold = big.NewInt(2)
+	cfg := testDeployContracts(t, opts)
+	w := setupWriter(t, cfg)
 	m := generateMessage()
-	createAndVote(t, w, m)
+	createAndVote(t, cfg, w, m)
 }
