@@ -73,7 +73,6 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 	}
 
 	vote := uint8(0)
-
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		VoteDepositProposalMethod,

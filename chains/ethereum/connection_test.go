@@ -30,7 +30,8 @@ var connectionTestConfig = &Config{
 }
 
 func newLocalConnection(t *testing.T, cfg *Config) *Connection {
-	conn := NewConnection(cfg, AliceKp)
+	kp := keystore.TestKeyRing.EthereumKeys[cfg.from]
+	conn := NewConnection(cfg, kp)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)

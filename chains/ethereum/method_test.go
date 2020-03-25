@@ -26,7 +26,7 @@ var methodTestConfig = &Config{
 func method_deployContracts(t *testing.T) {
 	port := "8545"
 	numRelayers := 2
-	relayerThreshold := big.NewInt(1)
+	relayerThreshold := big.NewInt(2)
 	pk := hexutil.Encode(AliceKp.Encode())[2:]
 	DeployedContracts, err := DeployContracts(pk, port, numRelayers, relayerThreshold, uint8(0))
 	if err != nil {
@@ -36,8 +36,8 @@ func method_deployContracts(t *testing.T) {
 	methodTestConfig.contract = DeployedContracts.BridgeAddress
 }
 
-func setupWriter(t *testing.T) *Writer {
-	conn := newLocalConnection(t, methodTestConfig)
+func setupWriter(t *testing.T, config *Config) *Writer {
+	conn := newLocalConnection(t, config)
 
 	bridgeInstance, err := bridge.NewBridge(methodTestConfig.contract, conn.conn)
 	if err != nil {
@@ -67,7 +67,7 @@ func generateMessage() msg.Message {
 	return msg.Message{
 		Source:       msg.ChainId(0),
 		Destination:  msg.ChainId(1),
-		DepositNonce: uint32(1),
+		DepositNonce: uint32(2),
 		To:           common.FromHex(keystore.TestKeyRing.EthereumKeys[keystore.BobKey].PublicKey()),
 		Metadata:     []byte("metadata"),
 	}
@@ -75,11 +75,56 @@ func generateMessage() msg.Message {
 
 func TestWriter_createDepositProposal(t *testing.T) {
 	method_deployContracts(t)
-	w := setupWriter(t)
+	w := setupWriter(t, methodTestConfig)
 	m := generateMessage()
 
 	res := w.createDepositProposal(m)
 	if res != true {
 		t.Fatal("Failed to create deposit proposal")
+	}
+
+	// Should fail, cannot make same proposal twice
+	res = w.createDepositProposal(m)
+	if res != false {
+		t.Fatal("Failed to create deposit proposal")
+	}
+}
+
+func TestWriter_voteDepositProposal(t *testing.T) {
+	method_deployContracts(t)
+	w := setupWriter(t, methodTestConfig)
+	m := generateMessage()
+
+	createRes := w.createDepositProposal(m)
+	if createRes != true {
+		t.Fatal("failed to create deposit proposal")
+	}
+
+	// Switch signer
+	config2 := *methodTestConfig
+	config2.from = keystore.BobKey
+	w2 := setupWriter(t, &config2)
+
+	voteRes := w2.voteDepositProposal(m)
+	if voteRes != true {
+		t.Fatal("Failed to vote")
+	}
+}
+
+func TestWriter_voteDepositProposalFailed(t *testing.T) {
+	method_deployContracts(t)
+	w := setupWriter(t, methodTestConfig)
+	m := generateMessage()
+
+	createRes := w.createDepositProposal(m)
+	if createRes != true {
+		t.Fatal("failed to create deposit proposal")
+	}
+
+	// Proposal with nonce 5 doesn't exist, this should fail
+	m.DepositNonce = uint32(5)
+	voteRes := w.voteDepositProposal(m)
+	if voteRes != false {
+		t.Fatal("Vote was supposed to fail, but passed")
 	}
 }
