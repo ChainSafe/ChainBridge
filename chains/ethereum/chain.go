@@ -6,8 +6,8 @@ package ethereum
 import (
 	"fmt"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
 	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
+	"github.com/ChainSafe/ChainBridgeV2/chains"
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"

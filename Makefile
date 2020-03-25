@@ -1,5 +1,5 @@
 PROJECTNAME=$(shell basename "$(PWD)")
-SOL_DIR=./bindings
+SOL_DIR=./solidity
 
 CENT_EMITTER_ADDR?=0x1
 CENT_CHAIN_ID?=0x1
