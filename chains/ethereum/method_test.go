@@ -52,7 +52,7 @@ func generateMessage() msg.Message {
 }
 
 func TestWriter_createDepositProposal(t *testing.T) {
-	opts := emptyDeployOpts
+	opts := defaultDeployOpts
 	opts.relayerThreshold = big.NewInt(2)
 	cfg := testDeployContracts(t, opts)
 	w := setupWriter(t, cfg)
@@ -71,7 +71,7 @@ func TestWriter_createDepositProposal(t *testing.T) {
 }
 
 func TestWriter_voteDepositProposal(t *testing.T) {
-	opts := emptyDeployOpts
+	opts := defaultDeployOpts
 	opts.relayerThreshold = big.NewInt(2)
 	cfg := testDeployContracts(t, opts)
 	w := setupWriter(t, cfg)
@@ -107,7 +107,7 @@ func TestWriter_voteDepositProposal(t *testing.T) {
 }
 
 func TestWriter_voteDepositProposalFailed(t *testing.T) {
-	opts := emptyDeployOpts
+	opts := defaultDeployOpts
 	opts.relayerThreshold = big.NewInt(2)
 	cfg := testDeployContracts(t, opts)
 	w := setupWriter(t, cfg)
@@ -152,7 +152,7 @@ func createAndVote(t *testing.T, cfg *Config, w *Writer, m msg.Message) {
 }
 
 func Test_createAndVote(t *testing.T) {
-	opts := emptyDeployOpts
+	opts := defaultDeployOpts
 	opts.relayerThreshold = big.NewInt(2)
 	cfg := testDeployContracts(t, opts)
 	w := setupWriter(t, cfg)

@@ -20,15 +20,7 @@ const TestEndpoint = "ws://localhost:8545"
 
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 
-type deployOpts struct {
-	pk               string
-	url              string
-	numRelayers      int
-	relayerThreshold *big.Int
-	minCount         uint8
-}
-
-var defaultDeployOpts = deployOpts{
+var defaultDeployOpts = DeployOpts{
 	pk:               hexutil.Encode(AliceKp.Encode())[2:],
 	url:              "http://localhost:8545",
 	numRelayers:      2,
@@ -36,15 +28,15 @@ var defaultDeployOpts = deployOpts{
 	minCount:         uint8(0),
 }
 
-var emptyDeployOpts = deployOpts{
-	pk:               "",
-	url:              "",
-	numRelayers:      0,
-	relayerThreshold: nil,
-	minCount:         0,
+type DeployOpts struct {
+	pk               string
+	url              string
+	numRelayers      int
+	relayerThreshold *big.Int
+	minCount         uint8
 }
 
-func setOpts(opts deployOpts) deployOpts {
+func setOpts(opts DeployOpts) DeployOpts {
 	cfg := defaultDeployOpts
 	if opts.pk != "" {
 		cfg.pk = opts.pk
@@ -64,7 +56,7 @@ func setOpts(opts deployOpts) deployOpts {
 	return cfg
 }
 
-func testDeployContracts(t *testing.T, customOpts deployOpts) *Config {
+func testDeployContracts(t *testing.T, customOpts DeployOpts) *Config {
 	opts := setOpts(customOpts)
 	deployedContracts, err := DeployContracts(opts.pk, opts.url, opts.numRelayers, opts.relayerThreshold, opts.minCount)
 	if err != nil {
@@ -92,13 +84,13 @@ func newLocalConnection(t *testing.T, cfg *Config) *Connection {
 }
 
 func TestConnect(t *testing.T) {
-	cfg := testDeployContracts(t, emptyDeployOpts)
+	cfg := testDeployContracts(t, defaultDeployOpts)
 	conn := newLocalConnection(t, cfg)
 	conn.Close()
 }
 
 func TestSendTx(t *testing.T) {
-	cfg := testDeployContracts(t, emptyDeployOpts)
+	cfg := testDeployContracts(t, defaultDeployOpts)
 	conn := newLocalConnection(t, cfg)
 	defer conn.Close()
 
@@ -134,7 +126,7 @@ func TestSendTx(t *testing.T) {
 }
 
 func TestSubscribe(t *testing.T) {
-	cfg := testDeployContracts(t, emptyDeployOpts)
+	cfg := testDeployContracts(t, defaultDeployOpts)
 	conn := newLocalConnection(t, cfg)
 	l := NewListener(conn, cfg)
 	defer conn.Close()
@@ -150,7 +142,7 @@ func TestSubscribe(t *testing.T) {
 // TestContractCode is used to make sure the contracts are deployed correctly.
 // This is probably the least intrusive way to check if the contracts exists
 func TestContractCode(t *testing.T) {
-	cfg := testDeployContracts(t, emptyDeployOpts)
+	cfg := testDeployContracts(t, defaultDeployOpts)
 	conn := newLocalConnection(t, cfg)
 	defer conn.Close()
 
