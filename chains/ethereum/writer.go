@@ -65,10 +65,7 @@ func (w *Writer) Stop() error {
 }
 
 func keccakHash(data []byte) [32]byte {
-	var sized [32]byte
-	hash := crypto.Keccak256(data)
-	copy(sized[:], hash)
-	return sized
+	return crypto.Keccak256Hash(data)
 }
 
 func u32toBigInt(n uint32) *big.Int {

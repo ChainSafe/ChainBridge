@@ -7,6 +7,8 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -50,27 +52,21 @@ func TestWriter_start_stop(t *testing.T) {
 
 func TestKeccak(t *testing.T) {
 	args := []string{
-		"test",
+		"Hello World",
 		"testing",
 		"chainsafe",
 	}
 	expected := []string{
-		"0x9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658",
-		"5f16f4c7f149ac4f9510d9cf8cf384038ad348b3bcdc01915f95de12df9d1b02",
-		"699c776c7e6ce8e6d96d979b60e41135a13a2303ae1610c8d546f31f0c6dc730",
+		"0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba",
+		"0x5f16f4c7f149ac4f9510d9cf8cf384038ad348b3bcdc01915f95de12df9d1b02",
+		"0x699c776c7e6ce8e6d96d979b60e41135a13a2303ae1610c8d546f31f0c6dc730",
 	}
 
 	for i, str := range args {
-		expectedHash := [32]byte{}
-		copy(expectedHash[:], []byte(expected[i]))
-
 		res := keccakHash([]byte(str))
 
-		t.Error(res)
-		t.Error(expectedHash)
-
-		if res != expectedHash {
-			t.Fatalf("Input: %s, Expected: %s, Output: %s", str, expectedHash, string(res[:]))
+		if expected[i] != common.Hash(res).Hex() {
+			t.Fatalf("Input: %s, Expected: %s, Output: %s", str, expected[i], common.Hash(res).String())
 		}
 	}
 }

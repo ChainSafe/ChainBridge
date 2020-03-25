@@ -8,7 +8,6 @@ import (
 
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
-	solsha3 "github.com/miguelmota/go-solidity-sha3"
 )
 
 const StoreMethod = "store"
@@ -47,19 +46,14 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	types := []string{"bytes"}
-	values := []interface{}{m.Metadata}
-	hash := solsha3.SoliditySHA3(types, values)
-
-	var sizedHash [32]byte
-	copy(sizedHash[:], hash)
+	hash := keccakHash(m.Metadata)
 
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		CreateDepositProposalMethod,
 		m.Source.Big(),
 		u32toBigInt(m.DepositNonce),
-		&sizedHash,
+		hash,
 	)
 
 	if err != nil {

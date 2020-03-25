@@ -13,26 +13,24 @@ import (
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 const TestEndpoint = "ws://localhost:8545"
 
-var Alice = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
-
-var TestBridgeContractAddress = ethcmn.HexToAddress("0x3167776db165D8eA0f51790CA2bbf44Db5105ADF")
+var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 
 const TestTimeout = time.Second * 10
 
-func newLocalConnection(t *testing.T) *Connection {
+var connectionTestConfig = &Config{
+	id:       msg.EthereumId,
+	endpoint: TestEndpoint,
+	from:     keystore.AliceKey,
+}
 
-	cfg := &Config{
-		endpoint: TestEndpoint,
-		contract: TestBridgeContractAddress,
-		from:     keystore.AliceKey,
-	}
-
-	conn := NewConnection(cfg, Alice)
+func newLocalConnection(t *testing.T, cfg *Config) *Connection {
+	conn := NewConnection(cfg, AliceKp)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -41,13 +39,28 @@ func newLocalConnection(t *testing.T) *Connection {
 	return conn
 }
 
+func conn_deployContracts(t *testing.T) {
+	port := "8545"
+	numRelayers := 2
+	relayerThreshold := big.NewInt(1)
+	pk := hexutil.Encode(AliceKp.Encode())[2:]
+	DeployedContracts, err := DeployContracts(pk, port, numRelayers, relayerThreshold, uint8(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	connectionTestConfig.contract = DeployedContracts.BridgeAddress
+}
+
 func TestConnect(t *testing.T) {
-	conn := newLocalConnection(t)
+	conn_deployContracts(t)
+	conn := newLocalConnection(t, connectionTestConfig)
 	conn.Close()
 }
 
 func TestSendTx(t *testing.T) {
-	conn := newLocalConnection(t)
+	conn_deployContracts(t)
+	conn := newLocalConnection(t, connectionTestConfig)
 	defer conn.Close()
 
 	currBlock, err := conn.LatestBlock()
@@ -55,7 +68,7 @@ func TestSendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	TestAddr := Alice.Address()
+	TestAddr := AliceKp.Address()
 	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
 	if err != nil {
 		t.Fatal(err)
@@ -82,14 +95,9 @@ func TestSendTx(t *testing.T) {
 }
 
 func TestSubscribe(t *testing.T) {
-	cfg := &Config{
-		id:       msg.EthereumId,
-		endpoint: TestEndpoint,
-		from:     keystore.AliceKey,
-	}
-
-	conn := NewConnection(cfg, Alice)
-	l := NewListener(conn, cfg)
+	conn_deployContracts(t)
+	conn := newLocalConnection(t, connectionTestConfig)
+	l := NewListener(conn, connectionTestConfig)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -107,21 +115,12 @@ func TestSubscribe(t *testing.T) {
 // TestContractCode is used to make sure the contracts are deployed correctly.
 // This is probably the least intrusive way to check if the contracts exists
 func TestContractCode(t *testing.T) {
-	cfg := &Config{
-		id:       msg.EthereumId,
-		endpoint: TestEndpoint,
-		from:     keystore.AliceKey,
-	}
-
-	conn := NewConnection(cfg, Alice)
-	err := conn.Connect()
-	if err != nil {
-		t.Fatal(err)
-	}
+	conn_deployContracts(t)
+	conn := newLocalConnection(t, connectionTestConfig)
 	defer conn.Close()
 
 	// The following section checks if the byteCode exists on the chain at the specificed Addresses
-	err = conn.checkBridgeContract(TestBridgeContractAddress)
+	err := conn.checkBridgeContract(connectionTestConfig.contract)
 	if err != nil {
 		t.Fatal(err)
 	}
