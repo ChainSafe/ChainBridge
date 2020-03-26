@@ -24,7 +24,7 @@ RUN cd geth && make devtools
 
 # Copy bridge
 ADD . /workdir/bridge
-RUN cd /workdir/bridge && make build && make setup-contracts
+RUN cd /workdir/bridge && make setup-contracts && make build
 
 # Rename default config
 RUN ls -la
