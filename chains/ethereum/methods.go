@@ -54,7 +54,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	if status != 0 {
+	if status != Inactive {
 		// Block Tx
 		log15.Error("Deposit already submitted", "error")
 		return false
@@ -94,6 +94,8 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 	}
 
 	vote := uint8(0)
+
+	// TODO need to have the vote check here
 
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,

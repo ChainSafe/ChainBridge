@@ -16,15 +16,25 @@ type DepositProposal struct {
 	Status             string
 }
 
+type DepositProposalStatus string
+
+const (
+	Inactive    DepositProposalStatus = "inactive"
+	Active      DepositProposalStatus = "active"
+	Denied      DepositProposalStatus = "denied"
+	Passed      DepositProposalStatus = "passed"
+	Transferred DepositProposalStatus = "transferred"
+)
+
 // Queries the contract for the current deposit status
-func (w *Writer) GetDepositStatus(originChain *big.Int, depositNonce *big.Int) (uint8, error) {
+func (w *Writer) GetDepositStatus(originChainId *big.Int, depositNonce *big.Int) (DepositProposalStatus, error) {
 	out := new(DepositProposal)
 
-	err := w.bridgeContract.Call(new(bind.CallOpts), out, "getDepositProposal", originChain, depositNonce)
+	_, _, _, _, _, Status, err := w.bridgeContract.GetDepositProposal(new(bind.CallOpts), originChainId, depositNonce)
 	if err != nil {
 		log15.Error("Failed to call getDepositProposal", "error", out)
-		return 0, err
+		return "inactive", err
 	}
 
-	return out.Status, err
+	return DepositProposalStatus(Status), err
 }
