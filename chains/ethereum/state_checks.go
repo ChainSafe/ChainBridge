@@ -8,12 +8,12 @@ import (
 )
 
 type DepositProposal struct {
-	Hash        [32]byte
-	Id          *big.Int
-	OriginChain *big.Int
-	NumYes      *big.Int
-	NumNo       *big.Int
-	Status      uint8
+	DestinationChainID *big.Int
+	DepositNonce       *big.Int
+	DataHash           [32]byte
+	NumYes             *big.Int
+	NumNo              *big.Int
+	Status             string
 }
 
 // Queries the contract for the current deposit status
@@ -22,7 +22,7 @@ func (w *Writer) GetDepositStatus(originChain *big.Int, depositNonce *big.Int) (
 
 	err := w.bridgeContract.Call(new(bind.CallOpts), out, "getDepositProposal", originChain, depositNonce)
 	if err != nil {
-		log15.Error("Failed to call getDepositProposal", "error", err)
+		log15.Error("Failed to call getDepositProposal", "error", out)
 		return 0, err
 	}
 
