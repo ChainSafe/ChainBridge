@@ -17,10 +17,10 @@ type DepositProposal struct {
 }
 
 // Queries the contract for the current deposit status
-func (w *Writer) GetDepositStatus(originChain *big.Int, depositId *big.Int) (uint8, error) {
+func (w *Writer) GetDepositStatus(originChain *big.Int, depositNonce *big.Int) (uint8, error) {
 	out := new(DepositProposal)
 
-	err := w.receiverContract.Call(new(bind.CallOpts), out, "getDepositProposal", originChain, depositId)
+	err := w.bridgeContract.Call(new(bind.CallOpts), out, "getDepositProposal", originChain, depositNonce)
 	if err != nil {
 		log15.Error("Failed to call getDepositProposal", "error", err)
 		return 0, err

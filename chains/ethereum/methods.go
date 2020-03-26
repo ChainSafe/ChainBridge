@@ -47,10 +47,10 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	status, checkErr := w.GetDepositStatus(m.Source.Big(), u32toBigInt(m.DepositId))
+	status, checkErr := w.GetDepositStatus(m.Source.Big(), u32toBigInt(m.DepositNonce))
 
 	if checkErr != nil {
-		log15.Info("Get deposit status failed", "error", checkErr)
+		log15.Error("Get deposit status failed", "error", checkErr)
 		return false
 	}
 
