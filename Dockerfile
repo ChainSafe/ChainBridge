@@ -1,9 +1,13 @@
-// Copyright 2020 ChainSafe Systems
-// SPDX-License-Identifier: LGPL-3.0-only
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
 
 FROM golang:1.13-buster
 
 WORKDIR /workdir
+
+# Docker doesn't accept runtime vairables, so we store the variable at image buildtime
+ARG PASSWORD 
+ENV KEYSTORE_PSWD=$PASSWORD
 
 # Node 12 setup
 RUN curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh
@@ -27,4 +31,4 @@ RUN mv bridge/keys keys
 ADD https://storage.googleapis.com/centrifuge-dev-public/subkey /workdir/bridge
 RUN cd /workdir/bridge && chmod +x ./subkey && cp subkey /usr/local/bin && subkey --version
 
-ENTRYPOINT KEYSTORE_PASSWORD=chainsafe ./bridge/build/chainbridge
+ENTRYPOINT KEYSTORE_PASSWORD=$KEYSTORE_PSWD ./bridge/build/chainbridge

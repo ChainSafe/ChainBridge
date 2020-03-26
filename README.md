@@ -34,7 +34,7 @@ Builds go bindings for Solidity contract interactions.
 
 ### Dockerfile
 ```
-docker image build -t chianbridge
+docker image build --build-arg PASSWORD=<your_password> -t chainbridge
 docker run chainbridge 
 ```
 
