@@ -13,11 +13,11 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	bridge "github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
-	centrifugeHandler "github.com/ChainSafe/ChainBridgeV2/contracts/CentrifugeAssetHandler"
-	erc20Handler "github.com/ChainSafe/ChainBridgeV2/contracts/ERC20Handler"
-	erc721Handler "github.com/ChainSafe/ChainBridgeV2/contracts/ERC721Handler"
-	relayer "github.com/ChainSafe/ChainBridgeV2/contracts/Relayer"
+	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
+	centrifugeHandler "github.com/ChainSafe/ChainBridgeV2/bindings/CentrifugeAssetHandler"
+	erc20Handler "github.com/ChainSafe/ChainBridgeV2/bindings/ERC20Handler"
+	erc721Handler "github.com/ChainSafe/ChainBridgeV2/bindings/ERC721Handler"
+	relayer "github.com/ChainSafe/ChainBridgeV2/bindings/Relayer"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	log "github.com/ChainSafe/log15"
 )
