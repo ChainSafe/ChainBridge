@@ -19,7 +19,7 @@ type Connection struct {
 	api *gsrpc.SubstrateAPI
 	url string
 	// TODO: RWLock this as we have multiple readers and one writer
-	meta        *types.Metadata
+	meta        types.Metadata
 	genesisHash types.Hash
 	key         *signature.KeyringPair
 	metaLock    sync.RWMutex
@@ -29,9 +29,9 @@ func NewConnection(url string, key *signature.KeyringPair) *Connection {
 	return &Connection{url: url, key: key, metaLock: sync.RWMutex{}}
 }
 
-func (c *Connection) getMetadata() *types.Metadata {
-	c.metaLock.Lock()
-	defer c.metaLock.Unlock()
+func (c *Connection) getMetadata() types.Metadata {
+	c.metaLock.RLock()
+	defer c.metaLock.RUnlock()
 	return c.meta
 }
 
@@ -47,7 +47,7 @@ func (c *Connection) Connect() error {
 	if err != nil {
 		return err
 	}
-	c.meta = meta
+	c.meta = *meta
 	log15.Debug("Fetched substrate metadata")
 
 	// Fetch genesis hash
@@ -67,7 +67,7 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 
 	// Create call and extrinsic
 	call, err := types.NewCall(
-		c.getMetadata(),
+		&c.getMetadata(),
 		method.String(),
 		args...,
 	)

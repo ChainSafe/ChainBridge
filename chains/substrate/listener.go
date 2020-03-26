@@ -143,7 +143,7 @@ func (l *Listener) processEvents(hash types.Hash) error {
 	}
 
 	var records types.EventRecordsRaw
-	_, err = l.conn.api.RPC.State.GetStorage(key, &records, hash)
+	err = l.conn.api.RPC.State.GetStorage(key, &records, hash)
 	if err != nil {
 		return err
 	}
