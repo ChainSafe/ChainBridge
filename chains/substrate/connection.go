@@ -165,8 +165,7 @@ func (c *Connection) queryStorage(prefix, method string, arg1, arg2 []byte, resu
 	if err != nil {
 		return false, err
 	}
-	_, err = c.api.RPC.State.GetStorageLatest(key, result)
-	return err == nil, err
+	return c.api.RPC.State.GetStorageLatest(key, result)
 }
 
 func (c *Connection) Close() {
