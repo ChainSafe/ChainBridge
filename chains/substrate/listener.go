@@ -137,19 +137,20 @@ func (l *Listener) pollBlocks() error {
 
 func (l *Listener) processEvents(hash types.Hash) error {
 	log15.Trace("Fetching block", "hash", hash)
-	key, err := types.CreateStorageKey(l.conn.getMetadata(), "System", "Events", nil, nil)
+	data := l.conn.getMetadata()
+	key, err := types.CreateStorageKey(&data, "System", "Events", nil, nil)
 	if err != nil {
 		return err
 	}
 
 	var records types.EventRecordsRaw
-	err = l.conn.api.RPC.State.GetStorage(key, &records, hash)
+	_, err = l.conn.api.RPC.State.GetStorage(key, &records, hash)
 	if err != nil {
 		return err
 	}
 
 	e := Events{}
-	err = records.DecodeEventRecords(l.conn.getMetadata(), &e)
+	err = records.DecodeEventRecords(&data, &e)
 	if err != nil {
 		return err
 	}

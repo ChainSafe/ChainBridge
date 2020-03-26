@@ -29,7 +29,8 @@ func (w *Writer) Start() error {
 func (w *Writer) ResolveMessage(m msg.Message) bool {
 	switch m.Type {
 	case msg.DepositAssetType:
-		prop, err := createAssetTxProposal(m, w.conn.getMetadata())
+		meta := w.conn.getMetadata()
+		prop, err := createAssetTxProposal(m, &meta)
 		if err != nil {
 			log15.Error("Failed to construct assetTxProposal from message", "err", err)
 			return false

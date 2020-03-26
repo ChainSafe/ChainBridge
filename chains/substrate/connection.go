@@ -65,9 +65,11 @@ func (c *Connection) Connect() error {
 func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	log15.Debug("Submitting substrate call...", "method", method)
 
+	meta := c.getMetadata()
+
 	// Create call and extrinsic
 	call, err := types.NewCall(
-		&c.getMetadata(),
+		&meta,
 		method.String(),
 		args...,
 	)
@@ -158,11 +160,13 @@ func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
 // queryStorage performs a storage lookup. Arguments may be nil, result must be a pointer.
 func (c *Connection) queryStorage(prefix, method string, arg1, arg2 []byte, result interface{}) (bool, error) {
 	// Fetch account nonce
-	key, err := types.CreateStorageKey(c.getMetadata(), prefix, method, arg1, arg2)
+	data := c.getMetadata()
+	key, err := types.CreateStorageKey(&data, prefix, method, arg1, arg2)
 	if err != nil {
 		return false, err
 	}
-	return c.api.RPC.State.GetStorageLatest(key, result)
+	_, err = c.api.RPC.State.GetStorageLatest(key, result)
+	return err == nil, err
 }
 
 func (c *Connection) Close() {
