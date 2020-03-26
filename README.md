@@ -36,7 +36,7 @@ Required for substrate key management.
 
 ### Dockerfile
 ```
-docker image build --build-arg PASSWORD=<your_password> -t chainbridge
+docker image build -t chainbridge . --build-arg PASSWORD="<your_password" TEST_KEY="--testkey <key_ring_name>"
 docker run chainbridge 
 ```
 

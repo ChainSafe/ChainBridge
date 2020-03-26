@@ -9,6 +9,10 @@ WORKDIR /workdir
 ARG PASSWORD 
 ENV KEYSTORE_PSWD=$PASSWORD
 
+# Allows a user to pass in a key from the keyring eg: --alice
+ARG TEST_KEY
+ENV TEST_KEY_CMD=$TEST_KEY
+
 # Node 12 setup
 RUN curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh
 RUN chmod +x ./nodesource_setup.sh && ./nodesource_setup.sh && apt install -y nodejs
@@ -31,4 +35,4 @@ RUN mv bridge/keys keys
 ADD https://storage.googleapis.com/centrifuge-dev-public/subkey /workdir/bridge
 RUN cd /workdir/bridge && chmod +x ./subkey && cp subkey /usr/local/bin && subkey --version
 
-ENTRYPOINT KEYSTORE_PASSWORD=$KEYSTORE_PSWD ./bridge/build/chainbridge
+ENTRYPOINT KEYSTORE_PASSWORD=$KEYSTORE_PSWD ./bridge/build/chainbridge $TEST_KEY_CMD

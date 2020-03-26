@@ -38,3 +38,11 @@ jobs:
         - make deploy-eth
         - ./scripts/centrifuge/run_chain_ci.sh
         - make test
+
+    - language: python
+      python: 3.5
+      name: "Run Dockerfile"
+      script:
+        - set -e
+        - docker image build -t chainbridge . --build-arg TEST_KEY="--testkey=alice"
+        - docker stop chainbridge || true && docker rm chainbridge || true 
