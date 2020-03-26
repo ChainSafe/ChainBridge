@@ -7,6 +7,7 @@ env:
 
 cache:
   cargo: true
+  npm: true
   directories:
     - $HOME/.cache/go-build
     - $GOPATH/pkg/mod
@@ -24,24 +25,16 @@ jobs:
       name: "Golang-ci Linter"
       script:
         - make license-check
-        - make bindings
+        - make setup-contracts
         - make lint
 
     - language: go
       go: 1.13.x
       name: "Run Go tests"
       script:
-        - make bindings
-        - SILENT=true make start_eth
-        - make deploy_eth
+        - set -e
+        - make setup-contracts
+        - SILENT=true make start-eth
+        - make deploy-eth
         - ./scripts/centrifuge/run_chain_ci.sh
         - make test
-
-    - language: node_js
-      node_js: 12
-      name: "Run Truffle tests"
-      env: CI=true
-      script:
-        - cd on-chain/evm-contracts/
-        - npm install
-        - ./node_modules/.bin/truffle test
