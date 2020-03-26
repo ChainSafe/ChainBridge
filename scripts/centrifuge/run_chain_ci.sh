@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 
 S3_URL="https://centchain.nyc3.digitaloceanspaces.com"
-CENT_CHAIN_COMMIT="6d1a3f1641513ae211ad46f80e8cd739eb6a0619"
-CENT_CHAIN_BUILD_ID="154078537"
-CENT_CHAIN_BRANCH="david/add-bridge"
+CENT_CHAIN_COMMIT="4bf5a2b7b3cba16a9c1c0ab93115fd4886502733"
+CENT_CHAIN_BUILD_ID="155080360"
 
 set -eux
 

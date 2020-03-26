@@ -27,14 +27,10 @@ bin/
 bridge
 keys/
 
-# nodejs
-node_modules/
-
-
 # Chainbridge
 config.toml
 ./centrifuge-chain
 
-/contracts
-/on-chain/evm-contracts/bindings
-abi/
+# Solidity
+/bindings
+/solidity
