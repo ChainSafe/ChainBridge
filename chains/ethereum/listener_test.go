@@ -5,146 +5,34 @@ package ethereum
 
 import (
 	"testing"
+
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 )
 
-// TODO: See TestListenerAndWriter
-// test handler function for events
-//func testTransferHandler(logi interface{}) msg.Message {
-//	log := logi.(ethtypes.Log)
-//	hash := [32]byte(log.Topics[1])
-//	return msg.Message{
-//		Destination: msg.EthereumId,
-//		Type:        msg.AssetTransferType,
-//		Data:        hash[:],
-//	}
-//}
-
-func TestListener(t *testing.T) {
-	// TODO: Re-write tests based on update bridge contract
-	t.Skip()
-
-	// conn := newLocalConnection(t, TestCentrifugeContractAddress)
-	// defer conn.Close()
-
-	// // send tx to trigger event in EmitterContract
-	// addressBytes := TestEmitterContractAddress.Bytes()
-
-	// address := [20]byte{}
-	// copy(address[:], addressBytes)
-
-	// contract, err := bridge.NewBridge(address, conn.conn)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-
-	// instance := &bridge.BridgeRaw{
-	// 	Contract: contract,
-	// }
-
-	// auth := createTestAuth(t, conn)
-
-	// eventIterator, err := instance.Contract.SimpleEmitterFilterer.FilterDepositAsset(&bind.FilterOpts{
-	// 	Start:   0,
-	// 	End:     nil,
-	// 	Context: context.Background(),
-	// }, []ethcmn.Address{TestAddress})
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-
-	// // call fallback to trigger event
-	// _, err = instance.Transact(auth, "")
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-
-	// time.Sleep(5 * time.Second)
-
-	// eventIterator.Next()
-	// if eventIterator.Event == nil {
-	// 	t.Fatal("Did not get event")
-	// } else {
-	// 	t.Log(eventIterator.Event)
-	// 	return
-	// }
-
-	// <-time.After(TestTimeout)
-	// t.Fatal("timeout")
+var listenerTestConfig = &Config{
+	id:       msg.EthereumId,
+	endpoint: TestEndpoint,
+	from:     keystore.AliceKey,
 }
 
-func TestListenerAndWriter(t *testing.T) {
-	// TODO: Unclear what this is supposed to test
-	t.Skip()
-	//conn := newLocalConnection(t, TestEmitterContractAddress)
-	//defer conn.Close()
-	//
-	//// setup writer and router
-	//writer := NewWriter(conn)
-	//r := router.NewRouter()
-	//err := r.Listen(msg.EthereumId, writer)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//
-	//// setup Emitter contract
-	//contract := common.StringToAddress(TestEmitterContractAddress)
-	//
-	//currBlock, err := conn.LatestBlock()
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//
-	//nonce, err := conn.NonceAt(common.StringToAddress(TestAddress), currBlock.Number())
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//
-	//event := EventSig("Transfer(address,bytes32)")
-	//cfg := &core.ChainConfig{
-	//	Receiver:      TestEmitterContractAddress,
-	//	Emitter:       TestEmitterContractAddress,
-	//	Subscriptions: []string{string(event)},
-	//}
-	//listener := NewListener(conn, cfg)
-	//listener.SetRouter(r)
-	//err = listener.RegisterEventHandler(string(event), testTransferHandler)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//defer listener.Unsubscribe(event)
-	//
-	//// calling fallback in Emitter to trigger Transfer event
-	//tx := ethtypes.NewTransaction(
-	//	nonce,
-	//	contract,
-	//	big.NewInt(0),
-	//	1000000,        // gasLimit
-	//	big.NewInt(10), // gasPrice
-	//	[]byte{},
-	//)
-	//
-	//data, err := tx.MarshalJSON()
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//
-	//// subscribe to event in Centrifuge receiver contract
-	//query := listener.buildQuery(common.StringToAddress(TestEmitterContractAddress), EventSig("AssetStored(bytes32)"))
-	//subscription, err := conn.subscribeToEvent(query)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//
-	//// send tx to trigger event
-	//err = conn.SubmitTx(data)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//
-	//select {
-	//case evt := <-subscription.ch:
-	//	t.Log("got event", evt)
-	//case <-time.After(TestTimeout):
-	//	t.Fatal("Timed out")
-	//}
+func TestListener_start_stop(t *testing.T) {
+	conn := newLocalConnection(t, listenerTestConfig)
+	defer conn.Close()
+
+	listener := NewListener(conn, listenerTestConfig)
+
+	err := listener.Start()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = listener.Stop()
+	if err != nil {
+		t.Fatal(err)
+	}
 }
+
+// TODO TESTS
+// registerEventHandler
+// watchEvent <- Must trigger an event
