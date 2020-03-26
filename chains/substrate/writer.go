@@ -29,17 +29,17 @@ func (w *Writer) Start() error {
 func (w *Writer) ResolveMessage(m msg.Message) bool {
 	switch m.Type {
 	case msg.DepositAssetType:
-		prop, err := createProposalFromAssetTx(m, w.conn.meta)
+		prop, err := createAssetTxProposal(m, w.conn.meta)
 		if err != nil {
-			log15.Error("Failed to construct proposal from message", "err", err)
+			log15.Error("Failed to construct assetTxProposal from message", "err", err)
 			return false
 		}
 		if w.proposalExists(prop) {
-			log15.Debug("Voting for an existing proposal", "hash", prop.hash)
-			err = w.conn.SubmitTx(Vote, prop.hash, true)
+			log15.Debug("Voting for an existing assetTxProposal", "nonce", prop.depositNonce)
+			err = w.conn.SubmitTx(Approve, prop.depositNonce, prop.call)
 		} else {
-			log15.Trace("Creating a new proposal", "hash", prop.hash.Hex())
-			err = w.conn.SubmitTx(CreateProposal, prop.hash, prop.call)
+			log15.Trace("Creating a new assetTxProposal", "nonce", prop.depositNonce)
+			err = w.conn.SubmitTx(CreateProposal, prop.depositNonce, prop.call)
 		}
 		if err != nil {
 			log15.Error("Failed to execute extrinsic", "err", err)
@@ -53,20 +53,19 @@ func (w *Writer) ResolveMessage(m msg.Message) bool {
 
 }
 
-func (w *Writer) proposalExists(prop *proposal) bool {
-	var expected types.Call
-	err := w.conn.queryStorage("Bridge", "Proposals", prop.hash[:], nil, &expected)
+func (w *Writer) proposalExists(prop *assetTxProposal) bool {
+	key, err := types.EncodeToBytes(prop.getKey())
+	if err != nil {
+		log15.Error("Faield to encode key", "nonce", prop.depositNonce, "err", err)
+	}
+
+	var expected voteState
+	ok, err := w.conn.queryStorage("Bridge", "Votes", key, nil, &expected)
 	if err != nil {
 		log15.Error("Failed to check proposals existence", "err", err)
 		return false
 	}
-	// TODO: We want to know if it exists on chain, but this actually tell us they aren't equal.
-	// If prop is a valid proposal we might want to freak out.
-	if types.Eq(expected, prop.call) {
-		return true
-	} else {
-		return false
-	}
+	return ok
 }
 
 func (w *Writer) Stop() error {
