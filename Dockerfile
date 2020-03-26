@@ -29,7 +29,9 @@ RUN cd /workdir/bridge && make setup-contracts && make build
 # Rename default config
 RUN ls -la
 RUN mv bridge/config.toml.example config.toml
-RUN mkdir -p ./keys/; mv bridge/keys/* $_
+
+# If test key is not present move keys dir
+RUN if [ -z "$TEST_KEY" ];then mv bridge/keys keys/ fi
 
 # Add Parity/Subkey
 ADD https://storage.googleapis.com/centrifuge-dev-public/subkey /workdir/bridge
