@@ -10,6 +10,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/core"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -18,11 +19,12 @@ const DefaultGasPrice = 20000000000
 
 // Config encapsulates all necessary parameters in ethereum compatible forms
 type Config struct {
-	name         string      // Human-readable chain name
-	id           msg.ChainId // ChainID
-	endpoint     string      // url for rpc endpoint
-	from         string      // address of key to use
-	keystorePath string      // Location of keyfiles
+	name         string       // Human-readable chain name
+	id           msg.ChainId  // ChainID
+	endpoint     string       // url for rpc endpoint
+	from         string       // address of key to use
+	keystorePath string       // Location of keyfiles
+	errorLog     log15.Logger // Error logger for the chain
 	contract     common.Address
 	gasLimit     *big.Int
 	gasPrice     *big.Int
@@ -38,6 +40,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		endpoint:     chainCfg.Endpoint,
 		from:         chainCfg.From,
 		keystorePath: chainCfg.KeystorePath,
+		errorLog:     chainCfg.ChainLogger,
 		contract:     common.HexToAddress("0x0"),
 		gasLimit:     big.NewInt(DefaultGasLimit),
 		gasPrice:     big.NewInt(DefaultGasPrice),

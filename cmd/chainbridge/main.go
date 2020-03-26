@@ -158,6 +158,7 @@ func run(ctx *cli.Context) error {
 			From:         chain.From,
 			KeystorePath: ks,
 			Insecure:     insecure,
+			ChainLogger:  log.Root().New("chain", chain.Name),
 			Opts:         chain.Opts,
 		}
 		var newChain core.Chain

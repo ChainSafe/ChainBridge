@@ -7,7 +7,6 @@ import (
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -67,12 +66,12 @@ func (l *Listener) GetSubscriptions() []*Subscription {
 
 // Start registers all subscriptions provided by the config
 func (l *Listener) Start() error {
-	log15.Debug("Starting listener...", "chainID", l.cfg.id)
+	l.cfg.errorLog.Debug("Starting listener...", "chainID", l.cfg.id)
 	subscriptions := l.GetSubscriptions()
 	for _, sub := range subscriptions {
 		err := l.RegisterEventHandler(sub.signature, sub.handler)
 		if err != nil {
-			log15.Error("failed to register event handler", "err", err)
+			l.cfg.errorLog.Error("failed to register event handler", "err", err)
 		}
 	}
 	return nil
@@ -103,7 +102,7 @@ func (l *Listener) RegisterEventHandler(subscription string, handler evtHandlerF
 	}
 	l.subscriptions[EventSig(subscription)] = eventSubscription
 	go l.watchEvent(eventSubscription, handler)
-	log15.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.contract, "sig", subscription)
+	l.cfg.errorLog.Debug("Registered event handler", "chainID", l.cfg.id, "contract", l.cfg.contract, "sig", subscription)
 	return nil
 }
 
@@ -116,11 +115,11 @@ func (l *Listener) watchEvent(eventSubscription *ActiveSubscription, handler evt
 			m := handler(evt)
 			err := l.router.Send(m)
 			if err != nil {
-				log15.Error("subscription error: cannot send message", "sub", eventSubscription, "err", err)
+				l.cfg.errorLog.Error("subscription error: cannot send message", "sub", eventSubscription, "err", err)
 			}
 		case err := <-eventSubscription.sub.Err():
 			if err != nil {
-				log15.Error("subscription error", "sub", eventSubscription, "err", err)
+				l.cfg.errorLog.Error("subscription error", "sub", eventSubscription, "err", err)
 			}
 		}
 	}

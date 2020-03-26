@@ -13,7 +13,6 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
-	log "github.com/ChainSafe/log15"
 )
 
 type Chain struct {
@@ -101,7 +100,7 @@ func (c *Chain) Start() error {
 		return err
 	}
 
-	log.Debug("Successfully started chain")
+	c.cfg.ChainLogger.Debug("Successfully started chain")
 	return nil
 }
 

@@ -6,6 +6,7 @@ package substrate
 import (
 	"testing"
 
+	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -24,15 +25,17 @@ var TestKeyringPairBob = signature.KeyringPair{
 
 var TestEndpoint = "ws://127.0.0.1:9944"
 
+var TestLogger = log15.Root().New("test_chain", "substrate")
+
 // createAliceAndBobConnections creates and calls `Connect()` on two Connections using the Alice and Bob keypairs
 func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
-	alice := NewConnection(TestEndpoint, &TestKeyringPairAlice)
+	alice := NewConnection(TestEndpoint, &TestKeyringPairAlice, TestLogger)
 	err := alice.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	bob := NewConnection(TestEndpoint, &TestKeyringPairBob)
+	bob := NewConnection(TestEndpoint, &TestKeyringPairBob, TestLogger)
 	err = bob.Connect()
 	if err != nil {
 		t.Fatal(err)
