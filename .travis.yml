@@ -45,4 +45,5 @@ jobs:
       script:
         - set -e
         - docker image build -t chainbridge . --build-arg TEST_KEY="--testkey=alice"
+        - docker run chainbridge -d
         - docker stop chainbridge || true && docker rm chainbridge || true 
