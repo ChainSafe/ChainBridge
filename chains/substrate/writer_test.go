@@ -15,26 +15,27 @@ import (
 	"gotest.tools/assert"
 )
 
-func assertProposalState(conn *Connection, hash types.Hash, prop *proposal, votes VoteState) error {
-	var callRes types.Call
-	log15.Trace("Fetching proposal call", "hash", hash.Hex())
-	err := conn.queryStorage("Bridge", "Proposals", hash[:], nil, &callRes)
+func assertProposalState(conn *Connection, key *proposalKey, votes *voteState, hasValue bool) error {
+	log15.Trace("Fetching votes", "key", key)
+	var voteRes voteState
+	keyBz, err := types.EncodeToBytes(key)
 	if err != nil {
-		return fmt.Errorf("failed to query proposals: %s", err)
+		return nil
 	}
-	if !types.Eq(&callRes, &prop.call) {
-		return fmt.Errorf("Proposal state incorrect.\n\tExpected: %#v\n\tGot: %#v", prop.call, callRes)
-	}
-
-	log15.Trace("Fetching votes", "hash", hash.Hex())
-	var voteRes VoteState
-	err = conn.queryStorage("Bridge", "Votes", hash[:], nil, &voteRes)
+	ok, err := conn.queryStorage("Bridge", "Votes", keyBz, nil, &voteRes)
 	if err != nil {
 		return fmt.Errorf("failed to query votes: %s", err)
 	}
-	if !reflect.DeepEqual(&voteRes, &votes) {
-		return fmt.Errorf("Vote state incorrect.\n\tExpected: %#v\n\tGot: %#v", votes, voteRes)
+	if hasValue {
+		if !reflect.DeepEqual(&voteRes, votes) {
+			return fmt.Errorf("Vote state incorrect.\n\tExpected: %#v\n\tGot: %#v", votes, voteRes)
+		}
 	}
+
+	if !ok && hasValue {
+		return fmt.Errorf("expected vote to exists but is None")
+	}
+
 	return nil
 }
 
@@ -60,16 +61,14 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 		Metadata:     data,
 	}
 
-	// Create a proposal to help us check results
-	prop, err := createProposalFromAssetTx(m, alice.conn.meta)
+	// Create a assetTxProposal to help us check results
+	prop, err := createAssetTxProposal(m, alice.conn.meta)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// First, ensure the proposal doesn't already exist
-	initialVotes := VoteState{}
-	emptyProp := &proposal{call: types.Call{Args: types.Args{}}}
-	assert.NilError(t, assertProposalState(alice.conn, prop.hash, emptyProp, initialVotes))
+	// First, ensure the assetTxProposal doesn't already exist
+	assert.NilError(t, assertProposalState(alice.conn, prop.getKey(), nil, false))
 
 	// Submit the message for processing
 	ok := alice.ResolveMessage(m)
@@ -77,12 +76,11 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 		t.Fatal("Alice failed to resolve the message")
 	}
 
-	// Now check if the proposal exists on chain
-	singleVoteState := VoteState{
+	// Now check if the assetTxProposal exists on chain
+	singleVoteState := &voteState{
 		VotesFor: []types.AccountID{types.NewAccountID(alice.conn.key.PublicKey)},
-		Hash:     prop.hash,
 	}
-	assert.NilError(t, assertProposalState(alice.conn, prop.hash, prop, singleVoteState))
+	assert.NilError(t, assertProposalState(alice.conn, prop.getKey(), singleVoteState, true))
 
 	// Submit a second vote from Bob this time
 	ok = bob.ResolveMessage(m)
@@ -91,14 +89,13 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 	}
 
 	// Check the vote was added
-	finalVoteState := VoteState{
+	finalVoteState := &voteState{
 		VotesFor: []types.AccountID{
 			types.NewAccountID(alice.conn.key.PublicKey),
 			types.NewAccountID(bob.conn.key.PublicKey),
 		},
-		Hash: prop.hash,
 	}
-	assert.NilError(t, assertProposalState(alice.conn, prop.hash, prop, finalVoteState))
+	assert.NilError(t, assertProposalState(alice.conn, prop.getKey(), finalVoteState, true))
 
 	// Assert balance has updated
 	// TODO: This doesn't account for gas and stakng rewards, will update once example chain is implemented
