@@ -29,6 +29,9 @@ github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuy
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/allegro/bigcache v1.2.1-0.20190218064605-e24eb225f156 h1:eMwmnE/GDgah4HI848JfFxHt+iPb26b4zyfspmqY0/8=
 github.com/allegro/bigcache v1.2.1-0.20190218064605-e24eb225f156/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
+github.com/ansermino/go-substrate-rpc-client v1.1.1-0.20200324214445-4ad7e856ba12/go.mod h1:RpcIrJAL8glxCRIFJ+fM9TPYVaHclkt1bfRas7i6lbo=
+github.com/ansermino/go-substrate-rpc-client v1.1.1-0.20200324214445-4ad7e856ba12 h1:htrDqM38IiDbQ3tGBET5C+B9p6biaKkJG6p94QP5CWQ=
+github.com/ansermino/go-substrate-rpc-client v1.1.1-0.20200324214445-4ad7e856ba12/go.mod h1:RpcIrJAL8glxCRIFJ+fM9TPYVaHclkt1bfRas7i6lbo=
 github.com/aristanetworks/fsnotify v1.4.2/go.mod h1:D/rtu7LpjYM8tRJphJ0hUBYpjai8SfX+aSNsWDTq/Ks=
 github.com/aristanetworks/glog v0.0.0-20180419172825-c15b03b3054f/go.mod h1:KASm+qXFKs/xjSoWn30NrWBBvdTTQq+UjkhjEJHfSFA=
 github.com/aristanetworks/goarista v0.0.0-20170210015632-ea17b1a17847/go.mod h1:D/tb0zPVXnP7fmsLZjtdUhSsumbK/ij54UXjjVgMGxQ=

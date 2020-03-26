@@ -10,35 +10,39 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
-// proposal represents an on-chain proposal
-type proposal struct {
+type accountData struct {
+	Nonce    types.U32
+	Refcount types.UCompact
+	Data     struct {
+		Free       types.U128
+		Reserved   types.U128
+		MiscFrozen types.U128
+		FreeFrozen types.U128
+	}
+}
+
+// assetTxProposal represents an on-chain assetTxProposal
+type assetTxProposal struct {
 	depositNonce types.U32
 	recipient    types.AccountID
 	amount       types.U32
-	hash         types.Hash
 	call         types.Call
 }
 
-// createProposalFromAssetTx requires a DepositAsset message to construct a proposal
-func createProposalFromAssetTx(m msg.Message, meta *types.Metadata) (*proposal, error) {
+type proposalKey struct {
+	DepositNonce types.U32
+	Call         types.Call
+}
+
+// createAssetTxProposal requires a DepositAsset message to construct a assetTxProposal
+func createAssetTxProposal(m msg.Message, meta *types.Metadata) (*assetTxProposal, error) {
 	recipient := types.NewAccountID(m.Metadata[0:32])
 	amount := types.U32(binary.LittleEndian.Uint32(m.Metadata[32:36]))
 	depositNonce := types.U32(m.DepositNonce)
 
-	// Create hash
-	data := struct {
-		DepositNonce types.U32
-		Recipient    types.AccountID
-		Amount       types.U32
-	}{depositNonce, recipient, amount}
-	hash, err := types.GetHash(data)
-	if err != nil {
-		return nil, err
-	}
-
 	call, err := types.NewCall(
 		meta,
-		NativeTransfer.String(),
+		ExampleTransfer,
 		recipient,
 		amount,
 	)
@@ -46,17 +50,19 @@ func createProposalFromAssetTx(m msg.Message, meta *types.Metadata) (*proposal, 
 	if err != nil {
 		return nil, err
 	}
-	return &proposal{
+	return &assetTxProposal{
 		depositNonce: depositNonce,
 		recipient:    recipient,
 		amount:       amount,
-		hash:         hash,
 		call:         call,
 	}, nil
 }
 
-type VoteState struct {
+func (p assetTxProposal) getKey() *proposalKey {
+	return &proposalKey{p.depositNonce, p.call}
+}
+
+type voteState struct {
 	VotesFor     []types.AccountID
 	VotesAgainst []types.AccountID
-	Hash         types.Hash
 }
