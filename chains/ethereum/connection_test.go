@@ -11,6 +11,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -24,12 +25,15 @@ var TestBridgeContractAddress = ethcmn.HexToAddress("0x3167776db165D8eA0f51790CA
 
 const TestTimeout = time.Second * 10
 
+var TestLogger = log15.Root().New("test_chain", "ethereum")
+
 func newLocalConnection(t *testing.T) *Connection {
 
 	cfg := &Config{
 		endpoint: TestEndpoint,
 		contract: TestBridgeContractAddress,
 		from:     keystore.AliceKey,
+		errorLog: TestLogger,
 	}
 
 	conn := NewConnection(cfg, Alice)
@@ -86,6 +90,7 @@ func TestSubscribe(t *testing.T) {
 		id:       msg.EthereumId,
 		endpoint: TestEndpoint,
 		from:     keystore.AliceKey,
+		errorLog: TestLogger,
 	}
 
 	conn := NewConnection(cfg, Alice)
@@ -111,6 +116,7 @@ func TestContractCode(t *testing.T) {
 		id:       msg.EthereumId,
 		endpoint: TestEndpoint,
 		from:     keystore.AliceKey,
+		errorLog: TestLogger,
 	}
 
 	conn := NewConnection(cfg, Alice)
