@@ -76,7 +76,7 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 
 	// TODO: Does this actually return more than nonce?
 	var nonce uint32
-	err = c.queryStorage("System", "Account", c.key.PublicKey, nil, &nonce)
+	_, err = c.queryStorage("System", "Account", c.key.PublicKey, nil, &nonce)
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 		case status := <-sub.Chan():
 			switch {
 			case status.IsInBlock:
-				log15.Trace("Successful extrinsic finalized", "hash", status.AsInBlock.Hex())
+				log15.Trace("Successful extrinsic finalized", "block", status.AsInBlock.Hex())
 				return nil
 			case status.IsRetracted:
 				return fmt.Errorf("extrinsic retracted: %s", status.AsRetracted.Hex())
@@ -148,17 +148,13 @@ func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
 }
 
 // queryStorage performs a storage lookup. Arguments may be nil, result must be a pointer.
-func (c *Connection) queryStorage(prefix, method string, arg1, arg2 []byte, result interface{}) error {
+func (c *Connection) queryStorage(prefix, method string, arg1, arg2 []byte, result interface{}) (bool, error) {
 	// Fetch account nonce
 	key, err := types.CreateStorageKey(c.meta, prefix, method, arg1, arg2)
 	if err != nil {
-		return err
+		return false, err
 	}
-	err = c.api.RPC.State.GetStorageLatest(key, result)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.api.RPC.State.GetStorageLatest(key, result)
 }
 
 func (c *Connection) Close() {

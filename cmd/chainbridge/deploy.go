@@ -98,7 +98,7 @@ func runGanache(args *deployArgs) error {
 
 	log.Info("Running npm install")
 	command := exec.Command("npm", "install")
-	command.Dir = "./on-chain/evm-contracts"
+	command.Dir = "./solidity"
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	err := command.Run()
@@ -107,8 +107,8 @@ func runGanache(args *deployArgs) error {
 	}
 
 	log.Info("Executing Ganache")
-	command = exec.Command("./node_modules/.bin/ganache-cli", args.ConvertToStringArray()...) //nolint:gosec
-	command.Dir = "./on-chain/evm-contracts"
+	command = exec.Command("ganache-cli", args.ConvertToStringArray()...) //nolint:gosec
+	command.Dir = "./solidity"
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	err = command.Run()

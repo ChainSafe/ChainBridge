@@ -43,20 +43,13 @@ func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
 
 // getFreeBalance queries the balance for an account, storing the result in `res`
 func getFreeBalance(c *Connection, res *types.U128) {
-	acct := struct {
-		Nonce    types.U32
-		Refcount types.UCompact
-		Data     struct {
-			Free       types.U128
-			Reserved   types.U128
-			MiscFrozen types.U128
-			FreeFrozen types.U128
-		}
-	}{}
+	var acct accountData
 
-	err := c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
+	ok, err := c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
 	if err != nil {
 		panic(err)
+	} else if !ok {
+		panic("no account data")
 	}
 	*res = acct.Data.Free
 }
