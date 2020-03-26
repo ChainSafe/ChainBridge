@@ -21,14 +21,16 @@ Required for substrate key management.
 
   `make install-subkey`
 
-- [abigen](https://geth.ethereum.org/docs/dapp/native-bindings):
-Builds go bindings for Solidity contract interactions.
-
-  See [Installation Instructions](https://geth.ethereum.org/docs/install-and-build/installing-geth).
 
 ## Building
 
+**The solidity bindings must first be fetched and built with `make setup-contracts`.**
+
+**Then, use:**
+
 `make build`: Builds `chainbridge` in `./build`.
+
+**or**
 
 `make install`: Uses `go install` to add `chainbridge` to your GOBIN.
 
@@ -78,12 +80,12 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
 To start a ganache instance:
 ```
-make start_eth
+make start-eth
 ```
 
 Bridge contracts can then be deployed with:
 ```
-make deploy_eth
+make deploy-eth
 ```
 
 Note: The environment variable `PORT=<port>` can be provided for these commands (default `PORT=8545`)
@@ -97,7 +99,7 @@ make bindings
 
 To fetch, build and run centrifuge-chain run:
 ```
-make start_cent
+make start-cent
 ```
 
 Note: The build process takes a while, but will only run once. It currently uses a modified fork of centrifuge-chain
@@ -108,18 +110,18 @@ You can run several commands to interact with the bridge module:
 
 You can set and get the emitter address with:
  ```
- make cent_get_emitter
+ make cent-get-emitter
 ``` 
 and 
 ```
-make cent_set_emitter CENT_EMITTER_ADDR=<HEX VALUE>
+make cent-set-emitter CENT_EMITTER_ADDR=<HEX VALUE>
 ```
 ### Whitelist Chain
 
 A chain ID can be whitelisted as a destination with:
 
 ```
-make cent_whitelist_chain CENT_CHAIN_ID=<HEX VALUE>
+make cent-whitelist-chain CENT_CHAIN_ID=<HEX VALUE>
 ```
 
 ### Asset Transfer
@@ -127,48 +129,45 @@ make cent_whitelist_chain CENT_CHAIN_ID=<HEX VALUE>
 An asset transfer can be executed with:
 
 ```
-make cent_asset_tx CENT_CHAIN_ID=<HEX VALUE> CENT_TO=<HEX VALUE> CENT_TOKEN_ID=<HEX VALUE> CENT_METADATA=<HEX VALUE>
+make cent-asset-tx CENT_CHAIN_ID=<HEX VALUE> CENT_TO=<HEX VALUE> CENT_TOKEN_ID=<HEX VALUE> CENT_METADATA=<HEX VALUE>
 ```
 
 ### Auto Run
 
 Setting an emitter address, whitelisting a chain and submitting an asset tx can be executed using default values with:
 ```
-make cent_auto_run 
+make cent-auto-run 
 ```
 
 ## Tests
 
-### Go tests
 To run the go tests a fresh ganache instance is required (tests depend on deterministic addresses). 
 A new instance can be started by running these in seperate terminals:
 ```
-make start_eth
-make deploy_eth
+make start-eth
+make deploy-eth
 ```
 Go tests can then be run with:
 ```
 make test
 ```
-### Contract Tests
-Truffle tests can be run with just:
-```
-make truffle_test
-```
+
+**Note: Substrate tests are not yet able to be run locally and will fail.**
 
 ## Simulations
 ### Ethereum ERC20 Transfer
 Start chain 1 (terminal 1)
 ```shell
-make start_eth
+make setup-contracts
+make start-eth
 ```
 Start chain 2 (terminal 2)
 ```shell
-PORT=8546 make start_eth
+PORT=8546 make start-eth
 ```
 Deploy the contracts (terminal 3)
 ```shell
-make deploy_eth && PORT=8546 make deploy_eth
+make deploy_eth && PORT=8546 make deploy-eth
 ```
 Build the latest ChainBridge binary & run it (terminal 3)
 ```shell
@@ -177,8 +176,8 @@ make build
 ```
 Mint & make a deposit (terminal 4)
 ```shell
-node on-chain/evm-contracts/scripts/cli/index.js --test-only --mint-erc20 --value 100
-node on-chain/evm-contracts/scripts/cli/index.js --test-only --deposit-erc —dest 1
+node solidity/scripts/cli/index.js --test-only --mint-erc20 --value 100
+node solidity/scripts/cli/index.js --test-only --deposit-erc —dest 1
 ```
 
 Notes: 
@@ -190,6 +189,6 @@ Notes:
 #### Debugging
 Node script errors:
 "Contract not found" or similar:
-- Check the deployments in step 3, do the addresses listed there match with the addresses saved in `.on-chain/evm-contracts/scripts/cli/constants.js`? The constants file should be updated accordingly
+- Check the deployments in step 3, do the addresses listed there match with the addresses saved in `solidity/scripts/cli/constants.js`? The constants file should be updated accordingly
 "Sender doesn't have funds" or similar when executing an erc20 transfer:
 - Check that the you ran `--mint <value>` (step 4) if you didn't the account has no tokens to deposit
