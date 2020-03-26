@@ -19,8 +19,8 @@ func TestConnect_QueryStorage(t *testing.T) {
 	defer conn.Close()
 
 	// Query storage
-	var nonce uint32
-	err = conn.queryStorage("System", "Account", conn.key.PublicKey, nil, &nonce)
+	var data accountData
+	_, err = conn.queryStorage("System", "Account", conn.key.PublicKey, nil, &data)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +40,7 @@ func TestConnect_SubmitTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = conn.SubmitTx("Balances.transfer", bob, types.UCompact(10))
+	err = conn.SubmitTx("Balances.transfer", bob.AsAccountID, types.UCompact(10))
 	if err != nil {
 		t.Fatal(err)
 	}

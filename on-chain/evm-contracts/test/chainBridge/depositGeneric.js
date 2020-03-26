@@ -123,7 +123,8 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
     });
 
     it('Generic deposit can be made with all arguments', async () => {
-        truffleAssert.passes(await BridgeInstance.depositGeneric(
+        truffleAssert.passes(
+            await BridgeInstance.methods['depositGeneric(address,address,uint256,address,address,bytes)'](
             OriginERC20MintableInstance.address,
             OriginERC20HandlerInstance.address,
             destinationChainID,
@@ -135,7 +136,7 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
     });
 
     it('_depositCounts is incremented correctly after Generic deposit with all arguments', async () => {
-        await BridgeInstance.depositGeneric(
+        await BridgeInstance.methods['depositGeneric(address,address,uint256,address,address,bytes)'](
             OriginERC20MintableInstance.address,
             OriginERC20HandlerInstance.address,
             destinationChainID,
@@ -150,7 +151,7 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
     });
 
     it('Generic deposit with all arguments is stored correctly', async () => {
-        await BridgeInstance.depositGeneric(
+        await BridgeInstance.methods['depositGeneric(address,address,uint256,address,address,bytes)'](
             OriginERC20MintableInstance.address,
             OriginERC20HandlerInstance.address,
             destinationChainID,
@@ -175,7 +176,8 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
     });
 
     it('GenericDeposited event is fired with expected value after Generic deposit with all arguments', async () => {
-        const depositTx = await BridgeInstance.depositGeneric(
+        // This is how Truffle provides support for overloaded functions
+        const depositTx = await BridgeInstance.methods['depositGeneric(address,address,uint256,address,address,bytes)'](
             OriginERC20MintableInstance.address,
             OriginERC20HandlerInstance.address,
             destinationChainID,
@@ -191,7 +193,8 @@ contract('Bridge - [depositGeneric]', async (accounts) => {
     });
 
     it('getGenericDepositRecord should return correct depositNonce with values in expected order for Generic deposit with all arguments', async () => {
-        await BridgeInstance.depositGeneric(
+        // This is how Truffle provides support for overloaded functions
+        await BridgeInstance.methods['depositGeneric(address,address,uint256,address,address,bytes)'](
             OriginERC20MintableInstance.address,
             OriginERC20HandlerInstance.address,
             destinationChainID,
