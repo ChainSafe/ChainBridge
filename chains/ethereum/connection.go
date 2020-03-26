@@ -10,7 +10,7 @@ import (
 	"math/big"
 	"sync"
 
-	"github.com/ChainSafe/ChainBridgeV2/contracts/Bridge"
+	"github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
 
@@ -56,7 +56,13 @@ func NewConnection(cfg *Config, kp *secp256k1.Keypair) *Connection {
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
 	log15.Info("Connecting to ethereum chain...", "chain", c.cfg.name, "url", c.cfg.endpoint)
-	rpcClient, err := rpc.DialWebsocket(c.ctx, c.cfg.endpoint, "/ws")
+	var rpcClient *rpc.Client
+	var err error
+	if c.cfg.http {
+		rpcClient, err = rpc.DialHTTP(c.cfg.endpoint)
+	} else {
+		rpcClient, err = rpc.DialWebsocket(c.ctx, c.cfg.endpoint, "/ws")
+	}
 	if err != nil {
 		return err
 	}
