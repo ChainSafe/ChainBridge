@@ -141,11 +141,8 @@ func watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 
 // Subscribe creates a subscription to all events.
 func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
-	meta, err := c.api.RPC.State.GetMetadataLatest()
-	if err != nil {
-		return nil, err
-	}
-	key, err := types.CreateStorageKey(meta, "System", "Events", nil, nil)
+	meta := c.getMetadata()
+	key, err := types.CreateStorageKey(&meta, "System", "Events", nil, nil)
 	if err != nil {
 		return nil, err
 	}
