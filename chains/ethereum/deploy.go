@@ -45,9 +45,9 @@ type DeployedContracts struct {
 	CentrifugeHandlerAddress common.Address
 }
 
-func DeployContracts(deployPK string, port string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
+func DeployContracts(deployPK string, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
 
-	client, auth, deployAddress, initialRelayerAddresses, err := accountSetUp(port, relayers, deployPK)
+	client, auth, deployAddress, initialRelayerAddresses, err := accountSetUp(url, relayers, deployPK)
 	if err != nil {
 		return nil, err
 	}
@@ -109,9 +109,9 @@ func updateNonce(auth *bind.TransactOpts, client *ethclient.Client, deployAddres
 
 }
 
-func accountSetUp(port string, relayers int, deployPK string) (*ethclient.Client, *bind.TransactOpts, common.Address, []common.Address, error) {
+func accountSetUp(url string, relayers int, deployPK string) (*ethclient.Client, *bind.TransactOpts, common.Address, []common.Address, error) {
 
-	client, err := ethclient.Dial("http://localhost:" + port)
+	client, err := ethclient.Dial(url)
 	if err != nil {
 		log.Error("error connecting to client")
 		return nil, nil, ZERO_ADDRESS, nil, err

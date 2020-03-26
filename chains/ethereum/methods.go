@@ -8,13 +8,12 @@ import (
 
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
-	solsha3 "github.com/miguelmota/go-solidity-sha3"
 )
 
 const StoreMethod = "store"
 const CreateDepositProposalMethod = "createDepositProposal"
 const VoteDepositProposalMethod = "voteDepositProposal"
-const ExecuteDepositMethod = "executeDeposit"
+const ExecuteDepositMethod = "executeDepositProposal"
 
 func (w *Writer) depositAsset(m msg.Message) bool {
 
@@ -28,7 +27,7 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 	}
 
 	//TODO: Should this be metadata?
-	_, err = w.bridgeContract.BridgeRaw.Transact(opts, StoreMethod, keccakHash(m.Metadata))
+	_, err = w.bridgeContract.BridgeRaw.Transact(opts, StoreMethod, hash(m.Metadata))
 
 	if err != nil {
 		log15.Error("Failed to submit depositASset transaction", "err", err)
@@ -39,27 +38,21 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 
 func (w *Writer) createDepositProposal(m msg.Message) bool {
 	log15.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.contract)
-
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
 	if err != nil {
 		log15.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
+	log15.Info("opts", "from", opts.From.String())
 
-	types := []string{"bytes"}
-	values := []interface{}{m.Metadata}
-	hash := solsha3.SoliditySHA3(types, values)
-
-	var sizedHash [32]byte
-	copy(sizedHash[:], hash)
-
+	hash := hash(m.Metadata)
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		CreateDepositProposalMethod,
 		m.Source.Big(),
 		u32toBigInt(m.DepositNonce),
-		&sizedHash,
+		hash,
 	)
 
 	if err != nil {
@@ -80,8 +73,7 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	vote := uint8(0)
-
+	vote := uint8(1)
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		VoteDepositProposalMethod,
