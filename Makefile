@@ -1,4 +1,5 @@
 PROJECTNAME=$(shell basename "$(PWD)")
+SOL_DIR=./solidity
 
 CENT_EMITTER_ADDR?=0x1
 CENT_CHAIN_ID?=0x1
@@ -20,28 +21,28 @@ get:
 	@echo "  >  \033[32mDownloading & Installing all the modules...\033[0m "
 	go mod tidy && go mod download
 
-get_lint:
+get-lint:
 	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s latest
 
 .PHONY: lint
 lint:
 	if [ ! -f ./bin/golangci-lint ]; then \
-		$(MAKE) get_lint; \
+		$(MAKE) get-lint; \
 	fi;
 	./bin/golangci-lint run ./... --timeout 5m0s
 
-build: bindings
+build:
 	@echo "  >  \033[32mBuilding binary...\033[0m "
 	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge
 
-install: bindings
+install:
 	@echo "  >  \033[32mInstalling bridge...\033[0m "
 	cd cmd/chainbridge && go install
 
-## Builds the Go bindings for the solidity contracts
-bindings:
-	@echo " > \033[32mCreating go bindings for ethereum contracts... \033[0m "
-	./scripts/evm/create_bindings.sh
+## Fetches solidity contracts and builds go bindings
+setup-contracts:
+	@echo " > \033[32mSetting up ethereum contracts... \033[0m "
+	./scripts/setup_contracts.sh
 
 ## license: Adds license header to missing files.
 license:
@@ -60,49 +61,43 @@ install-subkey:
 	curl https://getsubstrate.io -sSf | bash -s -- --fast
 	cargo install --force --git https://github.com/paritytech/substrate subkey
 
+## Runs go test for all packages except the solidity bindings
 test:
 	@echo "  >  \033[32mRunning tests...\033[0m "
-	./scripts/test.sh
-	
-truffle_test:
-	@echo " > \033[32mTesting evm contracts... \033[0m "
-	@cd on-chain/evm-contracts && node_modules/.bin/truffle test
+	go test `go list ./... | grep -v bindings`
 
-truffle_compile:
-	@echo " > \033[32mCompiling evm contracts... \033[0m "
-	./scripts/evm/compile.sh
+start-eth:
+	SOL_DIR=${SOL_DIR} ./scripts/start_eth.sh
 
-start_eth:
-	@echo " > \033[32mStarting ganache... \033[0m "
-	./scripts/local_test/start_ganache.sh
+deploy-eth:
+	SOL_DIR=${SOL_DIR} ./scripts/deploy_eth.sh
 
-deploy_eth:
-	@echo " > \033[32mDeploying evm contracts... \033[0m "
-	./scripts/local_test/ethereum_deploy.sh
-
-docker_start:
+docker-start:
 	./scripts/docker/start-docker.sh
 	
-start_cent:
+start-cent:
 	@echo " > \033[32mStarting centrifuge-chain... \033[0m "
 	./scripts/centrifuge/run_chain.sh
 
-cent_auto_run:
+cent-auto-run:
 	@echo " > \033[32mExecuting centrifuge setup... \033[0m "
 	./scripts/centrifuge/run_setup.sh
 
-cent_set_emitter:
+cent-set-emitter:
 	@echo " > \033[32mSetting centrifuge emitter address... \033[0m "
 	./scripts/centrifuge/run_interaction.sh set-emitter $(CENT_EMITTER_ADDR)
 
-cent_get_emitter:
+cent-get-emitter:
 	@echo " > \033[32mGetting centrifuge emitter address... \033[0m "
 	./scripts/centrifuge/run_interaction.sh get-emitter
 
-cent_whitelist_chain:
+cent-whitelist-chain:
 	@echo " > \033[32mExecuting centrifuge chain whitelist... \033[0m "
 	./scripts/centrifuge/run_interaction.sh whitelist-chain $(CENT_CHAIN_ID)
 
-cent_asset_tx:
+cent-asset-tx:
 	@echo " > \033[32mExecuting centrifuge interaction... \033[0m "
 	./scripts/centrifuge/run_interaction.sh asset-tx $(CENT_CHAIN_ID) $(CENT_TO) $(CENT_TOKEN_ID) $(CENT_METADATA)
+
+clean:
+	rm -rf build/ bindings/ solidity/
