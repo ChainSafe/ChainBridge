@@ -24,6 +24,9 @@ type Listener struct {
 	router        chains.Router
 }
 
+// Frequency of polling for a new block
+var BlockRetryInterval = time.Second * 2
+
 func NewListener(conn *Connection, name string, id msg.ChainId) *Listener {
 	return &Listener{
 		name:          name,
@@ -72,7 +75,6 @@ func (l *Listener) RegisterEventHandler(name eventName, handler eventHandler) er
 }
 
 var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
-var BlockRetryInterval = time.Second * 1
 
 func (l *Listener) pollBlocks() error {
 	var latestBlock uint64 = 0
@@ -94,6 +96,7 @@ func (l *Listener) pollBlocks() error {
 	}
 }
 
+// processEvents fetches a block and parses out the events, calling Listener.handleEvents()
 func (l *Listener) processEvents(hash types.Hash) error {
 	log15.Trace("Fetching block", "hash", hash.Hex())
 	key, err := types.CreateStorageKey(l.conn.meta, "System", "Events", nil, nil)
@@ -207,6 +210,7 @@ func (l *Listener) handleEvents(evts Events) {
 	}
 }
 
+// submitMessage inserts the chainId into the msg and sends it to the router
 func (l *Listener) submitMessage(m msg.Message) {
 	m.Source = l.chainId
 	err := l.router.Send(m)

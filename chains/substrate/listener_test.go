@@ -56,6 +56,7 @@ func Test_AssetTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Construct our expected message
 	assetHash, err := types.NewHashFromHexString("0x16078eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f2")
 	if err != nil {
 		t.Fatal(err)
@@ -74,11 +75,13 @@ func Test_AssetTx(t *testing.T) {
 		Metadata:     meta,
 	}
 
+	// Initiate transfer
 	err = ac.SubmitTx(ExampleTransferHash, assetHash, recipient, destId)
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	// Verify message
 	select {
 	case m := <-r.msgs:
 		if !reflect.DeepEqual(expected, m) {
