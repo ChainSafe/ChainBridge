@@ -7,7 +7,6 @@ import (
 	"math/big"
 	"testing"
 
-	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 
@@ -16,25 +15,12 @@ import (
 
 func setupWriter(t *testing.T, config *Config) *Writer {
 	conn := newLocalConnection(t, config)
-
-	bridgeInstance, err := bridge.NewBridge(config.contract, conn.conn)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	raw := &bridge.BridgeRaw{
-		Contract: bridgeInstance,
-	}
-
-	bridgeContract := BridgeContract{
-		BridgeRaw:    raw,
-		BridgeCaller: &bridgeInstance.BridgeCaller,
-	}
+	bridgeContract := createBridgeInstance(t, *conn, config.contract)
 
 	writer := NewWriter(conn, config)
 	writer.SetBridgeContract(bridgeContract)
 
-	err = writer.Start()
+	err := writer.Start()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,7 +40,7 @@ func generateMessage() msg.Message {
 func TestWriter_createDepositProposal(t *testing.T) {
 	opts := defaultDeployOpts
 	opts.relayerThreshold = big.NewInt(2)
-	cfg := testDeployContracts(t, opts)
+	cfg, _ := testDeployContracts(t, opts)
 	w := setupWriter(t, cfg)
 	m := generateMessage()
 
@@ -73,7 +59,7 @@ func TestWriter_createDepositProposal(t *testing.T) {
 func TestWriter_voteDepositProposal(t *testing.T) {
 	opts := defaultDeployOpts
 	opts.relayerThreshold = big.NewInt(2)
-	cfg := testDeployContracts(t, opts)
+	cfg, _ := testDeployContracts(t, opts)
 	w := setupWriter(t, cfg)
 	m := generateMessage()
 
@@ -109,7 +95,7 @@ func TestWriter_voteDepositProposal(t *testing.T) {
 func TestWriter_voteDepositProposalFailed(t *testing.T) {
 	opts := defaultDeployOpts
 	opts.relayerThreshold = big.NewInt(2)
-	cfg := testDeployContracts(t, opts)
+	cfg, _ := testDeployContracts(t, opts)
 	w := setupWriter(t, cfg)
 	m := generateMessage()
 
@@ -154,7 +140,7 @@ func createAndVote(t *testing.T, cfg *Config, w *Writer, m msg.Message) {
 func Test_createAndVote(t *testing.T) {
 	opts := defaultDeployOpts
 	opts.relayerThreshold = big.NewInt(2)
-	cfg := testDeployContracts(t, opts)
+	cfg, _ := testDeployContracts(t, opts)
 	w := setupWriter(t, cfg)
 	m := generateMessage()
 	createAndVote(t, cfg, w, m)
