@@ -11,6 +11,9 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 
 	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
+	erc20 "github.com/ChainSafe/ChainBridgeV2/bindings/ERC20Handler"
+	erc721 "github.com/ChainSafe/ChainBridgeV2/bindings/ERC721Handler"
+
 )
 
 // genericDepositRecord is the return value from the solidity function getGenericDepositRecord()
@@ -48,6 +51,20 @@ type BridgeContract struct {
 	BridgeRaw
 }
 
+type ERC20HandlerContract struct {
+	ERC20HandlerFilterer
+	ERC20HandlerCaller     
+	ERC20HandlerRaw
+   
+}
+
+type ERC721HandlerContract struct {
+	ERC721HandlerFilterer  	
+	ERC721HandlerCaller
+	ERC721HandlerRaw
+
+}
+
 type BridgeFilterer interface {
 }
 
@@ -65,6 +82,36 @@ type BridgeRaw interface {
 	// 	FilterERCTransfer(*bind.FilterOpts, []*big.Int, []*big.Int) (*bridge.BridgeERCTransferIterator, error)
 	// 	FilterGenericTransfer(*bind.FilterOpts, []*big.Int, []*big.Int) (*bridge.BridgeGenericTransferIterator, error)
 	// 	FilterNFTTransfer(opts *bind.FilterOpts, _destChain []*big.Int, _depositNonce []*big.Int) (*bridge.BridgeNFTTransferIterator, error)
+}
+
+type ERC20HandlerFilterer interface {
+
+}
+
+type ERC20HandlerCaller interface {
+	GetDepositRecord(opts *bind.CallOpts, depositID *big.Int) (erc20.ERC20HandlerDepositRecord, error)
+}
+
+type ERC20HandlerRaw interface {
+	Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{})
+	Transfer(opts *bind.TransactOpts) (*types.Transaction, error)
+	Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error)
+
+}
+
+type ERC721HandlerFilterer interface {
+
+}
+
+type ERC721HandlerCaller interface {
+	GetDepositRecord(opts *bind.CallOpts, depositID *big.Int) (erc721.ERC721HandlerDepositRecord, error)
+}
+
+type ERC721HandlerRaw interface {
+	Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{})
+	Transfer(opts *bind.TransactOpts) (*types.Transaction, error)
+	Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error)
+
 }
 
 func UnpackGenericDepositRecord(args ...interface{}) (genericDepositRecord, error) {

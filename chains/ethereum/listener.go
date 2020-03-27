@@ -24,11 +24,12 @@ type ActiveSubscription struct {
 }
 
 type Listener struct {
-	cfg            Config
-	conn           *Connection
-	subscriptions  map[EventSig]*ActiveSubscription
-	router         chains.Router
-	bridgeContract BridgeContract // instance of bound bridge contract
+	cfg            	Config
+	conn           	*Connection
+	subscriptions  	map[EventSig]*ActiveSubscription
+	router         	chains.Router
+	bridgeContract 	BridgeContract // instance of bound bridge contract
+	erc20Handler	ERC20Handler   // instance of bound erc20 handler
 }
 
 func NewListener(conn *Connection, cfg *Config) *Listener {
