@@ -52,7 +52,7 @@ type BridgeFilterer interface {
 type BridgeCaller interface {
 	GetGenericDepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, []byte, error)
 	GetERC20DepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, *big.Int, error)
-	GetDepositProposal(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (*big.Int, *big.Int, [32]byte, []common.Address, []common.Address, string, error)
+	GetDepositProposal(opts *bind.CallOpts, destinationChainID *big.Int, depositNonce *big.Int) (*big.Int, *big.Int, [32]byte, []common.Address, []common.Address, string, error)
 }
 
 type BridgeRaw interface {
