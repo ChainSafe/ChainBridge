@@ -31,7 +31,7 @@ func NewWriter(conn *Connection, cfg *Config) *Writer {
 }
 
 func (w *Writer) Start() error {
-	w.cfg.errorLog.Debug("Starting ethereum writer...")
+	w.cfg.chainLog.Debug("Starting ethereum writer...")
 	return nil
 }
 
@@ -42,7 +42,7 @@ func (w *Writer) SetBridgeContract(bridge BridgeContract) {
 // ResolveMessage handles any given message based on type
 // A bool is returned to indicate failure/success, this should be ignored except for within tests.
 func (w *Writer) ResolveMessage(m msg.Message) bool {
-	w.cfg.errorLog.Trace("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination)
+	w.cfg.chainLog.Trace("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination)
 
 	switch m.Type {
 	case msg.DepositAssetType:
@@ -54,7 +54,7 @@ func (w *Writer) ResolveMessage(m msg.Message) bool {
 	case msg.ExecuteDepositType:
 		return w.executeDeposit(m)
 	default:
-		w.cfg.errorLog.Warn("Unknown message type received", "type", m.Type)
+		w.cfg.chainLog.Warn("Unknown message type received", "type", m.Type)
 		return false
 	}
 }

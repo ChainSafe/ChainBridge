@@ -21,11 +21,11 @@ type Connection struct {
 	meta        *types.Metadata
 	genesisHash types.Hash
 	key         *signature.KeyringPair
-	errorLogger log15.Logger
+	chainLogger log15.Logger
 }
 
-func NewConnection(url string, key *signature.KeyringPair, errorLogger log15.Logger) *Connection {
-	return &Connection{url: url, key: key, errorLogger: errorLogger}
+func NewConnection(url string, key *signature.KeyringPair, chainLogger log15.Logger) *Connection {
+	return &Connection{url: url, key: key, chainLogger: chainLogger}
 }
 
 func (c *Connection) Connect() error {

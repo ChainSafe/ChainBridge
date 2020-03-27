@@ -100,7 +100,7 @@ func (c *Chain) Start() error {
 		return err
 	}
 
-	c.cfg.ChainLogger.Debug("Successfully started chain")
+	c.writer.cfg.chainLog.Debug("Successfully started chain")
 	return nil
 }
 

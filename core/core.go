@@ -45,7 +45,7 @@ func (c *Core) Start() {
 			)
 			return
 		}
-		log15.Info(fmt.Sprintf("Started %s chain", chain.Id()))
+		log15.Info(fmt.Sprintf("Started %s chain", string(chain.Id())))
 	}
 
 	sigc := make(chan os.Signal, 1)

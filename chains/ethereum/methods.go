@@ -17,12 +17,12 @@ const ExecuteDepositMethod = "executeDepositProposal"
 
 func (w *Writer) depositAsset(m msg.Message) bool {
 
-	w.cfg.errorLog.Info("Handling DepositAsset message", "to", w.conn.cfg.contract)
+	w.cfg.chainLog.Info("Handling DepositAsset message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
 	if err != nil {
-		w.cfg.errorLog.Error("Failed to build transaction opts", "err", err)
+		w.cfg.chainLog.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
 
@@ -30,19 +30,19 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 	_, err = w.bridgeContract.BridgeRaw.Transact(opts, StoreMethod, hash(m.Metadata))
 
 	if err != nil {
-		w.cfg.errorLog.Error("Failed to submit depositASset transaction", "err", err)
+		w.cfg.chainLog.Error("Failed to submit depositASset transaction", "err", err)
 		return false
 	}
 	return true
 }
 
 func (w *Writer) createDepositProposal(m msg.Message) bool {
-	w.cfg.errorLog.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.contract)
+	w.cfg.chainLog.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
 	if err != nil {
-		w.cfg.errorLog.Error("Failed to build transaction opts", "err", err)
+		w.cfg.chainLog.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
 	log15.Info("opts", "from", opts.From.String())
@@ -51,26 +51,26 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		CreateDepositProposalMethod,
-		m.Source.Big(),
+		big.NewInt(int64(m.Source)),
 		u32toBigInt(m.DepositNonce),
 		hash,
 	)
 
 	if err != nil {
-		w.cfg.errorLog.Error("Failed to submit createDepositProposal transaction", "err", err)
+		w.cfg.chainLog.Error("Failed to submit createDepositProposal transaction", "err", err)
 		return false
 	}
-	w.cfg.errorLog.Info("Succesfully created deposit!", "chain", m.Source, "deposit_id", m.DepositNonce)
+	w.cfg.chainLog.Info("Succesfully created deposit!", "chain", m.Source, "deposit_id", m.DepositNonce)
 	return true
 }
 
 func (w *Writer) voteDepositProposal(m msg.Message) bool {
-	w.cfg.errorLog.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.contract)
+	w.cfg.chainLog.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
 	if err != nil {
-		w.cfg.errorLog.Error("Failed to build transaction opts", "err", err)
+		w.cfg.chainLog.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
 
@@ -78,40 +78,40 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		VoteDepositProposalMethod,
-		m.Source.Big(),
+		big.NewInt(int64(m.Source)),
 		u32toBigInt(m.DepositNonce),
 		vote,
 	)
 
 	if err != nil {
-		w.cfg.errorLog.Error("Failed to submit vote!", "chain", m.Source, "deposit_id", m.DepositNonce, "err", err)
+		w.cfg.chainLog.Error("Failed to submit vote!", "chain", m.Source, "deposit_id", m.DepositNonce, "err", err)
 		return false
 	}
-	w.cfg.errorLog.Info("Succesfully voted!", "chain", m.Source, "deposit_id", m.DepositNonce, "Vote", vote)
+	w.cfg.chainLog.Info("Succesfully voted!", "chain", m.Source, "deposit_id", m.DepositNonce, "Vote", vote)
 	return true
 }
 
 func (w *Writer) executeDeposit(m msg.Message) bool {
-	w.cfg.errorLog.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.contract)
+	w.cfg.chainLog.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
 	if err != nil {
-		w.cfg.errorLog.Error("Failed to build transaction opts", "err", err)
+		w.cfg.chainLog.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
 
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		ExecuteDepositMethod,
-		m.Source.Big(),
+		big.NewInt(int64(m.Source)),
 		u32toBigInt(m.DepositNonce),
 		byteSliceTo32Bytes(m.To),
 		m.Metadata,
 	)
 
 	if err != nil {
-		w.cfg.errorLog.Error("Failed to submit executeDeposit transaction", "err", err)
+		w.cfg.chainLog.Error("Failed to submit executeDeposit transaction", "err", err)
 		return false
 	}
 	return true

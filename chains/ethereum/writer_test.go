@@ -16,6 +16,7 @@ var writerTestConfig = &Config{
 	id:       msg.EthereumId,
 	endpoint: TestEndpoint,
 	from:     keystore.AliceKey,
+	chainLog: TestLogger,
 }
 
 func TestWriter_start_stop(t *testing.T) {

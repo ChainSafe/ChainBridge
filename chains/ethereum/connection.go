@@ -54,7 +54,7 @@ func NewConnection(cfg *Config, kp *secp256k1.Keypair) *Connection {
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	c.cfg.errorLog.Info("Connecting to ethereum chain...", "url", c.cfg.endpoint)
+	c.cfg.chainLog.Info("Connecting to ethereum chain...", "url", c.cfg.endpoint)
 	var rpcClient *rpc.Client
 	var err error
 	if c.cfg.http {
@@ -102,12 +102,12 @@ func (c *Connection) SubmitTx(data []byte) error {
 		return err
 	}
 
-	c.cfg.errorLog.Debug("Submitting new tx", "to", tx.To(), "nonce", tx.Nonce(), "value", tx.Value(),
+	c.cfg.chainLog.Debug("Submitting new tx", "to", tx.To(), "nonce", tx.Nonce(), "value", tx.Value(),
 		"gasLimit", tx.Gas(), "gasPrice", tx.GasPrice(), "calldata", tx.Data())
 
 	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.PrivateKey())
 	if err != nil {
-		c.cfg.errorLog.Trace("Signing tx failed", "err", err)
+		c.cfg.chainLog.Trace("Signing tx failed", "err", err)
 		return err
 	}
 

@@ -9,6 +9,7 @@ import (
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
+	"github.com/ChainSafe/log15"
 )
 
 type Chain struct {
@@ -24,10 +25,12 @@ func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	chainLog := log15.Root().New("chain", cfg.Name)
 	krp := kp.(*sr25519.Keypair).AsKeyringPair()
-	conn := NewConnection(cfg.Endpoint, krp, cfg.ChainLogger)
+	conn := NewConnection(cfg.Endpoint, krp, chainLog)
 	l := NewListener(conn, cfg)
-	w := NewWriter(conn, cfg.ChainLogger)
+	w := NewWriter(conn, chainLog)
 	return &Chain{
 		cfg:      cfg,
 		conn:     conn,
@@ -47,7 +50,7 @@ func (c *Chain) Start() error {
 		return err
 	}
 
-	c.cfg.ChainLogger.Debug("Successfully started chain", "id", c.cfg.Id.String())
+	c.conn.chainLogger.Debug("Successfully started chain")
 	return nil
 }
 

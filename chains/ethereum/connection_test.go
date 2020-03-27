@@ -10,6 +10,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -27,6 +28,8 @@ var defaultDeployOpts = DeployOpts{
 	relayerThreshold: big.NewInt(1),
 	minCount:         uint8(0),
 }
+
+var TestLogger = log15.New("test_chain", "ethereum")
 
 type DeployOpts struct {
 	pk               string
@@ -69,6 +72,7 @@ func testDeployContracts(t *testing.T, customOpts DeployOpts) *Config {
 		gasLimit: big.NewInt(6721975),
 		gasPrice: big.NewInt(20000000000),
 		contract: deployedContracts.BridgeAddress,
+		chainLog: TestLogger,
 	}
 }
 

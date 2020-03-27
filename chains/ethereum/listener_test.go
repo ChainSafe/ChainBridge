@@ -14,6 +14,7 @@ var listenerTestConfig = &Config{
 	id:       msg.EthereumId,
 	endpoint: TestEndpoint,
 	from:     keystore.AliceKey,
+	chainLog: TestLogger,
 }
 
 func TestListener_start_stop(t *testing.T) {

@@ -36,7 +36,7 @@ func (l *Listener) SetRouter(r chains.Router) {
 
 // Start creates the initial subscription for all events
 func (l *Listener) Start() error {
-	l.cfg.ChainLogger.Info("Starting substrate listener...", "chainID", l.cfg.Id, "subs", Subscriptions)
+	l.conn.chainLogger.Info("Starting substrate listener...", "subs", Subscriptions)
 
 	for _, sub := range Subscriptions {
 		switch sub {
@@ -86,12 +86,12 @@ func (l *Listener) Start() error {
 
 	}
 
-	l.cfg.ChainLogger.Trace("Registered event handlers", "events", l.subscriptions)
+	l.conn.chainLogger.Trace("Registered event handlers", "events", l.subscriptions)
 
 	go func() {
 		err := l.pollBlocks()
 		if err != nil {
-			l.cfg.ChainLogger.Error("Polling blocks failed", "err", err)
+			l.conn.chainLogger.Error("Polling blocks failed", "err", err)
 		}
 	}()
 
@@ -117,10 +117,10 @@ var BlockRetryInterval = time.Second * 1
 func (l *Listener) pollBlocks() error {
 	var latestBlock uint64 = 0
 	for {
-		l.cfg.ChainLogger.Trace("Polling for block", "number", latestBlock)
+		l.conn.chainLogger.Trace("Polling for block", "number", latestBlock)
 		hash, err := l.conn.api.RPC.Chain.GetBlockHash(latestBlock)
 		if err != nil && err.Error() == ErrBlockNotReady.Error() {
-			l.cfg.ChainLogger.Trace("Block not ready, sleeping...", "interval", BlockRetryInterval)
+			l.conn.chainLogger.Trace("Block not ready, sleeping...", "interval", BlockRetryInterval)
 			time.Sleep(BlockRetryInterval)
 			continue
 		} else if err != nil {
@@ -135,7 +135,7 @@ func (l *Listener) pollBlocks() error {
 }
 
 func (l *Listener) processEvents(hash types.Hash) error {
-	l.cfg.ChainLogger.Trace("Fetching block", "hash", hash)
+	l.conn.chainLogger.Trace("Fetching block", "hash", hash)
 	key, err := types.CreateStorageKey(l.conn.meta, "System", "Events", nil, nil)
 	if err != nil {
 		return err
@@ -154,7 +154,7 @@ func (l *Listener) processEvents(hash types.Hash) error {
 	}
 
 	l.handleEvents(e)
-	l.cfg.ChainLogger.Trace("Finished processing events", "block", hash)
+	l.conn.chainLogger.Trace("Finished processing events", "block", hash)
 
 	return nil
 }
@@ -165,12 +165,12 @@ func (l *Listener) watchForEvents(sub *state.StorageSubscription) { //nolint:unu
 	for {
 		select {
 		case evt := <-sub.Chan():
-			l.cfg.ChainLogger.Trace("Received new block", "chainID", l.cfg.Id)
+			l.conn.chainLogger.Trace("Received new block")
 			for _, chng := range evt.Changes {
 				events := Events{}
 				meta, err := l.conn.api.RPC.State.GetMetadataLatest()
 				if err != nil {
-					l.cfg.ChainLogger.Error("Failed to get metadata", "err", err)
+					l.conn.chainLogger.Error("Failed to get metadata", "err", err)
 				}
 				err = types.EventRecordsRaw(chng.StorageData).DecodeEventRecords(meta, &events)
 				if err != nil {
@@ -181,7 +181,7 @@ func (l *Listener) watchForEvents(sub *state.StorageSubscription) { //nolint:unu
 		case err := <-sub.Err():
 			// TODO: Re-try connection
 			if err != nil {
-				l.cfg.ChainLogger.Error("subscription error", "sub", sub, "err", err)
+				l.conn.chainLogger.Error("subscription error", "sub", sub, "err", err)
 			}
 		}
 	}
@@ -191,7 +191,7 @@ func (l *Listener) watchForEvents(sub *state.StorageSubscription) { //nolint:unu
 func (l *Listener) handleEvents(evts Events) {
 	if l.subscriptions[AssetTx] != nil {
 		for _, assetTx := range evts.Bridge_AssetTransfer {
-			l.cfg.ChainLogger.Trace("Handling AssetTransfer event")
+			l.conn.chainLogger.Trace("Handling AssetTransfer event")
 			_ = l.subscriptions[AssetTx](assetTx)
 			//err := l.router.Send(msg)
 			//if err != nil {
@@ -202,7 +202,7 @@ func (l *Listener) handleEvents(evts Events) {
 
 	if l.subscriptions[ValidatorAdded] != nil {
 		for _, v := range evts.Bridge_ValidatorAdded {
-			l.cfg.ChainLogger.Trace("Handling ValidatorAdded event")
+			l.conn.chainLogger.Trace("Handling ValidatorAdded event")
 			_ = l.subscriptions[ValidatorAdded](v)
 			//err := l.router.Send(msg)
 			//if err != nil {
@@ -212,7 +212,7 @@ func (l *Listener) handleEvents(evts Events) {
 	}
 	if l.subscriptions[ValidatorRemoved] != nil {
 		for _, v := range evts.Bridge_ValidatorRemoved {
-			l.cfg.ChainLogger.Trace("Handling ValidatorRemoved event")
+			l.conn.chainLogger.Trace("Handling ValidatorRemoved event")
 			_ = l.subscriptions[ValidatorRemoved](v)
 			//err := l.router.Send(msg)
 			//if err != nil {
@@ -222,7 +222,7 @@ func (l *Listener) handleEvents(evts Events) {
 	}
 	if l.subscriptions[VoteFor] != nil {
 		for _, e := range evts.Bridge_VoteFor {
-			l.cfg.ChainLogger.Trace("Handling AssetTransfer event")
+			l.conn.chainLogger.Trace("Handling AssetTransfer event")
 			_ = l.subscriptions[VoteFor](e)
 			//err := l.router.Send(msg)
 			//if err != nil {
@@ -232,7 +232,7 @@ func (l *Listener) handleEvents(evts Events) {
 	}
 	if l.subscriptions[VoteAgainst] != nil {
 		for _, e := range evts.Bridge_VoteAgainst {
-			l.cfg.ChainLogger.Trace("Handling AssetTransfer event")
+			l.conn.chainLogger.Trace("Handling AssetTransfer event")
 			_ = l.subscriptions[VoteAgainst](e)
 			//err := l.router.Send(msg)
 			//if err != nil {
@@ -242,7 +242,7 @@ func (l *Listener) handleEvents(evts Events) {
 	}
 	if l.subscriptions[ProposalSucceeded] != nil {
 		for _, e := range evts.Bridge_ProposalSucceeded {
-			l.cfg.ChainLogger.Trace("Handling ProposalSucceeded event")
+			l.conn.chainLogger.Trace("Handling ProposalSucceeded event")
 			_ = l.subscriptions[ProposalSucceeded](e)
 			//err := l.router.Send(msg)
 			//if err != nil {
@@ -252,7 +252,7 @@ func (l *Listener) handleEvents(evts Events) {
 	}
 	if l.subscriptions[ProposalFailed] != nil {
 		for _, e := range evts.Bridge_ProposalFailed {
-			l.cfg.ChainLogger.Trace("Handling ProposalFailed event")
+			l.conn.chainLogger.Trace("Handling ProposalFailed event")
 			_ = l.subscriptions[ProposalFailed](e)
 			//err := l.router.Send(msg)
 			//if err != nil {

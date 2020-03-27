@@ -6,7 +6,6 @@ package core
 import (
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/ChainBridgeV2/router"
-	log "github.com/ChainSafe/log15"
 )
 
 type Chain interface {
@@ -23,6 +22,5 @@ type ChainConfig struct {
 	From         string            // address of key to use
 	KeystorePath string            // Location of key files
 	Insecure     bool              // Indicated whether the test keyring should be used
-	ChainLogger  log.Logger        // The logger for chain specific errors
 	Opts         map[string]string // Per chain options
 }
