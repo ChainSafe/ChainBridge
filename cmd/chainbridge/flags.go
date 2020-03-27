@@ -69,6 +69,11 @@ var (
 		Usage: "Specify private key of account you wish to deploy contracts from",
 		Value: "000000000000000000000000000000000000000000000000000000416c696365",
 	}
+	ChainIDFlag = cli.IntFlag{
+		Name:  "chainID",
+		Usage: "Specify ChainID for bridge",
+		Value: 1,
+	}
 	MinCountFlag = cli.IntFlag{
 		Name:  "mincount",
 		Usage: "Specify min count for bridge asset",

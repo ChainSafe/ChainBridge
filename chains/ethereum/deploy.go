@@ -45,7 +45,7 @@ type DeployedContracts struct {
 	CentrifugeHandlerAddress common.Address
 }
 
-func DeployContracts(deployPK string, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
+func DeployContracts(deployPK string, url string, relayers int, initialRelayerThreshold *big.Int, chainID *big.Int, minCount uint8) (*DeployedContracts, error) {
 
 	client, auth, deployAddress, initialRelayerAddresses, err := accountSetUp(url, relayers, deployPK)
 	if err != nil {
@@ -57,7 +57,7 @@ func DeployContracts(deployPK string, url string, relayers int, initialRelayerTh
 		return nil, err
 	}
 
-	bridgeAddr, err := deployBridge(auth, client, relayerAddr, initialRelayerThreshold, deployAddress)
+	bridgeAddr, err := deployBridge(auth, client, chainID, relayerAddr, initialRelayerThreshold, deployAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func DeployContracts(deployPK string, url string, relayers int, initialRelayerTh
 	// 	return nil, err
 	// }
 
-	deployedContracts := DeployedContracts{bridgeAddr, relayerAddr, erc20HandlerAddr, erc721HandlerAddr}
+	deployedContracts := DeployedContracts{bridgeAddr, relayerAddr, erc20HandlerAddr, erc721HandlerAddr, ZERO_ADDRESS}
 
 	return &deployedContracts, nil
 
@@ -154,14 +154,14 @@ func accountSetUp(url string, relayers int, deployPK string) (*ethclient.Client,
 
 }
 
-func deployBridge(auth *bind.TransactOpts, client *ethclient.Client, relayerContract common.Address, initialRelayerThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
+func deployBridge(auth *bind.TransactOpts, client *ethclient.Client, chainID *big.Int, relayerContract common.Address, initialRelayerThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
 
 	auth, err := updateNonce(auth, client, deployAddress)
 	if err != nil {
 		return ZERO_ADDRESS, err
 	}
 
-	bridgeAddr, _, _, err := bridge.DeployBridge(auth, client, relayerContract, initialRelayerThreshold)
+	bridgeAddr, _, _, err := bridge.DeployBridge(auth, client, chainID, relayerContract, initialRelayerThreshold)
 	if err != nil {
 		log.Error("error deploying bridge instance")
 		return ZERO_ADDRESS, err

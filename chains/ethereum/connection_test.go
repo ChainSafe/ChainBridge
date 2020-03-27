@@ -33,6 +33,7 @@ type DeployOpts struct {
 	url              string
 	numRelayers      int
 	relayerThreshold *big.Int
+	chainID			 *big.Int
 	minCount         uint8
 }
 
@@ -50,6 +51,9 @@ func setOpts(opts DeployOpts) DeployOpts {
 	if opts.relayerThreshold != nil {
 		cfg.relayerThreshold = opts.relayerThreshold
 	}
+	if opts.chainID != nil {
+		cfg.chainID= opts.chainID
+	}
 	if opts.minCount != 0 {
 		cfg.minCount = opts.minCount
 	}
@@ -58,7 +62,7 @@ func setOpts(opts DeployOpts) DeployOpts {
 
 func testDeployContracts(t *testing.T, customOpts DeployOpts) *Config {
 	opts := setOpts(customOpts)
-	deployedContracts, err := DeployContracts(opts.pk, opts.url, opts.numRelayers, opts.relayerThreshold, opts.minCount)
+	deployedContracts, err := DeployContracts(opts.pk, opts.url, opts.numRelayers, opts.relayerThreshold, opts.chainID, opts.minCount)
 	if err != nil {
 		t.Fatal(err)
 	}

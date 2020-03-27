@@ -27,9 +27,10 @@ func parseCommands(ctx *cli.Context) error {
 	relayers := ctx.Int(NumRelayersFlag.Name)
 	relayerThreshold := ctx.Int(RelayerThresholdFlag.Name)
 	minCount := ctx.Int(MinCountFlag.Name)
+	chainID := ctx.Int(ChainIDFlag.Name)
 	deployPK := ctx.String(PKFlag.Name)
 
-	deployedContracts, err := eth.DeployContracts(deployPK, port, relayers, big.NewInt(int64(relayerThreshold)), uint8(minCount))
+	deployedContracts, err := eth.DeployContracts(deployPK, port, relayers, big.NewInt(int64(relayerThreshold)), big.NewInt(int64(chainID)), uint8(minCount))
 	if err != nil {
 		return err
 	}
