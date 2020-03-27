@@ -12,9 +12,14 @@ import (
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 )
 
-type MockRouter struct{}
+type MockRouter struct {
+	messages chan msg.Message
+}
 
-func (m *MockRouter) Send(message msg.Message) error { return nil }
+func (r *MockRouter) Send(message msg.Message) error {
+	r.messages <- message
+	return nil
+}
 
 func setupListener(t *testing.T, config *Config) *Listener {
 	conn := newLocalConnection(t, config)
@@ -69,6 +74,11 @@ func TestListener_Event(t *testing.T) {
 	); err != nil {
 		t.Fatal(err)
 	}
+
+	select {
+	case m := <-l.router.messages:
+	}
+	// TODO verify that the listener saw the event
 }
 
 // TODO TESTS
