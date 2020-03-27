@@ -56,7 +56,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 
 	if status != Inactive {
 		// Block Tx
-		log15.Error("Deposit already submitted", "error")
+		log15.Error("Deposit already submitted", "error", status)
 		return false
 	}
 
@@ -90,6 +90,19 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 	defer nonce.lock.Unlock()
 	if err != nil {
 		log15.Error("Failed to build transaction opts", "err", err)
+		return false
+	}
+
+	status, checkErr := w.GetDepositStatus(m.Source.Big(), u32toBigInt(m.DepositNonce))
+
+	if checkErr != nil {
+		log15.Error("Get deposit status failed", "error", checkErr)
+		return false
+	}
+
+	if status != Active {
+		// Block Tx
+		log15.Error("Proposal already finalised", "error", status)
 		return false
 	}
 
