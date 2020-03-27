@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
-CONTRACTS_BRANCH="master"
-CONTRACTS_COMMIT="0217fd39d65b3c6552908b014c786e5dac3507c1"
+CONTRACTS_BRANCH="wyatt/migrate-pr-200"
+CONTRACTS_COMMIT="8ee6256df4b69564f3d8d8328e756530e32a9a2c"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 
