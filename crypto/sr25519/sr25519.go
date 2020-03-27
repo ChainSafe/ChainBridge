@@ -32,6 +32,10 @@ func NewKeypairFromSeed(seed string) (*Keypair, error) {
 	return &Keypair{&kp}, err
 }
 
+func NewKeypairFromKRP(pair signature.KeyringPair) *Keypair {
+	return &Keypair{&pair}
+}
+
 // AsKeyringPair returns the underlying KeyringPair
 func (kp *Keypair) AsKeyringPair() *signature.KeyringPair {
 	return kp.keyringPair

@@ -3,196 +3,55 @@
 
 package ethereum
 
-//var testConfig = &Config{
-//	endpoint: TestEndpoint,
-//	keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-//	from:     keystore.AliceKey,
-//	gasLimit: big.NewInt(6721975),
-//	gasPrice: big.NewInt(20000000000),
-//}
-//
-//var randomHash = []byte{0x12, 0x34}
-//var sourceChain = msg.ChainId(1)
-//var depositNonce uint32 = 0
+import (
+	"testing"
 
-// func createTestReceiverContract(t *testing.T, conn *Connection) ReceiverContract {
-// 	addressBytes := TestReceiverContractAddress.Bytes()
+	"github.com/ethereum/go-ethereum/common"
 
-// 	address := [20]byte{}
-// 	copy(address[:], addressBytes)
+	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
+)
 
-// 	contract, err := receiver.NewReceiver(address, conn.conn)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+var writerTestConfig = &Config{
+	id:       msg.EthereumId,
+	endpoint: TestEndpoint,
+	from:     keystore.AliceKey,
+}
 
-// 	instance := &receiver.ReceiverRaw{
-// 		Contract: contract,
-// 	}
+func TestWriter_start_stop(t *testing.T) {
+	conn := newLocalConnection(t, writerTestConfig)
+	defer conn.Close()
 
-// 	return instance
-// }
+	writer := NewWriter(conn, writerTestConfig)
 
-// func createTestCentrifugeContract(t *testing.T, conn *Connection) ReceiverContract {
-// 	addressBytes := TestCentrifugeContractAddress.Bytes()
+	err := writer.Start()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	address := [20]byte{}
-// 	copy(address[:], addressBytes)
+	err = writer.Stop()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
 
-// 	contract, err := centrifuge.NewBridgeAsset(address, conn.conn)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+func TestHash(t *testing.T) {
+	args := []string{
+		"Hello World",
+		"testing",
+		"chainsafe",
+	}
+	expected := []string{
+		"0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba",
+		"0x5f16f4c7f149ac4f9510d9cf8cf384038ad348b3bcdc01915f95de12df9d1b02",
+		"0x699c776c7e6ce8e6d96d979b60e41135a13a2303ae1610c8d546f31f0c6dc730",
+	}
 
-// 	instance := &centrifuge.BridgeAssetRaw{
-// 		Contract: contract,
-// 	}
+	for i, str := range args {
+		res := hash([]byte(str))
 
-// 	return instance
-// }
-
-// func TestResolveMessage(t *testing.T) {
-// 	m := msg.Message{
-// 		Type:     msg.DepositAssetType,
-// 		Metadata: randomHash,
-// 	}
-
-// 	conn := NewConnection(testConfig)
-// 	err := conn.Connect()
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	defer conn.Close()
-
-// 	centrifugeContract := createTestCentrifugeContract(t, conn)
-// 	w := NewWriter(conn, testConfig)
-// 	w.SetReceiverContract(centrifugeContract)
-// 	ok := w.ResolveMessage(m)
-// 	if !ok {
-// 		t.Fatal("Transaction failed")
-// 	}
-// }
-
-// func TestWriteToReceiverContract(t *testing.T) {
-// 	cfg := &Config{
-// 		endpoint: TestEndpoint,
-// 		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-// 		from:     keystore.AliceKey,
-// 	}
-
-// 	conn := NewConnection(cfg)
-// 	err := conn.Connect()
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	defer conn.Close()
-
-// 	contract := createTestReceiverContract(t, conn)
-// 	auth := createTestAuth(t, conn)
-
-// 	depositNonce := big.NewInt(421)
-// 	originChain := big.NewInt(1)
-
-// 	data := []byte("nootwashere")
-// 	hash := ethcrypto.Keccak256Hash(data)
-
-// 	_, err = contract.Transact(auth, "createDepositProposal", hash, depositNonce, originChain)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// }
-
-// func TestWriter_createDepositProposal(t *testing.T) {
-// 	m := msg.Message{
-// 		Type:      msg.CreateDepositProposalType,
-// 		DepositNonce: depositNonce,
-// 		Source:    sourceChain,
-// 	}
-
-// 	conn := NewConnection(testConfig)
-// 	err := conn.Connect()
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	defer conn.Close()
-
-// 	rcvr := createTestReceiverContract(t, conn)
-// 	w := NewWriter(conn, testConfig)
-// 	w.SetReceiverContract(rcvr)
-// 	ok := w.ResolveMessage(m)
-// 	if !ok {
-// 		t.Fatal("Transaction failed")
-// 	}
-// }
-
-// func TestWriter_voteDepositProposal(t *testing.T) {
-// 	m := msg.Message{
-// 		Type:      msg.VoteDepositProposalType,
-// 		Source:    sourceChain,
-// 		DepositNonce: 0,
-// 		Metadata:  []byte{1},
-// 	}
-
-// 	conn := NewConnection(testConfig)
-// 	err := conn.Connect()
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	defer conn.Close()
-
-// 	rcvr := createTestReceiverContract(t, conn)
-// 	w := NewWriter(conn, testConfig)
-// 	w.SetReceiverContract(rcvr)
-// 	ok := w.ResolveMessage(m)
-// 	if !ok {
-// 		t.Fatal("Transaction failed")
-// 	}
-// }
-
-// func TestWriter_executeDeposit(t *testing.T) {
-// 	m := msg.Message{
-// 		Source:    sourceChain,
-// 		Type:      msg.ExecuteDepositType,
-// 		To:        TestAddress.Bytes(),
-// 		DepositNonce: depositNonce,
-// 	}
-
-// 	conn := NewConnection(testConfig)
-// 	err := conn.Connect()
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	defer conn.Close()
-
-// 	rcvr := createTestReceiverContract(t, conn)
-// 	w := NewWriter(conn, testConfig)
-// 	w.SetReceiverContract(rcvr)
-// 	ok := w.ResolveMessage(m)
-// 	if !ok {
-// 		t.Fatal("Transaction failed")
-// 	}
-// }
-
-// func TestWriter_ConfigureGasPrice(t *testing.T) {
-// 	cfg := &Config{
-// 		endpoint: TestEndpoint,
-// 		receiver: TestCentrifugeContractAddress,
-// 		keystore: keystore.TestKeyStoreMap[keystore.AliceKey],
-// 		from:     keystore.AliceKey,
-// 		gasPrice: big.NewInt(10000),
-// 		gasLimit: big.NewInt(200),
-// 	}
-
-// 	conn := NewConnection(cfg)
-// 	err := conn.Connect()
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	defer conn.Close()
-
-// 	w := NewWriter(conn, cfg)
-
-// 	if w.cfg.gasPrice.Cmp(big.NewInt(10000)) != 0 || w.cfg.gasLimit.Cmp(big.NewInt(200)) != 0 {
-// 		t.Errorf("Gas Prices set incorrectly.")
-// 	}
-// }
+		if expected[i] != common.Hash(res).Hex() {
+			t.Fatalf("Input: %s, Expected: %s, Output: %s", str, expected[i], common.Hash(res).String())
+		}
+	}
+}
