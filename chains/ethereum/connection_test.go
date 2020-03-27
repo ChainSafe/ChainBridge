@@ -29,7 +29,7 @@ var defaultDeployOpts = DeployOpts{
 	minCount:         uint8(0),
 }
 
-var TestLogger = log15.New("test_chain", "ethereum")
+var TestLogger = newTestLogger()
 
 type DeployOpts struct {
 	pk               string
@@ -37,6 +37,12 @@ type DeployOpts struct {
 	numRelayers      int
 	relayerThreshold *big.Int
 	minCount         uint8
+}
+
+func newTestLogger() log15.Logger {
+	tLog := log15.New("test_chain", "ethereum")
+	tLog.SetHandler(log15.LvlFilterHandler(log15.LvlInfo, tLog.GetHandler()))
+	return tLog
 }
 
 func setOpts(opts DeployOpts) DeployOpts {

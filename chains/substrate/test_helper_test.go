@@ -25,7 +25,13 @@ var TestKeyringPairBob = signature.KeyringPair{
 
 var TestEndpoint = "ws://127.0.0.1:9944"
 
-var TestLogger = log15.Root().New("test_chain", "substrate")
+var TestLogger = newTestLogger()
+
+func newTestLogger() log15.Logger {
+	tLog := log15.New("test_chain", "substrate")
+	tLog.SetHandler(log15.LvlFilterHandler(log15.LvlInfo, tLog.GetHandler()))
+	return tLog
+}
 
 // createAliceAndBobConnections creates and calls `Connect()` on two Connections using the Alice and Bob keypairs
 func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
