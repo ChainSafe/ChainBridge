@@ -24,16 +24,21 @@ var TestKeyringPairBob = signature.KeyringPair{
 
 var TestEndpoint = "ws://127.0.0.1:9944"
 
-// createAliceAndBobConnections creates and calls `Connect()` on two Connections using the Alice and Bob keypairs
-func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
+func createAliceConnection(t *testing.T) *Connection {
 	alice := NewConnection(TestEndpoint, &TestKeyringPairAlice)
 	err := alice.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
+	return alice
+}
+
+// createAliceAndBobConnections creates and calls `Connect()` on two Connections using the Alice and Bob keypairs
+func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
+	alice := createAliceConnection(t)
 
 	bob := NewConnection(TestEndpoint, &TestKeyringPairBob)
-	err = bob.Connect()
+	err := bob.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}

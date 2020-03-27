@@ -9,23 +9,25 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/core"
+	msg "github.com/ChainSafe/ChainBridgeV2/message"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/state"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
 type Listener struct {
-	cfg           *core.ChainConfig
+	name          string
+	chainId       msg.ChainId
 	conn          *Connection
 	sub           *state.StorageSubscription // Subscription to all events
 	subscriptions map[eventName]eventHandler // Handlers for specific events
 	router        chains.Router
 }
 
-func NewListener(conn *Connection, cfg *core.ChainConfig) *Listener {
+func NewListener(conn *Connection, name string, id msg.ChainId) *Listener {
 	return &Listener{
-		cfg:           cfg,
+		name:          name,
+		chainId:       id,
 		conn:          conn,
 		subscriptions: make(map[eventName]eventHandler),
 	}
@@ -37,57 +39,14 @@ func (l *Listener) SetRouter(r chains.Router) {
 
 // Start creates the initial subscription for all events
 func (l *Listener) Start() error {
-	log15.Info("Starting substrate listener...", "chainID", l.cfg.Id, "subs", Subscriptions)
+	log15.Info("Starting substrate listener...", "chain", l.name, "subs", Subscriptions)
 
 	for _, sub := range Subscriptions {
-		switch sub {
-		case "nfts":
-			err := l.RegisterEventHandler("nfts", nftHandler)
-			if err != nil {
-				return err
-			}
-		case AssetTx:
-			err := l.RegisterEventHandler(AssetTx, assetTransferHandler)
-			if err != nil {
-				return err
-			}
-		case ValidatorAdded:
-			err := l.RegisterEventHandler(ValidatorAdded, validatorAddedHandler)
-			if err != nil {
-				return err
-			}
-		case ValidatorRemoved:
-			err := l.RegisterEventHandler(ValidatorRemoved, validatorRemovedHandler)
-			if err != nil {
-				return err
-			}
-		case VoteFor:
-			err := l.RegisterEventHandler(VoteFor, voteForHandler)
-			if err != nil {
-				return err
-			}
-		case VoteAgainst:
-			err := l.RegisterEventHandler(VoteAgainst, voteAgainstHandler)
-			if err != nil {
-				return err
-			}
-		case ProposalSucceeded:
-			err := l.RegisterEventHandler(ProposalSucceeded, proposalSucceededHandler)
-			if err != nil {
-				return err
-			}
-		case ProposalFailed:
-			err := l.RegisterEventHandler(ProposalFailed, proposalFailedHandler)
-			if err != nil {
-				return err
-			}
-		default:
-			return fmt.Errorf("unrecognized event: %s", sub)
+		err := l.RegisterEventHandler(sub.name, sub.handler)
+		if err != nil {
+			return err
 		}
-
 	}
-
-	log15.Trace("Registered event handlers", "events", l.subscriptions)
 
 	go func() {
 		err := l.pollBlocks()
@@ -136,7 +95,7 @@ func (l *Listener) pollBlocks() error {
 }
 
 func (l *Listener) processEvents(hash types.Hash) error {
-	log15.Trace("Fetching block", "hash", hash)
+	log15.Trace("Fetching block", "hash", hash.Hex())
 	key, err := types.CreateStorageKey(l.conn.meta, "System", "Events", nil, nil)
 	if err != nil {
 		return err
@@ -166,7 +125,7 @@ func (l *Listener) watchForEvents(sub *state.StorageSubscription) { //nolint:unu
 	for {
 		select {
 		case evt := <-sub.Chan():
-			log15.Trace("Received new block", "chainID", l.cfg.Id)
+			log15.Trace("Received new block", "chain", l.name)
 			for _, chng := range evt.Changes {
 				events := Events{}
 				meta, err := l.conn.api.RPC.State.GetMetadataLatest()
@@ -190,76 +149,69 @@ func (l *Listener) watchForEvents(sub *state.StorageSubscription) { //nolint:unu
 
 // handleEvents calls the associated handler for all registered event types
 func (l *Listener) handleEvents(evts Events) {
-	if l.subscriptions[AssetTx] != nil {
-		for _, assetTx := range evts.Bridge_AssetTransfer {
+	if l.subscriptions[RelayerThresholdSet] != nil {
+		for _, evt := range evts.Bridge_RelayerThresholdSet {
+			log15.Trace("Received RelayerThreshold event", "threshold", evt.Threshold)
+		}
+	}
+	if l.subscriptions[ChainWhitelisted] != nil {
+		for _, evt := range evts.Bridge_ChainWhitelisted {
+			log15.Trace("Received ChainWhitelisted event", "chainId", evt.ChainId)
+		}
+	}
+	if l.subscriptions[RelayerAdded] != nil {
+		for _, evt := range evts.Bridge_RelayerAdded {
+			log15.Trace("Received RelayerAdded event", "relayer", evt.Relayer.Hex())
+		}
+	}
+	if l.subscriptions[RelayerRemoved] != nil {
+		for _, evt := range evts.Bridge_RelayerRemoved {
+			log15.Trace("Received RelayerRemoved event", "relayer", evt.Relayer.Hex())
+		}
+	}
+	if l.subscriptions[AssetTransfer] != nil {
+		for _, evt := range evts.Bridge_AssetTransfer {
 			log15.Trace("Handling AssetTransfer event")
-			_ = l.subscriptions[AssetTx](assetTx)
-			//err := l.router.Send(msg)
-			//if err != nil {
-			//	log15.Error("failed to process event", "err", err)
-			//}
-		}
-	}
-
-	if l.subscriptions[ValidatorAdded] != nil {
-		for _, v := range evts.Bridge_ValidatorAdded {
-			log15.Trace("Handling ValidatorAdded event")
-			_ = l.subscriptions[ValidatorAdded](v)
-			//err := l.router.Send(msg)
-			//if err != nil {
-			//	log15.Error("failed to process event", "err", err)
-			//}
-		}
-	}
-	if l.subscriptions[ValidatorRemoved] != nil {
-		for _, v := range evts.Bridge_ValidatorRemoved {
-			log15.Trace("Handling ValidatorRemoved event")
-			_ = l.subscriptions[ValidatorRemoved](v)
-			//err := l.router.Send(msg)
-			//if err != nil {
-			//	log15.Error("failed to process event", "err", err)
-			//}
+			l.submitMessage(l.subscriptions[AssetTransfer](evt))
 		}
 	}
 	if l.subscriptions[VoteFor] != nil {
-		for _, e := range evts.Bridge_VoteFor {
-			log15.Trace("Handling AssetTransfer event")
-			_ = l.subscriptions[VoteFor](e)
-			//err := l.router.Send(msg)
-			//if err != nil {
-			//	log15.Error("failed to process event", "err", err)
-			//}
+		for _, evt := range evts.Bridge_VoteFor {
+			log15.Trace("Received VoteFor event", "depositNonce", evt.DepositNonce)
 		}
 	}
 	if l.subscriptions[VoteAgainst] != nil {
-		for _, e := range evts.Bridge_VoteAgainst {
-			log15.Trace("Handling AssetTransfer event")
-			_ = l.subscriptions[VoteAgainst](e)
-			//err := l.router.Send(msg)
-			//if err != nil {
-			//	log15.Error("failed to process event", "err", err)
-			//}
+		for _, evt := range evts.Bridge_VoteAgainst {
+			log15.Trace("Received VoteAgainst event", "depositNonce", evt.DepositNonce)
+		}
+	}
+	if l.subscriptions[ProposalApproved] != nil {
+		for _, evt := range evts.Bridge_ProposalApproved {
+			log15.Trace("Received ProposalApproved event", "depositNonce", evt.DepositNonce)
+		}
+	}
+	if l.subscriptions[ProposalRejected] != nil {
+		for _, evt := range evts.Bridge_ProposalRejected {
+			log15.Trace("Received ProposalRejected event", "depositNonce", evt.DepositNonce)
 		}
 	}
 	if l.subscriptions[ProposalSucceeded] != nil {
-		for _, e := range evts.Bridge_ProposalSucceeded {
-			log15.Trace("Handling ProposalSucceeded event")
-			_ = l.subscriptions[ProposalSucceeded](e)
-			//err := l.router.Send(msg)
-			//if err != nil {
-			//	log15.Error("failed to process event", "err", err)
-			//}
+		for _, evt := range evts.Bridge_ProposalSucceeded {
+			log15.Trace("Received ProposalSucceeded event", "depositNonce", evt.DepositNonce)
 		}
 	}
 	if l.subscriptions[ProposalFailed] != nil {
-		for _, e := range evts.Bridge_ProposalFailed {
-			log15.Trace("Handling ProposalFailed event")
-			_ = l.subscriptions[ProposalFailed](e)
-			//err := l.router.Send(msg)
-			//if err != nil {
-			//	log15.Error("failed to process event", "err", err)
-			//}
+		for _, evt := range evts.Bridge_ProposalFailed {
+			log15.Trace("Received ProposalFailed event", "depositNonce", evt.DepositNonce)
 		}
+	}
+}
+
+func (l *Listener) submitMessage(m msg.Message) {
+	m.Source = l.chainId
+	err := l.router.Send(m)
+	if err != nil {
+		log15.Error("failed to process event", "err", err)
 	}
 }
 

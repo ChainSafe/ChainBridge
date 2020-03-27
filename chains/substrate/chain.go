@@ -27,7 +27,7 @@ func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
 	}
 	krp := kp.(*sr25519.Keypair).AsKeyringPair()
 	conn := NewConnection(cfg.Endpoint, krp)
-	l := NewListener(conn, cfg)
+	l := NewListener(conn, cfg.Name, cfg.Id)
 	w := NewWriter(conn)
 	return &Chain{
 		cfg:      cfg,

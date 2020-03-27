@@ -55,7 +55,7 @@ func (c *Connection) Connect() error {
 // SubmitTx constructs and submits an extrinsic to call the method with the given arguments.
 // All args are passed directly into GSRPC. GSRPC types are recommended to avoid serialization inconsistencies.
 func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
-	log15.Debug("Submitting substrate call...", "method", method)
+	log15.Debug("Submitting substrate call...", "method", method, "sender", c.key.Address)
 
 	// Create call and extrinsic
 	call, err := types.NewCall(

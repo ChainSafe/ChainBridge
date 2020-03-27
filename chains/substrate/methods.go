@@ -21,18 +21,21 @@ func (m Method) String() string {
 	return string(m)
 }
 
-var SetAddressMethod = createMethod("set_address")
+var SetAddress = createMethod("set_address")
 
-var WhitelistChainMethod = createMethod("whitelist_chain")
+var WhitelistChain = createMethod("whitelist_chain")
 
-var AssetTxMethod = createMethod("transfer_asset")
+var AssetTx = createMethod("transfer_asset")
 
 var CreateProposal = createMethod("create_proposal")
 
 var Approve = createMethod("approve")
 
-var ExampleTransfer = "Example.transfer"
+var ExampleTransfer Method = "Example.transfer"
+
+var ExampleTransferHash = Method("Example.transfer_hash")
 
 // TODO: May not be needed outside of testing
 var AddValidator = createMethod("add_validator")
 var RemoveValidator = createMethod("remove_validator")
+var Sudo Method = "Sudo.sudo"

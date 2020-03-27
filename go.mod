@@ -25,4 +25,4 @@ require (
 	gotest.tools v2.2.0+incompatible
 )
 
-replace github.com/centrifuge/go-substrate-rpc-client => github.com/ansermino/go-substrate-rpc-client v1.1.1-0.20200324214445-4ad7e856ba12
+replace github.com/centrifuge/go-substrate-rpc-client => github.com/ansermino/go-substrate-rpc-client v1.1.1-0.20200326234327-118ba514039a
