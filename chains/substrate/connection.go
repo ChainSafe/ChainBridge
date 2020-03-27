@@ -15,19 +15,20 @@ import (
 )
 
 type Connection struct {
-	api *gsrpc.SubstrateAPI
-	url string
-	// TODO: RWLock this as we have multiple readers and one writer
+	api         *gsrpc.SubstrateAPI
+	url         string
+	name        string
 	meta        *types.Metadata
 	genesisHash types.Hash
 	key         *signature.KeyringPair
 }
 
-func NewConnection(url string, key *signature.KeyringPair) *Connection {
-	return &Connection{url: url, key: key}
+func NewConnection(url string, name string, key *signature.KeyringPair) *Connection {
+	return &Connection{url: url, name: name, key: key}
 }
 
 func (c *Connection) Connect() error {
+	log15.Info("Connecting to substrate chain...", "chain", c.name)
 	api, err := gsrpc.NewSubstrateAPI(c.url)
 	if err != nil {
 		return err

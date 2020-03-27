@@ -17,7 +17,7 @@ var BobKey = keystore.TestKeyRing.SubstrateKeys[keystore.BobKey].AsKeyringPair()
 
 // createAliceConnection creates and starts a connection with the Alice keypair
 func createAliceConnection(t *testing.T) *Connection {
-	alice := NewConnection(TestEndpoint, AliceKey)
+	alice := NewConnection(TestEndpoint, "Alice", AliceKey)
 	err := alice.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -29,7 +29,7 @@ func createAliceConnection(t *testing.T) *Connection {
 func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
 	alice := createAliceConnection(t)
 
-	bob := NewConnection(TestEndpoint, BobKey)
+	bob := NewConnection(TestEndpoint, "Bob", BobKey)
 	err := bob.Connect()
 	if err != nil {
 		t.Fatal(err)

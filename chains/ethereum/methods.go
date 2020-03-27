@@ -30,7 +30,7 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 	_, err = w.bridgeContract.BridgeRaw.Transact(opts, StoreMethod, hash(m.Metadata))
 
 	if err != nil {
-		log15.Error("Failed to submit depositASset transaction", "err", err)
+		log15.Error("Failed to submit depositAsset transaction", "err", err)
 		return false
 	}
 	return true

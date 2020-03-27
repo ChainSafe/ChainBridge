@@ -45,7 +45,7 @@ func whitelistChain(c *Connection, id uint32) error {
 func Test_AssetTx(t *testing.T) {
 	ac := createAliceConnection(t)
 	r := &mockRouter{msgs: make(chan msg.Message)}
-	alice := NewListener(ac, "Alice", 1)
+	alice := NewListener(ac, "Alice", 1, 0)
 	alice.SetRouter(r)
 	err := alice.Start()
 	if err != nil {
@@ -72,7 +72,7 @@ func Test_AssetTx(t *testing.T) {
 	expected := msg.Message{
 		Source:       1,
 		Destination:  0,
-		Type:         msg.DepositAssetType,
+		Type:         msg.CreateDepositProposalType,
 		DepositNonce: 0,
 		To:           recipient,
 		Metadata:     meta,

@@ -144,7 +144,7 @@ func assetTransferHandler(evtI interface{}) msg.Message {
 
 	return msg.Message{
 		Destination:  msg.ChainId(evt.Destination),
-		Type:         msg.DepositAssetType,
+		Type:         msg.CreateDepositProposalType,
 		DepositNonce: uint32(evt.DepositNonce),
 		// TODO: What should To actually be?
 		To:       evt.To,
