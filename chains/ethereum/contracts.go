@@ -9,6 +9,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+
+	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
 )
 
 // genericDepositRecord is the return value from the solidity function getGenericDepositRecord()
@@ -52,7 +54,7 @@ type BridgeFilterer interface {
 type BridgeCaller interface {
 	GetGenericDepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, []byte, error)
 	GetERC20DepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, *big.Int, error)
-	GetDepositProposal(opts *bind.CallOpts, destinationChainID *big.Int, depositNonce *big.Int) (*big.Int, *big.Int, [32]byte, []common.Address, []common.Address, string, error)
+	GetDepositProposal(*bind.CallOpts, *big.Int, common.Address, *big.Int) (bridge.BridgeDepositProposal, error)
 }
 
 type BridgeRaw interface {
