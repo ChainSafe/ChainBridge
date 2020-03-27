@@ -4,7 +4,7 @@
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
 CONTRACTS_BRANCH="test/threshold-increase"
-CONTRACTS_COMMIT="0217fd39d65b3c6552908b014c786e5dac3507c1"
+CONTRACTS_COMMIT="b3feb0f2bc9ded0194e84315bb9b910ca03a9934"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 

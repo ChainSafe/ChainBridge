@@ -36,5 +36,13 @@ func (w *Writer) GetDepositStatus(originChainId *big.Int, depositNonce *big.Int)
 		return "inactive", err
 	}
 
+	threshold := big.NewInt(0)
+	err2 := w.bridgeContract.Call(new(bind.CallOpts), &threshold, "getRelayerThreshold")
+	if err2 != nil {
+		log15.Error("Failed to fetch threshold", "err", err2)
+	} else {
+		log15.Trace("Got threshold", "threshold", threshold.String())
+	}
+
 	return DepositProposalStatus(Status), err
 }
