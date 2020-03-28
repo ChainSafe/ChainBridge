@@ -27,7 +27,7 @@ func (r *MockRouter) Send(message msg.Message) error {
 
 func setupListener(t *testing.T, config *Config) (*Listener, *MockRouter) {
 	conn := newLocalConnection(t, config)
-	bridgeContract := createBridgeInstance(t, *conn, config.contract)
+	bridgeContract := createBridgeInstance(t, conn, config.contract)
 
 	router := &MockRouter{msgs: make(chan msg.Message)}
 	listener := NewListener(conn, config)
@@ -42,7 +42,7 @@ func setupListener(t *testing.T, config *Config) (*Listener, *MockRouter) {
 }
 
 func TestListener_start_stop(t *testing.T) {
-	cfg, _ := testDeployContracts(t, defaultDeployOpts)
+	cfg, _ := deployContracts(t, defaultDeployOpts)
 	conn := newLocalConnection(t, cfg)
 	defer conn.Close()
 
@@ -60,7 +60,7 @@ func TestListener_start_stop(t *testing.T) {
 }
 
 func TestListener_depositEvent(t *testing.T) {
-	cfg, contracts := testDeployContracts(t, defaultDeployOpts)
+	cfg, contracts := deployContracts(t, defaultDeployOpts)
 	l, router := setupListener(t, cfg)
 
 	// Get transaction ready
@@ -110,7 +110,7 @@ func TestListener_depositEvent(t *testing.T) {
 }
 
 func TestListener_createProposalEvent(t *testing.T) {
-	cfg, _ := testDeployContracts(t, defaultDeployOpts)
+	cfg, _ := deployContracts(t, defaultDeployOpts)
 	l, router := setupListener(t, cfg)
 
 	// Get transaction ready

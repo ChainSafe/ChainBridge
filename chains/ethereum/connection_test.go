@@ -59,7 +59,7 @@ func setOpts(opts DeployOpts) DeployOpts {
 	return cfg
 }
 
-func testDeployContracts(t *testing.T, customOpts DeployOpts) (*Config, *DeployedContracts) {
+func deployContracts(t *testing.T, customOpts DeployOpts) (*Config, *DeployedContracts) {
 	opts := setOpts(customOpts)
 	deployedContracts, err := DeployContracts(opts.pk, opts.url, opts.numRelayers, opts.relayerThreshold, opts.minCount)
 	if err != nil {
@@ -76,7 +76,7 @@ func testDeployContracts(t *testing.T, customOpts DeployOpts) (*Config, *Deploye
 		deployedContracts
 }
 
-func createBridgeInstance(t *testing.T, connection Connection, address common.Address) BridgeContract {
+func createBridgeInstance(t *testing.T, connection *Connection, address common.Address) BridgeContract {
 	bridgeInstance, err := bridge.NewBridge(address, connection.conn)
 	if err != nil {
 		t.Fatal(err)
@@ -106,13 +106,13 @@ func newLocalConnection(t *testing.T, cfg *Config) *Connection {
 }
 
 func TestConnect(t *testing.T) {
-	cfg, _ := testDeployContracts(t, defaultDeployOpts)
+	cfg, _ := deployContracts(t, defaultDeployOpts)
 	conn := newLocalConnection(t, cfg)
 	conn.Close()
 }
 
 func TestSendTx(t *testing.T) {
-	cfg, _ := testDeployContracts(t, defaultDeployOpts)
+	cfg, _ := deployContracts(t, defaultDeployOpts)
 	conn := newLocalConnection(t, cfg)
 	defer conn.Close()
 
@@ -148,7 +148,7 @@ func TestSendTx(t *testing.T) {
 }
 
 func TestSubscribe(t *testing.T) {
-	cfg, _ := testDeployContracts(t, defaultDeployOpts)
+	cfg, _ := deployContracts(t, defaultDeployOpts)
 	conn := newLocalConnection(t, cfg)
 	l := NewListener(conn, cfg)
 	defer conn.Close()
@@ -164,7 +164,7 @@ func TestSubscribe(t *testing.T) {
 // TestContractCode is used to make sure the contracts are deployed correctly.
 // This is probably the least intrusive way to check if the contracts exists
 func TestContractCode(t *testing.T) {
-	cfg, _ := testDeployContracts(t, defaultDeployOpts)
+	cfg, _ := deployContracts(t, defaultDeployOpts)
 	conn := newLocalConnection(t, cfg)
 	defer conn.Close()
 
