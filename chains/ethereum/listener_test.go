@@ -29,10 +29,15 @@ func setupListener(t *testing.T, config *Config) (*Listener, *MockRouter) {
 	conn := newLocalConnection(t, config)
 	bridgeContract := createBridgeInstance(t, *conn, config.contract)
 
-	listener := NewListener(conn, config)
 	router := &MockRouter{msgs: make(chan msg.Message)}
-	listener.SetRouter(router)
+	listener := NewListener(conn, config)
 	listener.SetBridgeContract(bridgeContract)
+	listener.SetRouter(router)
+	// Start the listener
+	err := listener.Start()
+	if err != nil {
+		t.Fatal(err)
+	}
 	return listener, router
 }
 
@@ -54,15 +59,17 @@ func TestListener_start_stop(t *testing.T) {
 	}
 }
 
-func TestListener_Event(t *testing.T) {
+func TestListener_depositEvent(t *testing.T) {
 	cfg, contracts := testDeployContracts(t, defaultDeployOpts)
 	l, router := setupListener(t, cfg)
 
+	// Get transaction ready
 	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), cfg.gasLimit, cfg.gasPrice)
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	// Set some constants
 	amount := big.NewInt(1)
 	destId := big.NewInt(1)
 
@@ -75,7 +82,8 @@ func TestListener_Event(t *testing.T) {
 		Metadata:     amount.Bytes(),
 	}
 
-	if err := createFreshErc20Deposit(
+	// Create an ERC20 Deposit
+	if err := createErc20Deposit(
 		l.bridgeContract,
 		l.conn,
 		opts,
@@ -101,6 +109,45 @@ func TestListener_Event(t *testing.T) {
 	}
 }
 
-// TODO TESTS
-// registerEventHandler
-// watchEvent <- Must trigger an event
+func TestListener_createProposalEvent(t *testing.T) {
+	cfg, _ := testDeployContracts(t, defaultDeployOpts)
+	l, router := setupListener(t, cfg)
+
+	// Get transaction ready
+	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), cfg.gasLimit, cfg.gasPrice)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	metadata := hash([]byte{})
+
+	expectedMessage := msg.Message{
+		Source:       msg.ChainId(0),
+		Destination:  msg.ChainId(0),
+		Type:         msg.VoteDepositProposalType,
+		DepositNonce: uint32(1),
+		Metadata:     metadata[:],
+	}
+
+	// Create an random deposit proposal
+	if err := createDepositProposal(
+		l.bridgeContract,
+		l.conn,
+		opts,
+		big.NewInt(0),
+		big.NewInt(1),
+		metadata,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	// Verify message
+	select {
+	case m := <-router.msgs:
+		if !reflect.DeepEqual(expectedMessage, m) {
+			t.Fatalf("Unexpected message.\n\tExpected: %#v\n\tGot: %#v\n", expectedMessage, m)
+		}
+	case <-time.After(ListenerTimeout):
+		t.Fatalf("test timed out")
+	}
+}

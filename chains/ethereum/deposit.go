@@ -37,7 +37,7 @@ func approveErc20(connection *Connection, opts *bind.TransactOpts, contractAddre
 }
 
 // createFreshErc20Deposit deploys a new erc20 token contract mints, the sender (based on value), and creates a deposit
-func createFreshErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.TransactOpts, deployerAddress, originHandler, destHandler, destRecipient common.Address, destId, amount *big.Int) error {
+func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.TransactOpts, deployerAddress, originHandler, destHandler, destRecipient common.Address, destId, amount *big.Int) error {
 	erc20Address, err := deployErc20Contract(txOpts, conn.conn, deployerAddress)
 	if err != nil {
 		return err
@@ -65,6 +65,19 @@ func createFreshErc20Deposit(contract BridgeContract, conn *Connection, txOpts *
 		destHandler,
 		destRecipient,
 		amount,
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+func createDepositProposal(contract BridgeContract, conn *Connection, txOpts *bind.TransactOpts, destChain, depositNonce *big.Int, metadata [32]byte) error {
+	if _, err := contract.BridgeRaw.Transact(
+		txOpts,
+		"createDepositProposal",
+		destChain,
+		depositNonce,
+		metadata,
 	); err != nil {
 		return err
 	}
