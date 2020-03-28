@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"testing"
 
+	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
 
@@ -15,12 +16,25 @@ import (
 
 func setupWriter(t *testing.T, config *Config) *Writer {
 	conn := newLocalConnection(t, config)
-	bridgeContract := createBridgeInstance(t, *conn, config.contract)
+
+	bridgeInstance, err := bridge.NewBridge(config.contract, conn.conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	raw := &bridge.BridgeRaw{
+		Contract: bridgeInstance,
+	}
+
+	bridgeContract := BridgeContract{
+		BridgeRaw:    raw,
+		BridgeCaller: &bridgeInstance.BridgeCaller,
+	}
 
 	writer := NewWriter(conn, config)
 	writer.SetBridgeContract(bridgeContract)
 
-	err := writer.Start()
+	err = writer.Start()
 	if err != nil {
 		t.Fatal(err)
 	}
