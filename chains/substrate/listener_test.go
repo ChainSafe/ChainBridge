@@ -26,8 +26,9 @@ func (r *mockRouter) Send(message msg.Message) error {
 
 func whitelistChain(c *Connection, id uint32) error {
 	destId := types.U32(id)
+	meta := c.getMetadata()
 	call, err := types.NewCall(
-		c.meta,
+		&meta,
 		WhitelistChain.String(),
 		destId,
 	)

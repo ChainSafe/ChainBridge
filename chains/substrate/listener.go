@@ -104,7 +104,8 @@ func (l *Listener) pollBlocks() error {
 // processEvents fetches a block and parses out the events, calling Listener.handleEvents()
 func (l *Listener) processEvents(hash types.Hash) error {
 	log15.Trace("Fetching block", "hash", hash.Hex())
-	key, err := types.CreateStorageKey(l.conn.meta, "System", "Events", nil, nil)
+	meta := l.conn.getMetadata()
+	key, err := types.CreateStorageKey(&meta, "System", "Events", nil, nil)
 	if err != nil {
 		return err
 	}
@@ -116,7 +117,7 @@ func (l *Listener) processEvents(hash types.Hash) error {
 	}
 
 	e := Events{}
-	err = records.DecodeEventRecords(l.conn.meta, &e)
+	err = records.DecodeEventRecords(&meta, &e)
 	if err != nil {
 		return err
 	}

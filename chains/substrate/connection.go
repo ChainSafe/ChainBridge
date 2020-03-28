@@ -5,6 +5,7 @@ package substrate
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
@@ -18,13 +19,21 @@ type Connection struct {
 	api         *gsrpc.SubstrateAPI
 	url         string
 	name        string
-	meta        *types.Metadata
+	meta        types.Metadata
 	genesisHash types.Hash
 	key         *signature.KeyringPair
+	metaLock    sync.RWMutex
 }
 
 func NewConnection(url string, name string, key *signature.KeyringPair) *Connection {
 	return &Connection{url: url, name: name, key: key}
+}
+
+func (c *Connection) getMetadata() (meta types.Metadata) {
+	c.metaLock.RLock()
+	meta = c.meta
+	c.metaLock.RUnlock()
+	return
 }
 
 func (c *Connection) Connect() error {
@@ -40,7 +49,7 @@ func (c *Connection) Connect() error {
 	if err != nil {
 		return err
 	}
-	c.meta = meta
+	c.meta = *meta
 	log15.Debug("Fetched substrate metadata")
 
 	// Fetch genesis hash
@@ -58,9 +67,11 @@ func (c *Connection) Connect() error {
 func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	log15.Debug("Submitting substrate call...", "method", method, "sender", c.key.Address)
 
+	meta := c.getMetadata()
+
 	// Create call and extrinsic
 	call, err := types.NewCall(
-		c.meta,
+		&meta,
 		method.String(),
 		args...,
 	)
@@ -132,11 +143,8 @@ func watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 
 // Subscribe creates a subscription to all events.
 func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
-	meta, err := c.api.RPC.State.GetMetadataLatest()
-	if err != nil {
-		return nil, err
-	}
-	key, err := types.CreateStorageKey(meta, "System", "Events", nil, nil)
+	meta := c.getMetadata()
+	key, err := types.CreateStorageKey(&meta, "System", "Events", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +159,8 @@ func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
 // queryStorage performs a storage lookup. Arguments may be nil, result must be a pointer.
 func (c *Connection) queryStorage(prefix, method string, arg1, arg2 []byte, result interface{}) (bool, error) {
 	// Fetch account nonce
-	key, err := types.CreateStorageKey(c.meta, prefix, method, arg1, arg2)
+	data := c.getMetadata()
+	key, err := types.CreateStorageKey(&data, prefix, method, arg1, arg2)
 	if err != nil {
 		return false, err
 	}
