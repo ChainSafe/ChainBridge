@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	message "github.com/ChainSafe/ChainBridgeV2/message"
+	message "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"gotest.tools/assert"

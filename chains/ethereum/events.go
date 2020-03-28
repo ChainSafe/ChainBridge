@@ -4,7 +4,7 @@
 package ethereum
 
 import (
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -31,7 +31,7 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 
 	depositNonce := event.Topics[1].Big() // Only item in log is indexed.
 
-	// TODO remove when issue addressed https://github.com/ChainSafe/ChainBridgeV2/issues/173
+	// TODO remove when issue addressed https://github.com/ChainSafe/ChainBridge/issues/173
 	var destID msg.ChainId
 	if l.cfg.id == 0 {
 		destID = msg.ChainId(1)
