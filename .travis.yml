@@ -49,4 +49,4 @@ jobs:
         - SILENT=true PORT=8546 make start-eth && PORT=8546 make deploy-eth
         - SILENT=true PORT=8547 make start-eth && PORT=8547 make deploy-eth
         - make build
-        - ./build/chainbridge --config ./scripts/configs/multi-chain-config.toml
+        - ./build/chainbridge --config ./scripts/configs/multi-chain-config.toml --testkey alice
