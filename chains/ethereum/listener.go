@@ -6,7 +6,7 @@ package ethereum
 import (
 	"math/big"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
+	"github.com/ChainSafe/ChainBridge/chains"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"

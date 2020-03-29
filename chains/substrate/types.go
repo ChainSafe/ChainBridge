@@ -6,7 +6,7 @@ package substrate
 import (
 	"encoding/binary"
 
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 

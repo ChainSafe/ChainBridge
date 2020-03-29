@@ -6,7 +6,7 @@ package substrate
 import (
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	"github.com/ChainSafe/ChainBridge/keystore"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 

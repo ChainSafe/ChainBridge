@@ -9,8 +9,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	"github.com/ChainSafe/ChainBridgeV2/router"
+	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/ChainBridge/router"
 
 	"github.com/ChainSafe/log15"
 )
