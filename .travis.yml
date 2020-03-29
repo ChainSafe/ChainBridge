@@ -38,3 +38,15 @@ jobs:
         - make deploy-eth
         - ./scripts/centrifuge/run_chain_ci.sh
         - make test
+
+    - language: go
+      go: 1.13.x
+      name: "Multi-network test"
+      script:
+        - set -e
+        - make setup-contracts
+        - SILENT=true make start-eth && make deploy-eth
+        - SILENT=true PORT=8546 make start-eth && PORT=8546 make deploy-eth
+        - SILENT=true PORT=8547 make start-eth && PORT=8547 make deploy-eth
+        - make build
+        - ./build/chainbridge --config ./scripts/configs/multi-chain-config.toml
