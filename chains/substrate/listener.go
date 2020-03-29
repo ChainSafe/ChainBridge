@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridge/chains"
+	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/state"
 	"github.com/centrifuge/go-substrate-rpc-client/types"

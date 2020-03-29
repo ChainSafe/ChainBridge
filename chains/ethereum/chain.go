@@ -6,13 +6,13 @@ package ethereum
 import (
 	"fmt"
 
-	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/core"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	"github.com/ChainSafe/ChainBridgeV2/router"
+	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	"github.com/ChainSafe/ChainBridge/chains"
+	"github.com/ChainSafe/ChainBridge/core"
+	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridge/keystore"
+	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/ChainBridge/router"
 	log "github.com/ChainSafe/log15"
 )
 

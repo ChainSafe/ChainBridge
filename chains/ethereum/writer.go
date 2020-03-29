@@ -6,8 +6,8 @@ package ethereum
 import (
 	"math/big"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridge/chains"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/crypto"
 )

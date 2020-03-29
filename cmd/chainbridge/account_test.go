@@ -12,8 +12,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	"github.com/ChainSafe/ChainBridge/crypto"
+	"github.com/ChainSafe/ChainBridge/keystore"
 )
 
 var testKeystoreDir = "./test_datadir/"

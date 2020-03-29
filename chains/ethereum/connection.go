@@ -10,8 +10,8 @@ import (
 	"math/big"
 	"sync"
 
-	"github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
 
 	eth "github.com/ethereum/go-ethereum"

@@ -6,7 +6,7 @@ package ethereum
 import (
 	"math/big"
 
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 )
 

@@ -1,6 +1,6 @@
-# ChainBridge V2
+# ChainBridge
 
-[![Build Status](https://travis-ci.com/ChainSafe/ChainBridgeV2.svg?branch=master)](https://travis-ci.com/ChainSafe/ChainBridgeV2)
+[![Build Status](https://travis-ci.com/ChainSafe/ChainBridge.svg?branch=master)](https://travis-ci.com/ChainSafe/ChainBridge)
 
 <h3><b>[WIP]</b></h3>
 
