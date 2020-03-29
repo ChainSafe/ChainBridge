@@ -4,8 +4,6 @@
 package ethereum
 
 import (
-	"fmt"
-
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/chains"
 	"github.com/ChainSafe/ChainBridge/core"
@@ -13,7 +11,6 @@ import (
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"
-	log "github.com/ChainSafe/log15"
 )
 
 type Chain struct {
