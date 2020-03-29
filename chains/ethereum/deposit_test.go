@@ -39,7 +39,7 @@ func approveErc20(connection *Connection, opts *bind.TransactOpts, contractAddre
 	return nil
 }
 
-// createFreshErc20Deposit deploys a new erc20 token contract mints, the sender (based on value), and creates a deposit
+// createErc20Deposit deploys a new erc20 token contract mints, the sender (based on value), and creates a deposit
 func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.TransactOpts, deployerAddress, originHandler, destHandler, destRecipient common.Address, destId, amount *big.Int) error {
 	erc20Address, err := deployErc20Contract(txOpts, conn.conn, deployerAddress)
 	if err != nil {
