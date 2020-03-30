@@ -95,7 +95,7 @@ func TestListener_depositEvent(t *testing.T) {
 		destId,
 		amount,
 	); err != nil {
-		t.Fatal(err)
+		t.Fatal("CREATEERC20DEPOSIT", err)
 	}
 
 	// Verify message
@@ -110,7 +110,7 @@ func TestListener_depositEvent(t *testing.T) {
 }
 
 func TestListener_createProposalEvent(t *testing.T) {
-	cfg, _ := deployContracts(t, defaultDeployOpts)
+	cfg, contracts := deployContracts(t, defaultDeployOpts)
 	l, router := setupListener(t, cfg)
 
 	// Get transaction ready
@@ -132,6 +132,7 @@ func TestListener_createProposalEvent(t *testing.T) {
 	// Create an random deposit proposal
 	if err := createDepositProposal(
 		l.bridgeContract,
+		contracts.ERC20HandlerAddress,
 		l.conn,
 		opts,
 		big.NewInt(0),

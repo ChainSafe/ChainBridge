@@ -21,7 +21,7 @@ const (
 	DepositAssetSignature           = "DepositAsset(address,bytes32)"
 	NftTransferSignature            = "NFTTransfer(uint256,uint256,address,address,uint256,bytes)"
 	ErcTransferSignature            = "ERCTransfer(uint256,uint256,address,uint256,address)"
-	DepositProposalCreatedSignature = "DepositProposalCreated(uint256,uint256,bytes32)"
+	DepositProposalCreatedSignature = "DepositProposalCreated(uint256,address,uint256,bytes32)"
 )
 
 type evtHandlerFn func(ethtypes.Log) msg.Message
