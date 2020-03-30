@@ -16,26 +16,28 @@ import (
 )
 
 type Connection struct {
-	api *gsrpc.SubstrateAPI
-	url string
-	// TODO: RWLock this as we have multiple readers and one writer
+	api         *gsrpc.SubstrateAPI
+	url         string
+	name        string
 	meta        types.Metadata
 	genesisHash types.Hash
 	key         *signature.KeyringPair
 	metaLock    sync.RWMutex
 }
 
-func NewConnection(url string, key *signature.KeyringPair) *Connection {
-	return &Connection{url: url, key: key, metaLock: sync.RWMutex{}}
+func NewConnection(url string, name string, key *signature.KeyringPair) *Connection {
+	return &Connection{url: url, name: name, key: key}
 }
 
-func (c *Connection) getMetadata() types.Metadata {
+func (c *Connection) getMetadata() (meta types.Metadata) {
 	c.metaLock.RLock()
-	defer c.metaLock.RUnlock()
-	return c.meta
+	meta = c.meta
+	c.metaLock.RUnlock()
+	return
 }
 
 func (c *Connection) Connect() error {
+	log15.Info("Connecting to substrate chain...", "chain", c.name)
 	api, err := gsrpc.NewSubstrateAPI(c.url)
 	if err != nil {
 		return err
@@ -63,7 +65,7 @@ func (c *Connection) Connect() error {
 // SubmitTx constructs and submits an extrinsic to call the method with the given arguments.
 // All args are passed directly into GSRPC. GSRPC types are recommended to avoid serialization inconsistencies.
 func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
-	log15.Debug("Submitting substrate call...", "method", method)
+	log15.Debug("Submitting substrate call...", "method", method, "sender", c.key.Address)
 
 	meta := c.getMetadata()
 

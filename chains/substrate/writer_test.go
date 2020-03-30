@@ -28,7 +28,7 @@ func assertProposalState(conn *Connection, key *proposalKey, votes *voteState, h
 	}
 	if hasValue {
 		if !reflect.DeepEqual(&voteRes, votes) {
-			return fmt.Errorf("Vote state incorrect.\n\tExpected: %#v\n\tGot: %#v", votes, voteRes)
+			return fmt.Errorf("Vote state incorrect.\n\tExpected: %#v\n\tGot: %#v", votes, &voteRes)
 		}
 	}
 
