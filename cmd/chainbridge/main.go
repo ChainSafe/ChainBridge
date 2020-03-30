@@ -34,6 +34,10 @@ var devFlags = []cli.Flag{
 	TestKeyFlag,
 }
 
+var importFlags = []cli.Flag{
+	EthereumImportFlag,
+}
+
 var DeployFlags = []cli.Flag{
 	PortFlag,
 	ResetFlag,
@@ -72,6 +76,7 @@ var accountCommand = cli.Command{
 			Action:      wrapHandler(handleImportCmd),
 			Name:        "import",
 			Usage:       "import bridge keystore",
+			Flags:       importFlags,
 			Category:    "KEYSTORE",
 			Description: "The import subcommand is used to import a keystore for the bridge.\n",
 		},

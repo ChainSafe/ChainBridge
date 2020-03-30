@@ -11,7 +11,7 @@ import (
 
 func TestConnect_QueryStorage(t *testing.T) {
 	// Create connection with Alice key
-	conn := NewConnection(TestEndpoint, &TestKeyringPairAlice)
+	conn := NewConnection(TestEndpoint, "Alice", AliceKey)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -28,7 +28,7 @@ func TestConnect_QueryStorage(t *testing.T) {
 
 func TestConnect_SubmitTx(t *testing.T) {
 	// Create connection with Alice key
-	conn := NewConnection(TestEndpoint, &TestKeyringPairAlice)
+	conn := NewConnection(TestEndpoint, "Alice", AliceKey)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)

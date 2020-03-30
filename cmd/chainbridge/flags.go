@@ -47,6 +47,13 @@ var (
 	}
 )
 
+var (
+	EthereumImportFlag = cli.BoolFlag{
+		Name:  "ethereum",
+		Usage: "Import an existing ethereum keystore",
+	}
+)
+
 // Deploy Contracts Flags
 var (
 	PortFlag = cli.StringFlag{

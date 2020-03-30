@@ -15,6 +15,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	log "github.com/ChainSafe/log15"
+	gokeystore "github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/urfave/cli"
 )
 
@@ -83,8 +84,13 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 	// import key
 	if keyimport := ctx.Args().First(); keyimport != "" {
+		var err error
 		log.Info("Importing key...")
-		_, err := importKey(keyimport, dHandler.datadir)
+		if ctx.Bool(EthereumImportFlag.Name) {
+			_, err = importEthKey(keyimport, dHandler.datadir)
+		} else {
+			_, err = importKey(keyimport, dHandler.datadir)
+		}
 		if err != nil {
 			return fmt.Errorf("failed to import key: %s", err)
 		}
@@ -118,6 +124,56 @@ func getDataDir(ctx *cli.Context) (string, error) {
 		return datadir, nil
 	}
 	return "", fmt.Errorf("datadir flag not supplied")
+}
+
+//Imports ether keys
+func importEthKey(filename, datadir string) (string, error) {
+	keystorepath, err := keystoreDir(datadir)
+	if err != nil {
+		return "", fmt.Errorf("could not get keystore directory: %s", err)
+	}
+
+	importdata, err := ioutil.ReadFile(filepath.Clean(filename))
+	if err != nil {
+		return "", fmt.Errorf("could not read import file: %s", err)
+	}
+
+	password := keystore.GetPassword("Enter password to decrypt keystore file:")
+
+	key, err := gokeystore.DecryptKey(importdata, string(password))
+	if err != nil {
+		return "", fmt.Errorf("Unable to decrypt file: %s", err)
+	}
+
+	kp := secp256k1.NewKeypair(*key.PrivateKey)
+
+	fp, err := filepath.Abs(keystorepath + "/" + kp.PublicKey() + ".key")
+	if err != nil {
+		return "", fmt.Errorf("invalid filepath: %s", err)
+	}
+
+	file, err := os.OpenFile(fp, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
+	if err != nil {
+		return "", err
+	}
+
+	defer func() {
+		err = file.Close()
+		if err != nil {
+			log.Error("generate keypair: could not close keystore file")
+		}
+	}()
+
+	newPassword := keystore.GetPassword("Enter password to encrypt new keystore file:")
+
+	err = keystore.EncryptAndWriteToFile(file, kp, newPassword)
+	if err != nil {
+		return "", fmt.Errorf("could not write key to file: %s", err)
+	}
+
+	log.Info("ETH key imported", "public key", kp.PublicKey(), "file", fp)
+	return fp, nil
+
 }
 
 // importKey imports a key specified by its filename to datadir/keystore/

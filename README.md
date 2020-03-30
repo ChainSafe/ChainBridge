@@ -57,21 +57,27 @@ See `config.toml.example` for an example configuration.
 Ethereum chains support the following additional options:
 
 ```
-contract = ""0x12345..." // The address of the bridge contract
-gasPrice = "0x1234"      // Gas price for transactions 
-gasLimit = "0x1234"      // Gas limit for transactions
-http = "true"            // Whether the chain connection is ws or http
+contract = "0x12345..." // The address of the bridge contract (required)
+gasPrice = "0x1234"      // Gas price for transactions (default: 20000000000)
+gasLimit = "0x1234"      // Gas limit for transactions (default: 6721975)
+http = "true"            // Whether the chain connection is ws or http (default: false)
 ```
 
 #### Substrate Options
 
-There are presently no additional config options for substrate chains.
+Substrate supports the following additonal options:
+
+```
+startBlock = "1234" // The block to start processing event from (default: 0)
+```
 
 ### Keystore
 
 ChainBridge requires keys to sign and submit transactions, and to identify each bridge node on chain.
 
 To use secure keys, see `chainbridge accounts --help`. The keystore password can be supplied with the `KEYSTORE_PASSWORD` environment variable.
+
+To import external ethereum keys, such as those generated with geth, use `chainbridge accounts import --ethereum /path/to/key`.
 
 For testing purposes, chainbridge provides 5 test keys. The can be used with `--testkey <name>`, where `name` is one of `Alice`, `Bob`, `Charlie`, `Dave`, or `Eve`. 
 
