@@ -37,8 +37,8 @@ func TestRouter(t *testing.T) {
 	}
 
 	msgCtfgToEth := msg.Message{
-		Source:      msg.ChainId(0),
-		Destination: msg.ChainId(1),
+		Source:      msg.ChainId(1),
+		Destination: msg.ChainId(0),
 	}
 
 	err := router.Send(msgCtfgToEth)
