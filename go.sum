@@ -17,6 +17,7 @@ github.com/ChainSafe/ChainBridge v0.0.0-20200327123423-86b2732b9409 h1:g9RTb+lJw
 github.com/ChainSafe/ChainBridge v0.0.0-20200327123423-86b2732b9409/go.mod h1:2QQkSLeZvTXcIS0GK/f/dNVQRuKjOd1Ak716WzYtTmk=
 github.com/ChainSafe/ChainBridge v0.0.0-20200329183833-c2a4fc64838d h1:95kEThaq8c5xbKqfdZoz0gPbLnzehcIEUckdcMlzO7c=
 github.com/ChainSafe/ChainBridge v0.0.0-20200330114843-c513c229f4e2 h1:f0XPsKV70H2/aM+SXxRipS7IfA49GdfwLlw/JvrLeLM=
+github.com/ChainSafe/ChainBridgeV2 v0.0.0-20200330123601-491fb07c5589 h1:s4pUnFjOI824IygH16chA4EvOPelvNY9BHAqpb4Ljd0=
 github.com/ChainSafe/log15 v1.0.0 h1:vRDVtWtVwIH5uSCBvgTTZh6FA58UBJ6+QiiypaZfBf8=
 github.com/ChainSafe/log15 v1.0.0/go.mod h1:5v1+ALHtdW0NfAeeoYyKmzCAMcAeqkdhIg4uxXWIgOg=
 github.com/DataDog/zstd v1.3.6-0.20190409195224-796139022798/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=

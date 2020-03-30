@@ -51,7 +51,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		opts,
 		CreateDepositProposalMethod,
 		m.Source.Big(),
-										// address of handler
+		w.conn.cfg.erc20HandlerContract,							// address of handler
 		u32toBigInt(m.DepositNonce),
 		hash,
 	)

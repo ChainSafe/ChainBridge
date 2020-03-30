@@ -27,6 +27,9 @@ type Config struct {
 	gasLimit     *big.Int
 	gasPrice     *big.Int
 	http         bool // Config for type of connection
+	//temporary to get tests passing until message metadata finalized
+	erc20HandlerContract common.Address
+	erc721HandlerContract common.Address
 }
 
 // parseChainConfig uses a core.ChainConfig to construct a corresponding Config

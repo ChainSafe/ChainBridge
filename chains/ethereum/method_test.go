@@ -17,24 +17,12 @@ import (
 func setupWriter(t *testing.T, config *Config) *Writer {
 	conn := newLocalConnection(t, config)
 
-	bridgeInstance, err := bridge.NewBridge(config.contract, conn.conn)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	raw := &bridge.BridgeRaw{
-		Contract: bridgeInstance,
-	}
-
-	bridgeContract := BridgeContract{
-		BridgeRaw:    raw,
-		BridgeCaller: &bridgeInstance.BridgeCaller,
-	}
+	bridgeContract := createBridgeInstance(t, conn, config.contract)
 
 	writer := NewWriter(conn, config)
 	writer.SetBridgeContract(bridgeContract)
 
-	err = writer.Start()
+	err := writer.Start()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,6 +36,8 @@ func generateMessage() msg.Message {
 		DepositNonce: uint32(2),
 		To:           common.FromHex(keystore.TestKeyRing.EthereumKeys[keystore.BobKey].PublicKey()),
 		Metadata:     []byte("metadata"),
+		//temporary to get tests passing until message metadata finalized
+
 	}
 }
 

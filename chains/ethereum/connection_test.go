@@ -14,6 +14,10 @@ import (
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
+	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 )
 
 const TestEndpoint = "ws://localhost:8545"
@@ -74,7 +78,28 @@ func testDeployContracts(t *testing.T, customOpts DeployOpts) *Config {
 		gasLimit: big.NewInt(6721975),
 		gasPrice: big.NewInt(20000000000),
 		contract: deployedContracts.BridgeAddress,
+		//temporary to get the tests passing until metadata changes are addressed
+		erc20HandlerContract: deployedContracts.ERC20HandlerAddress,
+		erc721HandlerContract: deployedContracts.ERC20HandlerAddress,
+	}	
+
+}
+
+func createBridgeInstance(t *testing.T, connection *Connection, address ethcmn.Address) BridgeContract {
+	bridgeInstance, err := bridge.NewBridge(address, connection.conn)
+	if err != nil {
+		t.Fatal(err)
 	}
+
+	raw := &bridge.BridgeRaw{
+		Contract: bridgeInstance,
+	}
+
+	bridgeContract := BridgeContract{
+		BridgeRaw:        raw,
+		BridgeCaller:     &bridgeInstance.BridgeCaller,
+	}
+	return bridgeContract
 }
 
 func newLocalConnection(t *testing.T, cfg *Config) *Connection {
