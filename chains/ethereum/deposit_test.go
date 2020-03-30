@@ -61,20 +61,6 @@ func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.
 	// Incrememnt Nonce by one
 	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
 
-	// Construct Data
-	// originChainTokenAddress        := mload(add(data, 0x20))
-	// destinationChainID             := mload(add(data, 0x40))
-	// destinationChainHandlerAddress := mload(add(data, 0x60))
-	// destinationChainTokenAddress   := mload(add(data, 0x80))
-	// destinationRecipientAddress    := mload(add(data, 0xA0))
-	// amount                         := mload(add(data, 0xC0))
-
-	// erc20Address,
-	// destId,
-	// destHandler,
-	// destRecipient,
-	// amount,
-
 	data := constructDataBytes(erc20Address, destHandler, destRecipient, destId, amount)
 
 	if _, err := contract.Deposit(
@@ -96,7 +82,6 @@ func constructDataBytes(erc20Address, destHandler, destRecipient common.Address,
 	data = append(data, amount.Bytes()...)
 
 	return data
-
 }
 
 func createDepositProposal(contract BridgeContract, conn *Connection, txOpts *bind.TransactOpts, destChain, depositNonce *big.Int, metadata [32]byte) error {
@@ -104,6 +89,7 @@ func createDepositProposal(contract BridgeContract, conn *Connection, txOpts *bi
 		txOpts,
 		"createDepositProposal",
 		destChain,
+		conn.cfg.erc20HandlerContract,
 		depositNonce,
 		metadata,
 	); err != nil {
