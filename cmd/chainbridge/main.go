@@ -8,9 +8,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
-	"github.com/ChainSafe/ChainBridgeV2/chains/substrate"
-	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridge/chains/ethereum"
+	"github.com/ChainSafe/ChainBridge/chains/substrate"
+	"github.com/ChainSafe/ChainBridge/core"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -32,6 +32,10 @@ var generateFlags = []cli.Flag{
 
 var devFlags = []cli.Flag{
 	TestKeyFlag,
+}
+
+var importFlags = []cli.Flag{
+	EthereumImportFlag,
 }
 
 var DeployFlags = []cli.Flag{
@@ -72,6 +76,7 @@ var accountCommand = cli.Command{
 			Action:      wrapHandler(handleImportCmd),
 			Name:        "import",
 			Usage:       "import bridge keystore",
+			Flags:       importFlags,
 			Category:    "KEYSTORE",
 			Description: "The import subcommand is used to import a keystore for the bridge.\n",
 		},

@@ -8,9 +8,14 @@ import (
 	"strings"
 	"testing"
 
+<<<<<<< HEAD
 	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridgeV2/keystore"
 	msg "github.com/ChainSafe/ChainBridgeV2/message"
+=======
+	"github.com/ChainSafe/ChainBridge/keystore"
+	msg "github.com/ChainSafe/ChainBridge/message"
+>>>>>>> 3963ae28aac162f38a0623b663b1d545b34fd57e
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	ethcmn "github.com/ethereum/go-ethereum/common"
