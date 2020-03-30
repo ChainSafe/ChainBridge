@@ -6,7 +6,7 @@ package main
 import (
 	"math/big"
 
-	eth "github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
+	eth "github.com/ChainSafe/ChainBridge/chains/ethereum"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )

@@ -1,6 +1,6 @@
-# ChainBridge V2
+# ChainBridge
 
-[![Build Status](https://travis-ci.com/ChainSafe/ChainBridgeV2.svg?branch=master)](https://travis-ci.com/ChainSafe/ChainBridgeV2)
+[![Build Status](https://travis-ci.com/ChainSafe/ChainBridge.svg?branch=master)](https://travis-ci.com/ChainSafe/ChainBridge)
 
 <h3><b>[WIP]</b></h3>
 
@@ -9,6 +9,7 @@
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Running](#running)
+- [Chain Implementations](#chain-implementations)
 - [Testing](#testing)
 - [Simulations](#simulations)
 
@@ -73,6 +74,16 @@ ChainBridge requires keys to sign and submit transactions, and to identify each 
 To use secure keys, see `chainbridge accounts --help`. The keystore password can be supplied with the `KEYSTORE_PASSWORD` environment variable.
 
 For testing purposes, chainbridge provides 5 test keys. The can be used with `--testkey <name>`, where `name` is one of `Alice`, `Bob`, `Charlie`, `Dave`, or `Eve`. 
+
+# Chain Implementations
+
+- Ethereum (Solidity): [chainbridge-solidity](https://github.com/ChainSafe/chainbridge-solidity) 
+
+    The Solidity contracts required for chainbridge. Includes deployment and interaction CLI.
+
+- Substrate: [chainbridge-substrate](https://github.com/ChainSafe/chainbridge-substrate)
+
+    A substrate pallet that can be integrated into a chain, as well as an example pallet to demonstrate chain integration.
 
 # Testing
 

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridge/keystore"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"

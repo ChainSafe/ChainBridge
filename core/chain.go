@@ -4,8 +4,8 @@
 package core
 
 import (
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	"github.com/ChainSafe/ChainBridgeV2/router"
+	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/ChainBridge/router"
 )
 
 type Chain interface {
