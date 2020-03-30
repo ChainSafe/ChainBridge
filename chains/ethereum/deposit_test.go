@@ -10,6 +10,7 @@ import (
 	erc20Mintable "github.com/ChainSafe/ChainBridge/bindings/ERC20Mintable"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/math"
 )
 
 func mintErc20Tokens(connection *Connection, opts *bind.TransactOpts, contractAddress, recipient common.Address, amount *big.Int) error {
@@ -83,7 +84,7 @@ func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.
 func constructDataBytes(erc20Address, destHandler, destRecipient common.Address, destId, amount *big.Int) []byte {
 	var data []byte
 	data = append(data, erc20Address.Bytes()...)
-	data = append(data, destId.Bytes()...)
+	data = append(data, math.PaddedBigBytes(destId,32)...)
 	data = append(data, destHandler.Bytes()...)
 	data = append(data, destRecipient.Bytes()...)
 	data = append(data, amount.Bytes()...)
