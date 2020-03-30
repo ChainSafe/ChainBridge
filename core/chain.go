@@ -4,8 +4,8 @@
 package core
 
 import (
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	"github.com/ChainSafe/ChainBridgeV2/router"
+	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/ChainBridge/router"
 )
 
 type Chain interface {
@@ -13,6 +13,7 @@ type Chain interface {
 	Stop() error  // Stop chain
 	SetRouter(*router.Router)
 	Id() msg.ChainId
+	Name() string
 }
 
 type ChainConfig struct {

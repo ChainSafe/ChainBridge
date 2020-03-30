@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto"
+	"github.com/ChainSafe/ChainBridge/crypto"
 )
 
 const EnvPassword = "KEYSTORE_PASSWORD"
@@ -25,8 +25,10 @@ func KeypairFromAddress(addr, chainType, path string, insecure bool) (crypto.Key
 	}
 
 	var pswd []byte
-	if pswd := os.Getenv(EnvPassword); pswd == "" {
-		GetPassword(fmt.Sprintf("Enter password for key %s:", path))
+	if pswdStr := os.Getenv(EnvPassword); pswdStr != "" {
+		pswd = []byte(pswdStr)
+	} else {
+		pswd = GetPassword(fmt.Sprintf("Enter password for key %s:", path))
 	}
 
 	kp, err := ReadFromFileAndDecrypt(path, pswd)

@@ -13,12 +13,12 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
-	centrifugeHandler "github.com/ChainSafe/ChainBridgeV2/bindings/CentrifugeAssetHandler"
-	erc20Handler "github.com/ChainSafe/ChainBridgeV2/bindings/ERC20Handler"
-	erc721Handler "github.com/ChainSafe/ChainBridgeV2/bindings/ERC721Handler"
-	relayer "github.com/ChainSafe/ChainBridgeV2/bindings/Relayer"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
+	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
+	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
+	relayer "github.com/ChainSafe/ChainBridge/bindings/Relayer"
+	"github.com/ChainSafe/ChainBridge/keystore"
 	log "github.com/ChainSafe/log15"
 )
 
@@ -45,9 +45,9 @@ type DeployedContracts struct {
 	CentrifugeHandlerAddress common.Address
 }
 
-func DeployContracts(deployPK string, port string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
+func DeployContracts(deployPK string, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
 
-	client, auth, deployAddress, initialRelayerAddresses, err := accountSetUp(port, relayers, deployPK)
+	client, auth, deployAddress, initialRelayerAddresses, err := accountSetUp(url, relayers, deployPK)
 	if err != nil {
 		return nil, err
 	}
@@ -109,9 +109,9 @@ func updateNonce(auth *bind.TransactOpts, client *ethclient.Client, deployAddres
 
 }
 
-func accountSetUp(port string, relayers int, deployPK string) (*ethclient.Client, *bind.TransactOpts, common.Address, []common.Address, error) {
+func accountSetUp(url string, relayers int, deployPK string) (*ethclient.Client, *bind.TransactOpts, common.Address, []common.Address, error) {
 
-	client, err := ethclient.Dial("http://localhost:" + port)
+	client, err := ethclient.Dial(url)
 	if err != nil {
 		log.Error("error connecting to client")
 		return nil, nil, ZERO_ADDRESS, nil, err

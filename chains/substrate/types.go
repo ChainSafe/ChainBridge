@@ -6,7 +6,7 @@ package substrate
 import (
 	"encoding/binary"
 
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
@@ -42,7 +42,7 @@ func createAssetTxProposal(m msg.Message, meta *types.Metadata) (*assetTxProposa
 
 	call, err := types.NewCall(
 		meta,
-		ExampleTransfer,
+		ExampleTransfer.String(),
 		recipient,
 		amount,
 	)

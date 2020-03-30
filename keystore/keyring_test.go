@@ -32,7 +32,7 @@ func TestInsecureAddresses(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !reflect.DeepEqual(tkp, TestKeyRing.CentrifugeKeys[AliceKey]) {
+	if !reflect.DeepEqual(tkp, TestKeyRing.SubstrateKeys[AliceKey]) {
 		t.Fatalf("Key is not being returned correctly")
 	}
 

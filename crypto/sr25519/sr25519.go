@@ -6,7 +6,7 @@ package sr25519
 import (
 	"crypto/rand"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto"
+	"github.com/ChainSafe/ChainBridge/crypto"
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -30,6 +30,10 @@ func GenerateKeypair() (*Keypair, error) {
 func NewKeypairFromSeed(seed string) (*Keypair, error) {
 	kp, err := signature.KeyringPairFromSecret(seed)
 	return &Keypair{&kp}, err
+}
+
+func NewKeypairFromKRP(pair signature.KeyringPair) *Keypair {
+	return &Keypair{&pair}
 }
 
 // AsKeyringPair returns the underlying KeyringPair

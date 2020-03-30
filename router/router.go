@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridge/chains"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	log "github.com/ChainSafe/log15"
 )
 
