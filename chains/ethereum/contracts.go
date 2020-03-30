@@ -48,6 +48,7 @@ type BridgeContract struct {
 	BridgeFilterer
 	BridgeCaller
 	BridgeRaw
+	BridgeTransactor
 }
 
 type ERC20HandlerContract struct {
@@ -63,6 +64,10 @@ type ERC721HandlerContract struct {
 }
 
 type BridgeFilterer interface {
+}
+
+type BridgeTransactor interface {
+	DepositERC20(opts *bind.TransactOpts, originChainTokenAddress common.Address, originChainHandlerAddress common.Address, destinationChainID *big.Int, destinationChainHandlerAddress common.Address, destinationRecipientAddress common.Address, amount *big.Int) (*types.Transaction, error)
 }
 
 type BridgeCaller interface {

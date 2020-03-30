@@ -16,6 +16,7 @@ import (
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	erc20Mintable "github.com/ChainSafe/ChainBridge/bindings/ERC20Mintable"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	relayer "github.com/ChainSafe/ChainBridge/bindings/Relayer"
 	"github.com/ChainSafe/ChainBridge/keystore"
@@ -235,4 +236,19 @@ func deployCentrifugeHandler(auth *bind.TransactOpts, client *ethclient.Client, 
 	}
 
 	return centrifugeHandlerAddr, nil
+}
+
+func deployErc20Contract(auth *bind.TransactOpts, client *ethclient.Client, deployAddress common.Address) (common.Address, error) {
+	auth, err := updateNonce(auth, client, deployAddress)
+	if err != nil {
+		return ZERO_ADDRESS, err
+	}
+
+	erc20Addr, _, _, err := erc20Mintable.DeployERC20Mintable(auth, client)
+	if err != nil {
+		log.Error("error deploying ERC20 instance")
+		return ZERO_ADDRESS, err
+	}
+
+	return erc20Addr, nil
 }
