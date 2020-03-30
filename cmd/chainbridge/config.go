@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"unicode"
 
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/naoina/toml"
 	"github.com/urfave/cli"

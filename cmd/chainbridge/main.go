@@ -8,9 +8,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/ChainSafe/ChainBridgeV2/chains/ethereum"
-	"github.com/ChainSafe/ChainBridgeV2/chains/substrate"
-	"github.com/ChainSafe/ChainBridgeV2/core"
+	"github.com/ChainSafe/ChainBridge/chains/ethereum"
+	"github.com/ChainSafe/ChainBridge/chains/substrate"
+	"github.com/ChainSafe/ChainBridge/core"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
