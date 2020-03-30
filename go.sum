@@ -13,8 +13,10 @@ github.com/Azure/go-autorest/autorest/mocks v0.3.0/go.mod h1:a8FDP3DYzQ4RYfVAxAN
 github.com/Azure/go-autorest/logger v0.1.0/go.mod h1:oExouG+K6PryycPJfVSxi/koC6LSNgds39diKLz7Vrc=
 github.com/Azure/go-autorest/tracing v0.5.0/go.mod h1:r/s2XiOKccPW3HrqB+W0TQzfbtp2fGCgRFtBroKn4Dk=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/ChainSafe/ChainBridgeV2 v0.0.0-20200327123423-86b2732b9409 h1:g9RTb+lJwif++1fyygiK/cHGgT1yUKsGZ0EhHD9VHAI=
-github.com/ChainSafe/ChainBridgeV2 v0.0.0-20200327123423-86b2732b9409/go.mod h1:2QQkSLeZvTXcIS0GK/f/dNVQRuKjOd1Ak716WzYtTmk=
+github.com/ChainSafe/ChainBridge v0.0.0-20200327123423-86b2732b9409 h1:g9RTb+lJwif++1fyygiK/cHGgT1yUKsGZ0EhHD9VHAI=
+github.com/ChainSafe/ChainBridge v0.0.0-20200327123423-86b2732b9409/go.mod h1:2QQkSLeZvTXcIS0GK/f/dNVQRuKjOd1Ak716WzYtTmk=
+github.com/ChainSafe/ChainBridge v0.0.0-20200329183833-c2a4fc64838d h1:95kEThaq8c5xbKqfdZoz0gPbLnzehcIEUckdcMlzO7c=
+github.com/ChainSafe/ChainBridge v0.0.0-20200330114843-c513c229f4e2 h1:f0XPsKV70H2/aM+SXxRipS7IfA49GdfwLlw/JvrLeLM=
 github.com/ChainSafe/log15 v1.0.0 h1:vRDVtWtVwIH5uSCBvgTTZh6FA58UBJ6+QiiypaZfBf8=
 github.com/ChainSafe/log15 v1.0.0/go.mod h1:5v1+ALHtdW0NfAeeoYyKmzCAMcAeqkdhIg4uxXWIgOg=
 github.com/DataDog/zstd v1.3.6-0.20190409195224-796139022798/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=

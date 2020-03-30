@@ -10,9 +10,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 
-	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
-	erc20 "github.com/ChainSafe/ChainBridgeV2/bindings/ERC20Handler"
-	erc721 "github.com/ChainSafe/ChainBridgeV2/bindings/ERC721Handler"
+	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	erc20 "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	erc721 "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 
 )
 

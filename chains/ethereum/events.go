@@ -32,14 +32,14 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	depositNonce := event.Topics[1].Big() // Only item in log is indexed.
 
 	// TODO remove when issue addressed https://github.com/ChainSafe/ChainBridge/issues/173
-	var destID msg.ChainId
-	if l.cfg.id == 0 {
-		destID = msg.ChainId(1)
-	} else {
-		destID = msg.ChainId(0)
-	}
+	// var destID msg.ChainId
+	// if l.cfg.id == 0 {
+	// 	destID = msg.ChainId(1)
+	// } else {
+	// 	destID = msg.ChainId(0)
+	// }
 
-	deposit, err := UnpackErc20DepositRecord(l.bridgeContract.BridgeCaller.GetERC20DepositRecord(&bind.CallOpts{}, destID.Big(), depositNonce))
+	deposit, err := UnpackErc20DepositRecord(l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce))
 	if err != nil {
 		log15.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}

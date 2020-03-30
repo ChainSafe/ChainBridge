@@ -26,6 +26,7 @@ var defaultDeployOpts = DeployOpts{
 	numRelayers:      2,
 	relayerThreshold: big.NewInt(1),
 	minCount:         uint8(0),
+	chainID:		  big.NewInt(0),
 }
 
 type DeployOpts struct {

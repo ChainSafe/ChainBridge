@@ -28,8 +28,8 @@ type Listener struct {
 	conn           			*Connection
 	subscriptions  			map[EventSig]*ActiveSubscription
 	router         			chains.Router
-	bridgeContract 			BridgeContract // instance of bound bridge contract
-	erc20HandlerContract	ERC20HandlerContract   // instance of bound erc20 handler
+	bridgeContract 			BridgeContract 			// instance of bound bridge contract
+	erc20HandlerContract	ERC20HandlerContract   	// instance of bound erc20 handler
 	erc721HandlerContract	ERC721HandlerContract   // instance of bound erc721 handler
 
 }
