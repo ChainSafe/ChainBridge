@@ -14,7 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
-	// centrifugeHandler "github.com/ChainSafe/ChainBridgeV2/bindings/CentrifugeAssetHandler"
+	centrifugeHandler "github.com/ChainSafe/ChainBridgeV2/bindings/CentrifugeAssetHandler"
 	erc20Handler "github.com/ChainSafe/ChainBridgeV2/bindings/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridgeV2/bindings/ERC721Handler"
 	relayer "github.com/ChainSafe/ChainBridgeV2/bindings/Relayer"
@@ -72,12 +72,12 @@ func DeployContracts(deployPK string, url string, relayers int, initialRelayerTh
 		return nil, err
 	}
 
-	// centrifugeHandlerAddr, err := deployCentrifugeHandler(auth, client, bridgeAddr, deployAddress)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	centrifugeHandlerAddr, err := deployCentrifugeHandler(auth, client, bridgeAddr, deployAddress)
+	if err != nil {
+		return nil, err
+	}
 
-	deployedContracts := DeployedContracts{bridgeAddr, relayerAddr, erc20HandlerAddr, erc721HandlerAddr, ZERO_ADDRESS}
+	deployedContracts := DeployedContracts{bridgeAddr, relayerAddr, erc20HandlerAddr, erc721HandlerAddr, centrifugeHandlerAddr}
 
 	return &deployedContracts, nil
 
@@ -221,18 +221,18 @@ func deployERC721Handler(auth *bind.TransactOpts, client *ethclient.Client, brid
 
 }
 
-// func deployCentrifugeHandler(auth *bind.TransactOpts, client *ethclient.Client, bridgeAddress common.Address, deployAddress common.Address) (common.Address, error) {
+func deployCentrifugeHandler(auth *bind.TransactOpts, client *ethclient.Client, bridgeAddress common.Address, deployAddress common.Address) (common.Address, error) {
 
-// 	auth, err := updateNonce(auth, client, deployAddress)
-// 	if err != nil {
-// 		return ZERO_ADDRESS, err
-// 	}
+	auth, err := updateNonce(auth, client, deployAddress)
+	if err != nil {
+		return ZERO_ADDRESS, err
+	}
 
-// 	centrifugeHandlerAddr, _, _, err := centrifugeHandler.DeployCentrifugeAssetHandler(auth, client, bridgeAddress)
-// 	if err != nil {
-// 		log.Error("error deploying Centrifuge Asset Handler instance")
-// 		return ZERO_ADDRESS, err
-// 	}
+	centrifugeHandlerAddr, _, _, err := centrifugeHandler.DeployCentrifugeAssetHandler(auth, client, bridgeAddress)
+	if err != nil {
+		log.Error("error deploying Centrifuge Asset Handler instance")
+		return ZERO_ADDRESS, err
+	}
 
-// 	return centrifugeHandlerAddr, nil
-// }
+	return centrifugeHandlerAddr, nil
+}

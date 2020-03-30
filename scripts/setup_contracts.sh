@@ -4,7 +4,7 @@
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
 CONTRACTS_BRANCH="wyatt/migrate-pr-200"
-CONTRACTS_COMMIT="8ee6256df4b69564f3d8d8328e756530e32a9a2c"
+CONTRACTS_COMMIT="a4add24d01d3c595a6bfc3c80c300126eb9a7a3d"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 
