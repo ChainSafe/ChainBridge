@@ -46,3 +46,10 @@ func (w *Writer) GetDepositStatus(originChainId *big.Int, depositNonce *big.Int)
 
 	return DepositProposalStatus(Status), err
 }
+
+func (w *Writer) GetHasVotedOnDepositProposal(account string, destinationChainId *big.Int, depositNonce *big.Int){
+	_, _, _, yesVotes, noVotes, _, err = w.bridgeContract.GetDepositProposal(destinationChainId, depositNonce)
+
+	// TODO: Check if in yes & no via race condition or async
+	yesVotes
+}
