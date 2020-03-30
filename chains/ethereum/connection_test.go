@@ -15,9 +15,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
-	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
-	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 )
 
 const TestEndpoint = "ws://localhost:8545"

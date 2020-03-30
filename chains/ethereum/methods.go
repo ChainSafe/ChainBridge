@@ -79,6 +79,7 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 		opts,
 		VoteDepositProposalMethod,
 		m.Source.Big(),
+		w.conn.cfg.erc20HandlerContract,
 		u32toBigInt(m.DepositNonce),
 		vote,
 	)

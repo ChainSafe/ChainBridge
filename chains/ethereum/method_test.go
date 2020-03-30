@@ -7,7 +7,6 @@ import (
 	"math/big"
 	"testing"
 
-	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 
