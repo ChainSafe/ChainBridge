@@ -77,6 +77,8 @@ ChainBridge requires keys to sign and submit transactions, and to identify each 
 
 To use secure keys, see `chainbridge accounts --help`. The keystore password can be supplied with the `KEYSTORE_PASSWORD` environment variable.
 
+To import external ethereum keys, such as those generated with geth, use `chainbridge accounts import --ethereum /path/to/key`.
+
 For testing purposes, chainbridge provides 5 test keys. The can be used with `--testkey <name>`, where `name` is one of `Alice`, `Bob`, `Charlie`, `Dave`, or `Eve`. 
 
 # Chain Implementations
