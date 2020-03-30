@@ -21,18 +21,20 @@ type Listener struct {
 	conn          *Connection
 	subscriptions map[eventName]eventHandler // Handlers for specific events
 	router        chains.Router
+	log           log15.Logger
 }
 
 // Frequency of polling for a new block
 var BlockRetryInterval = time.Second * 2
 
-func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64) *Listener {
+func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger) *Listener {
 	return &Listener{
 		name:          name,
 		chainId:       id,
 		startBlock:    startBlock,
 		conn:          conn,
 		subscriptions: make(map[eventName]eventHandler),
+		log:           log,
 	}
 }
 
@@ -42,7 +44,7 @@ func (l *Listener) SetRouter(r chains.Router) {
 
 // Start creates the initial subscription for all events
 func (l *Listener) Start() error {
-	log15.Info("Starting listener...", "chain", l.name)
+	l.log.Info("Starting listener...")
 
 	// Check that whether latest is less than starting block
 	header, err := l.conn.api.RPC.Chain.GetHeaderLatest()
@@ -63,7 +65,7 @@ func (l *Listener) Start() error {
 	go func() {
 		err := l.pollBlocks()
 		if err != nil {
-			l.conn.chainLogger.Error("Polling blocks failed", "err", err)
+			l.log.Error("Polling blocks failed", "err", err)
 		}
 	}()
 
@@ -84,10 +86,10 @@ var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
 func (l *Listener) pollBlocks() error {
 	var latestBlock = l.startBlock
 	for {
-		l.conn.chainLogger.Trace("Polling for block", "number", latestBlock)
+		l.log.Trace("Polling for block", "number", latestBlock)
 		hash, err := l.conn.api.RPC.Chain.GetBlockHash(latestBlock)
 		if err != nil && err.Error() == ErrBlockNotReady.Error() {
-			l.conn.chainLogger.Trace("Block not ready, sleeping...", "interval", BlockRetryInterval)
+			l.log.Trace("Block not ready, sleeping...", "interval", BlockRetryInterval)
 			time.Sleep(BlockRetryInterval)
 			continue
 		} else if err != nil {

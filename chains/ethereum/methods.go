@@ -17,12 +17,12 @@ const ExecuteDepositMethod = "executeDepositProposal"
 
 func (w *Writer) depositAsset(m msg.Message) bool {
 
-	w.cfg.chainLog.Info("Handling DepositAsset message", "to", w.conn.cfg.contract)
+	w.log.Info("Handling DepositAsset message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
 	if err != nil {
-		w.cfg.chainLog.Error("Failed to build transaction opts", "err", err)
+		w.log.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
 
@@ -37,12 +37,12 @@ func (w *Writer) depositAsset(m msg.Message) bool {
 }
 
 func (w *Writer) createDepositProposal(m msg.Message) bool {
-	w.cfg.chainLog.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.contract)
+	w.log.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
 	if err != nil {
-		w.cfg.chainLog.Error("Failed to build transaction opts", "err", err)
+		w.log.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
 	log15.Info("opts", "from", opts.From.String())
@@ -57,20 +57,20 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 	)
 
 	if err != nil {
-		w.cfg.chainLog.Error("Failed to submit createDepositProposal transaction", "err", err)
+		w.log.Error("Failed to submit createDepositProposal transaction", "err", err)
 		return false
 	}
-	w.cfg.chainLog.Info("Succesfully created deposit!", "chain", m.Source, "deposit_id", m.DepositNonce)
+	w.log.Info("Succesfully created deposit!", "chain", m.Source, "deposit_id", m.DepositNonce)
 	return true
 }
 
 func (w *Writer) voteDepositProposal(m msg.Message) bool {
-	w.cfg.chainLog.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.contract)
+	w.log.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
 	if err != nil {
-		w.cfg.chainLog.Error("Failed to build transaction opts", "err", err)
+		w.log.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
 
@@ -84,20 +84,20 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 	)
 
 	if err != nil {
-		w.cfg.chainLog.Error("Failed to submit vote!", "chain", m.Source, "deposit_id", m.DepositNonce, "err", err)
+		w.log.Error("Failed to submit vote!", "chain", m.Source, "deposit_id", m.DepositNonce, "err", err)
 		return false
 	}
-	w.cfg.chainLog.Info("Succesfully voted!", "chain", m.Source, "deposit_id", m.DepositNonce, "Vote", vote)
+	w.log.Info("Succesfully voted!", "chain", m.Source, "deposit_id", m.DepositNonce, "Vote", vote)
 	return true
 }
 
 func (w *Writer) executeDeposit(m msg.Message) bool {
-	w.cfg.chainLog.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.contract)
+	w.log.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
 	if err != nil {
-		w.cfg.chainLog.Error("Failed to build transaction opts", "err", err)
+		w.log.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
 
@@ -111,7 +111,7 @@ func (w *Writer) executeDeposit(m msg.Message) bool {
 	)
 
 	if err != nil {
-		w.cfg.chainLog.Error("Failed to submit executeDeposit transaction", "err", err)
+		w.log.Error("Failed to submit executeDeposit transaction", "err", err)
 		return false
 	}
 	return true

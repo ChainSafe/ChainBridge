@@ -72,19 +72,18 @@ func testDeployContracts(t *testing.T, customOpts DeployOpts) *Config {
 		t.Fatal(err)
 	}
 	return &Config{
-		id:       msg.EthereumId,
+		id:       msg.ChainId(0),
 		endpoint: TestEndpoint,
 		from:     keystore.AliceKey,
 		gasLimit: big.NewInt(6721975),
 		gasPrice: big.NewInt(20000000000),
 		contract: deployedContracts.BridgeAddress,
-		chainLog: TestLogger,
 	}
 }
 
 func newLocalConnection(t *testing.T, cfg *Config) *Connection {
 	kp := keystore.TestKeyRing.EthereumKeys[cfg.from]
-	conn := NewConnection(cfg, kp)
+	conn := NewConnection(cfg, kp, TestLogger)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -138,7 +137,7 @@ func TestSendTx(t *testing.T) {
 func TestSubscribe(t *testing.T) {
 	cfg := testDeployContracts(t, defaultDeployOpts)
 	conn := newLocalConnection(t, cfg)
-	l := NewListener(conn, cfg)
+	l := NewListener(conn, cfg, TestLogger)
 	defer conn.Close()
 
 	q := eth.FilterQuery{}

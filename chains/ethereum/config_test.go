@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/core"
-	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -41,7 +40,6 @@ func TestParseChainConfig(t *testing.T) {
 		endpoint:     "endpoint",
 		from:         "0x0",
 		keystorePath: "./keys",
-		chainLog:     log15.Root().New("chain", "chain"),
 		contract:     common.HexToAddress("0x1234"),
 		gasLimit:     big.NewInt(10),
 		gasPrice:     big.NewInt(20),

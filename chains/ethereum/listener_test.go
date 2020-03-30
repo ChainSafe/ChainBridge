@@ -11,17 +11,16 @@ import (
 )
 
 var listenerTestConfig = &Config{
-	id:       msg.EthereumId,
+	id:       msg.ChainId(0),
 	endpoint: TestEndpoint,
 	from:     keystore.AliceKey,
-	chainLog: TestLogger,
 }
 
 func TestListener_start_stop(t *testing.T) {
 	conn := newLocalConnection(t, listenerTestConfig)
 	defer conn.Close()
 
-	listener := NewListener(conn, listenerTestConfig)
+	listener := NewListener(conn, listenerTestConfig, TestLogger)
 
 	err := listener.Start()
 	if err != nil {

@@ -10,7 +10,6 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/log15"
-	log "github.com/ChainSafe/log15"
 )
 
 type Chain struct {
@@ -27,11 +26,11 @@ func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	chainLog := log15.Root().New("chain", cfg.Name)
+	logger := log15.Root().New("chain", cfg.Name)
 	krp := kp.(*sr25519.Keypair).AsKeyringPair()
 
 	// Setup connection
-	conn := NewConnection(cfg.Endpoint, cfg.Name, krp)
+	conn := NewConnection(cfg.Endpoint, cfg.Name, krp, logger)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
@@ -39,8 +38,8 @@ func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
 
 	// Setup listener & writer
 	startBlock := parseStartBlock(cfg)
-	l := NewListener(conn, cfg.Name, cfg.Id, startBlock)
-	w := NewWriter(conn)
+	l := NewListener(conn, cfg.Name, cfg.Id, startBlock, logger)
+	w := NewWriter(conn, logger)
 	return &Chain{
 		cfg:      cfg,
 		conn:     conn,
@@ -60,7 +59,7 @@ func (c *Chain) Start() error {
 		return err
 	}
 
-	log.Debug("Successfully started chain", "name", c.cfg.Name, "chainId", c.cfg.Id)
+	c.conn.log.Debug("Successfully started chain", "chainId", c.cfg.Id)
 	return nil
 }
 

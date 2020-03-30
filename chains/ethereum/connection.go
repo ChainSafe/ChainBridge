@@ -12,6 +12,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
+	"github.com/ChainSafe/log15"
 
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -38,9 +39,10 @@ type Connection struct {
 	signer    ethtypes.Signer
 	kp        *secp256k1.Keypair
 	nonceLock sync.Mutex
+	log       log15.Logger
 }
 
-func NewConnection(cfg *Config, kp *secp256k1.Keypair) *Connection {
+func NewConnection(cfg *Config, kp *secp256k1.Keypair, log log15.Logger) *Connection {
 	signer := ethtypes.HomesteadSigner{}
 	return &Connection{
 		ctx: context.Background(),
@@ -49,12 +51,13 @@ func NewConnection(cfg *Config, kp *secp256k1.Keypair) *Connection {
 		signer:    signer,
 		kp:        kp,
 		nonceLock: sync.Mutex{},
+		log:       log,
 	}
 }
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	c.cfg.chainLog.Info("Connecting to ethereum chain...", "url", c.cfg.endpoint)
+	c.log.Info("Connecting to ethereum chain...", "url", c.cfg.endpoint)
 	var rpcClient *rpc.Client
 	var err error
 	if c.cfg.http {
@@ -102,12 +105,12 @@ func (c *Connection) SubmitTx(data []byte) error {
 		return err
 	}
 
-	c.cfg.chainLog.Debug("Submitting new tx", "to", tx.To(), "nonce", tx.Nonce(), "value", tx.Value(),
+	c.log.Debug("Submitting new tx", "to", tx.To(), "nonce", tx.Nonce(), "value", tx.Value(),
 		"gasLimit", tx.Gas(), "gasPrice", tx.GasPrice(), "calldata", tx.Data())
 
 	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.PrivateKey())
 	if err != nil {
-		c.cfg.chainLog.Trace("Signing tx failed", "err", err)
+		c.log.Trace("Signing tx failed", "err", err)
 		return err
 	}
 

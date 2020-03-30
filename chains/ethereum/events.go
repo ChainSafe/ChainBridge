@@ -28,7 +28,7 @@ const (
 type evtHandlerFn func(ethtypes.Log) msg.Message
 
 func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
-	l.cfg.chainLog.Debug("Handling deposited event")
+	l.log.Debug("Handling deposited event")
 
 	depositNonce := event.Topics[1].Big() // Only item in log is indexed.
 
@@ -42,7 +42,7 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 
 	deposit, err := UnpackErc20DepositRecord(l.bridgeContract.BridgeCaller.GetERC20DepositRecord(&bind.CallOpts{}, big.NewInt(int64(destID)), depositNonce))
 	if err != nil {
-		l.cfg.chainLog.Error("Error Unpacking ERC20 Deposit Record", "err", err)
+		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
 
 	return msg.Message{
@@ -56,7 +56,7 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 }
 
 func (l *Listener) handleVoteEvent(event ethtypes.Log) msg.Message {
-	l.cfg.chainLog.Debug("Handling vote event")
+	l.log.Debug("Handling vote event")
 
 	originChainID := event.Topics[1].Big()
 	depositNonce := event.Topics[2].Big()

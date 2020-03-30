@@ -13,17 +13,16 @@ import (
 )
 
 var writerTestConfig = &Config{
-	id:       msg.EthereumId,
+	id:       msg.ChainId(0),
 	endpoint: TestEndpoint,
 	from:     keystore.AliceKey,
-	chainLog: TestLogger,
 }
 
 func TestWriter_start_stop(t *testing.T) {
 	conn := newLocalConnection(t, writerTestConfig)
 	defer conn.Close()
 
-	writer := NewWriter(conn, writerTestConfig)
+	writer := NewWriter(conn, writerTestConfig, TestLogger)
 
 	err := writer.Start()
 	if err != nil {

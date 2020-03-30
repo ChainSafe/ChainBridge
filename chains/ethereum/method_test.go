@@ -31,7 +31,7 @@ func setupWriter(t *testing.T, config *Config) *Writer {
 		BridgeCaller: &bridgeInstance.BridgeCaller,
 	}
 
-	writer := NewWriter(conn, config)
+	writer := NewWriter(conn, config, TestLogger)
 	writer.SetBridgeContract(bridgeContract)
 
 	err = writer.Start()
