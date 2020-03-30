@@ -6,7 +6,7 @@ package ethereum
 import (
 	"math/big"
 
-	erc20Mintable "github.com/ChainSafe/chainbridge/bindings/ERC20Mintable"
+	erc20Mintable "github.com/ChainSafe/ChainBridge/bindings/ERC20Mintable"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 )

@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	bridge "github.com/ChainSafe/chainbridge/bindings/Bridge"
-	"github.com/ChainSafe/chainbridge/keystore"
-	msg "github.com/ChainSafe/chainbridge/message"
+	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	"github.com/ChainSafe/ChainBridge/keystore"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	ethcmn "github.com/ethereum/go-ethereum/common"

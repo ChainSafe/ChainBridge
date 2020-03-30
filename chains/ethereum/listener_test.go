@@ -11,7 +11,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	msg "github.com/ChainSafe/chainbridge/message"
+	msg "github.com/ChainSafe/ChainBridge/message"
 )
 
 const ListenerTimeout = time.Second * 10
