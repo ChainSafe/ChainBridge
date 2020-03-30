@@ -4,12 +4,13 @@
 package substrate
 
 import (
-	"github.com/ChainSafe/ChainBridgeV2/core"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	"github.com/ChainSafe/ChainBridgeV2/router"
+	"github.com/ChainSafe/ChainBridge/core"
+	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
+	"github.com/ChainSafe/ChainBridge/keystore"
+	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/log15"
+	log "github.com/ChainSafe/log15"
 )
 
 type Chain struct {
@@ -21,16 +22,25 @@ type Chain struct {
 }
 
 func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
-	kp, err := keystore.KeypairFromAddress(cfg.From, keystore.SubChain, cfg.KeystorePath, false)
+	kp, err := keystore.KeypairFromAddress(cfg.From, keystore.SubChain, cfg.KeystorePath, cfg.Insecure)
 	if err != nil {
 		return nil, err
 	}
 
 	chainLog := log15.Root().New("chain", cfg.Name)
 	krp := kp.(*sr25519.Keypair).AsKeyringPair()
-	conn := NewConnection(cfg.Endpoint, krp, chainLog)
-	l := NewListener(conn, cfg)
-	w := NewWriter(conn, chainLog)
+
+	// Setup connection
+	conn := NewConnection(cfg.Endpoint, cfg.Name, krp)
+	err = conn.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	// Setup listener & writer
+	startBlock := parseStartBlock(cfg)
+	l := NewListener(conn, cfg.Name, cfg.Id, startBlock)
+	w := NewWriter(conn)
 	return &Chain{
 		cfg:      cfg,
 		conn:     conn,
@@ -50,16 +60,21 @@ func (c *Chain) Start() error {
 		return err
 	}
 
-	c.conn.chainLogger.Debug("Successfully started chain")
+	log.Debug("Successfully started chain", "name", c.cfg.Name, "chainId", c.cfg.Id)
 	return nil
 }
 
 func (c *Chain) SetRouter(r *router.Router) {
 	r.Listen(c.cfg.Id, c.writer)
+	c.listener.SetRouter(r)
 }
 
 func (c *Chain) Id() msg.ChainId {
 	return c.cfg.Id
+}
+
+func (c *Chain) Name() string {
+	return c.cfg.Name
 }
 
 func (c *Chain) Stop() error {

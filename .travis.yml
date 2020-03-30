@@ -36,5 +36,5 @@ jobs:
         - make setup-contracts
         - SILENT=true make start-eth
         - make deploy-eth
-        - ./scripts/centrifuge/run_chain_ci.sh
+        - ./scripts/substrate/run_chain_ci.sh
         - make test

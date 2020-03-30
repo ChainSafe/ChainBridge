@@ -4,8 +4,8 @@
 package substrate
 
 import (
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridge/chains"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -31,7 +31,8 @@ func (w *Writer) Start() error {
 func (w *Writer) ResolveMessage(m msg.Message) bool {
 	switch m.Type {
 	case msg.DepositAssetType:
-		prop, err := createAssetTxProposal(m, w.conn.meta)
+		meta := w.conn.getMetadata()
+		prop, err := createAssetTxProposal(m, &meta)
 		if err != nil {
 			w.chainLogger.Error("Failed to construct assetTxProposal from message", "err", err)
 			return false

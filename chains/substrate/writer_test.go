@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	message "github.com/ChainSafe/ChainBridgeV2/message"
+	message "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"gotest.tools/assert"
@@ -28,7 +28,7 @@ func assertProposalState(conn *Connection, key *proposalKey, votes *voteState, h
 	}
 	if hasValue {
 		if !reflect.DeepEqual(&voteRes, votes) {
-			return fmt.Errorf("Vote state incorrect.\n\tExpected: %#v\n\tGot: %#v", votes, voteRes)
+			return fmt.Errorf("Vote state incorrect.\n\tExpected: %#v\n\tGot: %#v", votes, &voteRes)
 		}
 	}
 
@@ -62,7 +62,8 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 	}
 
 	// Create a assetTxProposal to help us check results
-	prop, err := createAssetTxProposal(m, alice.conn.meta)
+	meta := alice.conn.getMetadata()
+	prop, err := createAssetTxProposal(m, &meta)
 	if err != nil {
 		t.Fatal(err)
 	}

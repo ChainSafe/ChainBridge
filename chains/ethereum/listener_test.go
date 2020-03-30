@@ -6,8 +6,8 @@ package ethereum
 import (
 	"testing"
 
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
+	"github.com/ChainSafe/ChainBridge/keystore"
+	msg "github.com/ChainSafe/ChainBridge/message"
 )
 
 var listenerTestConfig = &Config{

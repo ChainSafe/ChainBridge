@@ -4,15 +4,13 @@
 package ethereum
 
 import (
-	"fmt"
-
-	bridge "github.com/ChainSafe/ChainBridgeV2/bindings/Bridge"
-	"github.com/ChainSafe/ChainBridgeV2/chains"
-	"github.com/ChainSafe/ChainBridgeV2/core"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	"github.com/ChainSafe/ChainBridgeV2/keystore"
-	msg "github.com/ChainSafe/ChainBridgeV2/message"
-	"github.com/ChainSafe/ChainBridgeV2/router"
+	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	"github.com/ChainSafe/ChainBridge/chains"
+	"github.com/ChainSafe/ChainBridge/core"
+	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridge/keystore"
+	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/ChainBridge/router"
 )
 
 type Chain struct {
@@ -80,16 +78,6 @@ func (c *Chain) SetRouter(r *router.Router) {
 }
 
 func (c *Chain) Start() error {
-	if c.conn == nil {
-		return fmt.Errorf("no connection specified")
-	}
-	if c.listener == nil {
-		return fmt.Errorf("no listener specified")
-	}
-	if c.writer == nil {
-		return fmt.Errorf("no Writer specified")
-	}
-
 	err := c.listener.Start()
 	if err != nil {
 		return err
@@ -99,13 +87,20 @@ func (c *Chain) Start() error {
 	if err != nil {
 		return err
 	}
+<<<<<<< HEAD
 
 	c.writer.cfg.chainLog.Debug("Successfully started chain")
+=======
+>>>>>>> master
 	return nil
 }
 
 func (c *Chain) Id() msg.ChainId {
 	return c.cfg.Id
+}
+
+func (c *Chain) Name() string {
+	return c.cfg.Name
 }
 
 func (c *Chain) GetWriter() chains.Writer {

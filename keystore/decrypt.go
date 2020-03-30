@@ -10,9 +10,9 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/ChainSafe/ChainBridgeV2/crypto"
-	"github.com/ChainSafe/ChainBridgeV2/crypto/secp256k1"
-	sr25519 "github.com/ChainSafe/ChainBridgeV2/crypto/sr25519"
+	"github.com/ChainSafe/ChainBridge/crypto"
+	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
+	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
 )
 
 // Decrypt uses AES to decrypt ciphertext with the symmetric key deterministically created from `password`
