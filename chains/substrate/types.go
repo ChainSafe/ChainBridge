@@ -42,7 +42,7 @@ func createAssetTxProposal(m msg.Message, meta *types.Metadata) (*assetTxProposa
 
 	call, err := types.NewCall(
 		meta,
-		ExampleTransfer,
+		ExampleTransfer.String(),
 		recipient,
 		amount,
 	)
