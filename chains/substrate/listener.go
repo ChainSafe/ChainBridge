@@ -105,7 +105,7 @@ func (l *Listener) pollBlocks() error {
 
 // processEvents fetches a block and parses out the events, calling Listener.handleEvents()
 func (l *Listener) processEvents(hash types.Hash) error {
-	log15.Trace("Fetching block", "hash", hash.Hex())
+	l.log.Trace("Fetching block", "hash", hash.Hex())
 	meta := l.conn.getMetadata()
 	key, err := types.CreateStorageKey(&meta, "System", "Events", nil, nil)
 	if err != nil {
@@ -125,7 +125,7 @@ func (l *Listener) processEvents(hash types.Hash) error {
 	}
 
 	l.handleEvents(e)
-	log15.Trace("Finished processing events", "block", hash.Hex())
+	l.log.Trace("Finished processing events", "block", hash.Hex())
 
 	return nil
 }
@@ -134,58 +134,58 @@ func (l *Listener) processEvents(hash types.Hash) error {
 func (l *Listener) handleEvents(evts Events) {
 	if l.subscriptions[RelayerThresholdSet] != nil {
 		for _, evt := range evts.Bridge_RelayerThresholdSet {
-			log15.Trace("Received RelayerThreshold event", "threshold", evt.Threshold)
+			l.log.Trace("Received RelayerThreshold event", "threshold", evt.Threshold)
 		}
 	}
 	if l.subscriptions[ChainWhitelisted] != nil {
 		for _, evt := range evts.Bridge_ChainWhitelisted {
-			log15.Trace("Received ChainWhitelisted event", "chainId", evt.ChainId)
+			l.log.Trace("Received ChainWhitelisted event", "chainId", evt.ChainId)
 		}
 	}
 	if l.subscriptions[RelayerAdded] != nil {
 		for _, evt := range evts.Bridge_RelayerAdded {
-			log15.Trace("Received RelayerAdded event", "relayer", evt.Relayer.Hex())
+			l.log.Trace("Received RelayerAdded event", "relayer", evt.Relayer.Hex())
 		}
 	}
 	if l.subscriptions[RelayerRemoved] != nil {
 		for _, evt := range evts.Bridge_RelayerRemoved {
-			log15.Trace("Received RelayerRemoved event", "relayer", evt.Relayer.Hex())
+			l.log.Trace("Received RelayerRemoved event", "relayer", evt.Relayer.Hex())
 		}
 	}
 	if l.subscriptions[AssetTransfer] != nil {
 		for _, evt := range evts.Bridge_AssetTransfer {
-			log15.Trace("Handling AssetTransfer event")
-			l.submitMessage(l.subscriptions[AssetTransfer](evt))
+			l.log.Trace("Handling AssetTransfer event")
+			l.submitMessage(l.subscriptions[AssetTransfer](evt, l.log))
 		}
 	}
 	if l.subscriptions[VoteFor] != nil {
 		for _, evt := range evts.Bridge_VoteFor {
-			log15.Trace("Received VoteFor event", "depositNonce", evt.DepositNonce)
+			l.log.Trace("Received VoteFor event", "depositNonce", evt.DepositNonce)
 		}
 	}
 	if l.subscriptions[VoteAgainst] != nil {
 		for _, evt := range evts.Bridge_VoteAgainst {
-			log15.Trace("Received VoteAgainst event", "depositNonce", evt.DepositNonce)
+			l.log.Trace("Received VoteAgainst event", "depositNonce", evt.DepositNonce)
 		}
 	}
 	if l.subscriptions[ProposalApproved] != nil {
 		for _, evt := range evts.Bridge_ProposalApproved {
-			log15.Trace("Received ProposalApproved event", "depositNonce", evt.DepositNonce)
+			l.log.Trace("Received ProposalApproved event", "depositNonce", evt.DepositNonce)
 		}
 	}
 	if l.subscriptions[ProposalRejected] != nil {
 		for _, evt := range evts.Bridge_ProposalRejected {
-			log15.Trace("Received ProposalRejected event", "depositNonce", evt.DepositNonce)
+			l.log.Trace("Received ProposalRejected event", "depositNonce", evt.DepositNonce)
 		}
 	}
 	if l.subscriptions[ProposalSucceeded] != nil {
 		for _, evt := range evts.Bridge_ProposalSucceeded {
-			log15.Trace("Received ProposalSucceeded event", "depositNonce", evt.DepositNonce)
+			l.log.Trace("Received ProposalSucceeded event", "depositNonce", evt.DepositNonce)
 		}
 	}
 	if l.subscriptions[ProposalFailed] != nil {
 		for _, evt := range evts.Bridge_ProposalFailed {
-			log15.Trace("Received ProposalFailed event", "depositNonce", evt.DepositNonce)
+			l.log.Trace("Received ProposalFailed event", "depositNonce", evt.DepositNonce)
 		}
 	}
 }
