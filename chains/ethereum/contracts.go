@@ -67,7 +67,8 @@ type BridgeFilterer interface {
 }
 
 type BridgeTransactor interface {
-	DepositERC20(opts *bind.TransactOpts, originChainTokenAddress common.Address, originChainHandlerAddress common.Address, destinationChainID *big.Int, destinationChainHandlerAddress common.Address, destinationRecipientAddress common.Address, amount *big.Int) (*types.Transaction, error)
+	Deposit(opts *bind.TransactOpts, originChainHandlerAddress common.Address, data []byte)(*types.Transaction, error)
+	//DepositERC20(opts *bind.TransactOpts, originChainTokenAddress common.Address, originChainHandlerAddress common.Address, destinationChainID *big.Int, destinationChainHandlerAddress common.Address, destinationRecipientAddress common.Address, amount *big.Int) (*types.Transaction, error)
 }
 
 type BridgeCaller interface {
