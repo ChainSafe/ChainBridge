@@ -15,11 +15,13 @@ import (
 var _ chains.Writer = &Writer{}
 
 type Writer struct {
-	cfg            Config
-	conn           *Connection
-	bridgeContract BridgeContract // instance of bound receiver contract
-	gasPrice       *big.Int
-	gasLimit       *big.Int
+	cfg            			Config
+	conn           			*Connection
+	bridgeContract 			BridgeContract // instance of bound receiver contract
+	erc20HandlerContract	ERC20HandlerContract
+	erc721HandlerContract	ERC721HandlerContract
+	gasPrice       			*big.Int
+	gasLimit       			*big.Int
 }
 
 func NewWriter(conn *Connection, cfg *Config) *Writer {
@@ -38,6 +40,14 @@ func (w *Writer) Start() error {
 
 func (w *Writer) SetBridgeContract(bridge BridgeContract) {
 	w.bridgeContract = bridge
+}
+
+func (w *Writer) SetERC20HandlerContract(erc20Handler ERC20HandlerContract) {
+	w.erc20HandlerContract = erc20Handler
+}
+
+func (w *Writer) SetERC721HandlerContract(erc721Handler ERC721HandlerContract) {
+	w.erc721HandlerContract = erc721Handler
 }
 
 // ResolveMessage handles any given message based on type
