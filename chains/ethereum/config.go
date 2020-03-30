@@ -28,7 +28,7 @@ type Config struct {
 	gasPrice     *big.Int
 	http         bool // Config for type of connection
 	//temporary to get tests passing until message metadata finalized
-	erc20HandlerContract common.Address
+	erc20HandlerContract  common.Address
 	erc721HandlerContract common.Address
 }
 

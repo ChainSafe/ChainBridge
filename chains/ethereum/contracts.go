@@ -13,7 +13,6 @@ import (
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20 "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721 "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
-
 )
 
 // genericDepositRecord is the return value from the solidity function getGenericDepositRecord()
@@ -53,16 +52,14 @@ type BridgeContract struct {
 
 type ERC20HandlerContract struct {
 	ERC20HandlerFilterer
-	ERC20HandlerCaller     
+	ERC20HandlerCaller
 	ERC20HandlerRaw
-   
 }
 
 type ERC721HandlerContract struct {
-	ERC721HandlerFilterer  	
+	ERC721HandlerFilterer
 	ERC721HandlerCaller
 	ERC721HandlerRaw
-
 }
 
 type BridgeFilterer interface {
@@ -83,7 +80,6 @@ type BridgeRaw interface {
 }
 
 type ERC20HandlerFilterer interface {
-
 }
 
 type ERC20HandlerCaller interface {
@@ -94,11 +90,9 @@ type ERC20HandlerRaw interface {
 	Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{})
 	Transfer(opts *bind.TransactOpts) (*types.Transaction, error)
 	Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error)
-
 }
 
 type ERC721HandlerFilterer interface {
-
 }
 
 type ERC721HandlerCaller interface {
@@ -109,7 +103,6 @@ type ERC721HandlerRaw interface {
 	Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{})
 	Transfer(opts *bind.TransactOpts) (*types.Transaction, error)
 	Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error)
-
 }
 
 func UnpackGenericDepositRecord(args ...interface{}) (genericDepositRecord, error) {

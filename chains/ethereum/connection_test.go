@@ -8,13 +8,13 @@ import (
 	"strings"
 	"testing"
 
+	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 )
 
 const TestEndpoint = "ws://localhost:8545"
@@ -27,7 +27,7 @@ var defaultDeployOpts = DeployOpts{
 	numRelayers:      2,
 	relayerThreshold: big.NewInt(1),
 	minCount:         uint8(0),
-	chainID:		  big.NewInt(0),
+	chainID:          big.NewInt(0),
 }
 
 type DeployOpts struct {
@@ -35,7 +35,7 @@ type DeployOpts struct {
 	url              string
 	numRelayers      int
 	relayerThreshold *big.Int
-	chainID			 *big.Int
+	chainID          *big.Int
 	minCount         uint8
 }
 
@@ -54,7 +54,7 @@ func setOpts(opts DeployOpts) DeployOpts {
 		cfg.relayerThreshold = opts.relayerThreshold
 	}
 	if opts.chainID != nil {
-		cfg.chainID= opts.chainID
+		cfg.chainID = opts.chainID
 	}
 	if opts.minCount != 0 {
 		cfg.minCount = opts.minCount
@@ -76,9 +76,9 @@ func testDeployContracts(t *testing.T, customOpts DeployOpts) *Config {
 		gasPrice: big.NewInt(20000000000),
 		contract: deployedContracts.BridgeAddress,
 		//temporary to get the tests passing until metadata changes are addressed
-		erc20HandlerContract: deployedContracts.ERC20HandlerAddress,
+		erc20HandlerContract:  deployedContracts.ERC20HandlerAddress,
 		erc721HandlerContract: deployedContracts.ERC20HandlerAddress,
-	}	
+	}
 
 }
 
@@ -93,8 +93,8 @@ func createBridgeInstance(t *testing.T, connection *Connection, address ethcmn.A
 	}
 
 	bridgeContract := BridgeContract{
-		BridgeRaw:        raw,
-		BridgeCaller:     &bridgeInstance.BridgeCaller,
+		BridgeRaw:    raw,
+		BridgeCaller: &bridgeInstance.BridgeCaller,
 	}
 	return bridgeContract
 }

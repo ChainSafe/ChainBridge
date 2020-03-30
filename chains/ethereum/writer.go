@@ -15,13 +15,13 @@ import (
 var _ chains.Writer = &Writer{}
 
 type Writer struct {
-	cfg            			Config
-	conn           			*Connection
-	bridgeContract 			BridgeContract // instance of bound receiver contract
-	erc20HandlerContract	ERC20HandlerContract
-	erc721HandlerContract	ERC721HandlerContract
-	gasPrice       			*big.Int
-	gasLimit       			*big.Int
+	cfg                   Config
+	conn                  *Connection
+	bridgeContract        BridgeContract // instance of bound receiver contract
+	erc20HandlerContract  ERC20HandlerContract
+	erc721HandlerContract ERC721HandlerContract
+	gasPrice              *big.Int
+	gasLimit              *big.Int
 }
 
 func NewWriter(conn *Connection, cfg *Config) *Writer {
