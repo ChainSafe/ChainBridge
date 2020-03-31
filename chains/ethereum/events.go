@@ -6,6 +6,7 @@ package ethereum
 import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
+	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
@@ -20,13 +21,14 @@ const (
 	DepositAssetSignature           = "DepositAsset(address,bytes32)"
 	NftTransferSignature            = "NFTTransfer(uint256,uint256,address,address,uint256,bytes)"
 	ErcTransferSignature            = "ERCTransfer(uint256,uint256,address,uint256,address)"
-	DepositProposalCreatedSignature = "DepositProposalCreated(uint256,uint256,bytes32)"
+	DepositProposalCreatedSignature = "DepositProposalCreated(uint256,uint256,uint256,bytes32)"
 )
 
 type evtHandlerFn func(ethtypes.Log) msg.Message
 
 func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	log15.Debug("Handling deposited event")
+	fmt.Println(&bind.CallOpts{})
 
 	depositNonce := event.Topics[1].Big() // Only item in log is indexed.
 
@@ -57,6 +59,9 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 		Metadata:     deposit.Amount.Bytes(),
 	}
 }
+
+//        emit DepositProposalVote(_chainID, destinationChainID, depositNonce, vote, depositProposal._status);
+
 
 func (l *Listener) handleVoteEvent(event ethtypes.Log) msg.Message {
 	log15.Debug("Handling vote event")

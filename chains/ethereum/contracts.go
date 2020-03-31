@@ -37,11 +37,9 @@ type erc20DepositRecord struct {
 // depositProposal is the return value from the solidity function getDepositProposal()
 type depositProposal struct {
 	OriginChainID *big.Int
+	DestChainID	  *big.Int
 	DepositNonce  *big.Int
 	DataHash      [32]byte
-	YesVotes      []common.Address
-	NoVotes       []common.Address
-	Status        string
 }
 
 type BridgeContract struct {
@@ -91,7 +89,7 @@ type ERC20HandlerCaller interface {
 }
 
 type ERC20HandlerRaw interface {
-	Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{})
+	Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) (error)
 	Transfer(opts *bind.TransactOpts) (*types.Transaction, error)
 	Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error)
 }
@@ -132,19 +130,28 @@ func UnpackGenericDepositRecord(args ...interface{}) (genericDepositRecord, erro
 
 func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
 	fmt.Println("WE ARE HERE NOW")
-	if args[5] != nil {
-		return erc20DepositRecord{}, args[5].(error)
+	if args[1] != nil {
+		return erc20DepositRecord{}, args[1].(error)
 	}
+	// OriginChainTokenAddress        common.Address
+	// DestinationChainID             *big.Int
+	// DestinationChainHandlerAddress common.Address
+	// DestinationChainTokenAddress   common.Address
+	// DestinationRecipientAddress    common.Address
+	// Depositer                      common.Address
+	// Amount                         *big.Int
 
 	return erc20DepositRecord{
-			OriginChainTokenAddress:   args[0].(common.Address),
-			DestChainHandlerAddress:   args[1].(common.Address),
-			DestChainTokenAddress:     args[3].(common.Address),
-			DestRecipientAddress:      args[3].(common.Address),
-			Amount:                    args[4].(*big.Int),
+			OriginChainTokenAddress:   args[0].(erc20.ERC20HandlerDepositRecord).OriginChainTokenAddress,
+			DestChainHandlerAddress:   args[0].(erc20.ERC20HandlerDepositRecord).DestinationChainHandlerAddress,
+			DestChainTokenAddress:     args[0].(erc20.ERC20HandlerDepositRecord).DestinationChainTokenAddress,
+			DestRecipientAddress:      args[0].(erc20.ERC20HandlerDepositRecord).DestinationRecipientAddress,
+			Amount:                    args[0].(erc20.ERC20HandlerDepositRecord).Amount,
 		},
 		nil
 }
+
+//        emit DepositProposalCreated(_chainID, destinationChainID, depositNonce, dataHash);
 
 func UnpackDepositProposal(args ...interface{}) (depositProposal, error) {
 	if args[6] != nil {
@@ -152,11 +159,9 @@ func UnpackDepositProposal(args ...interface{}) (depositProposal, error) {
 	}
 	return depositProposal{
 			OriginChainID: args[0].(*big.Int),
-			DepositNonce:  args[1].(*big.Int),
-			DataHash:      args[2].([32]byte),
-			YesVotes:      args[3].([]common.Address),
-			NoVotes:       args[4].([]common.Address),
-			Status:        args[5].(string),
+			DestChainID:   args[1].(*big.Int),
+			DepositNonce:  args[2].(*big.Int),
+			DataHash:      args[3].([32]byte),
 		},
 		nil
 }

@@ -29,10 +29,12 @@ func (r *MockRouter) Send(message msg.Message) error {
 func setupListener(t *testing.T, config *Config) (*Listener, *MockRouter) {
 	conn := newLocalConnection(t, config)
 	bridgeContract := createBridgeInstance(t, conn, config.contract)
+	erc20HandlerContract := createERC20HandlerInstance(t, conn, config.erc20HandlerContract)
 
 	router := &MockRouter{msgs: make(chan msg.Message)}
 	listener := NewListener(conn, config)
 	listener.SetBridgeContract(bridgeContract)
+	listener.SetERC20HandlerContract(erc20HandlerContract)
 	listener.SetRouter(router)
 	// Start the listener
 	err := listener.Start()
@@ -127,7 +129,7 @@ func TestListener_createProposalEvent(t *testing.T) {
 		Source:       msg.ChainId(0),
 		Destination:  msg.ChainId(1),
 		Type:         msg.VoteDepositProposalType,
-		DepositNonce: uint32(2),
+		DepositNonce: uint32(1),
 		Metadata:     metadata[:],
 	}
 

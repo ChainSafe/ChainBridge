@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	eth "github.com/ethereum/go-ethereum"
@@ -74,6 +76,7 @@ func deployContracts(t *testing.T, customOpts DeployOpts) (*Config, *DeployedCon
 			gasLimit: big.NewInt(6721975),
 			gasPrice: big.NewInt(20000000000),
 			contract: deployedContracts.BridgeAddress,
+			erc20HandlerContract: deployedContracts.ERC20HandlerAddress,
 		},
 		deployedContracts
 }
@@ -94,6 +97,23 @@ func createBridgeInstance(t *testing.T, connection *Connection, address common.A
 		BridgeTransactor: &bridgeInstance.BridgeTransactor,
 	}
 	return bridgeContract
+}
+
+func createERC20HandlerInstance(t *testing.T, connection *Connection, address common.Address) ERC20HandlerContract {
+	erc20HandlerInstance, err := erc20Handler.NewERC20Handler(address, connection.conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	raw := &erc20Handler.ERC20HandlerRaw{
+		Contract: erc20HandlerInstance,
+	}
+
+	erc20HandlerContract := ERC20HandlerContract{
+		ERC20HandlerRaw:        raw,
+		ERC20HandlerCaller:     &erc20HandlerInstance.ERC20HandlerCaller,
+	}
+	return erc20HandlerContract
 }
 
 func newLocalConnection(t *testing.T, cfg *Config) *Connection {

@@ -44,6 +44,10 @@ func (l *Listener) SetBridgeContract(contract BridgeContract) {
 	l.bridgeContract = contract
 }
 
+func (l *Listener) SetERC20HandlerContract(contract ERC20HandlerContract) {
+	l.erc20HandlerContract = contract
+}
+
 func (l *Listener) SetRouter(r chains.Router) {
 	l.router = r
 }

@@ -24,6 +24,7 @@ type Config struct {
 	from         string      // address of key to use
 	keystorePath string      // Location of keyfiles
 	contract     common.Address
+	erc20HandlerContract common.Address
 	gasLimit     *big.Int
 	gasPrice     *big.Int
 	http         bool // Config for type of connection
@@ -38,7 +39,8 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		endpoint:     chainCfg.Endpoint,
 		from:         chainCfg.From,
 		keystorePath: chainCfg.KeystorePath,
-		contract:     common.HexToAddress("0x0"),
+		contract:     ZERO_ADDRESS,
+		erc20HandlerContract: ZERO_ADDRESS,
 		gasLimit:     big.NewInt(DefaultGasLimit),
 		gasPrice:     big.NewInt(DefaultGasPrice),
 		http:         false,
