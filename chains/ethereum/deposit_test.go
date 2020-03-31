@@ -86,15 +86,15 @@ func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.
 	return nil
 }
 
-func createDepositProposal(contract BridgeContract, conn *Connection, txOpts *bind.TransactOpts, destChain, depositNonce *big.Int, metadata [32]byte) error {
-	if _, err := contract.BridgeRaw.Transact(
-		txOpts,
-		"createDepositProposal",
-		destChain,
-		depositNonce,
-		metadata,
-	); err != nil {
-		return err
-	}
-	return nil
-}
+// func createDepositProposal(contract BridgeContract, conn *Connection, txOpts *bind.TransactOpts, destChain, depositNonce *big.Int, metadata [32]byte) error {
+// 	if _, err := contract.BridgeRaw.Transact(
+// 		txOpts,
+// 		"createDepositProposal",
+// 		destChain,
+// 		depositNonce,
+// 		metadata,
+// 	); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
