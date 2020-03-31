@@ -25,7 +25,7 @@ jobs:
       name: "Golang-ci Linter"
       script:
         - make license-check
-        - make setup-contracts
+        - make clean && make setup-contracts
         - make lint
 
     - language: go
@@ -33,7 +33,7 @@ jobs:
       name: "Run Go tests"
       script:
         - set -e
-        - make setup-contracts
+        - make clean && make setup-contracts
         - SILENT=true make start-eth
         - make deploy-eth
         - ./scripts/substrate/run_chain_ci.sh
