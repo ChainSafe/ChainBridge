@@ -26,19 +26,19 @@ func TestRouter(t *testing.T) {
 	router := NewRouter()
 
 	ethW := &mockWriter{msgs: *new([]msg.Message)}
-	router.Listen(msg.EthereumId, ethW)
+	router.Listen(msg.ChainId(0), ethW)
 
 	ctfgW := &mockWriter{msgs: *new([]msg.Message)}
-	router.Listen(msg.CentrifugeId, ctfgW)
+	router.Listen(msg.ChainId(1), ctfgW)
 
 	msgEthToCtfg := msg.Message{
-		Source:      msg.EthereumId,
-		Destination: msg.CentrifugeId,
+		Source:      msg.ChainId(0),
+		Destination: msg.ChainId(1),
 	}
 
 	msgCtfgToEth := msg.Message{
-		Source:      msg.CentrifugeId,
-		Destination: msg.EthereumId,
+		Source:      msg.ChainId(1),
+		Destination: msg.ChainId(0),
 	}
 
 	err := router.Send(msgCtfgToEth)
