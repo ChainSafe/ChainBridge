@@ -6,7 +6,6 @@ package ethereum
 import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
-	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
@@ -28,10 +27,7 @@ type evtHandlerFn func(ethtypes.Log) msg.Message
 
 func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	log15.Debug("Handling deposited event")
-	fmt.Println(&bind.CallOpts{})
 
-	// THE WRONG DEPOSIT NONCE IS PROBABLY CAUSED BY THE TOPIC BEING WRONG
-	// BUT I'M NOT FAMILIAR ENOUGH TO FIGURE IT OUT 
 	depositNonce := event.Topics[2].Big() // Only item in log is indexed.
 
 	// TODO remove when issue addressed https://github.com/ChainSafe/ChainBridge/issues/173
@@ -61,23 +57,16 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 
 func (l *Listener) handleVoteEvent(event ethtypes.Log) msg.Message {
 	log15.Debug("Handling vote event")
-	// uint256 indexed originChainID,
-	// uint256 indexed destinationChainID,
-	//uint256 indexed depositNonce,
-	//bytes32         dataHash
-	//
-	//
-	originChainID := event.Topics[0].Big()
-	destinationChainID := event.Topics[1].Big()
-	depositNonce := event.Topics[2].Big()
-	hash := event.Topics[3]
+
+	originChainID := event.Topics[1].Big()
+	destinationChainID := event.Topics[2].Big()
+	depositNonce := event.Topics[3].Big()
 
 	return msg.Message{
 		Source:       msg.ChainId(uint8(originChainID.Uint64())), // Todo handle safely
 		Destination:  msg.ChainId(destinationChainID.Uint64()),  // Must write to the same contract
 		Type:         msg.VoteDepositProposalType,
 		DepositNonce: uint32(depositNonce.Int64()),
-		Metadata:     hash[:],
 	}
 }
 

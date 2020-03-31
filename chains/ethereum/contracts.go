@@ -5,8 +5,7 @@ package ethereum
 
 import (
 	"math/big"
-	"fmt"
-
+	
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -126,7 +125,6 @@ func UnpackGenericDepositRecord(args ...interface{}) (genericDepositRecord, erro
 
 
 func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
-	fmt.Println("WE ARE HERE NOW")
 	if args[1] != nil {
 		return erc20DepositRecord{}, args[1].(error)
 	}
@@ -148,8 +146,8 @@ func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
 //        emit DepositProposalCreated(_chainID, destinationChainID, depositNonce, dataHash);
 
 func UnpackDepositProposal(args ...interface{}) (depositProposal, error) {
-	if args[6] != nil {
-		return depositProposal{}, args[6].(error)
+	if args[4] != nil {
+		return depositProposal{}, args[4].(error)
 	}
 	return depositProposal{
 			OriginChainID: args[0].(*big.Int),
