@@ -15,10 +15,10 @@ import (
 	"gotest.tools/assert"
 )
 
-func assertProposalState(conn *Connection, key *proposalKey, votes *voteState, hasValue bool) error {
-	log15.Trace("Fetching votes", "key", key)
+func assertProposalState(conn *Connection, prop *proposal, votes *voteState, hasValue bool) error {
+	log15.Trace("Fetching votes", "DepositNonce", prop.DepositNonce)
 	var voteRes voteState
-	keyBz, err := types.EncodeToBytes(key)
+	keyBz, err := types.EncodeToBytes(prop)
 	if err != nil {
 		return nil
 	}
@@ -39,7 +39,7 @@ func assertProposalState(conn *Connection, key *proposalKey, votes *voteState, h
 	return nil
 }
 
-func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
+func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 	ac, bc := createAliceAndBobConnections(t)
 
 	alice := NewWriter(ac, TestLogger)
@@ -50,26 +50,24 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 	getFreeBalance(bob.conn, &startingBalance)
 
 	// Construct the message to initiate a vote
-	amount := types.MustHexDecodeString("1000000000")
-	data := append(bob.conn.key.PublicKey, amount...)
+	amount := uint32(10000000)
 	m := message.Message{
 		Source:       0,
 		Destination:  1,
-		Type:         message.DepositAssetType,
+		Type:         message.FungibleTransfer,
 		DepositNonce: 0,
-		To:           bob.conn.key.PublicKey,
-		Metadata:     data,
+		Metadata:     []interface{}{bob.conn.key.PublicKey, amount},
 	}
 
 	// Create a assetTxProposal to help us check results
 	meta := alice.conn.getMetadata()
-	prop, err := createAssetTxProposal(m, &meta)
+	prop, err := createFungibleProposal(m, &meta)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// First, ensure the assetTxProposal doesn't already exist
-	assert.NilError(t, assertProposalState(alice.conn, prop.getKey(), nil, false))
+	assert.NilError(t, assertProposalState(alice.conn, prop, nil, false))
 
 	// Submit the message for processing
 	ok := alice.ResolveMessage(m)
@@ -81,7 +79,7 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 	singleVoteState := &voteState{
 		VotesFor: []types.AccountID{types.NewAccountID(alice.conn.key.PublicKey)},
 	}
-	assert.NilError(t, assertProposalState(alice.conn, prop.getKey(), singleVoteState, true))
+	assert.NilError(t, assertProposalState(alice.conn, prop, singleVoteState, true))
 
 	// Submit a second vote from Bob this time
 	ok = bob.ResolveMessage(m)
@@ -96,10 +94,9 @@ func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 			types.NewAccountID(bob.conn.key.PublicKey),
 		},
 	}
-	assert.NilError(t, assertProposalState(alice.conn, prop.getKey(), finalVoteState, true))
+	assert.NilError(t, assertProposalState(alice.conn, prop, finalVoteState, true))
 
-	// Assert balance has updated
-	// TODO: This doesn't account for gas and stakng rewards, will update once example chain is implemented
+	// Assert balance has changed
 	var bBal types.U128
 	getFreeBalance(bob.conn, &bBal)
 	if bBal == startingBalance {
