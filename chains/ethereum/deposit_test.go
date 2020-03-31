@@ -88,7 +88,7 @@ func constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipie
 	data = append(data, common.LeftPadBytes(destHandler.Bytes(), 32)...)
 	data = append(data, common.LeftPadBytes(destHandler.Bytes(), 32)...)
 	data = append(data, common.LeftPadBytes(destTokenAddress.Bytes(), 32)...)
-	data = append(data, common.LeftPadBytes(amount.Bytes(), 32)...)
+	data = append(data, math.PaddedBigBytes(amount, 32)...)
 
 	return data
 }
