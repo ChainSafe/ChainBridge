@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"math/big"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	"fmt"
@@ -30,49 +31,52 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	log15.Debug("Handling deposited event")
 	fmt.Println(&bind.CallOpts{})
 
+	// THE WRONG DEPOSIT NONCE IS PROBABLY CAUSED BY THE TOPIC BEING WRONG
+	// BUT I'M NOT FAMILIAR ENOUGH TO FIGURE IT OUT 
 	depositNonce := event.Topics[1].Big() // Only item in log is indexed.
 
 	// TODO remove when issue addressed https://github.com/ChainSafe/ChainBridge/issues/173
-	var destID msg.ChainId
-	if l.cfg.id == 0 {
-		destID = msg.ChainId(1)
-	} else {
-		destID = msg.ChainId(0)
-	}
+	// var destID msg.ChainId
+	// if l.cfg.id == 0 {
+	// 	destID = msg.ChainId(1)
+	// } else {
+	// 	destID = msg.ChainId(0)
+	// }
 
-	log15.Info("GOT TO HANDLE ERC20 DEPOSITED EVENT")
-	log15.Info(depositNonce.String())
-
-	deposit, err := UnpackErc20DepositRecord(l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce))
+	//@TODO: Don't add 1 to the nonce
+	deposit, err := UnpackErc20DepositRecord(l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce.Add(big.NewInt(1), depositNonce),
+	))
 	if err != nil {
 		log15.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
 
-	log15.Info("FINISHED UNPACKING ERC20DEPOSITRECORD")
-
 	return msg.Message{
 		Type:         msg.CreateDepositProposalType,
 		Source:       l.cfg.id,
-		Destination:  msg.ChainId(destID),
+		Destination:  msg.ChainId(deposit.DestinationChainID.Uint64()),
 		DepositNonce: uint32(depositNonce.Uint64()),
-		To:           deposit.DestChainHandlerAddress.Bytes(),
+		To:           deposit.DestinationChainHandlerAddress.Bytes(),
 		Metadata:     deposit.Amount.Bytes(),
 	}
 }
 
-//        emit DepositProposalVote(_chainID, destinationChainID, depositNonce, vote, depositProposal._status);
-
 
 func (l *Listener) handleVoteEvent(event ethtypes.Log) msg.Message {
 	log15.Debug("Handling vote event")
-
-	originChainID := event.Topics[1].Big()
+	// uint256 indexed originChainID,
+	// uint256 indexed destinationChainID,
+	//uint256 indexed depositNonce,
+	//bytes32         dataHash
+	//
+	//
+	originChainID := event.Topics[0].Big()
+	destinationChainID := event.Topics[1].Big()
 	depositNonce := event.Topics[2].Big()
 	hash := event.Topics[3]
 
 	return msg.Message{
 		Source:       msg.ChainId(uint8(originChainID.Uint64())), // Todo handle safely
-		Destination:  l.cfg.id,                                   // Must write to the same contract
+		Destination:  msg.ChainId(destinationChainID.Uint64()),  // Must write to the same contract
 		Type:         msg.VoteDepositProposalType,
 		DepositNonce: uint32(depositNonce.Int64()),
 		Metadata:     hash[:],

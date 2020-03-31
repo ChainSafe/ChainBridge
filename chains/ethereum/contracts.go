@@ -27,11 +27,13 @@ type genericDepositRecord struct {
 }
 
 type erc20DepositRecord struct {
-	OriginChainTokenAddress   common.Address
-	DestChainHandlerAddress   common.Address
-	DestChainTokenAddress     common.Address
-	DestRecipientAddress      common.Address
-	Amount                    *big.Int
+	OriginChainTokenAddress        common.Address
+	DestinationChainID             *big.Int
+	DestinationChainHandlerAddress common.Address
+	DestinationChainTokenAddress   common.Address
+	DestinationRecipientAddress    common.Address
+	Depositer                      common.Address
+	Amount                         *big.Int
 }
 
 // depositProposal is the return value from the solidity function getDepositProposal()
@@ -122,31 +124,23 @@ func UnpackGenericDepositRecord(args ...interface{}) (genericDepositRecord, erro
 		nil
 }
 
-// originChainTokenAddress        := mload(add(data, 0x20))
-// destinationChainHandlerAddress := mload(add(data, 0x40))
-// destinationChainTokenAddress   := mload(add(data, 0x60))
-// destinationRecipientAddress    := mload(add(data, 0x80))
-// amount                         := mload(add(data, 0xA0))
 
 func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
 	fmt.Println("WE ARE HERE NOW")
 	if args[1] != nil {
 		return erc20DepositRecord{}, args[1].(error)
 	}
-	// OriginChainTokenAddress        common.Address
-	// DestinationChainID             *big.Int
-	// DestinationChainHandlerAddress common.Address
-	// DestinationChainTokenAddress   common.Address
-	// DestinationRecipientAddress    common.Address
-	// Depositer                      common.Address
-	// Amount                         *big.Int
+
+	depositRecord := args[0].(erc20.ERC20HandlerDepositRecord)
 
 	return erc20DepositRecord{
-			OriginChainTokenAddress:   args[0].(erc20.ERC20HandlerDepositRecord).OriginChainTokenAddress,
-			DestChainHandlerAddress:   args[0].(erc20.ERC20HandlerDepositRecord).DestinationChainHandlerAddress,
-			DestChainTokenAddress:     args[0].(erc20.ERC20HandlerDepositRecord).DestinationChainTokenAddress,
-			DestRecipientAddress:      args[0].(erc20.ERC20HandlerDepositRecord).DestinationRecipientAddress,
-			Amount:                    args[0].(erc20.ERC20HandlerDepositRecord).Amount,
+			OriginChainTokenAddress:   		depositRecord.OriginChainTokenAddress,
+			DestinationChainID:		   		depositRecord.DestinationChainID,
+			DestinationChainHandlerAddress: depositRecord.DestinationChainHandlerAddress,
+			DestinationChainTokenAddress:   depositRecord.DestinationChainTokenAddress,
+			DestinationRecipientAddress:    depositRecord.DestinationRecipientAddress,
+			Depositer:                      depositRecord.Depositer,
+			Amount:                    		depositRecord.Amount,
 		},
 		nil
 }
