@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
@@ -26,6 +28,7 @@ var BobKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 
 var defaultDeployOpts = DeployOpts{
 	pk:               hexutil.Encode(AliceKp.Encode())[2:],
+	chainID:          big.NewInt(0),
 	url:              "http://localhost:8545",
 	numRelayers:      2,
 	relayerThreshold: big.NewInt(1),
@@ -36,6 +39,7 @@ var TestLogger = newTestLogger()
 
 type DeployOpts struct {
 	pk               string
+	chainID          *big.Int
 	url              string
 	numRelayers      int
 	relayerThreshold *big.Int
@@ -70,17 +74,18 @@ func setOpts(opts DeployOpts) DeployOpts {
 
 func deployContracts(t *testing.T, customOpts DeployOpts) (*Config, *DeployedContracts) {
 	opts := setOpts(customOpts)
-	deployedContracts, err := DeployContracts(opts.pk, opts.url, opts.numRelayers, opts.relayerThreshold, opts.minCount)
+	deployedContracts, err := DeployContracts(opts.pk, opts.chainID, opts.url, opts.numRelayers, opts.relayerThreshold, opts.minCount)
 	if err != nil {
 		t.Fatal(err)
 	}
 	return &Config{
-			id:       msg.ChainId(0),
-			endpoint: TestEndpoint,
-			from:     keystore.AliceKey,
-			gasLimit: big.NewInt(6721975),
-			gasPrice: big.NewInt(20000000000),
-			contract: deployedContracts.BridgeAddress,
+			id:                   msg.ChainId(0),
+			endpoint:             TestEndpoint,
+			from:                 keystore.AliceKey,
+			gasLimit:             big.NewInt(6721975),
+			gasPrice:             big.NewInt(20000000000),
+			contract:             deployedContracts.BridgeAddress,
+			erc20HandlerContract: deployedContracts.ERC20HandlerAddress,
 		},
 		deployedContracts
 }
@@ -101,6 +106,23 @@ func createBridgeInstance(t *testing.T, connection *Connection, address common.A
 		BridgeTransactor: &bridgeInstance.BridgeTransactor,
 	}
 	return bridgeContract
+}
+
+func createERC20HandlerInstance(t *testing.T, connection *Connection, address common.Address) ERC20HandlerContract {
+	erc20HandlerInstance, err := erc20Handler.NewERC20Handler(address, connection.conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	raw := &erc20Handler.ERC20HandlerRaw{
+		Contract: erc20HandlerInstance,
+	}
+
+	erc20HandlerContract := ERC20HandlerContract{
+		ERC20HandlerRaw:    raw,
+		ERC20HandlerCaller: &erc20HandlerInstance.ERC20HandlerCaller,
+	}
+	return erc20HandlerContract
 }
 
 func newLocalConnection(t *testing.T, cfg *Config) *Connection {
