@@ -93,6 +93,8 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
 ## Ethereum Dev Environment 
 
+First, run `make setup-contracts`.
+
 To start a ganache instance:
 ```
 make start-eth
