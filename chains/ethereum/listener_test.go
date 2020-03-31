@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-
 	"github.com/ethereum/go-ethereum/common"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -102,7 +101,7 @@ func TestListener_depositEvent(t *testing.T) {
 		t.Fatal(err)
 	}
 
-// Verify message
+	// Verify message
 	select {
 	case m := <-router.msgs:
 		if !reflect.DeepEqual(expectedMessage, m) {
@@ -112,6 +111,8 @@ func TestListener_depositEvent(t *testing.T) {
 		t.Fatalf("test timed out")
 	}
 }
+
+// @TODO: Replace with Create&Vote
 
 // func TestListener_createProposalEvent(t *testing.T) {
 // 	cfg, _ := deployContracts(t, defaultDeployOpts)

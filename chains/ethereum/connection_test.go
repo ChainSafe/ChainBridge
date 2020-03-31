@@ -27,7 +27,7 @@ var BobKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 
 var defaultDeployOpts = DeployOpts{
 	pk:               hexutil.Encode(AliceKp.Encode())[2:],
-	chainID:		  big.NewInt(0),
+	chainID:          big.NewInt(0),
 	url:              "http://localhost:8545",
 	numRelayers:      2,
 	relayerThreshold: big.NewInt(1),
@@ -36,7 +36,7 @@ var defaultDeployOpts = DeployOpts{
 
 type DeployOpts struct {
 	pk               string
-	chainID			 *big.Int
+	chainID          *big.Int
 	url              string
 	numRelayers      int
 	relayerThreshold *big.Int
@@ -70,12 +70,12 @@ func deployContracts(t *testing.T, customOpts DeployOpts) (*Config, *DeployedCon
 		t.Fatal(err)
 	}
 	return &Config{
-			id:       msg.EthereumId,
-			endpoint: TestEndpoint,
-			from:     keystore.AliceKey,
-			gasLimit: big.NewInt(6721975),
-			gasPrice: big.NewInt(20000000000),
-			contract: deployedContracts.BridgeAddress,
+			id:                   msg.EthereumId,
+			endpoint:             TestEndpoint,
+			from:                 keystore.AliceKey,
+			gasLimit:             big.NewInt(6721975),
+			gasPrice:             big.NewInt(20000000000),
+			contract:             deployedContracts.BridgeAddress,
 			erc20HandlerContract: deployedContracts.ERC20HandlerAddress,
 		},
 		deployedContracts
@@ -110,8 +110,8 @@ func createERC20HandlerInstance(t *testing.T, connection *Connection, address co
 	}
 
 	erc20HandlerContract := ERC20HandlerContract{
-		ERC20HandlerRaw:        raw,
-		ERC20HandlerCaller:     &erc20HandlerInstance.ERC20HandlerCaller,
+		ERC20HandlerRaw:    raw,
+		ERC20HandlerCaller: &erc20HandlerInstance.ERC20HandlerCaller,
 	}
 	return erc20HandlerContract
 }

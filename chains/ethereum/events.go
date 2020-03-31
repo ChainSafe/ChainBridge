@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	DepositAsset           = "DepositAsset"
-	NftTransfer            = "NftTransfer"
-	ErcTransfer            = "ErcTransfer"
-	DepositProposalCreated = "DepositProposalCreated"
-	DepositedErc20         = "DepositedErc20"
+	DepositAsset                    = "DepositAsset"
+	NftTransfer                     = "NftTransfer"
+	ErcTransfer                     = "ErcTransfer"
+	DepositProposalCreated          = "DepositProposalCreated"
+	DepositedErc20                  = "DepositedErc20"
 	DepositedErc20Signature         = "Deposit(uint256,uint256,address,uint256)"
 	DepositAssetSignature           = "DepositAsset(address,bytes32)"
 	NftTransferSignature            = "NFTTransfer(uint256,uint256,address,address,uint256,bytes)"
@@ -38,8 +38,7 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	// 	destID = msg.ChainId(0)
 	// }
 
-	deposit, err := UnpackErc20DepositRecord(l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce,
-	))
+	deposit, err := UnpackErc20DepositRecord(l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce))
 	if err != nil {
 		log15.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
@@ -54,7 +53,6 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	}
 }
 
-
 func (l *Listener) handleVoteEvent(event ethtypes.Log) msg.Message {
 	log15.Debug("Handling vote event")
 
@@ -64,7 +62,7 @@ func (l *Listener) handleVoteEvent(event ethtypes.Log) msg.Message {
 
 	return msg.Message{
 		Source:       msg.ChainId(uint8(originChainID.Uint64())), // Todo handle safely
-		Destination:  msg.ChainId(destinationChainID.Uint64()),  // Must write to the same contract
+		Destination:  msg.ChainId(destinationChainID.Uint64()),   // Must write to the same contract
 		Type:         msg.VoteDepositProposalType,
 		DepositNonce: uint32(depositNonce.Int64()),
 	}

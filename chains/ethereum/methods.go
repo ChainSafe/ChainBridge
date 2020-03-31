@@ -52,7 +52,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		opts,
 		CreateDepositProposalMethod,
 		m.Source.Big(),
-		u32toBigInt(m.DepositNonce-1),
+		u32toBigInt(m.DepositNonce),
 		hash,
 	)
 

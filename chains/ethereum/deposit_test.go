@@ -39,11 +39,7 @@ func approveErc20(connection *Connection, opts *bind.TransactOpts, contractAddre
 
 	return nil
 }
-// originChainTokenAddress        := mload(add(data, 0x20))
-// destinationChainHandlerAddress := mload(add(data, 0x40))
-// destinationChainTokenAddress   := mload(add(data, 0x60))
-// destinationRecipientAddress    := mload(add(data, 0x80))
-// amount                         := mload(add(data, 0xA0))
+
 // constructDataBytes constructs the data field to be passed into a deposit call
 func constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipient common.Address, amount *big.Int) []byte {
 	var data []byte

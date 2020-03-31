@@ -4,7 +4,7 @@
 package ethereum
 
 import (
-	// "math/big"
+	"math/big"
 	"testing"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
@@ -51,111 +51,112 @@ func generateMessage() msg.Message {
 	}
 }
 
-// func TestWriter_createDepositProposal(t *testing.T) {
-// 	opts := defaultDeployOpts
-// 	opts.relayerThreshold = big.NewInt(2)
-// 	cfg, _ := deployContracts(t, opts)
-// 	w := setupWriter(t, cfg)
-// 	m := generateMessage()
+// @TODO: REWRITE TO ACCOUNT FOR CREATE&VOTE
+func TestWriter_createDepositProposal(t *testing.T) {
+	opts := defaultDeployOpts
+	opts.relayerThreshold = big.NewInt(2)
+	cfg, _ := deployContracts(t, opts)
+	w := setupWriter(t, cfg)
+	m := generateMessage()
 
-// 	res := w.createDepositProposal(m)
-// 	if res != true {
-// 		t.Fatal("Failed to create deposit proposal")
-// 	}
+	res := w.createDepositProposal(m)
+	if res != true {
+		t.Fatal("Failed to create deposit proposal")
+	}
 
-// 	// Should fail, cannot make same proposal twice
-// 	res = w.createDepositProposal(m)
-// 	if res != false {
-// 		t.Fatal("Failed to create deposit proposal")
-// 	}
-// }
+	// Should fail, cannot make same proposal twice
+	res = w.createDepositProposal(m)
+	if res != false {
+		t.Fatal("Failed to create deposit proposal")
+	}
+}
 
-// func TestWriter_voteDepositProposal(t *testing.T) {
-// 	opts := defaultDeployOpts
-// 	opts.relayerThreshold = big.NewInt(2)
-// 	cfg, _ := deployContracts(t, opts)
-// 	w := setupWriter(t, cfg)
-// 	m := generateMessage()
+func TestWriter_voteDepositProposal(t *testing.T) {
+	opts := defaultDeployOpts
+	opts.relayerThreshold = big.NewInt(2)
+	cfg, _ := deployContracts(t, opts)
+	w := setupWriter(t, cfg)
+	m := generateMessage()
 
-// 	// Succeeds Vote: 1/2
-// 	createRes := w.createDepositProposal(m)
-// 	if createRes != true {
-// 		t.Fatal("failed to create deposit proposal")
-// 	}
+	// Succeeds Vote: 1/2
+	createRes := w.createDepositProposal(m)
+	if createRes != true {
+		t.Fatal("failed to create deposit proposal")
+	}
 
-// 	// Switch signer
-// 	config2 := *cfg
-// 	config2.from = keystore.BobKey
-// 	w2 := setupWriter(t, &config2)
+	// Switch signer
+	config2 := *cfg
+	config2.from = keystore.BobKey
+	w2 := setupWriter(t, &config2)
 
-// 	// Succeeds Vote: 2/2
-// 	voteRes := w2.voteDepositProposal(m)
-// 	if voteRes != true {
-// 		t.Fatal("Failed to vote")
-// 	}
+	// Succeeds Vote: 2/2
+	voteRes := w2.voteDepositProposal(m)
+	if voteRes != true {
+		t.Fatal("Failed to vote")
+	}
 
-// 	// Switch signer
-// 	config3 := *cfg
-// 	config3.from = keystore.BobKey
-// 	w3 := setupWriter(t, &config3)
+	// Switch signer
+	config3 := *cfg
+	config3.from = keystore.BobKey
+	w3 := setupWriter(t, &config3)
 
-// 	// Vote is finalized already
-// 	voteRes = w3.voteDepositProposal(m)
-// 	if voteRes != false {
-// 		t.Fatal("Failed to vote")
-// 	}
-// }
+	// Vote is finalized already
+	voteRes = w3.voteDepositProposal(m)
+	if voteRes != false {
+		t.Fatal("Failed to vote")
+	}
+}
 
-// func TestWriter_voteDepositProposalFailed(t *testing.T) {
-// 	opts := defaultDeployOpts
-// 	opts.relayerThreshold = big.NewInt(2)
-// 	cfg, _ := deployContracts(t, opts)
-// 	w := setupWriter(t, cfg)
-// 	m := generateMessage()
+func TestWriter_voteDepositProposalFailed(t *testing.T) {
+	opts := defaultDeployOpts
+	opts.relayerThreshold = big.NewInt(2)
+	cfg, _ := deployContracts(t, opts)
+	w := setupWriter(t, cfg)
+	m := generateMessage()
 
-// 	createRes := w.createDepositProposal(m)
-// 	if createRes != true {
-// 		t.Fatal("failed to create deposit proposal")
-// 	}
+	createRes := w.createDepositProposal(m)
+	if createRes != true {
+		t.Fatal("failed to create deposit proposal")
+	}
 
-// 	// Proposal with nonce 5 doesn't exist, this should fail
-// 	m.DepositNonce = uint32(5)
-// 	voteRes := w.voteDepositProposal(m)
-// 	if voteRes != false {
-// 		t.Fatal("Vote was supposed to fail, but passed")
-// 	}
-// }
+	// Proposal with nonce 5 doesn't exist, this should fail
+	m.DepositNonce = uint32(5)
+	voteRes := w.voteDepositProposal(m)
+	if voteRes != false {
+		t.Fatal("Vote was supposed to fail, but passed")
+	}
+}
 
-// // Helper function that allows us to create, vote, and execute a proposal
-// // This should be only be used when testing a handler
-// func createAndVote(t *testing.T, cfg *Config, w *Writer, m msg.Message) {
-// 	createRes := w.createDepositProposal(m)
-// 	if createRes != true {
-// 		t.Fatal("failed to create deposit proposal")
-// 	}
+// Helper function that allows us to create, vote, and execute a proposal
+// This should be only be used when testing a handler
+func createAndVote(t *testing.T, cfg *Config, w *Writer, m msg.Message) {
+	createRes := w.createDepositProposal(m)
+	if createRes != true {
+		t.Fatal("failed to create deposit proposal")
+	}
 
-// 	// Switch signer
-// 	config2 := *cfg
-// 	config2.from = keystore.BobKey
-// 	w2 := setupWriter(t, &config2)
+	// Switch signer
+	config2 := *cfg
+	config2.from = keystore.BobKey
+	w2 := setupWriter(t, &config2)
 
-// 	voteRes := w2.voteDepositProposal(m)
-// 	if voteRes != true {
-// 		t.Fatal("Failed to vote")
-// 	}
+	voteRes := w2.voteDepositProposal(m)
+	if voteRes != true {
+		t.Fatal("Failed to vote")
+	}
 
-// 	// Requires that the handler in `m` is actually deployed
-// 	// executeRes := w.executeDeposit(m)
-// 	// if executeRes != true {
-// 	// 	t.Fatal("Failed to execute the proposal")
-// 	// }
-// }
+	// Requires that the handler in `m` is actually deployed
+	// executeRes := w.executeDeposit(m)
+	// if executeRes != true {
+	// 	t.Fatal("Failed to execute the proposal")
+	// }
+}
 
-// func Test_createAndVote(t *testing.T) {
-// 	opts := defaultDeployOpts
-// 	opts.relayerThreshold = big.NewInt(2)
-// 	cfg, _ := deployContracts(t, opts)
-// 	w := setupWriter(t, cfg)
-// 	m := generateMessage()
-// 	createAndVote(t, cfg, w, m)
-// }
+func Test_createAndVote(t *testing.T) {
+	opts := defaultDeployOpts
+	opts.relayerThreshold = big.NewInt(2)
+	cfg, _ := deployContracts(t, opts)
+	w := setupWriter(t, cfg)
+	m := generateMessage()
+	createAndVote(t, cfg, w, m)
+}
