@@ -18,30 +18,32 @@ const DefaultGasPrice = 20000000000
 
 // Config encapsulates all necessary parameters in ethereum compatible forms
 type Config struct {
-	name         string      // Human-readable chain name
-	id           msg.ChainId // ChainID
-	endpoint     string      // url for rpc endpoint
-	from         string      // address of key to use
-	keystorePath string      // Location of keyfiles
-	contract     common.Address
-	gasLimit     *big.Int
-	gasPrice     *big.Int
-	http         bool // Config for type of connection
+	name                 string      // Human-readable chain name
+	id                   msg.ChainId // ChainID
+	endpoint             string      // url for rpc endpoint
+	from                 string      // address of key to use
+	keystorePath         string      // Location of keyfiles
+	contract             common.Address
+	erc20HandlerContract common.Address
+	gasLimit             *big.Int
+	gasPrice             *big.Int
+	http                 bool // Config for type of connection
 }
 
 // parseChainConfig uses a core.ChainConfig to construct a corresponding Config
 func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 
 	config := &Config{
-		name:         chainCfg.Name,
-		id:           chainCfg.Id,
-		endpoint:     chainCfg.Endpoint,
-		from:         chainCfg.From,
-		keystorePath: chainCfg.KeystorePath,
-		contract:     common.HexToAddress("0x0"),
-		gasLimit:     big.NewInt(DefaultGasLimit),
-		gasPrice:     big.NewInt(DefaultGasPrice),
-		http:         false,
+		name:                 chainCfg.Name,
+		id:                   chainCfg.Id,
+		endpoint:             chainCfg.Endpoint,
+		from:                 chainCfg.From,
+		keystorePath:         chainCfg.KeystorePath,
+		contract:             ZERO_ADDRESS,
+		erc20HandlerContract: ZERO_ADDRESS,
+		gasLimit:             big.NewInt(DefaultGasLimit),
+		gasPrice:             big.NewInt(DefaultGasPrice),
+		http:                 false,
 	}
 
 	if contract, ok := chainCfg.Opts["contract"]; ok && contract != "" {

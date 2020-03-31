@@ -24,12 +24,13 @@ type ActiveSubscription struct {
 }
 
 type Listener struct {
-	cfg            Config
-	conn           *Connection
-	subscriptions  map[EventSig]*ActiveSubscription
-	router         chains.Router
-	bridgeContract BridgeContract // instance of bound bridge contract
-	log            log15.Logger
+	cfg                  Config
+	conn                 *Connection
+	subscriptions        map[EventSig]*ActiveSubscription
+	router               chains.Router
+	bridgeContract       BridgeContract       // instance of bound bridge contract
+	erc20HandlerContract ERC20HandlerContract // instance of bound erc20 handler
+	log                  log15.Logger
 }
 
 func NewListener(conn *Connection, cfg *Config, log log15.Logger) *Listener {
@@ -43,6 +44,10 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger) *Listener {
 
 func (l *Listener) SetBridgeContract(contract BridgeContract) {
 	l.bridgeContract = contract
+}
+
+func (l *Listener) SetERC20HandlerContract(contract ERC20HandlerContract) {
+	l.erc20HandlerContract = contract
 }
 
 func (l *Listener) SetRouter(r chains.Router) {
