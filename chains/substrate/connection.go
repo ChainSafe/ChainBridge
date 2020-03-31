@@ -23,10 +23,11 @@ type Connection struct {
 	genesisHash types.Hash
 	key         *signature.KeyringPair
 	metaLock    sync.RWMutex
+	log         log15.Logger
 }
 
-func NewConnection(url string, name string, key *signature.KeyringPair) *Connection {
-	return &Connection{url: url, name: name, key: key}
+func NewConnection(url string, name string, key *signature.KeyringPair, log log15.Logger) *Connection {
+	return &Connection{url: url, name: name, key: key, log: log}
 }
 
 func (c *Connection) getMetadata() (meta types.Metadata) {
@@ -37,7 +38,7 @@ func (c *Connection) getMetadata() (meta types.Metadata) {
 }
 
 func (c *Connection) Connect() error {
-	log15.Info("Connecting to substrate chain...", "chain", c.name)
+	c.log.Info("Connecting to substrate chain...")
 	api, err := gsrpc.NewSubstrateAPI(c.url)
 	if err != nil {
 		return err
@@ -50,7 +51,7 @@ func (c *Connection) Connect() error {
 		return err
 	}
 	c.meta = *meta
-	log15.Debug("Fetched substrate metadata")
+	c.log.Debug("Fetched substrate metadata")
 
 	// Fetch genesis hash
 	genesisHash, err := c.api.RPC.Chain.GetBlockHash(0)
@@ -58,14 +59,14 @@ func (c *Connection) Connect() error {
 		return err
 	}
 	c.genesisHash = genesisHash
-	log15.Debug("Fetched substrate genesis hash", "hash", genesisHash.Hex())
+	c.log.Debug("Fetched substrate genesis hash", "hash", genesisHash.Hex())
 	return nil
 }
 
 // SubmitTx constructs and submits an extrinsic to call the method with the given arguments.
 // All args are passed directly into GSRPC. GSRPC types are recommended to avoid serialization inconsistencies.
 func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
-	log15.Debug("Submitting substrate call...", "method", method, "sender", c.key.Address)
+	c.log.Debug("Submitting substrate call...", "method", method, "sender", c.key.Address)
 
 	meta := c.getMetadata()
 
@@ -112,7 +113,7 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	if err != nil {
 		return fmt.Errorf("submission of extrinsic failed: %s", err.Error())
 	}
-	log15.Debug("Extrinsic submission succeeded")
+	c.log.Debug("Extrinsic submission succeeded")
 	defer sub.Unsubscribe()
 	return watchSubmission(sub)
 }

@@ -14,11 +14,13 @@ var _ chains.Writer = &Writer{}
 
 type Writer struct {
 	conn *Connection
+	log  log15.Logger
 }
 
-func NewWriter(conn *Connection) *Writer {
+func NewWriter(conn *Connection, log log15.Logger) *Writer {
 	return &Writer{
 		conn: conn,
+		log:  log,
 	}
 }
 
@@ -32,23 +34,23 @@ func (w *Writer) ResolveMessage(m msg.Message) bool {
 		meta := w.conn.getMetadata()
 		prop, err := createAssetTxProposal(m, &meta)
 		if err != nil {
-			log15.Error("Failed to construct assetTxProposal from message", "err", err)
+			w.log.Error("Failed to construct assetTxProposal from message", "err", err)
 			return false
 		}
 		if w.proposalExists(prop) {
-			log15.Debug("Voting for an existing assetTxProposal", "nonce", prop.depositNonce)
+			w.log.Debug("Voting for an existing assetTxProposal", "nonce", prop.depositNonce)
 			err = w.conn.SubmitTx(Approve, prop.depositNonce, prop.call)
 		} else {
-			log15.Trace("Creating a new assetTxProposal", "nonce", prop.depositNonce)
+			w.log.Trace("Creating a new assetTxProposal", "nonce", prop.depositNonce)
 			err = w.conn.SubmitTx(CreateProposal, prop.depositNonce, prop.call)
 		}
 		if err != nil {
-			log15.Error("Failed to execute extrinsic", "err", err)
+			w.log.Error("Failed to execute extrinsic", "err", err)
 			return false
 		}
 
 	default:
-		log15.Error("Unrecognized message type", "type", m.Type)
+		w.log.Error("Unrecognized message type", "type", m.Type)
 	}
 	return true
 
@@ -57,13 +59,13 @@ func (w *Writer) ResolveMessage(m msg.Message) bool {
 func (w *Writer) proposalExists(prop *assetTxProposal) bool {
 	key, err := types.EncodeToBytes(prop.getKey())
 	if err != nil {
-		log15.Error("Faield to encode key", "nonce", prop.depositNonce, "err", err)
+		w.log.Error("Failed to encode key", "nonce", prop.depositNonce, "err", err)
 	}
 
 	var expected voteState
 	ok, err := w.conn.queryStorage("Bridge", "Votes", key, nil, &expected)
 	if err != nil {
-		log15.Error("Failed to check proposals existence", "err", err)
+		w.log.Error("Failed to check proposals existence", "err", err)
 		return false
 	}
 	return ok

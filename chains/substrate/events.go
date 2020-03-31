@@ -7,13 +7,13 @@ import (
 	"encoding/binary"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
-
 	"github.com/ChainSafe/log15"
+
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
 type eventName string
-type eventHandler func(interface{}) msg.Message
+type eventHandler func(interface{}, log15.Logger) msg.Message
 
 const RelayerThresholdSet eventName = "RelayerThresholdSet"
 const ChainWhitelisted eventName = "ChainWhitelsited"
@@ -132,13 +132,13 @@ type Events struct {
 	Sudo_Sudid                 []EventSudid               //nolint:stylecheck,golint
 }
 
-func assetTransferHandler(evtI interface{}) msg.Message {
+func assetTransferHandler(evtI interface{}, log log15.Logger) msg.Message {
 	evt, ok := evtI.(EventAssetTransfer)
 	if !ok {
-		log15.Error("failed to cast EventAssetTransfer type")
+		log.Error("failed to cast EventAssetTransfer type")
 	}
 
-	log15.Info("Got asset transfer event!", "destination", evt.Destination)
+	log.Info("Got asset transfer event!", "destination", evt.Destination)
 
 	meta := make([]byte, 8)
 	binary.LittleEndian.PutUint32(meta, uint32(evt.Destination))
