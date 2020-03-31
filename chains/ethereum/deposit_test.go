@@ -95,7 +95,7 @@ func createDepositProposal(contract BridgeContract, conn *Connection, txOpts *bi
 		txOpts,
 		"createDepositProposal",
 		destChain,
-		depositNonce,
+		depositNonce.Add(big.NewInt(1), depositNonce),
 		metadata,
 	); err != nil {
 		return err

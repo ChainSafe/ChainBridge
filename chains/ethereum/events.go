@@ -4,7 +4,6 @@
 package ethereum
 
 import (
-	"math/big"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	"fmt"
@@ -33,7 +32,7 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 
 	// THE WRONG DEPOSIT NONCE IS PROBABLY CAUSED BY THE TOPIC BEING WRONG
 	// BUT I'M NOT FAMILIAR ENOUGH TO FIGURE IT OUT 
-	depositNonce := event.Topics[1].Big() // Only item in log is indexed.
+	depositNonce := event.Topics[2].Big() // Only item in log is indexed.
 
 	// TODO remove when issue addressed https://github.com/ChainSafe/ChainBridge/issues/173
 	// var destID msg.ChainId
@@ -43,8 +42,7 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	// 	destID = msg.ChainId(0)
 	// }
 
-	//@TODO: Don't add 1 to the nonce
-	deposit, err := UnpackErc20DepositRecord(l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce.Add(big.NewInt(1), depositNonce),
+	deposit, err := UnpackErc20DepositRecord(l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce,
 	))
 	if err != nil {
 		log15.Error("Error Unpacking ERC20 Deposit Record", "err", err)
