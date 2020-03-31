@@ -51,6 +51,7 @@ func generateMessage() msg.Message {
 	}
 }
 
+// @TODO: REWRITE TO ACCOUNT FOR CREATE&VOTE
 func TestWriter_createDepositProposal(t *testing.T) {
 	opts := defaultDeployOpts
 	opts.relayerThreshold = big.NewInt(2)

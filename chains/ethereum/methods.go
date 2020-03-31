@@ -45,6 +45,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		w.log.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
+
 	log15.Info("opts", "from", opts.From.String())
 
 	hash := hash(m.Metadata)

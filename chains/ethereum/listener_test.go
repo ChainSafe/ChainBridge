@@ -28,10 +28,12 @@ func (r *MockRouter) Send(message msg.Message) error {
 func setupListener(t *testing.T, config *Config) (*Listener, *MockRouter) {
 	conn := newLocalConnection(t, config)
 	bridgeContract := createBridgeInstance(t, conn, config.contract)
+	erc20HandlerContract := createERC20HandlerInstance(t, conn, config.erc20HandlerContract)
 
 	router := &MockRouter{msgs: make(chan msg.Message)}
 	listener := NewListener(conn, config, TestLogger)
 	listener.SetBridgeContract(bridgeContract)
+	listener.SetERC20HandlerContract(erc20HandlerContract)
 	listener.SetRouter(router)
 	// Start the listener
 	err := listener.Start()
@@ -91,6 +93,7 @@ func TestListener_depositEvent(t *testing.T) {
 		contracts.ERC20HandlerAddress,
 		// Values below are random and do not matter since we are not doing an e2e test
 		contracts.ERC20HandlerAddress,
+		contracts.ERC20HandlerAddress,
 		common.HexToAddress(BobKp.Address()),
 		destId,
 		amount,
@@ -109,45 +112,47 @@ func TestListener_depositEvent(t *testing.T) {
 	}
 }
 
-func TestListener_createProposalEvent(t *testing.T) {
-	cfg, _ := deployContracts(t, defaultDeployOpts)
-	l, router := setupListener(t, cfg)
+// @TODO: Replace with Create&Vote
 
-	// Get transaction ready
-	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), cfg.gasLimit, cfg.gasPrice)
-	if err != nil {
-		t.Fatal(err)
-	}
+// func TestListener_createProposalEvent(t *testing.T) {
+// 	cfg, _ := deployContracts(t, defaultDeployOpts)
+// 	l, router := setupListener(t, cfg)
 
-	metadata := hash([]byte{})
+// 	// Get transaction ready
+// 	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), cfg.gasLimit, cfg.gasPrice)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
 
-	expectedMessage := msg.Message{
-		Source:       msg.ChainId(0),
-		Destination:  msg.ChainId(0),
-		Type:         msg.VoteDepositProposalType,
-		DepositNonce: uint32(1),
-		Metadata:     metadata[:],
-	}
+// 	metadata := hash([]byte{})
 
-	// Create an random deposit proposal
-	if err := createDepositProposal(
-		l.bridgeContract,
-		l.conn,
-		opts,
-		big.NewInt(0),
-		big.NewInt(1),
-		metadata,
-	); err != nil {
-		t.Fatal(err)
-	}
+// 	expectedMessage := msg.Message{
+// 		Source:       msg.ChainId(0),
+// 		Destination:  msg.ChainId(0),
+// 		Type:         msg.VoteDepositProposalType,
+// 		DepositNonce: uint32(1),
+// 		Metadata:     metadata[:],
+// 	}
 
-	// Verify message
-	select {
-	case m := <-router.msgs:
-		if !reflect.DeepEqual(expectedMessage, m) {
-			t.Fatalf("Unexpected message.\n\tExpected: %#v\n\tGot: %#v\n", expectedMessage, m)
-		}
-	case <-time.After(ListenerTimeout):
-		t.Fatalf("test timed out")
-	}
-}
+// 	// Create an random deposit proposal
+// 	if err := createDepositProposal(
+// 		l.bridgeContract,
+// 		l.conn,
+// 		opts,
+// 		big.NewInt(0),
+// 		big.NewInt(1),
+// 		metadata,
+// 	); err != nil {
+// 		t.Fatal(err)
+// 	}
+
+// 	// Verify message
+// 	select {
+// 	case m := <-router.msgs:
+// 		if !reflect.DeepEqual(expectedMessage, m) {
+// 			t.Fatalf("Unexpected message.\n\tExpected: %#v\n\tGot: %#v\n", expectedMessage, m)
+// 		}
+// 	case <-time.After(ListenerTimeout):
+// 		t.Fatalf("test timed out")
+// 	}
+// }
