@@ -8,6 +8,7 @@ import (
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 const StoreMethod = "store"
@@ -100,6 +101,17 @@ func (w *Writer) voteDepositProposal(m msg.Message) bool {
 	}
 
 	// TODO need to have the vote check here
+	hasVoted, voteCheckErr := w.GetHasVotedOnDepositProposal(ethcrypto.PubkeyToAddress(w.conn.kp.PrivateKey().PublicKey), u32toBigInt(uint32(m.Destination)), u32toBigInt(m.DepositNonce))
+
+	if voteCheckErr != nil {
+		log15.Error("Check Vote state error", "error", voteCheckErr)
+		return false
+	}
+
+	if hasVoted {
+		log15.Error("Relayer already voted", "error")
+		return false
+	}
 
 	vote := uint8(1)
 	_, err = w.bridgeContract.BridgeRaw.Transact(

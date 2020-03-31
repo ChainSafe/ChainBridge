@@ -5,6 +5,7 @@ import (
 
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type DepositProposal struct {
@@ -28,11 +29,9 @@ const (
 
 // Queries the contract for the current deposit status
 func (w *Writer) GetDepositStatus(originChainId *big.Int, depositNonce *big.Int) (DepositProposalStatus, error) {
-	out := new(DepositProposal)
-
 	_, _, _, _, _, Status, err := w.bridgeContract.GetDepositProposal(new(bind.CallOpts), originChainId, depositNonce)
 	if err != nil {
-		log15.Error("Failed to call getDepositProposal", "error", out)
+		log15.Error("Failed to call getDepositProposal", "error")
 		return "inactive", err
 	}
 
@@ -47,9 +46,30 @@ func (w *Writer) GetDepositStatus(originChainId *big.Int, depositNonce *big.Int)
 	return DepositProposalStatus(Status), err
 }
 
-func (w *Writer) GetHasVotedOnDepositProposal(account string, destinationChainId *big.Int, depositNonce *big.Int){
-	_, _, _, yesVotes, noVotes, _, err = w.bridgeContract.GetDepositProposal(destinationChainId, depositNonce)
+func (w *Writer) GetHasVotedOnDepositProposal(account common.Address, destinationChainId *big.Int, depositNonce *big.Int) (bool, error) {
+	_, _, _, yesVotes, noVotes, _, err := w.bridgeContract.GetDepositProposal(new(bind.CallOpts), destinationChainId, depositNonce)
+	if err != nil {
+		log15.Debug("Errored")
+		log15.Error("Failed to call getDepositProposal", "error")
+		return false, err
+	}
+
+	log15.Error("Yes votes", "error", len(yesVotes))
+	log15.Error("No votes", "error", len(noVotes))
 
 	// TODO: Check if in yes & no via race condition or async
-	yesVotes
+	for _, n := range yesVotes {
+		if account == n {
+			log15.Debug("found yes")
+			return true, nil
+		}
+	}
+	for _, n := range noVotes {
+		if account == n {
+			log15.Debug("found no")
+			return true, nil
+		}
+	}
+	log15.Debug("Not found")
+	return false, nil
 }
