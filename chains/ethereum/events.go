@@ -4,8 +4,9 @@
 package ethereum
 
 import (
+	"math/big"
+
 	msg "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
@@ -26,7 +27,7 @@ const (
 type evtHandlerFn func(ethtypes.Log) msg.Message
 
 func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
-	log15.Debug("Handling deposited event")
+	l.log.Debug("Handling deposited event")
 
 	depositNonce := event.Topics[2].Big() // Only item in log is indexed.
 
@@ -39,8 +40,9 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	// }
 
 	deposit, err := UnpackErc20DepositRecord(l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce))
+
 	if err != nil {
-		log15.Error("Error Unpacking ERC20 Deposit Record", "err", err)
+		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
 
 	return msg.Message{
@@ -54,7 +56,7 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 }
 
 func (l *Listener) handleVoteEvent(event ethtypes.Log) msg.Message {
-	log15.Debug("Handling vote event")
+	l.log.Debug("Handling vote event")
 
 	originChainID := event.Topics[1].Big()
 	destinationChainID := event.Topics[2].Big()

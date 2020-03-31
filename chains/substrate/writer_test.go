@@ -42,8 +42,8 @@ func assertProposalState(conn *Connection, key *proposalKey, votes *voteState, h
 func TestWriter_ResolveMessage_DepositAsset(t *testing.T) {
 	ac, bc := createAliceAndBobConnections(t)
 
-	alice := NewWriter(ac)
-	bob := NewWriter(bc)
+	alice := NewWriter(ac, TestLogger)
+	bob := NewWriter(bc, TestLogger)
 
 	// Assert Bob's starting balances
 	var startingBalance types.U128

@@ -31,7 +31,7 @@ func setupListener(t *testing.T, config *Config) (*Listener, *MockRouter) {
 	erc20HandlerContract := createERC20HandlerInstance(t, conn, config.erc20HandlerContract)
 
 	router := &MockRouter{msgs: make(chan msg.Message)}
-	listener := NewListener(conn, config)
+	listener := NewListener(conn, config, TestLogger)
 	listener.SetBridgeContract(bridgeContract)
 	listener.SetERC20HandlerContract(erc20HandlerContract)
 	listener.SetRouter(router)
@@ -48,7 +48,7 @@ func TestListener_start_stop(t *testing.T) {
 	conn := newLocalConnection(t, cfg)
 	defer conn.Close()
 
-	listener := NewListener(conn, cfg)
+	listener := NewListener(conn, cfg, TestLogger)
 
 	err := listener.Start()
 	if err != nil {

@@ -11,6 +11,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"
+	"github.com/ChainSafe/log15"
 )
 
 type Chain struct {
@@ -33,7 +34,9 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 
 	kp, _ := kpI.(*secp256k1.Keypair)
 
-	conn := NewConnection(cfg, kp)
+	logger := log15.Root().New("chain", cfg.name)
+
+	conn := NewConnection(cfg, kp, logger)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
@@ -58,10 +61,10 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 		BridgeCaller: &bridgeInstance.BridgeCaller,
 	}
 
-	listener := NewListener(conn, cfg)
+	listener := NewListener(conn, cfg, logger)
 	listener.SetBridgeContract(bridgeContract)
 
-	writer := NewWriter(conn, cfg)
+	writer := NewWriter(conn, cfg, logger)
 	writer.SetBridgeContract(bridgeContract)
 
 	return &Chain{
@@ -87,6 +90,8 @@ func (c *Chain) Start() error {
 	if err != nil {
 		return err
 	}
+
+	c.writer.log.Debug("Successfully started chain")
 	return nil
 }
 

@@ -13,6 +13,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	ethcmn "github.com/ethereum/go-ethereum/common"
@@ -34,6 +35,8 @@ var defaultDeployOpts = DeployOpts{
 	minCount:         uint8(0),
 }
 
+var TestLogger = newTestLogger()
+
 type DeployOpts struct {
 	pk               string
 	chainID          *big.Int
@@ -41,6 +44,12 @@ type DeployOpts struct {
 	numRelayers      int
 	relayerThreshold *big.Int
 	minCount         uint8
+}
+
+func newTestLogger() log15.Logger {
+	tLog := log15.New("test_chain", "ethereum")
+	tLog.SetHandler(log15.LvlFilterHandler(log15.LvlInfo, tLog.GetHandler()))
+	return tLog
 }
 
 func setOpts(opts DeployOpts) DeployOpts {
@@ -118,7 +127,7 @@ func createERC20HandlerInstance(t *testing.T, connection *Connection, address co
 
 func newLocalConnection(t *testing.T, cfg *Config) *Connection {
 	kp := keystore.TestKeyRing.EthereumKeys[cfg.from]
-	conn := NewConnection(cfg, kp)
+	conn := NewConnection(cfg, kp, TestLogger)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -172,7 +181,7 @@ func TestSendTx(t *testing.T) {
 func TestSubscribe(t *testing.T) {
 	cfg, _ := deployContracts(t, defaultDeployOpts)
 	conn := newLocalConnection(t, cfg)
-	l := NewListener(conn, cfg)
+	l := NewListener(conn, cfg, TestLogger)
 	defer conn.Close()
 
 	q := eth.FilterQuery{}

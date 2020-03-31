@@ -20,19 +20,21 @@ type Writer struct {
 	bridgeContract BridgeContract // instance of bound receiver contract
 	gasPrice       *big.Int
 	gasLimit       *big.Int
+	log            log15.Logger
 }
 
-func NewWriter(conn *Connection, cfg *Config) *Writer {
+func NewWriter(conn *Connection, cfg *Config, log log15.Logger) *Writer {
 	return &Writer{
 		cfg:      *cfg,
 		conn:     conn,
 		gasPrice: cfg.gasPrice,
 		gasLimit: cfg.gasLimit,
+		log:      log,
 	}
 }
 
 func (w *Writer) Start() error {
-	log15.Debug("Starting ethereum writer...")
+	w.log.Debug("Starting ethereum writer...")
 	return nil
 }
 
@@ -43,7 +45,7 @@ func (w *Writer) SetBridgeContract(bridge BridgeContract) {
 // ResolveMessage handles any given message based on type
 // A bool is returned to indicate failure/success, this should be ignored except for within tests.
 func (w *Writer) ResolveMessage(m msg.Message) bool {
-	log15.Trace("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination)
+	w.log.Trace("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination)
 
 	switch m.Type {
 	case msg.DepositAssetType:
@@ -55,7 +57,7 @@ func (w *Writer) ResolveMessage(m msg.Message) bool {
 	case msg.ExecuteDepositType:
 		return w.executeDeposit(m)
 	default:
-		log15.Warn("Unknown message type received", "type", m.Type)
+		w.log.Warn("Unknown message type received", "type", m.Type)
 		return false
 	}
 }
