@@ -25,6 +25,7 @@ var BobKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 
 var defaultDeployOpts = DeployOpts{
 	pk:               hexutil.Encode(AliceKp.Encode())[2:],
+	chainID:		  big.NewInt(0),
 	url:              "http://localhost:8545",
 	numRelayers:      2,
 	relayerThreshold: big.NewInt(1),
@@ -33,6 +34,7 @@ var defaultDeployOpts = DeployOpts{
 
 type DeployOpts struct {
 	pk               string
+	chainID			 *big.Int
 	url              string
 	numRelayers      int
 	relayerThreshold *big.Int
@@ -61,7 +63,7 @@ func setOpts(opts DeployOpts) DeployOpts {
 
 func deployContracts(t *testing.T, customOpts DeployOpts) (*Config, *DeployedContracts) {
 	opts := setOpts(customOpts)
-	deployedContracts, err := DeployContracts(opts.pk, opts.url, opts.numRelayers, opts.relayerThreshold, opts.minCount)
+	deployedContracts, err := DeployContracts(opts.pk, opts.chainID, opts.url, opts.numRelayers, opts.relayerThreshold, opts.minCount)
 	if err != nil {
 		t.Fatal(err)
 	}

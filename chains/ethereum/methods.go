@@ -8,6 +8,7 @@ import (
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
+	"fmt"
 )
 
 const StoreMethod = "store"
@@ -44,6 +45,7 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		log15.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
+
 	log15.Info("opts", "from", opts.From.String())
 
 	hash := hash(m.Metadata)
@@ -54,6 +56,10 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		u32toBigInt(m.DepositNonce),
 		hash,
 	)
+
+	fmt.Println(m.Source.Big())
+	fmt.Println(u32toBigInt(m.DepositNonce))
+	fmt.Println(hash)
 
 	if err != nil {
 		log15.Error("Failed to submit createDepositProposal transaction", "err", err)

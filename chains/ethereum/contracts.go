@@ -9,6 +9,10 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+
+	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	erc20 "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	erc721 "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 )
 
 // genericDepositRecord is the return value from the solidity function getGenericDepositRecord()
@@ -47,20 +51,29 @@ type BridgeContract struct {
 	BridgeTransactor
 }
 
+type ERC20HandlerContract struct {
+	ERC20HandlerFilterer
+	ERC20HandlerCaller
+	ERC20HandlerRaw
+}
+
+type ERC721HandlerContract struct {
+	ERC721HandlerFilterer
+	ERC721HandlerCaller
+	ERC721HandlerRaw
+}
+
 type BridgeFilterer interface {
 }
 
 type BridgeTransactor interface {
-	DepositERC20(opts *bind.TransactOpts, originChainTokenAddress common.Address, originChainHandlerAddress common.Address, destinationChainID *big.Int, destinationChainHandlerAddress common.Address, destinationRecipientAddress common.Address, amount *big.Int) (*types.Transaction, error)
+	Deposit(opts *bind.TransactOpts, chainID *big.Int, originChainHandlerAddress common.Address, data []byte)(*types.Transaction, error)
 }
 
 type BridgeCaller interface {
-	GetGenericDepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, []byte, error)
-	GetERC20DepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, *big.Int, error)
-	GetDepositProposal(opts *bind.CallOpts, destinationChainID *big.Int, depositNonce *big.Int) (*big.Int, *big.Int, [32]byte, []common.Address, []common.Address, string, error)
-}
+	GetDepositProposal(opts *bind.CallOpts, destinationChainID *big.Int,  depositNonce *big.Int) (bridge.BridgeDepositProposal, error)}
 
-type BridgeRaw interface {
+type BridgeRaw interface {	
 	Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error
 	Transfer(opts *bind.TransactOpts) (*types.Transaction, error)
 	Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error)
@@ -68,6 +81,32 @@ type BridgeRaw interface {
 	// 	FilterERCTransfer(*bind.FilterOpts, []*big.Int, []*big.Int) (*bridge.BridgeERCTransferIterator, error)
 	// 	FilterGenericTransfer(*bind.FilterOpts, []*big.Int, []*big.Int) (*bridge.BridgeGenericTransferIterator, error)
 	// 	FilterNFTTransfer(opts *bind.FilterOpts, _destChain []*big.Int, _depositNonce []*big.Int) (*bridge.BridgeNFTTransferIterator, error)
+}
+
+type ERC20HandlerFilterer interface {
+}
+
+type ERC20HandlerCaller interface {
+	GetDepositRecord(opts *bind.CallOpts, depositID *big.Int) (erc20.ERC20HandlerDepositRecord, error)
+}
+
+type ERC20HandlerRaw interface {
+	Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{})
+	Transfer(opts *bind.TransactOpts) (*types.Transaction, error)
+	Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error)
+}
+
+type ERC721HandlerFilterer interface {
+}
+
+type ERC721HandlerCaller interface {
+	GetDepositRecord(opts *bind.CallOpts, depositID *big.Int) (erc721.ERC721HandlerDepositRecord, error)
+}
+
+type ERC721HandlerRaw interface {
+	Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{})
+	Transfer(opts *bind.TransactOpts) (*types.Transaction, error)
+	Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error)
 }
 
 func UnpackGenericDepositRecord(args ...interface{}) (genericDepositRecord, error) {

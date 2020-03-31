@@ -14,7 +14,7 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 )
 
-const ListenerTimeout = time.Second * 10
+const ListenerTimeout = time.Second * 5
 
 type MockRouter struct {
 	msgs chan msg.Message
@@ -91,6 +91,7 @@ func TestListener_depositEvent(t *testing.T) {
 		contracts.ERC20HandlerAddress,
 		// Values below are random and do not matter since we are not doing an e2e test
 		contracts.ERC20HandlerAddress,
+		contracts.ERC20HandlerAddress,
 		common.HexToAddress(BobKp.Address()),
 		destId,
 		amount,
@@ -98,7 +99,7 @@ func TestListener_depositEvent(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Verify message
+// Verify message
 	select {
 	case m := <-router.msgs:
 		if !reflect.DeepEqual(expectedMessage, m) {
