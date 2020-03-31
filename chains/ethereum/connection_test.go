@@ -79,7 +79,7 @@ func deployContracts(t *testing.T, customOpts DeployOpts) (*Config, *DeployedCon
 		t.Fatal(err)
 	}
 	return &Config{
-			id:                   msg.EthereumId,
+			id:                   msg.ChainId(0),
 			endpoint:             TestEndpoint,
 			from:                 keystore.AliceKey,
 			gasLimit:             big.NewInt(6721975),

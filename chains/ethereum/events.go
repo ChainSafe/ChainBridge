@@ -4,7 +4,7 @@
 package ethereum
 
 import (
-	"math/big"
+	// "math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
