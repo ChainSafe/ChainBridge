@@ -24,8 +24,9 @@ jobs:
       go: 1.13.x
       name: "Golang-ci Linter"
       script:
+        - make clean # Avoid adding license to auto-gen files
         - make license-check
-        - make clean && make setup-contracts
+        - make setup-contracts
         - make lint
 
     - language: go
