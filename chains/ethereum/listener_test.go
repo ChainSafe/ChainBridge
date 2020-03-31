@@ -9,12 +9,13 @@ import (
 	"testing"
 	"time"
 
+
 	"github.com/ethereum/go-ethereum/common"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 )
 
-const ListenerTimeout = time.Second * 5
+const ListenerTimeout = time.Second * 10
 
 type MockRouter struct {
 	msgs chan msg.Message
@@ -124,9 +125,9 @@ func TestListener_createProposalEvent(t *testing.T) {
 
 	expectedMessage := msg.Message{
 		Source:       msg.ChainId(0),
-		Destination:  msg.ChainId(0),
+		Destination:  msg.ChainId(1),
 		Type:         msg.VoteDepositProposalType,
-		DepositNonce: uint32(1),
+		DepositNonce: uint32(2),
 		Metadata:     metadata[:],
 	}
 

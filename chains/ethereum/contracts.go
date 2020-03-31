@@ -5,6 +5,7 @@ package ethereum
 
 import (
 	"math/big"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -27,9 +28,8 @@ type genericDepositRecord struct {
 
 type erc20DepositRecord struct {
 	OriginChainTokenAddress   common.Address
-	OriginChainHandlerAddress common.Address
-	DestChainID               *big.Int
 	DestChainHandlerAddress   common.Address
+	DestChainTokenAddress     common.Address
 	DestRecipientAddress      common.Address
 	Amount                    *big.Int
 }
@@ -124,17 +124,24 @@ func UnpackGenericDepositRecord(args ...interface{}) (genericDepositRecord, erro
 		nil
 }
 
+// originChainTokenAddress        := mload(add(data, 0x20))
+// destinationChainHandlerAddress := mload(add(data, 0x40))
+// destinationChainTokenAddress   := mload(add(data, 0x60))
+// destinationRecipientAddress    := mload(add(data, 0x80))
+// amount                         := mload(add(data, 0xA0))
+
 func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
-	if args[6] != nil {
-		return erc20DepositRecord{}, args[6].(error)
+	fmt.Println("WE ARE HERE NOW")
+	if args[5] != nil {
+		return erc20DepositRecord{}, args[5].(error)
 	}
+
 	return erc20DepositRecord{
 			OriginChainTokenAddress:   args[0].(common.Address),
-			OriginChainHandlerAddress: args[1].(common.Address),
-			DestChainID:               args[2].(*big.Int),
-			DestChainHandlerAddress:   args[3].(common.Address),
-			DestRecipientAddress:      args[4].(common.Address),
-			Amount:                    args[5].(*big.Int),
+			DestChainHandlerAddress:   args[1].(common.Address),
+			DestChainTokenAddress:     args[3].(common.Address),
+			DestRecipientAddress:      args[3].(common.Address),
+			Amount:                    args[4].(*big.Int),
 		},
 		nil
 }

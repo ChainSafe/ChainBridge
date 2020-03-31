@@ -16,8 +16,7 @@ const (
 	ErcTransfer            = "ErcTransfer"
 	DepositProposalCreated = "DepositProposalCreated"
 	DepositedErc20         = "DepositedErc20"
-
-	DepositedErc20Signature         = "ERC20Deposited(uint256,uint256)"
+	DepositedErc20Signature         = "Deposit(uint256,uint256,address,uint256)"
 	DepositAssetSignature           = "DepositAsset(address,bytes32)"
 	NftTransferSignature            = "NFTTransfer(uint256,uint256,address,address,uint256,bytes)"
 	ErcTransferSignature            = "ERCTransfer(uint256,uint256,address,uint256,address)"
@@ -31,23 +30,28 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 
 	depositNonce := event.Topics[1].Big() // Only item in log is indexed.
 
-	// // TODO remove when issue addressed https://github.com/ChainSafe/ChainBridge/issues/173
-	// var destID msg.ChainId
-	// if l.cfg.id == 0 {
-	// 	destID = msg.ChainId(1)
-	// } else {
-	// 	destID = msg.ChainId(0)
-	// }
+	// TODO remove when issue addressed https://github.com/ChainSafe/ChainBridge/issues/173
+	var destID msg.ChainId
+	if l.cfg.id == 0 {
+		destID = msg.ChainId(1)
+	} else {
+		destID = msg.ChainId(0)
+	}
+
+	log15.Info("GOT TO HANDLE ERC20 DEPOSITED EVENT")
+	log15.Info(depositNonce.String())
 
 	deposit, err := UnpackErc20DepositRecord(l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce))
 	if err != nil {
 		log15.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
 
+	log15.Info("FINISHED UNPACKING ERC20DEPOSITRECORD")
+
 	return msg.Message{
 		Type:         msg.CreateDepositProposalType,
 		Source:       l.cfg.id,
-		Destination:  msg.ChainId(deposit.DestChainID.Uint64()),
+		Destination:  msg.ChainId(destID),
 		DepositNonce: uint32(depositNonce.Uint64()),
 		To:           deposit.DestChainHandlerAddress.Bytes(),
 		Metadata:     deposit.Amount.Bytes(),

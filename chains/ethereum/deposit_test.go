@@ -43,15 +43,14 @@ func approveErc20(connection *Connection, opts *bind.TransactOpts, contractAddre
 // destinationChainHandlerAddress := mload(add(data, 0x40))
 // destinationChainTokenAddress   := mload(add(data, 0x60))
 // destinationRecipientAddress    := mload(add(data, 0x80))
-// tokenID                        := mload(add(data, 0xA0))
+// amount                         := mload(add(data, 0xA0))
 // constructDataBytes constructs the data field to be passed into a deposit call
-func constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipient common.Address, destId, amount *big.Int) []byte {
+func constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipient common.Address, amount *big.Int) []byte {
 	var data []byte
 	data = append(data, common.LeftPadBytes(erc20Address.Bytes(), 32)...)
 	data = append(data, common.LeftPadBytes(destHandler.Bytes(), 32)...)
 	data = append(data, common.LeftPadBytes(destTokenAddress.Bytes(), 32)...)
 	data = append(data, common.LeftPadBytes(destRecipient.Bytes(), 32)...)
-	data = append(data, math.PaddedBigBytes(destId, 32)...)
 	data = append(data, math.PaddedBigBytes(amount, 32)...)
 
 	return data
@@ -76,7 +75,7 @@ func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.
 		return err
 	}
 
-	data := constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipient, destId, amount)
+	data := constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipient, amount)
 
 	// Incrememnt Nonce by one
 	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
