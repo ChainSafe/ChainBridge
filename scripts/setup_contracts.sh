@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
-CONTRACTS_BRANCH="wyatt/deposit-proposal-mapping"
-CONTRACTS_COMMIT="0675bfa45c345e196129d551b74edcb3a958bda5"
+CONTRACTS_BRANCH="master"
+CONTRACTS_COMMIT="361310aa70ab943ab0a022f6377f71f86135cb0f"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 
