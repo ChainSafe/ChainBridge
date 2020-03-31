@@ -83,12 +83,12 @@ func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.
 
 func constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipient common.Address, destId, amount *big.Int) []byte {
 	var data []byte
-	data = append(data, erc20Address.Bytes()...)
-	data = append(data, math.PaddedBigBytes(destId,32)...)
-	data = append(data, destHandler.Bytes()...)
-	data = append(data, destHandler.Bytes()...)
-	data = append(data, destTokenAddress.Bytes()...)
-	data = append(data, amount.Bytes()...)
+	data = append(data, common.LeftPadBytes(erc20Address.Bytes(), 32)...)
+	data = append(data, math.PaddedBigBytes(destId, 32)...)
+	data = append(data, common.LeftPadBytes(destHandler.Bytes(), 32)...)
+	data = append(data, common.LeftPadBytes(destHandler.Bytes(), 32)...)
+	data = append(data, common.LeftPadBytes(destTokenAddress.Bytes(), 32)...)
+	data = append(data, common.LeftPadBytes(amount.Bytes(), 32)...)
 
 	return data
 }
