@@ -43,7 +43,7 @@ func approveErc20(connection *Connection, opts *bind.TransactOpts, contractAddre
 }
 
 // createErc20Deposit deploys a new erc20 token contract mints, the sender (based on value), and creates a deposit
-func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.TransactOpts, deployerAddress, originHandler, destHandler, destRecipient common.Address, destId, amount *big.Int) error {
+func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.TransactOpts, deployerAddress, originHandler, destHandler, destTokenAddress, destRecipient common.Address, destId, amount *big.Int) error {
 	erc20Address, err := deployErc20Contract(txOpts, conn.conn, deployerAddress)
 	if err != nil {
 		log15.Info("deployErc20Contract")
@@ -67,7 +67,7 @@ func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.
 	// Incrememnt Nonce by one
 	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
 
-	data := constructDataBytes(erc20Address, destHandler, destRecipient, destId, amount)
+	data := constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipient, destId, amount)
 
 	if _, err := contract.Deposit(
 		txOpts,
@@ -81,12 +81,13 @@ func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.
 	return nil
 }
 
-func constructDataBytes(erc20Address, destHandler, destRecipient common.Address, destId, amount *big.Int) []byte {
+func constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipient common.Address, destId, amount *big.Int) []byte {
 	var data []byte
 	data = append(data, erc20Address.Bytes()...)
 	data = append(data, math.PaddedBigBytes(destId,32)...)
 	data = append(data, destHandler.Bytes()...)
-	data = append(data, destRecipient.Bytes()...)
+	data = append(data, destHandler.Bytes()...)
+	data = append(data, destTokenAddress.Bytes()...)
 	data = append(data, amount.Bytes()...)
 
 	return data

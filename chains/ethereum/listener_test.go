@@ -91,6 +91,7 @@ func TestListener_depositEvent(t *testing.T) {
 		contracts.ERC20HandlerAddress,
 		// Values below are random and do not matter since we are not doing an e2e test
 		contracts.ERC20HandlerAddress,
+		contracts.ERC20HandlerAddress,
 		common.HexToAddress(BobKp.Address()),
 		destId,
 		amount,
