@@ -93,7 +93,7 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
 ## Ethereum Dev Environment 
 
-First, run `make setup-contracts`.
+First, run `make setup-sol-cli` to fetch the necessary scripts. Requires `truffle` and `ganache-cli`.
 
 To start a ganache instance:
 ```

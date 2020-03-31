@@ -10,14 +10,26 @@ DEST_DIR="./bindings"
 
 set -e
 
-git clone -b $CONTRACTS_BRANCH $CONTRACTS_REPO $CONTRACTS_DIR
-pushd $CONTRACTS_DIR
-git checkout $CONTRACTS_COMMIT
+case $TARGET in
+	"build")
+		git clone -b $CONTRACTS_BRANCH $CONTRACTS_REPO $CONTRACTS_DIR
+    pushd $CONTRACTS_DIR
+    git checkout $CONTRACTS_COMMIT
 
-make install-deps
-make bindings
+    make install-deps
+    make bindings
 
-popd
+    popd
 
-mkdir $DEST_DIR
-cp -r $CONTRACTS_DIR/build/bindings/go/* $DEST_DIR
+    mkdir $DEST_DIR
+    cp -r $CONTRACTS_DIR/build/bindings/go/* $DEST_DIR
+		;;
+
+	"cli-only")
+		git clone -b $CONTRACTS_BRANCH $CONTRACTS_REPO $CONTRACTS_DIR
+    pushd $CONTRACTS_DIR
+    git checkout $CONTRACTS_COMMIT
+		;;
+
+
+esac
