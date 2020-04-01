@@ -20,12 +20,12 @@ func createTestWriter(t *testing.T, cfg *Config, contracts *DeployedContracts) (
 	conn := newLocalConnection(t, cfg)
 	writer := NewWriter(conn, cfg, newTestLogger(cfg.name))
 
-	bridge, err := createBridgeContrat(contracts.BridgeAddress, conn)
+	bridge, err := createBridgeContract(contracts.BridgeAddress, conn)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	erc20Handler, err := createErc20HandlerContrat(contracts.ERC20HandlerAddress, conn)
+	erc20Handler, err := createErc20HandlerContract(contracts.ERC20HandlerAddress, conn)
 	if err != nil {
 		t.Fatal(err)
 	}

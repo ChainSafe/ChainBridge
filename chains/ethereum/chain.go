@@ -23,7 +23,7 @@ type Chain struct {
 	writer   *Writer           // The writer of the chain
 }
 
-func createBridgeContrat(addr common.Address, conn *Connection) (*BridgeContract, error) {
+func createBridgeContract(addr common.Address, conn *Connection) (*BridgeContract, error) {
 	bridgeInstance, err := bridge.NewBridge(addr, conn.conn)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func createBridgeContrat(addr common.Address, conn *Connection) (*BridgeContract
 	}, nil
 }
 
-func createErc20HandlerContrat(addr common.Address, conn *Connection) (*ERC20HandlerContract, error) {
+func createErc20HandlerContract(addr common.Address, conn *Connection) (*ERC20HandlerContract, error) {
 	instance, err := erc20Handler.NewERC20Handler(addr, conn.conn)
 	if err != nil {
 		return nil, err
@@ -82,12 +82,12 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	bridgeContract, err := createBridgeContrat(cfg.contract, conn)
+	bridgeContract, err := createBridgeContract(cfg.contract, conn)
 	if err != nil {
 		return nil, err
 	}
 
-	erc20HandlerContract, err := createErc20HandlerContrat(cfg.erc20HandlerContract, conn)
+	erc20HandlerContract, err := createErc20HandlerContract(cfg.erc20HandlerContract, conn)
 	if err != nil {
 		return nil, err
 	}

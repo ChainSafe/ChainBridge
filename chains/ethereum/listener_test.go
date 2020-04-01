@@ -30,11 +30,11 @@ func createTestListener(t *testing.T, config *Config, contracts *DeployedContrac
 	newConfig.erc20HandlerContract = contracts.ERC20HandlerAddress
 
 	conn := newLocalConnection(t, &newConfig)
-	bridgeContract, err := createBridgeContrat(newConfig.contract, conn)
+	bridgeContract, err := createBridgeContract(newConfig.contract, conn)
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc20HandlerContract, err := createErc20HandlerContrat(newConfig.erc20HandlerContract, conn)
+	erc20HandlerContract, err := createErc20HandlerContract(newConfig.erc20HandlerContract, conn)
 	if err != nil {
 		t.Fatal(err)
 	}
