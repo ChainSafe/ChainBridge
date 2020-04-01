@@ -4,25 +4,46 @@
 package ethereum
 
 import (
+	"fmt"
+	"math/big"
 	"testing"
+	"time"
 
+	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/common"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 )
 
-var writerTestConfig = &Config{
-	id:       msg.ChainId(0),
-	endpoint: TestEndpoint,
-	from:     keystore.AliceKey,
+func createTestWriter(t *testing.T, cfg *Config, contracts *DeployedContracts) (*Connection, *Writer) {
+	conn := newLocalConnection(t, cfg)
+	writer := NewWriter(conn, cfg, newTestLogger(cfg.name))
+
+	bridge, err := createBridgeContract(contracts.BridgeAddress, conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	erc20Handler, err := createErc20HandlerContract(contracts.ERC20HandlerAddress, conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	writer.conn.cfg.contract = contracts.BridgeAddress
+	writer.conn.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
+	writer.cfg.contract = contracts.BridgeAddress
+	writer.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
+	writer.SetContracts(bridge, erc20Handler)
+
+	return conn, writer
 }
 
 func TestWriter_start_stop(t *testing.T) {
-	conn := newLocalConnection(t, writerTestConfig)
+	conn := newLocalConnection(t, aliceTestConfig)
 	defer conn.Close()
 
-	writer := NewWriter(conn, writerTestConfig, TestLogger)
+	writer := NewWriter(conn, aliceTestConfig, TestLogger)
 
 	err := writer.Start()
 	if err != nil {
@@ -54,4 +75,107 @@ func TestHash(t *testing.T) {
 			t.Fatalf("Input: %s, Expected: %s, Output: %s", str, expected[i], common.Hash(res).String())
 		}
 	}
+}
+
+func watchEvent(conn *Connection, subStr EventSig) {
+	fmt.Printf("Watching for event: %s\n", subStr)
+	query := buildQuery(conn.cfg.contract, subStr, big.NewInt(0))
+	eventSubscription, err := conn.subscribeToEvent(query)
+	if err != nil {
+		log15.Error("Failed to subscribe to finalization event", "err", err)
+	}
+
+	for {
+		select {
+		case evt := <-eventSubscription.ch:
+			fmt.Printf("%s: %#v\n", subStr, evt.Topics)
+
+		case err := <-eventSubscription.sub.Err():
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
+	}
+}
+
+func TestCreateAndExecuteDepositProposal(t *testing.T) {
+	contracts := deployTestContracts(t, aliceTestConfig.id)
+
+	aliceConn, alice := createTestWriter(t, aliceTestConfig, contracts)
+	defer aliceConn.Close()
+
+	bobConn, bob := createTestWriter(t, bobTestConfig, contracts)
+	defer bobConn.Close()
+
+	// Create an address from some source chain
+	opts, nonce, err := aliceConn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
+	nonce.lock.Unlock() // We manual increment nonce in tests
+	if err != nil {
+		t.Fatal(err)
+	}
+	erc20Address := deployMintApproveErc20(t, aliceConn, opts)
+
+	// Create initial transfer message
+	tokenId := erc20Address.Bytes()
+	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
+	amount := big.NewInt(10)
+	m := msg.Message{
+		Source:       0,
+		Destination:  0,
+		Type:         msg.FungibleTransfer,
+		DepositNonce: 0,
+		Metadata: []interface{}{
+			tokenId,
+			recipient,
+			amount,
+		},
+	}
+
+	// Helpful for debugging
+	go watchEvent(alice.conn, DepositProposalCreated)
+	go watchEvent(alice.conn, DepositProposalVote)
+	go watchEvent(alice.conn, DepositProposalFinalized)
+	go watchEvent(alice.conn, DepositProposalExecuted)
+
+	// Watch for executed event
+	query := buildQuery(alice.cfg.contract, DepositProposalExecuted, big.NewInt(0))
+	eventSubscription, err := alice.conn.subscribeToEvent(query)
+	if err != nil {
+		log15.Error("Failed to subscribe to finalization event", "err", err)
+	}
+
+	// Alice processes the message, then waits to execute
+	if ok := alice.ResolveMessage(m); !ok {
+		t.Fatal("Alice failed to resolve the message")
+	}
+
+	// Now Bob receives the same message and also waits to execute
+	if ok := bob.ResolveMessage(m); !ok {
+		t.Fatal("Bob failed to resolve the message")
+	}
+
+	for {
+		select {
+		case evt := <-eventSubscription.ch:
+			sourceId := evt.Topics[1].Big().Uint64()
+			destId := evt.Topics[2].Big().Uint64()
+			depositNone := evt.Topics[3].Big().Uint64()
+
+			if m.Source == msg.ChainId(sourceId) &&
+				m.Destination == msg.ChainId(destId) &&
+				m.DepositNonce == uint32(depositNone) {
+				return
+			}
+
+		case err := <-eventSubscription.sub.Err():
+			if err != nil {
+				t.Fatal(err)
+			}
+
+		case <-time.After(TestTimeout):
+			t.Fatal("test timed out")
+		}
+	}
+
 }

@@ -14,8 +14,6 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 )
 
-const ListenerTimeout = time.Second * 10
-
 type MockRouter struct {
 	msgs chan msg.Message
 }
@@ -25,75 +23,94 @@ func (r *MockRouter) Send(message msg.Message) error {
 	return nil
 }
 
-func setupListener(t *testing.T, config *Config) (*Listener, *MockRouter) {
-	conn := newLocalConnection(t, config)
-	bridgeContract := createBridgeInstance(t, conn, config.contract)
-	erc20HandlerContract := createERC20HandlerInstance(t, conn, config.erc20HandlerContract)
+func createTestListener(t *testing.T, config *Config, contracts *DeployedContracts) (*Listener, *MockRouter) {
+	// Create copy and add deployed contract addresses
+	newConfig := *config
+	newConfig.contract = contracts.BridgeAddress
+	newConfig.erc20HandlerContract = contracts.ERC20HandlerAddress
 
-	router := &MockRouter{msgs: make(chan msg.Message)}
-	listener := NewListener(conn, config, TestLogger)
-	listener.SetBridgeContract(bridgeContract)
-	listener.SetERC20HandlerContract(erc20HandlerContract)
-	listener.SetRouter(router)
-	// Start the listener
-	err := listener.Start()
+	conn := newLocalConnection(t, &newConfig)
+	bridgeContract, err := createBridgeContract(newConfig.contract, conn)
 	if err != nil {
 		t.Fatal(err)
 	}
+	erc20HandlerContract, err := createErc20HandlerContract(newConfig.erc20HandlerContract, conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	router := &MockRouter{msgs: make(chan msg.Message)}
+	listener := NewListener(conn, &newConfig, TestLogger)
+	listener.SetContracts(bridgeContract, erc20HandlerContract)
+	listener.SetRouter(router)
+	// Start the listener
+	err = listener.Start()
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = conn.checkBridgeContract(newConfig.contract)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	return listener, router
 }
 
 func TestListener_start_stop(t *testing.T) {
-	cfg, _ := deployContracts(t, defaultDeployOpts)
-	conn := newLocalConnection(t, cfg)
-	defer conn.Close()
+	contracts := deployTestContracts(t, aliceTestConfig.id)
+	l, _ := createTestListener(t, aliceTestConfig, contracts)
 
-	listener := NewListener(conn, cfg, TestLogger)
-
-	err := listener.Start()
+	err := l.Start()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = listener.Stop()
+	err = l.Stop()
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestListener_depositEvent(t *testing.T) {
-	cfg, contracts := deployContracts(t, defaultDeployOpts)
-	l, router := setupListener(t, cfg)
+	contracts := deployTestContracts(t, aliceTestConfig.id)
+	l, router := createTestListener(t, aliceTestConfig, contracts)
+
+	// For debugging
+	go watchEvent(l.conn, Deposit)
 
 	// Get transaction ready
-	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), cfg.gasLimit, cfg.gasPrice)
+	opts, nonce, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
+	nonce.lock.Unlock() // We manual increment nonce in tests
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Set some constants
-	amount := big.NewInt(1)
+	amount := big.NewInt(10)
 	destId := big.NewInt(1)
 
 	expectedMessage := msg.Message{
 		Source:       msg.ChainId(0),
 		Destination:  msg.ChainId(destId.Uint64()),
-		Type:         msg.CreateDepositProposalType,
+		Type:         msg.FungibleTransfer,
 		DepositNonce: uint32(1),
-		To:           contracts.ERC20HandlerAddress.Bytes(),
-		Metadata:     amount.Bytes(),
+		Metadata: []interface{}{
+			common.HexToAddress(BobKp.Address()),
+			amount.Bytes(),
+			l.cfg.erc20HandlerContract,
+		},
 	}
+
+	erc20Contract := deployMintApproveErc20(t, l.conn, opts)
 
 	// Create an ERC20 Deposit
 	if err := createErc20Deposit(
 		l.bridgeContract,
-		l.conn,
 		opts,
-		common.HexToAddress(AliceKp.Address()),
-		contracts.ERC20HandlerAddress,
-		// Values below are random and do not matter since we are not doing an e2e test
-		contracts.ERC20HandlerAddress,
-		contracts.ERC20HandlerAddress,
+		erc20Contract,
+		l.cfg.erc20HandlerContract,
+
+		l.cfg.erc20HandlerContract,
+		erc20Contract,
 		common.HexToAddress(BobKp.Address()),
 		destId,
 		amount,
@@ -107,52 +124,7 @@ func TestListener_depositEvent(t *testing.T) {
 		if !reflect.DeepEqual(expectedMessage, m) {
 			t.Fatalf("Unexpected message.\n\tExpected: %#v\n\tGot: %#v\n", expectedMessage, m)
 		}
-	case <-time.After(ListenerTimeout):
+	case <-time.After(TestTimeout):
 		t.Fatalf("test timed out")
 	}
 }
-
-// @TODO: Replace with Create&Vote
-
-// func TestListener_createProposalEvent(t *testing.T) {
-// 	cfg, _ := deployContracts(t, defaultDeployOpts)
-// 	l, router := setupListener(t, cfg)
-
-// 	// Get transaction ready
-// 	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), cfg.gasLimit, cfg.gasPrice)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-
-// 	metadata := hash([]byte{})
-
-// 	expectedMessage := msg.Message{
-// 		Source:       msg.ChainId(0),
-// 		Destination:  msg.ChainId(0),
-// 		Type:         msg.VoteDepositProposalType,
-// 		DepositNonce: uint32(1),
-// 		Metadata:     metadata[:],
-// 	}
-
-// 	// Create an random deposit proposal
-// 	if err := createDepositProposal(
-// 		l.bridgeContract,
-// 		l.conn,
-// 		opts,
-// 		big.NewInt(0),
-// 		big.NewInt(1),
-// 		metadata,
-// 	); err != nil {
-// 		t.Fatal(err)
-// 	}
-
-// 	// Verify message
-// 	select {
-// 	case m := <-router.msgs:
-// 		if !reflect.DeepEqual(expectedMessage, m) {
-// 			t.Fatalf("Unexpected message.\n\tExpected: %#v\n\tGot: %#v\n", expectedMessage, m)
-// 		}
-// 	case <-time.After(ListenerTimeout):
-// 		t.Fatalf("test timed out")
-// 	}
-// }

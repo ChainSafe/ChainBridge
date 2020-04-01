@@ -4,7 +4,6 @@
 package substrate
 
 import (
-	"encoding/binary"
 	"reflect"
 	"testing"
 	"time"
@@ -43,6 +42,22 @@ func whitelistChain(c *Connection, id uint32) error {
 	return nil
 }
 
+func constructMessage(t *testing.T, hash string, depositNonce uint32, destId uint32) (msg.Message, types.Hash) {
+	assetHashBytes := types.Bytes(types.MustHexDecodeString(hash))
+	assetHash, err := types.NewHashFromHexString(hash)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return msg.Message{
+		Source:       1,
+		Destination:  0,
+		Type:         msg.GenericTransfer,
+		DepositNonce: depositNonce,
+		Metadata:     []interface{}{assetHashBytes},
+	}, assetHash
+}
+
 func Test_AssetTx(t *testing.T) {
 	ac := createAliceConnection(t)
 	r := &mockRouter{msgs: make(chan msg.Message)}
@@ -61,26 +76,35 @@ func Test_AssetTx(t *testing.T) {
 	}
 
 	// Construct our expected message
-	assetHash, err := types.NewHashFromHexString("0x16078eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f2")
+	hashStr := "0x16078eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f2"
+	expected, hash := constructMessage(t, hashStr, 0, 1)
+
+	// Initiate transfer
+	recipient := types.Bytes([]byte{0xAB, 0xCD})
+	err = ac.SubmitTx(ExampleTransferHash, hash, recipient, destId)
 	if err != nil {
 		t.Fatal(err)
 	}
-	recipient := types.Bytes([]byte{0xAB, 0xCD})
 
-	meta := make([]byte, 8)
-	binary.LittleEndian.PutUint32(meta, destId)
+	// Verify message
+	select {
+	case m := <-r.msgs:
+		if !reflect.DeepEqual(expected, m) {
+			t.Fatalf("Unexpected message.\n\tExpected: %#v\n\tGot: %#v\n", expected, m)
+		}
+	case <-time.After(ListenerTimeout):
+		t.Fatalf("test timed out")
 
-	expected := msg.Message{
-		Source:       1,
-		Destination:  0,
-		Type:         msg.CreateDepositProposalType,
-		DepositNonce: 0,
-		To:           recipient,
-		Metadata:     meta,
 	}
 
+	// Repeat the process to assert nonce and hash change
+
+	// Construct our expected message
+	hashStr = "0x5d57194171ec6cd04032c42dde05d73f1c9366c16b64071a551c657c1db4c8f9"
+	expected, hash = constructMessage(t, hashStr, 1, 1)
+
 	// Initiate transfer
-	err = ac.SubmitTx(ExampleTransferHash, assetHash, recipient, destId)
+	err = ac.SubmitTx(ExampleTransferHash, hash, recipient, destId)
 	if err != nil {
 		t.Fatal(err)
 	}
