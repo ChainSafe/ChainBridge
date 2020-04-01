@@ -1,24 +1,62 @@
-// Copyright 2020 ChainSafe Systems
-// SPDX-License-Identifier: LGPL-3.0-only
-
 package ethereum
 
 import (
 	"math/big"
+	"testing"
 
 	erc20Mintable "github.com/ChainSafe/ChainBridge/bindings/ERC20Mintable"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/math"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
-func mintErc20Tokens(connection *Connection, opts *bind.TransactOpts, contractAddress, recipient common.Address, amount *big.Int) error {
+func deployTestContracts(t *testing.T, id msg.ChainId) *DeployedContracts {
+	//deployPK string, chainID *big.Int, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8
+	contracts, err := DeployContracts(
+		hexutil.Encode(AliceKp.Encode())[2:],
+		big.NewInt(int64(id)),
+		TestEndpoint,
+		TestNumRelayers,
+		TestRelayerThreshold,
+		0)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return contracts
+}
+
+func deployMintApproveErc20(t *testing.T, conn *Connection, opts *bind.TransactOpts) common.Address {
+	// Get transaction ready
+	deployerAddress := ethcrypto.PubkeyToAddress(conn.kp.PrivateKey().PublicKey)
+
+	erc20Address, err := deployErc20Contract(opts, conn.conn, deployerAddress)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := mintErc20Tokens(conn, opts, erc20Address, TestMintAmount); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := approveErc20(conn, opts, erc20Address, conn.cfg.contract, big.NewInt(100)); err != nil {
+		t.Fatal(err)
+	}
+
+	return erc20Address
+}
+
+func mintErc20Tokens(connection *Connection, opts *bind.TransactOpts, contractAddress common.Address, amount *big.Int) error {
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	erc20Instance, err := erc20Mintable.NewERC20Mintable(contractAddress, connection.conn)
 	if err != nil {
 		return err
 	}
 
-	_, err = erc20Instance.Mint(opts, recipient, amount)
+	_, err = erc20Instance.Mint(opts, opts.From, amount)
 	if err != nil {
 		return err
 	}
@@ -27,6 +65,7 @@ func mintErc20Tokens(connection *Connection, opts *bind.TransactOpts, contractAd
 }
 
 func approveErc20(connection *Connection, opts *bind.TransactOpts, contractAddress, recipient common.Address, amount *big.Int) error {
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	erc20Instance, err := erc20Mintable.NewERC20Mintable(contractAddress, connection.conn)
 	if err != nil {
 		return err
@@ -53,23 +92,15 @@ func constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipie
 }
 
 // createErc20Deposit deploys a new erc20 token contract mints, the sender (based on value), and creates a deposit
-func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.TransactOpts, deployerAddress, originHandler, destHandler, destTokenAddress, destRecipient common.Address, destId, amount *big.Int) error {
-	erc20Address, err := deployErc20Contract(txOpts, conn.conn, deployerAddress)
-	if err != nil {
-		return err
-	}
-
-	// Incrememnt Nonce by one
-	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
-	if err := mintErc20Tokens(conn, txOpts, erc20Address, deployerAddress, amount); err != nil {
-		return err
-	}
-
-	// Incrememnt Nonce by one
-	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
-	if err := approveErc20(conn, txOpts, erc20Address, originHandler, amount); err != nil {
-		return err
-	}
+func createErc20Deposit(contract *BridgeContract,
+	txOpts *bind.TransactOpts,
+	erc20Address,
+	originHandler,
+	destHandler,
+	destTokenAddress,
+	destRecipient common.Address,
+	destId,
+	amount *big.Int) error {
 
 	data := constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipient, amount)
 
@@ -85,16 +116,3 @@ func createErc20Deposit(contract BridgeContract, conn *Connection, txOpts *bind.
 	}
 	return nil
 }
-
-// func createDepositProposal(contract BridgeContract, conn *Connection, txOpts *bind.TransactOpts, destChain, depositNonce *big.Int, metadata [32]byte) error {
-// 	if _, err := contract.BridgeRaw.Transact(
-// 		txOpts,
-// 		"createDepositProposal",
-// 		destChain,
-// 		depositNonce,
-// 		metadata,
-// 	); err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }

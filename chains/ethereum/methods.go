@@ -4,54 +4,39 @@
 package ethereum
 
 import (
+	"fmt"
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
+	"github.com/ethereum/go-ethereum/common"
 )
 
-const StoreMethod = "store"
-const CreateDepositProposalMethod = "createDepositProposal"
 const VoteDepositProposalMethod = "voteDepositProposal"
 const ExecuteDepositMethod = "executeDepositProposal"
 
-func (w *Writer) depositAsset(m msg.Message) bool {
-
-	w.log.Info("Handling DepositAsset message", "to", w.conn.cfg.contract)
+func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
+	w.log.Info("Creating VoteDepositProposal transaction", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
-	defer nonce.lock.Unlock()
 	if err != nil {
 		w.log.Error("Failed to build transaction opts", "err", err)
 		return false
 	}
 
-	//TODO: Should this be metadata?
-	_, err = w.bridgeContract.BridgeRaw.Transact(opts, StoreMethod, hash(m.Metadata))
+	var data []byte
+	data = append(data, common.LeftPadBytes(m.Metadata[0].([]byte), 32)...)           // tokenId
+	data = append(data, common.LeftPadBytes(m.Metadata[1].([]byte), 32)...)           // recipient
+	data = append(data, common.LeftPadBytes(m.Metadata[2].(*big.Int).Bytes(), 32)...) // amount
+	hash := hash(data)
 
-	if err != nil {
-		log15.Error("Failed to submit depositAsset transaction", "err", err)
-		return false
-	}
-	return true
-}
+	// watch for execution event
+	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
 
-func (w *Writer) createDepositProposal(m msg.Message) bool {
-	w.log.Info("Handling CreateDepositProposal message", "to", w.conn.cfg.contract)
-
-	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
-	defer nonce.lock.Unlock()
-	if err != nil {
-		w.log.Error("Failed to build transaction opts", "err", err)
-		return false
-	}
-
-	log15.Info("opts", "from", opts.From.String())
-
-	hash := hash(m.Metadata)
-	_, err = w.bridgeContract.BridgeRaw.Transact(
+	log15.Trace("Submitting CreateDepositPropsoal transaction")
+	_, err = w.bridgeContract.Transact(
 		opts,
-		CreateDepositProposalMethod,
+		VoteDepositProposalMethod,
 		big.NewInt(int64(m.Source)),
 		u32toBigInt(m.DepositNonce),
 		hash,
@@ -61,59 +46,65 @@ func (w *Writer) createDepositProposal(m msg.Message) bool {
 		w.log.Error("Failed to submit createDepositProposal transaction", "err", err)
 		return false
 	}
-	w.log.Info("Succesfully created deposit!", "chain", m.Source, "deposit_id", m.DepositNonce)
+	nonce.lock.Unlock()
+
+	w.log.Info("Successfully submitted deposit proposal!", "source", m.Source, "depositNonce", m.DepositNonce)
+
 	return true
 }
 
-func (w *Writer) voteDepositProposal(m msg.Message) bool {
-	w.log.Info("Handling VoteDepositProposal message", "to", w.conn.cfg.contract)
+func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
+	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
+	// TODO: Skip existing blocks
+	query := buildQuery(w.cfg.contract, DepositProposalFinalized, big.NewInt(0))
+	eventSubscription, err := w.conn.subscribeToEvent(query)
+	if err != nil {
+		log15.Error("Failed to subscribe to finalization event", "err", err)
+	}
+
+	for {
+		select {
+		case evt := <-eventSubscription.ch:
+			sourceId := evt.Topics[1].Big().Uint64()
+			destId := evt.Topics[2].Big().Uint64()
+			depositNone := evt.Topics[3].Big().Uint64()
+
+			if m.Source == msg.ChainId(sourceId) &&
+				m.Destination == msg.ChainId(destId) &&
+				m.DepositNonce == uint32(depositNone) {
+				eventSubscription.sub.Unsubscribe()
+				w.executeProposal(m, handler, data)
+				return
+			}
+		case err := <-eventSubscription.sub.Err():
+			if err != nil {
+				w.log.Error("finalization subscription error", "err", err)
+				return
+			}
+		}
+	}
+}
+
+func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
+	w.log.Info("Executing proposal", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
 	if err != nil {
 		w.log.Error("Failed to build transaction opts", "err", err)
-		return false
+		return
 	}
-
-	vote := uint8(1)
-	_, err = w.bridgeContract.BridgeRaw.Transact(
-		opts,
-		VoteDepositProposalMethod,
-		big.NewInt(int64(m.Source)),
-		u32toBigInt(m.DepositNonce),
-		vote,
-	)
-
-	if err != nil {
-		w.log.Error("Failed to submit vote!", "chain", m.Source, "deposit_id", m.DepositNonce, "err", err)
-		return false
-	}
-	w.log.Info("Succesfully voted!", "chain", m.Source, "deposit_id", m.DepositNonce, "Vote", vote)
-	return true
-}
-
-func (w *Writer) executeDeposit(m msg.Message) bool {
-	w.log.Info("Handling ExecuteDeposit message", "to", w.conn.cfg.contract)
-
-	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
-	defer nonce.lock.Unlock()
-	if err != nil {
-		w.log.Error("Failed to build transaction opts", "err", err)
-		return false
-	}
-
+	fmt.Printf("handler addr: %s\n", common.BytesToAddress(m.Metadata[0].([]byte)).Hex())
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		ExecuteDepositMethod,
 		big.NewInt(int64(m.Source)),
 		u32toBigInt(m.DepositNonce),
-		byteSliceTo32Bytes(m.To),
-		m.Metadata,
+		handler,
+		data,
 	)
 
 	if err != nil {
 		w.log.Error("Failed to submit executeDeposit transaction", "err", err)
-		return false
 	}
-	return true
 }
