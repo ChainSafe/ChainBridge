@@ -24,12 +24,12 @@ type genericDepositRecord struct {
 	MetaData                    []byte
 }
 
+
 // erc20DepositRecord is the return struct from the solidity function getDepositRecord() in the ERC20Handler contract
 type erc20DepositRecord struct {
 	OriginChainTokenAddress        common.Address
 	DestinationChainID             *big.Int
-	DestinationChainHandlerAddress common.Address
-	DestinationChainTokenAddress   common.Address
+	TokenId string
 	DestinationRecipientAddress    common.Address
 	Depositer                      common.Address
 	Amount                         *big.Int
@@ -170,8 +170,7 @@ func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
 	return erc20DepositRecord{
 			OriginChainTokenAddress:        depositRecord.OriginChainTokenAddress,
 			DestinationChainID:             depositRecord.DestinationChainID,
-			DestinationChainHandlerAddress: depositRecord.DestinationChainHandlerAddress,
-			DestinationChainTokenAddress:   depositRecord.DestinationChainTokenAddress,
+			TokenId: depositRecord.TokenID,
 			DestinationRecipientAddress:    depositRecord.DestinationRecipientAddress,
 			Depositer:                      depositRecord.Depositer,
 			Amount:                         depositRecord.Amount,

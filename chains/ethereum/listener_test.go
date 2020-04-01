@@ -4,14 +4,15 @@
 package ethereum
 
 import (
+	"fmt"
 	"math/big"
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-
 	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/status-im/keycard-go/hexutils"
 )
 
 type MockRouter struct {
@@ -85,22 +86,25 @@ func TestListener_depositEvent(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	erc20Contract := deployMintApproveErc20(t, l.conn, opts)
+
 	amount := big.NewInt(10)
-	destId := big.NewInt(1)
+	sourceId := msg.ChainId(0)
+	destId := msg.ChainId(1)
+	tokenIdBytes := append(common.LeftPadBytes([]byte{1}, 32), common.LeftPadBytes(erc20Contract.Bytes(), 32)...)
+	tokenId := hexutils.BytesToHex(tokenIdBytes)
 
 	expectedMessage := msg.Message{
-		Source:       msg.ChainId(0),
-		Destination:  msg.ChainId(destId.Uint64()),
+		Source:       sourceId,
+		Destination:  destId,
 		Type:         msg.FungibleTransfer,
 		DepositNonce: uint32(1),
 		Metadata: []interface{}{
 			common.HexToAddress(BobKp.Address()),
 			amount.Bytes(),
-			l.cfg.erc20HandlerContract,
+			tokenId,
 		},
 	}
-
-	erc20Contract := deployMintApproveErc20(t, l.conn, opts)
 
 	// Create an ERC20 Deposit
 	if err := createErc20Deposit(
@@ -109,10 +113,8 @@ func TestListener_depositEvent(t *testing.T) {
 		erc20Contract,
 		l.cfg.erc20HandlerContract,
 
-		l.cfg.erc20HandlerContract,
-		erc20Contract,
 		common.HexToAddress(BobKp.Address()),
-		destId,
+		big.NewInt(int64(destId)),
 		amount,
 	); err != nil {
 		t.Fatal(err)
@@ -121,6 +123,7 @@ func TestListener_depositEvent(t *testing.T) {
 	// Verify message
 	select {
 	case m := <-router.msgs:
+		fmt.Println(m.Metadata[2].(string))
 		if !reflect.DeepEqual(expectedMessage, m) {
 			t.Fatalf("Unexpected message.\n\tExpected: %#v\n\tGot: %#v\n", expectedMessage, m)
 		}
