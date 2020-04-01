@@ -41,7 +41,7 @@ func deployMintApproveErc20(t *testing.T, conn *Connection, opts *bind.TransactO
 		t.Fatal(err)
 	}
 
-	if err := addHandlerAsMinter(conn, opts, erc20Address); err != nil {
+	if err := addHandlerAsMinter(conn, opts, er); err != nil {
 		t.Fatal(err)
 	}
 
@@ -112,7 +112,7 @@ func constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipie
 }
 
 // createErc20Deposit deploys a new erc20 token contract mints, the sender (based on value), and creates a deposit
-func createErc20Deposit(contract *BridgeContract,
+func 	createErc20Deposit(contract *BridgeContract,
 	txOpts *bind.TransactOpts,
 	erc20Address,
 	originHandler,
