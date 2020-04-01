@@ -108,7 +108,7 @@ func (c *Connection) checkChainId(expected msg.ChainId, pub []byte) error {
 	} else if !ok {
 		return errors.New("Unable to find ChainId")
 	} else if id != expected {
-		return errors.New(fmt.Errorf("ChainID is incorrect, Expected chainId: %d, got chainId: %d", expected, id))
+		return fmt.Errorf("ChainID is incorrect, Expected chainId: %d, got chainId: %d", expected, id)
 	}
 
 	return nil
