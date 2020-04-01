@@ -4,7 +4,6 @@
 package ethereum
 
 import (
-	"fmt"
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -94,7 +93,7 @@ func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []b
 		w.log.Error("Failed to build transaction opts", "err", err)
 		return
 	}
-	fmt.Printf("handler addr: %s\n", common.BytesToAddress(m.Metadata[0].([]byte)).Hex())
+
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		ExecuteDepositMethod,

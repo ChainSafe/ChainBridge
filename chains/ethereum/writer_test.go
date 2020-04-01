@@ -30,6 +30,8 @@ func createTestWriter(t *testing.T, cfg *Config, contracts *DeployedContracts) (
 		t.Fatal(err)
 	}
 
+	writer.conn.cfg.contract = contracts.BridgeAddress
+	writer.conn.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.cfg.contract = contracts.BridgeAddress
 	writer.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.SetContracts(bridge, erc20Handler)
@@ -91,6 +93,7 @@ func watchEvent(conn *Connection, subStr EventSig) {
 		case err := <-eventSubscription.sub.Err():
 			if err != nil {
 				fmt.Println(err)
+				return
 			}
 		}
 	}
@@ -106,7 +109,9 @@ func TestCreateAndExecuteDepositProposal(t *testing.T) {
 	defer bobConn.Close()
 
 	// Create an address from some source chain
-	erc20Address := common.HexToAddress("0x8532f13a4e19fc08b8236a3012942c7d6a80872f")
+	opts, nonce, err := aliceConn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
+	nonce.lock.Unlock() // We manual increment nonce in tests
+	erc20Address := deployMintApproveErc20(t, aliceConn, opts)
 
 	// Create initial transfer message
 	tokenId := erc20Address.Bytes()
@@ -128,6 +133,7 @@ func TestCreateAndExecuteDepositProposal(t *testing.T) {
 	go watchEvent(alice.conn, DepositProposalCreated)
 	go watchEvent(alice.conn, DepositProposalVote)
 	go watchEvent(alice.conn, DepositProposalFinalized)
+	go watchEvent(alice.conn, DepositProposalExecuted)
 
 	// Watch for executed event
 	query := buildQuery(alice.cfg.contract, DepositProposalExecuted, big.NewInt(0))
@@ -149,9 +155,9 @@ func TestCreateAndExecuteDepositProposal(t *testing.T) {
 	for {
 		select {
 		case evt := <-eventSubscription.ch:
-			sourceId := evt.Topics[0].Big().Uint64()
-			destId := evt.Topics[1].Big().Uint64()
-			depositNone := evt.Topics[2].Big().Uint64()
+			sourceId := evt.Topics[1].Big().Uint64()
+			destId := evt.Topics[2].Big().Uint64()
+			depositNone := evt.Topics[3].Big().Uint64()
 
 			if m.Source == msg.ChainId(sourceId) &&
 				m.Destination == msg.ChainId(destId) &&

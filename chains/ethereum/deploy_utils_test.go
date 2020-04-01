@@ -38,6 +38,10 @@ func deployMintApproveErc20(t *testing.T, conn *Connection, opts *bind.TransactO
 		t.Fatal(err)
 	}
 
+	if err := addHandlerAsMinter(conn, opts, erc20Address); err != nil {
+		t.Fatal(err)
+	}
+
 	if err := mintErc20Tokens(conn, opts, erc20Address, TestMintAmount); err != nil {
 		t.Fatal(err)
 	}
@@ -47,6 +51,20 @@ func deployMintApproveErc20(t *testing.T, conn *Connection, opts *bind.TransactO
 	}
 
 	return erc20Address
+}
+
+func addHandlerAsMinter(conn *Connection, opts *bind.TransactOpts, contract common.Address) error {
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
+	erc20Instance, err := erc20Mintable.NewERC20Mintable(contract, conn.conn)
+	if err != nil {
+		return err
+	}
+
+	_, err = erc20Instance.AddMinter(opts, conn.cfg.erc20HandlerContract)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func mintErc20Tokens(connection *Connection, opts *bind.TransactOpts, contractAddress common.Address, amount *big.Int) error {
