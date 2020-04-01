@@ -111,6 +111,9 @@ func TestCreateAndExecuteDepositProposal(t *testing.T) {
 	// Create an address from some source chain
 	opts, nonce, err := aliceConn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
 	nonce.lock.Unlock() // We manual increment nonce in tests
+	if err != nil {
+		t.Fatal(err)
+	}
 	erc20Address := deployMintApproveErc20(t, aliceConn, opts)
 
 	// Create initial transfer message
