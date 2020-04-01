@@ -5,6 +5,7 @@ package ethereum
 
 import (
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	"github.com/ChainSafe/ChainBridge/chains"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
@@ -12,6 +13,7 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/log15"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type Chain struct {
@@ -19,6 +21,39 @@ type Chain struct {
 	conn     *Connection       // THe chains connection
 	listener *Listener         // The listener of this chain
 	writer   *Writer           // The writer of the chain
+}
+
+func createBridgeContract(addr common.Address, conn *Connection) (*BridgeContract, error) {
+	bridgeInstance, err := bridge.NewBridge(addr, conn.conn)
+	if err != nil {
+		return nil, err
+	}
+
+	raw := &bridge.BridgeRaw{
+		Contract: bridgeInstance,
+	}
+
+	return &BridgeContract{
+		BridgeRaw:        raw,
+		BridgeCaller:     &bridgeInstance.BridgeCaller,
+		BridgeTransactor: &bridgeInstance.BridgeTransactor,
+	}, nil
+}
+
+func createErc20HandlerContract(addr common.Address, conn *Connection) (*ERC20HandlerContract, error) {
+	instance, err := erc20Handler.NewERC20Handler(addr, conn.conn)
+	if err != nil {
+		return nil, err
+	}
+
+	raw := &erc20Handler.ERC20HandlerRaw{
+		Contract: instance,
+	}
+
+	return &ERC20HandlerContract{
+		ERC20HandlerRaw:    raw,
+		ERC20HandlerCaller: &instance.ERC20HandlerCaller,
+	}, nil
 }
 
 func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
@@ -47,25 +82,21 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	bridgeInstance, err := bridge.NewBridge(cfg.contract, conn.conn)
+	bridgeContract, err := createBridgeContract(cfg.contract, conn)
 	if err != nil {
 		return nil, err
 	}
 
-	raw := &bridge.BridgeRaw{
-		Contract: bridgeInstance,
-	}
-
-	bridgeContract := BridgeContract{
-		BridgeRaw:    raw,
-		BridgeCaller: &bridgeInstance.BridgeCaller,
+	erc20HandlerContract, err := createErc20HandlerContract(cfg.erc20HandlerContract, conn)
+	if err != nil {
+		return nil, err
 	}
 
 	listener := NewListener(conn, cfg, logger)
-	listener.SetBridgeContract(bridgeContract)
+	listener.SetContracts(bridgeContract, erc20HandlerContract)
 
 	writer := NewWriter(conn, cfg, logger)
-	writer.SetBridgeContract(bridgeContract)
+	writer.SetContracts(bridgeContract, erc20HandlerContract)
 
 	return &Chain{
 		cfg:      chainCfg,

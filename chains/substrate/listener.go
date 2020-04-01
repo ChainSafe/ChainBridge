@@ -191,9 +191,13 @@ func (l *Listener) handleEvents(evts Events) {
 }
 
 // submitMessage inserts the chainId into the msg and sends it to the router
-func (l *Listener) submitMessage(m msg.Message) {
+func (l *Listener) submitMessage(m msg.Message, err error) {
+	if err != nil {
+		log15.Error("Critical error processing event", "err", err)
+		return
+	}
 	m.Source = l.chainId
-	err := l.router.Send(m)
+	err = l.router.Send(m)
 	if err != nil {
 		log15.Error("failed to process event", "err", err)
 	}

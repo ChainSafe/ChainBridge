@@ -4,7 +4,7 @@
 package substrate
 
 import (
-	"encoding/binary"
+	"fmt"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
@@ -13,7 +13,7 @@ import (
 )
 
 type eventName string
-type eventHandler func(interface{}, log15.Logger) msg.Message
+type eventHandler func(interface{}, log15.Logger) (msg.Message, error)
 
 const RelayerThresholdSet eventName = "RelayerThresholdSet"
 const ChainWhitelisted eventName = "ChainWhitelsited"
@@ -132,29 +132,70 @@ type Events struct {
 	Sudo_Sudid                 []EventSudid               //nolint:stylecheck,golint
 }
 
-func assetTransferHandler(evtI interface{}, log log15.Logger) msg.Message {
+func assetTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, error) {
 	evt, ok := evtI.(EventAssetTransfer)
 	if !ok {
-		log.Error("failed to cast EventAssetTransfer type")
+		return msg.Message{}, fmt.Errorf("failed to cast EventAssetTransfer type")
 	}
 
-	log.Info("Got asset transfer event!", "destination", evt.Destination)
+	log.Info("Got asset transfer event!", "destination", evt.Destination, "tokenId", evt.TokenID)
 
-	meta := make([]byte, 8)
-	binary.LittleEndian.PutUint32(meta, uint32(evt.Destination))
+	meta, typ, err := getMetaAndType(evt)
+	if err != nil {
+		return msg.Message{}, err
+	}
+
+	log15.Debug("Submitting new message to router", "type", typ)
 
 	return msg.Message{
 		Destination:  msg.ChainId(evt.Destination),
-		Type:         msg.CreateDepositProposalType,
+		Type:         typ,
 		DepositNonce: uint32(evt.DepositNonce),
-		// TODO: What should To actually be?
-		To:       evt.To,
-		Metadata: meta,
-	}
+		Metadata:     meta,
+	}, nil
 }
 
-// TODO: These should be added directly to GSRPC
+type tokenIdentifier uint32
 
+const nativeTransfer tokenIdentifier = 2
+const hashTransfer tokenIdentifier = 1
+
+func sliceToUint32(in []byte) uint32 {
+	var res uint32
+	for _, v := range in {
+		res <<= 8
+		res |= uint32(v)
+	}
+	return res
+}
+
+func getMetaAndType(evt EventAssetTransfer) ([]interface{}, msg.TransferType, error) {
+	var meta []interface{}
+
+	tokenId := tokenIdentifier(sliceToUint32(evt.TokenID))
+
+	switch tokenId {
+	case nativeTransfer:
+		// recipient (evt.To), amount (evt.Metadata), tokenId (evt.TokenId)
+		meta = []interface{}{
+			evt.To,
+			sliceToUint32(evt.Metadata),
+			evt.TokenID,
+		}
+		return meta, msg.FungibleTransfer, nil
+
+	case hashTransfer:
+		// hash (evt.Metadata)
+		return []interface{}{evt.Metadata}, msg.GenericTransfer, nil
+
+	default:
+		return nil, "", fmt.Errorf("unknown token ID: %d", tokenId)
+
+	}
+
+}
+
+// TODO: This should be added directly to GSRPC
 type EventSudid struct {
 	Phase   types.Phase
 	Success types.Bool
