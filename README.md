@@ -25,10 +25,6 @@ Required for substrate key management.
 
 ## Building
 
-**The solidity bindings must first be fetched and built with `make setup-contracts`.**
-
-**Then, use:**
-
 `make build`: Builds `chainbridge` in `./build`.
 
 **or**
@@ -42,12 +38,12 @@ Required for substrate key management.
 A chain configurations take this form:
 ```toml
 [[chains]]
-name = "ethereum" // Human-readable name
-type = "ethereum" // Either "ethereum" or "substrate"
-id = 0            // Chain Id
-endpoint = "ws://host:port" // API endpoint
-from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c" // Public key of desired key, not required for test keys
-opts = {}         // Chain-specific configuration options (see below)
+name = "ethereum" # Human-readable name
+type = "ethereum" # Either "ethereum" or "substrate"
+id = 0            # Chain Id
+endpoint = "ws://host:port" # API endpoint
+from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c" # Public key of desired key, not required for test keys
+opts = {}         # Chain-specific configuration options (see below)
 ```
 
 See `config.toml.example` for an example configuration. 
@@ -86,6 +82,8 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 - Ethereum (Solidity): [chainbridge-solidity](https://github.com/ChainSafe/chainbridge-solidity) 
 
     The Solidity contracts required for chainbridge. Includes deployment and interaction CLI.
+    
+    The bindings for the contracts live in `bindings/`. To update the bindings modify `scripts/setup-contracts.sh` and then run `make clean && make setup-contracts`
 
 - Substrate: [chainbridge-substrate](https://github.com/ChainSafe/chainbridge-substrate)
 
@@ -94,6 +92,8 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 # Testing
 
 ## Ethereum Dev Environment 
+
+First, run `make setup-sol-cli` to fetch the necessary scripts. Requires `truffle` and `ganache-cli`.
 
 To start a ganache instance:
 ```
