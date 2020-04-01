@@ -5,6 +5,7 @@ package substrate
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
@@ -37,14 +38,10 @@ func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
 	if err != nil {
 		return nil, err
 	}
-	var id msg.ChainId
-	ok, err := conn.queryStorage("Bridge", "ChainIdentifier", krp.PublicKey, nil, &id)
+
+	err = conn.checkChainId(cfg.Id, krp.PublicKey)
 	if err != nil {
 		return nil, err
-	} else if !ok {
-		return nil, errors.New("Unable to find ChainId")
-	} else if id != cfg.Id {
-		return nil, errors.New("ChainID is incorrect")
 	}
 
 	// Setup listener & writer
@@ -101,4 +98,19 @@ func (c *Chain) Stop() error {
 	c.conn.Close()
 
 	return nil
+}
+
+func (c *Connection) checkChainId(expected msg.ChainId, pub []byte) error {
+	var id msg.ChainId
+	ok, err := c.queryStorage("Bridge", "ChainIdentifier", pub, nil, &id)
+	if err != nil {
+		return err
+	} else if !ok {
+		return errors.New("Unable to find ChainId")
+	} else if id != expected {
+		return errors.New(fmt.Errorf("ChainID is incorrect, Expected chainId: %d, got chainId: %d", expected, id))
+	}
+
+	return nil
+
 }
