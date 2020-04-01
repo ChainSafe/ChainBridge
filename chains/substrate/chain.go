@@ -4,6 +4,8 @@
 package substrate
 
 import (
+	"errors"
+
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridge/keystore"
@@ -34,6 +36,15 @@ func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
+	}
+	var id msg.ChainId
+	ok, err := conn.queryStorage("Bridge", "ChainIdentifier", krp.PublicKey, nil, &id)
+	if err != nil {
+		return nil, err
+	} else if !ok {
+		return nil, errors.New("Unable to find ChainId")
+	} else if id != cfg.Id {
+		return nil, errors.New("ChainID is incorrect")
 	}
 
 	// Setup listener & writer
