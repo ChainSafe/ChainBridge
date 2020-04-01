@@ -35,11 +35,7 @@ func TestConnect_QueryChain(t *testing.T) {
 	}
 	defer conn.Close()
 
-	// Query storage
-	var data accountData
-	_, err = conn.queryStorage("System", "Account", conn.key.PublicKey, nil, &data)
-
-	err = conn.checkChainId(1, conn.key.PublicKey)
+	err = conn.checkChainId(1)
 	if err != nil {
 		t.Fatal(err)
 	}

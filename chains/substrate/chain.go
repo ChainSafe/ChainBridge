@@ -39,7 +39,7 @@ func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	err = conn.checkChainId(cfg.Id, krp.PublicKey)
+	err = conn.checkChainId(cfg.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -100,9 +100,9 @@ func (c *Chain) Stop() error {
 	return nil
 }
 
-func (c *Connection) checkChainId(expected msg.ChainId, pub []byte) error {
+func (c *Connection) checkChainId(expected msg.ChainId) error {
 	var id msg.ChainId
-	ok, err := c.queryStorage("Bridge", "ChainIdentifier", pub, nil, &id)
+	ok, err := c.queryStorage("Bridge", "ChainIdentifier", nil, nil, &id)
 	if err != nil {
 		return err
 	} else if !ok {
