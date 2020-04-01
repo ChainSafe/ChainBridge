@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 
 S3_URL="https://centchain.nyc3.digitaloceanspaces.com"
-SUB_COMMIT="b27c1a90521dc5b9eacef1f85c99285712d06330"
-SUB_BUILD_ID="155811884"
+SUB_COMMIT="a21c35813b3b9b4e8ee20deaf257a2d1628bf7f1"
+SUB_BUILD_ID="157562317"
 SUB_CMD="chainbridge-substrate-chain"
 
 set -eux
