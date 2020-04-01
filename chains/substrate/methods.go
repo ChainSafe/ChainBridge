@@ -22,13 +22,8 @@ func (m Method) String() string {
 }
 
 var WhitelistChain = createMethod("whitelist_chain")
-
-var CreateProposal = createMethod("create_proposal")
-
-var Approve = createMethod("approve")
-
+var AcknowledgeProposal = createMethod("acknowledge_proposal")
 var ExampleTransfer Method = "Example.transfer"
-
 var ExampleTransferHash = Method("Example.transfer_hash")
-
+var ExampleRemark Method = "Example.remark"
 var Sudo Method = "Sudo.sudo"

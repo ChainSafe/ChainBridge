@@ -53,6 +53,13 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		return nil, fmt.Errorf("must provide opts.contract field for ethereum config")
 	}
 
+	if handler, ok := chainCfg.Opts["erc20Handler"]; ok && handler != "" {
+		config.erc20HandlerContract = common.HexToAddress(handler)
+		delete(chainCfg.Opts, "erc20Handler")
+	} else {
+		return nil, fmt.Errorf("must provide opts.erc20Handler field for ethereum config")
+	}
+
 	if gasPrice, ok := chainCfg.Opts["gasPrice"]; ok {
 		price := big.NewInt(0)
 		_, pass := price.SetString(gasPrice, 10)
@@ -81,7 +88,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	}
 
 	if len(chainCfg.Opts) != 0 {
-		return nil, errors.New("Unknown Opts Encountered")
+		return nil, fmt.Errorf("Unknown Opts Encountered: %#v", chainCfg.Opts)
 	}
 
 	return config, nil
