@@ -58,14 +58,6 @@ func (l *Listener) GetSubscriptions() []*Subscription {
 			signature: Deposit,
 			handler:   l.handleErc20DepositedEvent,
 		},
-		// {
-		// 	signature: NftTransfer,
-		// 	handler:   l.handleTransferEvent,
-		// },
-		{
-			signature: DepositProposalCreated,
-			handler:   l.handleVoteEvent,
-		},
 	}
 
 }

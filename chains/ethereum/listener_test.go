@@ -75,7 +75,7 @@ func TestListener_depositEvent(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id)
 	l, router := createTestListener(t, aliceTestConfig, contracts)
 
-	// TODO: Remove
+	// For debugging
 	go watchEvent(l.conn, Deposit)
 
 	// Get transaction ready
