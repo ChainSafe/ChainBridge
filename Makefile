@@ -78,30 +78,6 @@ deploy-eth:
 
 docker-start:
 	./scripts/docker/start-docker.sh
-	
-start-cent:
-	@echo " > \033[32mStarting centrifuge-chain... \033[0m "
-	./scripts/centrifuge/run_chain.sh
-
-cent-auto-run:
-	@echo " > \033[32mExecuting centrifuge setup... \033[0m "
-	./scripts/centrifuge/run_setup.sh
-
-cent-set-emitter:
-	@echo " > \033[32mSetting centrifuge emitter address... \033[0m "
-	./scripts/centrifuge/run_interaction.sh set-emitter $(CENT_EMITTER_ADDR)
-
-cent-get-emitter:
-	@echo " > \033[32mGetting centrifuge emitter address... \033[0m "
-	./scripts/centrifuge/run_interaction.sh get-emitter
-
-cent-whitelist-chain:
-	@echo " > \033[32mExecuting centrifuge chain whitelist... \033[0m "
-	./scripts/centrifuge/run_interaction.sh whitelist-chain $(CENT_CHAIN_ID)
-
-cent-asset-tx:
-	@echo " > \033[32mExecuting centrifuge interaction... \033[0m "
-	./scripts/centrifuge/run_interaction.sh asset-tx $(CENT_CHAIN_ID) $(CENT_TO) $(CENT_TOKEN_ID) $(CENT_METADATA)
 
 clean:
 	rm -rf build/ bindings/ solidity/
