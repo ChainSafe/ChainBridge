@@ -31,9 +31,7 @@ Required for substrate key management.
 
 `make install`: Uses `go install` to add `chainbridge` to your GOBIN.
 
-## Configuration
-
-### Configuring Chains
+# Configuration
 
 A chain configurations take this form:
 ```toml
@@ -48,7 +46,7 @@ opts = {}         # Chain-specific configuration options (see below)
 
 See `config.toml.example` for an example configuration. 
 
-#### Ethereum Options
+### Ethereum Options
 
 Ethereum chains support the following additional options:
 
@@ -59,7 +57,7 @@ gasLimit = "0x1234"      // Gas limit for transactions (default: 6721975)
 http = "true"            // Whether the chain connection is ws or http (default: false)
 ```
 
-#### Substrate Options
+### Substrate Options
 
 Substrate supports the following additonal options:
 
@@ -67,7 +65,7 @@ Substrate supports the following additonal options:
 startBlock = "1234" // The block to start processing event from (default: 0)
 ```
 
-### Keystore
+## Keystore
 
 ChainBridge requires keys to sign and submit transactions, and to identify each bridge node on chain.
 
@@ -91,78 +89,11 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
 # Testing
 
-## Ethereum Dev Environment 
-
 First, run `make setup-sol-cli` to fetch the necessary scripts. Requires `truffle` and `ganache-cli`.
 
-To start a ganache instance:
+Start a ganache instance with:
 ```
 make start-eth
-```
-
-Bridge contracts can then be deployed with:
-```
-make deploy-eth
-```
-
-Note: The environment variable `PORT=<port>` can be provided for these commands (default `PORT=8545`)
-
-To build the go bindings for the Ethereum contracts:
-```
-make bindings
-```
-
-## Centrifuge Dev Environment
-
-To fetch, build and run centrifuge-chain run:
-```
-make start-cent
-```
-
-Note: The build process takes a while, but will only run once. It currently uses a modified fork of centrifuge-chain
-
-You can run several commands to interact with the bridge module:
-
-### Emitter Address
-
-You can set and get the emitter address with:
- ```
- make cent-get-emitter
-``` 
-and 
-```
-make cent-set-emitter CENT_EMITTER_ADDR=<HEX VALUE>
-```
-### Whitelist Chain
-
-A chain ID can be whitelisted as a destination with:
-
-```
-make cent-whitelist-chain CENT_CHAIN_ID=<HEX VALUE>
-```
-
-### Asset Transfer
-
-An asset transfer can be executed with:
-
-```
-make cent-asset-tx CENT_CHAIN_ID=<HEX VALUE> CENT_TO=<HEX VALUE> CENT_TOKEN_ID=<HEX VALUE> CENT_METADATA=<HEX VALUE>
-```
-
-### Auto Run
-
-Setting an emitter address, whitelisting a chain and submitting an asset tx can be executed using default values with:
-```
-make cent-auto-run 
-```
-
-## Tests
-
-To run the go tests a fresh ganache instance is required (tests depend on deterministic addresses). 
-A new instance can be started by running these in seperate terminals:
-```
-make start-eth
-make deploy-eth
 ```
 Go tests can then be run with:
 ```
@@ -171,11 +102,11 @@ make test
 
 **Note: Substrate tests are not yet able to be run locally and will fail.**
 
-## Simulations
-### Ethereum ERC20 Transfer
+# Simulations
+## Ethereum ERC20 Transfer
 Start chain 1 (terminal 1)
 ```shell
-make setup-contracts
+make setup-sol-cli
 make start-eth
 ```
 Start chain 2 (terminal 2)
@@ -184,7 +115,7 @@ PORT=8546 make start-eth
 ```
 Deploy the contracts (terminal 3)
 ```shell
-make deploy_eth && PORT=8546 make deploy-eth
+make deploy-eth && PORT=8546 make deploy-eth
 ```
 Build the latest ChainBridge binary & run it (terminal 3)
 ```shell
@@ -203,7 +134,7 @@ Notes:
 - `--test-only` ensures we don't re-deploy the contracts
 - `--dest` allows you to specify which chain_id you want to the transfer to go to
 
-#### Debugging
+### Debugging
 Node script errors:
 "Contract not found" or similar:
 - Check the deployments in step 3, do the addresses listed there match with the addresses saved in `solidity/scripts/cli/constants.js`? The constants file should be updated accordingly
