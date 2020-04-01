@@ -85,3 +85,27 @@ func TestRequiredOpts(t *testing.T) {
 	}
 
 }
+
+func TestExtraOpts(t *testing.T) {
+	input := core.ChainConfig{
+		Name:         "chain",
+		Id:           1,
+		Endpoint:     "endpoint",
+		From:         "0x0",
+		KeystorePath: "./keys",
+		Insecure:     false,
+		Opts: map[string]string{
+			"contract":      "0x1234",
+			"gasLimit":      "10",
+			"gasPrice":      "20",
+			"http":          "true",
+			"incorrect_opt": "error",
+		},
+	}
+
+	_, err := parseChainConfig(&input)
+
+	if err == nil {
+		t.Error("Config should not accept incorrect opts.")
+	}
+}

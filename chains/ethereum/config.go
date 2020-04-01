@@ -48,6 +48,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 
 	if contract, ok := chainCfg.Opts["contract"]; ok && contract != "" {
 		config.contract = common.HexToAddress(contract)
+		delete(chainCfg.Opts, "contract")
 	} else {
 		return nil, fmt.Errorf("must provide opts.contract field for ethereum config")
 	}
@@ -57,6 +58,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		_, pass := price.SetString(gasPrice, 10)
 		if pass {
 			config.gasPrice = price
+			delete(chainCfg.Opts, "gasPrice")
 		} else {
 			return nil, errors.New("Unable to parse gas price.")
 		}
@@ -67,6 +69,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		_, pass := limit.SetString(gasLimit, 10)
 		if pass {
 			config.gasLimit = limit
+			delete(chainCfg.Opts, "gasLimit")
 		} else {
 			return nil, errors.New("Unable to parse gas limit.")
 		}
@@ -74,6 +77,11 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 
 	if HTTP, ok := chainCfg.Opts["http"]; ok && HTTP == "true" {
 		config.http = true
+		delete(chainCfg.Opts, "http")
+	}
+
+	if len(chainCfg.Opts) != 0 {
+		return nil, errors.New("Unknown Opts Encountered")
 	}
 
 	return config, nil
