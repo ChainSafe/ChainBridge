@@ -9,35 +9,50 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+
+	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	erc20 "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	erc721 "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
+	generic "github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 )
 
-// genericDepositRecord is the return value from the solidity function getGenericDepositRecord()
+// genericDepositRecord is the return struct from the solidity function getDepositRecord() in the GenericHandler contract
 type genericDepositRecord struct {
-	OriginChainTokenAddress   common.Address
-	OriginChainHandlerAddress common.Address
-	DestChainID               *big.Int
-	DestChainHandlerAddress   common.Address
-	DestRecipientAddress      common.Address
-	Data                      []byte
+	DestinationChainID          *big.Int
+	DestinationRecipientAddress common.Address
+	Depositer                   common.Address
+	MetaData                    []byte
 }
 
+// erc20DepositRecord is the return struct from the solidity function getDepositRecord() in the ERC20Handler contract
 type erc20DepositRecord struct {
-	OriginChainTokenAddress   common.Address
-	OriginChainHandlerAddress common.Address
-	DestChainID               *big.Int
-	DestChainHandlerAddress   common.Address
-	DestRecipientAddress      common.Address
-	Amount                    *big.Int
+	OriginChainTokenAddress        common.Address
+	DestinationChainID             *big.Int
+	DestinationChainHandlerAddress common.Address
+	DestinationChainTokenAddress   common.Address
+	DestinationRecipientAddress    common.Address
+	Depositer                      common.Address
+	Amount                         *big.Int
+}
+
+// erc721DepositRecord is the return value from the solidity function getDepositRecord() in the ERC721Handler contract
+type erc721DepositRecord struct {
+	OriginChainTokenAddress        common.Address
+	DestinationChainID             *big.Int
+	DestinationChainHandlerAddress common.Address
+	DestinationChainTokenAddress   common.Address
+	DestinationRecipientAddress    common.Address
+	Depositer                      common.Address
+	TokenID                        *big.Int
+	MetaData                       []byte
 }
 
 // depositProposal is the return value from the solidity function getDepositProposal()
 type depositProposal struct {
 	OriginChainID *big.Int
+	DestChainID   *big.Int
 	DepositNonce  *big.Int
 	DataHash      [32]byte
-	YesVotes      []common.Address
-	NoVotes       []common.Address
-	Status        string
 }
 
 type BridgeContract struct {
@@ -47,17 +62,27 @@ type BridgeContract struct {
 	BridgeTransactor
 }
 
+type ERC20HandlerContract struct {
+	ERC20HandlerFilterer
+	ERC20HandlerCaller
+	ERC20HandlerRaw
+}
+
+type ERC721HandlerContract struct {
+	ERC721HandlerFilterer
+	ERC721HandlerCaller
+	ERC721HandlerRaw
+}
+
 type BridgeFilterer interface {
 }
 
 type BridgeTransactor interface {
-	DepositERC20(opts *bind.TransactOpts, originChainTokenAddress common.Address, originChainHandlerAddress common.Address, destinationChainID *big.Int, destinationChainHandlerAddress common.Address, destinationRecipientAddress common.Address, amount *big.Int) (*types.Transaction, error)
+	Deposit(opts *bind.TransactOpts, chainID *big.Int, originChainHandlerAddress common.Address, data []byte) (*types.Transaction, error)
 }
 
 type BridgeCaller interface {
-	GetGenericDepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, []byte, error)
-	GetERC20DepositRecord(opts *bind.CallOpts, originChainID *big.Int, depositNonce *big.Int) (common.Address, common.Address, *big.Int, common.Address, common.Address, *big.Int, error)
-	GetDepositProposal(opts *bind.CallOpts, destinationChainID *big.Int, depositNonce *big.Int) (*big.Int, *big.Int, [32]byte, []common.Address, []common.Address, string, error)
+	GetDepositProposal(opts *bind.CallOpts, destinationChainID *big.Int, depositNonce *big.Int) (bridge.BridgeDepositProposal, error)
 }
 
 type BridgeRaw interface {
@@ -70,47 +95,100 @@ type BridgeRaw interface {
 	// 	FilterNFTTransfer(opts *bind.FilterOpts, _destChain []*big.Int, _depositNonce []*big.Int) (*bridge.BridgeNFTTransferIterator, error)
 }
 
+type ERC20HandlerFilterer interface {
+}
+
+type ERC20HandlerCaller interface {
+	GetDepositRecord(opts *bind.CallOpts, depositID *big.Int) (erc20.ERC20HandlerDepositRecord, error)
+}
+
+type ERC20HandlerRaw interface {
+	Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error
+	Transfer(opts *bind.TransactOpts) (*types.Transaction, error)
+	Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error)
+}
+
+type ERC721HandlerFilterer interface {
+}
+
+type ERC721HandlerCaller interface {
+	GetDepositRecord(opts *bind.CallOpts, depositID *big.Int) (erc721.ERC721HandlerDepositRecord, error)
+}
+
+type ERC721HandlerRaw interface {
+	Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{})
+	Transfer(opts *bind.TransactOpts) (*types.Transaction, error)
+	Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error)
+}
+
+//UnpackErc20DepositRecord unpacks a DepositRecord from an Generic Handler
 func UnpackGenericDepositRecord(args ...interface{}) (genericDepositRecord, error) {
-	if args[6] != nil {
-		return genericDepositRecord{}, args[6].(error)
+	if args[4] != nil {
+		return genericDepositRecord{}, args[4].(error)
 	}
+
+	depositRecord := args[0].(generic.GenericHandlerDepositRecord)
+
 	return genericDepositRecord{
-			OriginChainTokenAddress:   args[0].(common.Address),
-			OriginChainHandlerAddress: args[1].(common.Address),
-			DestChainID:               args[2].(*big.Int),
-			DestChainHandlerAddress:   args[3].(common.Address),
-			DestRecipientAddress:      args[4].(common.Address),
-			Data:                      args[5].([]byte),
+			DestinationChainID:          depositRecord.DestinationChainID,
+			DestinationRecipientAddress: depositRecord.DestinationRecipientAddress,
+			Depositer:                   depositRecord.Depositer,
+			MetaData:                    depositRecord.MetaData,
 		},
 		nil
 }
 
-func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
-	if args[6] != nil {
-		return erc20DepositRecord{}, args[6].(error)
+//UnpackErc20DepositRecord unpacks a DepositRecord from an Generic Handler
+func UnpackERC721DepositRecord(args ...interface{}) (erc721DepositRecord, error) {
+	if args[8] != nil {
+		return erc721DepositRecord{}, args[8].(error)
 	}
-	return erc20DepositRecord{
-			OriginChainTokenAddress:   args[0].(common.Address),
-			OriginChainHandlerAddress: args[1].(common.Address),
-			DestChainID:               args[2].(*big.Int),
-			DestChainHandlerAddress:   args[3].(common.Address),
-			DestRecipientAddress:      args[4].(common.Address),
-			Amount:                    args[5].(*big.Int),
+
+	depositRecord := args[0].(erc721.ERC721HandlerDepositRecord)
+
+	return erc721DepositRecord{
+			OriginChainTokenAddress:        depositRecord.OriginChainTokenAddress,
+			DestinationChainID:             depositRecord.DestinationChainID,
+			DestinationChainHandlerAddress: depositRecord.DestinationChainHandlerAddress,
+			DestinationChainTokenAddress:   depositRecord.DestinationChainTokenAddress,
+			DestinationRecipientAddress:    depositRecord.DestinationRecipientAddress,
+			Depositer:                      depositRecord.Depositer,
+			TokenID:                        depositRecord.TokenID,
+			MetaData:                       depositRecord.MetaData,
 		},
 		nil
 }
 
+//UnpackErc20DepositRecord unpacks a DepositRecord from an ERC20 Handler
+func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
+	if args[1] != nil {
+		return erc20DepositRecord{}, args[1].(error)
+	}
+
+	depositRecord := args[0].(erc20.ERC20HandlerDepositRecord)
+
+	return erc20DepositRecord{
+			OriginChainTokenAddress:        depositRecord.OriginChainTokenAddress,
+			DestinationChainID:             depositRecord.DestinationChainID,
+			DestinationChainHandlerAddress: depositRecord.DestinationChainHandlerAddress,
+			DestinationChainTokenAddress:   depositRecord.DestinationChainTokenAddress,
+			DestinationRecipientAddress:    depositRecord.DestinationRecipientAddress,
+			Depositer:                      depositRecord.Depositer,
+			Amount:                         depositRecord.Amount,
+		},
+		nil
+}
+
+//UnpackDepositProposal unpacks a Deposit Proposal
 func UnpackDepositProposal(args ...interface{}) (depositProposal, error) {
-	if args[6] != nil {
-		return depositProposal{}, args[6].(error)
+	if args[4] != nil {
+		return depositProposal{}, args[4].(error)
 	}
 	return depositProposal{
 			OriginChainID: args[0].(*big.Int),
-			DepositNonce:  args[1].(*big.Int),
-			DataHash:      args[2].([32]byte),
-			YesVotes:      args[3].([]common.Address),
-			NoVotes:       args[4].([]common.Address),
-			Status:        args[5].(string),
+			DestChainID:   args[1].(*big.Int),
+			DepositNonce:  args[2].(*big.Int),
+			DataHash:      args[3].([32]byte),
 		},
 		nil
 }

@@ -42,7 +42,11 @@ install:
 ## Fetches solidity contracts and builds go bindings
 setup-contracts:
 	@echo " > \033[32mSetting up ethereum contracts... \033[0m "
-	./scripts/setup_contracts.sh
+	TARGET=build ./scripts/setup_contracts.sh
+
+setup-sol-cli:
+	@echo " > \033[32mSetting up solidity cli... \033[0m "
+	TARGET=cli-only ./scripts/setup_contract.sh
 
 ## license: Adds license header to missing files.
 license:

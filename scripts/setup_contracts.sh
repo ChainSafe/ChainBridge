@@ -4,20 +4,32 @@
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
 CONTRACTS_BRANCH="master"
-CONTRACTS_COMMIT="0217fd39d65b3c6552908b014c786e5dac3507c1"
+CONTRACTS_COMMIT="361310aa70ab943ab0a022f6377f71f86135cb0f"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 
 set -e
 
-git clone -b $CONTRACTS_BRANCH $CONTRACTS_REPO $CONTRACTS_DIR
-pushd $CONTRACTS_DIR
-git checkout $CONTRACTS_COMMIT
+case $TARGET in
+	"build")
+		git clone -b $CONTRACTS_BRANCH $CONTRACTS_REPO $CONTRACTS_DIR
+    pushd $CONTRACTS_DIR
+    git checkout $CONTRACTS_COMMIT
 
-make install-deps
-make bindings
+    make install-deps
+    make bindings
 
-popd
+    popd
 
-mkdir $DEST_DIR
-cp -r $CONTRACTS_DIR/build/bindings/go/* $DEST_DIR
+    mkdir $DEST_DIR
+    cp -r $CONTRACTS_DIR/build/bindings/go/* $DEST_DIR
+		;;
+
+	"cli-only")
+		git clone -b $CONTRACTS_BRANCH $CONTRACTS_REPO $CONTRACTS_DIR
+    pushd $CONTRACTS_DIR
+    git checkout $CONTRACTS_COMMIT
+		;;
+
+
+esac

@@ -31,7 +31,7 @@ func setupWriter(t *testing.T, config *Config) *Writer {
 		BridgeCaller: &bridgeInstance.BridgeCaller,
 	}
 
-	writer := NewWriter(conn, config)
+	writer := NewWriter(conn, config, TestLogger)
 	writer.SetBridgeContract(bridgeContract)
 
 	err = writer.Start()
@@ -51,6 +51,7 @@ func generateMessage() msg.Message {
 	}
 }
 
+// @TODO: REWRITE TO ACCOUNT FOR CREATE&VOTE
 func TestWriter_createDepositProposal(t *testing.T) {
 	opts := defaultDeployOpts
 	opts.relayerThreshold = big.NewInt(2)

@@ -32,5 +32,4 @@ config.toml
 ./centrifuge-chain
 
 # Solidity
-/bindings
 /solidity
