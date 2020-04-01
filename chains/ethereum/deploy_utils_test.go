@@ -42,7 +42,7 @@ func deployMintApproveErc20(t *testing.T, conn *Connection, opts *bind.TransactO
 		t.Fatal(err)
 	}
 
-	if err := approveErc20(conn, opts, erc20Address, conn.cfg.contract, big.NewInt(100)); err != nil {
+	if err := approveErc20(conn, opts, erc20Address, conn.cfg.erc20HandlerContract, big.NewInt(100)); err != nil {
 		t.Fatal(err)
 	}
 
@@ -75,7 +75,6 @@ func approveErc20(connection *Connection, opts *bind.TransactOpts, contractAddre
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
