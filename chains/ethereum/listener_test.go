@@ -4,7 +4,6 @@
 package ethereum
 
 import (
-	"fmt"
 	"math/big"
 	"reflect"
 	"testing"
@@ -12,7 +11,6 @@ import (
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/status-im/keycard-go/hexutils"
 )
 
 type MockRouter struct {
@@ -91,8 +89,7 @@ func TestListener_depositEvent(t *testing.T) {
 	amount := big.NewInt(10)
 	sourceId := msg.ChainId(0)
 	destId := msg.ChainId(1)
-	tokenIdBytes := append(common.LeftPadBytes([]byte{1}, 32), common.LeftPadBytes(erc20Contract.Bytes(), 32)...)
-	tokenId := hexutils.BytesToHex(tokenIdBytes)
+	tokenId := append(common.LeftPadBytes([]byte{uint8(sourceId)}, 32), common.LeftPadBytes(erc20Contract.Bytes(), 32)...)
 
 	expectedMessage := msg.Message{
 		Source:       sourceId,
@@ -123,7 +120,6 @@ func TestListener_depositEvent(t *testing.T) {
 	// Verify message
 	select {
 	case m := <-router.msgs:
-		fmt.Println(m.Metadata[2].(string))
 		if !reflect.DeepEqual(expectedMessage, m) {
 			t.Fatalf("Unexpected message.\n\tExpected: %#v\n\tGot: %#v\n", expectedMessage, m)
 		}
