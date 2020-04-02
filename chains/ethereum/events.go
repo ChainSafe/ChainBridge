@@ -46,8 +46,8 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 		Destination:  msg.ChainId(deposit.DestinationChainID.Uint64()),
 		DepositNonce: uint32(depositNonce.Uint64()),
 		Metadata: []interface{}{
-			deposit.DestinationRecipientAddress,
-			deposit.Amount.Bytes(),
+			deposit.DestinationRecipientAddress.Bytes(),
+			deposit.Amount.Uint64(),
 			deposit.TokenId,
 		},
 	}

@@ -79,6 +79,8 @@ func init() {
 
 }
 
+
+
 func makeEthRing() map[string]*secp256k1.Keypair {
 	ring := map[string]*secp256k1.Keypair{}
 	for _, key := range Keys {

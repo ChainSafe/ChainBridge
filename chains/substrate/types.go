@@ -36,7 +36,7 @@ type proposal struct {
 
 func createFungibleProposal(m msg.Message, meta *types.Metadata) (*proposal, error) {
 	recipient := types.NewAccountID(m.Metadata[0].([]byte))
-	amount := types.U32(m.Metadata[1].(uint32))
+	amount := types.U32(m.Metadata[1].(uint64))
 	depositNonce := types.U32(m.DepositNonce)
 
 	call, err := types.NewCall(
