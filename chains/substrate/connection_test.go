@@ -26,6 +26,21 @@ func TestConnect_QueryStorage(t *testing.T) {
 	}
 }
 
+func TestConnect_QueryChain(t *testing.T) {
+	// Create connection with Alice key
+	conn := NewConnection(TestEndpoint, "Alice", AliceKey, TestLogger)
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	err = conn.checkChainId(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestConnect_SubmitTx(t *testing.T) {
 	// Create connection with Alice key
 	conn := NewConnection(TestEndpoint, "Alice", AliceKey, TestLogger)
