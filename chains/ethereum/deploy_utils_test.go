@@ -99,12 +99,10 @@ func approveErc20(connection *Connection, opts *bind.TransactOpts, contractAddre
 	return nil
 }
 
-// constructDataBytes constructs the data field to be passed into a deposit call
-func constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipient common.Address, amount *big.Int) []byte {
+// constructErc20Data constructs the data field to be passed into a deposit call
+func constructErc20Data(erc20Address, destRecipient common.Address, amount *big.Int) []byte {
 	var data []byte
 	data = append(data, common.LeftPadBytes(erc20Address.Bytes(), 32)...)
-	data = append(data, common.LeftPadBytes(destHandler.Bytes(), 32)...)
-	data = append(data, common.LeftPadBytes(destTokenAddress.Bytes(), 32)...)
 	data = append(data, common.LeftPadBytes(destRecipient.Bytes(), 32)...)
 	data = append(data, math.PaddedBigBytes(amount, 32)...)
 
@@ -116,13 +114,11 @@ func createErc20Deposit(contract *BridgeContract,
 	txOpts *bind.TransactOpts,
 	erc20Address,
 	originHandler,
-	destHandler,
-	destTokenAddress,
 	destRecipient common.Address,
 	destId,
 	amount *big.Int) error {
 
-	data := constructDataBytes(erc20Address, destHandler, destTokenAddress, destRecipient, amount)
+	data := constructErc20Data(erc20Address, destRecipient, amount)
 
 	// Incrememnt Nonce by one
 	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
