@@ -88,8 +88,8 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	}
 
 	// TODO: Does this actually return more than nonce?
-	var nonce uint32
-	_, err = c.queryStorage("System", "Account", c.key.PublicKey, nil, &nonce)
+	var acct AccountData
+	_, err = c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 		BlockHash:   c.genesisHash,
 		Era:         types.ExtrinsicEra{IsMortalEra: false},
 		GenesisHash: c.genesisHash,
-		Nonce:       types.UCompact(nonce),
+		Nonce:       types.UCompact(acct.Nonce),
 		SpecVersion: rv.SpecVersion,
 		Tip:         0,
 	}

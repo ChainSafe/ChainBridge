@@ -1,21 +1,26 @@
 package e2e
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
+	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
+	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
 type subClient struct {
-	api *gsrpc.SubstrateAPI
-	meta *types.Metadata
+	api     *gsrpc.SubstrateAPI
+	meta    *types.Metadata
 	genesis types.Hash
+	key     *signature.KeyringPair
 }
 
-func createSubClient(t *testing.T) *subClient {
-	c := &subClient{}
+func createSubClient(t *testing.T, key *signature.KeyringPair) *subClient {
+	c := &subClient{key: key}
 	api, err := gsrpc.NewSubstrateAPI(TestSubEndpoint)
 	if err != nil {
 		t.Fatal(err)
@@ -39,7 +44,7 @@ func createSubClient(t *testing.T) *subClient {
 	return c
 }
 
-func watchForProposalSucceeded(t *testing.T, client *subClient, success chan bool) {
+func watchForProposalSuccessOrFail(t *testing.T, client *subClient, success chan bool, fail chan bool) {
 	key, err := types.CreateStorageKey(client.meta, "System", "Events", nil, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -51,7 +56,7 @@ func watchForProposalSucceeded(t *testing.T, client *subClient, success chan boo
 	}
 
 	for {
-		set := <- sub.Chan()
+		set := <-sub.Chan()
 		for _, chng := range set.Changes {
 			if !types.Eq(chng.StorageKey, key) || !chng.HasStorageData {
 				// skip, we are only interested in events with countent
@@ -65,44 +70,98 @@ func watchForProposalSucceeded(t *testing.T, client *subClient, success chan boo
 				t.Fatal(err)
 			}
 
-			// Show what we are busy with
 			for _, _ = range events.Bridge_ProposalSucceeded {
 				success <- true
 			}
-		}
-	}
-}
 
-func watchForProposalFailed(t *testing.T, client *subClient, fail chan bool) {
-	key, err := types.CreateStorageKey(client.meta, "System", "Events", nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	sub, err := client.api.RPC.State.SubscribeStorageRaw([]types.StorageKey{key})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	for {
-		set := <- sub.Chan()
-		for _, chng := range set.Changes {
-			if !types.Eq(chng.StorageKey, key) || !chng.HasStorageData {
-				// skip, we are only interested in events with countent
-				continue
-			}
-
-			// Decode the event records
-			events := substrate.Events{}
-			err = types.EventRecordsRaw(chng.StorageData).DecodeEventRecords(client.meta, &events)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			// Show what we are busy with
 			for _, _ = range events.Bridge_ProposalFailed {
 				fail <- true
 			}
 		}
 	}
+}
+
+func submitTx(t *testing.T, client *subClient, method substrate.Method, args ...interface{}) {
+	log15.Info("Submiting test tx", "method", method)
+	// Create call and extrinsic
+	call, err := types.NewCall(
+		client.meta,
+		method.String(),
+		args...,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ext := types.NewExtrinsic(call)
+
+	// Get latest runtime version
+	rv, err := client.api.RPC.State.GetRuntimeVersionLatest()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var acct substrate.AccountData
+	_, err = queryStorage(client, "System", "Account", client.key.PublicKey, nil, &acct)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Sign the extrinsic
+	o := types.SignatureOptions{
+		BlockHash:   client.genesis,
+		Era:         types.ExtrinsicEra{IsMortalEra: false},
+		GenesisHash: client.genesis,
+		Nonce:       types.UCompact(acct.Nonce),
+		SpecVersion: rv.SpecVersion,
+		Tip:         0,
+	}
+	err = ext.Sign(*client.key, o)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Submit and watch the extrinsic
+	sub, err := client.api.RPC.Author.SubmitAndWatchExtrinsic(ext)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for {
+		status := <-sub.Chan()
+		switch {
+		case status.IsInBlock:
+			fmt.Printf("Completed at block hash: %#x\n", status.AsInBlock)
+			return
+		case status.IsDropped:
+			t.Fatal("Extrinsic dropped")
+		case status.IsInvalid:
+			t.Fatal("Extrinsic invalid")
+		}
+	}
+}
+
+func submitSudoTx(t *testing.T, client *subClient, method substrate.Method, args ...interface{}) {
+	call, err := types.NewCall(client.meta, method.String(), args...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	submitTx(t, client, substrate.Sudo, call)
+}
+
+// queryStorage performs a storage lookup. Arguments may be nil, result must be a pointer.
+func queryStorage(client *subClient, prefix, method string, arg1, arg2 []byte, result interface{}) (bool, error) {
+	key, err := types.CreateStorageKey(client.meta, prefix, method, arg1, arg2)
+	if err != nil {
+		return false, err
+	}
+	return client.api.RPC.State.GetStorageLatest(key, result)
+}
+
+func whitelistChain(t *testing.T, client *subClient, id msg.ChainId) {
+	submitSudoTx(t, client, substrate.WhitelistChain, types.U32(id))
+}
+
+func initiateHashTransfer(t *testing.T, client *subClient, hash types.Hash, destId msg.ChainId) {
+	recipient := types.Bytes{}
+	submitTx(t, client, substrate.ExampleTransferHash, hash, recipient, types.U32(destId))
 }

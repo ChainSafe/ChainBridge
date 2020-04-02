@@ -11,6 +11,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	log "github.com/ChainSafe/log15"
+	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -42,8 +43,8 @@ func createEthConfig(key, bridgeAddress, erc20HandlerAddress string) *core.Chain
 		From:         "",
 		KeystorePath: key,
 		Insecure:     true,
-		Opts:         map[string]string{
-			"contract": bridgeAddress,
+		Opts: map[string]string{
+			"contract":     bridgeAddress,
 			"erc20Handler": erc20HandlerAddress,
 		},
 	}
@@ -57,14 +58,14 @@ func createSubConfig(key, bridgeAddress, erc20HandlerAddress string) *core.Chain
 		From:         "",
 		KeystorePath: key,
 		Insecure:     true,
-		Opts:         map[string]string{
-			"contract": bridgeAddress,
+		Opts: map[string]string{
+			"contract":     bridgeAddress,
 			"erc20Handler": erc20HandlerAddress,
 		},
 	}
 }
 
-func createBridge(t *testing.T, name, bridgeAddress, erc20HandlerAddres string) *core.Core {
+func createAndStartBridge(t *testing.T, name, bridgeAddress, erc20HandlerAddres string) *core.Core {
 	eth, err := ethereum.InitializeChain(createEthConfig(name, bridgeAddress, erc20HandlerAddres))
 	if err != nil {
 		t.Fatal(err)
@@ -78,41 +79,77 @@ func createBridge(t *testing.T, name, bridgeAddress, erc20HandlerAddres string) 
 	bridge.AddChain(eth)
 	bridge.AddChain(sub)
 
+	err = eth.Start()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = sub.Start()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	return bridge
 }
 
 func TestErc20ToSubstrate(t *testing.T) {
 	setLogger(log.LvlInfo)
-	// Deploy contracts, mint, approve
 
-	// Creates an alice client we can use to initiate everything
+	// Deploy contracts, mint, approve
 	contracts := deployTestContracts(t, EthChainId)
 	ethClient, opts := createEthClient(t)
 	erc20Contract := deployMintApproveErc20(t, ethClient, opts, contracts.ERC20HandlerAddress)
 
 	// Create and start two bridges with both chains
-	bridgeA := createBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
-	bridgeB := createBridge(t, "bob", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
+	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
+	_ = createAndStartBridge(t, "bob", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
 
-	go bridgeA.Start()
-	go bridgeB.Start()
 	// Initiate transfer
 	createErc20Deposit(t, ethClient, opts, contracts, erc20Contract)
 
 	// Check for success event
-	subClient := createSubClient(t)
+	subClient := createSubClient(t, AliceSubKp.AsKeyringPair())
 	success := make(chan bool)
 	fail := make(chan bool)
-	go watchForProposalSucceeded(t, subClient, success)
-	go watchForProposalFailed(t, subClient, fail)
-
+	go watchForProposalSuccessOrFail(t, subClient, success, fail)
 
 	select {
 	case <-success:
 		return
-	case <- fail:
+	case <-fail:
 		t.Fatal("Proposal failed")
 	case <-time.After(TestTimeout):
 		t.Fatalf("test timed out")
 	}
+}
+
+func TestHashToGenericHandler(t *testing.T) {
+	setLogger(log.LvlTrace)
+
+	// Deploy contracts (incl. handler)
+	contracts := deployTestContracts(t, EthChainId)
+	ethClient, _ := createEthClient(t)
+
+	// Whitelist chain
+	subClient := createSubClient(t, AliceSubKp.AsKeyringPair())
+	whitelistChain(t, subClient, EthChainId)
+
+	// Create two bridges
+	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
+	_ = createAndStartBridge(t, "bob", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
+
+	// Execute transfer
+	hash, err := types.NewHashFromHexString("0xc2d4ac52b4aedaf4bd9ccf93d2fea79aff8148d8054f28972dfffa4847eb6722")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	initiateHashTransfer(t, subClient, hash, EthChainId)
+
+	// Wait for event
+	waitForEvent(t, ethClient, contracts.BridgeAddress, ethereum.DepositProposalCreated)
+	waitForEvent(t, ethClient, contracts.BridgeAddress, ethereum.DepositProposalExecuted)
+
+	// Verify hash is available
+	getHash(t, ethClient, contracts.CentrifugeHandlerAddress)
 }

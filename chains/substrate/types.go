@@ -12,7 +12,7 @@ import (
 )
 
 // accoutData is the on-chain representation of an account
-type accountData struct {
+type AccountData struct {
 	Nonce    types.U32
 	Refcount types.UCompact
 	Data     struct {

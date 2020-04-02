@@ -86,10 +86,8 @@ var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
 func (l *Listener) pollBlocks() error {
 	var latestBlock = l.startBlock
 	for {
-		l.log.Trace("Polling for block", "number", latestBlock)
 		hash, err := l.conn.api.RPC.Chain.GetBlockHash(latestBlock)
 		if err != nil && err.Error() == ErrBlockNotReady.Error() {
-			l.log.Trace("Block not ready, sleeping...", "interval", BlockRetryInterval)
 			time.Sleep(BlockRetryInterval)
 			continue
 		} else if err != nil {
@@ -105,7 +103,7 @@ func (l *Listener) pollBlocks() error {
 
 // processEvents fetches a block and parses out the events, calling Listener.handleEvents()
 func (l *Listener) processEvents(hash types.Hash) error {
-	l.log.Trace("Fetching block", "hash", hash.Hex())
+	l.log.Trace("Fetching block for events", "hash", hash.Hex())
 	meta := l.conn.getMetadata()
 	key, err := types.CreateStorageKey(&meta, "System", "Events", nil, nil)
 	if err != nil {
