@@ -16,6 +16,7 @@ import (
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	erc20Mintable "github.com/ChainSafe/ChainBridge/bindings/ERC20Mintable"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	relayer "github.com/ChainSafe/ChainBridge/bindings/Relayer"
 	"github.com/ChainSafe/ChainBridge/keystore"
@@ -45,7 +46,7 @@ type DeployedContracts struct {
 	CentrifugeHandlerAddress common.Address
 }
 
-func DeployContracts(deployPK string, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
+func DeployContracts(deployPK string, chainID *big.Int, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
 
 	client, auth, deployAddress, initialRelayerAddresses, err := accountSetUp(url, relayers, deployPK)
 	if err != nil {
@@ -57,7 +58,7 @@ func DeployContracts(deployPK string, url string, relayers int, initialRelayerTh
 		return nil, err
 	}
 
-	bridgeAddr, err := deployBridge(auth, client, relayerAddr, initialRelayerThreshold, deployAddress)
+	bridgeAddr, err := deployBridge(auth, client, chainID, relayerAddr, initialRelayerThreshold, deployAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -154,14 +155,14 @@ func accountSetUp(url string, relayers int, deployPK string) (*ethclient.Client,
 
 }
 
-func deployBridge(auth *bind.TransactOpts, client *ethclient.Client, relayerContract common.Address, initialRelayerThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
+func deployBridge(auth *bind.TransactOpts, client *ethclient.Client, chainID *big.Int, relayerContract common.Address, initialRelayerThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
 
 	auth, err := updateNonce(auth, client, deployAddress)
 	if err != nil {
 		return ZERO_ADDRESS, err
 	}
 
-	bridgeAddr, _, _, err := bridge.DeployBridge(auth, client, relayerContract, initialRelayerThreshold)
+	bridgeAddr, _, _, err := bridge.DeployBridge(auth, client, chainID, relayerContract, initialRelayerThreshold)
 	if err != nil {
 		log.Error("error deploying bridge instance")
 		return ZERO_ADDRESS, err
@@ -235,4 +236,19 @@ func deployCentrifugeHandler(auth *bind.TransactOpts, client *ethclient.Client, 
 	}
 
 	return centrifugeHandlerAddr, nil
+}
+
+func deployErc20Contract(auth *bind.TransactOpts, client *ethclient.Client, deployAddress common.Address) (common.Address, error) {
+	auth, err := updateNonce(auth, client, deployAddress)
+	if err != nil {
+		return ZERO_ADDRESS, err
+	}
+
+	erc20Addr, _, _, err := erc20Mintable.DeployERC20Mintable(auth, client)
+	if err != nil {
+		log.Error("error deploying ERC20 instance")
+		return ZERO_ADDRESS, err
+	}
+
+	return erc20Addr, nil
 }

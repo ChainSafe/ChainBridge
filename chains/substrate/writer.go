@@ -7,18 +7,19 @@ import (
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
-	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
 var _ chains.Writer = &Writer{}
 
 type Writer struct {
 	conn *Connection
+	log  log15.Logger
 }
 
-func NewWriter(conn *Connection) *Writer {
+func NewWriter(conn *Connection, log log15.Logger) *Writer {
 	return &Writer{
 		conn: conn,
+		log:  log,
 	}
 }
 
@@ -27,46 +28,38 @@ func (w *Writer) Start() error {
 }
 
 func (w *Writer) ResolveMessage(m msg.Message) bool {
+	var prop *proposal
+	var err error
+	meta := w.conn.getMetadata()
+
 	switch m.Type {
-	case msg.DepositAssetType:
-		meta := w.conn.getMetadata()
-		prop, err := createAssetTxProposal(m, &meta)
+	case msg.FungibleTransfer:
+		prop, err = createFungibleProposal(m, &meta)
 		if err != nil {
-			log15.Error("Failed to construct assetTxProposal from message", "err", err)
+			w.log.Error("Failed to construct fungible token from message", "err", err)
 			return false
 		}
-		if w.proposalExists(prop) {
-			log15.Debug("Voting for an existing assetTxProposal", "nonce", prop.depositNonce)
-			err = w.conn.SubmitTx(Approve, prop.depositNonce, prop.call)
-		} else {
-			log15.Trace("Creating a new assetTxProposal", "nonce", prop.depositNonce)
-			err = w.conn.SubmitTx(CreateProposal, prop.depositNonce, prop.call)
-		}
+
+	case msg.GenericTransfer:
+		prop, err = createGenericProposal(m, &meta)
 		if err != nil {
-			log15.Error("Failed to execute extrinsic", "err", err)
+			w.log.Error("Failed to construct generic transfer from message", "err", err)
 			return false
 		}
 
 	default:
-		log15.Error("Unrecognized message type", "type", m.Type)
-	}
-	return true
-
-}
-
-func (w *Writer) proposalExists(prop *assetTxProposal) bool {
-	key, err := types.EncodeToBytes(prop.getKey())
-	if err != nil {
-		log15.Error("Faield to encode key", "nonce", prop.depositNonce, "err", err)
-	}
-
-	var expected voteState
-	ok, err := w.conn.queryStorage("Bridge", "Votes", key, nil, &expected)
-	if err != nil {
-		log15.Error("Failed to check proposals existence", "err", err)
+		w.log.Error("Unrecognized message type", "type", m.Type)
 		return false
 	}
-	return ok
+
+	log15.Trace("Acknowledging proposal on chain", "nonce", prop.DepositNonce)
+	err = w.conn.SubmitTx(AcknowledgeProposal, prop.DepositNonce, prop.Call)
+	if err != nil {
+		w.log.Error("Failed to execute extrinsic", "err", err)
+		return false
+	}
+
+	return true
 }
 
 func (w *Writer) Stop() error {

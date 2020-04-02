@@ -8,90 +8,20 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridge/keystore"
-	msg "github.com/ChainSafe/ChainBridge/message"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-const TestEndpoint = "ws://localhost:8545"
-
-var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
-
-var defaultDeployOpts = DeployOpts{
-	pk:               hexutil.Encode(AliceKp.Encode())[2:],
-	url:              "http://localhost:8545",
-	numRelayers:      2,
-	relayerThreshold: big.NewInt(1),
-	minCount:         uint8(0),
-}
-
-type DeployOpts struct {
-	pk               string
-	url              string
-	numRelayers      int
-	relayerThreshold *big.Int
-	minCount         uint8
-}
-
-func setOpts(opts DeployOpts) DeployOpts {
-	cfg := defaultDeployOpts
-	if opts.pk != "" {
-		cfg.pk = opts.pk
-	}
-	if opts.url != "" {
-		cfg.url = opts.url
-	}
-	if opts.numRelayers != 0 {
-		cfg.numRelayers = opts.numRelayers
-	}
-	if opts.relayerThreshold != nil {
-		cfg.relayerThreshold = opts.relayerThreshold
-	}
-	if opts.minCount != 0 {
-		cfg.minCount = opts.minCount
-	}
-	return cfg
-}
-
-func testDeployContracts(t *testing.T, customOpts DeployOpts) *Config {
-	opts := setOpts(customOpts)
-	deployedContracts, err := DeployContracts(opts.pk, opts.url, opts.numRelayers, opts.relayerThreshold, opts.minCount)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return &Config{
-		id:       msg.EthereumId,
-		endpoint: TestEndpoint,
-		from:     keystore.AliceKey,
-		gasLimit: big.NewInt(6721975),
-		gasPrice: big.NewInt(20000000000),
-		contract: deployedContracts.BridgeAddress,
-	}
-}
-
-func newLocalConnection(t *testing.T, cfg *Config) *Connection {
-	kp := keystore.TestKeyRing.EthereumKeys[cfg.from]
-	conn := NewConnection(cfg, kp)
-	err := conn.Connect()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return conn
-}
-
 func TestConnect(t *testing.T) {
-	cfg := testDeployContracts(t, defaultDeployOpts)
-	conn := newLocalConnection(t, cfg)
+	_ = deployTestContracts(t, aliceTestConfig.id)
+	conn := newLocalConnection(t, aliceTestConfig)
 	conn.Close()
 }
 
 func TestSendTx(t *testing.T) {
-	cfg := testDeployContracts(t, defaultDeployOpts)
-	conn := newLocalConnection(t, cfg)
+	_ = deployTestContracts(t, aliceTestConfig.id)
+	conn := newLocalConnection(t, aliceTestConfig)
 	defer conn.Close()
 
 	currBlock, err := conn.LatestBlock()
@@ -126,9 +56,9 @@ func TestSendTx(t *testing.T) {
 }
 
 func TestSubscribe(t *testing.T) {
-	cfg := testDeployContracts(t, defaultDeployOpts)
-	conn := newLocalConnection(t, cfg)
-	l := NewListener(conn, cfg)
+	_ = deployTestContracts(t, aliceTestConfig.id)
+	conn := newLocalConnection(t, aliceTestConfig)
+	l := NewListener(conn, aliceTestConfig, TestLogger)
 	defer conn.Close()
 
 	q := eth.FilterQuery{}
@@ -142,12 +72,12 @@ func TestSubscribe(t *testing.T) {
 // TestContractCode is used to make sure the contracts are deployed correctly.
 // This is probably the least intrusive way to check if the contracts exists
 func TestContractCode(t *testing.T) {
-	cfg := testDeployContracts(t, defaultDeployOpts)
-	conn := newLocalConnection(t, cfg)
+	contracts := deployTestContracts(t, aliceTestConfig.id)
+	conn := newLocalConnection(t, aliceTestConfig)
 	defer conn.Close()
 
 	// The following section checks if the byteCode exists on the chain at the specificed Addresses
-	err := conn.checkBridgeContract(cfg.contract)
+	err := conn.checkBridgeContract(contracts.BridgeAddress)
 	if err != nil {
 		t.Fatal(err)
 	}

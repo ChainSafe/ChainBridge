@@ -39,9 +39,10 @@ type Connection struct {
 	signer    ethtypes.Signer
 	kp        *secp256k1.Keypair
 	nonceLock sync.Mutex
+	log       log15.Logger
 }
 
-func NewConnection(cfg *Config, kp *secp256k1.Keypair) *Connection {
+func NewConnection(cfg *Config, kp *secp256k1.Keypair, log log15.Logger) *Connection {
 	signer := ethtypes.HomesteadSigner{}
 	return &Connection{
 		ctx: context.Background(),
@@ -50,12 +51,13 @@ func NewConnection(cfg *Config, kp *secp256k1.Keypair) *Connection {
 		signer:    signer,
 		kp:        kp,
 		nonceLock: sync.Mutex{},
+		log:       log,
 	}
 }
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	log15.Info("Connecting to ethereum chain...", "chain", c.cfg.name, "url", c.cfg.endpoint)
+	c.log.Info("Connecting to ethereum chain...", "url", c.cfg.endpoint)
 	var rpcClient *rpc.Client
 	var err error
 	if c.cfg.http {
@@ -103,12 +105,12 @@ func (c *Connection) SubmitTx(data []byte) error {
 		return err
 	}
 
-	log15.Debug("Submitting new tx", "to", tx.To(), "nonce", tx.Nonce(), "value", tx.Value(),
+	c.log.Debug("Submitting new tx", "to", tx.To(), "nonce", tx.Nonce(), "value", tx.Value(),
 		"gasLimit", tx.Gas(), "gasPrice", tx.GasPrice(), "calldata", tx.Data())
 
 	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.PrivateKey())
 	if err != nil {
-		log15.Trace("Signing tx failed", "err", err)
+		c.log.Trace("Signing tx failed", "err", err)
 		return err
 	}
 

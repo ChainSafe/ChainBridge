@@ -4,33 +4,73 @@
 package substrate
 
 import (
+	"fmt"
+
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
+
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
 type eventName string
-type eventHandler func(interface{}) msg.Message
+type eventHandler func(interface{}, log15.Logger) (msg.Message, error)
 
-const AssetTx eventName = "AssetTx"
-const ValidatorAdded eventName = "ValidatorAdded"
-const ValidatorRemoved eventName = "ValidatorRemoved"
+const RelayerThresholdSet eventName = "RelayerThresholdSet"
+const ChainWhitelisted eventName = "ChainWhitelsited"
+const AssetTransfer eventName = "AssetTransfer"
+const RelayerAdded eventName = "RelayerAdded"
+const RelayerRemoved eventName = "RelayerRemoved"
 const VoteFor eventName = "VoteFor"
 const VoteAgainst eventName = "VoteAgainst"
+const ProposalApproved eventName = "ProposalApproved"
+const ProposalRejected eventName = "ProposalRejected"
 const ProposalSucceeded eventName = "ProposalSucceeded"
 const ProposalFailed eventName = "ProposalFailed"
 
-var Subscriptions = []eventName{AssetTx}
+var Subscriptions = []struct {
+	name    eventName
+	handler eventHandler
+}{
+	{RelayerThresholdSet, nil},
+	{ChainWhitelisted, nil},
+	{RelayerAdded, nil},
+	{RelayerRemoved, nil},
+	{AssetTransfer, assetTransferHandler},
+	{VoteFor, nil},
+	{VoteAgainst, nil},
+	{ProposalApproved, nil},
+	{ProposalRejected, nil},
+	{ProposalSucceeded, nil},
+	{ProposalFailed, nil},
+}
 
-type EventNFTDeposited struct {
-	Phase  types.Phase
-	Asset  types.Hash
-	Topics []types.Hash
+type EventRelayerThresholdSet struct {
+	Phase     types.Phase
+	Threshold types.U32
+	Topics    []types.Hash
+}
+
+type EventChainWhitelisted struct {
+	Phase   types.Phase
+	ChainId types.U32
+	Topics  []types.Hash
+}
+
+type EventRelayerAdded struct {
+	Phase   types.Phase
+	Relayer types.Hash
+	Topics  []types.Hash
+}
+
+type EventRelayerRemoved struct {
+	Phase   types.Phase
+	Relayer types.Hash
+	Topics  []types.Hash
 }
 
 type EventAssetTransfer struct {
 	Phase        types.Phase
-	Destination  types.Bytes
+	Destination  types.U32
 	DepositNonce types.U32
 	To           types.Bytes
 	TokenID      types.Bytes
@@ -38,149 +78,126 @@ type EventAssetTransfer struct {
 	Topics       []types.Hash
 }
 
-type EventValidatorAdded struct {
-	Phase     types.Phase
-	Valdiator types.Hash
-	Topics    []types.Hash
-}
-
-type EventValidatorRemoved struct {
-	Phase     types.Phase
-	Validator types.Hash
-	Topics    []types.Hash
-}
-
 type EventVoteFor struct {
-	Phase  types.Phase
-	Hash   types.Hash
-	Voter  types.AccountID
-	Topics []types.Hash
+	Phase        types.Phase
+	DepositNonce types.U32
+	Voter        types.AccountID
+	Topics       []types.Hash
 }
 
 type EventVoteAgainst struct {
-	Phase  types.Phase
-	Hash   types.Hash
-	Voter  types.AccountID
-	Topics []types.Hash
+	Phase        types.Phase
+	DepositNonce types.U32
+	Voter        types.AccountID
+	Topics       []types.Hash
+}
+
+type EventProposalApproved struct {
+	Phase        types.Phase
+	DepositNonce types.U32
+	Topics       []types.Hash
+}
+
+type EventProposalRejected struct {
+	Phase        types.Phase
+	DepositNonce types.U32
+	Topics       []types.Hash
 }
 
 type EventProposalSucceeded struct {
-	Phase  types.Phase
-	Hash   types.Hash
-	Topics []types.Hash
+	Phase        types.Phase
+	DepositNonce types.U32
+	Topics       []types.Hash
 }
 
 type EventProposalFailed struct {
-	Phase  types.Phase
-	Hash   types.Hash
-	Topics []types.Hash
+	Phase        types.Phase
+	DepositNonce types.U32
+	Topics       []types.Hash
 }
 
 type Events struct {
 	types.EventRecords
-	Bridge_AssetTransfer     []EventAssetTransfer     //nolint:stylecheck,golint
-	Bridge_ValidatorAdded    []EventValidatorAdded    //nolint:stylecheck,golint
-	Bridge_ValidatorRemoved  []EventValidatorRemoved  //nolint:stylecheck,golint
-	Bridge_VoteFor           []EventVoteFor           //nolint:stylecheck,golint
-	Bridge_VoteAgainst       []EventVoteAgainst       //nolint:stylecheck,golint
-	Bridge_ProposalSucceeded []EventProposalSucceeded //nolint:stylecheck,golint
-	Bridge_ProposalFailed    []EventProposalFailed    //nolint:stylecheck,golint
+	Bridge_RelayerThresholdSet []EventRelayerThresholdSet //nolint:stylecheck,golint
+	Bridge_ChainWhitelisted    []EventChainWhitelisted    //nolint:stylecheck,golint
+	Bridge_RelayerAdded        []EventRelayerAdded        //nolint:stylecheck,golint
+	Bridge_RelayerRemoved      []EventRelayerRemoved      //nolint:stylecheck,golint
+	Bridge_AssetTransfer       []EventAssetTransfer       //nolint:stylecheck,golint
+	Bridge_VoteFor             []EventVoteFor             //nolint:stylecheck,golint
+	Bridge_VoteAgainst         []EventVoteAgainst         //nolint:stylecheck,golint
+	Bridge_ProposalApproved    []EventProposalApproved    //nolint:stylecheck,golint
+	Bridge_ProposalRejected    []EventProposalRejected    //nolint:stylecheck,golint
+	Bridge_ProposalSucceeded   []EventProposalSucceeded   //nolint:stylecheck,golint
+	Bridge_ProposalFailed      []EventProposalFailed      //nolint:stylecheck,golint
+	Sudo_Sudid                 []EventSudid               //nolint:stylecheck,golint
 }
 
-func nftHandler(evtI interface{}) msg.Message {
-	evt, ok := evtI.(EventNFTDeposited)
-	if !ok {
-		log15.Error("failed to cast EventNFTDeposited type")
-	}
-
-	log15.Info("Got nfts event!", "evt", evt.Asset.Hex())
-
-	return msg.Message{
-		Source:      msg.CentrifugeId,
-		Destination: msg.EthereumId,
-		Type:        msg.DepositAssetType,
-		Metadata:    evt.Asset[:],
-	}
-}
-
-func assetTransferHandler(evtI interface{}) msg.Message {
+func assetTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, error) {
 	evt, ok := evtI.(EventAssetTransfer)
 	if !ok {
-		log15.Error("failed to cast EventAssetTransfer type")
+		return msg.Message{}, fmt.Errorf("failed to cast EventAssetTransfer type")
 	}
 
-	log15.Info("Got asset transfer event!", "destination", evt.Destination)
+	log.Info("Got asset transfer event!", "destination", evt.Destination, "tokenId", evt.TokenID)
+
+	meta, typ, err := getMetaAndType(evt)
+	if err != nil {
+		return msg.Message{}, err
+	}
+
+	log15.Debug("Submitting new message to router", "type", typ)
 
 	return msg.Message{
-		Source:      msg.CentrifugeId,
-		Destination: msg.EthereumId,
-		Type:        msg.DepositAssetType,
-		Metadata:    evt.Destination[:], // TODO: Pack data
-	}
+		Destination:  msg.ChainId(evt.Destination),
+		Type:         typ,
+		DepositNonce: uint32(evt.DepositNonce),
+		Metadata:     meta,
+	}, nil
 }
 
-func validatorAddedHandler(evtI interface{}) msg.Message {
-	evt, ok := evtI.(EventValidatorAdded)
-	if !ok {
-		log15.Error("failed to cast EventValidatorAdded type")
+type tokenIdentifier uint32
+
+const nativeTransfer tokenIdentifier = 2
+const hashTransfer tokenIdentifier = 1
+
+func sliceToUint32(in []byte) uint32 {
+	var res uint32
+	for _, v := range in {
+		res <<= 8
+		res |= uint32(v)
 	}
-
-	log15.Info("Got ValidatorAdded event!", "address", evt.Valdiator)
-
-	return msg.Message{}
+	return res
 }
 
-func validatorRemovedHandler(evtI interface{}) msg.Message {
-	evt, ok := evtI.(EventValidatorRemoved)
-	if !ok {
-		log15.Error("failed to cast EventValidatorRemoved type")
+func getMetaAndType(evt EventAssetTransfer) ([]interface{}, msg.TransferType, error) {
+	var meta []interface{}
+
+	tokenId := tokenIdentifier(sliceToUint32(evt.TokenID))
+
+	switch tokenId {
+	case nativeTransfer:
+		// recipient (evt.To), amount (evt.Metadata), tokenId (evt.TokenId)
+		meta = []interface{}{
+			evt.To,
+			sliceToUint32(evt.Metadata),
+			evt.TokenID,
+		}
+		return meta, msg.FungibleTransfer, nil
+
+	case hashTransfer:
+		// hash (evt.Metadata)
+		return []interface{}{evt.Metadata}, msg.GenericTransfer, nil
+
+	default:
+		return nil, "", fmt.Errorf("unknown token ID: %d", tokenId)
+
 	}
 
-	log15.Info("Got ValidatorRemoved event!", "address", evt.Validator)
-
-	return msg.Message{}
 }
 
-func voteForHandler(evtI interface{}) msg.Message {
-	evt, ok := evtI.(EventVoteFor)
-	if !ok {
-		log15.Error("failed to cast EventVoteFor type")
-	}
-
-	log15.Info("Got VoteFor event!", "hash", evt.Hash)
-
-	return msg.Message{}
-}
-
-func voteAgainstHandler(evtI interface{}) msg.Message {
-	evt, ok := evtI.(EventVoteAgainst)
-	if !ok {
-		log15.Error("failed to cast EventVoteAgainst type")
-	}
-
-	log15.Info("Got VoteAgainst event!", "hash", evt.Hash)
-
-	return msg.Message{}
-}
-
-func proposalSucceededHandler(evtI interface{}) msg.Message {
-	evt, ok := evtI.(EventProposalSucceeded)
-	if !ok {
-		log15.Error("failed to cast EventProposalSucceeded type")
-	}
-
-	log15.Info("Got ProposalSucceeded event!", "hash", evt.Hash)
-
-	return msg.Message{}
-}
-
-func proposalFailedHandler(evtI interface{}) msg.Message {
-	evt, ok := evtI.(EventProposalFailed)
-	if !ok {
-		log15.Error("failed to cast EventProposalFailed type")
-	}
-
-	log15.Info("Got ProposalFailed event!", "hash", evt.Hash)
-
-	return msg.Message{}
+// TODO: This should be added directly to GSRPC
+type EventSudid struct {
+	Phase   types.Phase
+	Success types.Bool
+	Topics  []types.Hash
 }

@@ -24,6 +24,7 @@ jobs:
       go: 1.13.x
       name: "Golang-ci Linter"
       script:
+        - make clean # Avoid adding license to auto-gen files
         - make license-check
         - make setup-contracts
         - make lint
@@ -33,7 +34,7 @@ jobs:
       name: "Run Go tests"
       script:
         - set -e
-        - make setup-contracts
+        - make clean && make setup-contracts
         - SILENT=true make start-eth
         - make deploy-eth
         - ./scripts/centrifuge/run_chain_ci.sh
@@ -45,7 +46,7 @@ jobs:
       script:
         - set -e
         - make setup-contracts
-        - make start-eth && PORT=8546 make start-eth
+        - make start-eth && PORT=8546 SILENT=true make start-eth
         - docker image build -t chainbridge . --build-arg TEST_KEY="--testkey=alice"
         - docker run chainbridge -d
         - docker stop chainbridge || true && docker rm chainbridge || true 

@@ -21,10 +21,11 @@ func TestParseChainConfig(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"contract": "0x1234",
-			"gasLimit": "10",
-			"gasPrice": "20",
-			"http":     "true",
+			"contract":     "0x1234",
+			"erc20Handler": "0x1234",
+			"gasLimit":     "10",
+			"gasPrice":     "20",
+			"http":         "true",
 		},
 	}
 
@@ -35,15 +36,16 @@ func TestParseChainConfig(t *testing.T) {
 	}
 
 	expected := Config{
-		name:         "chain",
-		id:           1,
-		endpoint:     "endpoint",
-		from:         "0x0",
-		keystorePath: "./keys",
-		contract:     common.HexToAddress("0x1234"),
-		gasLimit:     big.NewInt(10),
-		gasPrice:     big.NewInt(20),
-		http:         true,
+		name:                 "chain",
+		id:                   1,
+		endpoint:             "endpoint",
+		from:                 "0x0",
+		keystorePath:         "./keys",
+		contract:             common.HexToAddress("0x1234"),
+		erc20HandlerContract: common.HexToAddress("0x1234"),
+		gasLimit:             big.NewInt(10),
+		gasPrice:             big.NewInt(20),
+		http:                 true,
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -84,4 +86,28 @@ func TestRequiredOpts(t *testing.T) {
 		t.Error("config missing chainId field but no error reported")
 	}
 
+}
+
+func TestExtraOpts(t *testing.T) {
+	input := core.ChainConfig{
+		Name:         "chain",
+		Id:           1,
+		Endpoint:     "endpoint",
+		From:         "0x0",
+		KeystorePath: "./keys",
+		Insecure:     false,
+		Opts: map[string]string{
+			"contract":      "0x1234",
+			"gasLimit":      "10",
+			"gasPrice":      "20",
+			"http":          "true",
+			"incorrect_opt": "error",
+		},
+	}
+
+	_, err := parseChainConfig(&input)
+
+	if err == nil {
+		t.Error("Config should not accept incorrect opts.")
+	}
 }
