@@ -109,23 +109,27 @@ Start chain 1 (terminal 1)
 make setup-sol-cli
 make start-eth
 ```
+
 Start chain 2 (terminal 2)
 ```shell
 PORT=8546 make start-eth
 ```
+
 Deploy the contracts (terminal 3)
 ```shell
 make deploy-eth && PORT=8546 make deploy-eth
 ```
+
 Build the latest ChainBridge binary & run it (terminal 3)
 ```shell
 make build
 ./build/chainbridge --verbosity=trace --config ./scripts/configs/config1.toml --testkey alice
 ```
+
 Mint & make a deposit (terminal 4)
 ```shell
-node solidity/scripts/cli/index.js --test-only --mint-erc20 --value 100
-node solidity/scripts/cli/index.js --test-only --deposit-erc —dest 1
+node solidity/scripts/cli/index.js mint --value 100
+node solidity/scripts/cli/index.js transfer --dest 1 --value 1
 ```
 
 Notes: 
