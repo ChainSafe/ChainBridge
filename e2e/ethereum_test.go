@@ -57,6 +57,7 @@ func createEthClient(t *testing.T) (*ethclient.Client, *bind.TransactOpts) {
 	return client, opts
 }
 
+// deployMintApproveErc20 funds the account with a newly created erc20, to prepare for initiating a transfer
 func deployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address) common.Address {
 	// Deploy
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
@@ -75,6 +76,25 @@ func deployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.T
 	// Approve
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	_, err = erc20Instance.Approve(opts, erc20Handler, big.NewInt(99))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return erc20Addr
+}
+
+// deployAndFundEr20 sets up a new erc20 contract and funds the bridge/handler
+func deployAndFundErc20(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address) common.Address {
+	// Deploy
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
+	erc20Addr, _, erc20Instance, err := erc20Mintable.DeployERC20Mintable(opts, client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Mint to handler
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
+	_, err = erc20Instance.Mint(opts, erc20Addr, big.NewInt(99))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -123,12 +123,32 @@ func TestErc20ToSubstrate(t *testing.T) {
 	}
 }
 
+//func TestSubstrateToErc20(t *testing.T) {
+//	setLogger(log.LvlInfo)
+//
+//	// Whitelist chain
+//	subClient := createSubClient(t, AliceSubKp.AsKeyringPair())
+//	whitelistChain(t, subClient, EthChainId)
+//
+//	// Deploy contracts, mint, approve
+//	contracts := deployTestContracts(t, EthChainId)
+//	ethClient, opts := createEthClient(t)
+//	erc20Contract := deployAndFundErc20(t, ethClient, opts, contracts.ERC20HandlerAddress)
+//
+//	// Start two bridges
+//	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
+//	_ = createAndStartBridge(t, "bob", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
+//
+//
+//}
+
 func TestHashToGenericHandler(t *testing.T) {
 	setLogger(log.LvlTrace)
 
 	// Deploy contracts (incl. handler)
 	contracts := deployTestContracts(t, EthChainId)
 	ethClient, _ := createEthClient(t)
+
 
 	// Whitelist chain
 	subClient := createSubClient(t, AliceSubKp.AsKeyringPair())
