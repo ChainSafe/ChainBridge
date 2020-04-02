@@ -27,7 +27,7 @@ func TestParseChainConfig(t *testing.T) {
 			"gasLimit":       "10",
 			"gasPrice":       "20",
 			"http":           "true",
-			"startBlock":	"10",
+			"startBlock":     "10",
 		},
 	}
 
@@ -49,7 +49,7 @@ func TestParseChainConfig(t *testing.T) {
 		gasLimit:               big.NewInt(10),
 		gasPrice:               big.NewInt(20),
 		http:                   true,
-		startBlock: big.NewInt(10),
+		startBlock:             big.NewInt(10),
 	}
 
 	if !reflect.DeepEqual(&expected, out) {

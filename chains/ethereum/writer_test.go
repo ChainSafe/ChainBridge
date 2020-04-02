@@ -136,20 +136,10 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	erc20Address := deployMintApproveErc20(t, aliceConn, opts)
 
 	// Create initial transfer message
-	tokenId := erc20Address.Bytes()
+	tokenId := append(common.LeftPadBytes([]byte{}, 32), common.LeftPadBytes(erc20Address.Bytes(), 32)...)
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
 	amount := big.NewInt(10)
-	m := msg.Message{
-		Source:       1,
-		Destination:  0,
-		Type:         msg.FungibleTransfer,
-		DepositNonce: 0,
-		Metadata: []interface{}{
-			tokenId,
-			recipient,
-			amount,
-		},
-	}
+	m := msg.NewFungibleTransfer(1, 0, 0, amount, tokenId, recipient)
 
 	// Helpful for debugging
 	go watchEvent(alice.conn, DepositProposalCreated)

@@ -24,15 +24,24 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	// originChainTokenAddress     address   - @0x20
-	// destinationRecipientAddress address   - @0x40
-	// amount                      uint256   - @0x60
+	//+ amount (32bytes)
+	//+ len(tokenID) (32bytes)
+	//+ tokenId (32bytes chainId
+	//+ 32bytes contract address)
+	//+ len(recipient) (32bytes)
+	//+ recipient (?bytes)
 	var data []byte
-	data = append(data, common.LeftPadBytes(m.Metadata[0].([]byte), 32)...)           // tokenId (chainId)
-	data = append(data, common.LeftPadBytes(m.Metadata[1].([]byte), 32)...)           // recipient
-	data = append(data, common.LeftPadBytes(m.Metadata[2].(*big.Int).Bytes(), 32)...) // amount
-	hash := hash(data)
+	data = append(data, common.LeftPadBytes(m.Metadata[0].([]byte), 32)...) // amount
 
+	tokenIdLen := big.NewInt(int64(len(m.Metadata[1].([]byte)))).Bytes()
+	data = append(data, common.LeftPadBytes(tokenIdLen, 32)...) // len(tokenId)
+	data = append(data, m.Metadata[1].([]byte)...)              // tokenId (chainId)
+
+	recipientLen := big.NewInt(int64(len(m.Metadata[2].([]byte)))).Bytes()
+	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
+	data = append(data, m.Metadata[2].([]byte)...)                // recipient
+
+	hash := hash(data)
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
 

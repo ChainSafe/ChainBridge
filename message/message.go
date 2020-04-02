@@ -3,6 +3,10 @@
 
 package msg
 
+import (
+	"math/big"
+)
+
 //type MessageType string
 
 //var DepositAssetType MessageType = "substrate_deposit_asset"
@@ -23,4 +27,18 @@ type Message struct {
 	Type         TransferType  // type of bridge transfer
 	DepositNonce uint32        // Nonce for the deposit
 	Metadata     []interface{} // data associated with event sequence
+}
+
+func NewFungibleTransfer(source, dest ChainId, nonce uint32, amount *big.Int, tokenId []byte, recipient []byte) Message {
+	return Message{
+		Source:       source,
+		Destination:  dest,
+		Type:         FungibleTransfer,
+		DepositNonce: nonce,
+		Metadata: []interface{}{
+			amount.Bytes(),
+			tokenId,
+			recipient,
+		},
+	}
 }
