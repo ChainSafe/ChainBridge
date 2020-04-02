@@ -102,7 +102,6 @@ func init() {
 	app.Commands = []cli.Command{
 		accountCommand,
 		ganacheCommand,
-		deployContractsCommand,
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)
