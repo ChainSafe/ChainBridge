@@ -29,7 +29,7 @@ type erc20DepositRecord struct {
 	OriginChainTokenAddress     common.Address
 	DestinationChainID          *big.Int
 	TokenId                     []byte
-	DestinationRecipientAddress common.Address
+	DestinationRecipientAddress []byte
 	Depositer                   common.Address
 	Amount                      *big.Int
 }

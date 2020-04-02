@@ -97,9 +97,9 @@ func TestListener_depositEvent(t *testing.T) {
 		Type:         msg.FungibleTransfer,
 		DepositNonce: uint32(1),
 		Metadata: []interface{}{
-			common.HexToAddress(BobKp.Address()),
 			amount.Bytes(),
 			tokenId,
+			common.HexToAddress(BobKp.Address()).Bytes(),
 		},
 	}
 

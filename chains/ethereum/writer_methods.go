@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"fmt"
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -23,11 +24,13 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 		return false
 	}
 
+	// originChainTokenAddress     address   - @0x20
+	// destinationRecipientAddress address   - @0x40
+	// amount                      uint256   - @0x60
 	var data []byte
+	data = append(data, common.LeftPadBytes(m.Metadata[0].([]byte), 32)...)           // tokenId (chainId)
 	data = append(data, common.LeftPadBytes(m.Metadata[1].([]byte), 32)...)           // recipient
 	data = append(data, common.LeftPadBytes(m.Metadata[2].(*big.Int).Bytes(), 32)...) // amount
-	data = append(data, common.LeftPadBytes(big.NewInt(64).Bytes(), 32)...)           // tokenId length
-	data = append(data, common.LeftPadBytes(m.Metadata[0].([]byte), 64)...)           // tokenId (chainId)
 	hash := hash(data)
 
 	// watch for execution event
@@ -129,7 +132,7 @@ func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []b
 		w.log.Error("Failed to build transaction opts", "err", err)
 		return
 	}
-
+	fmt.Printf("Executing: source: %s nonce: %d handler: %x", big.NewInt(int64(m.Source)).String(), u32toBigInt(m.DepositNonce), handler)
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		ExecuteDepositMethod,

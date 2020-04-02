@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 
@@ -103,9 +104,10 @@ func approveErc20(connection *Connection, opts *bind.TransactOpts, contractAddre
 func constructErc20Data(erc20Address, destRecipient common.Address, amount *big.Int) []byte {
 	var data []byte
 	data = append(data, common.LeftPadBytes(erc20Address.Bytes(), 32)...)
-	data = append(data, common.LeftPadBytes(destRecipient.Bytes(), 32)...)
 	data = append(data, math.PaddedBigBytes(amount, 32)...)
-
+	data = append(data, math.PaddedBigBytes(big.NewInt(32), 32)...) // Length of recipient
+	data = append(data, destRecipient.Bytes()...)
+	fmt.Printf("recipient %x\n", destRecipient.Bytes())
 	return data
 }
 

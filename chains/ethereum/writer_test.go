@@ -36,6 +36,7 @@ func createTestWriter(t *testing.T, cfg *Config, contracts *DeployedContracts) (
 	writer.conn.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.conn.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
 	writer.cfg.contract = contracts.BridgeAddress
+	writer.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
 	writer.SetContracts(bridge, erc20Handler)
 
@@ -139,7 +140,7 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
 	amount := big.NewInt(10)
 	m := msg.Message{
-		Source:       0,
+		Source:       1,
 		Destination:  0,
 		Type:         msg.FungibleTransfer,
 		DepositNonce: 0,

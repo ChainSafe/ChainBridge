@@ -29,6 +29,7 @@ type Config struct {
 	gasLimit               *big.Int
 	gasPrice               *big.Int
 	http                   bool // Config for type of connection
+	startBlock	*big.Int
 }
 
 // parseChainConfig uses a core.ChainConfig to construct a corresponding Config
@@ -46,6 +47,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		gasLimit:               big.NewInt(DefaultGasLimit),
 		gasPrice:               big.NewInt(DefaultGasPrice),
 		http:                   false,
+		startBlock: big.NewInt(0),
 	}
 
 	if contract, ok := chainCfg.Opts["contract"]; ok && contract != "" {
@@ -63,7 +65,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	}
 
 	if handler, ok := chainCfg.Opts["genericHandler"]; ok && handler != "" {
-		config.erc20HandlerContract = common.HexToAddress(handler)
+		config.genericHandlerContract = common.HexToAddress(handler)
 		delete(chainCfg.Opts, "genericHandler")
 	} else {
 		return nil, fmt.Errorf("must provide opts.genericHandler field for ethereum config")
@@ -94,6 +96,17 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	if HTTP, ok := chainCfg.Opts["http"]; ok && HTTP == "true" {
 		config.http = true
 		delete(chainCfg.Opts, "http")
+	}
+
+	if startBlock, ok := chainCfg.Opts["startBlock"]; ok && startBlock != "" {
+		block := big.NewInt(0)
+		_, pass := block.SetString(startBlock, 10)
+		if pass {
+			config.startBlock = block
+			delete(chainCfg.Opts, "startBlock")
+		} else {
+			return nil, errors.New("unable to parse start block")
+		}
 	}
 
 	if len(chainCfg.Opts) != 0 {
