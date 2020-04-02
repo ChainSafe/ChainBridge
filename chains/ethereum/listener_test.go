@@ -9,9 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-
 	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type MockRouter struct {
@@ -85,22 +84,24 @@ func TestListener_depositEvent(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	erc20Contract := deployMintApproveErc20(t, l.conn, opts)
+
 	amount := big.NewInt(10)
-	destId := big.NewInt(1)
+	sourceId := msg.ChainId(0)
+	destId := msg.ChainId(1)
+	tokenId := append(common.LeftPadBytes([]byte{uint8(sourceId)}, 32), common.LeftPadBytes(erc20Contract.Bytes(), 32)...)
 
 	expectedMessage := msg.Message{
-		Source:       msg.ChainId(0),
-		Destination:  msg.ChainId(destId.Uint64()),
+		Source:       sourceId,
+		Destination:  destId,
 		Type:         msg.FungibleTransfer,
 		DepositNonce: uint32(1),
 		Metadata: []interface{}{
 			common.HexToAddress(BobKp.Address()),
 			amount.Bytes(),
-			l.cfg.erc20HandlerContract,
+			tokenId,
 		},
 	}
-
-	erc20Contract := deployMintApproveErc20(t, l.conn, opts)
 
 	// Create an ERC20 Deposit
 	if err := createErc20Deposit(
@@ -109,10 +110,8 @@ func TestListener_depositEvent(t *testing.T) {
 		erc20Contract,
 		l.cfg.erc20HandlerContract,
 
-		l.cfg.erc20HandlerContract,
-		erc20Contract,
 		common.HexToAddress(BobKp.Address()),
-		destId,
+		big.NewInt(int64(destId)),
 		amount,
 	); err != nil {
 		t.Fatal(err)

@@ -24,9 +24,10 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 	}
 
 	var data []byte
-	data = append(data, common.LeftPadBytes(m.Metadata[0].([]byte), 32)...)           // tokenId
 	data = append(data, common.LeftPadBytes(m.Metadata[1].([]byte), 32)...)           // recipient
 	data = append(data, common.LeftPadBytes(m.Metadata[2].(*big.Int).Bytes(), 32)...) // amount
+	data = append(data, common.LeftPadBytes(big.NewInt(64).Bytes(), 32)...)           // tokenId length
+	data = append(data, common.LeftPadBytes(m.Metadata[0].([]byte), 64)...)           // tokenId (chainId)
 	hash := hash(data)
 
 	// watch for execution event
