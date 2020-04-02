@@ -48,7 +48,7 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 		Metadata: []interface{}{
 			deposit.DestinationRecipientAddress,
 			deposit.Amount.Bytes(),
-			deposit.DestinationChainHandlerAddress, // Note: not yet a complete id
+			deposit.TokenId,
 		},
 	}
 }

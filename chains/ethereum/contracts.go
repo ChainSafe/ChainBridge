@@ -26,13 +26,12 @@ type genericDepositRecord struct {
 
 // erc20DepositRecord is the return struct from the solidity function getDepositRecord() in the ERC20Handler contract
 type erc20DepositRecord struct {
-	OriginChainTokenAddress        common.Address
-	DestinationChainID             *big.Int
-	DestinationChainHandlerAddress common.Address
-	DestinationChainTokenAddress   common.Address
-	DestinationRecipientAddress    common.Address
-	Depositer                      common.Address
-	Amount                         *big.Int
+	OriginChainTokenAddress     common.Address
+	DestinationChainID          *big.Int
+	TokenId                     []byte
+	DestinationRecipientAddress common.Address
+	Depositer                   common.Address
+	Amount                      *big.Int
 }
 
 // erc721DepositRecord is the return value from the solidity function getDepositRecord() in the ERC721Handler contract
@@ -168,13 +167,12 @@ func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
 	depositRecord := args[0].(erc20.ERC20HandlerDepositRecord)
 
 	return erc20DepositRecord{
-			OriginChainTokenAddress:        depositRecord.OriginChainTokenAddress,
-			DestinationChainID:             depositRecord.DestinationChainID,
-			DestinationChainHandlerAddress: depositRecord.DestinationChainHandlerAddress,
-			DestinationChainTokenAddress:   depositRecord.DestinationChainTokenAddress,
-			DestinationRecipientAddress:    depositRecord.DestinationRecipientAddress,
-			Depositer:                      depositRecord.Depositer,
-			Amount:                         depositRecord.Amount,
+			OriginChainTokenAddress:     depositRecord.OriginChainTokenAddress,
+			DestinationChainID:          depositRecord.DestinationChainID,
+			TokenId:                     depositRecord.TokenID,
+			DestinationRecipientAddress: depositRecord.DestinationRecipientAddress,
+			Depositer:                   depositRecord.Depositer,
+			Amount:                      depositRecord.Amount,
 		},
 		nil
 }
