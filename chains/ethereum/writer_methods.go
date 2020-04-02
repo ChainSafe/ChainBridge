@@ -15,7 +15,7 @@ const VoteDepositProposalMethod = "voteDepositProposal"
 const ExecuteDepositMethod = "executeDepositProposal"
 
 func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
-	w.log.Info("Creating VoteDepositProposal transaction", "to", w.conn.cfg.contract)
+	w.log.Info("Creating erc20 proposal", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	if err != nil {
@@ -53,6 +53,41 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 	return true
 }
 
+func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
+	w.log.Info("Creating generic proposal", "to", w.conn.cfg.contract)
+
+	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
+	if err != nil {
+		w.log.Error("Failed to build transaction opts", "err", err)
+		return false
+	}
+
+	h := m.Metadata[0].([]byte)
+	dataHash := hash(h)
+
+	// watch for execution event
+	go w.watchAndExecute(m, w.cfg.genericHandlerContract, h)
+
+	log15.Trace("Submitting CreateDepositProposal transaction")
+	_, err = w.bridgeContract.Transact(
+		opts,
+		VoteDepositProposalMethod,
+		big.NewInt(int64(m.Source)),
+		u32toBigInt(m.DepositNonce),
+		dataHash,
+	)
+
+	if err != nil {
+		w.log.Error("Failed to submit voteDepsitProposal transaction", "err", err)
+		return false
+	}
+	nonce.lock.Unlock()
+
+	w.log.Info("Successfully submitted deposit proposal!", "source", m.Source, "depositNonce", m.DepositNonce)
+
+	return true
+}
+
 func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
 	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
 	// TODO: Skip existing blocks
@@ -67,11 +102,11 @@ func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []b
 		case evt := <-eventSubscription.ch:
 			sourceId := evt.Topics[1].Big().Uint64()
 			destId := evt.Topics[2].Big().Uint64()
-			depositNone := evt.Topics[3].Big().Uint64()
+			depositNonce := evt.Topics[3].Big().Uint64()
 
 			if m.Source == msg.ChainId(sourceId) &&
 				m.Destination == msg.ChainId(destId) &&
-				m.DepositNonce == uint32(depositNone) {
+				m.DepositNonce == uint32(depositNonce) {
 				eventSubscription.sub.Unsubscribe()
 				w.executeProposal(m, handler, data)
 				return
