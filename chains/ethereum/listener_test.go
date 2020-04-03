@@ -11,6 +11,7 @@ import (
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/common"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 type MockRouter struct {
@@ -90,19 +91,9 @@ func TestListener_depositEvent(t *testing.T) {
 	sourceId := msg.ChainId(0)
 	destId := msg.ChainId(1)
 	tokenId := append(common.LeftPadBytes([]byte{uint8(sourceId)}, 32), common.LeftPadBytes(erc20Contract.Bytes(), 32)...)
+	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
 
-	expectedMessage := msg.Message{
-		Source:       sourceId,
-		Destination:  destId,
-		Type:         msg.FungibleTransfer,
-		DepositNonce: uint32(1),
-		Metadata: []interface{}{
-			common.HexToAddress(BobKp.Address()),
-			amount.Bytes(),
-			tokenId,
-		},
-	}
-
+	expectedMessage := msg.NewFungibleTransfer(sourceId, destId, 1, amount, tokenId, common.HexToAddress(BobKp.Address()).Bytes())
 	// Create an ERC20 Deposit
 	if err := createErc20Deposit(
 		l.bridgeContract,
@@ -110,7 +101,7 @@ func TestListener_depositEvent(t *testing.T) {
 		erc20Contract,
 		l.cfg.erc20HandlerContract,
 
-		common.HexToAddress(BobKp.Address()),
+		recipient,
 		big.NewInt(int64(destId)),
 		amount,
 	); err != nil {

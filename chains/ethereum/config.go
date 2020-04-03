@@ -18,32 +18,36 @@ const DefaultGasPrice = 20000000000
 
 // Config encapsulates all necessary parameters in ethereum compatible forms
 type Config struct {
-	name                 string      // Human-readable chain name
-	id                   msg.ChainId // ChainID
-	endpoint             string      // url for rpc endpoint
-	from                 string      // address of key to use
-	keystorePath         string      // Location of keyfiles
-	contract             common.Address
-	erc20HandlerContract common.Address
-	gasLimit             *big.Int
-	gasPrice             *big.Int
-	http                 bool // Config for type of connection
+	name                   string      // Human-readable chain name
+	id                     msg.ChainId // ChainID
+	endpoint               string      // url for rpc endpoint
+	from                   string      // address of key to use
+	keystorePath           string      // Location of keyfiles
+	contract               common.Address
+	erc20HandlerContract   common.Address
+	genericHandlerContract common.Address
+	gasLimit               *big.Int
+	gasPrice               *big.Int
+	http                   bool // Config for type of connection
+	startBlock             *big.Int
 }
 
 // parseChainConfig uses a core.ChainConfig to construct a corresponding Config
 func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 
 	config := &Config{
-		name:                 chainCfg.Name,
-		id:                   chainCfg.Id,
-		endpoint:             chainCfg.Endpoint,
-		from:                 chainCfg.From,
-		keystorePath:         chainCfg.KeystorePath,
-		contract:             ZERO_ADDRESS,
-		erc20HandlerContract: ZERO_ADDRESS,
-		gasLimit:             big.NewInt(DefaultGasLimit),
-		gasPrice:             big.NewInt(DefaultGasPrice),
-		http:                 false,
+		name:                   chainCfg.Name,
+		id:                     chainCfg.Id,
+		endpoint:               chainCfg.Endpoint,
+		from:                   chainCfg.From,
+		keystorePath:           chainCfg.KeystorePath,
+		contract:               ZERO_ADDRESS,
+		erc20HandlerContract:   ZERO_ADDRESS,
+		genericHandlerContract: ZERO_ADDRESS,
+		gasLimit:               big.NewInt(DefaultGasLimit),
+		gasPrice:               big.NewInt(DefaultGasPrice),
+		http:                   false,
+		startBlock:             big.NewInt(0),
 	}
 
 	if contract, ok := chainCfg.Opts["contract"]; ok && contract != "" {
@@ -60,6 +64,13 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		return nil, fmt.Errorf("must provide opts.erc20Handler field for ethereum config")
 	}
 
+	if handler, ok := chainCfg.Opts["genericHandler"]; ok && handler != "" {
+		config.genericHandlerContract = common.HexToAddress(handler)
+		delete(chainCfg.Opts, "genericHandler")
+	} else {
+		return nil, fmt.Errorf("must provide opts.genericHandler field for ethereum config")
+	}
+
 	if gasPrice, ok := chainCfg.Opts["gasPrice"]; ok {
 		price := big.NewInt(0)
 		_, pass := price.SetString(gasPrice, 10)
@@ -67,7 +78,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 			config.gasPrice = price
 			delete(chainCfg.Opts, "gasPrice")
 		} else {
-			return nil, errors.New("Unable to parse gas price.")
+			return nil, errors.New("unable to parse gas price")
 		}
 	}
 
@@ -78,7 +89,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 			config.gasLimit = limit
 			delete(chainCfg.Opts, "gasLimit")
 		} else {
-			return nil, errors.New("Unable to parse gas limit.")
+			return nil, errors.New("unable to parse gas limit")
 		}
 	}
 
@@ -87,8 +98,19 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		delete(chainCfg.Opts, "http")
 	}
 
+	if startBlock, ok := chainCfg.Opts["startBlock"]; ok && startBlock != "" {
+		block := big.NewInt(0)
+		_, pass := block.SetString(startBlock, 10)
+		if pass {
+			config.startBlock = block
+			delete(chainCfg.Opts, "startBlock")
+		} else {
+			return nil, errors.New("unable to parse start block")
+		}
+	}
+
 	if len(chainCfg.Opts) != 0 {
-		return nil, fmt.Errorf("Unknown Opts Encountered: %#v", chainCfg.Opts)
+		return nil, fmt.Errorf("unknown Opts Encountered: %#v", chainCfg.Opts)
 	}
 
 	return config, nil
