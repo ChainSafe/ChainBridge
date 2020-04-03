@@ -55,7 +55,7 @@ func (w *Writer) ResolveMessage(m msg.Message) bool {
 	case msg.NonFungibleTransfer:
 		panic("not yet implemented")
 	case msg.GenericTransfer:
-		panic("not yet implemented")
+		return w.createGenericDepositProposal(m)
 	default:
 		w.log.Warn("Unknown message type received", "type", m.Type)
 		return false

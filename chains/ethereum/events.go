@@ -12,15 +12,7 @@ import (
 )
 
 const (
-	//DepositAsset                    = "DepositAsset"
-	//NftTransfer                     = "NftTransfer"
-	//ErcTransfer                     = "ErcTransfer"
-	//DepositProposalCreated          = "DepositProposalCreated"
-	//DepositedErc20                  = "DepositedErc20"
-	Deposit EventSig = "Deposit(uint256,uint256,address,uint256)"
-	//DepositAssetSignature           = "DepositAsset(address,bytes32)"
-	//NftTransferSignature            = "NFTTransfer(uint256,uint256,address,address,uint256,bytes)"
-	//ErcTransferSignature            = "ERCTransfer(uint256,uint256,address,uint256,address)"
+	Deposit                  EventSig = "Deposit(uint256,uint256,address,uint256)"
 	DepositProposalCreated   EventSig = "DepositProposalCreated(uint256,uint256,uint256,bytes32)"
 	DepositProposalVote      EventSig = "DepositProposalVote(uint256,uint256,uint256,uint8)"
 	DepositProposalFinalized EventSig = "DepositProposalFinalized(uint256,uint256,uint256)"
@@ -40,15 +32,12 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
 
-	return msg.Message{
-		Type:         msg.FungibleTransfer,
-		Source:       l.cfg.id,
-		Destination:  msg.ChainId(deposit.DestinationChainID.Uint64()),
-		DepositNonce: uint32(depositNonce.Uint64()),
-		Metadata: []interface{}{
-			deposit.DestinationRecipientAddress,
-			deposit.Amount.Bytes(),
-			deposit.TokenId,
-		},
-	}
+	return msg.NewFungibleTransfer(
+		l.cfg.id,
+		msg.ChainId(deposit.DestinationChainID.Uint64()),
+		uint32(depositNonce.Uint64()),
+		deposit.Amount,
+		deposit.TokenId,
+		deposit.DestinationRecipientAddress,
+	)
 }
