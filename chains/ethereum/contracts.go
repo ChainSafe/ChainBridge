@@ -165,12 +165,13 @@ func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
 	}
 
 	depositRecord := args[0].(erc20.ERC20HandlerDepositRecord)
-
+	// Only take first bytes
+	recipient := depositRecord.Depositer[:depositRecord.LenDestinationRecipientAddress.Uint64()]
 	return erc20DepositRecord{
 			OriginChainTokenAddress:     depositRecord.OriginChainTokenAddress,
 			DestinationChainID:          depositRecord.DestinationChainID,
 			TokenId:                     depositRecord.TokenID,
-			DestinationRecipientAddress: depositRecord.DestinationRecipientAddress,
+			DestinationRecipientAddress: recipient,
 			Depositer:                   depositRecord.Depositer,
 			Amount:                      depositRecord.Amount,
 		},

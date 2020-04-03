@@ -91,18 +91,7 @@ func TestListener_depositEvent(t *testing.T) {
 	destId := msg.ChainId(1)
 	tokenId := append(common.LeftPadBytes([]byte{uint8(sourceId)}, 32), common.LeftPadBytes(erc20Contract.Bytes(), 32)...)
 
-	expectedMessage := msg.Message{
-		Source:       sourceId,
-		Destination:  destId,
-		Type:         msg.FungibleTransfer,
-		DepositNonce: uint32(1),
-		Metadata: []interface{}{
-			amount.Bytes(),
-			tokenId,
-			common.HexToAddress(BobKp.Address()).Bytes(),
-		},
-	}
-
+	expectedMessage := msg.NewFungibleTransfer(sourceId, destId, 1, amount , tokenId, common.HexToAddress(BobKp.Address()).Bytes(),)
 	// Create an ERC20 Deposit
 	if err := createErc20Deposit(
 		l.bridgeContract,
@@ -127,3 +116,5 @@ func TestListener_depositEvent(t *testing.T) {
 		t.Fatalf("test timed out")
 	}
 }
+
+

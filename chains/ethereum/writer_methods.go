@@ -15,6 +15,24 @@ import (
 const VoteDepositProposalMethod = "voteDepositProposal"
 const ExecuteDepositMethod = "executeDepositProposal"
 
+
+func constructErc20ProposalData(amount, tokenId, recipient []byte) []byte {
+	var data []byte
+	data = append(data, common.LeftPadBytes(amount, 32)...) // amount
+
+	tokenIdLen := big.NewInt(int64(len(tokenId))).Bytes()
+	data = append(data, common.LeftPadBytes(tokenIdLen, 32)...) // len(tokenId)
+	data = append(data, tokenId...)              // tokenId (chainId)
+
+	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
+	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
+	data = append(data,recipient...)                // recipient
+	fmt.Printf("DATA %x\n", data)
+	return data
+}
+
+
+
 func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 	w.log.Info("Creating erc20 proposal", "to", w.conn.cfg.contract)
 
@@ -30,16 +48,18 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 	//+ 32bytes contract address)
 	//+ len(recipient) (32bytes)
 	//+ recipient (?bytes)
-	var data []byte
-	data = append(data, common.LeftPadBytes(m.Metadata[0].([]byte), 32)...) // amount
+	//var data []byte
+	//data = append(data, common.LeftPadBytes(m.Metadata[0].([]byte), 32)...) // amount
+	//
+	//tokenIdLen := big.NewInt(int64(len(m.Metadata[1].([]byte)))).Bytes()
+	//data = append(data, common.LeftPadBytes(tokenIdLen, 32)...) // len(tokenId)
+	//data = append(data, m.Metadata[1].([]byte)...)              // tokenId (chainId)
+	//
+	//recipientLen := big.NewInt(int64(len(m.Metadata[2].([]byte)))).Bytes()
+	//data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
+	//data = append(data, m.Metadata[2].([]byte)...)                // recipient
 
-	tokenIdLen := big.NewInt(int64(len(m.Metadata[1].([]byte)))).Bytes()
-	data = append(data, common.LeftPadBytes(tokenIdLen, 32)...) // len(tokenId)
-	data = append(data, m.Metadata[1].([]byte)...)              // tokenId (chainId)
-
-	recipientLen := big.NewInt(int64(len(m.Metadata[2].([]byte)))).Bytes()
-	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
-	data = append(data, m.Metadata[2].([]byte)...)                // recipient
+	data := constructErc20ProposalData(m.Metadata[0].([]byte), m.Metadata[1].([]byte), m.Metadata[2].([]byte))
 
 	hash := hash(data)
 	// watch for execution event

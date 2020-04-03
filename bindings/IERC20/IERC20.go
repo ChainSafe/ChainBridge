@@ -618,5 +618,4 @@ func (_IERC20 *IERC20Filterer) ParseTransfer(log types.Log) (*IERC20Transfer, er
 	}
 	return event, nil
 }
-
 var RuntimeBytecode = "0x"

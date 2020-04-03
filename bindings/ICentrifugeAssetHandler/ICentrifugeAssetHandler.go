@@ -213,5 +213,4 @@ func (_ICentrifugeAssetHandler *ICentrifugeAssetHandlerSession) ExecuteDeposit(d
 func (_ICentrifugeAssetHandler *ICentrifugeAssetHandlerTransactorSession) ExecuteDeposit(data []byte) (*types.Transaction, error) {
 	return _ICentrifugeAssetHandler.Contract.ExecuteDeposit(&_ICentrifugeAssetHandler.TransactOpts, data)
 }
-
 var RuntimeBytecode = "0x"
