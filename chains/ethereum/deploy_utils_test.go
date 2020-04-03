@@ -105,6 +105,7 @@ func constructErc20DepositData(erc20Address, destRecipient common.Address, amoun
 	var data []byte
 	data = append(data, common.LeftPadBytes(erc20Address.Bytes(), 32)...)
 	data = append(data, math.PaddedBigBytes(amount, 32)...)
+	data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(destRecipient.Bytes()))), 32)...)
 	data = append(data, destRecipient.Bytes()...)
 	return data
 }
