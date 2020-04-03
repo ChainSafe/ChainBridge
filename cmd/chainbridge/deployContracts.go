@@ -11,16 +11,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-var deployContractsCommand = cli.Command{ //nolint:varcheck
-	Action:      parseCommands,
-	Name:        "deploycontracts",
-	Usage:       "deploys contracts",
-	Category:    "tests",
-	Flags:       deployContractsFlags,
-	Description: "\tthe deploycontracts command is used to deploy contracts on a local network for testing purposes\n",
-}
-
-func parseCommands(ctx *cli.Context) error {
+func parseCommands(ctx *cli.Context) error { //nolint:deadcode
 	log.Info("Deploying Contracts")
 
 	port := ctx.String(PortFlag.Name)
