@@ -297,4 +297,5 @@ func (_IRelayer *IRelayerSession) VoteRelayerThresholdProposal(vote uint8) (*typ
 func (_IRelayer *IRelayerTransactorSession) VoteRelayerThresholdProposal(vote uint8) (*types.Transaction, error) {
 	return _IRelayer.Contract.VoteRelayerThresholdProposal(&_IRelayer.TransactOpts, vote)
 }
+
 var RuntimeBytecode = "0x"

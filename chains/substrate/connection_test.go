@@ -19,7 +19,7 @@ func TestConnect_QueryStorage(t *testing.T) {
 	defer conn.Close()
 
 	// Query storage
-	var data accountData
+	var data AccountData
 	_, err = conn.queryStorage("System", "Account", conn.key.PublicKey, nil, &data)
 	if err != nil {
 		t.Fatal(err)

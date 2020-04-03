@@ -54,7 +54,7 @@ func constructMessage(t *testing.T, hash string, depositNonce uint32, destId uin
 		Destination:  0,
 		Type:         msg.GenericTransfer,
 		DepositNonce: depositNonce,
-		Metadata:     []interface{}{assetHashBytes},
+		Metadata:     []interface{}{[]byte(assetHashBytes)},
 	}, assetHash
 }
 

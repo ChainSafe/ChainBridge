@@ -49,7 +49,7 @@ func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
 
 // getFreeBalance queries the balance for an account, storing the result in `res`
 func getFreeBalance(c *Connection, res *types.U128) {
-	var acct accountData
+	var acct AccountData
 
 	ok, err := c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
 	if err != nil {
