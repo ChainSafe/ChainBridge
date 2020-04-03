@@ -50,15 +50,8 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 	getFreeBalance(bob.conn, &startingBalance)
 
 	// Construct the message to initiate a vote
-	amount := uint32(10000000)
-	m := message.Message{
-		Source:       0,
-		Destination:  1,
-		Type:         message.FungibleTransfer,
-		DepositNonce: 0,
-		Metadata:     []interface{}{bob.conn.key.PublicKey, amount},
-	}
-
+	amount := big.NewInt(10000000)
+	m := message.NewFungibleTransfer(0, 1, 0, amount, []byte{}, bob.conn.key.PublicKey)
 	// Create a assetTxProposal to help us check results
 	meta := alice.conn.getMetadata()
 	prop, err := createFungibleProposal(m, &meta)

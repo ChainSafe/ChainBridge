@@ -21,11 +21,13 @@ func TestParseChainConfig(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"contract":     "0x1234",
-			"erc20Handler": "0x1234",
-			"gasLimit":     "10",
-			"gasPrice":     "20",
-			"http":         "true",
+			"contract":       "0x1234",
+			"erc20Handler":   "0x1234",
+			"genericHandler": "0x1234",
+			"gasLimit":       "10",
+			"gasPrice":       "20",
+			"http":           "true",
+			"startBlock":     "10",
 		},
 	}
 
@@ -36,16 +38,18 @@ func TestParseChainConfig(t *testing.T) {
 	}
 
 	expected := Config{
-		name:                 "chain",
-		id:                   1,
-		endpoint:             "endpoint",
-		from:                 "0x0",
-		keystorePath:         "./keys",
-		contract:             common.HexToAddress("0x1234"),
-		erc20HandlerContract: common.HexToAddress("0x1234"),
-		gasLimit:             big.NewInt(10),
-		gasPrice:             big.NewInt(20),
-		http:                 true,
+		name:                   "chain",
+		id:                     1,
+		endpoint:               "endpoint",
+		from:                   "0x0",
+		keystorePath:           "./keys",
+		contract:               common.HexToAddress("0x1234"),
+		erc20HandlerContract:   common.HexToAddress("0x1234"),
+		genericHandlerContract: common.HexToAddress("0x1234"),
+		gasLimit:               big.NewInt(10),
+		gasPrice:               big.NewInt(20),
+		http:                   true,
+		startBlock:             big.NewInt(10),
 	}
 
 	if !reflect.DeepEqual(&expected, out) {

@@ -51,10 +51,13 @@ See `config.toml.example` for an example configuration.
 Ethereum chains support the following additional options:
 
 ```
-contract = "0x12345..." // The address of the bridge contract (required)
+contract = "0x12345..." // Address of the bridge contract (required)
+erc20Handler = "0x1234..." // Address of erc20 handler
+genericHandler = "0x1234..." // Address of generic handler
 gasPrice = "0x1234"      // Gas price for transactions (default: 20000000000)
 gasLimit = "0x1234"      // Gas limit for transactions (default: 6721975)
 http = "true"            // Whether the chain connection is ws or http (default: false)
+startBlock = "1234" // The block to start processing events from (default: 0)
 ```
 
 ### Substrate Options
@@ -62,7 +65,7 @@ http = "true"            // Whether the chain connection is ws or http (default:
 Substrate supports the following additonal options:
 
 ```
-startBlock = "1234" // The block to start processing event from (default: 0)
+startBlock = "1234" // The block to start processing events from (default: 0)
 ```
 
 ## Keystore
@@ -109,23 +112,27 @@ Start chain 1 (terminal 1)
 make setup-sol-cli
 make start-eth
 ```
+
 Start chain 2 (terminal 2)
 ```shell
 PORT=8546 make start-eth
 ```
+
 Deploy the contracts (terminal 3)
 ```shell
 make deploy-eth && PORT=8546 make deploy-eth
 ```
+
 Build the latest ChainBridge binary & run it (terminal 3)
 ```shell
 make build
 ./build/chainbridge --verbosity=trace --config ./scripts/configs/config1.toml --testkey alice
 ```
+
 Mint & make a deposit (terminal 4)
 ```shell
-node solidity/scripts/cli/index.js --test-only --mint-erc20 --value 100
-node solidity/scripts/cli/index.js --test-only --deposit-erc —dest 1
+node solidity/scripts/cli/index.js mint --value 100
+node solidity/scripts/cli/index.js transfer --dest 1 --value 1
 ```
 
 Notes: 

@@ -6,14 +6,13 @@ package ethereum
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20 "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721 "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	generic "github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 // genericDepositRecord is the return struct from the solidity function getDepositRecord() in the GenericHandler contract
@@ -29,7 +28,7 @@ type erc20DepositRecord struct {
 	OriginChainTokenAddress     common.Address
 	DestinationChainID          *big.Int
 	TokenId                     []byte
-	DestinationRecipientAddress common.Address
+	DestinationRecipientAddress []byte
 	Depositer                   common.Address
 	Amount                      *big.Int
 }
@@ -165,12 +164,14 @@ func UnpackErc20DepositRecord(args ...interface{}) (erc20DepositRecord, error) {
 	}
 
 	depositRecord := args[0].(erc20.ERC20HandlerDepositRecord)
+	// Only take first bytes
+	recipient := depositRecord.DestinationRecipientAddress[:depositRecord.LenDestinationRecipientAddress.Uint64()]
 
 	return erc20DepositRecord{
 			OriginChainTokenAddress:     depositRecord.OriginChainTokenAddress,
 			DestinationChainID:          depositRecord.DestinationChainID,
 			TokenId:                     depositRecord.TokenID,
-			DestinationRecipientAddress: depositRecord.DestinationRecipientAddress,
+			DestinationRecipientAddress: recipient,
 			Depositer:                   depositRecord.Depositer,
 			Amount:                      depositRecord.Amount,
 		},
