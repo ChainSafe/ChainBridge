@@ -14,8 +14,22 @@ import (
 const VoteDepositProposalMethod = "voteDepositProposal"
 const ExecuteDepositMethod = "executeDepositProposal"
 
+func constructErc20ProposalData(amount, tokenId, recipient []byte) []byte {
+	var data []byte
+	data = append(data, common.LeftPadBytes(amount, 32)...) // amount
+
+	tokenIdLen := big.NewInt(int64(len(tokenId))).Bytes()
+	data = append(data, common.LeftPadBytes(tokenIdLen, 32)...) // len(tokenId)
+	data = append(data, tokenId...)                             // tokenId (chainId)
+
+	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
+	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
+	data = append(data, recipient...)                             // recipient
+	return data
+}
+
 func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
-	w.log.Info("Creating VoteDepositProposal transaction", "to", w.conn.cfg.contract)
+	w.log.Info("Creating erc20 proposal", "to", w.conn.cfg.contract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	if err != nil {
@@ -23,13 +37,8 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	var data []byte
-	data = append(data, common.LeftPadBytes(m.Metadata[1].([]byte), 32)...)           // recipient
-	data = append(data, common.LeftPadBytes(m.Metadata[2].(*big.Int).Bytes(), 32)...) // amount
-	data = append(data, common.LeftPadBytes(big.NewInt(64).Bytes(), 32)...)           // tokenId length
-	data = append(data, common.LeftPadBytes(m.Metadata[0].([]byte), 64)...)           // tokenId (chainId)
-	hash := hash(data)
-
+	data := constructErc20ProposalData(m.Metadata[0].([]byte), m.Metadata[1].([]byte), m.Metadata[2].([]byte))
+	hash := hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
 
@@ -53,8 +62,43 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 	return true
 }
 
+func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
+	w.log.Info("Creating generic proposal", "to", w.conn.cfg.contract)
+
+	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
+	if err != nil {
+		w.log.Error("Failed to build transaction opts", "err", err)
+		return false
+	}
+
+	h := m.Metadata[0].([]byte)
+	dataHash := hash(append(w.cfg.genericHandlerContract.Bytes(), h...))
+
+	// watch for execution event
+	go w.watchAndExecute(m, w.cfg.genericHandlerContract, h)
+
+	log15.Trace("Submitting CreateDepositProposal transaction")
+	_, err = w.bridgeContract.Transact(
+		opts,
+		VoteDepositProposalMethod,
+		big.NewInt(int64(m.Source)),
+		u32toBigInt(m.DepositNonce),
+		dataHash,
+	)
+
+	if err != nil {
+		w.log.Error("Failed to submit voteDepsitProposal transaction", "err", err)
+		return false
+	}
+	nonce.lock.Unlock()
+
+	w.log.Info("Successfully submitted deposit proposal!", "source", m.Source, "depositNonce", m.DepositNonce)
+
+	return true
+}
+
 func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
-	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
+	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce, "handler", handler)
 	// TODO: Skip existing blocks
 	query := buildQuery(w.cfg.contract, DepositProposalFinalized, big.NewInt(0))
 	eventSubscription, err := w.conn.subscribeToEvent(query)
@@ -67,11 +111,11 @@ func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []b
 		case evt := <-eventSubscription.ch:
 			sourceId := evt.Topics[1].Big().Uint64()
 			destId := evt.Topics[2].Big().Uint64()
-			depositNone := evt.Topics[3].Big().Uint64()
+			depositNonce := evt.Topics[3].Big().Uint64()
 
 			if m.Source == msg.ChainId(sourceId) &&
 				m.Destination == msg.ChainId(destId) &&
-				m.DepositNonce == uint32(depositNone) {
+				m.DepositNonce == uint32(depositNonce) {
 				eventSubscription.sub.Unsubscribe()
 				w.executeProposal(m, handler, data)
 				return
