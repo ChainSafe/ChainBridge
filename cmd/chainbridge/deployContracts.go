@@ -11,15 +11,6 @@ import (
 	"github.com/urfave/cli"
 )
 
-var deployContractsCommand = cli.Command{
-	Action:      parseCommands,
-	Name:        "deploycontracts",
-	Usage:       "deploys contracts",
-	Category:    "tests",
-	Flags:       deployContractsFlags,
-	Description: "\tthe deploycontracts command is used to deploy contracts on a local network for testing purposes\n",
-}
-
 func parseCommands(ctx *cli.Context) error {
 	log.Info("Deploying Contracts")
 
