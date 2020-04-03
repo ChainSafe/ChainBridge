@@ -4,7 +4,6 @@
 package ethereum
 
 import (
-	"fmt"
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -15,23 +14,19 @@ import (
 const VoteDepositProposalMethod = "voteDepositProposal"
 const ExecuteDepositMethod = "executeDepositProposal"
 
-
 func constructErc20ProposalData(amount, tokenId, recipient []byte) []byte {
 	var data []byte
 	data = append(data, common.LeftPadBytes(amount, 32)...) // amount
 
 	tokenIdLen := big.NewInt(int64(len(tokenId))).Bytes()
 	data = append(data, common.LeftPadBytes(tokenIdLen, 32)...) // len(tokenId)
-	data = append(data, tokenId...)              // tokenId (chainId)
+	data = append(data, tokenId...)                             // tokenId (chainId)
 
 	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
 	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
-	data = append(data,recipient...)                // recipient
-	fmt.Printf("DATA %x\n", data)
+	data = append(data, recipient...)                             // recipient
 	return data
 }
-
-
 
 func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 	w.log.Info("Creating erc20 proposal", "to", w.conn.cfg.contract)
@@ -42,26 +37,8 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	//+ amount (32bytes)
-	//+ len(tokenID) (32bytes)
-	//+ tokenId (32bytes chainId
-	//+ 32bytes contract address)
-	//+ len(recipient) (32bytes)
-	//+ recipient (?bytes)
-	//var data []byte
-	//data = append(data, common.LeftPadBytes(m.Metadata[0].([]byte), 32)...) // amount
-	//
-	//tokenIdLen := big.NewInt(int64(len(m.Metadata[1].([]byte)))).Bytes()
-	//data = append(data, common.LeftPadBytes(tokenIdLen, 32)...) // len(tokenId)
-	//data = append(data, m.Metadata[1].([]byte)...)              // tokenId (chainId)
-	//
-	//recipientLen := big.NewInt(int64(len(m.Metadata[2].([]byte)))).Bytes()
-	//data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
-	//data = append(data, m.Metadata[2].([]byte)...)                // recipient
-
 	data := constructErc20ProposalData(m.Metadata[0].([]byte), m.Metadata[1].([]byte), m.Metadata[2].([]byte))
-
-	hash := hash(data)
+	hash := hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
 
@@ -95,7 +72,7 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 	}
 
 	h := m.Metadata[0].([]byte)
-	dataHash := hash(h)
+	dataHash := hash(append(w.cfg.genericHandlerContract.Bytes(), h...))
 
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.genericHandlerContract, h)
@@ -121,7 +98,7 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 }
 
 func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
-	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
+	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce, "handler", handler)
 	// TODO: Skip existing blocks
 	query := buildQuery(w.cfg.contract, DepositProposalFinalized, big.NewInt(0))
 	eventSubscription, err := w.conn.subscribeToEvent(query)
@@ -161,7 +138,7 @@ func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []b
 		w.log.Error("Failed to build transaction opts", "err", err)
 		return
 	}
-	fmt.Printf("Executing: source: %s nonce: %d handler: %x", big.NewInt(int64(m.Source)).String(), u32toBigInt(m.DepositNonce), handler)
+
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
 		ExecuteDepositMethod,

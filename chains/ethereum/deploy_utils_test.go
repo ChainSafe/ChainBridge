@@ -4,7 +4,6 @@
 package ethereum
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -120,7 +119,7 @@ func createErc20Deposit(contract *BridgeContract,
 	amount *big.Int) error {
 
 	data := constructErc20DepositData(erc20Address, destRecipient, amount)
-	fmt.Printf("data %x\n", data)
+
 	// Incrememnt Nonce by one
 	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
 	if _, err := contract.Deposit(

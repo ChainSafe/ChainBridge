@@ -6,8 +6,6 @@ package ethereum
 import (
 	// "math/big"
 
-	"fmt"
-
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -33,7 +31,6 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	if err != nil {
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
-	fmt.Printf("Length: %d\n", len(deposit.DestinationRecipientAddress))
 
 	return msg.NewFungibleTransfer(
 		l.cfg.id,
