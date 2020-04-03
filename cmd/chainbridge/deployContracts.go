@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func parseCommands(ctx *cli.Context) error { //nolint:deadcode
+func parseCommands(ctx *cli.Context) error { //nolint:deadcode,unused
 	log.Info("Deploying Contracts")
 
 	port := ctx.String(PortFlag.Name)
