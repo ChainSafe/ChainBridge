@@ -39,3 +39,14 @@ jobs:
         - make deploy-eth
         - ./scripts/substrate/run_chain_ci.sh
         - make test
+
+    - language: go
+      go: 1.13.x
+      name: "Run Go e2e tests"
+      script:
+        - set -e
+        - make clean && make setup-contracts
+        - SILENT=true make start-eth
+        - make deploy-eth
+        - ./scripts/substrate/run_chain_ci.sh
+        - make test-e2e

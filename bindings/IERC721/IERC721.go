@@ -881,4 +881,5 @@ func (_IERC721 *IERC721Filterer) ParseTransfer(log types.Log) (*IERC721Transfer,
 	}
 	return event, nil
 }
+
 var RuntimeBytecode = "0x"

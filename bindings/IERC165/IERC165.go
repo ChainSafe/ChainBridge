@@ -197,4 +197,5 @@ func (_IERC165 *IERC165Session) SupportsInterface(interfaceId [4]byte) (bool, er
 func (_IERC165 *IERC165CallerSession) SupportsInterface(interfaceId [4]byte) (bool, error) {
 	return _IERC165.Contract.SupportsInterface(&_IERC165.CallOpts, interfaceId)
 }
+
 var RuntimeBytecode = "0x"
