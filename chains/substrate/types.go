@@ -6,6 +6,7 @@ package substrate
 import (
 	"encoding/binary"
 	"fmt"
+	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
@@ -35,8 +36,9 @@ type proposal struct {
 }
 
 func createFungibleProposal(m msg.Message, meta *types.Metadata) (*proposal, error) {
-	recipient := types.NewAccountID(m.Metadata[0].([]byte))
-	amount := types.U32(m.Metadata[1].(uint64))
+	amount64 := big.NewInt(0).SetBytes(m.Metadata[0].([]byte)).Uint64()
+	amount := types.U32(uint32(amount64))
+	recipient := types.NewAccountID(m.Metadata[2].([]byte))
 	depositNonce := types.U32(m.DepositNonce)
 
 	call, err := types.NewCall(

@@ -192,4 +192,5 @@ func (_IERC721Receiver *IERC721ReceiverSession) OnERC721Received(operator common
 func (_IERC721Receiver *IERC721ReceiverTransactorSession) OnERC721Received(operator common.Address, from common.Address, tokenId *big.Int, data []byte) (*types.Transaction, error) {
 	return _IERC721Receiver.Contract.OnERC721Received(&_IERC721Receiver.TransactOpts, operator, from, tokenId, data)
 }
+
 var RuntimeBytecode = "0x"

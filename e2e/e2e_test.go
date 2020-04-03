@@ -22,12 +22,10 @@ const EthChainId = msg.ChainId(0)
 const SubChainId = msg.ChainId(1)
 
 var AliceEthKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
-var BobEthKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
+var CharlieEthKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 var AliceSubKp = keystore.TestKeyRing.SubstrateKeys[keystore.AliceKey]
 var BobSubKp = keystore.TestKeyRing.SubstrateKeys[keystore.BobKey]
-var AliceAddr = common.HexToAddress(AliceEthKp.Address())
-var BobAddr = common.HexToAddress(BobEthKp.Address())
-var BobSubAddr = BobSubKp.AsKeyringPair().Address
+var CharlieEthAddr = common.HexToAddress(CharlieEthKp.Address())
 
 func setLogger(lvl log.Lvl) {
 	logger := log.Root()
@@ -35,7 +33,7 @@ func setLogger(lvl log.Lvl) {
 	log.Root().SetHandler(log.LvlFilterHandler(lvl, handler))
 }
 
-func createEthConfig(key, bridgeAddress, erc20HandlerAddress string) *core.ChainConfig {
+func createEthConfig(key, bridgeAddress, erc20HandlerAddress, genericHandler string) *core.ChainConfig {
 	return &core.ChainConfig{
 		Name:         fmt.Sprintf("ethereum(%s)", key),
 		Id:           EthChainId,
@@ -44,13 +42,14 @@ func createEthConfig(key, bridgeAddress, erc20HandlerAddress string) *core.Chain
 		KeystorePath: key,
 		Insecure:     true,
 		Opts: map[string]string{
-			"contract":     bridgeAddress,
-			"erc20Handler": erc20HandlerAddress,
+			"contract":       bridgeAddress,
+			"erc20Handler":   erc20HandlerAddress,
+			"genericHandler": genericHandler,
 		},
 	}
 }
 
-func createSubConfig(key, bridgeAddress, erc20HandlerAddress string) *core.ChainConfig {
+func createSubConfig(key string) *core.ChainConfig {
 	return &core.ChainConfig{
 		Name:         fmt.Sprintf("substrate(%s)", key),
 		Id:           SubChainId,
@@ -58,19 +57,16 @@ func createSubConfig(key, bridgeAddress, erc20HandlerAddress string) *core.Chain
 		From:         "",
 		KeystorePath: key,
 		Insecure:     true,
-		Opts: map[string]string{
-			"contract":     bridgeAddress,
-			"erc20Handler": erc20HandlerAddress,
-		},
+		Opts:         map[string]string{},
 	}
 }
 
-func createAndStartBridge(t *testing.T, name, bridgeAddress, erc20HandlerAddres string) *core.Core {
-	eth, err := ethereum.InitializeChain(createEthConfig(name, bridgeAddress, erc20HandlerAddres))
+func createAndStartBridge(t *testing.T, name, bridgeAddress, erc20HandlerAddres, genericHandlerAddress string) *core.Core {
+	eth, err := ethereum.InitializeChain(createEthConfig(name, bridgeAddress, erc20HandlerAddres, genericHandlerAddress))
 	if err != nil {
 		t.Fatal(err)
 	}
-	sub, err := substrate.InitializeChain(createSubConfig(name, bridgeAddress, erc20HandlerAddres))
+	sub, err := substrate.InitializeChain(createSubConfig(name))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,8 +97,8 @@ func TestErc20ToSubstrate(t *testing.T) {
 	erc20Contract := deployMintApproveErc20(t, ethClient, opts, contracts.ERC20HandlerAddress)
 
 	// Create and start two bridges with both chains
-	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
-	_ = createAndStartBridge(t, "bob", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
+	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
+	_ = createAndStartBridge(t, "bob", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
 
 	// Initiate transfer
 	createErc20Deposit(t, ethClient, opts, contracts, erc20Contract)
@@ -110,14 +106,14 @@ func TestErc20ToSubstrate(t *testing.T) {
 	// Check for success event
 	subClient := createSubClient(t, AliceSubKp.AsKeyringPair())
 	success := make(chan bool)
-	fail := make(chan bool)
+	fail := make(chan error)
 	go watchForProposalSuccessOrFail(t, subClient, success, fail)
 
 	select {
 	case <-success:
 		return
-	case <-fail:
-		t.Fatal("Proposal failed")
+	case e := <-fail:
+		t.Fatal(e)
 	case <-time.After(TestTimeout):
 		t.Fatalf("test timed out")
 	}
@@ -149,14 +145,13 @@ func TestHashToGenericHandler(t *testing.T) {
 	contracts := deployTestContracts(t, EthChainId)
 	ethClient, _ := createEthClient(t)
 
-
 	// Whitelist chain
 	subClient := createSubClient(t, AliceSubKp.AsKeyringPair())
 	whitelistChain(t, subClient, EthChainId)
 
 	// Create two bridges
-	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
-	_ = createAndStartBridge(t, "bob", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex())
+	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
+	_ = createAndStartBridge(t, "bob", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
 
 	// Execute transfer
 	hash, err := types.NewHashFromHexString("0xc2d4ac52b4aedaf4bd9ccf93d2fea79aff8148d8054f28972dfffa4847eb6722")
@@ -171,5 +166,5 @@ func TestHashToGenericHandler(t *testing.T) {
 	waitForEvent(t, ethClient, contracts.BridgeAddress, ethereum.DepositProposalExecuted)
 
 	// Verify hash is available
-	getHash(t, ethClient, contracts.CentrifugeHandlerAddress)
+	getHash(t, ethClient, hash, contracts.CentrifugeHandlerAddress)
 }

@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -44,15 +45,21 @@ func createSubClient(t *testing.T, key *signature.KeyringPair) *subClient {
 	return c
 }
 
-func watchForProposalSuccessOrFail(t *testing.T, client *subClient, success chan bool, fail chan bool) {
+func watchForProposalSuccessOrFail(t *testing.T, client *subClient, success chan bool, fail chan error) {
 	key, err := types.CreateStorageKey(client.meta, "System", "Events", nil, nil)
 	if err != nil {
-		t.Fatal(err)
+		fail <- err
+		close(success)
+		close(fail)
+		return
 	}
 
 	sub, err := client.api.RPC.State.SubscribeStorageRaw([]types.StorageKey{key})
 	if err != nil {
-		t.Fatal(err)
+		fail <- err
+		close(success)
+		close(fail)
+		return
 	}
 
 	for {
@@ -67,15 +74,18 @@ func watchForProposalSuccessOrFail(t *testing.T, client *subClient, success chan
 			events := substrate.Events{}
 			err = types.EventRecordsRaw(chng.StorageData).DecodeEventRecords(client.meta, &events)
 			if err != nil {
-				t.Fatal(err)
+				fail <- err
+				close(success)
+				close(fail)
+				return
 			}
 
-			for _, _ = range events.Bridge_ProposalSucceeded {
+			for range events.Bridge_ProposalSucceeded {
 				success <- true
 			}
 
-			for _, _ = range events.Bridge_ProposalFailed {
-				fail <- true
+			for range events.Bridge_ProposalFailed {
+				fail <- errors.New("Proposal failed")
 			}
 		}
 	}

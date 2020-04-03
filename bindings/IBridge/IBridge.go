@@ -192,4 +192,5 @@ func (_IBridge *IBridgeSession) ChainID() (*types.Transaction, error) {
 func (_IBridge *IBridgeTransactorSession) ChainID() (*types.Transaction, error) {
 	return _IBridge.Contract.ChainID(&_IBridge.TransactOpts)
 }
+
 var RuntimeBytecode = "0x"

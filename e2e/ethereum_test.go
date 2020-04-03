@@ -27,7 +27,7 @@ func deployTestContracts(t *testing.T, id msg.ChainId) *ethereum.DeployedContrac
 		hexutil.Encode(AliceEthKp.Encode())[2:],
 		big.NewInt(int64(id)),
 		TestEthEndpoint,
-		2,             // Num relayers
+		3,             // Num relayers
 		big.NewInt(2), // Relayer threshold
 		0,             // unused?
 	)
@@ -35,6 +35,11 @@ func deployTestContracts(t *testing.T, id msg.ChainId) *ethereum.DeployedContrac
 		t.Fatal(err)
 	}
 
+	fmt.Println("====== Contracts =======")
+	fmt.Printf("Bridge: %s\n", contracts.BridgeAddress.Hex())
+	fmt.Printf("Erc20Handler: %s\n", contracts.ERC20HandlerAddress.Hex())
+	fmt.Printf("(Generic) Centrifuge Handler: %s\n", contracts.CentrifugeHandlerAddress.Hex())
+	fmt.Println("========================")
 	return contracts
 }
 
@@ -46,8 +51,11 @@ func createEthClient(t *testing.T) (*ethclient.Client, *bind.TransactOpts) {
 	}
 	client := ethclient.NewClient(rpcClient)
 
-	nonce, err := client.PendingNonceAt(ctx, AliceAddr)
-	opts := bind.NewKeyedTransactor(AliceEthKp.PrivateKey())
+	nonce, err := client.PendingNonceAt(ctx, CharlieEthAddr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	opts := bind.NewKeyedTransactor(CharlieEthKp.PrivateKey())
 	opts.Nonce = big.NewInt(int64(nonce - 1))        // -1 since we always increment before calling
 	opts.Value = big.NewInt(0)                       // in wei
 	opts.GasLimit = uint64(ethereum.DefaultGasLimit) // in units
@@ -74,6 +82,7 @@ func deployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.T
 	}
 
 	// Approve
+	fmt.Printf("Approving: %s\n", erc20Handler.Hex())
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	_, err = erc20Instance.Approve(opts, erc20Handler, big.NewInt(99))
 	if err != nil {
@@ -84,7 +93,7 @@ func deployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.T
 }
 
 // deployAndFundEr20 sets up a new erc20 contract and funds the bridge/handler
-func deployAndFundErc20(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address) common.Address {
+func deployAndFundErc20(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address) common.Address { //nolint:unused,deadcode
 	// Deploy
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	erc20Addr, _, erc20Instance, err := erc20Mintable.DeployERC20Mintable(opts, client)
@@ -102,22 +111,18 @@ func deployAndFundErc20(t *testing.T, client *ethclient.Client, opts *bind.Trans
 	return erc20Addr
 }
 
-func constructErc20Data(erc20Address common.Address, destRecipient []byte, amount *big.Int) []byte {
+// constructErc20Data constructs the data field to be passed into a deposit call
+func constructErc20DepositData(erc20Address common.Address, destRecipient []byte, amount *big.Int) []byte {
 	var data []byte
 	data = append(data, common.LeftPadBytes(erc20Address.Bytes(), 32)...)
-	// TODO: This padding will need to be updated once recipient is bytes, also need to make these changes in the actual code
-	data = append(data, common.LeftPadBytes(destRecipient, 32)...)
 	data = append(data, math.PaddedBigBytes(amount, 32)...)
-
+	data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(destRecipient))), 32)...)
+	data = append(data, destRecipient...)
 	return data
 }
 
 func createErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, contracts *ethereum.DeployedContracts, erc20Contract common.Address) {
-	// TODO: Add back in
-	//recipient := base58.Decode(BobSubAddr)
-	//data := constructErc20Data(erc20Contract, recipient, big.NewInt(10))
-
-	data := constructErc20Data(erc20Contract, BobAddr.Bytes(), big.NewInt(10))
+	data := constructErc20DepositData(erc20Contract, BobSubKp.AsKeyringPair().PublicKey, big.NewInt(10))
 
 	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
 	if err != nil {
@@ -165,11 +170,17 @@ func waitForEvent(t *testing.T, client *ethclient.Client, contract common.Addres
 	}
 }
 
-func getHash(t *testing.T, client *ethclient.Client, contract common.Address) {
-	_, err := centrifugeHandler.NewCentrifugeAssetHandler(contract, client)
+func getHash(t *testing.T, client *ethclient.Client, hash [32]byte, contract common.Address) {
+	instance, err := centrifugeHandler.NewCentrifugeAssetHandler(contract, client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	panic("incomplete")
+	exists, err := instance.GetHash(&bind.CallOpts{}, hash)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !exists {
+		t.Fatal("Hash does not exist")
+	}
 }
