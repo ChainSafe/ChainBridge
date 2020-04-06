@@ -696,5 +696,4 @@ func (_ERC20Detailed *ERC20DetailedFilterer) ParseTransfer(log types.Log) (*ERC2
 	}
 	return event, nil
 }
-
 var RuntimeBytecode = "0x"
