@@ -15,7 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
-// genericDepositRecord is the return struct from the solidity function getDepositRecord() in the GenericHandler contract
+// genericDepositRecord is the return struct from the solidity function getDepositRecord() in the GenericHandler bridgeContract
 type genericDepositRecord struct {
 	DestinationChainID          *big.Int
 	DestinationRecipientAddress common.Address
@@ -23,7 +23,7 @@ type genericDepositRecord struct {
 	MetaData                    []byte
 }
 
-// erc20DepositRecord is the return struct from the solidity function getDepositRecord() in the ERC20Handler contract
+// erc20DepositRecord is the return struct from the solidity function getDepositRecord() in the ERC20Handler bridgeContract
 type erc20DepositRecord struct {
 	OriginChainTokenAddress     common.Address
 	DestinationChainID          *big.Int
@@ -33,7 +33,7 @@ type erc20DepositRecord struct {
 	Amount                      *big.Int
 }
 
-// erc721DepositRecord is the return value from the solidity function getDepositRecord() in the ERC721Handler contract
+// erc721DepositRecord is the return value from the solidity function getDepositRecord() in the ERC721Handler bridgeContract
 type erc721DepositRecord struct {
 	OriginChainTokenAddress        common.Address
 	DestinationChainID             *big.Int

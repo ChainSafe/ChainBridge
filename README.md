@@ -51,7 +51,7 @@ See `config.toml.example` for an example configuration.
 Ethereum chains support the following additional options:
 
 ```
-contract = "0x12345..." // Address of the bridge contract (required)
+bridge = "0x12345..." // Address of the bridge contract (required)
 erc20Handler = "0x1234..." // Address of erc20 handler
 genericHandler = "0x1234..." // Address of generic handler
 gasPrice = "0x1234"      // Gas price for transactions (default: 20000000000)

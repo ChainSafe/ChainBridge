@@ -26,11 +26,11 @@ func (r *MockRouter) Send(message msg.Message) error {
 func createTestListener(t *testing.T, config *Config, contracts *DeployedContracts) (*Listener, *MockRouter) {
 	// Create copy and add deployed contract addresses
 	newConfig := *config
-	newConfig.contract = contracts.BridgeAddress
+	newConfig.bridgeContract = contracts.BridgeAddress
 	newConfig.erc20HandlerContract = contracts.ERC20HandlerAddress
 
 	conn := newLocalConnection(t, &newConfig)
-	bridgeContract, err := createBridgeContract(newConfig.contract, conn)
+	bridgeContract, err := createBridgeContract(newConfig.bridgeContract, conn)
 	if err != nil {
 		t.Fatal(err)
 	}
