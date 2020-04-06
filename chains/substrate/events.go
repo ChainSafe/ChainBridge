@@ -186,7 +186,7 @@ func getMetaAndType(evt EventAssetTransfer) ([]interface{}, msg.TransferType, er
 
 	case hashTransfer:
 		// hash (evt.Metadata)
-		return []interface{}{evt.Metadata}, msg.GenericTransfer, nil
+		return []interface{}{[]byte(evt.Metadata)}, msg.GenericTransfer, nil
 
 	default:
 		return nil, "", fmt.Errorf("unknown token ID: %d", tokenId)

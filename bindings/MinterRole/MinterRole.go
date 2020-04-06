@@ -525,4 +525,5 @@ func (_MinterRole *MinterRoleFilterer) ParseMinterRemoved(log types.Log) (*Minte
 	}
 	return event, nil
 }
+
 var RuntimeBytecode = "0x"

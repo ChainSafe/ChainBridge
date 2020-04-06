@@ -51,3 +51,14 @@ jobs:
         - docker image build -t chainbridge . --build-arg TEST_KEY="--testkey=alice"
         - docker run chainbridge -d
         - docker stop chainbridge || true && docker rm chainbridge || true 
+
+    - language: go
+      go: 1.13.x
+      name: "Run Go e2e tests"
+      script:
+        - set -e
+        - make clean && make setup-contracts
+        - SILENT=true make start-eth
+        - make deploy-eth
+        - ./scripts/substrate/run_chain_ci.sh
+        - make test-e2e

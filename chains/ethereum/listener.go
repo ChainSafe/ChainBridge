@@ -92,7 +92,7 @@ func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int) e
 // Handler will be called for every instance of event.
 func (l *Listener) RegisterEventHandler(subscription EventSig, handler evtHandlerFn) error {
 	evt := subscription
-	query := buildQuery(l.cfg.contract, evt, big.NewInt(0))
+	query := buildQuery(l.cfg.contract, evt, l.cfg.startBlock)
 	eventSubscription, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
