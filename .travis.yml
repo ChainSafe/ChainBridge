@@ -47,7 +47,7 @@ jobs:
         - set -e
         - make clean
         - make setup-contracts
-        - make start-eth && PORT=8546 SILENT=true make start-eth
+        - SILENT=true make start-eth && PORT=8546 SILENT=true make start-eth
         - docker image build -t chainbridge . --build-arg TEST_KEY="--testkey=alice"
         - docker run chainbridge -d
         - docker stop chainbridge || true && docker rm chainbridge || true 
