@@ -48,10 +48,6 @@ func createTestListener(t *testing.T, config *Config, contracts *DeployedContrac
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = conn.checkBridgeContract(newConfig.contract)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	return listener, router
 }
