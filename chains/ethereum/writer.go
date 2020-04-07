@@ -17,7 +17,7 @@ var _ chains.Writer = &Writer{}
 type Writer struct {
 	cfg                  Config
 	conn                 *Connection
-	bridgeContract       *BridgeContract // instance of bound receiver contract
+	bridgeContract       *BridgeContract // instance of bound receiver bridgeContract
 	erc20HandlerContract *ERC20HandlerContract
 	gasPrice             *big.Int
 	gasLimit             *big.Int

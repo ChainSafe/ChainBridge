@@ -38,7 +38,7 @@ func (c *Connection) getMetadata() (meta types.Metadata) {
 }
 
 func (c *Connection) Connect() error {
-	c.log.Info("Connecting to substrate chain...")
+	c.log.Info("Connecting to substrate chain...", "url", c.url)
 	api, err := gsrpc.NewSubstrateAPI(c.url)
 	if err != nil {
 		return err

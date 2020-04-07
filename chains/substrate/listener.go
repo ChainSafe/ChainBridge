@@ -44,8 +44,6 @@ func (l *Listener) SetRouter(r chains.Router) {
 
 // Start creates the initial subscription for all events
 func (l *Listener) Start() error {
-	l.log.Info("Starting listener...")
-
 	// Check that whether latest is less than starting block
 	header, err := l.conn.api.RPC.Chain.GetHeaderLatest()
 	if err != nil {

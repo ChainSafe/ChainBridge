@@ -32,10 +32,10 @@ func createTestWriter(t *testing.T, cfg *Config, contracts *DeployedContracts) (
 		t.Fatal(err)
 	}
 
-	writer.conn.cfg.contract = contracts.BridgeAddress
+	writer.conn.cfg.bridgeContract = contracts.BridgeAddress
 	writer.conn.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.conn.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
-	writer.cfg.contract = contracts.BridgeAddress
+	writer.cfg.bridgeContract = contracts.BridgeAddress
 	writer.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
 	writer.SetContracts(bridge, erc20Handler)
@@ -83,7 +83,7 @@ func TestHash(t *testing.T) {
 
 func watchEvent(conn *Connection, subStr EventSig) {
 	fmt.Printf("Watching for event: %s\n", subStr)
-	query := buildQuery(conn.cfg.contract, subStr, big.NewInt(0))
+	query := buildQuery(conn.cfg.bridgeContract, subStr, big.NewInt(0))
 	eventSubscription, err := conn.subscribeToEvent(query)
 	if err != nil {
 		log15.Error("Failed to subscribe to finalization event", "err", err)
@@ -148,7 +148,7 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	go watchEvent(alice.conn, DepositProposalExecuted)
 
 	// Watch for executed event
-	query := buildQuery(alice.cfg.contract, DepositProposalExecuted, big.NewInt(0))
+	query := buildQuery(alice.cfg.bridgeContract, DepositProposalExecuted, big.NewInt(0))
 	eventSubscription, err := alice.conn.subscribeToEvent(query)
 	if err != nil {
 		log15.Error("Failed to subscribe to finalization event", "err", err)
@@ -217,7 +217,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	go watchEvent(alice.conn, DepositProposalExecuted)
 
 	// Watch for executed event
-	query := buildQuery(alice.cfg.contract, DepositProposalExecuted, big.NewInt(0))
+	query := buildQuery(alice.cfg.bridgeContract, DepositProposalExecuted, big.NewInt(0))
 	eventSubscription, err := alice.conn.subscribeToEvent(query)
 	if err != nil {
 		log15.Error("Failed to subscribe to finalization event", "err", err)
