@@ -38,14 +38,6 @@ var importFlags = []cli.Flag{
 	EthereumImportFlag,
 }
 
-var DeployFlags = []cli.Flag{
-	PortFlag,
-	ResetFlag,
-	MnemFlag,
-	AccountFlag,
-	AmountFlag,
-}
-
 var accountCommand = cli.Command{
 	Name:     "accounts",
 	Usage:    "manage bridge keystore",

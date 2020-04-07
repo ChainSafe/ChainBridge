@@ -14,10 +14,10 @@ import (
 
 // deployArgs holds the args to run tests with ganache
 type deployArgs struct {
-	Port     string
-	Amount   string
-	Mnemonic string
-	Accounts []string
+	port     string
+	amount   string
+	mnemonic string
+	accounts []string
 }
 
 // The Private Keys of Alice, Bob, Etc
@@ -31,10 +31,10 @@ var BaseAccounts = []string{
 
 func NewDeployArgs() *deployArgs {
 	return &deployArgs{
-		Accounts: BaseAccounts,
-		Port:     "8545",
-		Amount:   "100000000000000000000",
-		Mnemonic: "",
+		accounts: BaseAccounts,
+		port:     "8545",
+		amount:   "100000000000000000000",
+		mnemonic: "",
 	}
 }
 
@@ -69,13 +69,13 @@ func RunGanache(args *deployArgs) error {
 func (a *deployArgs) ConvertToStringArray() []string {
 	args := []string{}
 
-	args = append(args, "-p", a.Port)
-	for _, val := range a.Accounts {
-		input := val + "," + a.Amount
+	args = append(args, "-p", a.port)
+	for _, val := range a.accounts {
+		input := val + "," + a.amount
 		args = append(args, "--account", input)
 	}
-	if a.Mnemonic != "" {
-		args = append(args, "-m", a.Mnemonic)
+	if a.mnemonic != "" {
+		args = append(args, "-m", a.mnemonic)
 	}
 	return args
 }
