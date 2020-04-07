@@ -4,12 +4,12 @@ type = "ethereum"
 id = 0
 endpoint = "ws://localhost:8545"
 from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c"
-opts = { chainID = "1337", contract = "0x3c747684333605408F9A4907DA043ee4c1A72D9c" }
+opts = { bridge = "0x3167776db165D8eA0f51790CA2bbf44Db5105ADF", erc20Handler = "0x3f709398808af36ADBA86ACC617FeB7F5B7B193E", genericHandler = "0x21605f71845f372A9ed84253d2D024B7B10999f4" }
 
 [[chains]]
-name = "ethereum2"
-type = "ethereum"
+name = "substrate"
+type = "substrate"
 id = 1
-endpoint = "ws://localhost:8546"
+endpoint = "ws://localhost:9944"
 from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c"
-opts = { chainID = "1337", contract = "0x3c747684333605408F9A4907DA043ee4c1A72D9c" }
+opts = { }
