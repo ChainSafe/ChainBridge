@@ -143,7 +143,7 @@ func createErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.Trans
 	}
 }
 
-func waitForEvent(t *testing.T, client *ethclient.Client, contract common.Address, subStr ethereum.EventSig) {
+func waitForEthereumEvent(t *testing.T, client *ethclient.Client, contract common.Address, subStr ethereum.EventSig) {
 	query := eth.FilterQuery{
 		FromBlock: big.NewInt(0),
 		Addresses: []common.Address{contract},
@@ -173,7 +173,7 @@ func waitForEvent(t *testing.T, client *ethclient.Client, contract common.Addres
 	}
 }
 
-func getHash(t *testing.T, client *ethclient.Client, hash [32]byte, contract common.Address) {
+func assertHashExistence(t *testing.T, client *ethclient.Client, hash [32]byte, contract common.Address) {
 	instance, err := centrifugeHandler.NewCentrifugeAssetHandler(contract, client)
 	if err != nil {
 		t.Fatal(err)
@@ -185,5 +185,20 @@ func getHash(t *testing.T, client *ethclient.Client, hash [32]byte, contract com
 	}
 	if !exists {
 		t.Fatal("Hash does not exist")
+	}
+}
+
+func assertBalance(t *testing.T, client *ethclient.Client, amount *big.Int, erc20Contract, account common.Address) { //nolint:unused,deadcode
+	instance, err := erc20Mintable.NewERC20Mintable(erc20Contract, client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	actual, err := instance.BalanceOf(&bind.CallOpts{}, account)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if actual.Cmp(amount) != 0 {
+		t.Fatalf("Balance mismatch. Expected: %s Got: %s", amount.String(), actual.String())
 	}
 }

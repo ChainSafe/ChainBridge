@@ -48,20 +48,16 @@ func createSubClient(t *testing.T, key *signature.KeyringPair) *subClient {
 	return c
 }
 
-func watchForProposalSuccessOrFail(t *testing.T, client *subClient, success chan bool, fail chan error) {
+func watchForProposalSuccessOrFail(client *subClient, expectedNonce types.U32, success chan bool, fail chan error) {
 	key, err := types.CreateStorageKey(client.meta, "System", "Events", nil, nil)
 	if err != nil {
 		fail <- err
-		close(success)
-		close(fail)
 		return
 	}
 
 	sub, err := client.api.RPC.State.SubscribeStorageRaw([]types.StorageKey{key})
 	if err != nil {
 		fail <- err
-		close(success)
-		close(fail)
 		return
 	}
 
@@ -69,7 +65,7 @@ func watchForProposalSuccessOrFail(t *testing.T, client *subClient, success chan
 		set := <-sub.Chan()
 		for _, chng := range set.Changes {
 			if !types.Eq(chng.StorageKey, key) || !chng.HasStorageData {
-				// skip, we are only interested in events with countent
+				// skip, we are only interested in events with content
 				continue
 			}
 
@@ -78,17 +74,23 @@ func watchForProposalSuccessOrFail(t *testing.T, client *subClient, success chan
 			err = types.EventRecordsRaw(chng.StorageData).DecodeEventRecords(client.meta, &events)
 			if err != nil {
 				fail <- err
-				close(success)
-				close(fail)
 				return
 			}
 
-			for range events.Bridge_ProposalSucceeded {
-				success <- true
+			for _, evt := range events.Bridge_ProposalSucceeded {
+				if evt.DepositNonce == expectedNonce {
+					success <- true
+					return
+				} else {
+					log15.Info("Found mismatched event", "depositNonce", evt.DepositNonce)
+				}
 			}
 
-			for range events.Bridge_ProposalFailed {
-				fail <- errors.New("Proposal failed")
+			for _, evt := range events.Bridge_ProposalFailed {
+				if evt.DepositNonce == expectedNonce {
+					fail <- errors.New("proposal failed")
+					return
+				}
 			}
 		}
 	}
@@ -177,4 +179,16 @@ func whitelistChain(t *testing.T, client *subClient, id msg.ChainId) {
 func initiateHashTransfer(t *testing.T, client *subClient, hash types.Hash, destId msg.ChainId) {
 	recipient := types.Bytes{}
 	submitTx(t, client, substrate.ExampleTransferHash, hash, recipient, types.U32(destId))
+}
+
+func initiateSubstrateNativeTransfer(t *testing.T, client *subClient, amount int, recipient []byte, destId msg.ChainId) { //nolint:unused,deadcode
+	submitTx(t, client, substrate.ExampleTransfer, amount, recipient, types.U32(destId))
+}
+
+func hashInt(i int) types.Hash {
+	hash, err := types.GetHash(types.NewI64(int64(i)))
+	if err != nil {
+		panic(err)
+	}
+	return hash
 }
