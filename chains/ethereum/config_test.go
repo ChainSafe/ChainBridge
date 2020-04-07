@@ -21,7 +21,7 @@ func TestParseChainConfig(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"bridge": "0x1234",
+			"bridge":         "0x1234",
 			"erc20Handler":   "0x1234",
 			"genericHandler": "0x1234",
 			"gasLimit":       "10",
@@ -101,11 +101,11 @@ func TestExtraOpts(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"bridge": "0x1234",
-			"gasLimit":       "10",
-			"gasPrice":       "20",
-			"http":           "true",
-			"incorrect_opt":  "error",
+			"bridge":        "0x1234",
+			"gasLimit":      "10",
+			"gasPrice":      "20",
+			"http":          "true",
+			"incorrect_opt": "error",
 		},
 	}
 
