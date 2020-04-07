@@ -118,9 +118,8 @@ type EventProposalFailed struct {
 }
 
 type EventCodeUpdated struct {
-	Phase        types.Phase
-	DepositNonce types.U32
-	Topics       []types.Hash
+	Phase  types.Phase
+	Topics []types.Hash
 }
 
 type Events struct {
@@ -136,7 +135,7 @@ type Events struct {
 	Bridge_ProposalRejected    []EventProposalRejected    //nolint:stylecheck,golint
 	Bridge_ProposalSucceeded   []EventProposalSucceeded   //nolint:stylecheck,golint
 	Bridge_ProposalFailed      []EventProposalFailed      //nolint:stylecheck,golint
-	Bridge_CodeUpdated         []EventCodeUpdated         //nolint:stylecheck,golint
+	System_CodeUpdated         []EventCodeUpdated         //nolint:stylecheck,golint
 	Sudo_Sudid                 []EventSudid               //nolint:stylecheck,golint
 }
 

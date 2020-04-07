@@ -185,8 +185,8 @@ func (l *Listener) handleEvents(evts Events) {
 		}
 	}
 
-	for _, evt := range evts.Bridge_CodeUpdated {
-		l.log.Trace("Received CodeUpdated event", "depositNonce", evt.DepositNonce)
+	for _, _ = range evts.System_CodeUpdated {
+		l.log.Trace("Received CodeUpdated event")
 		err := l.conn.updateMetatdata()
 		if err != nil {
 			l.log.Error("Unable to update Metadata", "error", err)
