@@ -75,7 +75,7 @@ func (l *Listener) Start() error {
 	return nil
 }
 
-// buildQuery constructs a query for the contract by hashing sig to get the event topic
+// buildQuery constructs a query for the bridgeContract by hashing sig to get the event topic
 // TODO: Start from current block
 func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int) eth.FilterQuery {
 	query := eth.FilterQuery{
@@ -88,18 +88,18 @@ func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int) e
 	return query
 }
 
-// RegisterEventHandler creates a subscription for the provided event on the bridge contract.
+// RegisterEventHandler creates a subscription for the provided event on the bridge bridgeContract.
 // Handler will be called for every instance of event.
 func (l *Listener) RegisterEventHandler(subscription EventSig, handler evtHandlerFn) error {
 	evt := subscription
-	query := buildQuery(l.cfg.contract, evt, l.cfg.startBlock)
+	query := buildQuery(l.cfg.bridgeContract, evt, l.cfg.startBlock)
 	eventSubscription, err := l.conn.subscribeToEvent(query)
 	if err != nil {
 		return err
 	}
 	l.subscriptions[subscription] = eventSubscription
 	go l.watchEvent(eventSubscription, handler)
-	l.log.Debug("Registered event handler", "contract", l.cfg.contract, "sig", subscription)
+	l.log.Debug("Registered event handler", "bridgeContract", l.cfg.bridgeContract, "sig", subscription)
 	return nil
 }
 

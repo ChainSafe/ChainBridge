@@ -21,7 +21,7 @@ func TestParseChainConfig(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"contract":       "0x1234",
+			"bridge":         "0x1234",
 			"erc20Handler":   "0x1234",
 			"genericHandler": "0x1234",
 			"gasLimit":       "10",
@@ -43,7 +43,7 @@ func TestParseChainConfig(t *testing.T) {
 		endpoint:               "endpoint",
 		from:                   "0x0",
 		keystorePath:           "./keys",
-		contract:               common.HexToAddress("0x1234"),
+		bridgeContract:         common.HexToAddress("0x1234"),
 		erc20HandlerContract:   common.HexToAddress("0x1234"),
 		genericHandlerContract: common.HexToAddress("0x1234"),
 		gasLimit:               big.NewInt(10),
@@ -74,14 +74,14 @@ func TestRequiredOpts(t *testing.T) {
 		t.Error("config missing chainId field but no error reported")
 	}
 
-	// Empty contract provided
+	// Empty bridgeContract provided
 	input = core.ChainConfig{
 		Id:           0,
 		Endpoint:     "endpoint",
 		From:         "0x0",
 		KeystorePath: "./keys",
 		Insecure:     false,
-		Opts:         map[string]string{"contract": ""},
+		Opts:         map[string]string{"bridge": ""},
 	}
 
 	_, err2 := parseChainConfig(&input)
@@ -101,7 +101,7 @@ func TestExtraOpts(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"contract":      "0x1234",
+			"bridge":        "0x1234",
 			"gasLimit":      "10",
 			"gasPrice":      "20",
 			"http":          "true",

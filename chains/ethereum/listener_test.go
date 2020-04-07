@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"fmt"
 	"math/big"
 	"reflect"
 	"testing"
@@ -26,11 +27,11 @@ func (r *MockRouter) Send(message msg.Message) error {
 func createTestListener(t *testing.T, config *Config, contracts *DeployedContracts) (*Listener, *MockRouter) {
 	// Create copy and add deployed contract addresses
 	newConfig := *config
-	newConfig.contract = contracts.BridgeAddress
+	newConfig.bridgeContract = contracts.BridgeAddress
 	newConfig.erc20HandlerContract = contracts.ERC20HandlerAddress
 
 	conn := newLocalConnection(t, &newConfig)
-	bridgeContract, err := createBridgeContract(newConfig.contract, conn)
+	bridgeContract, err := createBridgeContract(newConfig.bridgeContract, conn)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +92,7 @@ func TestListener_depositEvent(t *testing.T) {
 
 	expectedMessage := msg.NewFungibleTransfer(sourceId, destId, 1, amount, tokenId, common.HexToAddress(BobKp.Address()).Bytes())
 	// Create an ERC20 Deposit
-	if err := createErc20Deposit(
+	err = createErc20Deposit(
 		l.bridgeContract,
 		opts,
 		erc20Contract,
@@ -100,17 +101,61 @@ func TestListener_depositEvent(t *testing.T) {
 		recipient,
 		big.NewInt(int64(destId)),
 		amount,
-	); err != nil {
+	)
+	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Verify message
 	select {
 	case m := <-router.msgs:
-		if !reflect.DeepEqual(expectedMessage, m) {
-			t.Fatalf("Unexpected message.\n\tExpected: %#v\n\tGot: %#v\n", expectedMessage, m)
+		err = compareMessage(expectedMessage, m)
+		if err != nil {
+			t.Fatal(err)
 		}
 	case <-time.After(TestTimeout):
 		t.Fatalf("test timed out")
 	}
+
+	// Create second deposit, verify nonce change
+	expectedMessage2 := msg.NewFungibleTransfer(sourceId, destId, 2, amount, tokenId, common.HexToAddress(BobKp.Address()).Bytes())
+	err = createErc20Deposit(
+		l.bridgeContract,
+		opts,
+		erc20Contract,
+		l.cfg.erc20HandlerContract,
+
+		recipient,
+		big.NewInt(int64(destId)),
+		amount,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Verify message
+	select {
+	case m := <-router.msgs:
+		err = compareMessage(expectedMessage2, m)
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(TestTimeout):
+		t.Fatalf("test timed out")
+	}
+}
+
+func compareMessage(expected, actual msg.Message) error {
+	if !reflect.DeepEqual(expected, actual) {
+		if !reflect.DeepEqual(expected.Source, actual.Source) {
+			return fmt.Errorf("Source doesn't match. \n\tExpected: %#v\n\tGot: %#v\n", expected.Source, actual.Source)
+		} else if !reflect.DeepEqual(expected.Destination, actual.Destination) {
+			return fmt.Errorf("Destination doesn't match. \n\tExpected: %#v\n\tGot: %#v\n", expected.Destination, actual.Destination)
+		} else if !reflect.DeepEqual(expected.DepositNonce, actual.DepositNonce) {
+			return fmt.Errorf("Deposit nonce doesn't match. \n\tExpected: %#v\n\tGot: %#v\n", expected.DepositNonce, actual.DepositNonce)
+		} else if !reflect.DeepEqual(expected.Metadata, actual.Metadata) {
+			return fmt.Errorf("Metadata doesn't match. \n\tExpected: %#v\n\tGot: %#v\n", expected.Metadata, actual.Metadata)
+		}
+	}
+	return nil
 }

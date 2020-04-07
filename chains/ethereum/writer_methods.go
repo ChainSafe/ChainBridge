@@ -29,7 +29,7 @@ func constructErc20ProposalData(amount, tokenId, recipient []byte) []byte {
 }
 
 func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
-	w.log.Info("Creating erc20 proposal", "to", w.conn.cfg.contract)
+	w.log.Info("Creating erc20 proposal")
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	if err != nil {
@@ -42,7 +42,7 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
 
-	log15.Trace("Submitting CreateDepositPropsoal transaction")
+	log15.Trace("Submitting CreateDepositPropsoal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
 	_, err = w.bridgeContract.Transact(
 		opts,
 		VoteDepositProposalMethod,
@@ -57,13 +57,11 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 	}
 	nonce.lock.Unlock()
 
-	w.log.Info("Successfully submitted deposit proposal!", "source", m.Source, "depositNonce", m.DepositNonce)
-
 	return true
 }
 
 func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
-	w.log.Info("Creating generic proposal", "to", w.conn.cfg.contract)
+	w.log.Info("Creating generic proposal", "handler", w.cfg.genericHandlerContract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	if err != nil {
@@ -77,7 +75,7 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.genericHandlerContract, h)
 
-	log15.Trace("Submitting CreateDepositProposal transaction")
+	log15.Trace("Submitting CreateDepositProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
 	_, err = w.bridgeContract.Transact(
 		opts,
 		VoteDepositProposalMethod,
@@ -92,18 +90,16 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 	}
 	nonce.lock.Unlock()
 
-	w.log.Info("Successfully submitted deposit proposal!", "source", m.Source, "depositNonce", m.DepositNonce)
-
 	return true
 }
 
 func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
-	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce, "handler", handler)
+	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
 	// TODO: Skip existing blocks
-	query := buildQuery(w.cfg.contract, DepositProposalFinalized, big.NewInt(0))
+	query := buildQuery(w.cfg.bridgeContract, DepositProposalFinalized, w.cfg.startBlock)
 	eventSubscription, err := w.conn.subscribeToEvent(query)
 	if err != nil {
-		log15.Error("Failed to subscribe to finalization event", "err", err)
+		w.log.Error("Failed to subscribe to finalization event", "err", err)
 	}
 
 	for {
@@ -119,6 +115,8 @@ func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []b
 				eventSubscription.sub.Unsubscribe()
 				w.executeProposal(m, handler, data)
 				return
+			} else {
+				w.log.Trace("Ignoring finalization event", "source", sourceId, "dest", destId, "nonce", depositNonce)
 			}
 		case err := <-eventSubscription.sub.Err():
 			if err != nil {
@@ -130,7 +128,7 @@ func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []b
 }
 
 func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
-	w.log.Info("Executing proposal", "to", w.conn.cfg.contract)
+	w.log.Info("Executing proposal", "to", w.conn.cfg.bridgeContract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
