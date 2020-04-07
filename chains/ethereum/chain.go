@@ -77,7 +77,15 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	err = conn.checkBridgeContract(cfg.contract)
+	err = conn.ensureHasBytecode(cfg.contract)
+	if err != nil {
+		return nil, err
+	}
+	err = conn.ensureHasBytecode(cfg.erc20HandlerContract)
+	if err != nil {
+		return nil, err
+	}
+	err = conn.ensureHasBytecode(cfg.genericHandlerContract)
 	if err != nil {
 		return nil, err
 	}

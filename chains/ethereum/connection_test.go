@@ -77,9 +77,14 @@ func TestContractCode(t *testing.T) {
 	defer conn.Close()
 
 	// The following section checks if the byteCode exists on the chain at the specificed Addresses
-	err := conn.checkBridgeContract(contracts.BridgeAddress)
+	err := conn.ensureHasBytecode(contracts.BridgeAddress)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = conn.ensureHasBytecode(ethcmn.HexToAddress("0x0"))
+	if err == nil {
+		t.Fatal("should detect no bytecode")
 	}
 
 }
