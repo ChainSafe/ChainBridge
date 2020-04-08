@@ -38,22 +38,6 @@ var importFlags = []cli.Flag{
 	EthereumImportFlag,
 }
 
-var DeployFlags = []cli.Flag{
-	PortFlag,
-	ResetFlag,
-	MnemFlag,
-	AccountFlag,
-	AmountFlag,
-}
-
-var deployContractsFlags = []cli.Flag{
-	PortFlag,
-	NumRelayersFlag,
-	RelayerThresholdFlag,
-	MinCountFlag,
-	PKFlag,
-}
-
 var accountCommand = cli.Command{
 	Name:     "accounts",
 	Usage:    "manage bridge keystore",
@@ -101,8 +85,6 @@ func init() {
 	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
 		accountCommand,
-		ganacheCommand,
-		deployContractsCommand,
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)

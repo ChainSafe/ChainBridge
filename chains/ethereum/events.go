@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	Deposit                  EventSig = "Deposit(uint256,uint256,address,uint256)"
+	Deposit                  EventSig = "Deposit(uint256,address,uint256)"
 	DepositProposalCreated   EventSig = "DepositProposalCreated(uint256,uint256,uint256,bytes32)"
 	DepositProposalVote      EventSig = "DepositProposalVote(uint256,uint256,uint256,uint8)"
 	DepositProposalFinalized EventSig = "DepositProposalFinalized(uint256,uint256,uint256)"
@@ -24,9 +24,10 @@ type evtHandlerFn func(ethtypes.Log) msg.Message
 func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	l.log.Debug("Handling deposited event")
 
-	depositNonce := event.Topics[2].Big() // Only item in log is indexed.
+	destId := event.Topics[1].Big().Uint64()
+	depositNonce := event.Topics[3].Big()
 
-	deposit, err := UnpackErc20DepositRecord(l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce))
+	record, err := l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce)
 
 	if err != nil {
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
@@ -34,10 +35,10 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 
 	return msg.NewFungibleTransfer(
 		l.cfg.id,
-		msg.ChainId(deposit.DestinationChainID.Uint64()),
+		msg.ChainId(destId),
 		uint32(depositNonce.Uint64()),
-		deposit.Amount,
-		deposit.TokenId,
-		deposit.DestinationRecipientAddress,
+		record.Amount,
+		record.TokenID,
+		record.DestinationRecipientAddress,
 	)
 }

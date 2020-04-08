@@ -23,7 +23,7 @@ type Config struct {
 	endpoint               string      // url for rpc endpoint
 	from                   string      // address of key to use
 	keystorePath           string      // Location of keyfiles
-	contract               common.Address
+	bridgeContract         common.Address
 	erc20HandlerContract   common.Address
 	genericHandlerContract common.Address
 	gasLimit               *big.Int
@@ -41,7 +41,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		endpoint:               chainCfg.Endpoint,
 		from:                   chainCfg.From,
 		keystorePath:           chainCfg.KeystorePath,
-		contract:               ZERO_ADDRESS,
+		bridgeContract:         ZERO_ADDRESS,
 		erc20HandlerContract:   ZERO_ADDRESS,
 		genericHandlerContract: ZERO_ADDRESS,
 		gasLimit:               big.NewInt(DefaultGasLimit),
@@ -50,11 +50,11 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		startBlock:             big.NewInt(0),
 	}
 
-	if contract, ok := chainCfg.Opts["contract"]; ok && contract != "" {
-		config.contract = common.HexToAddress(contract)
-		delete(chainCfg.Opts, "contract")
+	if contract, ok := chainCfg.Opts["bridge"]; ok && contract != "" {
+		config.bridgeContract = common.HexToAddress(contract)
+		delete(chainCfg.Opts, "bridge")
 	} else {
-		return nil, fmt.Errorf("must provide opts.contract field for ethereum config")
+		return nil, fmt.Errorf("must provide opts.bridge field for ethereum config")
 	}
 
 	if handler, ok := chainCfg.Opts["erc20Handler"]; ok && handler != "" {
