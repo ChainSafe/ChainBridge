@@ -43,8 +43,24 @@ func TestGenerateKey_NoType(t *testing.T) {
 	}
 }
 
-func TestImportKey_withPk(t *testing.T) {
-	keyfile, err := importPrivKey("", testKeystoreDir, "000000000000000000000000000000000000000000000000000000416c696365", testPassword)
+func TestImportKey_ShouldFail(t *testing.T) {
+	_, err := importKey("./notakey.key", testKeystoreDir)
+	if err == nil {
+		t.Fatal("did not err")
+	}
+}
+
+func TestImportKey(t *testing.T) {
+	keypath := "../../"
+
+	importkeyfile, err := generateKeypair("sr25519", keypath, testPassword)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(importkeyfile)
+
+	keyfile, err := importKey(importkeyfile, testKeystoreDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,24 +81,8 @@ func TestImportKey_withPk(t *testing.T) {
 	}
 }
 
-func TestImportKey_ShouldFail(t *testing.T) {
-	_, err := importKey("./notakey.key", testKeystoreDir)
-	if err == nil {
-		t.Fatal("did not err")
-	}
-}
-
-func TestImportKey(t *testing.T) {
-	keypath := "../../"
-
-	importkeyfile, err := generateKeypair("sr25519", keypath, testPassword)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	defer os.RemoveAll(importkeyfile)
-
-	keyfile, err := importKey(importkeyfile, testKeystoreDir)
+func TestImportKey_withPk(t *testing.T) {
+	keyfile, err := importPrivKey("", testKeystoreDir, "000000000000000000000000000000000000000000000000000000416c696365", testPassword)
 	if err != nil {
 		t.Fatal(err)
 	}

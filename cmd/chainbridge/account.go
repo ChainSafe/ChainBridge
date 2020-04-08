@@ -140,6 +140,7 @@ func getDataDir(ctx *cli.Context) (string, error) {
 	return "", fmt.Errorf("datadir flag not supplied")
 }
 
+//importPrivKey imports a private key into a keypair
 func importPrivKey(keytype, datadir, key string, password []byte) (string, error) {
 	if password == nil {
 		password = keystore.GetPassword("Enter password to encrypt keystore file:")
