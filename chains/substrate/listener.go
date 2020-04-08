@@ -185,7 +185,7 @@ func (l *Listener) handleEvents(evts Events) {
 		}
 	}
 
-	for _, _ = range evts.System_CodeUpdated {
+	for range evts.System_CodeUpdated {
 		l.log.Trace("Received CodeUpdated event")
 		err := l.conn.updateMetatdata()
 		if err != nil {
