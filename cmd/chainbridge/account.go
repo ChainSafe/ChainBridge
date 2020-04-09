@@ -97,9 +97,9 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 			// Hex must not have leading 0x
 			if privkeyflag[0:2] == "0x" {
-				_, err = importPrivKey(keytype, privkeyflag[0:2], dHandler.datadir, password)
+				_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag[0:2], password)
 			} else {
-				_, err = importPrivKey(keytype, privkeyflag, dHandler.datadir, password)
+				_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag, password)
 			}
 		} else {
 			_, err = importKey(keyimport, dHandler.datadir)
