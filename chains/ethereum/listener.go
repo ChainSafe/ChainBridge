@@ -4,7 +4,9 @@
 package ethereum
 
 import (
+	"fmt"
 	"math/big"
+	"time"
 
 	"github.com/ChainSafe/ChainBridge/chains"
 	"github.com/ChainSafe/log15"
@@ -12,6 +14,8 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
+
+var BlockRetryInterval = time.Second * 2
 
 type Subscription struct {
 	signature EventSig
@@ -26,7 +30,7 @@ type ActiveSubscription struct {
 type Listener struct {
 	cfg                  Config
 	conn                 *Connection
-	subscriptions        map[EventSig]*ActiveSubscription
+	subscriptions        map[EventSig]*Subscription
 	router               chains.Router
 	bridgeContract       *BridgeContract       // instance of bound bridge contract
 	erc20HandlerContract *ERC20HandlerContract // instance of bound erc20 handler
@@ -37,7 +41,7 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger) *Listener {
 	return &Listener{
 		cfg:           *cfg,
 		conn:          conn,
-		subscriptions: make(map[EventSig]*ActiveSubscription),
+		subscriptions: make(map[EventSig]*Subscription),
 		log:           log,
 	}
 }
@@ -65,6 +69,14 @@ func (l *Listener) GetSubscriptions() []*Subscription {
 // Start registers all subscriptions provided by the config
 func (l *Listener) Start() error {
 	l.log.Debug("Starting listener...")
+	currBlock, err := l.conn.conn.BlockByNumber(l.conn.ctx, nil)
+	if err != nil {
+		return fmt.Errorf("Unable to get starting Block: %s", err)
+	}
+	if currBlock.Number().Cmp(l.cfg.startBlock) < 0 {
+		return fmt.Errorf("starting block (%d) is greater than latest known block (%d)", l.cfg.startBlock, currBlock.Number())
+	}
+
 	subscriptions := l.GetSubscriptions()
 	for _, sub := range subscriptions {
 		err := l.RegisterEventHandler(sub.signature, sub.handler)
@@ -72,11 +84,60 @@ func (l *Listener) Start() error {
 			l.log.Error("failed to register event handler", "err", err)
 		}
 	}
+
+	go func() {
+		err := l.pollBlocks()
+		if err != nil {
+			l.log.Error("Polling blocks failed", "err", err)
+		}
+	}()
+
+	return nil
+}
+
+//pollBlocks continously check the blocks for subscription logs, and sends messages to the router if logs are encountered
+// stops where there are no subscriptions, and sleeps if we are at the current block
+func (l *Listener) pollBlocks() error {
+	l.log.Debug("Polling Blocks...")
+	var latestBlock = l.cfg.startBlock
+	for {
+		if len(l.subscriptions) == 0 {
+			l.log.Debug("No subscriptions, stopping Polling")
+			break
+		}
+		currBlock, err := l.conn.conn.BlockByNumber(l.conn.ctx, nil)
+		if err != nil {
+			return fmt.Errorf("Unable to get latest block: %s", err)
+		}
+		if currBlock.Number().Cmp(latestBlock) < 0 {
+			time.Sleep(BlockRetryInterval)
+			continue
+		}
+
+		for evt, sub := range l.subscriptions {
+			query := buildQuery(l.cfg.bridgeContract, evt, latestBlock)
+
+			logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
+			if err != nil {
+				return fmt.Errorf("Unable to Filter Logs: %s", err)
+			}
+
+			for _, log := range logs {
+				m := sub.handler(log)
+				err = l.router.Send(m)
+				if err != nil {
+					l.log.Error("subscription error: cannot send message", "sub", sub, "err", err)
+				}
+			}
+		}
+
+		latestBlock.Add(latestBlock, big.NewInt(1))
+	}
+
 	return nil
 }
 
 // buildQuery constructs a query for the bridgeContract by hashing sig to get the event topic
-// TODO: Start from current block
 func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int) eth.FilterQuery {
 	query := eth.FilterQuery{
 		FromBlock: startBlock,
@@ -91,48 +152,30 @@ func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int) e
 // RegisterEventHandler creates a subscription for the provided event on the bridge bridgeContract.
 // Handler will be called for every instance of event.
 func (l *Listener) RegisterEventHandler(subscription EventSig, handler evtHandlerFn) error {
-	evt := subscription
-	query := buildQuery(l.cfg.bridgeContract, evt, l.cfg.startBlock)
-	eventSubscription, err := l.conn.subscribeToEvent(query)
-	if err != nil {
-		return err
-	}
-	l.subscriptions[subscription] = eventSubscription
-	go l.watchEvent(eventSubscription, handler)
-	l.log.Debug("Registered event handler", "bridgeContract", l.cfg.bridgeContract, "sig", subscription)
-	return nil
-}
 
-// watchEvent will call the handler for every occurrence of the corresponding event. It should be run in a separate
-// goroutine to monitor the subscription channel.
-func (l *Listener) watchEvent(eventSubscription *ActiveSubscription, handler evtHandlerFn) {
-	for {
-		select {
-		case evt := <-eventSubscription.ch:
-			m := handler(evt)
-			err := l.router.Send(m)
-			if err != nil {
-				l.log.Error("subscription error: cannot send message", "sub", eventSubscription, "err", err)
-			}
-		case err := <-eventSubscription.sub.Err():
-			if err != nil {
-				l.log.Error("subscription error", "err", err)
-			}
-		}
+	if l.subscriptions[subscription] != nil {
+		return fmt.Errorf("event %s already registered", subscription)
 	}
+	sub := new(Subscription)
+	sub.handler = handler
+	sub.signature = subscription
+	l.subscriptions[subscription] = sub
+
+	return nil
+
 }
 
 // Unsubscribe cancels a subscription for the given event
 func (l *Listener) Unsubscribe(sig EventSig) {
 	if _, ok := l.subscriptions[sig]; ok {
-		l.subscriptions[sig].sub.Unsubscribe()
+		delete(l.subscriptions, sig)
 	}
 }
 
 // Stop cancels all subscriptions. Must be called before Connection.Stop().
 func (l *Listener) Stop() error {
-	for _, sub := range l.subscriptions {
-		sub.sub.Unsubscribe()
+	for sig, _ := range l.subscriptions {
+		delete(l.subscriptions, sig)
 	}
 	return nil
 }
