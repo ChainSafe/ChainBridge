@@ -21,6 +21,8 @@ func (m Method) String() string {
 	return string(m)
 }
 
+var AddRelayer = createMethod("add_relayer")
+var SetThreshold = createMethod("set_threshold")
 var WhitelistChain = createMethod("whitelist_chain")
 var AcknowledgeProposal = createMethod("acknowledge_proposal")
 var ExampleTransfer Method = "Example.transfer"

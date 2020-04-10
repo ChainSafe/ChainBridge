@@ -4,8 +4,6 @@
 package substrate
 
 import (
-	"encoding/binary"
-	"fmt"
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -33,62 +31,62 @@ type voteState struct {
 type proposal struct {
 	DepositNonce types.U32
 	Call         types.Call
+	sourceId     types.U8
 }
 
-func createFungibleProposal(m msg.Message, meta *types.Metadata) (*proposal, error) {
-	amount64 := big.NewInt(0).SetBytes(m.Metadata[0].([]byte)).Uint64()
+// encode takes only nonce and call and encodes them for storage queries
+func (p *proposal) encode() ([]byte, error) {
+	return types.EncodeToBytes(struct {
+		types.U32
+		types.Call
+	}{p.DepositNonce, p.Call})
+}
+
+func (w *Writer) createFungibleProposal(m msg.Message) (*proposal, error) {
+	amount64 := big.NewInt(0).SetBytes(m.Payload[0].([]byte)).Uint64()
 	amount := types.U32(uint32(amount64))
-	recipient := types.NewAccountID(m.Metadata[2].([]byte))
+	recipient := types.NewAccountID(m.Payload[1].([]byte))
 	depositNonce := types.U32(m.DepositNonce)
 
+	meta := w.conn.getMetadata()
+	method, err := w.resolveResourceId(m.ResourceId)
+	if err != nil {
+		return nil, err
+	}
+
 	call, err := types.NewCall(
-		meta,
-		ExampleTransfer.String(),
+		&meta,
+		method,
 		recipient,
 		amount,
 	)
-
 	if err != nil {
 		return nil, err
 	}
+
 	return &proposal{
 		DepositNonce: depositNonce,
 		Call:         call,
+		sourceId:     types.U8(m.Source),
 	}, nil
 }
 
-func createGenericProposal(m msg.Message, meta *types.Metadata) (*proposal, error) {
-	// The token id field is repurposed here to indicate some generic action.
-	// It consists of a chain id and a method id
-	_ = binary.LittleEndian.Uint32(m.Metadata[0].([]byte)[:4])
-	methodId := binary.LittleEndian.Uint32(m.Metadata[0].([]byte)[:4])
-	depositNonce := types.U32(m.DepositNonce)
-
-	method, err := getMethod(methodId)
-	if err != nil {
-		return nil, err
-	}
+func (w *Writer) createGenericProposal(m msg.Message) (*proposal, error) {
+	meta := w.conn.getMetadata()
+	method, err := w.resolveResourceId(m.ResourceId)
 
 	call, err := types.NewCall(
-		meta,
-		method.String(),
-		m.Metadata[0].([]byte),
+		&meta,
+		method,
+		m.Payload[0].([]byte),
 	)
 
 	if err != nil {
 		return nil, err
 	}
 	return &proposal{
-		DepositNonce: depositNonce,
+		DepositNonce: types.U32(m.DepositNonce),
 		Call:         call,
+		sourceId:     types.U8(m.Source),
 	}, nil
-}
-
-func getMethod(id uint32) (Method, error) {
-	switch id {
-	case 1:
-		return ExampleRemark, nil
-	default:
-		return "", fmt.Errorf("unknown method id for generic Call: %d", id)
-	}
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/testutils"
 	log "github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -30,12 +31,6 @@ var CharlieEthKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 var AliceSubKp = keystore.TestKeyRing.SubstrateKeys[keystore.AliceKey]
 var BobSubKp = keystore.TestKeyRing.SubstrateKeys[keystore.BobKey]
 var CharlieEthAddr = common.HexToAddress(CharlieEthKp.Address())
-
-func setLogger(lvl log.Lvl) {
-	logger := log.Root()
-	handler := logger.GetHandler()
-	log.Root().SetHandler(log.LvlFilterHandler(lvl, handler))
-}
 
 func createEthConfig(key, bridgeAddress, erc20HandlerAddress, genericHandler string) *core.ChainConfig {
 	return &core.ChainConfig{
@@ -93,7 +88,7 @@ func createAndStartBridge(t *testing.T, name, bridgeAddress, erc20HandlerAddres,
 }
 
 func TestErc20ToSubstrate(t *testing.T) {
-	setLogger(log.LvlTrace)
+	utils.SetLogger(log.LvlTrace)
 
 	// Deploy contracts, mint, approve
 	contracts := deployTestContracts(t, EthChainId)
@@ -134,7 +129,7 @@ func TestErc20ToSubstrate(t *testing.T) {
 func TestSubstrateToErc20(t *testing.T) {
 	// TODO: Remove once example pallet has transfer out function (https://github.com/ChainSafe/chainbridge-substrate/issues/28)
 	t.Skip()
-	setLogger(log.LvlInfo)
+	utils.SetLogger(log.LvlInfo)
 
 	// Whitelist chain
 	subClient := createSubClient(t, AliceSubKp.AsKeyringPair())
@@ -169,7 +164,7 @@ func TestSubstrateToErc20(t *testing.T) {
 }
 
 func TestHashToGenericHandler(t *testing.T) {
-	setLogger(log.LvlTrace)
+	utils.SetLogger(log.LvlTrace)
 
 	// Deploy contracts (incl. handler)
 	contracts := deployTestContracts(t, EthChainId)

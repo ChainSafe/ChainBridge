@@ -4,6 +4,8 @@
 package substrate
 
 import (
+	"fmt"
+
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
@@ -30,18 +32,22 @@ func (w *Writer) Start() error {
 func (w *Writer) ResolveMessage(m msg.Message) bool {
 	var prop *proposal
 	var err error
-	meta := w.conn.getMetadata()
 
 	switch m.Type {
 	case msg.FungibleTransfer:
-		prop, err = createFungibleProposal(m, &meta)
+		prop, err = w.createFungibleProposal(m)
 		if err != nil {
-			w.log.Error("Failed to construct fungible token from message", "err", err)
+			w.log.Error("Failed to construct fungible transfer from message", "err", err)
 			return false
 		}
-
+	//case msg.NonFungibleTransfer:
+	//	prop, err = w.createNonFungibleProposal(m)
+	//	if err != nil {
+	//		w.log.Error("Failed to construct nonfungible transfer from message", "err", err)
+	//		return false
+	//	}
 	case msg.GenericTransfer:
-		prop, err = createGenericProposal(m, &meta)
+		prop, err = w.createGenericProposal(m)
 		if err != nil {
 			w.log.Error("Failed to construct generic transfer from message", "err", err)
 			return false
@@ -52,14 +58,27 @@ func (w *Writer) ResolveMessage(m msg.Message) bool {
 		return false
 	}
 
-	log15.Trace("Acknowledging proposal on chain", "nonce", prop.DepositNonce)
-	err = w.conn.SubmitTx(AcknowledgeProposal, prop.DepositNonce, prop.Call)
+	w.log.Trace("Acknowledging proposal on chain", "nonce", prop.DepositNonce)
+	err = w.conn.SubmitTx(AcknowledgeProposal, prop.sourceId, prop.DepositNonce, prop.Call)
 	if err != nil {
 		w.log.Error("Failed to execute extrinsic", "err", err)
 		return false
 	}
 
 	return true
+}
+
+func (w *Writer) resolveResourceId(id [32]byte) (string, error) {
+	var res []byte
+	exists, err := w.conn.queryStorage("Bridge", "Resources", id[:], nil, &res)
+	if err != nil {
+		w.log.Error("Failed to resolve resource ID", "err", err)
+	}
+	if !exists {
+		w.log.Error("Resource not found on chain", "id", fmt.Sprintf("%x", id))
+	}
+
+	return string(res), nil
 }
 
 func (w *Writer) Stop() error {
