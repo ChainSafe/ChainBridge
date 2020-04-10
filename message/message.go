@@ -7,16 +7,15 @@ import (
 	"math/big"
 )
 
-//type MessageType string
-
-//var DepositAssetType MessageType = "substrate_deposit_asset"
-//var CreateDepositProposalType MessageType = "create_deposit_proposal"
-//var VoteDepositProposalType MessageType = "vote_deposit_proposal"
-//var ExecuteDepositType MessageType = "execute_deposit"
-
+type ChainId uint8
 type TransferType string
-type Nonce uint32
 type ResourceId [32]byte
+
+type Nonce uint32
+
+func (n Nonce) Big() *big.Int {
+	return big.NewInt(int64(n))
+}
 
 var FungibleTransfer TransferType = "FungibleTransfer"
 var NonFungibleTransfer TransferType = "NonFungibleTransfer"
@@ -72,4 +71,10 @@ func NewGenericTransfer(source, dest ChainId, nonce Nonce, resourceId ResourceId
 			metadata,
 		},
 	}
+}
+
+func ResourceIdFromSlice(in []byte) ResourceId {
+	var res ResourceId
+	copy(res[:], in)
+	return res
 }

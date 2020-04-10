@@ -74,6 +74,9 @@ func (w *Writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 func (w *Writer) createGenericProposal(m msg.Message) (*proposal, error) {
 	meta := w.conn.getMetadata()
 	method, err := w.resolveResourceId(m.ResourceId)
+	if err != nil {
+		return nil, err
+	}
 
 	call, err := types.NewCall(
 		&meta,

@@ -36,9 +36,9 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	return msg.NewFungibleTransfer(
 		l.cfg.id,
 		msg.ChainId(destId),
-		uint32(depositNonce.Uint64()),
+		msg.Nonce(depositNonce.Uint64()),
 		record.Amount,
-		record.TokenID,
+		msg.ResourceIdFromSlice(record.TokenID),
 		record.DestinationRecipientAddress,
 	)
 }

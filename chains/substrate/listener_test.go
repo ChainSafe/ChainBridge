@@ -41,22 +41,6 @@ func whitelistChain(t *testing.T, c *Connection, id msg.ChainId) {
 	}
 }
 
-func constructMessage(t *testing.T, hash string, depositNonce uint32, destId uint32) (msg.Message, types.Hash) {
-	assetHashBytes := types.Bytes(types.MustHexDecodeString(hash))
-	assetHash, err := types.NewHashFromHexString(hash)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return msg.Message{
-		Source:       1,
-		Destination:  0,
-		Type:         msg.GenericTransfer,
-		DepositNonce: msg.Nonce(depositNonce),
-		Payload:      []interface{}{[]byte(assetHashBytes)},
-	}, assetHash
-}
-
 func Test_GenericTransferEvent(t *testing.T) {
 	r := &mockRouter{msgs: make(chan msg.Message)}
 

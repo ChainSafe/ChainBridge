@@ -69,14 +69,3 @@ func (w *Writer) Stop() error {
 func hash(data []byte) [32]byte {
 	return crypto.Keccak256Hash(data)
 }
-
-func u32toBigInt(n uint32) *big.Int {
-	return big.NewInt(int64(n))
-}
-
-func byteSliceTo32Bytes(in []byte) [32]byte { //nolint:deadcode,unused
-	out := [32]byte{}
-	// Note: this is safe as copy uses the min length of the two slices
-	copy(out[:], in)
-	return out
-}

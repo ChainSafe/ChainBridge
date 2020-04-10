@@ -7,20 +7,19 @@ import (
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 const VoteDepositProposalMethod = "voteDepositProposal"
 const ExecuteDepositMethod = "executeDepositProposal"
 
-func constructErc20ProposalData(amount, tokenId, recipient []byte) []byte {
+func constructErc20ProposalData(amount, resourceId, recipient []byte) []byte {
 	var data []byte
 	data = append(data, common.LeftPadBytes(amount, 32)...) // amount
 
-	tokenIdLen := big.NewInt(int64(len(tokenId))).Bytes()
-	data = append(data, common.LeftPadBytes(tokenIdLen, 32)...) // len(tokenId)
-	data = append(data, tokenId...)                             // tokenId (chainId)
+	resourceIdLen := big.NewInt(int64(len(resourceId))).Bytes()
+	data = append(data, common.LeftPadBytes(resourceIdLen, 32)...) // len(resourceId)
+	data = append(data, resourceId...)                             // resourceId (chainId)
 
 	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
 	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
@@ -37,17 +36,17 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	data := constructErc20ProposalData(m.Metadata[0].([]byte), m.Metadata[1].([]byte), m.Metadata[2].([]byte))
+	data := constructErc20ProposalData(m.Payload[0].([]byte), m.ResourceId[:], m.Payload[1].([]byte))
 	hash := hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
 
-	log15.Trace("Submitting CreateDepositPropsoal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
+	w.log.Trace("Submitting CreateDepositPropsoal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
 	_, err = w.bridgeContract.Transact(
 		opts,
 		VoteDepositProposalMethod,
 		big.NewInt(int64(m.Source)),
-		u32toBigInt(m.DepositNonce),
+		m.DepositNonce.Big(),
 		hash,
 	)
 
@@ -69,18 +68,18 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	h := m.Metadata[0].([]byte)
+	h := m.Payload[0].([]byte)
 	dataHash := hash(append(w.cfg.genericHandlerContract.Bytes(), h...))
 
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.genericHandlerContract, h)
 
-	log15.Trace("Submitting CreateDepositProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
+	w.log.Trace("Submitting CreateDepositProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
 	_, err = w.bridgeContract.Transact(
 		opts,
 		VoteDepositProposalMethod,
 		big.NewInt(int64(m.Source)),
-		u32toBigInt(m.DepositNonce),
+		m.DepositNonce.Big(),
 		dataHash,
 	)
 
@@ -111,7 +110,7 @@ func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []b
 
 			if m.Source == msg.ChainId(sourceId) &&
 				m.Destination == msg.ChainId(destId) &&
-				m.DepositNonce == uint32(depositNonce) {
+				uint64(m.DepositNonce) == depositNonce {
 				eventSubscription.sub.Unsubscribe()
 				w.executeProposal(m, handler, data)
 				return
@@ -141,7 +140,7 @@ func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []b
 		opts,
 		ExecuteDepositMethod,
 		big.NewInt(int64(m.Source)),
-		u32toBigInt(m.DepositNonce),
+		m.DepositNonce.Big(),
 		handler,
 		data,
 	)

@@ -136,10 +136,10 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	erc20Address := deployMintApproveErc20(t, aliceConn, opts)
 
 	// Create initial transfer message
-	tokenId := append(common.LeftPadBytes([]byte{}, 32), common.LeftPadBytes(erc20Address.Bytes(), 32)...)
+	resourceId := append(common.LeftPadBytes([]byte{}, 32), common.LeftPadBytes(erc20Address.Bytes(), 32)...)
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
 	amount := big.NewInt(10)
-	m := msg.NewFungibleTransfer(1, 0, 0, amount, tokenId, recipient)
+	m := msg.NewFungibleTransfer(1, 0, 0, amount, msg.ResourceIdFromSlice(resourceId), recipient)
 
 	// Helpful for debugging
 	go watchEvent(alice.conn, DepositProposalCreated)
@@ -169,11 +169,11 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 		case evt := <-eventSubscription.ch:
 			sourceId := evt.Topics[1].Big().Uint64()
 			destId := evt.Topics[2].Big().Uint64()
-			depositNone := evt.Topics[3].Big().Uint64()
+			depositNonce := evt.Topics[3].Big().Uint64()
 
 			if m.Source == msg.ChainId(sourceId) &&
 				m.Destination == msg.ChainId(destId) &&
-				m.DepositNonce == uint32(depositNone) {
+				uint64(m.DepositNonce) == depositNonce {
 				return
 			}
 
@@ -205,7 +205,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 		Destination:  0,
 		Type:         msg.GenericTransfer,
 		DepositNonce: 0,
-		Metadata: []interface{}{
+		Payload: []interface{}{
 			hash.Bytes(),
 		},
 	}
@@ -243,7 +243,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 
 				if m.Source == msg.ChainId(sourceId) &&
 					m.Destination == msg.ChainId(destId) &&
-					m.DepositNonce == uint32(depositNonce) {
+					uint64(m.DepositNonce) == depositNonce {
 					return
 				}
 
