@@ -28,7 +28,7 @@ var (
 )
 
 // IBridgeABI is the input ABI used to generate the binding from.
-const IBridgeABI = "[{\"inputs\":[],\"name\":\"_chainID\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const IBridgeABI = "[{\"inputs\":[],\"name\":\"_chainID\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // IBridge is an auto generated Go binding around an Ethereum contract.
 type IBridge struct {
@@ -174,21 +174,21 @@ func (_IBridge *IBridgeTransactorRaw) Transact(opts *bind.TransactOpts, method s
 
 // ChainID is a paid mutator transaction binding the contract method 0xbeab7131.
 //
-// Solidity: function _chainID() returns(uint256)
+// Solidity: function _chainID() returns(uint8)
 func (_IBridge *IBridgeTransactor) ChainID(opts *bind.TransactOpts) (*types.Transaction, error) {
 	return _IBridge.contract.Transact(opts, "_chainID")
 }
 
 // ChainID is a paid mutator transaction binding the contract method 0xbeab7131.
 //
-// Solidity: function _chainID() returns(uint256)
+// Solidity: function _chainID() returns(uint8)
 func (_IBridge *IBridgeSession) ChainID() (*types.Transaction, error) {
 	return _IBridge.Contract.ChainID(&_IBridge.TransactOpts)
 }
 
 // ChainID is a paid mutator transaction binding the contract method 0xbeab7131.
 //
-// Solidity: function _chainID() returns(uint256)
+// Solidity: function _chainID() returns(uint8)
 func (_IBridge *IBridgeTransactorSession) ChainID() (*types.Transaction, error) {
 	return _IBridge.Contract.ChainID(&_IBridge.TransactOpts)
 }

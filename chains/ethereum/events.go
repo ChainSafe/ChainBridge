@@ -38,7 +38,7 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 		msg.ChainId(destId),
 		msg.Nonce(depositNonce.Uint64()),
 		record.Amount,
-		msg.ResourceIdFromSlice(record.TokenID),
+		record.ResourceID,
 		record.DestinationRecipientAddress,
 	)
 }

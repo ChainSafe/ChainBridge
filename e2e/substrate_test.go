@@ -192,3 +192,7 @@ func hashInt(i int) types.Hash {
 	}
 	return hash
 }
+
+func registerResource(t *testing.T, client *subClient, id msg.ResourceId, method string) {
+	submitSudoTx(t, client, substrate.SetResource, id, []byte(method))
+}

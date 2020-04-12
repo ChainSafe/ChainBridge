@@ -13,13 +13,10 @@ import (
 const VoteDepositProposalMethod = "voteDepositProposal"
 const ExecuteDepositMethod = "executeDepositProposal"
 
-func constructErc20ProposalData(amount, resourceId, recipient []byte) []byte {
+func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipient []byte) []byte {
 	var data []byte
 	data = append(data, common.LeftPadBytes(amount, 32)...) // amount
-
-	resourceIdLen := big.NewInt(int64(len(resourceId))).Bytes()
-	data = append(data, common.LeftPadBytes(resourceIdLen, 32)...) // len(resourceId)
-	data = append(data, resourceId...)                             // resourceId (chainId)
+	data = append(data, resourceId[:]...)                   // resourceId
 
 	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
 	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
@@ -36,12 +33,13 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	data := constructErc20ProposalData(m.Payload[0].([]byte), m.ResourceId[:], m.Payload[1].([]byte))
+	data := constructErc20ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte))
 	hash := hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
 
 	w.log.Trace("Submitting CreateDepositPropsoal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
+
 	_, err = w.bridgeContract.Transact(
 		opts,
 		VoteDepositProposalMethod,

@@ -22,6 +22,7 @@ func (m Method) String() string {
 }
 
 var AddRelayer = createMethod("add_relayer")
+var SetResource = createMethod("set_resource")
 var SetThreshold = createMethod("set_threshold")
 var WhitelistChain = createMethod("whitelist_chain")
 var AcknowledgeProposal = createMethod("acknowledge_proposal")

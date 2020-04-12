@@ -20,7 +20,7 @@ func deployTestContracts(t *testing.T, id msg.ChainId) *DeployedContracts {
 	//deployPK string, chainID *big.Int, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8
 	contracts, err := DeployContracts(
 		hexutil.Encode(AliceKp.Encode())[2:],
-		big.NewInt(int64(id)),
+		uint8(id),
 		TestEndpoint,
 		TestNumRelayers,
 		TestRelayerThreshold,

@@ -28,7 +28,7 @@ func deployTestContracts(t *testing.T, id msg.ChainId) *ethereum.DeployedContrac
 	//deployPK string, chainID *big.Int, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8
 	contracts, err := ethereum.DeployContracts(
 		hexutil.Encode(AliceEthKp.Encode())[2:],
-		big.NewInt(int64(id)),
+		uint8(id),
 		TestEthEndpoint,
 		3,             // Num relayers
 		big.NewInt(2), // Relayer threshold

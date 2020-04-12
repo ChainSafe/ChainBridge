@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
-CONTRACTS_BRANCH="master"
-CONTRACTS_COMMIT="9efda443438abec1a6d734a9aab94a500a578310"
+CONTRACTS_BRANCH="steph/syncHandlers"
+CONTRACTS_COMMIT="df2642f44f3e0175edb5d92890499c2663faf7b2"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 

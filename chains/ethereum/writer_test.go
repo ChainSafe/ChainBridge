@@ -136,7 +136,7 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	erc20Address := deployMintApproveErc20(t, aliceConn, opts)
 
 	// Create initial transfer message
-	resourceId := append(common.LeftPadBytes([]byte{}, 32), common.LeftPadBytes(erc20Address.Bytes(), 32)...)
+	resourceId := append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0)
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
 	amount := big.NewInt(10)
 	m := msg.NewFungibleTransfer(1, 0, 0, amount, msg.ResourceIdFromSlice(resourceId), recipient)
@@ -205,6 +205,8 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 		Destination:  0,
 		Type:         msg.GenericTransfer,
 		DepositNonce: 0,
+		// TODO: What should this be?
+		// ResourceId:
 		Payload: []interface{}{
 			hash.Bytes(),
 		},

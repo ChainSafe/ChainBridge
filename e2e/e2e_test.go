@@ -94,9 +94,11 @@ func TestErc20ToSubstrate(t *testing.T) {
 	contracts := deployTestContracts(t, EthChainId)
 	ethClient, opts := createEthClient(t)
 	erc20Contract := deployMintApproveErc20(t, ethClient, opts, contracts.ERC20HandlerAddress)
+	resourceId := append(common.LeftPadBytes(erc20Contract.Bytes(), 31), 0)
 
 	// Setup substrate client
 	subClient := createSubClient(t, AliceSubKp.AsKeyringPair())
+	registerResource(t, subClient, msg.ResourceIdFromSlice(resourceId), substrate.ExampleTransfer.String())
 	success := make(chan bool)
 	fail := make(chan error)
 
