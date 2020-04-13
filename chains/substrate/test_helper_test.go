@@ -134,5 +134,5 @@ func submitSudoTx(t *testing.T, conn *Connection, method Method, args ...interfa
 }
 
 func registerResourceId(t *testing.T, conn *Connection, id [32]byte, method string) {
-	submitSudoTx(t, conn, SetResouce, id, []byte(method))
+	submitSudoTx(t, conn, SetResource, id, []byte(method))
 }

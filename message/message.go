@@ -11,7 +11,7 @@ type ChainId uint8
 type TransferType string
 type ResourceId [32]byte
 
-type Nonce uint32
+type Nonce uint64
 
 func (n Nonce) Big() *big.Int {
 	return big.NewInt(int64(n))

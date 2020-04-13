@@ -4,7 +4,6 @@
 package substrate
 
 import (
-	"fmt"
 	"math/big"
 	"reflect"
 	"testing"
@@ -23,7 +22,6 @@ func assertProposalState(t *testing.T, conn *Connection, prop *proposal, votes *
 	if err != nil {
 		t.Fatal(err)
 	}
-	conn.log.Trace("Fetching votes", "SourceId", prop.sourceId, "DepositNonce", prop.DepositNonce, "propBytes", fmt.Sprintf("%x", propBz))
 	ok, err := conn.queryStorage("Bridge", "Votes", srcId, propBz, &voteRes)
 	if err != nil {
 		t.Fatalf("failed to query votes: %s", err)

@@ -29,24 +29,25 @@ type voteState struct {
 
 // proposal represents an on-chain proposal
 type proposal struct {
-	DepositNonce types.U32
-	Call         types.Call
+	depositNonce types.U64
+	call         types.Call
 	sourceId     types.U8
+	resourceId	types.Bytes32
 }
 
 // encode takes only nonce and call and encodes them for storage queries
 func (p *proposal) encode() ([]byte, error) {
 	return types.EncodeToBytes(struct {
-		types.U32
+		types.U64
 		types.Call
-	}{p.DepositNonce, p.Call})
+	}{p.depositNonce, p.call})
 }
 
 func (w *Writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 	amount64 := big.NewInt(0).SetBytes(m.Payload[0].([]byte)).Uint64()
 	amount := types.U32(uint32(amount64))
 	recipient := types.NewAccountID(m.Payload[1].([]byte))
-	depositNonce := types.U32(m.DepositNonce)
+	depositNonce := types.U64(m.DepositNonce)
 
 	meta := w.conn.getMetadata()
 	method, err := w.resolveResourceId(m.ResourceId)
@@ -65,9 +66,10 @@ func (w *Writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 	}
 
 	return &proposal{
-		DepositNonce: depositNonce,
-		Call:         call,
+		depositNonce: depositNonce,
+		call:         call,
 		sourceId:     types.U8(m.Source),
+		resourceId: types.NewBytes32(m.ResourceId),
 	}, nil
 }
 
@@ -88,8 +90,9 @@ func (w *Writer) createGenericProposal(m msg.Message) (*proposal, error) {
 		return nil, err
 	}
 	return &proposal{
-		DepositNonce: types.U32(m.DepositNonce),
-		Call:         call,
+		depositNonce: types.U64(m.DepositNonce),
+		call:         call,
 		sourceId:     types.U8(m.Source),
+		resourceId: types.NewBytes32(m.ResourceId),
 	}, nil
 }

@@ -58,8 +58,8 @@ func (w *Writer) ResolveMessage(m msg.Message) bool {
 		return false
 	}
 
-	w.log.Trace("Acknowledging proposal on chain", "nonce", prop.DepositNonce)
-	err = w.conn.SubmitTx(AcknowledgeProposal, prop.sourceId, prop.DepositNonce, prop.Call)
+	w.log.Trace("Acknowledging proposal on chain", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)
+	err = w.conn.SubmitTx(AcknowledgeProposal, prop.depositNonce, prop.sourceId, prop.resourceId, prop.call)
 	if err != nil {
 		w.log.Error("Failed to execute extrinsic", "err", err)
 		return false

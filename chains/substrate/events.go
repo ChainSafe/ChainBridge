@@ -16,19 +16,23 @@ import (
 type eventName string
 type eventHandler func(interface{}, log15.Logger) (msg.Message, error)
 
-const RelayerThresholdChanged eventName = "RelayerThresholdSet"
+const RelayerThresholdChanged eventName = "RelayerThresholdChanged"
 const ChainWhitelisted eventName = "ChainWhitelsited"
+const RelayerAdded eventName = "RelayerAdded"
+const RelayerRemoved eventName = "RelayerRemoved"
+
 const FungibleTransfer eventName = "FungibleTransfer"
 const NonFungibleTransfer eventName = "NonFungibleTransfer"
 const GenericTransfer eventName = "GenericTransfer"
-const RelayerAdded eventName = "RelayerAdded"
-const RelayerRemoved eventName = "RelayerRemoved"
+
 const VoteFor eventName = "VoteFor"
 const VoteAgainst eventName = "VoteAgainst"
+
 const ProposalApproved eventName = "ProposalApproved"
 const ProposalRejected eventName = "ProposalRejected"
 const ProposalSucceeded eventName = "ProposalSucceeded"
 const ProposalFailed eventName = "ProposalFailed"
+
 const CodeUpdated eventName = "CodeUpdated"
 
 var Subscriptions = []struct {
@@ -64,20 +68,20 @@ type EventChainWhitelisted struct {
 
 type EventRelayerAdded struct {
 	Phase   types.Phase
-	Relayer types.Hash
+	Relayer types.AccountID
 	Topics  []types.Hash
 }
 
 type EventRelayerRemoved struct {
 	Phase   types.Phase
-	Relayer types.Hash
+	Relayer types.AccountID
 	Topics  []types.Hash
 }
 
 type EventFungibleTransfer struct {
 	Phase        types.Phase
 	Destination  types.U8
-	DepositNonce types.U32
+	DepositNonce types.U64
 	ResourceId   types.Bytes32
 	Amount       types.U32
 	Recipient    types.Bytes
@@ -87,7 +91,7 @@ type EventFungibleTransfer struct {
 type EventNonFungibleTransfer struct {
 	Phase        types.Phase
 	Destination  types.U8
-	DepositNonce types.U32
+	DepositNonce types.U64
 	ResourceId   types.Bytes32
 	TokenId      types.Bytes
 	Recipient    types.Bytes
@@ -98,7 +102,7 @@ type EventNonFungibleTransfer struct {
 type EventGenericTransfer struct {
 	Phase        types.Phase
 	Destination  types.U8
-	DepositNonce types.U32
+	DepositNonce types.U64
 	ResourceId   types.Bytes32
 	Metadata     types.Bytes
 	Topics       []types.Hash
@@ -107,7 +111,7 @@ type EventGenericTransfer struct {
 type EventVoteFor struct {
 	Phase        types.Phase
 	SourceId     types.U8
-	DepositNonce types.U32
+	DepositNonce types.U64
 	Voter        types.AccountID
 	Topics       []types.Hash
 }
@@ -115,7 +119,7 @@ type EventVoteFor struct {
 type EventVoteAgainst struct {
 	Phase        types.Phase
 	SourceId     types.U8
-	DepositNonce types.U32
+	DepositNonce types.U64
 	Voter        types.AccountID
 	Topics       []types.Hash
 }
@@ -123,28 +127,28 @@ type EventVoteAgainst struct {
 type EventProposalApproved struct {
 	Phase        types.Phase
 	SourceId     types.U8
-	DepositNonce types.U32
+	DepositNonce types.U64
 	Topics       []types.Hash
 }
 
 type EventProposalRejected struct {
 	Phase        types.Phase
 	SourceId     types.U8
-	DepositNonce types.U32
+	DepositNonce types.U64
 	Topics       []types.Hash
 }
 
 type EventProposalSucceeded struct {
 	Phase        types.Phase
 	SourceId     types.U8
-	DepositNonce types.U32
+	DepositNonce types.U64
 	Topics       []types.Hash
 }
 
 type EventProposalFailed struct {
 	Phase        types.Phase
 	SourceId     types.U8
-	DepositNonce types.U32
+	DepositNonce types.U64
 	Topics       []types.Hash
 }
 

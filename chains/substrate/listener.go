@@ -140,12 +140,12 @@ func (l *Listener) handleEvents(evts Events) {
 	}
 	if l.subscriptions[RelayerAdded] != nil {
 		for _, evt := range evts.Bridge_RelayerAdded {
-			l.log.Trace("Received RelayerAdded event", "relayer", evt.Relayer.Hex())
+			l.log.Trace("Received RelayerAdded event", "relayer", evt.Relayer)
 		}
 	}
 	if l.subscriptions[RelayerRemoved] != nil {
 		for _, evt := range evts.Bridge_RelayerRemoved {
-			l.log.Trace("Received RelayerRemoved event", "relayer", evt.Relayer.Hex())
+			l.log.Trace("Received RelayerRemoved event", "relayer", evt.Relayer)
 		}
 	}
 	if l.subscriptions[FungibleTransfer] != nil {
