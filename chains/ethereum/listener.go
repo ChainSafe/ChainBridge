@@ -69,13 +69,6 @@ func (l *Listener) GetSubscriptions() []*Subscription {
 // Start registers all subscriptions provided by the config
 func (l *Listener) Start() error {
 	l.log.Debug("Starting listener...")
-	currBlock, err := l.conn.conn.BlockByNumber(l.conn.ctx, nil)
-	if err != nil {
-		return fmt.Errorf("Unable to get starting Block: %s", err)
-	}
-	if currBlock.Number().Cmp(l.cfg.startBlock) < 0 {
-		return fmt.Errorf("starting block (%d) is greater than latest known block (%d)", l.cfg.startBlock, currBlock.Number())
-	}
 
 	subscriptions := l.GetSubscriptions()
 	for _, sub := range subscriptions {
@@ -114,24 +107,34 @@ func (l *Listener) pollBlocks() error {
 			continue
 		}
 
-		for evt, sub := range l.subscriptions {
-			query := buildQuery(l.cfg.bridgeContract, evt, latestBlock)
-
-			logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
-			if err != nil {
-				return fmt.Errorf("Unable to Filter Logs: %s", err)
-			}
-
-			for _, log := range logs {
-				m := sub.handler(log)
-				err = l.router.Send(m)
-				if err != nil {
-					l.log.Error("subscription error: cannot send message", "sub", sub, "err", err)
-				}
-			}
+		err = l.loopTime(latestBlock)
+		if err != nil {
+			return err
 		}
 
 		latestBlock.Add(latestBlock, big.NewInt(1))
+	}
+
+	return nil
+}
+
+func (l *Listener) loopTime(latestBlock *big.Int) error {
+
+	for evt, sub := range l.subscriptions {
+		query := buildQuery(l.cfg.bridgeContract, evt, latestBlock)
+
+		logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
+		if err != nil {
+			return fmt.Errorf("Unable to Filter Logs: %s", err)
+		}
+
+		for _, log := range logs {
+			m := sub.handler(log)
+			err = l.router.Send(m)
+			if err != nil {
+				l.log.Error("subscription error: cannot send message", "sub", sub, "err", err)
+			}
+		}
 	}
 
 	return nil
@@ -141,6 +144,7 @@ func (l *Listener) pollBlocks() error {
 func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int) eth.FilterQuery {
 	query := eth.FilterQuery{
 		FromBlock: startBlock,
+		ToBlock:   startBlock,
 		Addresses: []ethcommon.Address{contract},
 		Topics: [][]ethcommon.Hash{
 			{sig.GetTopic()},
