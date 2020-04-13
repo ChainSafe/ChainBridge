@@ -88,7 +88,7 @@ func createAndStartBridge(t *testing.T, name, bridgeAddress, erc20HandlerAddres,
 }
 
 func TestErc20ToSubstrate(t *testing.T) {
-	utils.SetLogger(log.LvlTrace)
+	utils.SetLogger(log.LvlDebug)
 
 	// Deploy contracts, mint, approve
 	contracts := deployTestContracts(t, EthChainId)
@@ -114,7 +114,7 @@ func TestErc20ToSubstrate(t *testing.T) {
 		createErc20Deposit(t, ethClient, opts, contracts, erc20Contract)
 
 		// Check for success event
-		go watchForProposalSuccessOrFail(subClient, types.NewU32(uint32(i)), success, fail)
+		go watchForProposalSuccessOrFail(subClient, types.NewU64(uint64(i)), success, fail)
 
 		select {
 		case <-success:

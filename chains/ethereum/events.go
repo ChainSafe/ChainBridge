@@ -28,7 +28,6 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	depositNonce := event.Topics[3].Big()
 
 	record, err := l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce)
-
 	if err != nil {
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}

@@ -48,7 +48,7 @@ func createSubClient(t *testing.T, key *signature.KeyringPair) *subClient {
 	return c
 }
 
-func watchForProposalSuccessOrFail(client *subClient, expectedNonce types.U32, success chan bool, fail chan error) {
+func watchForProposalSuccessOrFail(client *subClient, expectedNonce types.U64, success chan bool, fail chan error) {
 	key, err := types.CreateStorageKey(client.meta, "System", "Events", nil, nil)
 	if err != nil {
 		fail <- err
@@ -194,5 +194,6 @@ func hashInt(i int) types.Hash {
 }
 
 func registerResource(t *testing.T, client *subClient, id msg.ResourceId, method string) {
-	submitSudoTx(t, client, substrate.SetResource, id, []byte(method))
+	log15.Info("Registering resource", "id", id, "method", []byte(method))
+	submitSudoTx(t, client, substrate.SetResource, types.NewBytes32(id), []byte(method))
 }

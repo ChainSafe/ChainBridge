@@ -32,7 +32,7 @@ type proposal struct {
 	depositNonce types.U64
 	call         types.Call
 	sourceId     types.U8
-	resourceId	types.Bytes32
+	resourceId   types.Bytes32
 }
 
 // encode takes only nonce and call and encodes them for storage queries
@@ -69,7 +69,7 @@ func (w *Writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 		depositNonce: depositNonce,
 		call:         call,
 		sourceId:     types.U8(m.Source),
-		resourceId: types.NewBytes32(m.ResourceId),
+		resourceId:   types.NewBytes32(m.ResourceId),
 	}, nil
 }
 
@@ -93,6 +93,6 @@ func (w *Writer) createGenericProposal(m msg.Message) (*proposal, error) {
 		depositNonce: types.U64(m.DepositNonce),
 		call:         call,
 		sourceId:     types.U8(m.Source),
-		resourceId: types.NewBytes32(m.ResourceId),
+		resourceId:   types.NewBytes32(m.ResourceId),
 	}, nil
 }

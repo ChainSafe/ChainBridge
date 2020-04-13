@@ -4,7 +4,7 @@
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
 CONTRACTS_BRANCH="steph/syncHandlers"
-CONTRACTS_COMMIT="df2642f44f3e0175edb5d92890499c2663faf7b2"
+CONTRACTS_COMMIT="c3f63a3173731f67b67f10a5f0162015c2dbc252"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 
