@@ -131,11 +131,11 @@ func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []b
 	w.log.Info("Executing proposal", "to", w.conn.cfg.bridgeContract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
-	defer nonce.lock.Unlock()
 	if err != nil {
 		w.log.Error("Failed to build transaction opts", "err", err)
 		return
 	}
+	defer nonce.lock.Unlock()
 
 	_, err = w.bridgeContract.BridgeRaw.Transact(
 		opts,
