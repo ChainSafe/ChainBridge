@@ -182,9 +182,7 @@ func (l *Listener) RegisterEventHandler(subscription EventSig, handler evtHandle
 
 // Unsubscribe cancels a subscription for the given event
 func (l *Listener) Unsubscribe(sig EventSig) {
-	if _, ok := l.subscriptions[sig]; ok {
-		delete(l.subscriptions, sig)
-	}
+	delete(l.subscriptions, sig)
 }
 
 // Stop cancels all subscriptions. Must be called before Connection.Stop().
