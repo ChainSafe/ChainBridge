@@ -189,7 +189,7 @@ func (l *Listener) Unsubscribe(sig EventSig) {
 
 // Stop cancels all subscriptions. Must be called before Connection.Stop().
 func (l *Listener) Stop() error {
-	for sig, _ := range l.subscriptions {
+	for sig := range l.subscriptions {
 		delete(l.subscriptions, sig)
 	}
 	return nil
