@@ -29,6 +29,7 @@ const ProposalApproved eventName = "ProposalApproved"
 const ProposalRejected eventName = "ProposalRejected"
 const ProposalSucceeded eventName = "ProposalSucceeded"
 const ProposalFailed eventName = "ProposalFailed"
+const CodeUpdated eventName = "CodeUpdated"
 
 var Subscriptions = []struct {
 	name    eventName
@@ -147,6 +148,11 @@ type EventProposalFailed struct {
 	Topics       []types.Hash
 }
 
+type EventCodeUpdated struct {
+	Phase  types.Phase
+	Topics []types.Hash
+}
+
 // TODO: This should be added directly to GSRPC
 type EventSudid struct {
 	Phase   types.Phase
@@ -169,6 +175,7 @@ type Events struct {
 	Bridge_ProposalRejected        []EventProposalRejected        //nolint:stylecheck,golint
 	Bridge_ProposalSucceeded       []EventProposalSucceeded       //nolint:stylecheck,golint
 	Bridge_ProposalFailed          []EventProposalFailed          //nolint:stylecheck,golint
+	System_CodeUpdated         	   []EventCodeUpdated         //nolint:stylecheck,golint
 	Sudo_Sudid                     []EventSudid                   //nolint:stylecheck,golint
 }
 
