@@ -34,7 +34,19 @@ func (c *Connection) getMetadata() (meta types.Metadata) {
 	c.metaLock.RLock()
 	meta = c.meta
 	c.metaLock.RUnlock()
-	return
+	return meta
+}
+
+func (c *Connection) updateMetatdata() error {
+	c.metaLock.Lock()
+	meta, err := c.api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		c.metaLock.Unlock()
+		return err
+	}
+	c.meta = *meta
+	c.metaLock.Unlock()
+	return nil
 }
 
 func (c *Connection) Connect() error {

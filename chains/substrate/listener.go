@@ -184,6 +184,14 @@ func (l *Listener) handleEvents(evts Events) {
 			l.log.Trace("Received ProposalFailed event", "depositNonce", evt.DepositNonce)
 		}
 	}
+
+	if len(evts.System_CodeUpdated) > 0 {
+		l.log.Trace("Received CodeUpdated event")
+		err := l.conn.updateMetatdata()
+		if err != nil {
+			l.log.Error("Unable to update Metadata", "error", err)
+		}
+	}
 }
 
 // submitMessage inserts the chainId into the msg and sends it to the router
