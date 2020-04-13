@@ -42,8 +42,8 @@ type Connection struct {
 
 func NewConnection(cfg *Config, kp *secp256k1.Keypair, log log15.Logger) *Connection {
 	return &Connection{
-		ctx: context.Background(),
-		cfg: *cfg,
+		ctx:       context.Background(),
+		cfg:       *cfg,
 		kp:        kp,
 		nonceLock: sync.Mutex{},
 		log:       log,
