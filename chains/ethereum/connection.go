@@ -41,12 +41,9 @@ type Connection struct {
 }
 
 func NewConnection(cfg *Config, kp *secp256k1.Keypair, log log15.Logger) *Connection {
-	signer := ethtypes.HomesteadSigner{}
 	return &Connection{
-		ctx: context.Background(),
-		cfg: *cfg,
-		// TODO: add network to use to config
-		signer:    signer,
+		ctx:       context.Background(),
+		cfg:       *cfg,
 		kp:        kp,
 		nonceLock: sync.Mutex{},
 		log:       log,
@@ -68,6 +65,12 @@ func (c *Connection) Connect() error {
 	}
 
 	c.conn = ethclient.NewClient(rpcClient)
+
+	chainId, err := c.conn.ChainID(c.ctx)
+	if err != nil {
+		return err
+	}
+	c.signer = ethtypes.NewEIP155Signer(chainId)
 	return nil
 }
 
