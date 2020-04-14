@@ -29,10 +29,6 @@ var (
 
 // Generate subcommand flags
 var (
-	PrivateKeyFlag = cli.StringFlag{
-		Name:  "privateKey",
-		Usage: "Hex string private key used to generate a keypair.",
-	}
 	PasswordFlag = cli.StringFlag{
 		Name:  "password",
 		Usage: "Password used to encrypt the keystore. Used with --generate or --unlock",
@@ -51,6 +47,10 @@ var (
 	EthereumImportFlag = cli.BoolFlag{
 		Name:  "ethereum",
 		Usage: "Import an existing ethereum keystore",
+	}
+	PrivateKeyFlag = cli.StringFlag{
+		Name:  "privateKey",
+		Usage: "Hex string private key used to generate a keypair.",
 	}
 )
 

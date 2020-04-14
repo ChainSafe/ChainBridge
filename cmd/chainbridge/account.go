@@ -62,17 +62,7 @@ func handleGenerateCmd(ctx *cli.Context, dHandler *dataHandler) error {
 		password = []byte(pwdflag)
 	}
 
-	var privKey string = ""
-	if privkeyflag := ctx.String(PrivateKeyFlag.Name); privkeyflag != "" {
-		// Hex must not have leading 0x
-		if privkeyflag[0:2] == "0x" {
-			privKey = privkeyflag[2:]
-		} else {
-			privKey = privkeyflag
-		}
-	}
-
-	_, err := generateKeypair(keytype, dHandler.datadir, password, privKey)
+	_, err := generateKeypair(keytype, dHandler.datadir, password)
 	if err != nil {
 		return fmt.Errorf("failed to generate key: %s", err)
 	}
@@ -85,12 +75,36 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 	// import key
 	if keyimport := ctx.Args().First(); keyimport != "" {
 		var err error
+
 		log.Info("Importing key...")
+
+		// check if --ed25519 or --sr25519 is set
+		keytype := crypto.Secp256k1Type
+		if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
+			keytype = crypto.Sr25519Type
+		} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
+			keytype = crypto.Secp256k1Type
+		}
+
 		if ctx.Bool(EthereumImportFlag.Name) {
 			_, err = importEthKey(keyimport, dHandler.datadir)
+		} else if privkeyflag := ctx.String(PrivateKeyFlag.Name); privkeyflag != "" {
+			// check if --password is set
+			var password []byte = nil
+			if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
+				password = []byte(pwdflag)
+			}
+
+			// Hex must not have leading 0x
+			if privkeyflag[0:2] == "0x" {
+				_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag[0:2], password)
+			} else {
+				_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag, password)
+			}
 		} else {
 			_, err = importKey(keyimport, dHandler.datadir)
 		}
+
 		if err != nil {
 			return fmt.Errorf("failed to import key: %s", err)
 		}
@@ -126,7 +140,64 @@ func getDataDir(ctx *cli.Context) (string, error) {
 	return "", fmt.Errorf("datadir flag not supplied")
 }
 
-//Imports ether keys
+//importPrivKey imports a private key into a keypair
+func importPrivKey(keytype, datadir, key string, password []byte) (string, error) {
+	if password == nil {
+		password = keystore.GetPassword("Enter password to encrypt keystore file:")
+	}
+	keystorepath, err := keystoreDir(datadir)
+
+	if keytype == "" {
+		log.Info("Using default key type", "type", keytype)
+		keytype = crypto.Secp256k1Type
+	}
+
+	var kp crypto.Keypair
+
+	if keytype == crypto.Sr25519Type {
+		// generate sr25519 keys
+		kp, err = sr25519.NewKeypairFromSeed(key)
+		if err != nil {
+			return "", fmt.Errorf("could not generate sr25519 keypair from given string: %s", err)
+		}
+	} else if keytype == crypto.Secp256k1Type {
+		// generate secp256k1 keys
+		kp, err = secp256k1.NewKeypairFromString(key)
+		if err != nil {
+			return "", fmt.Errorf("could not generate secp256k1 keypair from given string: %s", err)
+		}
+	} else {
+		return "", fmt.Errorf("invalid key type: %s", keytype)
+	}
+
+	fp, err := filepath.Abs(keystorepath + "/" + kp.PublicKey() + ".key")
+	if err != nil {
+		return "", fmt.Errorf("invalid filepath: %s", err)
+	}
+
+	file, err := os.OpenFile(fp, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
+	if err != nil {
+		return "", fmt.Errorf("Unable to Open File: %s", err)
+	}
+
+	defer func() {
+		err = file.Close()
+		if err != nil {
+			log.Error("import private key: could not close keystore file")
+		}
+	}()
+
+	err = keystore.EncryptAndWriteToFile(file, kp, password)
+	if err != nil {
+		return "", fmt.Errorf("could not write key to file: %s", err)
+	}
+
+	log.Info("private key imported", "public key", kp.PublicKey(), "file", fp)
+	return fp, nil
+
+}
+
+//importEthKey takes an ethereum keystore and converts it to our keystore format
 func importEthKey(filename, datadir string) (string, error) {
 	keystorepath, err := keystoreDir(datadir)
 	if err != nil {
@@ -252,7 +323,7 @@ func getKeyFiles(datadir string) ([]string, error) {
 // generateKeypair create a new keypair with the corresponding type and saves it to datadir/keystore/[public key].key
 // in json format encrypted using the specified password
 // it returns the resulting filepath of the new key
-func generateKeypair(keytype, datadir string, password []byte, privateKey string) (string, error) {
+func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 	if password == nil {
 		password = keystore.GetPassword("Enter password to encrypt keystore file:")
 	}
@@ -267,29 +338,15 @@ func generateKeypair(keytype, datadir string, password []byte, privateKey string
 
 	if keytype == crypto.Sr25519Type {
 		// generate sr25519 keys
-		if privateKey != "" {
-			kp, err = sr25519.NewKeypairFromSeed(privateKey)
-			if err != nil {
-				return "", fmt.Errorf("could not generate secp256k1 keypair from given string: %s", err)
-			}
-		} else {
-			kp, err = sr25519.GenerateKeypair()
-			if err != nil {
-				return "", fmt.Errorf("could not generate sr25519 keypair: %s", err)
-			}
+		kp, err = sr25519.GenerateKeypair()
+		if err != nil {
+			return "", fmt.Errorf("could not generate sr25519 keypair: %s", err)
 		}
 	} else if keytype == crypto.Secp256k1Type {
 		// generate secp256k1 keys
-		if privateKey != "" {
-			kp, err = secp256k1.NewKeypairFromString(privateKey)
-			if err != nil {
-				return "", fmt.Errorf("could not generate secp256k1 keypair from given string: %s", err)
-			}
-		} else {
-			kp, err = secp256k1.GenerateKeypair()
-			if err != nil {
-				return "", fmt.Errorf("could not generate secp256k1 keypair: %s", err)
-			}
+		kp, err = secp256k1.GenerateKeypair()
+		if err != nil {
+			return "", fmt.Errorf("could not generate secp256k1 keypair: %s", err)
 		}
 	} else {
 		return "", fmt.Errorf("invalid key type: %s", keytype)
