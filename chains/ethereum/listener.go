@@ -6,6 +6,7 @@ package ethereum
 import (
 	"math/big"
 
+	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
@@ -31,14 +32,16 @@ type Listener struct {
 	bridgeContract       *BridgeContract       // instance of bound bridge contract
 	erc20HandlerContract *ERC20HandlerContract // instance of bound erc20 handler
 	log                  log15.Logger
+	blockstore	blockstore.Blockstorer
 }
 
-func NewListener(conn *Connection, cfg *Config, log log15.Logger) *Listener {
+func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *Listener {
 	return &Listener{
 		cfg:           *cfg,
 		conn:          conn,
 		subscriptions: make(map[EventSig]*ActiveSubscription),
 		log:           log,
+		blockstore: bs,
 	}
 }
 

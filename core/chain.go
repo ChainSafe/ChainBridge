@@ -17,11 +17,12 @@ type Chain interface {
 }
 
 type ChainConfig struct {
-	Name         string            // Human-readable chain name
-	Id           msg.ChainId       // ChainID
-	Endpoint     string            // url for rpc endpoint
-	From         string            // address of key to use
-	KeystorePath string            // Location of key files
-	Insecure     bool              // Indicated whether the test keyring should be used
-	Opts         map[string]string // Per chain options
+	Name           string      // Human-readable chain name
+	Id             msg.ChainId // ChainID
+	Endpoint       string      // url for rpc endpoint
+	From           string      // address of key to use
+	KeystorePath   string      // Location of key files
+	Insecure       bool        // Indicated whether the test keyring should be used
+	BlockstorePath string
+	Opts           map[string]string // Per chain options
 }

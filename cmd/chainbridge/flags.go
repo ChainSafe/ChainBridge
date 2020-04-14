@@ -25,6 +25,12 @@ var (
 		Usage: "Path to keystore directory",
 		Value: DefaultKeystorePath,
 	}
+
+	BlockstorePathFlag = cli.StringFlag{
+		Name:  "blockstore",
+		Usage: "Specify path for blockstore",
+		Value: "", // Empty will use home dir
+	}
 )
 
 // Generate subcommand flags

@@ -6,6 +6,7 @@ package ethereum
 import (
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
@@ -56,6 +57,20 @@ func createErc20HandlerContract(addr common.Address, conn *Connection) (*ERC20Ha
 	}, nil
 }
 
+// checkBlockstore queries the blockstore for the latest known block. If the latest block is
+// greater than cfg.startBlock, then cfg.startBlock is replaced with the latest known block.
+func checkBlockstore(cfg *Config, bs *blockstore.Blockstore) error {
+	latestBlock, err := bs.TryLoadLatestBlock()
+	if err != nil {
+		return err
+	}
+
+	if latestBlock.Cmp(cfg.startBlock) == 1 {
+		cfg.startBlock = latestBlock
+	}
+	return nil
+}
+
 func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 	cfg, err := parseChainConfig(chainCfg)
 	if err != nil {
@@ -66,8 +81,13 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	kp, _ := kpI.(*secp256k1.Keypair)
+
+	bs := blockstore.NewBlockstore(cfg.blockstorePath, cfg.id, kp.Address())
+	err = checkBlockstore(cfg, bs)
+	if err != nil {
+		return nil, err
+	}
 
 	logger := log15.Root().New("chain", cfg.name)
 
@@ -100,7 +120,7 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 		return nil, err
 	}
 
-	listener := NewListener(conn, cfg, logger)
+	listener := NewListener(conn, cfg, logger, bs)
 	listener.SetContracts(bridgeContract, erc20HandlerContract)
 
 	writer := NewWriter(conn, cfg, logger)
