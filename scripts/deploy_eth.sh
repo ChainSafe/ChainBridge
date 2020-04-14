@@ -6,6 +6,7 @@ set -e
 
 pushd $SOL_DIR
 
+npm install
 make deploy
 
 popd

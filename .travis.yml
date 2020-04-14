@@ -17,7 +17,6 @@ install:
     - sudo apt-get update
     - sudo apt-get install ethereum
     - wget -P $HOME/bin/ https://storage.googleapis.com/centrifuge-dev-public/subkey  && chmod +x $HOME/bin/subkey
-
 jobs:
   include:
     - language: go
@@ -35,8 +34,9 @@ jobs:
       script:
         - set -e
         - make clean && make setup-contracts
+        - ./scripts/install_sol_cli.sh # Remove with #322
         - SILENT=true make start-eth
-        - make deploy-eth
+        - cb-sol-cli deploy
         - ./scripts/substrate/run_chain_ci.sh
         - make test
 
@@ -46,7 +46,8 @@ jobs:
       script:
         - set -e
         - make clean && make setup-contracts
+        - ./scripts/install_sol_cli.sh # Remove with #322
         - SILENT=true make start-eth
-        - make deploy-eth
+        - cb-sol-cli deploy
         - ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
