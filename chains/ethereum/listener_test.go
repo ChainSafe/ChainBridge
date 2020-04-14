@@ -87,8 +87,11 @@ func TestListener_depositEvent(t *testing.T) {
 	amount := big.NewInt(10)
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
-	resourceId := append(common.LeftPadBytes([]byte{uint8(src)}, 32), common.LeftPadBytes(erc20Contract.Bytes(), 32)...)
+	resourceId := append(common.LeftPadBytes(erc20Contract.Bytes(), 31), uint8(src))
+	fmt.Printf("Initial id: %x\n", resourceId)
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
+
+	whitelistResourceId(t, l.conn.conn, opts, contracts.ERC20HandlerAddress, msg.ResourceIdFromSlice(resourceId), erc20Contract)
 
 	expectedMessage := msg.NewFungibleTransfer(
 		src,
@@ -106,7 +109,7 @@ func TestListener_depositEvent(t *testing.T) {
 		l.cfg.erc20HandlerContract,
 
 		recipient,
-		big.NewInt(int64(dst)),
+		dst,
 		amount,
 	)
 	if err != nil {
@@ -140,7 +143,7 @@ func TestListener_depositEvent(t *testing.T) {
 		l.cfg.erc20HandlerContract,
 
 		recipient,
-		big.NewInt(int64(dst)),
+		dst,
 		amount,
 	)
 	if err != nil {

@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package e2e
+package substrate
 
 import (
 	"errors"
@@ -9,12 +9,31 @@ import (
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
+	"github.com/ChainSafe/ChainBridge/core"
+	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
+
+const TestSubEndpoint = "ws://localhost:9944"
+
+var AliceKp = keystore.TestKeyRing.SubstrateKeys[keystore.AliceKey]
+var BobKp = keystore.TestKeyRing.SubstrateKeys[keystore.BobKey]
+
+func CreateConfig(key string, chain msg.ChainId) *core.ChainConfig {
+	return &core.ChainConfig{
+		Name:         fmt.Sprintf("substrate(%s)", key),
+		Id:           chain,
+		Endpoint:     TestSubEndpoint,
+		From:         "",
+		KeystorePath: key,
+		Insecure:     true,
+		Opts:         map[string]string{},
+	}
+}
 
 type subClient struct {
 	api     *gsrpc.SubstrateAPI
@@ -23,7 +42,7 @@ type subClient struct {
 	key     *signature.KeyringPair
 }
 
-func createSubClient(t *testing.T, key *signature.KeyringPair) *subClient {
+func CreateSubClient(t *testing.T, key *signature.KeyringPair) *subClient {
 	c := &subClient{key: key}
 	api, err := gsrpc.NewSubstrateAPI(TestSubEndpoint)
 	if err != nil {
@@ -48,7 +67,7 @@ func createSubClient(t *testing.T, key *signature.KeyringPair) *subClient {
 	return c
 }
 
-func watchForProposalSuccessOrFail(client *subClient, expectedNonce types.U64, success chan bool, fail chan error) {
+func WatchForProposalSuccessOrFail(client *subClient, expectedNonce types.U64, success chan bool, fail chan error) {
 	key, err := types.CreateStorageKey(client.meta, "System", "Events", nil, nil)
 	if err != nil {
 		fail <- err
@@ -96,7 +115,7 @@ func watchForProposalSuccessOrFail(client *subClient, expectedNonce types.U64, s
 	}
 }
 
-func submitTx(t *testing.T, client *subClient, method substrate.Method, args ...interface{}) {
+func SubmitTx(t *testing.T, client *subClient, method substrate.Method, args ...interface{}) {
 	log15.Info("Submiting test tx", "method", method)
 	// Create call and extrinsic
 	call, err := types.NewCall(
@@ -155,12 +174,12 @@ func submitTx(t *testing.T, client *subClient, method substrate.Method, args ...
 	}
 }
 
-func submitSudoTx(t *testing.T, client *subClient, method substrate.Method, args ...interface{}) {
+func SubmitSudoTx(t *testing.T, client *subClient, method substrate.Method, args ...interface{}) {
 	call, err := types.NewCall(client.meta, method.String(), args...)
 	if err != nil {
 		t.Fatal(err)
 	}
-	submitTx(t, client, substrate.Sudo, call)
+	SubmitTx(t, client, substrate.Sudo, call)
 }
 
 // queryStorage performs a storage lookup. Arguments may be nil, result must be a pointer.
@@ -172,20 +191,19 @@ func queryStorage(client *subClient, prefix, method string, arg1, arg2 []byte, r
 	return client.api.RPC.State.GetStorageLatest(key, result)
 }
 
-func whitelistChain(t *testing.T, client *subClient, id msg.ChainId) {
-	submitSudoTx(t, client, substrate.WhitelistChain, types.U32(id))
+func WhitelistChain(t *testing.T, client *subClient, id msg.ChainId) {
+	SubmitSudoTx(t, client, substrate.WhitelistChain, types.U8(id))
 }
 
-func initiateHashTransfer(t *testing.T, client *subClient, hash types.Hash, destId msg.ChainId) {
-	recipient := types.Bytes{}
-	submitTx(t, client, substrate.ExampleTransferHash, hash, recipient, types.U32(destId))
+func InitiateHashTransfer(t *testing.T, client *subClient, hash types.Hash, destId msg.ChainId) {
+	SubmitTx(t, client, substrate.ExampleTransferHash, hash, types.U8(destId))
 }
 
-func initiateSubstrateNativeTransfer(t *testing.T, client *subClient, amount int, recipient []byte, destId msg.ChainId) { //nolint:unused,deadcode
-	submitTx(t, client, substrate.ExampleTransfer, amount, recipient, types.U32(destId))
+func InitiateSubstrateNativeTransfer(t *testing.T, client *subClient, amount int, recipient []byte, destId msg.ChainId) { //nolint:unused,deadcode
+	SubmitTx(t, client, substrate.ExampleTransfer, amount, recipient, types.U8(destId))
 }
 
-func hashInt(i int) types.Hash {
+func HashInt(i int) types.Hash {
 	hash, err := types.GetHash(types.NewI64(int64(i)))
 	if err != nil {
 		panic(err)
@@ -193,7 +211,7 @@ func hashInt(i int) types.Hash {
 	return hash
 }
 
-func registerResource(t *testing.T, client *subClient, id msg.ResourceId, method string) {
+func RegisterResource(t *testing.T, client *subClient, id msg.ResourceId, method string) {
 	log15.Info("Registering resource", "id", id, "method", []byte(method))
-	submitSudoTx(t, client, substrate.SetResource, types.NewBytes32(id), []byte(method))
+	SubmitSudoTx(t, client, substrate.SetResource, types.NewBytes32(id), []byte(method))
 }

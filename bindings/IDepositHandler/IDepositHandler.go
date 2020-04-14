@@ -28,7 +28,7 @@ var (
 )
 
 // IDepositHandlerABI is the input ABI used to generate the binding from.
-const IDepositHandlerABI = "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"destinationChainID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"depositer\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"executeDeposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const IDepositHandlerABI = "[{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"depositer\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"executeDeposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // IDepositHandler is an auto generated Go binding around an Ethereum contract.
 type IDepositHandler struct {
@@ -172,24 +172,24 @@ func (_IDepositHandler *IDepositHandlerTransactorRaw) Transact(opts *bind.Transa
 	return _IDepositHandler.Contract.contract.Transact(opts, method, params...)
 }
 
-// Deposit is a paid mutator transaction binding the contract method 0xcb65d221.
+// Deposit is a paid mutator transaction binding the contract method 0x45a104db.
 //
-// Solidity: function deposit(uint256 destinationChainID, uint256 depositNonce, address depositer, bytes data) returns()
-func (_IDepositHandler *IDepositHandlerTransactor) Deposit(opts *bind.TransactOpts, destinationChainID *big.Int, depositNonce *big.Int, depositer common.Address, data []byte) (*types.Transaction, error) {
+// Solidity: function deposit(uint8 destinationChainID, uint256 depositNonce, address depositer, bytes data) returns()
+func (_IDepositHandler *IDepositHandlerTransactor) Deposit(opts *bind.TransactOpts, destinationChainID uint8, depositNonce *big.Int, depositer common.Address, data []byte) (*types.Transaction, error) {
 	return _IDepositHandler.contract.Transact(opts, "deposit", destinationChainID, depositNonce, depositer, data)
 }
 
-// Deposit is a paid mutator transaction binding the contract method 0xcb65d221.
+// Deposit is a paid mutator transaction binding the contract method 0x45a104db.
 //
-// Solidity: function deposit(uint256 destinationChainID, uint256 depositNonce, address depositer, bytes data) returns()
-func (_IDepositHandler *IDepositHandlerSession) Deposit(destinationChainID *big.Int, depositNonce *big.Int, depositer common.Address, data []byte) (*types.Transaction, error) {
+// Solidity: function deposit(uint8 destinationChainID, uint256 depositNonce, address depositer, bytes data) returns()
+func (_IDepositHandler *IDepositHandlerSession) Deposit(destinationChainID uint8, depositNonce *big.Int, depositer common.Address, data []byte) (*types.Transaction, error) {
 	return _IDepositHandler.Contract.Deposit(&_IDepositHandler.TransactOpts, destinationChainID, depositNonce, depositer, data)
 }
 
-// Deposit is a paid mutator transaction binding the contract method 0xcb65d221.
+// Deposit is a paid mutator transaction binding the contract method 0x45a104db.
 //
-// Solidity: function deposit(uint256 destinationChainID, uint256 depositNonce, address depositer, bytes data) returns()
-func (_IDepositHandler *IDepositHandlerTransactorSession) Deposit(destinationChainID *big.Int, depositNonce *big.Int, depositer common.Address, data []byte) (*types.Transaction, error) {
+// Solidity: function deposit(uint8 destinationChainID, uint256 depositNonce, address depositer, bytes data) returns()
+func (_IDepositHandler *IDepositHandlerTransactorSession) Deposit(destinationChainID uint8, depositNonce *big.Int, depositer common.Address, data []byte) (*types.Transaction, error) {
 	return _IDepositHandler.Contract.Deposit(&_IDepositHandler.TransactOpts, destinationChainID, depositNonce, depositer, data)
 }
 

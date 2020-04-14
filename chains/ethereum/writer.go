@@ -6,6 +6,7 @@ package ethereum
 import (
 	"math/big"
 
+	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
@@ -15,13 +16,12 @@ import (
 var _ chains.Writer = &Writer{}
 
 type Writer struct {
-	cfg                  Config
-	conn                 *Connection
-	bridgeContract       *BridgeContract // instance of bound receiver bridgeContract
-	erc20HandlerContract *ERC20HandlerContract
-	gasPrice             *big.Int
-	gasLimit             *big.Int
-	log                  log15.Logger
+	cfg            Config
+	conn           *Connection
+	bridgeContract *Bridge.Bridge // instance of bound receiver bridgeContract
+	gasPrice       *big.Int
+	gasLimit       *big.Int
+	log            log15.Logger
 }
 
 func NewWriter(conn *Connection, cfg *Config, log log15.Logger) *Writer {
@@ -39,9 +39,8 @@ func (w *Writer) Start() error {
 	return nil
 }
 
-func (w *Writer) SetContracts(bridge *BridgeContract, erc20Handler *ERC20HandlerContract) {
+func (w *Writer) SetContract(bridge *Bridge.Bridge) {
 	w.bridgeContract = bridge
-	w.erc20HandlerContract = erc20Handler
 }
 
 // ResolveMessage handles any given message based on type

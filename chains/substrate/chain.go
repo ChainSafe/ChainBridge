@@ -20,13 +20,12 @@ type Chain struct {
 	writer   *Writer     // The writer of the chain
 }
 
-func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
+func InitializeChain(cfg *core.ChainConfig, logger log15.Logger) (*Chain, error) {
 	kp, err := keystore.KeypairFromAddress(cfg.From, keystore.SubChain, cfg.KeystorePath, cfg.Insecure)
 	if err != nil {
 		return nil, err
 	}
 
-	logger := log15.Root().New("chain", cfg.Name)
 	krp := kp.(*sr25519.Keypair).AsKeyringPair()
 
 	// Setup connection

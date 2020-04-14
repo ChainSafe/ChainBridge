@@ -4,14 +4,12 @@
 package ethereum
 
 import (
+	"fmt"
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/common"
 )
-
-const VoteDepositProposalMethod = "voteDepositProposal"
-const ExecuteDepositMethod = "executeDepositProposal"
 
 func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipient []byte) []byte {
 	var data []byte
@@ -38,12 +36,11 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
 
-	w.log.Trace("Submitting CreateDepositPropsoal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
+	w.log.Trace("Submitting CreateDepositProposal for ERC20", "source", m.Source, "depositNonce", m.DepositNonce)
 
-	_, err = w.bridgeContract.Transact(
+	_, err = w.bridgeContract.VoteDepositProposal(
 		opts,
-		VoteDepositProposalMethod,
-		big.NewInt(int64(m.Source)),
+		uint8(m.Source),
 		m.DepositNonce.Big(),
 		hash,
 	)
@@ -73,10 +70,9 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 	go w.watchAndExecute(m, w.cfg.genericHandlerContract, h)
 
 	w.log.Trace("Submitting CreateDepositProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
-	_, err = w.bridgeContract.Transact(
+	_, err = w.bridgeContract.VoteDepositProposal(
 		opts,
-		VoteDepositProposalMethod,
-		big.NewInt(int64(m.Source)),
+		uint8(m.Source),
 		m.DepositNonce.Big(),
 		dataHash,
 	)
@@ -125,7 +121,7 @@ func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []b
 }
 
 func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
-	w.log.Info("Executing proposal", "to", w.conn.cfg.bridgeContract)
+	w.log.Info("Executing proposal", "handler", handler, "data", fmt.Sprintf("%x", data))
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	defer nonce.lock.Unlock()
@@ -134,10 +130,9 @@ func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []b
 		return
 	}
 
-	_, err = w.bridgeContract.BridgeRaw.Transact(
+	_, err = w.bridgeContract.ExecuteDepositProposal(
 		opts,
-		ExecuteDepositMethod,
-		big.NewInt(int64(m.Source)),
+		uint8(m.Source),
 		m.DepositNonce.Big(),
 		handler,
 		data,

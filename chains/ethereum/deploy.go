@@ -195,7 +195,7 @@ func deployERC20Handler(auth *bind.TransactOpts, client *ethclient.Client, bridg
 		return ZERO_ADDRESS, err
 	}
 
-	erc20HandlerAddr, _, _, err := erc20Handler.DeployERC20Handler(auth, client, bridgeAddress, [][32]byte{}, []common.Address{})
+	erc20HandlerAddr, _, _, err := erc20Handler.DeployERC20Handler(auth, client, bridgeAddress, [][32]byte{}, []common.Address{}, false)
 	if err != nil {
 		log.Error("error deploying ERC20 Handler instance")
 		return ZERO_ADDRESS, err

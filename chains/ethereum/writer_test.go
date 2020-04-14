@@ -27,18 +27,13 @@ func createTestWriter(t *testing.T, cfg *Config, contracts *DeployedContracts) (
 		t.Fatal(err)
 	}
 
-	erc20Handler, err := createErc20HandlerContract(contracts.ERC20HandlerAddress, conn)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	writer.conn.cfg.bridgeContract = contracts.BridgeAddress
 	writer.conn.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.conn.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
 	writer.cfg.bridgeContract = contracts.BridgeAddress
 	writer.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
-	writer.SetContracts(bridge, erc20Handler)
+	writer.SetContract(bridge)
 
 	return conn, writer
 }
@@ -120,7 +115,6 @@ func verifyHash(t *testing.T, conn *Connection, opts *bind.CallOpts, hash [32]by
 
 func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id)
-
 	aliceConn, alice := createTestWriter(t, aliceTestConfig, contracts)
 	defer aliceConn.Close()
 
@@ -134,13 +128,16 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 		t.Fatal(err)
 	}
 	erc20Address := deployMintApproveErc20(t, aliceConn, opts)
-
+	err = mintErc20Tokens(aliceConn, opts, erc20Address, contracts.ERC20HandlerAddress, big.NewInt(100))
+	if err != nil {
+		t.Fatal(err)
+	}
 	// Create initial transfer message
-	resourceId := append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0)
+	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0))
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
 	amount := big.NewInt(10)
-	m := msg.NewFungibleTransfer(1, 0, 0, amount, msg.ResourceIdFromSlice(resourceId), recipient)
-
+	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient)
+	whitelistResourceId(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, resourceId, erc20Address)
 	// Helpful for debugging
 	go watchEvent(alice.conn, DepositProposalCreated)
 	go watchEvent(alice.conn, DepositProposalVote)

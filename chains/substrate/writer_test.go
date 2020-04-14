@@ -77,6 +77,7 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 	// Now check if the assetTxProposal exists on chain
 	singleVoteState := &voteState{
 		VotesFor: []types.AccountID{types.NewAccountID(alice.conn.key.PublicKey)},
+		Status:   voteStatus{IsActive: true},
 	}
 	assertProposalState(t, alice.conn, prop, singleVoteState, true)
 
@@ -92,6 +93,7 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 			types.NewAccountID(alice.conn.key.PublicKey),
 			types.NewAccountID(bob.conn.key.PublicKey),
 		},
+		Status: voteStatus{IsApproved: true},
 	}
 	assertProposalState(t, alice.conn, prop, finalVoteState, true)
 

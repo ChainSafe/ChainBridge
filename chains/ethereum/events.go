@@ -12,11 +12,11 @@ import (
 )
 
 const (
-	Deposit                  EventSig = "Deposit(uint256,address,uint256)"
-	DepositProposalCreated   EventSig = "DepositProposalCreated(uint256,uint256,uint256,bytes32)"
-	DepositProposalVote      EventSig = "DepositProposalVote(uint256,uint256,uint256,uint8)"
-	DepositProposalFinalized EventSig = "DepositProposalFinalized(uint256,uint256,uint256)"
-	DepositProposalExecuted  EventSig = "DepositProposalExecuted(uint256,uint256,uint256)"
+	Deposit                  EventSig = "Deposit(uint8,address,uint256)"
+	DepositProposalCreated   EventSig = "DepositProposalCreated(uint8,uint8,uint256,bytes32)"
+	DepositProposalVote      EventSig = "DepositProposalVote(uint8,uint8,uint256,uint8)"
+	DepositProposalFinalized EventSig = "DepositProposalFinalized(uint8,uint8,uint256)"
+	DepositProposalExecuted  EventSig = "DepositProposalExecuted(uint8,uint8,uint256)"
 )
 
 type evtHandlerFn func(ethtypes.Log) msg.Message

@@ -7,6 +7,7 @@ import (
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/centrifuge/go-substrate-rpc-client/scale"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
@@ -25,6 +26,31 @@ type AccountData struct {
 type voteState struct {
 	VotesFor     []types.AccountID
 	VotesAgainst []types.AccountID
+	Status       voteStatus
+}
+
+type voteStatus struct {
+	IsActive   bool
+	IsApproved bool
+	IsRejected bool
+}
+
+func (m *voteStatus) Decode(decoder scale.Decoder) error {
+	b, err := decoder.ReadOneByte()
+
+	if err != nil {
+		return err
+	}
+
+	if b == 0 {
+		m.IsActive = true
+	} else if b == 1 {
+		m.IsApproved = true
+	} else if b == 2 {
+		m.IsRejected = true
+	}
+
+	return nil
 }
 
 // proposal represents an on-chain proposal
