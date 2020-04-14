@@ -96,7 +96,7 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
 	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
 	// TODO: Skip existing blocks
-	query := buildQuery(w.cfg.bridgeContract, DepositProposalFinalized, w.cfg.startBlock)
+	query := buildQuery(w.cfg.bridgeContract, DepositProposalFinalized, w.cfg.startBlock, nil)
 	eventSubscription, err := w.conn.subscribeToEvent(query)
 	if err != nil {
 		w.log.Error("Failed to subscribe to finalization event", "err", err)
