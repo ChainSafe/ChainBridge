@@ -29,6 +29,7 @@ func createTestListener(t *testing.T, config *Config, contracts *DeployedContrac
 	newConfig := *config
 	newConfig.bridgeContract = contracts.BridgeAddress
 	newConfig.erc20HandlerContract = contracts.ERC20HandlerAddress
+	newConfig.startBlock = big.NewInt(0)
 
 	conn := newLocalConnection(t, &newConfig)
 	bridgeContract, err := createBridgeContract(newConfig.bridgeContract, conn)
