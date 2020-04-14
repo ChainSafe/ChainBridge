@@ -128,7 +128,7 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 		t.Fatal(err)
 	}
 	erc20Address := deployMintApproveErc20(t, aliceConn, opts)
-	err = mintErc20Tokens(aliceConn, opts, erc20Address, contracts.ERC20HandlerAddress, big.NewInt(100))
+	err = fundErc20Handler(aliceConn, opts, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
 	if err != nil {
 		t.Fatal(err)
 	}

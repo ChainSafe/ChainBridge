@@ -20,6 +20,8 @@ import (
 
 const TestSubEndpoint = "ws://localhost:9944"
 
+var log = log15.New("e2e", "substrate")
+
 var AliceKp = keystore.TestKeyRing.SubstrateKeys[keystore.AliceKey]
 var BobKp = keystore.TestKeyRing.SubstrateKeys[keystore.BobKey]
 
@@ -116,7 +118,6 @@ func WatchForProposalSuccessOrFail(client *subClient, expectedNonce types.U64, s
 }
 
 func SubmitTx(t *testing.T, client *subClient, method substrate.Method, args ...interface{}) {
-	log15.Info("Submiting test tx", "method", method)
 	// Create call and extrinsic
 	call, err := types.NewCall(
 		client.meta,
@@ -164,7 +165,7 @@ func SubmitTx(t *testing.T, client *subClient, method substrate.Method, args ...
 		status := <-sub.Chan()
 		switch {
 		case status.IsInBlock:
-			fmt.Printf("Completed at block hash: %#x\n", status.AsInBlock)
+			log.Info("Extrinsic in block", "block", status.AsInBlock.Hex())
 			return
 		case status.IsDropped:
 			t.Fatal("Extrinsic dropped")
@@ -191,15 +192,23 @@ func queryStorage(client *subClient, prefix, method string, arg1, arg2 []byte, r
 	return client.api.RPC.State.GetStorageLatest(key, result)
 }
 
+func AddRelayer(t *testing.T, client *subClient, relayer types.AccountID) {
+	log.Info("Adding relayer", "accountId", relayer)
+	SubmitSudoTx(t, client, substrate.AddRelayer, relayer)
+}
+
 func WhitelistChain(t *testing.T, client *subClient, id msg.ChainId) {
+	log.Info("Whitelisting chain", "chainId", id)
 	SubmitSudoTx(t, client, substrate.WhitelistChain, types.U8(id))
 }
 
 func InitiateHashTransfer(t *testing.T, client *subClient, hash types.Hash, destId msg.ChainId) {
+	log.Info("Initiating hash transfer", "hash", hash.Hex())
 	SubmitTx(t, client, substrate.ExampleTransferHash, hash, types.U8(destId))
 }
 
 func InitiateSubstrateNativeTransfer(t *testing.T, client *subClient, amount int, recipient []byte, destId msg.ChainId) { //nolint:unused,deadcode
+	log.Info("Initiating Substrate native transfer", "amount", amount, "recipient", recipient, "destId", destId)
 	SubmitTx(t, client, substrate.ExampleTransfer, amount, recipient, types.U8(destId))
 }
 
@@ -212,6 +221,6 @@ func HashInt(i int) types.Hash {
 }
 
 func RegisterResource(t *testing.T, client *subClient, id msg.ResourceId, method string) {
-	log15.Info("Registering resource", "id", id, "method", []byte(method))
+	log.Info("Registering resource", "rId", id, "method", []byte(method))
 	SubmitSudoTx(t, client, substrate.SetResource, types.NewBytes32(id), []byte(method))
 }

@@ -38,13 +38,13 @@ func createAndStartBridge(t *testing.T, name, bridgeAddress, erc20HandlerAddres,
 	logger.SetHandler(log.Must.FileHandler(name+".output", log.TerminalFormat()))
 
 	ethCfg := eth.CreateConfig(name, EthChainId, bridgeAddress, erc20HandlerAddres, genericHandlerAddress)
-	eth, err := ethChain.InitializeChain(ethCfg, logger.New("chain", ethCfg.Name))
+	eth, err := ethChain.InitializeChain(ethCfg, logger.New("relayer", name))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	subCfg := sub.CreateConfig(name, SubChainId)
-	sub, err := subChain.InitializeChain(subCfg, logger.New("chain", subCfg.Name))
+	sub, err := subChain.InitializeChain(subCfg, logger.New("relayer", name))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,22 +81,25 @@ func attemptToPrintLogs() {
 
 func TestMain(m *testing.M) {
 	res := m.Run()
-	attemptToPrintLogs()
 	os.Exit(res)
 }
 
 func TestErc20ToSubstrate(t *testing.T) {
 	utils.SetLogger(log.LvlTrace)
+	defer attemptToPrintLogs()
 
 	// Deploy contracts, mint, approve
 	contracts := eth.DeployTestContracts(t, EthChainId)
 	ethClient, opts := eth.CreateEthClient(t)
 	erc20Contract := eth.DeployMintApproveErc20(t, ethClient, opts, contracts.ERC20HandlerAddress)
 	resourceId := append(common.LeftPadBytes(erc20Contract.Bytes(), 31), 0)
-	eth.WhitelistResourceId(t, ethClient, opts, msg.ResourceIdFromSlice(resourceId), erc20Contract)
+	eth.WhitelistResourceId(t, ethClient, opts, contracts.ERC20HandlerAddress, msg.ResourceIdFromSlice(resourceId), erc20Contract)
 
-	// Setup substrate client
+	// Setup substrate client, register resource, add relayers
 	subClient := sub.CreateSubClient(t, sub.AliceKp.AsKeyringPair())
+	sub.AddRelayer(t, subClient, types.NewAccountID(sub.AliceKp.AsKeyringPair().PublicKey))
+	sub.AddRelayer(t, subClient, types.NewAccountID(sub.BobKp.AsKeyringPair().PublicKey))
+	sub.WhitelistChain(t, subClient, EthChainId)
 	sub.RegisterResource(t, subClient, msg.ResourceIdFromSlice(resourceId), subChain.ExampleTransfer.String())
 	success := make(chan bool)
 	fail := make(chan error)
@@ -132,6 +135,7 @@ func TestSubstrateToErc20(t *testing.T) {
 	// TODO: Remove once example pallet has transfer out function (https://github.com/ChainSafe/chainbridge-substrate/issues/28)
 	t.Skip()
 	utils.SetLogger(log.LvlInfo)
+	defer attemptToPrintLogs()
 
 	// Whitelist chain
 	subClient := sub.CreateSubClient(t, sub.AliceKp.AsKeyringPair())
@@ -167,6 +171,7 @@ func TestSubstrateToErc20(t *testing.T) {
 
 func TestHashToGenericHandler(t *testing.T) {
 	utils.SetLogger(log.LvlTrace)
+	defer attemptToPrintLogs()
 
 	// Deploy contracts (incl. handler)
 	contracts := eth.DeployTestContracts(t, EthChainId)

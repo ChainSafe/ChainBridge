@@ -30,6 +30,8 @@ import (
 
 const TestEthEndpoint = "ws://localhost:8545"
 
+var log = log15.New("e2e", "ethereum")
+
 var AliceEthKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var CharlieEthKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 var CharlieEthAddr = common.HexToAddress(CharlieEthKp.Address())
@@ -111,7 +113,7 @@ func DeployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.T
 	}
 
 	// Approve
-	log15.Info("Approving tokens", "who", erc20Handler.Hex(), "amount", 99)
+	log.Info("Approving tokens", "who", erc20Handler.Hex(), "amount", 99)
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	_, err = erc20Instance.Approve(opts, erc20Handler, big.NewInt(99))
 	if err != nil {
@@ -187,7 +189,7 @@ func WaitForEthereumEvent(t *testing.T, client *ethclient.Client, contract commo
 	for {
 		select {
 		case evt := <-ch:
-			fmt.Printf("%s: %#v\n", subStr, evt.Topics)
+			log.Info("Got event, continuing...\n", "event", subStr, "topics", evt.Topics)
 			sub.Unsubscribe()
 			close(ch)
 			return

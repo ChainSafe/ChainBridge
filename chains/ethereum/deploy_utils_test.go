@@ -104,6 +104,25 @@ func approveErc20(connection *Connection, opts *bind.TransactOpts, contractAddre
 	return nil
 }
 
+func fundErc20Handler(conn *Connection, opts *bind.TransactOpts, handlerAddress, erc20Address common.Address, amount *big.Int) error {
+	err := approveErc20(conn, opts, erc20Address, handlerAddress, amount)
+	if err != nil {
+		return err
+	}
+
+	instance, err := erc20Handler.NewERC20Handler(handlerAddress, conn.conn)
+	if err != nil {
+		return err
+	}
+
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
+	_, err = instance.FundERC20(opts, erc20Address, opts.From, amount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // constructErc20Data constructs the data field to be passed into a deposit call
 func constructErc20DepositData(erc20Address, destRecipient common.Address, amount *big.Int) []byte {
 	var data []byte
