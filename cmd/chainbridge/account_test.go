@@ -20,31 +20,7 @@ var testKeystoreDir = "./test_datadir/"
 var testPassword = []byte("1234")
 
 func TestGenerateKey_NoType(t *testing.T) {
-	keyfile, err := generateKeypair("", testKeystoreDir, testPassword, "")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	defer os.RemoveAll(testKeystoreDir)
-
-	contents, err := ioutil.ReadFile(keyfile)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	kscontents := new(keystore.EncryptedKeystore)
-	err = json.Unmarshal(contents, kscontents)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if kscontents.Type != "secp256k1" {
-		t.Fatalf("Fail: got %s expected %s", kscontents.Type, "secp256k1")
-	}
-}
-
-func TestGenerateKey_withPk(t *testing.T) {
-	keyfile, err := generateKeypair("", testKeystoreDir, testPassword, "000000000000000000000000000000000000000000000000000000416c696365")
+	keyfile, err := generateKeypair("", testKeystoreDir, testPassword)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +53,7 @@ func TestImportKey_ShouldFail(t *testing.T) {
 func TestImportKey(t *testing.T) {
 	keypath := "../../"
 
-	importkeyfile, err := generateKeypair("sr25519", keypath, testPassword, "")
+	importkeyfile, err := generateKeypair("sr25519", keypath, testPassword)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,6 +61,28 @@ func TestImportKey(t *testing.T) {
 	defer os.RemoveAll(importkeyfile)
 
 	keyfile, err := importKey(importkeyfile, testKeystoreDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	keys, err := listKeys(testKeystoreDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(testKeystoreDir)
+
+	if len(keys) != 1 {
+		t.Fatal("fail")
+	}
+
+	if strings.Compare(keys[0], filepath.Base(keyfile)) != 0 {
+		t.Fatalf("Fail: got %s expected %s", keys[0], keyfile)
+	}
+}
+
+func TestImportKey_withPk(t *testing.T) {
+	keyfile, err := importPrivKey("", testKeystoreDir, "000000000000000000000000000000000000000000000000000000416c696365", testPassword)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -113,12 +111,12 @@ func TestListKeys(t *testing.T) {
 		var err error
 		var keyfile string
 		if i%2 == 0 {
-			keyfile, err = generateKeypair(crypto.Sr25519Type, testKeystoreDir, testPassword, "")
+			keyfile, err = generateKeypair(crypto.Sr25519Type, testKeystoreDir, testPassword)
 			if err != nil {
 				t.Fatal(err)
 			}
 		} else {
-			keyfile, err = generateKeypair(crypto.Secp256k1Type, testKeystoreDir, testPassword, "")
+			keyfile, err = generateKeypair(crypto.Secp256k1Type, testKeystoreDir, testPassword)
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -24,7 +24,6 @@ var cliFlags = []cli.Flag{
 }
 
 var generateFlags = []cli.Flag{
-	PrivateKeyFlag,
 	PasswordFlag,
 	Sr25519Flag,
 	Secp256k1Flag,
@@ -36,6 +35,10 @@ var devFlags = []cli.Flag{
 
 var importFlags = []cli.Flag{
 	EthereumImportFlag,
+	PrivateKeyFlag,
+	Sr25519Flag,
+	Secp256k1Flag,
+	PasswordFlag,
 }
 
 var accountCommand = cli.Command{
