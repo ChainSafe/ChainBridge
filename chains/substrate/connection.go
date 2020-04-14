@@ -136,7 +136,7 @@ func (c *Connection) watchSubmission(sub *author.ExtrinsicStatusSubscription) er
 		case status := <-sub.Chan():
 			switch {
 			case status.IsInBlock:
-				c.log.Trace("Successful extrinsic finalized", "block", status.AsInBlock.Hex())
+				c.log.Trace("Extrinsic included in block", "block", status.AsInBlock.Hex())
 				return nil
 			case status.IsRetracted:
 				return fmt.Errorf("extrinsic retracted: %s", status.AsRetracted.Hex())
@@ -144,8 +144,6 @@ func (c *Connection) watchSubmission(sub *author.ExtrinsicStatusSubscription) er
 				return fmt.Errorf("extrinsic dropped from network")
 			case status.IsInvalid:
 				return fmt.Errorf("extrinsic invalid")
-			default:
-				c.log.Trace("Other status", "status", fmt.Sprintf("%+v", status))
 			}
 		case err := <-sub.Err():
 			c.log.Trace("Extrinsic subscription error", "err", err)

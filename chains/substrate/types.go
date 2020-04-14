@@ -59,6 +59,7 @@ type proposal struct {
 	call         types.Call
 	sourceId     types.U8
 	resourceId   types.Bytes32
+	method	string
 }
 
 // encode takes only nonce and call and encodes them for storage queries
@@ -96,6 +97,7 @@ func (w *Writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 		call:         call,
 		sourceId:     types.U8(m.Source),
 		resourceId:   types.NewBytes32(m.ResourceId),
+		method: method,
 	}, nil
 }
 
@@ -120,5 +122,6 @@ func (w *Writer) createGenericProposal(m msg.Message) (*proposal, error) {
 		call:         call,
 		sourceId:     types.U8(m.Source),
 		resourceId:   types.NewBytes32(m.ResourceId),
+		method: method,
 	}, nil
 }

@@ -4,9 +4,9 @@
 package substrate
 
 import (
-	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
 	"github.com/ChainSafe/ChainBridge/core"
@@ -19,11 +19,17 @@ import (
 )
 
 const TestSubEndpoint = "ws://localhost:9944"
+var TestTimeout = time.Second * 15
 
 var log = log15.New("e2e", "substrate")
 
 var AliceKp = keystore.TestKeyRing.SubstrateKeys[keystore.AliceKey]
 var BobKp = keystore.TestKeyRing.SubstrateKeys[keystore.BobKey]
+
+var RelayerSet = []types.AccountID{
+	types.NewAccountID(AliceKp.AsKeyringPair().PublicKey),
+	types.NewAccountID(BobKp.AsKeyringPair().PublicKey),
+}
 
 func CreateConfig(key string, chain msg.ChainId) *core.ChainConfig {
 	return &core.ChainConfig{
@@ -69,51 +75,80 @@ func CreateSubClient(t *testing.T, key *signature.KeyringPair) *subClient {
 	return c
 }
 
-func WatchForProposalSuccessOrFail(client *subClient, expectedNonce types.U64, success chan bool, fail chan error) {
+func TrySetupChain(t *testing.T, client *subClient, relayers []types.AccountID, chains []msg.ChainId) {
+	var count types.U32
+	_, err := queryStorage(client, "Bridge", "RelayerCount", nil , nil, &count)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Only perform setup if no relayers exist already (ie. state is uninitialized)
+	if count == 0 {
+		for _, relayer := range relayers {
+			AddRelayer(t, client, relayer)
+		}
+
+		for _, chain := range chains {
+			WhitelistChain(t, client, chain)
+		}
+	} else {
+		log.Warn("Skipping chain setup")
+	}
+
+
+}
+
+func WaitForProposalSuccessOrFail(t *testing.T, client *subClient, nonce types.U64, chain types.U8) {
 	key, err := types.CreateStorageKey(client.meta, "System", "Events", nil, nil)
 	if err != nil {
-		fail <- err
-		return
+		t.Fatal(err)
 	}
 
 	sub, err := client.api.RPC.State.SubscribeStorageRaw([]types.StorageKey{key})
 	if err != nil {
-		fail <- err
-		return
+		t.Fatal(err)
 	}
 
+	timeout := time.After(TestTimeout)
 	for {
-		set := <-sub.Chan()
-		for _, chng := range set.Changes {
-			if !types.Eq(chng.StorageKey, key) || !chng.HasStorageData {
-				// skip, we are only interested in events with content
-				continue
-			}
-
-			// Decode the event records
-			events := substrate.Events{}
-			err = types.EventRecordsRaw(chng.StorageData).DecodeEventRecords(client.meta, &events)
-			if err != nil {
-				fail <- err
-				return
-			}
-
-			for _, evt := range events.Bridge_ProposalSucceeded {
-				if evt.DepositNonce == expectedNonce {
-					success <- true
-					return
-				} else {
-					log15.Info("Found mismatched event", "depositNonce", evt.DepositNonce)
+		select {
+		case <- timeout:
+			t.Fatalf("Timed out waiting for proposal success/fail event")
+		case set := <-sub.Chan():
+			for _, chng := range set.Changes {
+				if !types.Eq(chng.StorageKey, key) || !chng.HasStorageData {
+					// skip, we are only interested in events with content
+					continue
 				}
-			}
 
-			for _, evt := range events.Bridge_ProposalFailed {
-				if evt.DepositNonce == expectedNonce {
-					fail <- errors.New("proposal failed")
-					return
+				// Decode the event records
+				events := substrate.Events{}
+				err = types.EventRecordsRaw(chng.StorageData).DecodeEventRecords(client.meta, &events)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				for _, evt := range events.Bridge_ProposalSucceeded {
+					if evt.DepositNonce == nonce && evt.SourceId == chain {
+						log.Info("Proposal succeeded", "depositNonce", evt.DepositNonce, "source", evt.SourceId)
+						return
+					} else {
+						log.Info("Found mismatched success event", "depositNonce", evt.DepositNonce, "source", evt.SourceId)
+					}
+				}
+
+				for _, evt := range events.Bridge_ProposalFailed {
+					if evt.DepositNonce == nonce && evt.SourceId == chain {
+						log.Info("Proposal failed", "depositNonce", evt.DepositNonce, "source", evt.SourceId)
+						t.Fatalf("Proposal failed. Nonce: %d Source: %d", evt.DepositNonce, evt.SourceId)
+					} else {
+						log.Info("Found mismatched fail event", "depositNonce", evt.DepositNonce, "source", evt.SourceId)
+					}
 				}
 			}
 		}
+
+
 	}
 }
 
@@ -192,6 +227,26 @@ func queryStorage(client *subClient, prefix, method string, arg1, arg2 []byte, r
 	return client.api.RPC.State.GetStorageLatest(key, result)
 }
 
+// TODO: Remove once added to GSRPC
+func getConst(meta *types.Metadata, prefix, name string, res interface{}) error {
+	for _, mod := range meta.AsMetadataV11.Modules {
+		if string(mod.Name) == prefix {
+			for _, cons := range mod.Constants {
+				if string(cons.Name) == name {
+					return types.DecodeFromBytes(cons.Value, res)
+				}
+			}
+		}
+	}
+	return fmt.Errorf("could not find constant %s.%s", prefix, name)
+}
+
+func QueryConst(t *testing.T, client *subClient, prefix, name string, res interface{}) {
+	err := getConst(client.meta, prefix, name, res)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
 func AddRelayer(t *testing.T, client *subClient, relayer types.AccountID) {
 	log.Info("Adding relayer", "accountId", relayer)
 	SubmitSudoTx(t, client, substrate.AddRelayer, relayer)
@@ -207,9 +262,9 @@ func InitiateHashTransfer(t *testing.T, client *subClient, hash types.Hash, dest
 	SubmitTx(t, client, substrate.ExampleTransferHash, hash, types.U8(destId))
 }
 
-func InitiateSubstrateNativeTransfer(t *testing.T, client *subClient, amount int, recipient []byte, destId msg.ChainId) { //nolint:unused,deadcode
+func InitiateSubstrateNativeTransfer(t *testing.T, client *subClient, amount types.U32, recipient []byte, destId msg.ChainId) { //nolint:unused,deadcode
 	log.Info("Initiating Substrate native transfer", "amount", amount, "recipient", recipient, "destId", destId)
-	SubmitTx(t, client, substrate.ExampleTransfer, amount, recipient, types.U8(destId))
+	SubmitTx(t, client, substrate.ExampleTransferNative, amount, recipient, types.U8(destId))
 }
 
 func HashInt(i int) types.Hash {
