@@ -202,8 +202,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 		Destination:  0,
 		Type:         msg.GenericTransfer,
 		DepositNonce: 0,
-		// TODO: What should this be?
-		// ResourceId:
+		ResourceId: msg.ResourceId{}, // for Centrifuge handler this can be empty
 		Payload: []interface{}{
 			hash.Bytes(),
 		},
