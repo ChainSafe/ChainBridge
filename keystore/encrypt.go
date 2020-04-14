@@ -24,6 +24,7 @@ import (
 type EncryptedKeystore struct {
 	Type       string `json:"type"`
 	PublicKey  string `json:"publicKey"`
+	Address    string `json:"address"`
 	Ciphertext []byte `json:"ciphertext"`
 }
 
@@ -84,12 +85,13 @@ func EncryptAndWriteToFile(file *os.File, kp crypto.Keypair, password []byte) er
 	}
 
 	if keytype == "" {
-		return errors.New("cannot write key not of type secp256k1")
+		return errors.New("cannot write key not of type secp256k1 or sr25519")
 	}
 
 	keydata := &EncryptedKeystore{
 		Type:       keytype,
 		PublicKey:  kp.PublicKey(),
+		Address:    kp.Address(),
 		Ciphertext: ciphertext,
 	}
 
