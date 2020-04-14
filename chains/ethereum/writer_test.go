@@ -83,7 +83,7 @@ func TestHash(t *testing.T) {
 
 func watchEvent(conn *Connection, subStr EventSig) {
 	fmt.Printf("Watching for event: %s\n", subStr)
-	query := buildQuery(conn.cfg.bridgeContract, subStr, big.NewInt(0))
+	query := buildQuery(conn.cfg.bridgeContract, subStr, big.NewInt(0), nil)
 	eventSubscription, err := conn.subscribeToEvent(query)
 	if err != nil {
 		log15.Error("Failed to subscribe to finalization event", "err", err)
@@ -148,7 +148,7 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	go watchEvent(alice.conn, DepositProposalExecuted)
 
 	// Watch for executed event
-	query := buildQuery(alice.cfg.bridgeContract, DepositProposalExecuted, big.NewInt(0))
+	query := buildQuery(alice.cfg.bridgeContract, DepositProposalExecuted, big.NewInt(0), nil)
 	eventSubscription, err := alice.conn.subscribeToEvent(query)
 	if err != nil {
 		log15.Error("Failed to subscribe to finalization event", "err", err)
@@ -217,7 +217,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	go watchEvent(alice.conn, DepositProposalExecuted)
 
 	// Watch for executed event
-	query := buildQuery(alice.cfg.bridgeContract, DepositProposalExecuted, big.NewInt(0))
+	query := buildQuery(alice.cfg.bridgeContract, DepositProposalExecuted, big.NewInt(0), nil)
 	eventSubscription, err := alice.conn.subscribeToEvent(query)
 	if err != nil {
 		log15.Error("Failed to subscribe to finalization event", "err", err)

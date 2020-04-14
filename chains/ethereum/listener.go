@@ -121,7 +121,7 @@ func (l *Listener) pollBlocks() error {
 func (l *Listener) getEventsForBlock(latestBlock *big.Int) error {
 
 	for evt, sub := range l.subscriptions {
-		query := buildSingleBlockQuery(l.cfg.bridgeContract, evt, latestBlock)
+		query := buildQuery(l.cfg.bridgeContract, evt, latestBlock, latestBlock)
 
 		logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
 		if err != nil {
@@ -141,21 +141,10 @@ func (l *Listener) getEventsForBlock(latestBlock *big.Int) error {
 }
 
 // buildQuery constructs a query for the bridgeContract by hashing sig to get the event topic
-func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int) eth.FilterQuery {
+func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int, endBlock *big.Int) eth.FilterQuery {
 	query := eth.FilterQuery{
 		FromBlock: startBlock,
-		Addresses: []ethcommon.Address{contract},
-		Topics: [][]ethcommon.Hash{
-			{sig.GetTopic()},
-		},
-	}
-	return query
-}
-
-func buildSingleBlockQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int) eth.FilterQuery {
-	query := eth.FilterQuery{
-		FromBlock: startBlock,
-		ToBlock:   startBlock,
+		ToBlock:   endBlock,
 		Addresses: []ethcommon.Address{contract},
 		Topics: [][]ethcommon.Hash{
 			{sig.GetTopic()},
@@ -178,11 +167,6 @@ func (l *Listener) RegisterEventHandler(subscription EventSig, handler evtHandle
 
 	return nil
 
-}
-
-// Unsubscribe cancels a subscription for the given event
-func (l *Listener) Unsubscribe(sig EventSig) {
-	delete(l.subscriptions, sig)
 }
 
 // Stop cancels all subscriptions. Must be called before Connection.Stop().
