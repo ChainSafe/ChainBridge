@@ -31,7 +31,7 @@ import (
 
 const TestEthEndpoint = "ws://localhost:8545"
 
-var TestTimeout = time.Second * 15
+var TestTimeout = time.Second * 30
 
 var log = log15.New("e2e", "ethereum")
 

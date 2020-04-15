@@ -87,6 +87,12 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 	toHash := append(w.cfg.genericHandlerContract.Bytes(), data...)
 	dataHash := hash(toHash)
 
+	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
+		w.log.Debug("Proposal complete, not voting")
+		nonce.lock.Unlock()
+		return true
+	}
+
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.genericHandlerContract, data)
 
