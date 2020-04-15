@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ChainSafe/ChainBridge/blockstore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -61,7 +62,7 @@ func constructMessage(t *testing.T, hash string, depositNonce uint32, destId uin
 func Test_AssetTx(t *testing.T) {
 	ac := createAliceConnection(t)
 	r := &mockRouter{msgs: make(chan msg.Message)}
-	alice := NewListener(ac, "Alice", 1, 0, TestLogger)
+	alice := NewListener(ac, "Alice", 1, 0, TestLogger, &blockstore.EmptyStore{})
 	alice.SetRouter(r)
 	err := alice.Start()
 	if err != nil {
