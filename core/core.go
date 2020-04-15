@@ -18,12 +18,14 @@ import (
 type Core struct {
 	registry map[msg.ChainId]Chain
 	route    *router.Router
+	log      log15.Logger
 }
 
 func NewCore() *Core {
 	return &Core{
 		registry: make(map[msg.ChainId]Chain),
-		route:    router.NewRouter(),
+		route:    router.NewRouter(log15.New("system", "router")),
+		log:      log15.New("system", "core"),
 	}
 }
 
@@ -38,14 +40,14 @@ func (c *Core) Start() {
 	for _, chain := range c.registry {
 		err := chain.Start()
 		if err != nil {
-			log15.Error(
+			c.log.Error(
 				"failed to start chain",
 				"chain", chain.Id(),
 				"err", err,
 			)
 			return
 		}
-		log15.Info(fmt.Sprintf("Started %s chain", chain.Name()))
+		c.log.Info(fmt.Sprintf("Started %s chain", chain.Name()))
 	}
 
 	sigc := make(chan os.Signal, 1)
@@ -54,11 +56,11 @@ func (c *Core) Start() {
 
 	// Block here and wait for a signal
 	<-sigc
-	log15.Info("Interrupt received, shutting down now.")
+	c.log.Info("Interrupt received, shutting down now.")
 	for _, ch := range c.registry {
 		err := ch.Stop()
 		if err != nil {
-			log15.Error(
+			c.log.Error(
 				"failed to shutdown chain",
 				"chain", ch.Id(),
 				"err", err,
