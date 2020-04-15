@@ -64,10 +64,12 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 	}
 
 	h := m.Payload[0].([]byte)
-	dataHash := hash(append(w.cfg.genericHandlerContract.Bytes(), h...))
+	data := append(m.ResourceId[:], h...)
+	toHash := append(w.cfg.genericHandlerContract.Bytes(), data...)
+	dataHash := hash(toHash)
 
 	// watch for execution event
-	go w.watchAndExecute(m, w.cfg.genericHandlerContract, h)
+	go w.watchAndExecute(m, w.cfg.genericHandlerContract, data)
 
 	w.log.Trace("Submitting CreateDepositProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
 	_, err = w.bridgeContract.VoteDepositProposal(

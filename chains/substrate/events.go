@@ -189,14 +189,15 @@ func fungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, e
 		return msg.Message{}, fmt.Errorf("failed to cast EventFungibleTransfer type")
 	}
 
-	log.Info("Got fungible transfer event!", "destination", evt.Destination, "resourceId", evt.ResourceId, "amount", evt.Amount)
+	resourceId := msg.ResourceId(evt.ResourceId)
+	log.Info("Got fungible transfer event!", "destination", evt.Destination, "resourceId", resourceId.Hex(), "amount", evt.Amount)
 
 	return msg.NewFungibleTransfer(
 		0, // Unset
 		msg.ChainId(evt.Destination),
 		msg.Nonce(evt.DepositNonce),
 		big.NewInt(int64(evt.Amount)),
-		msg.ResourceId(evt.ResourceId),
+		resourceId,
 		evt.Recipient,
 	), nil
 }

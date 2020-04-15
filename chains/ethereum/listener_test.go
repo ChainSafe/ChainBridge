@@ -88,7 +88,6 @@ func TestListener_depositEvent(t *testing.T) {
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
 	resourceId := append(common.LeftPadBytes(erc20Contract.Bytes(), 31), uint8(src))
-	fmt.Printf("Initial id: %x\n", resourceId)
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
 
 	whitelistResourceId(t, l.conn.conn, opts, contracts.ERC20HandlerAddress, msg.ResourceIdFromSlice(resourceId), erc20Contract)

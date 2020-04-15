@@ -30,6 +30,7 @@ import (
 )
 
 const TestEthEndpoint = "ws://localhost:8545"
+
 var TestTimeout = time.Second * 15
 
 var log = log15.New("e2e", "ethereum")
@@ -125,46 +126,27 @@ func DeployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.T
 	return erc20Addr
 }
 
-// deployAndFundEr20 sets up a new erc20 contract and funds the bridge/handler
-func DeployAndFundErc20(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address, amount *big.Int) common.Address { //nolint:unused,deadcode
+func DeployErc20AndAddMinter(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address) common.Address { //nolint:unused,deadcode
 	// Deploy
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	erc20Addr, _, erc20Instance, err := erc20Mintable.DeployERC20Mintable(opts, client)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	// Mint to sender
-	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	_, err = erc20Instance.Mint(opts, opts.From, amount)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Approve handler
-	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	_, err = erc20Instance.Approve(opts, erc20Handler, amount)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Fund handler
-	handler, err := ERC20Handler.NewERC20Handler(erc20Handler, client)
-	if err != nil {
-		t.Fatal(err)
-	}
+	log.Info("Deployed new ERC20 cotntract", "address", erc20Addr)
 
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	_, err = handler.FundERC20(opts, erc20Addr, opts.From, amount)
+
+	_, err = erc20Instance.AddMinter(opts, erc20Handler)
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	log.Info("Approving handler to mint ERC20 tokens", "handler", erc20Handler, "contract", erc20Addr)
 	return erc20Addr
 }
 
 func RegisterErc20Resource(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address, rId msg.ResourceId, addr common.Address) {
-	log.Info("Registering resource", "id", rId, "address", addr.Hex())
+	log.Info("Registering resource", "id", rId.Hex(), "address", addr.Hex())
 	instance, err := ERC20Handler.NewERC20Handler(erc20Handler, client)
 	if err != nil {
 		t.Fatal(err)
@@ -177,18 +159,31 @@ func RegisterErc20Resource(t *testing.T, client *ethclient.Client, opts *bind.Tr
 	}
 }
 
+func RegisterGenericResource(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, genericHandler common.Address, rId msg.ResourceId, addr common.Address) {
+	log.Info("Registering resource", "id", rId.Hex(), "address", addr.Hex())
+	instance, err := centrifugeHandler.NewCentrifugeAssetHandler(genericHandler, client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
+	_, err = instance.SetResourceIDAndContractAddress(opts, rId, addr)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 // constructErc20Data constructs the data field to be passed into a deposit call
-func constructErc20DepositData(erc20Address common.Address, destRecipient []byte, amount *big.Int) []byte {
+func constructErc20DepositData(rId msg.ResourceId, id msg.ChainId, destRecipient []byte, amount *big.Int) []byte {
 	var data []byte
-	data = append(data, common.LeftPadBytes(erc20Address.Bytes(), 32)...)
-	data = append(data, math.PaddedBigBytes(amount, 32)...)
+	data = append(rId[:], math.PaddedBigBytes(amount, 32)...)
 	data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(destRecipient))), 32)...)
 	data = append(data, destRecipient...)
 	return data
 }
 
-func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, recipient []byte, amount *big.Int, contracts *ethereum.DeployedContracts, erc20Contract common.Address) {
-	data := constructErc20DepositData(erc20Contract, recipient, big.NewInt(10))
+func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, srcId, destId msg.ChainId, recipient []byte, amount *big.Int, contracts *ethereum.DeployedContracts, rId msg.ResourceId) {
+	data := constructErc20DepositData(rId, srcId, recipient, amount)
 
 	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
 	if err != nil {
@@ -232,7 +227,7 @@ func WaitForEthereumEvent(t *testing.T, client *ethclient.Client, contract commo
 			if err != nil {
 				t.Fatal(err)
 			}
-		case <- time.After(TestTimeout):
+		case <-time.After(TestTimeout):
 			t.Fatalf("Test timed out waiting for event %s", subStr)
 		}
 	}
@@ -265,18 +260,5 @@ func AssertBalance(t *testing.T, client *ethclient.Client, amount *big.Int, erc2
 	}
 	if actual.Cmp(amount) != 0 {
 		t.Fatalf("Balance mismatch. Expected: %s Got: %s", amount.String(), actual.String())
-	}
-}
-
-func WhitelistResourceId(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address, rId msg.ResourceId, addr common.Address) {
-	instance, err := ERC20Handler.NewERC20Handler(erc20Handler, client)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	_, err = instance.SetResourceIDAndContractAddress(opts, rId, addr)
-	if err != nil {
-		t.Fatal(err)
 	}
 }

@@ -124,12 +124,12 @@ func fundErc20Handler(conn *Connection, opts *bind.TransactOpts, handlerAddress,
 }
 
 // constructErc20Data constructs the data field to be passed into a deposit call
-func constructErc20DepositData(erc20Address, destRecipient common.Address, amount *big.Int) []byte {
+func constructErc20DepositData(erc20Contract common.Address, id msg.ChainId, destRecipient common.Address, amount *big.Int) []byte {
 	var data []byte
-	data = append(data, common.LeftPadBytes(erc20Address.Bytes(), 32)...)
-	data = append(data, math.PaddedBigBytes(amount, 32)...)
-	data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(destRecipient.Bytes()))), 32)...)
-	data = append(data, destRecipient.Bytes()...)
+	data = append(common.LeftPadBytes(erc20Contract.Bytes(), 31), byte(id))                        // Construct resource ID
+	data = append(data, math.PaddedBigBytes(amount, 32)...)                                        // Amount
+	data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(destRecipient.Bytes()))), 32)...) // Recipient length
+	data = append(data, destRecipient.Bytes()...)                                                  // Recipient
 	return data
 }
 
@@ -142,7 +142,12 @@ func createErc20Deposit(contract *Bridge.Bridge,
 	destId msg.ChainId,
 	amount *big.Int) error {
 
-	data := constructErc20DepositData(erc20Address, destRecipient, amount)
+	chainId, err := contract.ChainID(&bind.CallOpts{})
+	if err != nil {
+		return err
+	}
+
+	data := constructErc20DepositData(erc20Address, msg.ChainId(chainId), destRecipient, amount)
 
 	// Incrememnt Nonce by one
 	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
@@ -158,14 +163,19 @@ func createErc20Deposit(contract *Bridge.Bridge,
 }
 
 func whitelistResourceId(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20handler common.Address, rId msg.ResourceId, addr common.Address) {
+	_, err := updateNonce(opts, client, opts.From)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	instance, err := erc20Handler.NewERC20Handler(erc20handler, client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	_, err = instance.SetResourceIDAndContractAddress(opts, rId, addr)
 	if err != nil {
 		t.Fatal(err)
 	}
+	log.Info("Whitelisted resource", "id", rId.Hex(), "addr", addr)
 }

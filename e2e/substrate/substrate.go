@@ -19,6 +19,7 @@ import (
 )
 
 const TestSubEndpoint = "ws://localhost:9944"
+
 var TestTimeout = time.Second * 15
 
 var log = log15.New("e2e", "substrate")
@@ -77,7 +78,7 @@ func CreateSubClient(t *testing.T, key *signature.KeyringPair) *subClient {
 
 func TrySetupChain(t *testing.T, client *subClient, relayers []types.AccountID, chains []msg.ChainId) {
 	var count types.U32
-	_, err := queryStorage(client, "Bridge", "RelayerCount", nil , nil, &count)
+	_, err := queryStorage(client, "Bridge", "RelayerCount", nil, nil, &count)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +96,6 @@ func TrySetupChain(t *testing.T, client *subClient, relayers []types.AccountID, 
 		log.Warn("Skipping chain setup")
 	}
 
-
 }
 
 func WaitForProposalSuccessOrFail(t *testing.T, client *subClient, nonce types.U64, chain types.U8) {
@@ -112,7 +112,7 @@ func WaitForProposalSuccessOrFail(t *testing.T, client *subClient, nonce types.U
 	timeout := time.After(TestTimeout)
 	for {
 		select {
-		case <- timeout:
+		case <-timeout:
 			t.Fatalf("Timed out waiting for proposal success/fail event")
 		case set := <-sub.Chan():
 			for _, chng := range set.Changes {
@@ -147,7 +147,6 @@ func WaitForProposalSuccessOrFail(t *testing.T, client *subClient, nonce types.U
 				}
 			}
 		}
-
 
 	}
 }

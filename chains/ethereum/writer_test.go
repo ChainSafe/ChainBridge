@@ -115,6 +115,7 @@ func verifyHash(t *testing.T, conn *Connection, opts *bind.CallOpts, hash [32]by
 
 func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id)
+
 	aliceConn, alice := createTestWriter(t, aliceTestConfig, contracts)
 	defer aliceConn.Close()
 
@@ -195,6 +196,17 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	bobConn, bob := createTestWriter(t, bobTestConfig, contracts)
 	defer bobConn.Close()
 
+	// Whitelist resourceID (arbitrary for centrifuge handler)
+	rId := msg.ResourceIdFromSlice(common.LeftPadBytes([]byte{1, 1}, 32))
+	addr := common.BytesToAddress(common.LeftPadBytes([]byte{1}, 32))
+
+	opts, nonce, err := aliceConn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
+	nonce.lock.Unlock() // We manual increment nonce in tests
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	whitelistResourceId(t, aliceConn.conn, opts, contracts.CentrifugeHandlerAddress, rId, addr)
 	// Create initial transfer message
 	hash := common.HexToHash("0xf0a8748d2b102eb4e0e116047753b9beff0396d81b830693b19a1376ac4b14e8")
 	m := msg.Message{
@@ -202,7 +214,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 		Destination:  0,
 		Type:         msg.GenericTransfer,
 		DepositNonce: 0,
-		ResourceId: msg.ResourceId{}, // for Centrifuge handler this can be empty
+		ResourceId:   rId,
 		Payload: []interface{}{
 			hash.Bytes(),
 		},

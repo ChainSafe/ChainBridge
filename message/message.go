@@ -4,12 +4,17 @@
 package msg
 
 import (
+	"fmt"
 	"math/big"
 )
 
 type ChainId uint8
 type TransferType string
 type ResourceId [32]byte
+
+func (r ResourceId) Hex() string {
+	return fmt.Sprintf("%x", r)
+}
 
 type Nonce uint64
 

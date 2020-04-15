@@ -54,7 +54,7 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	registerResourceId(t, alice.conn, rId, ExampleTransferNative.String())
+	registerResourceId(t, alice.conn, rId, ExampleTransfer.String())
 	whitelistChain(t, alice.conn, srcId)
 	// Construct the message to initiate a vote
 	amount := big.NewInt(10000000)
