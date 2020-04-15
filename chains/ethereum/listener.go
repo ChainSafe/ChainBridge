@@ -36,7 +36,7 @@ type Listener struct {
 	bridgeContract       *BridgeContract       // instance of bound bridge contract
 	erc20HandlerContract *ERC20HandlerContract // instance of bound erc20 handler
 	log                  log15.Logger
-	blockstore	blockstore.Blockstorer
+	blockstore           blockstore.Blockstorer
 }
 
 func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *Listener {
@@ -45,7 +45,7 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.
 		conn:          conn,
 		subscriptions: make(map[EventSig]*Subscription),
 		log:           log,
-		blockstore: bs,
+		blockstore:    bs,
 	}
 }
 
@@ -103,7 +103,7 @@ func (l *Listener) pollBlocks() error {
 		}
 		currBlock, err := l.conn.conn.BlockByNumber(l.conn.ctx, nil)
 		if err != nil {
-			return fmt.Errorf("Unable to get latest block: %s", err)
+			return fmt.Errorf("unable to get latest block: %s", err)
 		}
 		if currBlock.Number().Cmp(latestBlock) < 0 {
 			time.Sleep(BlockRetryInterval)
@@ -115,6 +115,10 @@ func (l *Listener) pollBlocks() error {
 			return err
 		}
 
+		err = l.blockstore.StoreBlock(latestBlock)
+		if err != nil {
+			return err
+		}
 		latestBlock.Add(latestBlock, big.NewInt(1))
 	}
 

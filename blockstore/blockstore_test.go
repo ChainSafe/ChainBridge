@@ -20,8 +20,12 @@ func TestSaveAndLoad(t *testing.T) {
 	chain := msg.ChainId(10)
 	relayer := keystore.AliceSr25519.Address()
 
+	bs, err := NewBlockstore(dir, chain, relayer)
+	if err != nil {
+		t.Fatal(err)
+	}
 	// Load non-existent dir/file
-	block, err := TryLoadLatestBlock(dir, chain, relayer)
+	block, err := bs.TryLoadLatestBlock()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,13 +36,13 @@ func TestSaveAndLoad(t *testing.T) {
 
 	// Save block number
 	block = big.NewInt(999)
-	err = SaveLatestBlock(dir, chain, relayer, block)
+	err = bs.StoreBlock(block)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Load block number
-	latest, err := TryLoadLatestBlock(dir, chain, relayer)
+	latest, err := bs.TryLoadLatestBlock()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,13 +53,13 @@ func TestSaveAndLoad(t *testing.T) {
 
 	// Save block number again
 	block = big.NewInt(1234)
-	err = SaveLatestBlock(dir, chain, relayer, block)
+	err = bs.StoreBlock(block)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Load block number
-	latest, err = TryLoadLatestBlock(dir, chain, relayer)
+	latest, err = bs.TryLoadLatestBlock()
 	if err != nil {
 		t.Fatal(err)
 	}

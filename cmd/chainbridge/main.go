@@ -21,6 +21,8 @@ var cliFlags = []cli.Flag{
 	ConfigFileFlag,
 	VerbosityFlag,
 	KeystorePathFlag,
+	BlockstorePathFlag,
+	FreshStartFlag,
 }
 
 var generateFlags = []cli.Flag{
@@ -150,6 +152,7 @@ func run(ctx *cli.Context) error {
 			KeystorePath:   ks,
 			Insecure:       insecure,
 			BlockstorePath: ctx.GlobalString(BlockstorePathFlag.Name),
+			FreshStart:     ctx.GlobalBool(FreshStartFlag.Name),
 			Opts:           chain.Opts,
 		}
 		var newChain core.Chain

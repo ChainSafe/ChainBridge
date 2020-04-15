@@ -59,16 +59,24 @@ func createErc20HandlerContract(addr common.Address, conn *Connection) (*ERC20Ha
 
 // checkBlockstore queries the blockstore for the latest known block. If the latest block is
 // greater than cfg.startBlock, then cfg.startBlock is replaced with the latest known block.
-func checkBlockstore(cfg *Config, bs *blockstore.Blockstore) error {
-	latestBlock, err := bs.TryLoadLatestBlock()
+func setupBlockstore(cfg *Config, kp *secp256k1.Keypair) (*blockstore.Blockstore, error) {
+	bs, err := blockstore.NewBlockstore(cfg.blockstorePath, cfg.id, kp.Address())
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if latestBlock.Cmp(cfg.startBlock) == 1 {
-		cfg.startBlock = latestBlock
+	if !cfg.freshStart {
+		latestBlock, err := bs.TryLoadLatestBlock()
+		if err != nil {
+			return nil, err
+		}
+
+		if latestBlock.Cmp(cfg.startBlock) == 1 {
+			cfg.startBlock = latestBlock
+		}
 	}
-	return nil
+
+	return bs, nil
 }
 
 func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
@@ -83,8 +91,7 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 	}
 	kp, _ := kpI.(*secp256k1.Keypair)
 
-	bs := blockstore.NewBlockstore(cfg.blockstorePath, cfg.id, kp.Address())
-	err = checkBlockstore(cfg, bs)
+	bs, err := setupBlockstore(cfg, kp)
 	if err != nil {
 		return nil, err
 	}

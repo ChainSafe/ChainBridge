@@ -24,6 +24,7 @@ type Config struct {
 	from                   string      // address of key to use
 	keystorePath           string      // Location of keyfiles
 	blockstorePath         string
+	freshStart             bool // Disables loading from blockstore at start
 	bridgeContract         common.Address
 	erc20HandlerContract   common.Address
 	genericHandlerContract common.Address
@@ -43,6 +44,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		from:                   chainCfg.From,
 		keystorePath:           chainCfg.KeystorePath,
 		blockstorePath:         chainCfg.BlockstorePath,
+		freshStart:             chainCfg.FreshStart,
 		bridgeContract:         ZERO_ADDRESS,
 		erc20HandlerContract:   ZERO_ADDRESS,
 		genericHandlerContract: ZERO_ADDRESS,

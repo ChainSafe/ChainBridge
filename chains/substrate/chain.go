@@ -9,7 +9,6 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/core"
-	"github.com/ChainSafe/ChainBridge/crypto"
 	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -18,16 +17,15 @@ import (
 )
 
 type Chain struct {
-	cfg *core.ChainConfig // The config of the chain
-	// TODO: Does this have to be an interface?
-	conn     *Connection // THe chains connection
-	listener *Listener   // The listener of this chain
-	writer   *Writer     // The writer of the chain
+	cfg      *core.ChainConfig // The config of the chain
+	conn     *Connection       // THe chains connection
+	listener *Listener         // The listener of this chain
+	writer   *Writer           // The writer of the chain
 }
 
 // checkBlockstore queries the blockstore for the latest known block. If the latest block is
 // greater than startBlock, then the latest block is returned, otherwise startBlock is.
-func checkBlockstore(bs blockstore.Blockstore, startBlock uint64) (uint64, error) {
+func checkBlockstore(bs *blockstore.Blockstore, startBlock uint64) (uint64, error) {
 	latestBlock, err := bs.TryLoadLatestBlock()
 	if err != nil {
 		return 0, err
@@ -50,11 +48,16 @@ func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
 	krp := kp.(*sr25519.Keypair).AsKeyringPair()
 
 	// Attempt to load latest block
-	bs := blockstore.NewBlockstore(cfg.BlockstorePath, cfg.Id, kp.Address())
-	startBlock := parseStartBlock(cfg)
-	startBlock, err = checkBlockstore(cfg, kp, startBlock)
+	bs, err := blockstore.NewBlockstore(cfg.BlockstorePath, cfg.Id, kp.Address())
 	if err != nil {
 		return nil, err
+	}
+	startBlock := parseStartBlock(cfg)
+	if !cfg.FreshStart {
+		startBlock, err = checkBlockstore(bs, startBlock)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Setup connection
