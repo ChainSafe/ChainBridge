@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package blockstore
 
 import (
@@ -20,7 +23,8 @@ var _ Blockstorer = &EmptyStore{}
 var _ Blockstorer = &Blockstore{}
 
 // Dummy store for testing only
-type EmptyStore struct {}
+type EmptyStore struct{}
+
 func (s *EmptyStore) StoreBlock(_ *big.Int) error { return nil }
 
 // Blockstore implements Blockstorer.
