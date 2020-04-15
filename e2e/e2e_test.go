@@ -106,6 +106,7 @@ func TestErc20ToSubstrate(t *testing.T) {
 	numberOfTxs := 5
 
 	for i := 1; i <= numberOfTxs; i++ {
+		i := i // for scope
 		ok := t.Run(fmt.Sprintf("Deposit %d", i), func(t *testing.T) {
 			log.Info("Submitting transaction", "number", i)
 			// Initiate transfer
@@ -196,6 +197,7 @@ func TestSubstrateHashToGenericHandler(t *testing.T) {
 
 	numberOfTxs := 5
 	for i := 1; i <= numberOfTxs; i++ {
+		i := i // for scope
 		ok := t.Run(fmt.Sprintf("Deposit %d", i), func(t *testing.T) {
 			// Execute transfer
 			hash := sub.HashInt(i)
