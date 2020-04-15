@@ -8,6 +8,8 @@ import (
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
+	log "github.com/ChainSafe/log15"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -22,6 +24,16 @@ func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipi
 	return data
 }
 
+// proposalIsComplete returns true if the proposal state is either Passed(2) or Transferred(3)
+func (w *Writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
+	prop, err := w.bridgeContract.GetDepositProposal(&bind.CallOpts{}, uint8(destId), nonce.Big())
+	if err != nil {
+		log.Error("Failed to check deposit proposal", "err", err)
+		return false
+	}
+	return prop.Status >= PassedStatus // Passed (2) or Transferred (3)
+}
+
 func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 	w.log.Info("Creating erc20 proposal")
 
@@ -33,10 +45,17 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 
 	data := constructErc20ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte))
 	hash := hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
+
+	// Check if proposal has passed and skip if Passed or Transferred
+	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
+		w.log.Debug("Proposal complete, not voting")
+		nonce.lock.Unlock()
+		return true
+	}
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
 
-	w.log.Trace("Submitting CreateDepositProposal for ERC20", "source", m.Source, "depositNonce", m.DepositNonce)
+	w.log.Debug("Submitting CreateDepositProposal for ERC20", "source", m.Source, "depositNonce", m.DepositNonce)
 
 	_, err = w.bridgeContract.VoteDepositProposal(
 		opts,
