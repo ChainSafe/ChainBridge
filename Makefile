@@ -43,13 +43,6 @@ setup-sol-cli:
 	@echo " > \033[32mSetting up solidity cli... \033[0m "
 	TARGET=cli-only ./scripts/setup_contracts.sh
 
-
-
-rebuild-contracts:
-	rm -rf bindings/ solidity/ 
-	TARGET=build ./scripts/setup_contracts.sh
-
-
 ## license: Adds license header to missing files.
 license:
 	@echo "  >  \033[32mAdding license headers...\033[0m "
