@@ -24,8 +24,8 @@ type Core struct {
 func NewCore() *Core {
 	return &Core{
 		registry: make(map[msg.ChainId]Chain),
-		route:    router.NewRouter(log15.New("router")),
-		log:      log15.New("core"),
+		route:    router.NewRouter(log15.New("system", "router")),
+		log:      log15.New("system", "core"),
 	}
 }
 
