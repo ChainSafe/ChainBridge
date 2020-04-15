@@ -9,6 +9,7 @@ import (
 	"time"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
@@ -28,14 +29,14 @@ func whitelistChain(t *testing.T, c *Connection, id msg.ChainId) {
 	meta := c.getMetadata()
 	call, err := types.NewCall(
 		&meta,
-		WhitelistChain.String(),
+		string(utils.WhitelistChain),
 		destId,
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = c.SubmitTx(Sudo, call)
+	err = c.SubmitTx(utils.Sudo, call)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +68,7 @@ func Test_GenericTransferEvent(t *testing.T) {
 	expected := msg.NewGenericTransfer(1, 0, 1, rId, hash[:])
 
 	// Initiate transfer
-	err = ac.SubmitTx(ExampleTransferHash, hash, destId)
+	err = ac.SubmitTx(utils.ExampleTransferHash, hash, destId)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +92,7 @@ func Test_GenericTransferEvent(t *testing.T) {
 	expected = msg.NewGenericTransfer(1, 0, 2, rId, hash[:])
 
 	// Initiate transfer
-	err = ac.SubmitTx(ExampleTransferHash, hash, destId)
+	err = ac.SubmitTx(utils.ExampleTransferHash, hash, destId)
 	if err != nil {
 		t.Fatal(err)
 	}

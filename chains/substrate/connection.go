@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/author"
@@ -78,7 +79,7 @@ func (c *Connection) Connect() error {
 
 // SubmitTx constructs and submits an extrinsic to call the method with the given arguments.
 // All args are passed directly into GSRPC. GSRPC types are recommended to avoid serialization inconsistencies.
-func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
+func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 	c.log.Debug("Submitting substrate call...", "method", method, "sender", c.key.Address)
 
 	meta := c.getMetadata()
@@ -86,7 +87,7 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	// Create call and extrinsic
 	call, err := types.NewCall(
 		&meta,
-		method.String(),
+		string(method),
 		args...,
 	)
 	if err != nil {

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	message "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
@@ -54,7 +55,7 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	registerResourceId(t, alice.conn, rId, ExampleTransfer.String())
+	registerResourceId(t, alice.conn, rId, string(utils.ExampleTransfer))
 	whitelistChain(t, alice.conn, srcId)
 	// Construct the message to initiate a vote
 	amount := big.NewInt(10000000)

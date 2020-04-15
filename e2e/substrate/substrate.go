@@ -12,6 +12,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
@@ -122,7 +123,7 @@ func WaitForProposalSuccessOrFail(t *testing.T, client *subClient, nonce types.U
 				}
 
 				// Decode the event records
-				events := substrate.Events{}
+				events := utils.Events{}
 				err = types.EventRecordsRaw(chng.StorageData).DecodeEventRecords(client.meta, &events)
 				if err != nil {
 					t.Fatal(err)
@@ -151,11 +152,11 @@ func WaitForProposalSuccessOrFail(t *testing.T, client *subClient, nonce types.U
 	}
 }
 
-func SubmitTx(t *testing.T, client *subClient, method substrate.Method, args ...interface{}) {
+func SubmitTx(t *testing.T, client *subClient, method utils.Method, args ...interface{}) {
 	// Create call and extrinsic
 	call, err := types.NewCall(
 		client.meta,
-		method.String(),
+		string(method),
 		args...,
 	)
 	if err != nil {
@@ -209,12 +210,12 @@ func SubmitTx(t *testing.T, client *subClient, method substrate.Method, args ...
 	}
 }
 
-func SubmitSudoTx(t *testing.T, client *subClient, method substrate.Method, args ...interface{}) {
-	call, err := types.NewCall(client.meta, method.String(), args...)
+func SubmitSudoTx(t *testing.T, client *subClient, method utils.Method, args ...interface{}) {
+	call, err := types.NewCall(client.meta, string(method), args...)
 	if err != nil {
 		t.Fatal(err)
 	}
-	SubmitTx(t, client, substrate.Sudo, call)
+	SubmitTx(t, client, utils.Sudo, call)
 }
 
 // queryStorage performs a storage lookup. Arguments may be nil, result must be a pointer.
@@ -248,22 +249,22 @@ func QueryConst(t *testing.T, client *subClient, prefix, name string, res interf
 }
 func AddRelayer(t *testing.T, client *subClient, relayer types.AccountID) {
 	log.Info("Adding relayer", "accountId", relayer)
-	SubmitSudoTx(t, client, substrate.AddRelayer, relayer)
+	SubmitSudoTx(t, client, utils.AddRelayer, relayer)
 }
 
 func WhitelistChain(t *testing.T, client *subClient, id msg.ChainId) {
 	log.Info("Whitelisting chain", "chainId", id)
-	SubmitSudoTx(t, client, substrate.WhitelistChain, types.U8(id))
+	SubmitSudoTx(t, client, utils.WhitelistChain, types.U8(id))
 }
 
 func InitiateHashTransfer(t *testing.T, client *subClient, hash types.Hash, destId msg.ChainId) {
 	log.Info("Initiating hash transfer", "hash", hash.Hex())
-	SubmitTx(t, client, substrate.ExampleTransferHash, hash, types.U8(destId))
+	SubmitTx(t, client, utils.ExampleTransferHash, hash, types.U8(destId))
 }
 
 func InitiateSubstrateNativeTransfer(t *testing.T, client *subClient, amount types.U32, recipient []byte, destId msg.ChainId) { //nolint:unused,deadcode
 	log.Info("Initiating Substrate native transfer", "amount", amount, "recipient", recipient, "destId", destId)
-	SubmitTx(t, client, substrate.ExampleTransferNative, amount, recipient, types.U8(destId))
+	SubmitTx(t, client, utils.ExampleTransferNative, amount, recipient, types.U8(destId))
 }
 
 func HashInt(i int) types.Hash {
@@ -276,5 +277,5 @@ func HashInt(i int) types.Hash {
 
 func RegisterResource(t *testing.T, client *subClient, id msg.ResourceId, method string) {
 	log.Info("Registering resource", "rId", id, "method", []byte(method))
-	SubmitSudoTx(t, client, substrate.SetResource, types.NewBytes32(id), []byte(method))
+	SubmitSudoTx(t, client, utils.SetResource, types.NewBytes32(id), []byte(method))
 }

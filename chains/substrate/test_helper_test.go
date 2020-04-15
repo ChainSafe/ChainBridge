@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/keystore"
+	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -44,29 +45,29 @@ func ensureInitializedChain() {
 
 	if !exists {
 		meta := conn.getMetadata()
-		call, err := types.NewCall(&meta, AddRelayer.String(), types.NewAccountID(AliceKey.PublicKey))
+		call, err := types.NewCall(&meta, string(utils.AddRelayer), types.NewAccountID(AliceKey.PublicKey))
 		if err != nil {
 			panic(err)
 		}
-		err = conn.SubmitTx(Sudo, call)
-		if err != nil {
-			panic(err)
-		}
-
-		call, err = types.NewCall(&meta, AddRelayer.String(), types.NewAccountID(BobKey.PublicKey))
-		if err != nil {
-			panic(err)
-		}
-		err = conn.SubmitTx(Sudo, call)
+		err = conn.SubmitTx(utils.Sudo, call)
 		if err != nil {
 			panic(err)
 		}
 
-		call, err = types.NewCall(&meta, SetThreshold.String(), types.U32(2))
+		call, err = types.NewCall(&meta, string(utils.AddRelayer), types.NewAccountID(BobKey.PublicKey))
 		if err != nil {
 			panic(err)
 		}
-		err = conn.SubmitTx(Sudo, call)
+		err = conn.SubmitTx(utils.Sudo, call)
+		if err != nil {
+			panic(err)
+		}
+
+		call, err = types.NewCall(&meta, string(utils.SetThreshold), types.U32(2))
+		if err != nil {
+			panic(err)
+		}
+		err = conn.SubmitTx(utils.Sudo, call)
 		if err != nil {
 			panic(err)
 		}
@@ -121,18 +122,18 @@ func getFreeBalance(c *Connection, res *types.U128) {
 	*res = acct.Data.Free
 }
 
-func submitSudoTx(t *testing.T, conn *Connection, method Method, args ...interface{}) {
+func submitSudoTx(t *testing.T, conn *Connection, method utils.Method, args ...interface{}) {
 	meta := conn.getMetadata()
-	call, err := types.NewCall(&meta, method.String(), args...)
+	call, err := types.NewCall(&meta, string(method), args...)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = conn.SubmitTx(Sudo, call)
+	err = conn.SubmitTx(utils.Sudo, call)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func registerResourceId(t *testing.T, conn *Connection, id [32]byte, method string) {
-	submitSudoTx(t, conn, SetResource, id, []byte(method))
+	submitSudoTx(t, conn, utils.SetResource, id, []byte(method))
 }

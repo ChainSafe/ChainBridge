@@ -18,7 +18,8 @@ import (
 	eth "github.com/ChainSafe/ChainBridge/e2e/ethereum"
 	sub "github.com/ChainSafe/ChainBridge/e2e/substrate"
 	msg "github.com/ChainSafe/ChainBridge/message"
-	utils "github.com/ChainSafe/ChainBridge/testutils"
+	utils "github.com/ChainSafe/ChainBridge/utils"
+	subUtils "github.com/ChainSafe/ChainBridge/utils/substrate"
 	log "github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -97,7 +98,7 @@ func TestErc20ToSubstrate(t *testing.T) {
 	// Setup substrate client, register resource, add relayers
 	subClient := sub.CreateSubClient(t, sub.AliceKp.AsKeyringPair())
 	sub.TrySetupChain(t, subClient, sub.RelayerSet, []msg.ChainId{EthChainId})
-	sub.RegisterResource(t, subClient, resourceId, subChain.ExampleTransfer.String())
+	sub.RegisterResource(t, subClient, resourceId, string(subUtils.ExampleTransfer))
 
 	// Create and start two bridges with both chains
 	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
