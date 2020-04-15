@@ -56,8 +56,8 @@ func NewNonFungibleTransfer(source, dest ChainId, nonce Nonce, resourceId Resour
 		Destination:  dest,
 		Type:         NonFungibleTransfer,
 		DepositNonce: nonce,
+		ResourceId:   resourceId,
 		Payload: []interface{}{
-			resourceId,
 			tokenId,
 			recipient,
 			metadata,
