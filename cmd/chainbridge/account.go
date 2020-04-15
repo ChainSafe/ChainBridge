@@ -192,7 +192,7 @@ func importPrivKey(keytype, datadir, key string, password []byte) (string, error
 		return "", fmt.Errorf("could not write key to file: %s", err)
 	}
 
-	log.Info("private key imported", "public address", kp.Address(), "file", fp)
+	log.Info("private key imported", "address", kp.Address(), "file", fp)
 	return fp, nil
 
 }
@@ -242,7 +242,7 @@ func importEthKey(filename, datadir string) (string, error) {
 		return "", fmt.Errorf("could not write key to file: %s", err)
 	}
 
-	log.Info("ETH key imported", "public address", kp.Address(), "file", fp)
+	log.Info("ETH key imported", "address", kp.Address(), "file", fp)
 	return fp, nil
 
 }
@@ -277,7 +277,7 @@ func importKey(filename, datadir string) (string, error) {
 		return "", fmt.Errorf("could not write to keystore directory: %s", err)
 	}
 
-	log.Info("successfully imported key", "public address", ksjson.Address, "file", keystorefile)
+	log.Info("successfully imported key", "address", ksjson.Address, "file", keystorefile)
 	return keystorefile, nil
 }
 
@@ -379,7 +379,7 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 		return "", fmt.Errorf("could not write key to file: %s", err)
 	}
 
-	log.Info("key generated", "public address", kp.Address(), "type", keytype, "file", fp)
+	log.Info("key generated", "address", kp.Address(), "type", keytype, "file", fp)
 	return fp, nil
 }
 
