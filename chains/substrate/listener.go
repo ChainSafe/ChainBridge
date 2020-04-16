@@ -6,8 +6,10 @@ package substrate
 import (
 	"errors"
 	"fmt"
+	"math/big"
 	"time"
 
+	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
@@ -18,6 +20,7 @@ type Listener struct {
 	name          string
 	chainId       msg.ChainId
 	startBlock    uint64
+	blockstore    blockstore.Blockstorer
 	conn          *Connection
 	subscriptions map[eventName]eventHandler // Handlers for specific events
 	router        chains.Router
@@ -27,11 +30,12 @@ type Listener struct {
 // Frequency of polling for a new block
 var BlockRetryInterval = time.Second * 2
 
-func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger) *Listener {
+func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer) *Listener {
 	return &Listener{
 		name:          name,
 		chainId:       id,
 		startBlock:    startBlock,
+		blockstore:    bs,
 		conn:          conn,
 		subscriptions: make(map[eventName]eventHandler),
 		log:           log,
@@ -94,6 +98,12 @@ func (l *Listener) pollBlocks() error {
 		err = l.processEvents(hash)
 		if err != nil {
 			return err
+		}
+
+		// Write to blockstore
+		err = l.blockstore.StoreBlock(big.NewInt(0).SetUint64(latestBlock))
+		if err != nil {
+			l.log.Error("Failed to write to blockstore", "err", err)
 		}
 		latestBlock++
 	}

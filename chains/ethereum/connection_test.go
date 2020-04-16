@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ChainSafe/ChainBridge/blockstore"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -58,7 +59,7 @@ func TestSendTx(t *testing.T) {
 func TestSubscribe(t *testing.T) {
 	_ = deployTestContracts(t, aliceTestConfig.id)
 	conn := newLocalConnection(t, aliceTestConfig)
-	l := NewListener(conn, aliceTestConfig, TestLogger)
+	l := NewListener(conn, aliceTestConfig, TestLogger, &blockstore.EmptyStore{})
 	defer conn.Close()
 
 	q := eth.FilterQuery{}

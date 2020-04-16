@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ChainSafe/ChainBridge/blockstore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
@@ -44,7 +45,7 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	}
 
 	router := &MockRouter{msgs: make(chan msg.Message)}
-	listener := NewListener(conn, &newConfig, TestLogger)
+	listener := NewListener(conn, &newConfig, TestLogger, &blockstore.EmptyStore{})
 	listener.SetContracts(bridgeContract, erc20HandlerContract)
 	listener.SetRouter(router)
 	// Start the listener
