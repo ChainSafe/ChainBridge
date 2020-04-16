@@ -81,4 +81,4 @@ docker-start:
 	./scripts/docker/start-docker.sh
 
 clean:
-	rm -rf build/ 
+	rm -rf build/ solidity/

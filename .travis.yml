@@ -17,6 +17,8 @@ install:
     - sudo apt-get update
     - sudo apt-get install ethereum
     - wget -P $HOME/bin/ https://storage.googleapis.com/centrifuge-dev-public/subkey  && chmod +x $HOME/bin/subkey
+    - git clone https://github.com/ChainSafe/chainbridge-solidity.git
+    - npm install
 
 jobs:
   include:
@@ -24,7 +26,8 @@ jobs:
       go: 1.13.x
       name: "Golang-ci Linter"
       script:
-        - make clean # Avoid adding license to auto-gen files
+        - make lint
+        - rm -rf bindings/ # Avoid adding license to bindings
         - make license-check
         - make lint
 
@@ -33,7 +36,8 @@ jobs:
       name: "Run Go tests"
       script:
         - set -e
-        - make clean
+        - make clean && make setup-contracts
+        - cd chainbridge-solidity && SILENT=true make start-ganache
         - make setup-sol-cli
         - ./scripts/substrate/run_chain_ci.sh
         - make test
@@ -43,8 +47,8 @@ jobs:
       name: "Run Go e2e tests"
       script:
         - set -e
-        - make clean
+        - make clean && make setup-contracts
         - make setup-sol-cli
-        - make start-ganache
+        - cd chainbridge-solidity && SILENT=true make start-ganache
         - ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
