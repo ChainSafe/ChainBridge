@@ -6,6 +6,7 @@ package ethereum
 import (
 	"math/big"
 
+	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
@@ -14,14 +15,16 @@ import (
 
 var _ chains.Writer = &Writer{}
 
+// https://github.com/ChainSafe/chainbridge-solidity/blob/b5ed13d9798feb7c340e737a726dd415b8815366/contracts/Bridge.sol#L20
+var PassedStatus uint8 = 2
+
 type Writer struct {
-	cfg                  Config
-	conn                 *Connection
-	bridgeContract       *BridgeContract // instance of bound receiver bridgeContract
-	erc20HandlerContract *ERC20HandlerContract
-	gasPrice             *big.Int
-	gasLimit             *big.Int
-	log                  log15.Logger
+	cfg            Config
+	conn           *Connection
+	bridgeContract *Bridge.Bridge // instance of bound receiver bridgeContract
+	gasPrice       *big.Int
+	gasLimit       *big.Int
+	log            log15.Logger
 }
 
 func NewWriter(conn *Connection, cfg *Config, log log15.Logger) *Writer {
@@ -39,9 +42,8 @@ func (w *Writer) Start() error {
 	return nil
 }
 
-func (w *Writer) SetContracts(bridge *BridgeContract, erc20Handler *ERC20HandlerContract) {
+func (w *Writer) SetContract(bridge *Bridge.Bridge) {
 	w.bridgeContract = bridge
-	w.erc20HandlerContract = erc20Handler
 }
 
 // ResolveMessage handles any given message based on type
@@ -68,15 +70,4 @@ func (w *Writer) Stop() error {
 
 func hash(data []byte) [32]byte {
 	return crypto.Keccak256Hash(data)
-}
-
-func u32toBigInt(n uint32) *big.Int {
-	return big.NewInt(int64(n))
-}
-
-func byteSliceTo32Bytes(in []byte) [32]byte { //nolint:deadcode,unused
-	out := [32]byte{}
-	// Note: this is safe as copy uses the min length of the two slices
-	copy(out[:], in)
-	return out
 }

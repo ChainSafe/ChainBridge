@@ -23,40 +23,15 @@ type Chain struct {
 	writer   *Writer           // The writer of the chain
 }
 
-func createBridgeContract(addr common.Address, conn *Connection) (*BridgeContract, error) {
-	bridgeInstance, err := bridge.NewBridge(addr, conn.conn)
-	if err != nil {
-		return nil, err
-	}
-
-	raw := &bridge.BridgeRaw{
-		Contract: bridgeInstance,
-	}
-
-	return &BridgeContract{
-		BridgeRaw:        raw,
-		BridgeCaller:     &bridgeInstance.BridgeCaller,
-		BridgeTransactor: &bridgeInstance.BridgeTransactor,
-	}, nil
+func createBridgeContract(addr common.Address, conn *Connection) (*bridge.Bridge, error) {
+	return bridge.NewBridge(addr, conn.conn)
 }
 
-func createErc20HandlerContract(addr common.Address, conn *Connection) (*ERC20HandlerContract, error) {
-	instance, err := erc20Handler.NewERC20Handler(addr, conn.conn)
-	if err != nil {
-		return nil, err
-	}
-
-	raw := &erc20Handler.ERC20HandlerRaw{
-		Contract: instance,
-	}
-
-	return &ERC20HandlerContract{
-		ERC20HandlerRaw:    raw,
-		ERC20HandlerCaller: &instance.ERC20HandlerCaller,
-	}, nil
+func createErc20HandlerContract(addr common.Address, conn *Connection) (*erc20Handler.ERC20Handler, error) {
+	return erc20Handler.NewERC20Handler(addr, conn.conn)
 }
 
-func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
+func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger) (*Chain, error) {
 	cfg, err := parseChainConfig(chainCfg)
 	if err != nil {
 		return nil, err
@@ -68,8 +43,6 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 	}
 
 	kp, _ := kpI.(*secp256k1.Keypair)
-
-	logger := log15.Root().New("chain", cfg.name)
 
 	conn := NewConnection(cfg, kp, logger)
 	err = conn.Connect()
@@ -104,7 +77,7 @@ func InitializeChain(chainCfg *core.ChainConfig) (*Chain, error) {
 	listener.SetContracts(bridgeContract, erc20HandlerContract)
 
 	writer := NewWriter(conn, cfg, logger)
-	writer.SetContracts(bridgeContract, erc20HandlerContract)
+	writer.SetContract(bridgeContract)
 
 	return &Chain{
 		cfg:      chainCfg,

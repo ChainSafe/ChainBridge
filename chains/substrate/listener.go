@@ -128,9 +128,9 @@ func (l *Listener) processEvents(hash types.Hash) error {
 
 // handleEvents calls the associated handler for all registered event types
 func (l *Listener) handleEvents(evts Events) {
-	if l.subscriptions[RelayerThresholdSet] != nil {
-		for _, evt := range evts.Bridge_RelayerThresholdSet {
-			l.log.Trace("Received RelayerThreshold event", "threshold", evt.Threshold)
+	if l.subscriptions[RelayerThresholdChanged] != nil {
+		for _, evt := range evts.Bridge_RelayerThresholdChanged {
+			l.log.Trace("Received RelayerThresholdChanged event", "threshold", evt.Threshold)
 		}
 	}
 	if l.subscriptions[ChainWhitelisted] != nil {
@@ -140,18 +140,30 @@ func (l *Listener) handleEvents(evts Events) {
 	}
 	if l.subscriptions[RelayerAdded] != nil {
 		for _, evt := range evts.Bridge_RelayerAdded {
-			l.log.Trace("Received RelayerAdded event", "relayer", evt.Relayer.Hex())
+			l.log.Trace("Received RelayerAdded event", "relayer", evt.Relayer)
 		}
 	}
 	if l.subscriptions[RelayerRemoved] != nil {
 		for _, evt := range evts.Bridge_RelayerRemoved {
-			l.log.Trace("Received RelayerRemoved event", "relayer", evt.Relayer.Hex())
+			l.log.Trace("Received RelayerRemoved event", "relayer", evt.Relayer)
 		}
 	}
-	if l.subscriptions[AssetTransfer] != nil {
-		for _, evt := range evts.Bridge_AssetTransfer {
-			l.log.Trace("Handling AssetTransfer event")
-			l.submitMessage(l.subscriptions[AssetTransfer](evt, l.log))
+	if l.subscriptions[FungibleTransfer] != nil {
+		for _, evt := range evts.Bridge_FungibleTransfer {
+			l.log.Trace("Handling FungibleTransfer event")
+			l.submitMessage(l.subscriptions[FungibleTransfer](evt, l.log))
+		}
+	}
+	if l.subscriptions[NonFungibleTransfer] != nil {
+		for _, evt := range evts.Bridge_NonFungibleTransfer {
+			l.log.Trace("Handling NonFungibleTransfer event")
+			l.submitMessage(l.subscriptions[NonFungibleTransfer](evt, l.log))
+		}
+	}
+	if l.subscriptions[GenericTransfer] != nil {
+		for _, evt := range evts.Bridge_GenericTransfer {
+			l.log.Trace("Handling GenericTransfer event")
+			l.submitMessage(l.subscriptions[GenericTransfer](evt, l.log))
 		}
 	}
 	if l.subscriptions[VoteFor] != nil {

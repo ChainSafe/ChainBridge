@@ -17,7 +17,6 @@ install:
     - sudo apt-get update
     - sudo apt-get install ethereum
     - wget -P $HOME/bin/ https://storage.googleapis.com/centrifuge-dev-public/subkey  && chmod +x $HOME/bin/subkey
-
 jobs:
   include:
     - language: go
@@ -36,7 +35,6 @@ jobs:
         - set -e
         - make clean && make setup-contracts
         - SILENT=true make start-eth
-        - make deploy-eth
         - ./scripts/substrate/run_chain_ci.sh
         - make test
 
@@ -47,6 +45,5 @@ jobs:
         - set -e
         - make clean && make setup-contracts
         - SILENT=true make start-eth
-        - make deploy-eth
         - ./scripts/substrate/run_chain_ci.sh
         - make test-e2e

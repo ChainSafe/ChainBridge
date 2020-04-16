@@ -8,6 +8,8 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	"github.com/ChainSafe/ChainBridge/chains"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
@@ -32,8 +34,8 @@ type Listener struct {
 	conn                 *Connection
 	subscriptions        map[EventSig]*Subscription
 	router               chains.Router
-	bridgeContract       *BridgeContract       // instance of bound bridge contract
-	erc20HandlerContract *ERC20HandlerContract // instance of bound erc20 handler
+	bridgeContract       *Bridge.Bridge // instance of bound bridge contract
+	erc20HandlerContract *erc20Handler.ERC20Handler
 	log                  log15.Logger
 }
 
@@ -46,7 +48,7 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger) *Listener {
 	}
 }
 
-func (l *Listener) SetContracts(bridge *BridgeContract, erc20Handler *ERC20HandlerContract) {
+func (l *Listener) SetContracts(bridge *Bridge.Bridge, erc20Handler *erc20Handler.ERC20Handler) {
 	l.bridgeContract = bridge
 	l.erc20HandlerContract = erc20Handler
 

@@ -28,7 +28,7 @@ var (
 )
 
 // IRelayerABI is the input ABI used to generate the binding from.
-const IRelayerABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"relayerAddress\",\"type\":\"address\"}],\"name\":\"isRelayer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalRelayers\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"proposedAddress\",\"type\":\"address\"},{\"internalType\":\"enumIRelayer.RelayerActionType\",\"name\":\"action\",\"type\":\"uint8\"}],\"name\":\"createRelayerProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"proposedAddress\",\"type\":\"address\"},{\"internalType\":\"enumIRelayer.Vote\",\"name\":\"vote\",\"type\":\"uint8\"}],\"name\":\"voteRelayerProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"proposedValue\",\"type\":\"uint256\"}],\"name\":\"createRelayerThresholdProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumIRelayer.Vote\",\"name\":\"vote\",\"type\":\"uint8\"}],\"name\":\"voteRelayerThresholdProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const IRelayerABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"relayerAddress\",\"type\":\"address\"}],\"name\":\"isRelayer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalRelayers\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"proposedAddress\",\"type\":\"address\"},{\"internalType\":\"enumIRelayer.RelayerActionType\",\"name\":\"action\",\"type\":\"uint8\"}],\"name\":\"voteRelayerProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"proposedValue\",\"type\":\"uint256\"}],\"name\":\"createRelayerThresholdProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumIRelayer.Vote\",\"name\":\"vote\",\"type\":\"uint8\"}],\"name\":\"voteRelayerThresholdProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // IRelayer is an auto generated Go binding around an Ethereum contract.
 type IRelayer struct {
@@ -172,27 +172,6 @@ func (_IRelayer *IRelayerTransactorRaw) Transact(opts *bind.TransactOpts, method
 	return _IRelayer.Contract.contract.Transact(opts, method, params...)
 }
 
-// CreateRelayerProposal is a paid mutator transaction binding the contract method 0xa7959119.
-//
-// Solidity: function createRelayerProposal(address proposedAddress, uint8 action) returns()
-func (_IRelayer *IRelayerTransactor) CreateRelayerProposal(opts *bind.TransactOpts, proposedAddress common.Address, action uint8) (*types.Transaction, error) {
-	return _IRelayer.contract.Transact(opts, "createRelayerProposal", proposedAddress, action)
-}
-
-// CreateRelayerProposal is a paid mutator transaction binding the contract method 0xa7959119.
-//
-// Solidity: function createRelayerProposal(address proposedAddress, uint8 action) returns()
-func (_IRelayer *IRelayerSession) CreateRelayerProposal(proposedAddress common.Address, action uint8) (*types.Transaction, error) {
-	return _IRelayer.Contract.CreateRelayerProposal(&_IRelayer.TransactOpts, proposedAddress, action)
-}
-
-// CreateRelayerProposal is a paid mutator transaction binding the contract method 0xa7959119.
-//
-// Solidity: function createRelayerProposal(address proposedAddress, uint8 action) returns()
-func (_IRelayer *IRelayerTransactorSession) CreateRelayerProposal(proposedAddress common.Address, action uint8) (*types.Transaction, error) {
-	return _IRelayer.Contract.CreateRelayerProposal(&_IRelayer.TransactOpts, proposedAddress, action)
-}
-
 // CreateRelayerThresholdProposal is a paid mutator transaction binding the contract method 0xdf269060.
 //
 // Solidity: function createRelayerThresholdProposal(uint256 proposedValue) returns()
@@ -258,23 +237,23 @@ func (_IRelayer *IRelayerTransactorSession) IsRelayer(relayerAddress common.Addr
 
 // VoteRelayerProposal is a paid mutator transaction binding the contract method 0x4d4ebd7a.
 //
-// Solidity: function voteRelayerProposal(address proposedAddress, uint8 vote) returns()
-func (_IRelayer *IRelayerTransactor) VoteRelayerProposal(opts *bind.TransactOpts, proposedAddress common.Address, vote uint8) (*types.Transaction, error) {
-	return _IRelayer.contract.Transact(opts, "voteRelayerProposal", proposedAddress, vote)
+// Solidity: function voteRelayerProposal(address proposedAddress, uint8 action) returns()
+func (_IRelayer *IRelayerTransactor) VoteRelayerProposal(opts *bind.TransactOpts, proposedAddress common.Address, action uint8) (*types.Transaction, error) {
+	return _IRelayer.contract.Transact(opts, "voteRelayerProposal", proposedAddress, action)
 }
 
 // VoteRelayerProposal is a paid mutator transaction binding the contract method 0x4d4ebd7a.
 //
-// Solidity: function voteRelayerProposal(address proposedAddress, uint8 vote) returns()
-func (_IRelayer *IRelayerSession) VoteRelayerProposal(proposedAddress common.Address, vote uint8) (*types.Transaction, error) {
-	return _IRelayer.Contract.VoteRelayerProposal(&_IRelayer.TransactOpts, proposedAddress, vote)
+// Solidity: function voteRelayerProposal(address proposedAddress, uint8 action) returns()
+func (_IRelayer *IRelayerSession) VoteRelayerProposal(proposedAddress common.Address, action uint8) (*types.Transaction, error) {
+	return _IRelayer.Contract.VoteRelayerProposal(&_IRelayer.TransactOpts, proposedAddress, action)
 }
 
 // VoteRelayerProposal is a paid mutator transaction binding the contract method 0x4d4ebd7a.
 //
-// Solidity: function voteRelayerProposal(address proposedAddress, uint8 vote) returns()
-func (_IRelayer *IRelayerTransactorSession) VoteRelayerProposal(proposedAddress common.Address, vote uint8) (*types.Transaction, error) {
-	return _IRelayer.Contract.VoteRelayerProposal(&_IRelayer.TransactOpts, proposedAddress, vote)
+// Solidity: function voteRelayerProposal(address proposedAddress, uint8 action) returns()
+func (_IRelayer *IRelayerTransactorSession) VoteRelayerProposal(proposedAddress common.Address, action uint8) (*types.Transaction, error) {
+	return _IRelayer.Contract.VoteRelayerProposal(&_IRelayer.TransactOpts, proposedAddress, action)
 }
 
 // VoteRelayerThresholdProposal is a paid mutator transaction binding the contract method 0xe9cdaead.

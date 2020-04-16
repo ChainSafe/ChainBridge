@@ -86,12 +86,21 @@ func TestListener_depositEvent(t *testing.T) {
 	erc20Contract := deployMintApproveErc20(t, l.conn, opts)
 
 	amount := big.NewInt(10)
-	sourceId := msg.ChainId(0)
-	destId := msg.ChainId(1)
-	tokenId := append(common.LeftPadBytes([]byte{uint8(sourceId)}, 32), common.LeftPadBytes(erc20Contract.Bytes(), 32)...)
+	src := msg.ChainId(0)
+	dst := msg.ChainId(1)
+	resourceId := append(common.LeftPadBytes(erc20Contract.Bytes(), 31), uint8(src))
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
 
-	expectedMessage := msg.NewFungibleTransfer(sourceId, destId, 1, amount, tokenId, common.HexToAddress(BobKp.Address()).Bytes())
+	whitelistResourceId(t, l.conn.conn, opts, contracts.ERC20HandlerAddress, msg.ResourceIdFromSlice(resourceId), erc20Contract)
+
+	expectedMessage := msg.NewFungibleTransfer(
+		src,
+		dst,
+		1,
+		amount,
+		msg.ResourceIdFromSlice(resourceId),
+		common.HexToAddress(BobKp.Address()).Bytes(),
+	)
 	// Create an ERC20 Deposit
 	err = createErc20Deposit(
 		l.bridgeContract,
@@ -100,7 +109,7 @@ func TestListener_depositEvent(t *testing.T) {
 		l.cfg.erc20HandlerContract,
 
 		recipient,
-		big.NewInt(int64(destId)),
+		dst,
 		amount,
 	)
 	if err != nil {
@@ -119,7 +128,14 @@ func TestListener_depositEvent(t *testing.T) {
 	}
 
 	// Create second deposit, verify nonce change
-	expectedMessage2 := msg.NewFungibleTransfer(sourceId, destId, 2, amount, tokenId, common.HexToAddress(BobKp.Address()).Bytes())
+	expectedMessage2 := msg.NewFungibleTransfer(
+		src,
+		dst,
+		2,
+		amount,
+		msg.ResourceIdFromSlice(resourceId),
+		common.HexToAddress(BobKp.Address()).Bytes(),
+	)
 	err = createErc20Deposit(
 		l.bridgeContract,
 		opts,
@@ -127,7 +143,7 @@ func TestListener_depositEvent(t *testing.T) {
 		l.cfg.erc20HandlerContract,
 
 		recipient,
-		big.NewInt(int64(destId)),
+		dst,
 		amount,
 	)
 	if err != nil {
@@ -154,8 +170,8 @@ func compareMessage(expected, actual msg.Message) error {
 			return fmt.Errorf("Destination doesn't match. \n\tExpected: %#v\n\tGot: %#v\n", expected.Destination, actual.Destination)
 		} else if !reflect.DeepEqual(expected.DepositNonce, actual.DepositNonce) {
 			return fmt.Errorf("Deposit nonce doesn't match. \n\tExpected: %#v\n\tGot: %#v\n", expected.DepositNonce, actual.DepositNonce)
-		} else if !reflect.DeepEqual(expected.Metadata, actual.Metadata) {
-			return fmt.Errorf("Metadata doesn't match. \n\tExpected: %#v\n\tGot: %#v\n", expected.Metadata, actual.Metadata)
+		} else if !reflect.DeepEqual(expected.Payload, actual.Payload) {
+			return fmt.Errorf("Payload doesn't match. \n\tExpected: %#v\n\tGot: %#v\n", expected.Payload, actual.Payload)
 		}
 	}
 	return nil

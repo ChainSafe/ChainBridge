@@ -4,63 +4,69 @@
 package substrate
 
 import (
-	"fmt"
 	"math/big"
 	"reflect"
 	"testing"
 
 	message "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
-	"gotest.tools/assert"
 )
 
-func assertProposalState(conn *Connection, prop *proposal, votes *voteState, hasValue bool) error {
-	log15.Trace("Fetching votes", "DepositNonce", prop.DepositNonce)
+func assertProposalState(t *testing.T, conn *Connection, prop *proposal, votes *voteState, hasValue bool) {
 	var voteRes voteState
-	keyBz, err := types.EncodeToBytes(prop)
+	srcId, err := types.EncodeToBytes(prop.sourceId)
 	if err != nil {
-		return nil
+		t.Fatal(err)
 	}
-	ok, err := conn.queryStorage("Bridge", "Votes", keyBz, nil, &voteRes)
+	propBz, err := prop.encode()
 	if err != nil {
-		return fmt.Errorf("failed to query votes: %s", err)
+		t.Fatal(err)
+	}
+	ok, err := conn.queryStorage("Bridge", "Votes", srcId, propBz, &voteRes)
+	if err != nil {
+		t.Fatalf("failed to query votes: %s", err)
 	}
 	if hasValue {
 		if !reflect.DeepEqual(&voteRes, votes) {
-			return fmt.Errorf("Vote state incorrect.\n\tExpected: %#v\n\tGot: %#v", votes, &voteRes)
+			t.Fatalf("Vote state incorrect.\n\tExpected: %#v\n\tGot: %#v", votes, &voteRes)
 		}
 	}
 
 	if !ok && hasValue {
-		return fmt.Errorf("expected vote to exists but is None")
+		t.Fatalf("expected vote to exists but is None")
 	}
-
-	return nil
 }
 
 func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
-	ac, bc := createAliceAndBobConnections(t)
 
-	alice := NewWriter(ac, TestLogger)
-	bob := NewWriter(bc, TestLogger)
+	ac, bc := createAliceAndBobConnections(t)
+	alice := NewWriter(ac, AliceTestLogger)
+	bob := NewWriter(bc, BobTestLogger)
 
 	// Assert Bob's starting balances
 	var startingBalance types.U128
 	getFreeBalance(bob.conn, &startingBalance)
 
+	// Setup message and params
+	srcId := message.ChainId(0)
+	var rId [32]byte
+	err := alice.conn.getConst("Example", "NativeTokenId", &rId)
+	if err != nil {
+		t.Fatal(err)
+	}
+	registerResourceId(t, alice.conn, rId, ExampleTransfer.String())
+	whitelistChain(t, alice.conn, srcId)
 	// Construct the message to initiate a vote
 	amount := big.NewInt(10000000)
-	m := message.NewFungibleTransfer(0, 1, 0, amount, []byte{}, bob.conn.key.PublicKey)
+	m := message.NewFungibleTransfer(srcId, 1, 0, amount, rId, bob.conn.key.PublicKey)
 	// Create a assetTxProposal to help us check results
-	meta := alice.conn.getMetadata()
-	prop, err := createFungibleProposal(m, &meta)
+	prop, err := alice.createFungibleProposal(m)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// First, ensure the assetTxProposal doesn't already exist
-	assert.NilError(t, assertProposalState(alice.conn, prop, nil, false))
+	assertProposalState(t, alice.conn, prop, nil, false)
 
 	// Submit the message for processing
 	ok := alice.ResolveMessage(m)
@@ -71,8 +77,9 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 	// Now check if the assetTxProposal exists on chain
 	singleVoteState := &voteState{
 		VotesFor: []types.AccountID{types.NewAccountID(alice.conn.key.PublicKey)},
+		Status:   voteStatus{IsActive: true},
 	}
-	assert.NilError(t, assertProposalState(alice.conn, prop, singleVoteState, true))
+	assertProposalState(t, alice.conn, prop, singleVoteState, true)
 
 	// Submit a second vote from Bob this time
 	ok = bob.ResolveMessage(m)
@@ -86,8 +93,9 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 			types.NewAccountID(alice.conn.key.PublicKey),
 			types.NewAccountID(bob.conn.key.PublicKey),
 		},
+		Status: voteStatus{IsApproved: true},
 	}
-	assert.NilError(t, assertProposalState(alice.conn, prop, finalVoteState, true))
+	assertProposalState(t, alice.conn, prop, finalVoteState, true)
 
 	// Assert balance has changed
 	var bBal types.U128
