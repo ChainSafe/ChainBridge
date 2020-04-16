@@ -18,7 +18,7 @@ import (
 
 const TestSubEndpoint = "ws://localhost:9944"
 
-var TestTimeout = time.Second * 30
+var TestTimeout = time.Second * 60
 
 var log = log15.New("e2e", "substrate")
 
