@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
-	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
+	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )

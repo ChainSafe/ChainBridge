@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
-	utils "github.com/ChainSafe/ChainBridge/utils/ethereum"
+	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"

@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/keystore"
-	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
+	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )

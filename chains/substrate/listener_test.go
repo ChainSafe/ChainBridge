@@ -9,7 +9,7 @@ import (
 	"time"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
-	subtest "github.com/ChainSafe/ChainBridge/utils/substrate/testing"
+	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 

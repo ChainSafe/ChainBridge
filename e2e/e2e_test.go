@@ -18,11 +18,11 @@ import (
 	eth "github.com/ChainSafe/ChainBridge/e2e/ethereum"
 	sub "github.com/ChainSafe/ChainBridge/e2e/substrate"
 	msg "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ChainSafe/ChainBridge/utils"
-	ethutils "github.com/ChainSafe/ChainBridge/utils/ethereum"
-	ethtest "github.com/ChainSafe/ChainBridge/utils/ethereum/testing"
-	subutils "github.com/ChainSafe/ChainBridge/utils/substrate"
-	subtest "github.com/ChainSafe/ChainBridge/utils/substrate/testing"
+	"github.com/ChainSafe/ChainBridge/shared"
+	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
+	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
+	subutils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
 	log "github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -89,7 +89,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestErc20ToSubstrate(t *testing.T) {
-	utils.SetLogger(log.LvlTrace)
+	shared.SetLogger(log.LvlTrace)
 
 	// Deploy contracts, mint, approve
 	contracts := eth.DeployTestContracts(t, EthChainId)
@@ -129,7 +129,7 @@ func TestErc20ToSubstrate(t *testing.T) {
 }
 
 func TestSubstrateToErc20(t *testing.T) {
-	utils.SetLogger(log.LvlInfo)
+	shared.SetLogger(log.LvlInfo)
 
 	// Setup substrate client and chain
 	subClient := subtest.CreateClient(t, sub.AliceKp.AsKeyringPair(), sub.TestSubEndpoint)
@@ -178,7 +178,7 @@ func TestSubstrateToErc20(t *testing.T) {
 }
 
 func TestSubstrateHashToGenericHandler(t *testing.T) {
-	utils.SetLogger(log.LvlTrace)
+	shared.SetLogger(log.LvlTrace)
 	defer attemptToPrintLogs()
 
 	// Whitelist chain

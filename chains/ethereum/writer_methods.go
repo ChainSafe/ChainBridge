@@ -8,7 +8,7 @@ import (
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
-	utils "github.com/ChainSafe/ChainBridge/utils/ethereum"
+	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	log "github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"

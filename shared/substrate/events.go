@@ -75,6 +75,13 @@ type EventProposalFailed struct {
 	Topics       []types.Hash
 }
 
+// TODO: This should be added directly to GSRPC
+type EventSudid struct {
+	Phase   types.Phase
+	Success types.Bool
+	Topics  []types.Hash
+}
+
 type Events struct {
 	types.EventRecords
 	Bridge_RelayerThresholdChanged []EventRelayerThresholdChanged //nolint:stylecheck,golint
@@ -87,4 +94,5 @@ type Events struct {
 	Bridge_ProposalRejected        []EventProposalRejected        //nolint:stylecheck,golint
 	Bridge_ProposalSucceeded       []EventProposalSucceeded       //nolint:stylecheck,golint
 	Bridge_ProposalFailed          []EventProposalFailed          //nolint:stylecheck,golint
+	Sudo_Sudid                     []EventSudid                   //nolint:stylecheck,golint
 }

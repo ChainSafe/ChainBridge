@@ -11,7 +11,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	"github.com/ChainSafe/ChainBridge/chains"
-	utils "github.com/ChainSafe/ChainBridge/utils/ethereum"
+	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"

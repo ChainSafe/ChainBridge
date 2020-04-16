@@ -16,7 +16,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
-	utils "github.com/ChainSafe/ChainBridge/utils/ethereum"
+	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -68,7 +68,6 @@ func DeployTestContracts(t *testing.T, id msg.ChainId) *utils.DeployedContracts 
 	fmt.Println("====== Contracts =======")
 	fmt.Printf("Bridge: %s\n", contracts.BridgeAddress.Hex())
 	fmt.Printf("Erc20Handler: %s\n", contracts.ERC20HandlerAddress.Hex())
-	fmt.Printf("")
 	fmt.Printf("(Generic) Centrifuge Handler: %s\n", contracts.CentrifugeHandlerAddress.Hex())
 	fmt.Println("========================")
 	return contracts

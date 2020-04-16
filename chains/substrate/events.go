@@ -8,7 +8,7 @@ import (
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
-	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
+	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
 
 	"github.com/centrifuge/go-substrate-rpc-client/types"
@@ -65,21 +65,12 @@ type EventCodeUpdated struct {
 	Topics []types.Hash
 }
 
-// TODO: This should be added directly to GSRPC
-type EventSudid struct {
-	Phase   types.Phase
-	Success types.Bool
-	Topics  []types.Hash
-}
-
 type Events struct {
-	types.EventRecords
 	utils.Events
 	Bridge_FungibleTransfer    []EventFungibleTransfer    //nolint:stylecheck,golint
 	Bridge_NonFungibleTransfer []EventNonFungibleTransfer //nolint:stylecheck,golint
 	Bridge_GenericTransfer     []EventGenericTransfer     //nolint:stylecheck,golint
 	System_CodeUpdated         []EventCodeUpdated         //nolint:stylecheck,golint
-	Sudo_Sudid                 []EventSudid               //nolint:stylecheck,golint
 }
 
 func fungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, error) {

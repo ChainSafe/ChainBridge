@@ -6,7 +6,7 @@ package subtest
 import (
 	"testing"
 
-	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
+	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 )
 
 func QueryStorage(t *testing.T, client *utils.Client, prefix, method string, arg1, arg2 []byte, result interface{}) bool {
