@@ -46,7 +46,7 @@ type DeployedContracts struct {
 	CentrifugeHandlerAddress common.Address
 }
 
-func DeployContracts(deployPK string, chainID *big.Int, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
+func DeployContracts(deployPK string, chainID uint8, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8) (*DeployedContracts, error) {
 
 	client, auth, deployAddress, initialRelayerAddresses, err := accountSetUp(url, relayers, deployPK)
 	if err != nil {
@@ -155,7 +155,7 @@ func accountSetUp(url string, relayers int, deployPK string) (*ethclient.Client,
 
 }
 
-func deployBridge(auth *bind.TransactOpts, client *ethclient.Client, chainID *big.Int, relayerContract common.Address, initialRelayerThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
+func deployBridge(auth *bind.TransactOpts, client *ethclient.Client, chainID uint8, relayerContract common.Address, initialRelayerThreshold *big.Int, deployAddress common.Address) (common.Address, error) {
 
 	auth, err := updateNonce(auth, client, deployAddress)
 	if err != nil {
@@ -195,7 +195,7 @@ func deployERC20Handler(auth *bind.TransactOpts, client *ethclient.Client, bridg
 		return ZERO_ADDRESS, err
 	}
 
-	erc20HandlerAddr, _, _, err := erc20Handler.DeployERC20Handler(auth, client, bridgeAddress)
+	erc20HandlerAddr, _, _, err := erc20Handler.DeployERC20Handler(auth, client, bridgeAddress, [][32]byte{}, []common.Address{})
 	if err != nil {
 		log.Error("error deploying ERC20 Handler instance")
 		return ZERO_ADDRESS, err
@@ -212,7 +212,7 @@ func deployERC721Handler(auth *bind.TransactOpts, client *ethclient.Client, brid
 		return ZERO_ADDRESS, err
 	}
 
-	erc721HandlerAddr, _, _, err := erc721Handler.DeployERC721Handler(auth, client, bridgeAddress)
+	erc721HandlerAddr, _, _, err := erc721Handler.DeployERC721Handler(auth, client, bridgeAddress, [][32]byte{}, []common.Address{})
 	if err != nil {
 		log.Error("error deploying ERC20 Handler instance")
 		return ZERO_ADDRESS, err
@@ -229,7 +229,7 @@ func deployCentrifugeHandler(auth *bind.TransactOpts, client *ethclient.Client, 
 		return ZERO_ADDRESS, err
 	}
 
-	centrifugeHandlerAddr, _, _, err := centrifugeHandler.DeployCentrifugeAssetHandler(auth, client, bridgeAddress)
+	centrifugeHandlerAddr, _, _, err := centrifugeHandler.DeployCentrifugeAssetHandler(auth, client, bridgeAddress, [][32]byte{}, []common.Address{})
 	if err != nil {
 		log.Error("error deploying Centrifuge Asset Handler instance")
 		return ZERO_ADDRESS, err

@@ -12,11 +12,11 @@ import (
 )
 
 const (
-	Deposit                  EventSig = "Deposit(uint256,address,uint256)"
-	DepositProposalCreated   EventSig = "DepositProposalCreated(uint256,uint256,uint256,bytes32)"
-	DepositProposalVote      EventSig = "DepositProposalVote(uint256,uint256,uint256,uint8)"
-	DepositProposalFinalized EventSig = "DepositProposalFinalized(uint256,uint256,uint256)"
-	DepositProposalExecuted  EventSig = "DepositProposalExecuted(uint256,uint256,uint256)"
+	Deposit                  EventSig = "Deposit(uint8,address,uint256)"
+	DepositProposalCreated   EventSig = "DepositProposalCreated(uint8,uint8,uint256,bytes32)"
+	DepositProposalVote      EventSig = "DepositProposalVote(uint8,uint8,uint256,uint8)"
+	DepositProposalFinalized EventSig = "DepositProposalFinalized(uint8,uint8,uint256)"
+	DepositProposalExecuted  EventSig = "DepositProposalExecuted(uint8,uint8,uint256)"
 )
 
 type evtHandlerFn func(ethtypes.Log) msg.Message
@@ -28,7 +28,6 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	depositNonce := event.Topics[3].Big()
 
 	record, err := l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce)
-
 	if err != nil {
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
@@ -36,9 +35,9 @@ func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	return msg.NewFungibleTransfer(
 		l.cfg.id,
 		msg.ChainId(destId),
-		uint32(depositNonce.Uint64()),
+		msg.Nonce(depositNonce.Uint64()),
 		record.Amount,
-		record.TokenID,
+		record.ResourceID,
 		record.DestinationRecipientAddress,
 	)
 }

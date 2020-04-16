@@ -21,9 +21,13 @@ func (m Method) String() string {
 	return string(m)
 }
 
+var AddRelayer = createMethod("add_relayer")
+var SetResource = createMethod("set_resource")
+var SetThreshold = createMethod("set_threshold")
 var WhitelistChain = createMethod("whitelist_chain")
 var AcknowledgeProposal = createMethod("acknowledge_proposal")
+var ExampleTransferNative Method = "Example.transfer_native"
+var ExampleTransferHash Method = "Example.transfer_hash"
 var ExampleTransfer Method = "Example.transfer"
-var ExampleTransferHash = Method("Example.transfer_hash")
 var ExampleRemark Method = "Example.remark"
 var Sudo Method = "Sudo.sudo"

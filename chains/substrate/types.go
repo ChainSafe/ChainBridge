@@ -4,11 +4,10 @@
 package substrate
 
 import (
-	"encoding/binary"
-	"fmt"
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/centrifuge/go-substrate-rpc-client/scale"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
@@ -27,68 +26,102 @@ type AccountData struct {
 type voteState struct {
 	VotesFor     []types.AccountID
 	VotesAgainst []types.AccountID
+	Status       voteStatus
+}
+
+type voteStatus struct {
+	IsActive   bool
+	IsApproved bool
+	IsRejected bool
+}
+
+func (m *voteStatus) Decode(decoder scale.Decoder) error {
+	b, err := decoder.ReadOneByte()
+
+	if err != nil {
+		return err
+	}
+
+	if b == 0 {
+		m.IsActive = true
+	} else if b == 1 {
+		m.IsApproved = true
+	} else if b == 2 {
+		m.IsRejected = true
+	}
+
+	return nil
 }
 
 // proposal represents an on-chain proposal
 type proposal struct {
-	DepositNonce types.U32
-	Call         types.Call
+	depositNonce types.U64
+	call         types.Call
+	sourceId     types.U8
+	resourceId   types.Bytes32
+	method       string
 }
 
-func createFungibleProposal(m msg.Message, meta *types.Metadata) (*proposal, error) {
-	amount64 := big.NewInt(0).SetBytes(m.Metadata[0].([]byte)).Uint64()
+// encode takes only nonce and call and encodes them for storage queries
+func (p *proposal) encode() ([]byte, error) {
+	return types.EncodeToBytes(struct {
+		types.U64
+		types.Call
+	}{p.depositNonce, p.call})
+}
+
+func (w *Writer) createFungibleProposal(m msg.Message) (*proposal, error) {
+	amount64 := big.NewInt(0).SetBytes(m.Payload[0].([]byte)).Uint64()
 	amount := types.U32(uint32(amount64))
-	recipient := types.NewAccountID(m.Metadata[2].([]byte))
-	depositNonce := types.U32(m.DepositNonce)
+	recipient := types.NewAccountID(m.Payload[1].([]byte))
+	depositNonce := types.U64(m.DepositNonce)
+
+	meta := w.conn.getMetadata()
+	method, err := w.resolveResourceId(m.ResourceId)
+	if err != nil {
+		return nil, err
+	}
 
 	call, err := types.NewCall(
-		meta,
-		ExampleTransfer.String(),
+		&meta,
+		method,
 		recipient,
 		amount,
 	)
-
 	if err != nil {
 		return nil, err
 	}
+
 	return &proposal{
-		DepositNonce: depositNonce,
-		Call:         call,
+		depositNonce: depositNonce,
+		call:         call,
+		sourceId:     types.U8(m.Source),
+		resourceId:   types.NewBytes32(m.ResourceId),
+		method:       method,
 	}, nil
 }
 
-func createGenericProposal(m msg.Message, meta *types.Metadata) (*proposal, error) {
-	// The token id field is repurposed here to indicate some generic action.
-	// It consists of a chain id and a method id
-	_ = binary.LittleEndian.Uint32(m.Metadata[0].([]byte)[:4])
-	methodId := binary.LittleEndian.Uint32(m.Metadata[0].([]byte)[:4])
-	depositNonce := types.U32(m.DepositNonce)
-
-	method, err := getMethod(methodId)
+func (w *Writer) createGenericProposal(m msg.Message) (*proposal, error) {
+	meta := w.conn.getMetadata()
+	method, err := w.resolveResourceId(m.ResourceId)
 	if err != nil {
 		return nil, err
 	}
 
 	call, err := types.NewCall(
-		meta,
-		method.String(),
-		m.Metadata[0].([]byte),
+		&meta,
+		method,
+		m.Payload[0].([]byte),
 	)
 
 	if err != nil {
 		return nil, err
 	}
 	return &proposal{
-		DepositNonce: depositNonce,
-		Call:         call,
+		depositNonce: types.U64(m.DepositNonce),
+		call:         call,
+		sourceId:     types.U8(m.Source),
+		resourceId:   types.NewBytes32(m.ResourceId),
+		method:       method,
 	}, nil
-}
-
-func getMethod(id uint32) (Method, error) {
-	switch id {
-	case 1:
-		return ExampleRemark, nil
-	default:
-		return "", fmt.Errorf("unknown method id for generic Call: %d", id)
-	}
 }

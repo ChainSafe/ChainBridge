@@ -170,7 +170,7 @@ func importPrivKey(keytype, datadir, key string, password []byte) (string, error
 		return "", fmt.Errorf("invalid key type: %s", keytype)
 	}
 
-	fp, err := filepath.Abs(keystorepath + "/" + kp.PublicKey() + ".key")
+	fp, err := filepath.Abs(keystorepath + "/" + kp.Address() + ".key")
 	if err != nil {
 		return "", fmt.Errorf("invalid filepath: %s", err)
 	}
@@ -192,7 +192,7 @@ func importPrivKey(keytype, datadir, key string, password []byte) (string, error
 		return "", fmt.Errorf("could not write key to file: %s", err)
 	}
 
-	log.Info("private key imported", "public key", kp.PublicKey(), "file", fp)
+	log.Info("private key imported", "address", kp.Address(), "file", fp)
 	return fp, nil
 
 }
@@ -218,7 +218,7 @@ func importEthKey(filename, datadir string) (string, error) {
 
 	kp := secp256k1.NewKeypair(*key.PrivateKey)
 
-	fp, err := filepath.Abs(keystorepath + "/" + kp.PublicKey() + ".key")
+	fp, err := filepath.Abs(keystorepath + "/" + kp.Address() + ".key")
 	if err != nil {
 		return "", fmt.Errorf("invalid filepath: %s", err)
 	}
@@ -242,7 +242,7 @@ func importEthKey(filename, datadir string) (string, error) {
 		return "", fmt.Errorf("could not write key to file: %s", err)
 	}
 
-	log.Info("ETH key imported", "public key", kp.PublicKey(), "file", fp)
+	log.Info("ETH key imported", "address", kp.Address(), "file", fp)
 	return fp, nil
 
 }
@@ -267,7 +267,7 @@ func importKey(filename, datadir string) (string, error) {
 		return "", fmt.Errorf("could not read file contents: %s", err)
 	}
 
-	keystorefile, err := filepath.Abs(keystorepath + "/" + ksjson.PublicKey[2:] + ".key")
+	keystorefile, err := filepath.Abs(keystorepath + "/" + ksjson.Address[2:] + ".key")
 	if err != nil {
 		return "", fmt.Errorf("could not create keystore file path: %s", err)
 	}
@@ -277,7 +277,7 @@ func importKey(filename, datadir string) (string, error) {
 		return "", fmt.Errorf("could not write to keystore directory: %s", err)
 	}
 
-	log.Info("successfully imported key", "public key", ksjson.PublicKey, "file", keystorefile)
+	log.Info("successfully imported key", "address", ksjson.Address, "file", keystorefile)
 	return keystorefile, nil
 }
 
@@ -357,7 +357,7 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 		return "", fmt.Errorf("could not get keystore directory: %s", err)
 	}
 
-	fp, err := filepath.Abs(keystorepath + "/" + kp.PublicKey() + ".key")
+	fp, err := filepath.Abs(keystorepath + "/" + kp.Address() + ".key")
 	if err != nil {
 		return "", fmt.Errorf("invalid filepath: %s", err)
 	}
@@ -379,7 +379,7 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 		return "", fmt.Errorf("could not write key to file: %s", err)
 	}
 
-	log.Info("key generated", "public key", kp.PublicKey(), "type", keytype, "file", fp)
+	log.Info("key generated", "address", kp.Address(), "type", keytype, "file", fp)
 	return fp, nil
 }
 

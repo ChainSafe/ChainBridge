@@ -1,19 +1,24 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package e2e
+package ethereum
 
 import (
 	"context"
 	"fmt"
 	"math/big"
 	"testing"
+	"time"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
+	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc20Mintable "github.com/ChainSafe/ChainBridge/bindings/ERC20Mintable"
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
+	"github.com/ChainSafe/ChainBridge/core"
+	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -24,11 +29,37 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-func deployTestContracts(t *testing.T, id msg.ChainId) *ethereum.DeployedContracts {
+const TestEthEndpoint = "ws://localhost:8545"
+
+var TestTimeout = time.Second * 30
+
+var log = log15.New("e2e", "ethereum")
+
+var AliceEthKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
+var CharlieEthKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
+var CharlieEthAddr = common.HexToAddress(CharlieEthKp.Address())
+
+func CreateConfig(key string, chain msg.ChainId, bridgeAddress, erc20HandlerAddress, genericHandler string) *core.ChainConfig {
+	return &core.ChainConfig{
+		Name:         fmt.Sprintf("ethereum(%s)", key),
+		Id:           chain,
+		Endpoint:     TestEthEndpoint,
+		From:         "",
+		KeystorePath: key,
+		Insecure:     true,
+		Opts: map[string]string{
+			"bridge":         bridgeAddress,
+			"erc20Handler":   erc20HandlerAddress,
+			"genericHandler": genericHandler,
+		},
+	}
+}
+
+func DeployTestContracts(t *testing.T, id msg.ChainId) *ethereum.DeployedContracts {
 	//deployPK string, chainID *big.Int, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8
 	contracts, err := ethereum.DeployContracts(
 		hexutil.Encode(AliceEthKp.Encode())[2:],
-		big.NewInt(int64(id)),
+		uint8(id),
 		TestEthEndpoint,
 		3,             // Num relayers
 		big.NewInt(2), // Relayer threshold
@@ -46,7 +77,7 @@ func deployTestContracts(t *testing.T, id msg.ChainId) *ethereum.DeployedContrac
 	return contracts
 }
 
-func createEthClient(t *testing.T) (*ethclient.Client, *bind.TransactOpts) {
+func CreateEthClient(t *testing.T) (*ethclient.Client, *bind.TransactOpts) {
 	ctx := context.Background()
 	rpcClient, err := rpc.DialWebsocket(ctx, TestEthEndpoint, "/ws")
 	if err != nil {
@@ -69,7 +100,7 @@ func createEthClient(t *testing.T) (*ethclient.Client, *bind.TransactOpts) {
 }
 
 // deployMintApproveErc20 funds the account with a newly created erc20, to prepare for initiating a transfer
-func deployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address) common.Address {
+func DeployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address) common.Address {
 	// Deploy
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	erc20Addr, _, erc20Instance, err := erc20Mintable.DeployERC20Mintable(opts, client)
@@ -85,7 +116,7 @@ func deployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.T
 	}
 
 	// Approve
-	fmt.Printf("Approving: %s\n", erc20Handler.Hex())
+	log.Info("Approving tokens", "who", erc20Handler.Hex(), "amount", 99)
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	_, err = erc20Instance.Approve(opts, erc20Handler, big.NewInt(99))
 	if err != nil {
@@ -95,37 +126,64 @@ func deployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.T
 	return erc20Addr
 }
 
-// deployAndFundEr20 sets up a new erc20 contract and funds the bridge/handler
-func deployAndFundErc20(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address) common.Address { //nolint:unused,deadcode
+func DeployErc20AndAddMinter(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address) common.Address { //nolint:unused,deadcode
 	// Deploy
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	erc20Addr, _, erc20Instance, err := erc20Mintable.DeployERC20Mintable(opts, client)
 	if err != nil {
 		t.Fatal(err)
 	}
+	log.Info("Deployed new ERC20 cotntract", "address", erc20Addr)
 
-	// Mint to handler
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	_, err = erc20Instance.Mint(opts, erc20Addr, big.NewInt(99))
+
+	_, err = erc20Instance.AddMinter(opts, erc20Handler)
+	if err != nil {
+		t.Fatal(err)
+	}
+	log.Info("Approving handler to mint ERC20 tokens", "handler", erc20Handler, "contract", erc20Addr)
+	return erc20Addr
+}
+
+func RegisterErc20Resource(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address, rId msg.ResourceId, addr common.Address) {
+	log.Info("Registering resource", "id", rId.Hex(), "address", addr.Hex())
+	instance, err := ERC20Handler.NewERC20Handler(erc20Handler, client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	return erc20Addr
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
+	_, err = instance.SetResourceIDAndContractAddress(opts, rId, addr)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func RegisterGenericResource(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, genericHandler common.Address, rId msg.ResourceId, addr common.Address) {
+	log.Info("Registering resource", "id", rId.Hex(), "address", addr.Hex())
+	instance, err := centrifugeHandler.NewCentrifugeAssetHandler(genericHandler, client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
+	_, err = instance.SetResourceIDAndContractAddress(opts, rId, addr)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 // constructErc20Data constructs the data field to be passed into a deposit call
-func constructErc20DepositData(erc20Address common.Address, destRecipient []byte, amount *big.Int) []byte {
+func constructErc20DepositData(rId msg.ResourceId, id msg.ChainId, destRecipient []byte, amount *big.Int) []byte {
 	var data []byte
-	data = append(data, common.LeftPadBytes(erc20Address.Bytes(), 32)...)
-	data = append(data, math.PaddedBigBytes(amount, 32)...)
+	data = append(rId[:], math.PaddedBigBytes(amount, 32)...)
 	data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(destRecipient))), 32)...)
 	data = append(data, destRecipient...)
 	return data
 }
 
-func createErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, contracts *ethereum.DeployedContracts, erc20Contract common.Address) {
-	data := constructErc20DepositData(erc20Contract, BobSubKp.AsKeyringPair().PublicKey, big.NewInt(10))
+func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, srcId, destId msg.ChainId, recipient []byte, amount *big.Int, contracts *ethereum.DeployedContracts, rId msg.ResourceId) {
+	data := constructErc20DepositData(rId, srcId, recipient, amount)
 
 	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
 	if err != nil {
@@ -135,7 +193,7 @@ func createErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.Trans
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
 	if _, err := bridgeInstance.Deposit(
 		opts,
-		big.NewInt(int64(SubChainId)),
+		uint8(destId),
 		contracts.ERC20HandlerAddress,
 		data,
 	); err != nil {
@@ -143,7 +201,7 @@ func createErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.Trans
 	}
 }
 
-func waitForEthereumEvent(t *testing.T, client *ethclient.Client, contract common.Address, subStr ethereum.EventSig) {
+func WaitForEthereumEvent(t *testing.T, client *ethclient.Client, contract common.Address, subStr ethereum.EventSig) {
 	query := eth.FilterQuery{
 		FromBlock: big.NewInt(0),
 		Addresses: []common.Address{contract},
@@ -161,7 +219,7 @@ func waitForEthereumEvent(t *testing.T, client *ethclient.Client, contract commo
 	for {
 		select {
 		case evt := <-ch:
-			fmt.Printf("%s: %#v\n", subStr, evt.Topics)
+			log.Info("Got event, continuing...", "event", subStr, "topics", evt.Topics)
 			sub.Unsubscribe()
 			close(ch)
 			return
@@ -169,11 +227,13 @@ func waitForEthereumEvent(t *testing.T, client *ethclient.Client, contract commo
 			if err != nil {
 				t.Fatal(err)
 			}
+		case <-time.After(TestTimeout):
+			t.Fatalf("Test timed out waiting for event %s", subStr)
 		}
 	}
 }
 
-func assertHashExistence(t *testing.T, client *ethclient.Client, hash [32]byte, contract common.Address) {
+func AssertHashExistence(t *testing.T, client *ethclient.Client, hash [32]byte, contract common.Address) {
 	instance, err := centrifugeHandler.NewCentrifugeAssetHandler(contract, client)
 	if err != nil {
 		t.Fatal(err)
@@ -188,7 +248,7 @@ func assertHashExistence(t *testing.T, client *ethclient.Client, hash [32]byte, 
 	}
 }
 
-func assertBalance(t *testing.T, client *ethclient.Client, amount *big.Int, erc20Contract, account common.Address) { //nolint:unused,deadcode
+func AssertBalance(t *testing.T, client *ethclient.Client, amount *big.Int, erc20Contract, account common.Address) { //nolint:unused,deadcode
 	instance, err := erc20Mintable.NewERC20Mintable(erc20Contract, client)
 	if err != nil {
 		t.Fatal(err)

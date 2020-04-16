@@ -16,12 +16,14 @@ import (
 type Router struct {
 	registry map[msg.ChainId]chains.Writer
 	lock     *sync.RWMutex
+	log      log.Logger
 }
 
-func NewRouter() *Router {
+func NewRouter(log log.Logger) *Router {
 	return &Router{
 		registry: make(map[msg.ChainId]chains.Writer),
 		lock:     &sync.RWMutex{},
+		log:      log,
 	}
 }
 
@@ -30,7 +32,7 @@ func (r *Router) Send(msg msg.Message) error {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 
-	log.Trace("Routing message", "src", msg.Source, "dest", msg.Destination)
+	r.log.Trace("Routing message", "src", msg.Source, "dest", msg.Destination)
 	w := r.registry[msg.Destination]
 	if w == nil {
 		return fmt.Errorf("unknown destination chainId: %d", msg.Destination)
@@ -44,6 +46,6 @@ func (r *Router) Send(msg msg.Message) error {
 func (r *Router) Listen(id msg.ChainId, w chains.Writer) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
-	log.Debug("Registering new chain in router", "id", id)
+	r.log.Debug("Registering new chain in router", "id", id)
 	r.registry[id] = w
 }

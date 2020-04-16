@@ -4,28 +4,34 @@
 package ethereum
 
 import (
+	"fmt"
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ChainSafe/log15"
+	log "github.com/ChainSafe/log15"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 )
 
-const VoteDepositProposalMethod = "voteDepositProposal"
-const ExecuteDepositMethod = "executeDepositProposal"
-
-func constructErc20ProposalData(amount, tokenId, recipient []byte) []byte {
+func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipient []byte) []byte {
 	var data []byte
 	data = append(data, common.LeftPadBytes(amount, 32)...) // amount
-
-	tokenIdLen := big.NewInt(int64(len(tokenId))).Bytes()
-	data = append(data, common.LeftPadBytes(tokenIdLen, 32)...) // len(tokenId)
-	data = append(data, tokenId...)                             // tokenId (chainId)
+	data = append(data, resourceId[:]...)                   // resourceId
 
 	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
 	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
 	data = append(data, recipient...)                             // recipient
 	return data
+}
+
+// proposalIsComplete returns true if the proposal state is either Passed(2) or Transferred(3)
+func (w *Writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
+	prop, err := w.bridgeContract.GetDepositProposal(&bind.CallOpts{}, uint8(destId), nonce.Big())
+	if err != nil {
+		log.Error("Failed to check deposit proposal", "err", err)
+		return false
+	}
+	return prop.Status >= PassedStatus // Passed (2) or Transferred (3)
 }
 
 func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
@@ -37,17 +43,24 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	data := constructErc20ProposalData(m.Metadata[0].([]byte), m.Metadata[1].([]byte), m.Metadata[2].([]byte))
+	data := constructErc20ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte))
 	hash := hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
+
+	// Check if proposal has passed and skip if Passed or Transferred
+	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
+		w.log.Debug("Proposal complete, not voting")
+		nonce.lock.Unlock()
+		return true
+	}
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
 
-	log15.Trace("Submitting CreateDepositPropsoal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
-	_, err = w.bridgeContract.Transact(
+	w.log.Debug("Submitting CreateDepositProposal for ERC20", "source", m.Source, "depositNonce", m.DepositNonce)
+
+	_, err = w.bridgeContract.VoteDepositProposal(
 		opts,
-		VoteDepositProposalMethod,
-		big.NewInt(int64(m.Source)),
-		u32toBigInt(m.DepositNonce),
+		uint8(m.Source),
+		m.DepositNonce.Big(),
 		hash,
 	)
 
@@ -69,18 +82,25 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	h := m.Metadata[0].([]byte)
-	dataHash := hash(append(w.cfg.genericHandlerContract.Bytes(), h...))
+	h := m.Payload[0].([]byte)
+	data := append(m.ResourceId[:], h...)
+	toHash := append(w.cfg.genericHandlerContract.Bytes(), data...)
+	dataHash := hash(toHash)
+
+	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
+		w.log.Debug("Proposal complete, not voting")
+		nonce.lock.Unlock()
+		return true
+	}
 
 	// watch for execution event
-	go w.watchAndExecute(m, w.cfg.genericHandlerContract, h)
+	go w.watchAndExecute(m, w.cfg.genericHandlerContract, data)
 
-	log15.Trace("Submitting CreateDepositProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
-	_, err = w.bridgeContract.Transact(
+	w.log.Trace("Submitting CreateDepositProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
+	_, err = w.bridgeContract.VoteDepositProposal(
 		opts,
-		VoteDepositProposalMethod,
-		big.NewInt(int64(m.Source)),
-		u32toBigInt(m.DepositNonce),
+		uint8(m.Source),
+		m.DepositNonce.Big(),
 		dataHash,
 	)
 
@@ -111,7 +131,7 @@ func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []b
 
 			if m.Source == msg.ChainId(sourceId) &&
 				m.Destination == msg.ChainId(destId) &&
-				m.DepositNonce == uint32(depositNonce) {
+				uint64(m.DepositNonce) == depositNonce {
 				eventSubscription.sub.Unsubscribe()
 				w.executeProposal(m, handler, data)
 				return
@@ -128,7 +148,7 @@ func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []b
 }
 
 func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
-	w.log.Info("Executing proposal", "to", w.conn.cfg.bridgeContract)
+	w.log.Info("Executing proposal", "handler", handler, "data", fmt.Sprintf("%x", data))
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
 	if err != nil {
@@ -137,11 +157,10 @@ func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []b
 	}
 	defer nonce.lock.Unlock()
 
-	_, err = w.bridgeContract.BridgeRaw.Transact(
+	_, err = w.bridgeContract.ExecuteDepositProposal(
 		opts,
-		ExecuteDepositMethod,
-		big.NewInt(int64(m.Source)),
-		u32toBigInt(m.DepositNonce),
+		uint8(m.Source),
+		m.DepositNonce.Big(),
 		handler,
 		data,
 	)

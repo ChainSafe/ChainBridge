@@ -4,6 +4,8 @@
 package substrate
 
 import (
+	"fmt"
+	"os"
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/keystore"
@@ -11,22 +13,81 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
-var TestEndpoint = "ws://127.0.0.1:9944"
+const TestEndpoint = "ws://127.0.0.1:9944"
+
+const TestRelayerThreshold = 2
+const TestChainId = 1
 
 var AliceKey = keystore.TestKeyRing.SubstrateKeys[keystore.AliceKey].AsKeyringPair()
 var BobKey = keystore.TestKeyRing.SubstrateKeys[keystore.BobKey].AsKeyringPair()
 
-var TestLogger = newTestLogger()
+var TestLogLevel = log15.LvlTrace
+var AliceTestLogger = newTestLogger("Alice")
+var BobTestLogger = newTestLogger("Bob")
 
-func newTestLogger() log15.Logger {
-	tLog := log15.New("test_chain", "substrate")
-	tLog.SetHandler(log15.LvlFilterHandler(log15.LvlInfo, tLog.GetHandler()))
+func TestMain(m *testing.M) {
+	ensureInitializedChain()
+	os.Exit(m.Run())
+}
+
+func ensureInitializedChain() {
+	conn := NewConnection(TestEndpoint, "Test", AliceKey, AliceTestLogger)
+	err := conn.Connect()
+	if err != nil {
+		panic(err)
+	}
+	var exists types.Bool
+	_, err = conn.queryStorage("Bridge", "Relayers", AliceKey.PublicKey, nil, &exists)
+	if err != nil {
+		panic(err)
+	}
+
+	if !exists {
+		meta := conn.getMetadata()
+		call, err := types.NewCall(&meta, AddRelayer.String(), types.NewAccountID(AliceKey.PublicKey))
+		if err != nil {
+			panic(err)
+		}
+		err = conn.SubmitTx(Sudo, call)
+		if err != nil {
+			panic(err)
+		}
+
+		call, err = types.NewCall(&meta, AddRelayer.String(), types.NewAccountID(BobKey.PublicKey))
+		if err != nil {
+			panic(err)
+		}
+		err = conn.SubmitTx(Sudo, call)
+		if err != nil {
+			panic(err)
+		}
+
+		call, err = types.NewCall(&meta, SetThreshold.String(), types.U32(2))
+		if err != nil {
+			panic(err)
+		}
+		err = conn.SubmitTx(Sudo, call)
+		if err != nil {
+			panic(err)
+		}
+
+	} else {
+		fmt.Println("=========================================================================")
+		fmt.Println("! WARNING: Running tests against an initialized chain, results may vary !")
+		fmt.Println("=========================================================================")
+	}
+	conn.Close()
+}
+
+func newTestLogger(name string) log15.Logger {
+	tLog := log15.Root().New("chain", name)
+	tLog.SetHandler(log15.LvlFilterHandler(TestLogLevel, tLog.GetHandler()))
 	return tLog
 }
 
 // createAliceConnection creates and starts a connection with the Alice keypair
 func createAliceConnection(t *testing.T) *Connection {
-	alice := NewConnection(TestEndpoint, "Alice", AliceKey, TestLogger)
+	alice := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger)
 	err := alice.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -38,7 +99,7 @@ func createAliceConnection(t *testing.T) *Connection {
 func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
 	alice := createAliceConnection(t)
 
-	bob := NewConnection(TestEndpoint, "Bob", BobKey, TestLogger)
+	bob := NewConnection(TestEndpoint, "Bob", BobKey, AliceTestLogger)
 	err := bob.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -58,4 +119,20 @@ func getFreeBalance(c *Connection, res *types.U128) {
 		panic("no account data")
 	}
 	*res = acct.Data.Free
+}
+
+func submitSudoTx(t *testing.T, conn *Connection, method Method, args ...interface{}) {
+	meta := conn.getMetadata()
+	call, err := types.NewCall(&meta, method.String(), args...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = conn.SubmitTx(Sudo, call)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func registerResourceId(t *testing.T, conn *Connection, id [32]byte, method string) {
+	submitSudoTx(t, conn, SetResource, id, []byte(method))
 }
