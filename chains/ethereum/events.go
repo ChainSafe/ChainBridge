@@ -13,7 +13,7 @@ import (
 
 type evtHandlerFn func(ethtypes.Log) msg.Message
 
-func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
+func (l *listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
 	l.log.Debug("Handling deposited event")
 
 	destId := event.Topics[1].Big().Uint64()

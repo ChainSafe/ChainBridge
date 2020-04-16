@@ -13,27 +13,27 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
-var _ chains.Writer = &Writer{}
+var _ chains.Writer = &writer{}
 
 var AcknowledgeProposal utils.Method = "Bridge.acknowledge_proposal"
 
-type Writer struct {
+type writer struct {
 	conn *Connection
 	log  log15.Logger
 }
 
-func NewWriter(conn *Connection, log log15.Logger) *Writer {
-	return &Writer{
+func NewWriter(conn *Connection, log log15.Logger) *writer {
+	return &writer{
 		conn: conn,
 		log:  log,
 	}
 }
 
-func (w *Writer) Start() error {
+func (w *writer) start() error {
 	return nil
 }
 
-func (w *Writer) ResolveMessage(m msg.Message) bool {
+func (w *writer) ResolveMessage(m msg.Message) bool {
 	var prop *proposal
 	var err error
 
@@ -82,7 +82,7 @@ func (w *Writer) ResolveMessage(m msg.Message) bool {
 	return true
 }
 
-func (w *Writer) resolveResourceId(id [32]byte) (string, error) {
+func (w *writer) resolveResourceId(id [32]byte) (string, error) {
 	var res []byte
 	exists, err := w.conn.queryStorage("Bridge", "Resources", id[:], nil, &res)
 	if err != nil {
@@ -95,7 +95,7 @@ func (w *Writer) resolveResourceId(id [32]byte) (string, error) {
 	return string(res), nil
 }
 
-func (w *Writer) proposalNotCompleted(prop *proposal) (bool, error) {
+func (w *writer) proposalNotCompleted(prop *proposal) (bool, error) {
 	var voteRes voteState
 	srcId, err := types.EncodeToBytes(prop.sourceId)
 	if err != nil {
@@ -117,6 +117,6 @@ func (w *Writer) proposalNotCompleted(prop *proposal) (bool, error) {
 	return false, nil
 }
 
-func (w *Writer) Stop() error {
+func (w *writer) Stop() error {
 	return nil
 }

@@ -26,7 +26,7 @@ func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipi
 }
 
 // proposalIsComplete returns true if the proposal state is either Passed(2) or Transferred(3)
-func (w *Writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
+func (w *writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
 	prop, err := w.bridgeContract.GetDepositProposal(&bind.CallOpts{}, uint8(destId), nonce.Big())
 	if err != nil {
 		log.Error("Failed to check deposit proposal", "err", err)
@@ -35,7 +35,7 @@ func (w *Writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
 	return prop.Status >= PassedStatus // Passed (2) or Transferred (3)
 }
 
-func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
+func (w *writer) createErc20DepositProposal(m msg.Message) bool {
 	w.log.Info("Creating erc20 proposal")
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
@@ -74,7 +74,7 @@ func (w *Writer) createErc20DepositProposal(m msg.Message) bool {
 	return true
 }
 
-func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
+func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	w.log.Info("Creating generic proposal", "handler", w.cfg.genericHandlerContract)
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
@@ -114,7 +114,7 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 	return true
 }
 
-func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
+func (w *writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
 	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
 	// TODO: Skip existing blocks
 	query := buildQuery(w.cfg.bridgeContract, utils.DepositProposalFinalized, w.cfg.startBlock, nil)
@@ -148,7 +148,7 @@ func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []b
 	}
 }
 
-func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
+func (w *writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
 	w.log.Info("Executing proposal", "handler", handler, "data", fmt.Sprintf("%x", data))
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)

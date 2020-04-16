@@ -16,7 +16,7 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
-type Listener struct {
+type listener struct {
 	name          string
 	chainId       msg.ChainId
 	startBlock    uint64
@@ -30,8 +30,8 @@ type Listener struct {
 // Frequency of polling for a new block
 var BlockRetryInterval = time.Second * 2
 
-func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer) *Listener {
-	return &Listener{
+func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer) *listener {
+	return &listener{
 		name:          name,
 		chainId:       id,
 		startBlock:    startBlock,
@@ -42,12 +42,12 @@ func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint6
 	}
 }
 
-func (l *Listener) SetRouter(r chains.Router) {
+func (l *listener) setRouter(r chains.Router) {
 	l.router = r
 }
 
-// Start creates the initial subscription for all events
-func (l *Listener) Start() error {
+// start creates the initial subscription for all events
+func (l *listener) start() error {
 	// Check that whether latest is less than starting block
 	header, err := l.conn.api.RPC.Chain.GetHeaderLatest()
 	if err != nil {
@@ -58,7 +58,7 @@ func (l *Listener) Start() error {
 	}
 
 	for _, sub := range Subscriptions {
-		err := l.RegisterEventHandler(sub.name, sub.handler)
+		err := l.registerEventHandler(sub.name, sub.handler)
 		if err != nil {
 			return err
 		}
@@ -74,8 +74,8 @@ func (l *Listener) Start() error {
 	return nil
 }
 
-// RegisterEventHandler enables a handler for a given event. This cannot be used after Start is called.
-func (l *Listener) RegisterEventHandler(name eventName, handler eventHandler) error {
+// registerEventHandler enables a handler for a given event. This cannot be used after Start is called.
+func (l *listener) registerEventHandler(name eventName, handler eventHandler) error {
 	if l.subscriptions[name] != nil {
 		return fmt.Errorf("event %s already registered", name)
 	}
@@ -85,7 +85,7 @@ func (l *Listener) RegisterEventHandler(name eventName, handler eventHandler) er
 
 var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
 
-func (l *Listener) pollBlocks() error {
+func (l *listener) pollBlocks() error {
 	var latestBlock = l.startBlock
 	for {
 		hash, err := l.conn.api.RPC.Chain.GetBlockHash(latestBlock)
@@ -110,7 +110,7 @@ func (l *Listener) pollBlocks() error {
 }
 
 // processEvents fetches a block and parses out the events, calling Listener.handleEvents()
-func (l *Listener) processEvents(hash types.Hash) error {
+func (l *listener) processEvents(hash types.Hash) error {
 	l.log.Trace("Fetching block for events", "hash", hash.Hex())
 	meta := l.conn.getMetadata()
 	key, err := types.CreateStorageKey(&meta, "System", "Events", nil, nil)
@@ -137,7 +137,7 @@ func (l *Listener) processEvents(hash types.Hash) error {
 }
 
 // handleEvents calls the associated handler for all registered event types
-func (l *Listener) handleEvents(evts Events) {
+func (l *listener) handleEvents(evts Events) {
 	if l.subscriptions[FungibleTransfer] != nil {
 		for _, evt := range evts.Bridge_FungibleTransfer {
 			l.log.Trace("Handling FungibleTransfer event")
@@ -167,7 +167,7 @@ func (l *Listener) handleEvents(evts Events) {
 }
 
 // submitMessage inserts the chainId into the msg and sends it to the router
-func (l *Listener) submitMessage(m msg.Message, err error) {
+func (l *listener) submitMessage(m msg.Message, err error) {
 	if err != nil {
 		log15.Error("Critical error processing event", "err", err)
 		return
@@ -179,6 +179,6 @@ func (l *Listener) submitMessage(m msg.Message, err error) {
 	}
 }
 
-func (l *Listener) Stop() error {
+func (l *listener) Stop() error {
 	return nil
 }

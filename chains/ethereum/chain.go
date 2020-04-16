@@ -20,8 +20,8 @@ import (
 type Chain struct {
 	cfg      *core.ChainConfig // The config of the chain
 	conn     *Connection       // THe chains connection
-	listener *Listener         // The listener of this chain
-	writer   *Writer           // The writer of the chain
+	listener *listener         // The listener of this chain
+	writer   *writer           // The writer of the chain
 }
 
 func createBridgeContract(addr common.Address, conn *Connection) (*bridge.Bridge, error) {
@@ -101,10 +101,10 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger) (*Chain, e
 	}
 
 	listener := NewListener(conn, cfg, logger, bs)
-	listener.SetContracts(bridgeContract, erc20HandlerContract)
+	listener.setContracts(bridgeContract, erc20HandlerContract)
 
 	writer := NewWriter(conn, cfg, logger)
-	writer.SetContract(bridgeContract)
+	writer.setContract(bridgeContract)
 
 	return &Chain{
 		cfg:      chainCfg,
@@ -116,16 +116,16 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger) (*Chain, e
 
 func (c *Chain) SetRouter(r *router.Router) {
 	r.Listen(c.cfg.Id, c.writer)
-	c.listener.SetRouter(r)
+	c.listener.setRouter(r)
 }
 
 func (c *Chain) Start() error {
-	err := c.listener.Start()
+	err := c.listener.start()
 	if err != nil {
 		return err
 	}
 
-	err = c.writer.Start()
+	err = c.writer.start()
 	if err != nil {
 		return err
 	}
@@ -147,12 +147,12 @@ func (c *Chain) GetWriter() chains.Writer {
 }
 
 func (c *Chain) Stop() error {
-	err := c.listener.Stop()
+	err := c.listener.stop()
 	if err != nil {
 		return err
 	}
 
-	err = c.writer.Stop()
+	err = c.writer.stop()
 	if err != nil {
 		return err
 	}

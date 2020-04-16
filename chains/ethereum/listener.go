@@ -31,7 +31,7 @@ type ActiveSubscription struct {
 	sub eth.Subscription
 }
 
-type Listener struct {
+type listener struct {
 	cfg                  Config
 	conn                 *Connection
 	subscriptions        map[utils.EventSig]*Subscription
@@ -42,8 +42,8 @@ type Listener struct {
 	blockstore           blockstore.Blockstorer
 }
 
-func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *Listener {
-	return &Listener{
+func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *listener {
+	return &listener{
 		cfg:           *cfg,
 		conn:          conn,
 		subscriptions: make(map[utils.EventSig]*Subscription),
@@ -52,17 +52,17 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.
 	}
 }
 
-func (l *Listener) SetContracts(bridge *Bridge.Bridge, erc20Handler *erc20Handler.ERC20Handler) {
+func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *erc20Handler.ERC20Handler) {
 	l.bridgeContract = bridge
 	l.erc20HandlerContract = erc20Handler
 
 }
 
-func (l *Listener) SetRouter(r chains.Router) {
+func (l *listener) setRouter(r chains.Router) {
 	l.router = r
 }
 
-func (l *Listener) GetSubscriptions() []*Subscription {
+func (l *listener) getSubscriptions() []*Subscription {
 	return []*Subscription{
 		{
 			signature: utils.Deposit,
@@ -72,13 +72,13 @@ func (l *Listener) GetSubscriptions() []*Subscription {
 
 }
 
-// Start registers all subscriptions provided by the config
-func (l *Listener) Start() error {
+// start registers all subscriptions provided by the config
+func (l *listener) start() error {
 	l.log.Debug("Starting listener...")
 
-	subscriptions := l.GetSubscriptions()
+	subscriptions := l.getSubscriptions()
 	for _, sub := range subscriptions {
-		err := l.RegisterEventHandler(sub.signature, sub.handler)
+		err := l.registerEventHandler(sub.signature, sub.handler)
 		if err != nil {
 			l.log.Error("failed to register event handler", "err", err)
 		}
@@ -96,7 +96,7 @@ func (l *Listener) Start() error {
 
 //pollBlocks continously check the blocks for subscription logs, and sends messages to the router if logs are encountered
 // stops where there are no subscriptions, and sleeps if we are at the current block
-func (l *Listener) pollBlocks() error {
+func (l *listener) pollBlocks() error {
 	l.log.Debug("Polling Blocks...")
 	var latestBlock = l.cfg.startBlock
 	for {
@@ -128,7 +128,7 @@ func (l *Listener) pollBlocks() error {
 	return nil
 }
 
-func (l *Listener) getEventsForBlock(latestBlock *big.Int) error {
+func (l *listener) getEventsForBlock(latestBlock *big.Int) error {
 
 	for evt, sub := range l.subscriptions {
 		query := buildQuery(l.cfg.bridgeContract, evt, latestBlock, latestBlock)
@@ -163,9 +163,9 @@ func buildQuery(contract ethcommon.Address, sig utils.EventSig, startBlock *big.
 	return query
 }
 
-// RegisterEventHandler creates a subscription for the provided event on the bridge bridgeContract.
+// registerEventHandler creates a subscription for the provided event on the bridge bridgeContract.
 // Handler will be called for every instance of event.
-func (l *Listener) RegisterEventHandler(subscription utils.EventSig, handler evtHandlerFn) error {
+func (l *listener) registerEventHandler(subscription utils.EventSig, handler evtHandlerFn) error {
 
 	if l.subscriptions[subscription] != nil {
 		return fmt.Errorf("event %s already registered", subscription)
@@ -179,8 +179,8 @@ func (l *Listener) RegisterEventHandler(subscription utils.EventSig, handler evt
 
 }
 
-// Stop cancels all subscriptions. Must be called before Connection.Stop().
-func (l *Listener) Stop() error {
+// stop cancels all subscriptions. Must be called before Connection.Stop().
+func (l *listener) stop() error {
 	for sig := range l.subscriptions {
 		delete(l.subscriptions, sig)
 	}
