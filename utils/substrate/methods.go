@@ -1,6 +1,5 @@
 package utils
 
-
 // An available method on the substrate chain
 type Method string
 

@@ -1,4 +1,4 @@
-package ethutils
+package utils
 
 import (
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"

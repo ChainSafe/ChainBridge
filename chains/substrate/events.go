@@ -59,7 +59,6 @@ type EventGenericTransfer struct {
 	Topics       []types.Hash
 }
 
-
 type EventCodeUpdated struct {
 	Phase  types.Phase
 	Topics []types.Hash
@@ -74,11 +73,11 @@ type EventSudid struct {
 
 type Events struct {
 	types.EventRecords
-	Bridge_FungibleTransfer        []EventFungibleTransfer        //nolint:stylecheck,golint
-	Bridge_NonFungibleTransfer     []EventNonFungibleTransfer     //nolint:stylecheck,golint
-	Bridge_GenericTransfer         []EventGenericTransfer         //nolint:stylecheck,golint
-	System_CodeUpdated             []EventCodeUpdated             //nolint:stylecheck,golint
-	Sudo_Sudid                     []EventSudid                   //nolint:stylecheck,golint
+	Bridge_FungibleTransfer    []EventFungibleTransfer    //nolint:stylecheck,golint
+	Bridge_NonFungibleTransfer []EventNonFungibleTransfer //nolint:stylecheck,golint
+	Bridge_GenericTransfer     []EventGenericTransfer     //nolint:stylecheck,golint
+	System_CodeUpdated         []EventCodeUpdated         //nolint:stylecheck,golint
+	Sudo_Sudid                 []EventSudid               //nolint:stylecheck,golint
 }
 
 func fungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, error) {

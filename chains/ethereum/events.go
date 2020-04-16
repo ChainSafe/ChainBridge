@@ -11,14 +11,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-const (
-	Deposit                  EventSig = "Deposit(uint8,address,uint256)"
-	DepositProposalCreated   EventSig = "DepositProposalCreated(uint8,uint8,uint256,bytes32)"
-	DepositProposalVote      EventSig = "DepositProposalVote(uint8,uint8,uint256,uint8)"
-	DepositProposalFinalized EventSig = "DepositProposalFinalized(uint8,uint8,uint256)"
-	DepositProposalExecuted  EventSig = "DepositProposalExecuted(uint8,uint8,uint256)"
-)
-
 type evtHandlerFn func(ethtypes.Log) msg.Message
 
 func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {

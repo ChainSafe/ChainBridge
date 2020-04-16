@@ -10,6 +10,7 @@ import (
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
+	subtest "github.com/ChainSafe/ChainBridge/utils/substrate/testing"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
@@ -24,23 +25,23 @@ func (r *mockRouter) Send(message msg.Message) error {
 	return nil
 }
 
-func whitelistChain(t *testing.T, c *Connection, id msg.ChainId) {
-	destId := types.U8(id)
-	meta := c.getMetadata()
-	call, err := types.NewCall(
-		&meta,
-		string(utils.WhitelistChain),
-		destId,
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = c.SubmitTx(utils.Sudo, call)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
+//func whitelistChain(t *testing.T, c *Connection, id msg.ChainId) {
+//	destId := types.U8(id)
+//	meta := c.getMetadata()
+//	call, err := types.NewCall(
+//		&meta,
+//		string(utils.WhitelistChain),
+//		destId,
+//	)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	err = c.SubmitTx(utils.Sudo, call)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//}
 
 func Test_GenericTransferEvent(t *testing.T) {
 	r := &mockRouter{msgs: make(chan msg.Message)}
@@ -55,7 +56,7 @@ func Test_GenericTransferEvent(t *testing.T) {
 
 	// First we have to whitelist the destination chain with sudo
 	var destId msg.ChainId = 0
-	whitelistChain(t, ac, destId)
+	subtest.WhitelistChain(t, ac, destId)
 
 	// Construct our expected message
 	var rId msg.ResourceId

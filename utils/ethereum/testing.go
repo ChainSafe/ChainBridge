@@ -1,2 +1,1 @@
-package ethutils
-
+package utils

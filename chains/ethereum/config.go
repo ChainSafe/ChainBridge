@@ -10,6 +10,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/core"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/ChainBridge/utils/ethereum"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -41,9 +42,9 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		endpoint:               chainCfg.Endpoint,
 		from:                   chainCfg.From,
 		keystorePath:           chainCfg.KeystorePath,
-		bridgeContract:         ZERO_ADDRESS,
-		erc20HandlerContract:   ZERO_ADDRESS,
-		genericHandlerContract: ZERO_ADDRESS,
+		bridgeContract:         utils.ZeroAddress,
+		erc20HandlerContract:   utils.ZeroAddress,
+		genericHandlerContract: utils.ZeroAddress,
 		gasLimit:               big.NewInt(DefaultGasLimit),
 		gasPrice:               big.NewInt(DefaultGasPrice),
 		http:                   false,
