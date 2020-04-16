@@ -23,6 +23,8 @@ type Config struct {
 	endpoint               string      // url for rpc endpoint
 	from                   string      // address of key to use
 	keystorePath           string      // Location of keyfiles
+	blockstorePath         string
+	freshStart             bool // Disables loading from blockstore at start
 	bridgeContract         common.Address
 	erc20HandlerContract   common.Address
 	genericHandlerContract common.Address
@@ -41,6 +43,8 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		endpoint:               chainCfg.Endpoint,
 		from:                   chainCfg.From,
 		keystorePath:           chainCfg.KeystorePath,
+		blockstorePath:         chainCfg.BlockstorePath,
+		freshStart:             chainCfg.FreshStart,
 		bridgeContract:         ZERO_ADDRESS,
 		erc20HandlerContract:   ZERO_ADDRESS,
 		genericHandlerContract: ZERO_ADDRESS,

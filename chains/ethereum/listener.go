@@ -10,6 +10,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
@@ -37,14 +38,16 @@ type Listener struct {
 	bridgeContract       *Bridge.Bridge // instance of bound bridge contract
 	erc20HandlerContract *erc20Handler.ERC20Handler
 	log                  log15.Logger
+	blockstore           blockstore.Blockstorer
 }
 
-func NewListener(conn *Connection, cfg *Config, log log15.Logger) *Listener {
+func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *Listener {
 	return &Listener{
 		cfg:           *cfg,
 		conn:          conn,
 		subscriptions: make(map[EventSig]*Subscription),
 		log:           log,
+		blockstore:    bs,
 	}
 }
 
@@ -102,7 +105,7 @@ func (l *Listener) pollBlocks() error {
 		}
 		currBlock, err := l.conn.conn.BlockByNumber(l.conn.ctx, nil)
 		if err != nil {
-			return fmt.Errorf("Unable to get latest block: %s", err)
+			return fmt.Errorf("unable to get latest block: %s", err)
 		}
 		if currBlock.Number().Cmp(latestBlock) < 0 {
 			time.Sleep(BlockRetryInterval)
@@ -114,6 +117,10 @@ func (l *Listener) pollBlocks() error {
 			return err
 		}
 
+		err = l.blockstore.StoreBlock(latestBlock)
+		if err != nil {
+			return err
+		}
 		latestBlock.Add(latestBlock, big.NewInt(1))
 	}
 
