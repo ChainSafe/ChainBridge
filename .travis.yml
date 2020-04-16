@@ -25,6 +25,7 @@ jobs:
       go: 1.13.x
       name: "Golang-ci Linter"
       script:
+        - cd chainbridge
         - make lint
         - rm -rf bindings/ # Avoid adding license to bindings
         - make license-check
