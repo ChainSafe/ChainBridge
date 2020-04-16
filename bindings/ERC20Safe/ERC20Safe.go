@@ -28,10 +28,10 @@ var (
 )
 
 // ERC20SafeABI is the input ABI used to generate the binding from.
-const ERC20SafeABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_balances\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
+const ERC20SafeABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_balances\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"fundERC20\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // ERC20SafeBin is the compiled bytecode used for deploying new contracts.
-var ERC20SafeBin = "0x608060405234801561001057600080fd5b5060d08061001f6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c80636ebcf60714602d575b600080fd5b606c60048036036020811015604157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506082565b6040518082815260200191505060405180910390f35b6000602052806000526040600020600091509050548156fea264697066735822122092588d61635b9221c0383224c3632aa6e05c27ce1c2dde88884312fb44ca361164736f6c63430006040033"
+var ERC20SafeBin = "0x608060405234801561001057600080fd5b5061036c806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c80636ebcf6071461003b57806395601f0914610093575b600080fd5b61007d6004803603602081101561005157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610101565b6040518082815260200191505060405180910390f35b6100ff600480360360608110156100a957600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610119565b005b60006020528060005260406000206000915090505481565b60008390508073ffffffffffffffffffffffffffffffffffffffff166323b872dd8430856040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b1580156101d957600080fd5b505af11580156101ed573d6000803e3d6000fd5b505050506040513d602081101561020357600080fd5b810190808051906020019092919050505050610266826000808773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546102ae90919063ffffffff16565b6000808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208190555050505050565b60008082840190508381101561032c576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601b8152602001807f536166654d6174683a206164646974696f6e206f766572666c6f77000000000081525060200191505060405180910390fd5b809150509291505056fea264697066735822122017abc7ed841ab1a3a46bde3bec1e5cf1c2e9d27f59d9d86e35fecb6cc7bc33f064736f6c63430006040033"
 
 // DeployERC20Safe deploys a new Ethereum contract, binding an instance of ERC20Safe to it.
 func DeployERC20Safe(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *ERC20Safe, error) {
@@ -215,4 +215,25 @@ func (_ERC20Safe *ERC20SafeCallerSession) Balances(arg0 common.Address) (*big.In
 	return _ERC20Safe.Contract.Balances(&_ERC20Safe.CallOpts, arg0)
 }
 
-var RuntimeBytecode = "0x6080604052348015600f57600080fd5b506004361060285760003560e01c80636ebcf60714602d575b600080fd5b606c60048036036020811015604157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506082565b6040518082815260200191505060405180910390f35b6000602052806000526040600020600091509050548156fea264697066735822122092588d61635b9221c0383224c3632aa6e05c27ce1c2dde88884312fb44ca361164736f6c63430006040033"
+// FundERC20 is a paid mutator transaction binding the contract method 0x95601f09.
+//
+// Solidity: function fundERC20(address tokenAddress, address owner, uint256 amount) returns()
+func (_ERC20Safe *ERC20SafeTransactor) FundERC20(opts *bind.TransactOpts, tokenAddress common.Address, owner common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Safe.contract.Transact(opts, "fundERC20", tokenAddress, owner, amount)
+}
+
+// FundERC20 is a paid mutator transaction binding the contract method 0x95601f09.
+//
+// Solidity: function fundERC20(address tokenAddress, address owner, uint256 amount) returns()
+func (_ERC20Safe *ERC20SafeSession) FundERC20(tokenAddress common.Address, owner common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Safe.Contract.FundERC20(&_ERC20Safe.TransactOpts, tokenAddress, owner, amount)
+}
+
+// FundERC20 is a paid mutator transaction binding the contract method 0x95601f09.
+//
+// Solidity: function fundERC20(address tokenAddress, address owner, uint256 amount) returns()
+func (_ERC20Safe *ERC20SafeTransactorSession) FundERC20(tokenAddress common.Address, owner common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Safe.Contract.FundERC20(&_ERC20Safe.TransactOpts, tokenAddress, owner, amount)
+}
+
+var RuntimeBytecode = "0x608060405234801561001057600080fd5b50600436106100365760003560e01c80636ebcf6071461003b57806395601f0914610093575b600080fd5b61007d6004803603602081101561005157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610101565b6040518082815260200191505060405180910390f35b6100ff600480360360608110156100a957600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610119565b005b60006020528060005260406000206000915090505481565b60008390508073ffffffffffffffffffffffffffffffffffffffff166323b872dd8430856040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b1580156101d957600080fd5b505af11580156101ed573d6000803e3d6000fd5b505050506040513d602081101561020357600080fd5b810190808051906020019092919050505050610266826000808773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546102ae90919063ffffffff16565b6000808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208190555050505050565b60008082840190508381101561032c576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601b8152602001807f536166654d6174683a206164646974696f6e206f766572666c6f77000000000081525060200191505060405180910390fd5b809150509291505056fea264697066735822122017abc7ed841ab1a3a46bde3bec1e5cf1c2e9d27f59d9d86e35fecb6cc7bc33f064736f6c63430006040033"

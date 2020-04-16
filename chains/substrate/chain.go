@@ -4,9 +4,6 @@
 package substrate
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridge/keystore"
@@ -23,13 +20,12 @@ type Chain struct {
 	writer   *Writer     // The writer of the chain
 }
 
-func InitializeChain(cfg *core.ChainConfig) (*Chain, error) {
+func InitializeChain(cfg *core.ChainConfig, logger log15.Logger) (*Chain, error) {
 	kp, err := keystore.KeypairFromAddress(cfg.From, keystore.SubChain, cfg.KeystorePath, cfg.Insecure)
 	if err != nil {
 		return nil, err
 	}
 
-	logger := log15.Root().New("chain", cfg.Name)
 	krp := kp.(*sr25519.Keypair).AsKeyringPair()
 
 	// Setup connection
@@ -98,19 +94,4 @@ func (c *Chain) Stop() error {
 	c.conn.Close()
 
 	return nil
-}
-
-func (c *Connection) checkChainId(expected msg.ChainId) error {
-	var id msg.ChainId
-	ok, err := c.queryStorage("Bridge", "ChainIdentifier", nil, nil, &id)
-	if err != nil {
-		return err
-	} else if !ok {
-		return errors.New("Unable to find ChainId")
-	} else if id != expected {
-		return fmt.Errorf("ChainID is incorrect, Expected chainId: %d, got chainId: %d", expected, id)
-	}
-
-	return nil
-
 }

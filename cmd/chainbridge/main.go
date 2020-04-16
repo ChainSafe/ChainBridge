@@ -151,10 +151,11 @@ func run(ctx *cli.Context) error {
 			Opts:         chain.Opts,
 		}
 		var newChain core.Chain
+		logger := log.Root().New("chain", chainConfig.Name)
 		if chain.Type == "ethereum" {
-			newChain, err = ethereum.InitializeChain(chainConfig)
+			newChain, err = ethereum.InitializeChain(chainConfig, logger)
 		} else if chain.Type == "substrate" {
-			newChain, err = substrate.InitializeChain(chainConfig)
+			newChain, err = substrate.InitializeChain(chainConfig, logger)
 		} else {
 			return errors.New("unrecognized Chain Type")
 		}

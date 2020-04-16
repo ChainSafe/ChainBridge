@@ -27,18 +27,13 @@ func createTestWriter(t *testing.T, cfg *Config, contracts *DeployedContracts) (
 		t.Fatal(err)
 	}
 
-	erc20Handler, err := createErc20HandlerContract(contracts.ERC20HandlerAddress, conn)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	writer.conn.cfg.bridgeContract = contracts.BridgeAddress
 	writer.conn.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.conn.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
 	writer.cfg.bridgeContract = contracts.BridgeAddress
 	writer.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
-	writer.SetContracts(bridge, erc20Handler)
+	writer.SetContract(bridge)
 
 	return conn, writer
 }
@@ -134,13 +129,16 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 		t.Fatal(err)
 	}
 	erc20Address := deployMintApproveErc20(t, aliceConn, opts)
-
+	err = fundErc20Handler(aliceConn, opts, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
+	if err != nil {
+		t.Fatal(err)
+	}
 	// Create initial transfer message
-	tokenId := append(common.LeftPadBytes([]byte{}, 32), common.LeftPadBytes(erc20Address.Bytes(), 32)...)
+	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0))
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
 	amount := big.NewInt(10)
-	m := msg.NewFungibleTransfer(1, 0, 0, amount, tokenId, recipient)
-
+	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient)
+	whitelistResourceId(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, resourceId, erc20Address)
 	// Helpful for debugging
 	go watchEvent(alice.conn, DepositProposalCreated)
 	go watchEvent(alice.conn, DepositProposalVote)
@@ -169,11 +167,11 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 		case evt := <-eventSubscription.ch:
 			sourceId := evt.Topics[1].Big().Uint64()
 			destId := evt.Topics[2].Big().Uint64()
-			depositNone := evt.Topics[3].Big().Uint64()
+			depositNonce := evt.Topics[3].Big().Uint64()
 
 			if m.Source == msg.ChainId(sourceId) &&
 				m.Destination == msg.ChainId(destId) &&
-				m.DepositNonce == uint32(depositNone) {
+				uint64(m.DepositNonce) == depositNonce {
 				return
 			}
 
@@ -198,6 +196,17 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	bobConn, bob := createTestWriter(t, bobTestConfig, contracts)
 	defer bobConn.Close()
 
+	// Whitelist resourceID (arbitrary for centrifuge handler)
+	rId := msg.ResourceIdFromSlice(common.LeftPadBytes([]byte{1, 1}, 32))
+	addr := common.BytesToAddress(common.LeftPadBytes([]byte{1}, 32))
+
+	opts, nonce, err := aliceConn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
+	nonce.lock.Unlock() // We manual increment nonce in tests
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	whitelistResourceId(t, aliceConn.conn, opts, contracts.CentrifugeHandlerAddress, rId, addr)
 	// Create initial transfer message
 	hash := common.HexToHash("0xf0a8748d2b102eb4e0e116047753b9beff0396d81b830693b19a1376ac4b14e8")
 	m := msg.Message{
@@ -205,7 +214,8 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 		Destination:  0,
 		Type:         msg.GenericTransfer,
 		DepositNonce: 0,
-		Metadata: []interface{}{
+		ResourceId:   rId,
+		Payload: []interface{}{
 			hash.Bytes(),
 		},
 	}
@@ -243,7 +253,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 
 				if m.Source == msg.ChainId(sourceId) &&
 					m.Destination == msg.ChainId(destId) &&
-					m.DepositNonce == uint32(depositNonce) {
+					uint64(m.DepositNonce) == depositNonce {
 					return
 				}
 

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sync"
 
+	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/author"
@@ -99,7 +100,6 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 		return err
 	}
 
-	// TODO: Does this actually return more than nonce?
 	var acct AccountData
 	_, err = c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
 	if err != nil {
@@ -127,16 +127,16 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	}
 	c.log.Debug("Extrinsic submission succeeded")
 	defer sub.Unsubscribe()
-	return watchSubmission(sub)
+	return c.watchSubmission(sub)
 }
 
-func watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
+func (c *Connection) watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 	for {
 		select {
 		case status := <-sub.Chan():
 			switch {
 			case status.IsInBlock:
-				log15.Trace("Successful extrinsic finalized", "block", status.AsInBlock.Hex())
+				c.log.Trace("Extrinsic included in block", "block", status.AsInBlock.Hex())
 				return nil
 			case status.IsRetracted:
 				return fmt.Errorf("extrinsic retracted: %s", status.AsRetracted.Hex())
@@ -144,11 +144,9 @@ func watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 				return fmt.Errorf("extrinsic dropped from network")
 			case status.IsInvalid:
 				return fmt.Errorf("extrinsic invalid")
-			default:
-				log15.Trace("Other status", "status", fmt.Sprintf("%+v", status))
 			}
 		case err := <-sub.Err():
-			log15.Trace("Extrinsic subscription error", "err", err)
+			c.log.Trace("Extrinsic subscription error", "err", err)
 			return err
 		}
 	}
@@ -178,6 +176,40 @@ func (c *Connection) queryStorage(prefix, method string, arg1, arg2 []byte, resu
 		return false, err
 	}
 	return c.api.RPC.State.GetStorageLatest(key, result)
+}
+
+// TODO: Add this to GSRPC
+func getConst(meta *types.Metadata, prefix, name string, res interface{}) error {
+	for _, mod := range meta.AsMetadataV11.Modules {
+		if string(mod.Name) == prefix {
+			for _, cons := range mod.Constants {
+				if string(cons.Name) == name {
+					return types.DecodeFromBytes(cons.Value, res)
+				}
+			}
+		}
+	}
+	return fmt.Errorf("could not find constant %s.%s", prefix, name)
+}
+
+func (c *Connection) getConst(prefix, name string, res interface{}) error {
+	meta := c.getMetadata()
+	return getConst(&meta, prefix, name, res)
+}
+
+func (c *Connection) checkChainId(expected msg.ChainId) error {
+	var actual msg.ChainId
+	meta := c.getMetadata()
+	err := getConst(&meta, "Bridge", "ChainIdentity", &actual)
+	if err != nil {
+		return err
+	}
+
+	if actual != expected {
+		return fmt.Errorf("ChainID is incorrect, Expected chainId: %d, got chainId: %d", expected, actual)
+	}
+
+	return nil
 }
 
 func (c *Connection) Close() {

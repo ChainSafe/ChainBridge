@@ -23,8 +23,8 @@ func (r *mockRouter) Send(message msg.Message) error {
 	return nil
 }
 
-func whitelistChain(c *Connection, id uint32) error {
-	destId := types.U32(id)
+func whitelistChain(t *testing.T, c *Connection, id msg.ChainId) {
+	destId := types.U8(id)
 	meta := c.getMetadata()
 	call, err := types.NewCall(
 		&meta,
@@ -32,36 +32,20 @@ func whitelistChain(c *Connection, id uint32) error {
 		destId,
 	)
 	if err != nil {
-		return err
+		t.Fatal(err)
 	}
 
 	err = c.SubmitTx(Sudo, call)
 	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func constructMessage(t *testing.T, hash string, depositNonce uint32, destId uint32) (msg.Message, types.Hash) {
-	assetHashBytes := types.Bytes(types.MustHexDecodeString(hash))
-	assetHash, err := types.NewHashFromHexString(hash)
-	if err != nil {
 		t.Fatal(err)
 	}
-
-	return msg.Message{
-		Source:       1,
-		Destination:  0,
-		Type:         msg.GenericTransfer,
-		DepositNonce: depositNonce,
-		Metadata:     []interface{}{[]byte(assetHashBytes)},
-	}, assetHash
 }
 
-func Test_AssetTx(t *testing.T) {
-	ac := createAliceConnection(t)
+func Test_GenericTransferEvent(t *testing.T) {
 	r := &mockRouter{msgs: make(chan msg.Message)}
-	alice := NewListener(ac, "Alice", 1, 0, TestLogger)
+
+	ac := createAliceConnection(t)
+	alice := NewListener(ac, "Alice", 1, 0, AliceTestLogger)
 	alice.SetRouter(r)
 	err := alice.Start()
 	if err != nil {
@@ -69,19 +53,21 @@ func Test_AssetTx(t *testing.T) {
 	}
 
 	// First we have to whitelist the destination chain with sudo
-	var destId uint32 = 0
-	err = whitelistChain(ac, destId)
+	var destId msg.ChainId = 0
+	whitelistChain(t, ac, destId)
+
+	// Construct our expected message
+	var rId msg.ResourceId
+	err = alice.conn.getConst("Example", "HashId", &rId)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	// Construct our expected message
-	hashStr := "0x16078eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f2"
-	expected, hash := constructMessage(t, hashStr, 0, 1)
+	hashBz := types.MustHexDecodeString("0x16078eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f2")
+	hash := types.NewHash(hashBz)
+	expected := msg.NewGenericTransfer(1, 0, 1, rId, hash[:])
 
 	// Initiate transfer
-	recipient := types.Bytes([]byte{0xAB, 0xCD})
-	err = ac.SubmitTx(ExampleTransferHash, hash, recipient, destId)
+	err = ac.SubmitTx(ExampleTransferHash, hash, destId)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,11 +86,12 @@ func Test_AssetTx(t *testing.T) {
 	// Repeat the process to assert nonce and hash change
 
 	// Construct our expected message
-	hashStr = "0x5d57194171ec6cd04032c42dde05d73f1c9366c16b64071a551c657c1db4c8f9"
-	expected, hash = constructMessage(t, hashStr, 1, 1)
+	hashBz = types.MustHexDecodeString("0x16078eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f2")
+	hash = types.NewHash(hashBz)
+	expected = msg.NewGenericTransfer(1, 0, 2, rId, hash[:])
 
 	// Initiate transfer
-	err = ac.SubmitTx(ExampleTransferHash, hash, recipient, destId)
+	err = ac.SubmitTx(ExampleTransferHash, hash, destId)
 	if err != nil {
 		t.Fatal(err)
 	}

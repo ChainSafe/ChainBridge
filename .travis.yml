@@ -38,7 +38,7 @@ jobs:
         - set -e
         - make clean && make setup-contracts
         - cd chainbridge-solidity && SILENT=true make start-ganache
-        - make setup-sol-cli
+        - make deploy
         - ./scripts/substrate/run_chain_ci.sh
         - make test
 
@@ -48,7 +48,7 @@ jobs:
       script:
         - set -e
         - make clean && make setup-contracts
-        - make setup-sol-cli
+        - make deploy
         - cd chainbridge-solidity && SILENT=true make start-ganache
         - ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
