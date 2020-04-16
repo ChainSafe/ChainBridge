@@ -12,6 +12,8 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
+	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
@@ -25,7 +27,7 @@ func (r *MockRouter) Send(message msg.Message) error {
 	return nil
 }
 
-func createTestListener(t *testing.T, config *Config, contracts *DeployedContracts) (*Listener, *MockRouter) {
+func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedContracts) (*Listener, *MockRouter) {
 	// Create copy and add deployed contract addresses
 	newConfig := *config
 	newConfig.bridgeContract = contracts.BridgeAddress
@@ -75,7 +77,7 @@ func TestListener_depositEvent(t *testing.T) {
 	l, router := createTestListener(t, aliceTestConfig, contracts)
 
 	// For debugging
-	go watchEvent(l.conn, Deposit)
+	go watchEvent(l.conn, utils.Deposit)
 
 	// Get transaction ready
 	opts, nonce, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
@@ -84,29 +86,29 @@ func TestListener_depositEvent(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	erc20Contract := deployMintApproveErc20(t, l.conn, opts)
+	erc20Contract := ethtest.DeployMintApproveErc20(t, l.conn.conn, opts, contracts.ERC20HandlerAddress, big.NewInt(100))
 
 	amount := big.NewInt(10)
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
-	resourceId := append(common.LeftPadBytes(erc20Contract.Bytes(), 31), uint8(src))
+	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Contract.Bytes(), 31), uint8(src)))
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
 
-	whitelistResourceId(t, l.conn.conn, opts, contracts.ERC20HandlerAddress, msg.ResourceIdFromSlice(resourceId), erc20Contract)
+	ethtest.RegisterErc20Resource(t, l.conn.conn, opts, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
 
 	expectedMessage := msg.NewFungibleTransfer(
 		src,
 		dst,
 		1,
 		amount,
-		msg.ResourceIdFromSlice(resourceId),
+		resourceId,
 		common.HexToAddress(BobKp.Address()).Bytes(),
 	)
 	// Create an ERC20 Deposit
 	err = createErc20Deposit(
 		l.bridgeContract,
 		opts,
-		erc20Contract,
+		resourceId,
 		l.cfg.erc20HandlerContract,
 
 		recipient,
@@ -134,13 +136,13 @@ func TestListener_depositEvent(t *testing.T) {
 		dst,
 		2,
 		amount,
-		msg.ResourceIdFromSlice(resourceId),
+		resourceId,
 		common.HexToAddress(BobKp.Address()).Bytes(),
 	)
 	err = createErc20Deposit(
 		l.bridgeContract,
 		opts,
-		erc20Contract,
+		resourceId,
 		l.cfg.erc20HandlerContract,
 
 		recipient,

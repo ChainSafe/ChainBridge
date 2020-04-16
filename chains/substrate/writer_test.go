@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	message "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
@@ -38,7 +40,7 @@ func assertProposalState(t *testing.T, conn *Connection, prop *proposal, votes *
 }
 
 func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
-
+	testClient := subtest.CreateClient(t, AliceKey, TestEndpoint)
 	ac, bc := createAliceAndBobConnections(t)
 	alice := NewWriter(ac, AliceTestLogger)
 	bob := NewWriter(bc, BobTestLogger)
@@ -50,12 +52,9 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 	// Setup message and params
 	srcId := message.ChainId(0)
 	var rId [32]byte
-	err := alice.conn.getConst("Example", "NativeTokenId", &rId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	registerResourceId(t, alice.conn, rId, ExampleTransfer.String())
-	whitelistChain(t, alice.conn, srcId)
+	subtest.QueryConst(t, testClient, "Example", "NativeTokenId", &rId)
+	subtest.RegisterResource(t, testClient, rId, string(utils.ExampleTransferMethod))
+	subtest.WhitelistChain(t, testClient, srcId)
 	// Construct the message to initiate a vote
 	amount := big.NewInt(10000000)
 	m := message.NewFungibleTransfer(srcId, 1, 0, amount, rId, bob.conn.key.PublicKey)

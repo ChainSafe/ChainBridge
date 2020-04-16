@@ -8,6 +8,7 @@ import (
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
 
 	"github.com/centrifuge/go-substrate-rpc-client/types"
@@ -16,66 +17,17 @@ import (
 type eventName string
 type eventHandler func(interface{}, log15.Logger) (msg.Message, error)
 
-const RelayerThresholdChanged eventName = "RelayerThresholdChanged"
-const ChainWhitelisted eventName = "ChainWhitelsited"
-const RelayerAdded eventName = "RelayerAdded"
-const RelayerRemoved eventName = "RelayerRemoved"
-
 const FungibleTransfer eventName = "FungibleTransfer"
 const NonFungibleTransfer eventName = "NonFungibleTransfer"
 const GenericTransfer eventName = "GenericTransfer"
-
-const VoteFor eventName = "VoteFor"
-const VoteAgainst eventName = "VoteAgainst"
-
-const ProposalApproved eventName = "ProposalApproved"
-const ProposalRejected eventName = "ProposalRejected"
-const ProposalSucceeded eventName = "ProposalSucceeded"
-const ProposalFailed eventName = "ProposalFailed"
-
-const CodeUpdated eventName = "CodeUpdated"
 
 var Subscriptions = []struct {
 	name    eventName
 	handler eventHandler
 }{
-	{RelayerThresholdChanged, nil},
-	{ChainWhitelisted, nil},
-	{RelayerAdded, nil},
-	{RelayerRemoved, nil},
 	{FungibleTransfer, fungibleTransferHandler},
 	{NonFungibleTransfer, nonFungibleTransferHandler},
 	{GenericTransfer, genericTransferHandler},
-	{VoteFor, nil},
-	{VoteAgainst, nil},
-	{ProposalApproved, nil},
-	{ProposalRejected, nil},
-	{ProposalSucceeded, nil},
-	{ProposalFailed, nil},
-}
-
-type EventRelayerThresholdChanged struct {
-	Phase     types.Phase
-	Threshold types.U32
-	Topics    []types.Hash
-}
-
-type EventChainWhitelisted struct {
-	Phase   types.Phase
-	ChainId types.U8
-	Topics  []types.Hash
-}
-
-type EventRelayerAdded struct {
-	Phase   types.Phase
-	Relayer types.AccountID
-	Topics  []types.Hash
-}
-
-type EventRelayerRemoved struct {
-	Phase   types.Phase
-	Relayer types.AccountID
-	Topics  []types.Hash
 }
 
 type EventFungibleTransfer struct {
@@ -108,79 +60,17 @@ type EventGenericTransfer struct {
 	Topics       []types.Hash
 }
 
-type EventVoteFor struct {
-	Phase        types.Phase
-	SourceId     types.U8
-	DepositNonce types.U64
-	Voter        types.AccountID
-	Topics       []types.Hash
-}
-
-type EventVoteAgainst struct {
-	Phase        types.Phase
-	SourceId     types.U8
-	DepositNonce types.U64
-	Voter        types.AccountID
-	Topics       []types.Hash
-}
-
-type EventProposalApproved struct {
-	Phase        types.Phase
-	SourceId     types.U8
-	DepositNonce types.U64
-	Topics       []types.Hash
-}
-
-type EventProposalRejected struct {
-	Phase        types.Phase
-	SourceId     types.U8
-	DepositNonce types.U64
-	Topics       []types.Hash
-}
-
-type EventProposalSucceeded struct {
-	Phase        types.Phase
-	SourceId     types.U8
-	DepositNonce types.U64
-	Topics       []types.Hash
-}
-
-type EventProposalFailed struct {
-	Phase        types.Phase
-	SourceId     types.U8
-	DepositNonce types.U64
-	Topics       []types.Hash
-}
-
 type EventCodeUpdated struct {
 	Phase  types.Phase
 	Topics []types.Hash
 }
 
-// TODO: This should be added directly to GSRPC
-type EventSudid struct {
-	Phase   types.Phase
-	Success types.Bool
-	Topics  []types.Hash
-}
-
 type Events struct {
-	types.EventRecords
-	Bridge_RelayerThresholdChanged []EventRelayerThresholdChanged //nolint:stylecheck,golint
-	Bridge_ChainWhitelisted        []EventChainWhitelisted        //nolint:stylecheck,golint
-	Bridge_RelayerAdded            []EventRelayerAdded            //nolint:stylecheck,golint
-	Bridge_RelayerRemoved          []EventRelayerRemoved          //nolint:stylecheck,golint
-	Bridge_FungibleTransfer        []EventFungibleTransfer        //nolint:stylecheck,golint
-	Bridge_NonFungibleTransfer     []EventNonFungibleTransfer     //nolint:stylecheck,golint
-	Bridge_GenericTransfer         []EventGenericTransfer         //nolint:stylecheck,golint
-	Bridge_VoteFor                 []EventVoteFor                 //nolint:stylecheck,golint
-	Bridge_VoteAgainst             []EventVoteAgainst             //nolint:stylecheck,golint
-	Bridge_ProposalApproved        []EventProposalApproved        //nolint:stylecheck,golint
-	Bridge_ProposalRejected        []EventProposalRejected        //nolint:stylecheck,golint
-	Bridge_ProposalSucceeded       []EventProposalSucceeded       //nolint:stylecheck,golint
-	Bridge_ProposalFailed          []EventProposalFailed          //nolint:stylecheck,golint
-	System_CodeUpdated             []EventCodeUpdated             //nolint:stylecheck,golint
-	Sudo_Sudid                     []EventSudid                   //nolint:stylecheck,golint
+	utils.Events
+	Bridge_FungibleTransfer    []EventFungibleTransfer    //nolint:stylecheck,golint
+	Bridge_NonFungibleTransfer []EventNonFungibleTransfer //nolint:stylecheck,golint
+	Bridge_GenericTransfer     []EventGenericTransfer     //nolint:stylecheck,golint
+	System_CodeUpdated         []EventCodeUpdated         //nolint:stylecheck,golint
 }
 
 func fungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, error) {

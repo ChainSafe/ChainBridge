@@ -9,16 +9,16 @@ import (
 	"testing"
 	"time"
 
-	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
+	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
+	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 )
 
-func createTestWriter(t *testing.T, cfg *Config, contracts *DeployedContracts) (*Connection, *Writer) {
+func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContracts) (*Connection, *Writer) {
 	conn := newLocalConnection(t, cfg)
 	writer := NewWriter(conn, cfg, newTestLogger(cfg.name))
 
@@ -76,7 +76,7 @@ func TestHash(t *testing.T) {
 	}
 }
 
-func watchEvent(conn *Connection, subStr EventSig) {
+func watchEvent(conn *Connection, subStr utils.EventSig) {
 	fmt.Printf("Watching for event: %s\n", subStr)
 	query := buildQuery(conn.cfg.bridgeContract, subStr, big.NewInt(0), nil)
 	eventSubscription, err := conn.subscribeToEvent(query)
@@ -98,27 +98,11 @@ func watchEvent(conn *Connection, subStr EventSig) {
 	}
 }
 
-func verifyHash(t *testing.T, conn *Connection, opts *bind.CallOpts, hash [32]byte) {
-	instance, err := centrifugeHandler.NewCentrifugeAssetHandler(conn.cfg.genericHandlerContract, conn.conn)
-	if err != nil {
-		t.Fatal(err)
-	}
-	ok, err := instance.CentrifugeAssetHandlerCaller.GetHash(opts, hash)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !ok {
-		t.Fatal("Hash doesn't exist")
-	}
-
-}
-
 func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id)
 
 	aliceConn, alice := createTestWriter(t, aliceTestConfig, contracts)
 	defer aliceConn.Close()
-
 	bobConn, bob := createTestWriter(t, bobTestConfig, contracts)
 	defer bobConn.Close()
 
@@ -128,25 +112,23 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc20Address := deployMintApproveErc20(t, aliceConn, opts)
-	err = fundErc20Handler(aliceConn, opts, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
-	if err != nil {
-		t.Fatal(err)
-	}
+	erc20Address := ethtest.DeployMintApproveErc20(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, big.NewInt(100))
+	ethtest.FundErc20Handler(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
+
 	// Create initial transfer message
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0))
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
 	amount := big.NewInt(10)
 	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient)
-	whitelistResourceId(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, resourceId, erc20Address)
+	ethtest.RegisterErc20Resource(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, resourceId, erc20Address)
 	// Helpful for debugging
-	go watchEvent(alice.conn, DepositProposalCreated)
-	go watchEvent(alice.conn, DepositProposalVote)
-	go watchEvent(alice.conn, DepositProposalFinalized)
-	go watchEvent(alice.conn, DepositProposalExecuted)
+	go watchEvent(alice.conn, utils.DepositProposalCreated)
+	go watchEvent(alice.conn, utils.DepositProposalVote)
+	go watchEvent(alice.conn, utils.DepositProposalFinalized)
+	go watchEvent(alice.conn, utils.DepositProposalExecuted)
 
 	// Watch for executed event
-	query := buildQuery(alice.cfg.bridgeContract, DepositProposalExecuted, big.NewInt(0), nil)
+	query := buildQuery(alice.cfg.bridgeContract, utils.DepositProposalExecuted, big.NewInt(0), nil)
 	eventSubscription, err := alice.conn.subscribeToEvent(query)
 	if err != nil {
 		log15.Error("Failed to subscribe to finalization event", "err", err)
@@ -206,7 +188,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	whitelistResourceId(t, aliceConn.conn, opts, contracts.CentrifugeHandlerAddress, rId, addr)
+	ethtest.RegisterErc20Resource(t, aliceConn.conn, opts, contracts.CentrifugeHandlerAddress, rId, addr)
 	// Create initial transfer message
 	hash := common.HexToHash("0xf0a8748d2b102eb4e0e116047753b9beff0396d81b830693b19a1376ac4b14e8")
 	m := msg.Message{
@@ -221,13 +203,13 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	}
 
 	// Helpful for debugging
-	go watchEvent(alice.conn, DepositProposalCreated)
-	go watchEvent(alice.conn, DepositProposalVote)
-	go watchEvent(alice.conn, DepositProposalFinalized)
-	go watchEvent(alice.conn, DepositProposalExecuted)
+	go watchEvent(alice.conn, utils.DepositProposalCreated)
+	go watchEvent(alice.conn, utils.DepositProposalVote)
+	go watchEvent(alice.conn, utils.DepositProposalFinalized)
+	go watchEvent(alice.conn, utils.DepositProposalExecuted)
 
 	// Watch for executed event
-	query := buildQuery(alice.cfg.bridgeContract, DepositProposalExecuted, big.NewInt(0), nil)
+	query := buildQuery(alice.cfg.bridgeContract, utils.DepositProposalExecuted, big.NewInt(0), nil)
 	eventSubscription, err := alice.conn.subscribeToEvent(query)
 	if err != nil {
 		log15.Error("Failed to subscribe to finalization event", "err", err)
@@ -268,5 +250,5 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 		}
 	}()
 
-	verifyHash(t, aliceConn, &bind.CallOpts{}, hash)
+	ethtest.AssertHashExistence(t, aliceConn.conn, hash, contracts.CentrifugeHandlerAddress)
 }

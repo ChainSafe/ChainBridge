@@ -12,6 +12,7 @@ import (
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
+	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -21,7 +22,7 @@ import (
 var BlockRetryInterval = time.Second * 2
 
 type Subscription struct {
-	signature EventSig
+	signature utils.EventSig
 	handler   evtHandlerFn
 }
 
@@ -33,7 +34,7 @@ type ActiveSubscription struct {
 type Listener struct {
 	cfg                  Config
 	conn                 *Connection
-	subscriptions        map[EventSig]*Subscription
+	subscriptions        map[utils.EventSig]*Subscription
 	router               chains.Router
 	bridgeContract       *Bridge.Bridge // instance of bound bridge contract
 	erc20HandlerContract *erc20Handler.ERC20Handler
@@ -45,7 +46,7 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.
 	return &Listener{
 		cfg:           *cfg,
 		conn:          conn,
-		subscriptions: make(map[EventSig]*Subscription),
+		subscriptions: make(map[utils.EventSig]*Subscription),
 		log:           log,
 		blockstore:    bs,
 	}
@@ -64,7 +65,7 @@ func (l *Listener) SetRouter(r chains.Router) {
 func (l *Listener) GetSubscriptions() []*Subscription {
 	return []*Subscription{
 		{
-			signature: Deposit,
+			signature: utils.Deposit,
 			handler:   l.handleErc20DepositedEvent,
 		},
 	}
@@ -150,7 +151,7 @@ func (l *Listener) getEventsForBlock(latestBlock *big.Int) error {
 }
 
 // buildQuery constructs a query for the bridgeContract by hashing sig to get the event topic
-func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int, endBlock *big.Int) eth.FilterQuery {
+func buildQuery(contract ethcommon.Address, sig utils.EventSig, startBlock *big.Int, endBlock *big.Int) eth.FilterQuery {
 	query := eth.FilterQuery{
 		FromBlock: startBlock,
 		ToBlock:   endBlock,
@@ -164,7 +165,7 @@ func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int, e
 
 // RegisterEventHandler creates a subscription for the provided event on the bridge bridgeContract.
 // Handler will be called for every instance of event.
-func (l *Listener) RegisterEventHandler(subscription EventSig, handler evtHandlerFn) error {
+func (l *Listener) RegisterEventHandler(subscription utils.EventSig, handler evtHandlerFn) error {
 
 	if l.subscriptions[subscription] != nil {
 		return fmt.Errorf("event %s already registered", subscription)
