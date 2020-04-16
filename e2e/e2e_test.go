@@ -24,8 +24,11 @@ import (
 	subutils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
 	log "github.com/ChainSafe/log15"
+	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 const TestTimeout = time.Second * 15
@@ -33,6 +36,24 @@ const EthChainId = msg.ChainId(0)
 const SubChainId = msg.ChainId(1)
 
 var logFiles = []string{}
+
+type test struct {
+	name string
+	fn   func(*testing.T, *testContext)
+}
+
+var tests = []test{
+	{"Erc20ToSubstrate", testErc20ToSubstrate},
+	//{"SubstrateToErc20", testSubstrateToErc20},
+	//{"SubstrateHashToGenericHandler", testSubstrateHashToGenericHandler},
+}
+
+type testContext struct {
+	contracts *ethutils.DeployedContracts
+	ethClient *ethclient.Client
+	opts      *bind.TransactOpts
+	subClient *subutils.Client
+}
 
 func createAndStartBridge(t *testing.T, name, bridgeAddress, erc20HandlerAddres, genericHandlerAddress string) *core.Core {
 	// Create logger to write to a file, and store the log file name in global var
@@ -88,24 +109,48 @@ func TestMain(m *testing.M) {
 	os.Exit(res)
 }
 
-func TestErc20ToSubstrate(t *testing.T) {
+func Test_ThreeRelayers(t *testing.T) {
+	dave, err := signature.KeyringPairFromSecret("//Dave")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(dave)
+
 	shared.SetLogger(log.LvlTrace)
 
 	// Deploy contracts, mint, approve
-	contracts := eth.DeployTestContracts(t, EthChainId)
+	contracts := eth.DeployTestContracts(t, EthChainId, big.NewInt(2))
 	ethClient, opts := eth.CreateEthClient(t)
-	erc20Contract := ethtest.DeployMintApproveErc20(t, ethClient, opts, contracts.ERC20HandlerAddress, big.NewInt(100))
-	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Contract.Bytes(), 31), 0))
-	ethtest.RegisterErc20Resource(t, ethClient, opts, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
 
 	// Setup substrate client, register resource, add relayers
-	subClient := subtest.CreateClient(t, sub.AliceKp.AsKeyringPair(), sub.TestSubEndpoint)
+	subClient := subtest.CreateClient(t, sub.DaveKp.AsKeyringPair(), sub.TestSubEndpoint)
 	subtest.EnsureInitializedChain(subClient, sub.RelayerSet, []msg.ChainId{EthChainId}, 2)
-	subtest.RegisterResource(t, subClient, resourceId, string(subutils.ExampleTransferMethod))
 
 	// Create and start two bridges with both chains
-	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
+	//_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
 	_ = createAndStartBridge(t, "bob", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
+	_ = createAndStartBridge(t, "eve", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
+
+	ctx := &testContext{
+		contracts: contracts,
+		ethClient: ethClient,
+		opts:      opts,
+		subClient: subClient,
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.fn(t, ctx)
+		})
+	}
+	attemptToPrintLogs()
+}
+
+func testErc20ToSubstrate(t *testing.T, ctx *testContext) {
+	erc20Contract := ethtest.DeployMintApproveErc20(t, ctx.ethClient, ctx.opts, ctx.contracts.ERC20HandlerAddress, big.NewInt(100))
+	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Contract.Bytes(), 31), 0))
+	ethtest.RegisterErc20Resource(t, ctx.ethClient, ctx.opts, ctx.contracts.ERC20HandlerAddress, resourceId, erc20Contract)
+	subtest.RegisterResource(t, ctx.subClient, resourceId, string(subutils.ExampleTransferMethod))
 
 	numberOfTxs := 5
 
@@ -115,89 +160,60 @@ func TestErc20ToSubstrate(t *testing.T) {
 			log.Info("Submitting transaction", "number", i)
 			// Initiate transfer
 			amount := big.NewInt(0).Mul(big.NewInt(int64(i)), big.NewInt(5))
-			eth.CreateErc20Deposit(t, ethClient, opts, SubChainId, sub.BobKp.AsKeyringPair().PublicKey, amount, contracts, resourceId)
+			eth.CreateErc20Deposit(t, ctx.ethClient, ctx.opts, SubChainId, sub.BobKp.AsKeyringPair().PublicKey, amount, ctx.contracts, resourceId)
 
 			// Check for success event
-			sub.WaitForProposalSuccessOrFail(t, subClient, types.NewU64(uint64(i)), types.U8(EthChainId))
+			sub.WaitForProposalSuccessOrFail(t, ctx.subClient, types.NewU64(uint64(i)), types.U8(EthChainId))
 		})
 		if !ok {
 			attemptToPrintLogs()
 			return
 		}
 	}
-	attemptToPrintLogs()
 }
 
-func TestSubstrateToErc20(t *testing.T) {
-	shared.SetLogger(log.LvlInfo)
-
-	// Setup substrate client and chain
-	subClient := subtest.CreateClient(t, sub.AliceKp.AsKeyringPair(), sub.TestSubEndpoint)
-	subtest.EnsureInitializedChain(subClient, sub.RelayerSet, []msg.ChainId{EthChainId}, 2)
-
+func testSubstrateToErc20(t *testing.T, ctx *testContext) {
 	// Fetch the resource ID
 	var rawRId types.Bytes32
-	subtest.QueryConst(t, subClient, "Example", "NativeTokenId", &rawRId)
+	subtest.QueryConst(t, ctx.subClient, "Example", "NativeTokenId", &rawRId)
 	resourceId := msg.ResourceIdFromSlice(rawRId[:])
 
-	// Deploy contracts, mint, approve
-	contracts := eth.DeployTestContracts(t, EthChainId)
-	ethClient, opts := eth.CreateEthClient(t)
-	erc20Contract := eth.DeployErc20AndAddMinter(t, ethClient, opts, contracts.ERC20HandlerAddress)
-	ethtest.RegisterErc20Resource(t, ethClient, opts, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
-
-	// Start two bridges
-	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
-	_ = createAndStartBridge(t, "bob", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
+	// Deploy erc20, mint, approve and register the resulting address under the resource ID
+	erc20Contract := eth.DeployErc20AndAddMinter(t, ctx.ethClient, ctx.opts, ctx.contracts.ERC20HandlerAddress)
+	ethtest.RegisterErc20Resource(t, ctx.ethClient, ctx.opts, ctx.contracts.ERC20HandlerAddress, resourceId, erc20Contract)
 
 	numberOfTxs := 5
 	amount := types.U32(10)
 	expectedBalance := big.NewInt(0)
 	recipient := eth.CharlieEthAddr
-	ethtest.AssertBalance(t, ethClient, expectedBalance, erc20Contract, recipient)
+	ethtest.AssertBalance(t, ctx.ethClient, expectedBalance, erc20Contract, recipient)
 
 	for i := 1; i <= numberOfTxs; i++ {
 		ok := t.Run(fmt.Sprintf("Deposit %d", i), func(t *testing.T) {
 			// Execute transfer
-			subtest.InitiateSubstrateNativeTransfer(t, subClient, amount, recipient.Bytes(), EthChainId)
+			subtest.InitiateSubstrateNativeTransfer(t, ctx.subClient, amount, recipient.Bytes(), EthChainId)
 
 			// Wait for event
-			eth.WaitForEthereumEvent(t, ethClient, contracts.BridgeAddress, ethutils.DepositProposalCreated)
-			eth.WaitForEthereumEvent(t, ethClient, contracts.BridgeAddress, ethutils.DepositProposalExecuted)
+			eth.WaitForEthereumEvent(t, ctx.ethClient, ctx.contracts.BridgeAddress, ethutils.DepositProposalCreated)
+			eth.WaitForEthereumEvent(t, ctx.ethClient, ctx.contracts.BridgeAddress, ethutils.DepositProposalExecuted)
 
 			// Verify balance change
 			expectedBalance.Add(expectedBalance, big.NewInt(int64(amount)))
-			ethtest.AssertBalance(t, ethClient, expectedBalance, erc20Contract, recipient)
+			ethtest.AssertBalance(t, ctx.ethClient, expectedBalance, erc20Contract, recipient)
 		})
 		if !ok {
 			attemptToPrintLogs()
 			return
 		}
 	}
-	attemptToPrintLogs()
 }
 
-func TestSubstrateHashToGenericHandler(t *testing.T) {
-	shared.SetLogger(log.LvlTrace)
-	defer attemptToPrintLogs()
-
-	// Whitelist chain
-	subClient := subtest.CreateClient(t, sub.AliceKp.AsKeyringPair(), sub.TestSubEndpoint)
-	subtest.EnsureInitializedChain(subClient, sub.RelayerSet, []msg.ChainId{EthChainId}, 2)
-
-	// Fetch the resource ID
+func testSubstrateHashToGenericHandler(t *testing.T, ctx *testContext) {
+	// Fetch the resource ID and register it
 	var rawRId types.Bytes32
-	subtest.QueryConst(t, subClient, "Example", "NativeTokenId", &rawRId)
+	subtest.QueryConst(t, ctx.subClient, "Example", "NativeTokenId", &rawRId)
 	resourceId := msg.ResourceIdFromSlice(rawRId[:])
-
-	// Deploy contracts (incl. handler)
-	contracts := eth.DeployTestContracts(t, EthChainId)
-	ethClient, opts := eth.CreateEthClient(t)
-	ethtest.RegisterGenericResource(t, ethClient, opts, contracts.CentrifugeHandlerAddress, resourceId, common.Address{})
-
-	// Create two bridges
-	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
-	_ = createAndStartBridge(t, "bob", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
+	ethtest.RegisterGenericResource(t, ctx.ethClient, ctx.opts, ctx.contracts.CentrifugeHandlerAddress, resourceId, common.Address{})
 
 	numberOfTxs := 5
 	for i := 1; i <= numberOfTxs; i++ {
@@ -206,19 +222,18 @@ func TestSubstrateHashToGenericHandler(t *testing.T) {
 			// Execute transfer
 			hash := sub.HashInt(i)
 
-			subtest.InitiateHashTransfer(t, subClient, hash, EthChainId)
+			subtest.InitiateHashTransfer(t, ctx.subClient, hash, EthChainId)
 
 			// Wait for event
-			eth.WaitForEthereumEvent(t, ethClient, contracts.BridgeAddress, ethutils.DepositProposalCreated)
-			eth.WaitForEthereumEvent(t, ethClient, contracts.BridgeAddress, ethutils.DepositProposalExecuted)
+			eth.WaitForEthereumEvent(t, ctx.ethClient, ctx.contracts.BridgeAddress, ethutils.DepositProposalCreated)
+			eth.WaitForEthereumEvent(t, ctx.ethClient, ctx.contracts.BridgeAddress, ethutils.DepositProposalExecuted)
 
 			// Verify hash is available
-			ethtest.AssertHashExistence(t, ethClient, hash, contracts.CentrifugeHandlerAddress)
+			ethtest.AssertHashExistence(t, ctx.ethClient, hash, ctx.contracts.CentrifugeHandlerAddress)
 		})
 		if !ok {
 			attemptToPrintLogs()
 			return
 		}
 	}
-	attemptToPrintLogs()
 }

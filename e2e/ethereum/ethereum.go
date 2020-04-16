@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"os"
 	"testing"
 	"time"
 
@@ -29,7 +30,7 @@ import (
 
 const TestEthEndpoint = "ws://localhost:8545"
 
-var TestTimeout = time.Second * 60
+var TestTimeout = time.Second * 30
 
 var log = log15.New("e2e", "ethereum")
 
@@ -39,12 +40,14 @@ var CharlieEthAddr = common.HexToAddress(CharlieEthKp.Address())
 
 func CreateConfig(key string, chain msg.ChainId, bridgeAddress, erc20HandlerAddress, genericHandler string) *core.ChainConfig {
 	return &core.ChainConfig{
-		Name:         fmt.Sprintf("ethereum(%s)", key),
-		Id:           chain,
-		Endpoint:     TestEthEndpoint,
-		From:         "",
-		KeystorePath: key,
-		Insecure:     true,
+		Name:           fmt.Sprintf("ethereum(%s)", key),
+		Id:             chain,
+		Endpoint:       TestEthEndpoint,
+		From:           "",
+		KeystorePath:   key,
+		Insecure:       true,
+		FreshStart:     true,
+		BlockstorePath: os.TempDir(),
 		Opts: map[string]string{
 			"bridge":         bridgeAddress,
 			"erc20Handler":   erc20HandlerAddress,
@@ -53,13 +56,13 @@ func CreateConfig(key string, chain msg.ChainId, bridgeAddress, erc20HandlerAddr
 	}
 }
 
-func DeployTestContracts(t *testing.T, id msg.ChainId) *utils.DeployedContracts {
+func DeployTestContracts(t *testing.T, id msg.ChainId, threshold *big.Int) *utils.DeployedContracts {
 	//deployPK string, chainID *big.Int, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8
 	contracts, err := utils.DeployContracts(
 		hexutil.Encode(AliceEthKp.Encode())[2:],
 		uint8(id),
 		TestEthEndpoint,
-		big.NewInt(2), // Relayer threshold
+		threshold,
 	)
 	if err != nil {
 		t.Fatal(err)
