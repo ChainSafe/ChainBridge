@@ -6,6 +6,7 @@ package substrate
 import (
 	"testing"
 
+	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
@@ -19,7 +20,7 @@ func TestConnect_QueryStorage(t *testing.T) {
 	defer conn.Close()
 
 	// Query storage
-	var data AccountData
+	var data utils.AccountData
 	_, err = conn.queryStorage("System", "Account", conn.key.PublicKey, nil, &data)
 	if err != nil {
 		t.Fatal(err)

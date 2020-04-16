@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/keystore"
+	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -44,29 +45,29 @@ func ensureInitializedChain() {
 
 	if !exists {
 		meta := conn.getMetadata()
-		call, err := types.NewCall(&meta, AddRelayer.String(), types.NewAccountID(AliceKey.PublicKey))
+		call, err := types.NewCall(&meta, string(utils.AddRelayerMethod), types.NewAccountID(AliceKey.PublicKey))
 		if err != nil {
 			panic(err)
 		}
-		err = conn.SubmitTx(Sudo, call)
-		if err != nil {
-			panic(err)
-		}
-
-		call, err = types.NewCall(&meta, AddRelayer.String(), types.NewAccountID(BobKey.PublicKey))
-		if err != nil {
-			panic(err)
-		}
-		err = conn.SubmitTx(Sudo, call)
+		err = conn.SubmitTx(utils.SudoMethod, call)
 		if err != nil {
 			panic(err)
 		}
 
-		call, err = types.NewCall(&meta, SetThreshold.String(), types.U32(2))
+		call, err = types.NewCall(&meta, string(utils.AddRelayerMethod), types.NewAccountID(BobKey.PublicKey))
 		if err != nil {
 			panic(err)
 		}
-		err = conn.SubmitTx(Sudo, call)
+		err = conn.SubmitTx(utils.SudoMethod, call)
+		if err != nil {
+			panic(err)
+		}
+
+		call, err = types.NewCall(&meta, string(utils.SetThresholdMethod), types.U32(2))
+		if err != nil {
+			panic(err)
+		}
+		err = conn.SubmitTx(utils.SudoMethod, call)
 		if err != nil {
 			panic(err)
 		}
@@ -110,7 +111,7 @@ func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
 
 // getFreeBalance queries the balance for an account, storing the result in `res`
 func getFreeBalance(c *Connection, res *types.U128) {
-	var acct AccountData
+	var acct utils.AccountData
 
 	ok, err := c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
 	if err != nil {
@@ -119,20 +120,4 @@ func getFreeBalance(c *Connection, res *types.U128) {
 		panic("no account data")
 	}
 	*res = acct.Data.Free
-}
-
-func submitSudoTx(t *testing.T, conn *Connection, method Method, args ...interface{}) {
-	meta := conn.getMetadata()
-	call, err := types.NewCall(&meta, method.String(), args...)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = conn.SubmitTx(Sudo, call)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func registerResourceId(t *testing.T, conn *Connection, id [32]byte, method string) {
-	submitSudoTx(t, conn, SetResource, id, []byte(method))
 }

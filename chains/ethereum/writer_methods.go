@@ -8,6 +8,7 @@ import (
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	log "github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -116,7 +117,7 @@ func (w *Writer) createGenericDepositProposal(m msg.Message) bool {
 func (w *Writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
 	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
 	// TODO: Skip existing blocks
-	query := buildQuery(w.cfg.bridgeContract, DepositProposalFinalized, w.cfg.startBlock, nil)
+	query := buildQuery(w.cfg.bridgeContract, utils.DepositProposalFinalized, w.cfg.startBlock, nil)
 	eventSubscription, err := w.conn.subscribeToEvent(query)
 	if err != nil {
 		w.log.Error("Failed to subscribe to finalization event", "err", err)

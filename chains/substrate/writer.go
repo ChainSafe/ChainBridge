@@ -8,11 +8,14 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
 var _ chains.Writer = &Writer{}
+
+var AcknowledgeProposal utils.Method = "Bridge.acknowledge_proposal"
 
 type Writer struct {
 	conn *Connection

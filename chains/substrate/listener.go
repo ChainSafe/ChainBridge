@@ -138,26 +138,6 @@ func (l *Listener) processEvents(hash types.Hash) error {
 
 // handleEvents calls the associated handler for all registered event types
 func (l *Listener) handleEvents(evts Events) {
-	if l.subscriptions[RelayerThresholdChanged] != nil {
-		for _, evt := range evts.Bridge_RelayerThresholdChanged {
-			l.log.Trace("Received RelayerThresholdChanged event", "threshold", evt.Threshold)
-		}
-	}
-	if l.subscriptions[ChainWhitelisted] != nil {
-		for _, evt := range evts.Bridge_ChainWhitelisted {
-			l.log.Trace("Received ChainWhitelisted event", "chainId", evt.ChainId)
-		}
-	}
-	if l.subscriptions[RelayerAdded] != nil {
-		for _, evt := range evts.Bridge_RelayerAdded {
-			l.log.Trace("Received RelayerAdded event", "relayer", evt.Relayer)
-		}
-	}
-	if l.subscriptions[RelayerRemoved] != nil {
-		for _, evt := range evts.Bridge_RelayerRemoved {
-			l.log.Trace("Received RelayerRemoved event", "relayer", evt.Relayer)
-		}
-	}
 	if l.subscriptions[FungibleTransfer] != nil {
 		for _, evt := range evts.Bridge_FungibleTransfer {
 			l.log.Trace("Handling FungibleTransfer event")
@@ -174,36 +154,6 @@ func (l *Listener) handleEvents(evts Events) {
 		for _, evt := range evts.Bridge_GenericTransfer {
 			l.log.Trace("Handling GenericTransfer event")
 			l.submitMessage(l.subscriptions[GenericTransfer](evt, l.log))
-		}
-	}
-	if l.subscriptions[VoteFor] != nil {
-		for _, evt := range evts.Bridge_VoteFor {
-			l.log.Trace("Received VoteFor event", "depositNonce", evt.DepositNonce)
-		}
-	}
-	if l.subscriptions[VoteAgainst] != nil {
-		for _, evt := range evts.Bridge_VoteAgainst {
-			l.log.Trace("Received VoteAgainst event", "depositNonce", evt.DepositNonce)
-		}
-	}
-	if l.subscriptions[ProposalApproved] != nil {
-		for _, evt := range evts.Bridge_ProposalApproved {
-			l.log.Trace("Received ProposalApproved event", "depositNonce", evt.DepositNonce)
-		}
-	}
-	if l.subscriptions[ProposalRejected] != nil {
-		for _, evt := range evts.Bridge_ProposalRejected {
-			l.log.Trace("Received ProposalRejected event", "depositNonce", evt.DepositNonce)
-		}
-	}
-	if l.subscriptions[ProposalSucceeded] != nil {
-		for _, evt := range evts.Bridge_ProposalSucceeded {
-			l.log.Trace("Received ProposalSucceeded event", "depositNonce", evt.DepositNonce)
-		}
-	}
-	if l.subscriptions[ProposalFailed] != nil {
-		for _, evt := range evts.Bridge_ProposalFailed {
-			l.log.Trace("Received ProposalFailed event", "depositNonce", evt.DepositNonce)
 		}
 	}
 
