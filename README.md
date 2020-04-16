@@ -98,11 +98,18 @@ First, run `make setup-sol-cli` to fetch the necessary scripts. Requires `truffl
 
 Start a ganache instance with:
 ```
-make start-eth
+cd ../chainbridge-solidity
+make start-ganache
 ```
 Go tests can then be run with:
 ```
 make test
+```
+Go tests for end-to-end, ethereum and substrate can be run with
+```
+make test-e2e
+make test-eth
+make test-sub
 ```
 
 **Note: Substrate tests are not yet able to be run locally and will fail.**
@@ -112,12 +119,14 @@ make test
 Start chain 1 (terminal 1)
 ```shell
 make setup-sol-cli
-make start-eth
+cd ../chainbridge-solidity
+make start-ganache
 ```
 
 Start chain 2 (terminal 2)
 ```shell
-PORT=8546 make start-eth
+cd ../chainbridge-solidity
+PORT=8546 make start-ganache
 ```
 
 Deploy the contracts (terminal 3)

@@ -28,7 +28,6 @@ jobs:
         - make lint
         - rm -rf bindings/ # Avoid adding license to bindings
         - make license-check
-        - make lint
 
     - language: go
       go: 1.13.x
