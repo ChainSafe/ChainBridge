@@ -11,7 +11,7 @@ import (
 	"time"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ChainSafe/ChainBridge/utils/ethereum"
+	utils "github.com/ChainSafe/ChainBridge/utils/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/utils/ethereum/testing"
 	"github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"

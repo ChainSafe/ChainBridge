@@ -22,6 +22,7 @@ import (
 	ethutils "github.com/ChainSafe/ChainBridge/utils/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/utils/ethereum/testing"
 	subutils "github.com/ChainSafe/ChainBridge/utils/substrate"
+	subtest "github.com/ChainSafe/ChainBridge/utils/substrate/testing"
 	log "github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -98,9 +99,9 @@ func TestErc20ToSubstrate(t *testing.T) {
 	ethtest.RegisterErc20Resource(t, ethClient, opts, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
 
 	// Setup substrate client, register resource, add relayers
-	subClient := sub.CreateSubClient(t, sub.AliceKp.AsKeyringPair())
-	sub.TrySetupChain(t, subClient, sub.RelayerSet, []msg.ChainId{EthChainId})
-	sub.RegisterResource(t, subClient, resourceId, string(subutils.ExampleTransfer))
+	subClient := subtest.CreateClient(t, sub.AliceKp.AsKeyringPair(), sub.TestSubEndpoint)
+	subtest.EnsureInitializedChain(subClient, sub.RelayerSet, []msg.ChainId{EthChainId}, 2)
+	subtest.RegisterResource(t, subClient, resourceId, string(subutils.ExampleTransferMethod))
 
 	// Create and start two bridges with both chains
 	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
@@ -131,12 +132,12 @@ func TestSubstrateToErc20(t *testing.T) {
 	utils.SetLogger(log.LvlInfo)
 
 	// Setup substrate client and chain
-	subClient := sub.CreateSubClient(t, sub.AliceKp.AsKeyringPair())
-	sub.TrySetupChain(t, subClient, sub.RelayerSet, []msg.ChainId{EthChainId})
+	subClient := subtest.CreateClient(t, sub.AliceKp.AsKeyringPair(), sub.TestSubEndpoint)
+	subtest.EnsureInitializedChain(subClient, sub.RelayerSet, []msg.ChainId{EthChainId}, 2)
 
 	// Fetch the resource ID
 	var rawRId types.Bytes32
-	sub.QueryConst(t, subClient, "Example", "NativeTokenId", &rawRId)
+	subtest.QueryConst(t, subClient, "Example", "NativeTokenId", &rawRId)
 	resourceId := msg.ResourceIdFromSlice(rawRId[:])
 
 	// Deploy contracts, mint, approve
@@ -158,7 +159,7 @@ func TestSubstrateToErc20(t *testing.T) {
 	for i := 1; i <= numberOfTxs; i++ {
 		ok := t.Run(fmt.Sprintf("Deposit %d", i), func(t *testing.T) {
 			// Execute transfer
-			sub.InitiateSubstrateNativeTransfer(t, subClient, amount, recipient.Bytes(), EthChainId)
+			subtest.InitiateSubstrateNativeTransfer(t, subClient, amount, recipient.Bytes(), EthChainId)
 
 			// Wait for event
 			eth.WaitForEthereumEvent(t, ethClient, contracts.BridgeAddress, ethutils.DepositProposalCreated)
@@ -181,12 +182,12 @@ func TestSubstrateHashToGenericHandler(t *testing.T) {
 	defer attemptToPrintLogs()
 
 	// Whitelist chain
-	subClient := sub.CreateSubClient(t, sub.AliceKp.AsKeyringPair())
-	sub.TrySetupChain(t, subClient, sub.RelayerSet, []msg.ChainId{EthChainId})
+	subClient := subtest.CreateClient(t, sub.AliceKp.AsKeyringPair(), sub.TestSubEndpoint)
+	subtest.EnsureInitializedChain(subClient, sub.RelayerSet, []msg.ChainId{EthChainId}, 2)
 
 	// Fetch the resource ID
 	var rawRId types.Bytes32
-	sub.QueryConst(t, subClient, "Example", "NativeTokenId", &rawRId)
+	subtest.QueryConst(t, subClient, "Example", "NativeTokenId", &rawRId)
 	resourceId := msg.ResourceIdFromSlice(rawRId[:])
 
 	// Deploy contracts (incl. handler)
@@ -205,7 +206,7 @@ func TestSubstrateHashToGenericHandler(t *testing.T) {
 			// Execute transfer
 			hash := sub.HashInt(i)
 
-			sub.InitiateHashTransfer(t, subClient, hash, EthChainId)
+			subtest.InitiateHashTransfer(t, subClient, hash, EthChainId)
 
 			// Wait for event
 			eth.WaitForEthereumEvent(t, ethClient, contracts.BridgeAddress, ethutils.DepositProposalCreated)

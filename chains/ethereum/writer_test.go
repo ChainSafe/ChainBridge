@@ -103,7 +103,6 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 
 	aliceConn, alice := createTestWriter(t, aliceTestConfig, contracts)
 	defer aliceConn.Close()
-
 	bobConn, bob := createTestWriter(t, bobTestConfig, contracts)
 	defer bobConn.Close()
 
@@ -114,10 +113,8 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 		t.Fatal(err)
 	}
 	erc20Address := ethtest.DeployMintApproveErc20(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, big.NewInt(100))
-	err = fundErc20Handler(aliceConn, opts, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
-	if err != nil {
-		t.Fatal(err)
-	}
+	ethtest.FundErc20Handler(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
+
 	// Create initial transfer message
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0))
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()

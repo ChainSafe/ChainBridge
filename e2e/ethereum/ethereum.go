@@ -11,12 +11,12 @@ import (
 	"time"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	erc20Mintable "github.com/ChainSafe/ChainBridge/bindings/ERC20Mintable"
+	"github.com/ChainSafe/ChainBridge/bindings/ERC20Mintable"
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ChainSafe/ChainBridge/utils/ethereum"
+	utils "github.com/ChainSafe/ChainBridge/utils/ethereum"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -99,7 +99,7 @@ func CreateEthClient(t *testing.T) (*ethclient.Client, *bind.TransactOpts) {
 func DeployErc20AndAddMinter(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address) common.Address { //nolint:unused,deadcode
 	// Deploy
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	erc20Addr, _, erc20Instance, err := erc20Mintable.DeployERC20Mintable(opts, client)
+	erc20Addr, _, erc20Instance, err := ERC20Mintable.DeployERC20Mintable(opts, client)
 	if err != nil {
 		t.Fatal(err)
 	}

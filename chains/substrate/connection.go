@@ -101,7 +101,7 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 		return err
 	}
 
-	var acct AccountData
+	var acct utils.AccountData
 	_, err = c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
 	if err != nil {
 		return err
@@ -200,8 +200,7 @@ func (c *Connection) getConst(prefix, name string, res interface{}) error {
 
 func (c *Connection) checkChainId(expected msg.ChainId) error {
 	var actual msg.ChainId
-	meta := c.getMetadata()
-	err := getConst(&meta, "Bridge", "ChainIdentity", &actual)
+	err := c.getConst("Bridge", "ChainIdentity", &actual)
 	if err != nil {
 		return err
 	}

@@ -8,6 +8,7 @@ import (
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
 	"github.com/ChainSafe/log15"
 
 	"github.com/centrifuge/go-substrate-rpc-client/types"
@@ -73,6 +74,7 @@ type EventSudid struct {
 
 type Events struct {
 	types.EventRecords
+	utils.Events
 	Bridge_FungibleTransfer    []EventFungibleTransfer    //nolint:stylecheck,golint
 	Bridge_NonFungibleTransfer []EventNonFungibleTransfer //nolint:stylecheck,golint
 	Bridge_GenericTransfer     []EventGenericTransfer     //nolint:stylecheck,golint

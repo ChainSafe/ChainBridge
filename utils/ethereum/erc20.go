@@ -77,8 +77,7 @@ func DeployMintApproveErc20(client *ethclient.Client, opts *bind.TransactOpts, e
 	return erc20Addr, nil
 }
 
-
-func GetBalance(client *ethclient.Client, erc20Contract, account common.Address) (*big.Int, error){ //nolint:unused,deadcode
+func GetBalance(client *ethclient.Client, erc20Contract, account common.Address) (*big.Int, error) { //nolint:unused,deadcode
 	instance, err := erc20Mintable.NewERC20Mintable(erc20Contract, client)
 	if err != nil {
 		return nil, err
@@ -91,4 +90,46 @@ func GetBalance(client *ethclient.Client, erc20Contract, account common.Address)
 	}
 	return bal, nil
 
+}
+
+func ApproveErc20(client *ethclient.Client, opts *bind.TransactOpts, contractAddress, recipient common.Address, amount *big.Int) error {
+	err := UpdateNonce(opts, client)
+	if err != nil {
+		return err
+	}
+
+	erc20Instance, err := erc20Mintable.NewERC20Mintable(contractAddress, client)
+	if err != nil {
+		return err
+	}
+
+	_, err = erc20Instance.Approve(opts, recipient, amount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func FundErc20Handler(client *ethclient.Client, opts *bind.TransactOpts, handlerAddress, erc20Address common.Address, amount *big.Int) error {
+	err := UpdateNonce(opts, client)
+	if err != nil {
+		return err
+	}
+
+	err = ApproveErc20(client, opts, erc20Address, handlerAddress, amount)
+	if err != nil {
+		return err
+	}
+
+	instance, err := ERC20Handler.NewERC20Handler(handlerAddress, client)
+	if err != nil {
+		return err
+	}
+
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
+	_, err = instance.FundERC20(opts, erc20Address, opts.From, amount)
+	if err != nil {
+		return err
+	}
+	return nil
 }

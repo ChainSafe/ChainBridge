@@ -9,7 +9,6 @@ import (
 	"time"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
-	utils "github.com/ChainSafe/ChainBridge/utils/substrate"
 	subtest "github.com/ChainSafe/ChainBridge/utils/substrate/testing"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -25,25 +24,8 @@ func (r *mockRouter) Send(message msg.Message) error {
 	return nil
 }
 
-//func whitelistChain(t *testing.T, c *Connection, id msg.ChainId) {
-//	destId := types.U8(id)
-//	meta := c.getMetadata()
-//	call, err := types.NewCall(
-//		&meta,
-//		string(utils.WhitelistChain),
-//		destId,
-//	)
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//
-//	err = c.SubmitTx(utils.Sudo, call)
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//}
-
 func Test_GenericTransferEvent(t *testing.T) {
+	testClient := subtest.CreateClient(t, AliceKey, TestEndpoint)
 	r := &mockRouter{msgs: make(chan msg.Message)}
 
 	ac := createAliceConnection(t)
@@ -56,23 +38,17 @@ func Test_GenericTransferEvent(t *testing.T) {
 
 	// First we have to whitelist the destination chain with sudo
 	var destId msg.ChainId = 0
-	subtest.WhitelistChain(t, ac, destId)
+	subtest.WhitelistChain(t, testClient, destId)
 
 	// Construct our expected message
 	var rId msg.ResourceId
-	err = alice.conn.getConst("Example", "HashId", &rId)
-	if err != nil {
-		t.Fatal(err)
-	}
+	subtest.QueryConst(t, testClient, "Example", "HashId", &rId)
 	hashBz := types.MustHexDecodeString("0x16078eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f2")
 	hash := types.NewHash(hashBz)
 	expected := msg.NewGenericTransfer(1, 0, 1, rId, hash[:])
 
 	// Initiate transfer
-	err = ac.SubmitTx(utils.ExampleTransferHash, hash, destId)
-	if err != nil {
-		t.Fatal(err)
-	}
+	subtest.InitiateHashTransfer(t, testClient, hash, destId)
 
 	// Verify message
 	select {
@@ -93,10 +69,7 @@ func Test_GenericTransferEvent(t *testing.T) {
 	expected = msg.NewGenericTransfer(1, 0, 2, rId, hash[:])
 
 	// Initiate transfer
-	err = ac.SubmitTx(utils.ExampleTransferHash, hash, destId)
-	if err != nil {
-		t.Fatal(err)
-	}
+	subtest.InitiateHashTransfer(t, testClient, hash, destId)
 
 	// Verify message
 	select {

@@ -33,7 +33,6 @@ func DeployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.T
 	return addr
 }
 
-
 func AssertBalance(t *testing.T, client *ethclient.Client, amount *big.Int, erc20Contract, account common.Address) { //nolint:unused,deadcode
 	actual, err := utils.GetBalance(client, erc20Contract, account)
 	if err != nil {
@@ -42,5 +41,12 @@ func AssertBalance(t *testing.T, client *ethclient.Client, amount *big.Int, erc2
 
 	if actual.Cmp(amount) != 0 {
 		t.Fatalf("Balance mismatch. Expected: %s Got: %s", amount.String(), actual.String())
+	}
+}
+
+func FundErc20Handler(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, handlerAddress, erc20Address common.Address, amount *big.Int) {
+	err := utils.FundErc20Handler(client, opts, handlerAddress, erc20Address, amount)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
