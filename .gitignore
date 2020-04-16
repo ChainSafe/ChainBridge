@@ -30,6 +30,7 @@ keys/
 # Chainbridge
 config.toml
 ./centrifuge-chain
+*.block
 
 # Solidity
 /solidity

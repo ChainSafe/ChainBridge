@@ -4,6 +4,7 @@
 package substrate
 
 import (
+	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridge/keystore"
@@ -13,11 +14,25 @@ import (
 )
 
 type Chain struct {
-	cfg *core.ChainConfig // The config of the chain
-	// TODO: Does this have to be an interface?
-	conn     *Connection // THe chains connection
-	listener *Listener   // The listener of this chain
-	writer   *Writer     // The writer of the chain
+	cfg      *core.ChainConfig // The config of the chain
+	conn     *Connection       // THe chains connection
+	listener *Listener         // The listener of this chain
+	writer   *Writer           // The writer of the chain
+}
+
+// checkBlockstore queries the blockstore for the latest known block. If the latest block is
+// greater than startBlock, then the latest block is returned, otherwise startBlock is.
+func checkBlockstore(bs *blockstore.Blockstore, startBlock uint64) (uint64, error) {
+	latestBlock, err := bs.TryLoadLatestBlock()
+	if err != nil {
+		return 0, err
+	}
+
+	if latestBlock.Uint64() > startBlock {
+		return latestBlock.Uint64(), nil
+	} else {
+		return startBlock, nil
+	}
 }
 
 func InitializeChain(cfg *core.ChainConfig, logger log15.Logger) (*Chain, error) {
@@ -27,6 +42,19 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger) (*Chain, error)
 	}
 
 	krp := kp.(*sr25519.Keypair).AsKeyringPair()
+
+	// Attempt to load latest block
+	bs, err := blockstore.NewBlockstore(cfg.BlockstorePath, cfg.Id, kp.Address())
+	if err != nil {
+		return nil, err
+	}
+	startBlock := parseStartBlock(cfg)
+	if !cfg.FreshStart {
+		startBlock, err = checkBlockstore(bs, startBlock)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	// Setup connection
 	conn := NewConnection(cfg.Endpoint, cfg.Name, krp, logger)
@@ -41,8 +69,7 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger) (*Chain, error)
 	}
 
 	// Setup listener & writer
-	startBlock := parseStartBlock(cfg)
-	l := NewListener(conn, cfg.Name, cfg.Id, startBlock, logger)
+	l := NewListener(conn, cfg.Name, cfg.Id, startBlock, logger, bs)
 	w := NewWriter(conn, logger)
 	return &Chain{
 		cfg:      cfg,

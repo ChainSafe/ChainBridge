@@ -21,6 +21,8 @@ var cliFlags = []cli.Flag{
 	ConfigFileFlag,
 	VerbosityFlag,
 	KeystorePathFlag,
+	BlockstorePathFlag,
+	FreshStartFlag,
 }
 
 var generateFlags = []cli.Flag{
@@ -129,6 +131,7 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
+	// Check for test key flag
 	var ks string
 	var insecure bool
 	if key := ctx.GlobalString(TestKeyFlag.Name); key != "" {
@@ -142,13 +145,15 @@ func run(ctx *cli.Context) error {
 
 	for _, chain := range cfg.Chains {
 		chainConfig := &core.ChainConfig{
-			Name:         chain.Name,
-			Id:           chain.Id,
-			Endpoint:     chain.Endpoint,
-			From:         chain.From,
-			KeystorePath: ks,
-			Insecure:     insecure,
-			Opts:         chain.Opts,
+			Name:           chain.Name,
+			Id:             chain.Id,
+			Endpoint:       chain.Endpoint,
+			From:           chain.From,
+			KeystorePath:   ks,
+			Insecure:       insecure,
+			BlockstorePath: ctx.GlobalString(BlockstorePathFlag.Name),
+			FreshStart:     ctx.GlobalBool(FreshStartFlag.Name),
+			Opts:           chain.Opts,
 		}
 		var newChain core.Chain
 		logger := log.Root().New("chain", chainConfig.Name)
