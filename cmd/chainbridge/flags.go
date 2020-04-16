@@ -25,6 +25,17 @@ var (
 		Usage: "Path to keystore directory",
 		Value: DefaultKeystorePath,
 	}
+
+	BlockstorePathFlag = cli.StringFlag{
+		Name:  "blockstore",
+		Usage: "Specify path for blockstore",
+		Value: "", // Empty will use home dir
+	}
+
+	FreshStartFlag = cli.BoolFlag{
+		Name:  "fresh",
+		Usage: "Disables loading from blockstore at start. Opts will still be used if specified.",
+	}
 )
 
 // Generate subcommand flags

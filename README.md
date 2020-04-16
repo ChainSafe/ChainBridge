@@ -68,6 +68,14 @@ Substrate supports the following additonal options:
 startBlock = "1234" // The block to start processing events from (default: 0)
 ```
 
+## Blockstore
+
+The blockstore is used to record the last block the relayer processed, so it can pick up where it left off. 
+
+If a `startBlock` option is provided (see [Configuration](#configuration)), then the greater of `startBlock` and the latest block in the blockstore is used at startup.
+
+To disable loading from the blockstore specify the `--fresh` flag. A custom path for the blockstore can be provided with `--blockstore <path>`
+
 ## Keystore
 
 ChainBridge requires keys to sign and submit transactions, and to identify each bridge node on chain.

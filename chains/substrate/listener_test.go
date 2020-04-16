@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ChainSafe/ChainBridge/blockstore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -45,7 +46,7 @@ func Test_GenericTransferEvent(t *testing.T) {
 	r := &mockRouter{msgs: make(chan msg.Message)}
 
 	ac := createAliceConnection(t)
-	alice := NewListener(ac, "Alice", 1, 0, AliceTestLogger)
+	alice := NewListener(ac, "Alice", 1, 0, AliceTestLogger, &blockstore.EmptyStore{})
 	alice.SetRouter(r)
 	err := alice.Start()
 	if err != nil {
