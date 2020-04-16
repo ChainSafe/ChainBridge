@@ -37,7 +37,6 @@ jobs:
         - set -e
         - make clean && make rebuild-contracts
         - cd chainbridge-solidity && SILENT=true make start-ganache
-        - npm install && make deploy
         - ./scripts/substrate/run_chain_ci.sh
         - make test
 
@@ -48,6 +47,5 @@ jobs:
         - set -e
         - make clean && make rebuild-contracts
         - cd chainbridge-solidity && SILENT=true make start-ganache
-        - npm install && make deploy
         - ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
