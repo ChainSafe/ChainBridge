@@ -10,7 +10,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-	"time"
 
 	ethChain "github.com/ChainSafe/ChainBridge/chains/ethereum"
 	subChain "github.com/ChainSafe/ChainBridge/chains/substrate"
@@ -30,7 +29,6 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-const TestTimeout = time.Second * 15
 const EthChainId = msg.ChainId(0)
 const SubChainId = msg.ChainId(1)
 
@@ -105,14 +103,15 @@ func attemptToPrintLogs() {
 
 func Test_ThreeRelayers(t *testing.T) {
 	shared.SetLogger(log.LvlTrace)
+	threshold := 3
 
 	// Deploy contracts, mint, approve
-	contracts := eth.DeployTestContracts(t, EthChainId, big.NewInt(3))
+	contracts := eth.DeployTestContracts(t, EthChainId, big.NewInt(int64(threshold)))
 	ethClient, opts := eth.CreateEthClient(t)
 
 	// Setup substrate client, register resource, add relayers
 	subClient := subtest.CreateClient(t, sub.AliceKp.AsKeyringPair(), sub.TestSubEndpoint)
-	subtest.EnsureInitializedChain(subClient, sub.RelayerSet, []msg.ChainId{EthChainId}, 3)
+	subtest.EnsureInitializedChain(subClient, sub.RelayerSet, []msg.ChainId{EthChainId}, uint32(threshold))
 
 	// Create and start three bridges with both chains
 	_ = createAndStartBridge(t, "alice", contracts.BridgeAddress.Hex(), contracts.ERC20HandlerAddress.Hex(), contracts.CentrifugeHandlerAddress.Hex())
@@ -127,6 +126,7 @@ func Test_ThreeRelayers(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			tt.fn(t, ctx)
 		})
@@ -171,17 +171,18 @@ func testSubstrateToErc20(t *testing.T, ctx *testContext) {
 	ethtest.RegisterErc20Resource(t, ctx.ethClient, ctx.opts, ctx.contracts.ERC20HandlerAddress, resourceId, erc20Contract)
 
 	numberOfTxs := 5
-	amount := types.U32(10)
 	expectedBalance := big.NewInt(0)
 	recipient := eth.CharlieEthAddr
 	ethtest.AssertBalance(t, ctx.ethClient, expectedBalance, erc20Contract, recipient)
 
 	for i := 1; i <= numberOfTxs; i++ {
+		i := i // for scope
 		ok := t.Run(fmt.Sprintf("Deposit %d", i), func(t *testing.T) {
 			// Get latest eth block
 			latestEthBlock := ethtest.GetLatestBlock(t, ctx.ethClient)
 
 			// Execute transfer
+			amount := types.NewU32(uint32(i * 5))
 			subtest.InitiateSubstrateNativeTransfer(t, ctx.subClient, amount, recipient.Bytes(), EthChainId)
 
 			// Wait for event
