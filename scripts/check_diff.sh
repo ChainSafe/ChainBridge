@@ -6,7 +6,12 @@
 # Exit on failure
 set -e
 
-echo "Checking Solidity"
+echo "Checking Binding"
 git diff --quiet bindings/ 
-VAL=$?
-exit $VAL
+if [ $? -eq 0 ]
+then
+  exit 0
+else
+  echo "Bindings are out of date"
+  exit 1
+fi
