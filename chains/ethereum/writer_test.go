@@ -30,9 +30,11 @@ func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContra
 
 	writer.conn.cfg.bridgeContract = contracts.BridgeAddress
 	writer.conn.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
+	writer.conn.cfg.erc721HandlerContract = contracts.ERC721HandlerAddress
 	writer.conn.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
 	writer.cfg.bridgeContract = contracts.BridgeAddress
 	writer.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
+	writer.cfg.erc721HandlerContract = contracts.ERC721HandlerAddress
 	writer.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
 	writer.SetContract(bridge)
 
@@ -53,27 +55,6 @@ func TestWriter_start_stop(t *testing.T) {
 	err = writer.Stop()
 	if err != nil {
 		t.Fatal(err)
-	}
-}
-
-func TestHash(t *testing.T) {
-	args := []string{
-		"Hello World",
-		"testing",
-		"chainsafe",
-	}
-	expected := []string{
-		"0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba",
-		"0x5f16f4c7f149ac4f9510d9cf8cf384038ad348b3bcdc01915f95de12df9d1b02",
-		"0x699c776c7e6ce8e6d96d979b60e41135a13a2303ae1610c8d546f31f0c6dc730",
-	}
-
-	for i, str := range args {
-		res := hash([]byte(str))
-
-		if expected[i] != common.Hash(res).Hex() {
-			t.Fatalf("Input: %s, Expected: %s, Output: %s", str, expected[i], common.Hash(res).String())
-		}
 	}
 }
 
@@ -99,35 +80,7 @@ func watchEvent(conn *Connection, subStr utils.EventSig) {
 	}
 }
 
-func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id)
-
-	aliceConn, alice := createTestWriter(t, aliceTestConfig, contracts)
-	defer aliceConn.Close()
-	bobConn, bob := createTestWriter(t, bobTestConfig, contracts)
-	defer bobConn.Close()
-
-	// We'll use alice to setup the erc20
-	opts, nonce, err := aliceConn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	nonce.lock.Unlock() // We manual increment nonce in tests
-	if err != nil {
-		t.Fatal(err)
-	}
-	erc20Address := ethtest.DeployMintApproveErc20(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, big.NewInt(100))
-	ethtest.FundErc20Handler(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
-
-	// Create initial transfer message
-	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0))
-	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
-	amount := big.NewInt(10)
-	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient)
-	ethtest.RegisterErc20Resource(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, resourceId, erc20Address)
-	// Helpful for debugging
-	go watchEvent(alice.conn, utils.DepositProposalCreated)
-	go watchEvent(alice.conn, utils.DepositProposalVote)
-	go watchEvent(alice.conn, utils.DepositProposalFinalized)
-	go watchEvent(alice.conn, utils.DepositProposalExecuted)
-
+func routeMessageAndWait(t *testing.T, alice, bob *Writer, m msg.Message) {
 	// Watch for executed event
 	query := buildQuery(alice.cfg.bridgeContract, utils.DepositProposalExecuted, big.NewInt(0), nil)
 	eventSubscription, err := alice.conn.subscribeToEvent(query)
@@ -167,7 +120,70 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 			t.Fatal("test timed out")
 		}
 	}
+}
 
+func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
+	contracts := deployTestContracts(t, aliceTestConfig.id)
+
+	aliceConn, alice := createTestWriter(t, aliceTestConfig, contracts)
+	defer aliceConn.Close()
+	bobConn, bob := createTestWriter(t, bobTestConfig, contracts)
+	defer bobConn.Close()
+
+	// We'll use alice to setup the erc20
+	opts, nonce, err := aliceConn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
+	nonce.lock.Unlock() // We manual increment nonce in tests
+	if err != nil {
+		t.Fatal(err)
+	}
+	erc20Address := ethtest.DeployMintApproveErc20(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, big.NewInt(100))
+	ethtest.FundErc20Handler(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
+
+	// Create initial transfer message
+	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0))
+	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
+	amount := big.NewInt(10)
+	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient)
+	ethtest.RegisterErc20Resource(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, resourceId, erc20Address)
+	// Helpful for debugging
+	go watchEvent(alice.conn, utils.DepositProposalCreated)
+	go watchEvent(alice.conn, utils.DepositProposalVote)
+	go watchEvent(alice.conn, utils.DepositProposalFinalized)
+	go watchEvent(alice.conn, utils.DepositProposalExecuted)
+
+	routeMessageAndWait(t, alice, bob, m)
+}
+
+func TestCreateAndExecuteErc721Proposal(t *testing.T) {
+	contracts := deployTestContracts(t, aliceTestConfig.id)
+
+	aliceConn, alice := createTestWriter(t, aliceTestConfig, contracts)
+	defer aliceConn.Close()
+	bobConn, bob := createTestWriter(t, bobTestConfig, contracts)
+	defer bobConn.Close()
+
+	// We'll use alice to setup the erc721
+	tokenId := big.NewInt(1)
+	opts, nonce, err := aliceConn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
+	nonce.lock.Unlock() // We manual increment nonce in tests
+	if err != nil {
+		t.Fatal(err)
+	}
+	erc721Address := ethtest.DeployMintApproveErc721(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, tokenId)
+	ethtest.FundErc721Handler(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, erc721Address, tokenId)
+
+	// Create initial transfer message
+	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Address.Bytes(), 31), 0))
+	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
+	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId.Bytes(), recipient, []byte{})
+	ethtest.RegisterErc721Resource(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, resourceId, erc721Address)
+	// Helpful for debugging
+	go watchEvent(alice.conn, utils.DepositProposalCreated)
+	go watchEvent(alice.conn, utils.DepositProposalVote)
+	go watchEvent(alice.conn, utils.DepositProposalFinalized)
+	go watchEvent(alice.conn, utils.DepositProposalExecuted)
+
+	routeMessageAndWait(t, alice, bob, m)
 }
 
 func TestCreateAndExecuteGenericProposal(t *testing.T) {
@@ -209,47 +225,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	go watchEvent(alice.conn, utils.DepositProposalFinalized)
 	go watchEvent(alice.conn, utils.DepositProposalExecuted)
 
-	// Watch for executed event
-	query := buildQuery(alice.cfg.bridgeContract, utils.DepositProposalExecuted, big.NewInt(0), nil)
-	eventSubscription, err := alice.conn.subscribeToEvent(query)
-	if err != nil {
-		log15.Error("Failed to subscribe to finalization event", "err", err)
-	}
-
-	// Alice processes the message, then waits to execute
-	if ok := alice.ResolveMessage(m); !ok {
-		t.Fatal("Alice failed to resolve the message")
-	}
-
-	// Now Bob receives the same message and also waits to execute
-	if ok := bob.ResolveMessage(m); !ok {
-		t.Fatal("Bob failed to resolve the message")
-	}
-
-	func() {
-		for {
-			select {
-			case evt := <-eventSubscription.ch:
-				sourceId := evt.Topics[1].Big().Uint64()
-				destId := evt.Topics[2].Big().Uint64()
-				depositNonce := evt.Topics[3].Big().Uint64()
-
-				if m.Source == msg.ChainId(sourceId) &&
-					m.Destination == msg.ChainId(destId) &&
-					uint64(m.DepositNonce) == depositNonce {
-					return
-				}
-
-			case err := <-eventSubscription.sub.Err():
-				if err != nil {
-					t.Fatal(err)
-				}
-
-			case <-time.After(TestTimeout):
-				t.Fatal("test timed out")
-			}
-		}
-	}()
+	routeMessageAndWait(t, alice, bob, m)
 
 	ethtest.AssertHashExistence(t, aliceConn.conn, hash, contracts.CentrifugeHandlerAddress)
 }
