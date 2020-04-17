@@ -7,7 +7,6 @@ import (
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
-	"github.com/ChainSafe/ChainBridge/chains"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridge/keystore"
@@ -140,10 +139,6 @@ func (c *Chain) Id() msg.ChainId {
 
 func (c *Chain) Name() string {
 	return c.cfg.Name
-}
-
-func (c *Chain) GetWriter() chains.Writer {
-	return c.writer
 }
 
 func (c *Chain) Stop() error {
