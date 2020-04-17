@@ -13,23 +13,39 @@ import (
 
 type evtHandlerFn func(ethtypes.Log) msg.Message
 
-func (l *Listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
+func (l *Listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
 	l.log.Debug("Handling deposited event")
 
-	destId := event.Topics[1].Big().Uint64()
-	depositNonce := event.Topics[3].Big()
-
-	record, err := l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce)
+	record, err := l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
 	if err != nil {
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
 
 	return msg.NewFungibleTransfer(
 		l.cfg.id,
-		msg.ChainId(destId),
-		msg.Nonce(depositNonce.Uint64()),
+		destId,
+		nonce,
 		record.Amount,
 		record.ResourceID,
 		record.DestinationRecipientAddress,
+	)
+}
+
+func (l *Listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
+	l.log.Debug("Handling deposited event")
+
+	record, err := l.erc721HandlerContract.ERC721HandlerCaller.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
+	if err != nil {
+		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
+	}
+
+	return msg.NewNonFungibleTransfer(
+		l.cfg.id,
+		destId,
+		nonce,
+		record.ResourceID,
+		record.TokenID.Bytes(),
+		record.DestinationRecipientAddress,
+		record.MetaData,
 	)
 }

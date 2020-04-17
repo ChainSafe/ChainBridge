@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ChainSafe/log15"
@@ -22,7 +23,7 @@ func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContra
 	conn := newLocalConnection(t, cfg)
 	writer := NewWriter(conn, cfg, newTestLogger(cfg.name))
 
-	bridge, err := createBridgeContract(contracts.BridgeAddress, conn)
+	bridge, err := Bridge.NewBridge(contracts.BridgeAddress, conn.conn)
 	if err != nil {
 		t.Fatal(err)
 	}

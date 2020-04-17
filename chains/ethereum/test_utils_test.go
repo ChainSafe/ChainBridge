@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 	"time"
@@ -74,10 +75,16 @@ func deployTestContracts(t *testing.T, id msg.ChainId) *utils.DeployedContracts 
 		t.Fatal(err)
 	}
 
+	fmt.Println("=======================================================")
+	fmt.Printf("Bridge: %s\n", contracts.BridgeAddress.Hex())
+	fmt.Printf("Erc20Handler: %s\n", contracts.ERC20HandlerAddress.Hex())
+	fmt.Printf("ERC721Handler: %s\n", contracts.ERC721HandlerAddress.Hex())
+	fmt.Printf("Centrifuge Handler: %s\n", contracts.CentrifugeHandlerAddress.Hex())
+	fmt.Println("========================================================")
+
 	return contracts
 }
 
-// createErc20Deposit deploys a new erc20 token contract mints, the sender (based on value), and creates a deposit
 func createErc20Deposit(contract *Bridge.Bridge,
 	txOpts *bind.TransactOpts,
 	rId msg.ResourceId,
@@ -91,6 +98,30 @@ func createErc20Deposit(contract *Bridge.Bridge,
 	// Incrememnt Nonce by one
 	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
 	if _, err := contract.Deposit(
+		txOpts,
+		uint8(destId),
+		originHandler,
+		data,
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+func createErc721Deposit(bridge *Bridge.Bridge,
+	txOpts *bind.TransactOpts,
+	rId msg.ResourceId,
+	originHandler,
+	destRecipient common.Address,
+	destId msg.ChainId,
+	tokenId *big.Int,
+	metadata []byte) error {
+
+	data := utils.ConstructErc721DepositData(rId, tokenId, destRecipient.Bytes(), metadata)
+
+	// Incrememnt Nonce by one
+	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
+	if _, err := bridge.Deposit(
 		txOpts,
 		uint8(destId),
 		originHandler,

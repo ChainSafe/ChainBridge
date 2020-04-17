@@ -171,7 +171,7 @@ func (c *Connection) ensureHasBytecode(addr ethcommon.Address) error {
 	}
 
 	if len(code) == 0 {
-		return fmt.Errorf("no bytecode found at %s", addr)
+		return fmt.Errorf("no bytecode found at %s", addr.Hex())
 	}
 	return nil
 }

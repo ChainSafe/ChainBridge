@@ -9,9 +9,12 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
@@ -32,14 +35,16 @@ type ActiveSubscription struct {
 }
 
 type Listener struct {
-	cfg                  Config
-	conn                 *Connection
-	subscriptions        map[utils.EventSig]*Subscription
-	router               chains.Router
-	bridgeContract       *Bridge.Bridge // instance of bound bridge contract
-	erc20HandlerContract *erc20Handler.ERC20Handler
-	log                  log15.Logger
-	blockstore           blockstore.Blockstorer
+	cfg                    Config
+	conn                   *Connection
+	subscriptions          map[utils.EventSig]*Subscription
+	router                 chains.Router
+	bridgeContract         *Bridge.Bridge // instance of bound bridge contract
+	erc20HandlerContract   *erc20Handler.ERC20Handler
+	erc721HandlerContract  *erc721Handler.ERC721Handler
+	genericHandlerContract *centrifugeHandler.CentrifugeAssetHandler
+	log                    log15.Logger
+	blockstore             blockstore.Blockstorer
 }
 
 func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *Listener {
@@ -52,37 +57,20 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.
 	}
 }
 
-func (l *Listener) SetContracts(bridge *Bridge.Bridge, erc20Handler *erc20Handler.ERC20Handler) {
+func (l *Listener) SetContracts(bridge *Bridge.Bridge, erc20Handler *erc20Handler.ERC20Handler, erc721Handler *erc721Handler.ERC721Handler, genericHandler *centrifugeHandler.CentrifugeAssetHandler) {
 	l.bridgeContract = bridge
 	l.erc20HandlerContract = erc20Handler
-
+	l.erc721HandlerContract = erc721Handler
+	l.genericHandlerContract = genericHandler
 }
 
 func (l *Listener) SetRouter(r chains.Router) {
 	l.router = r
 }
 
-func (l *Listener) GetSubscriptions() []*Subscription {
-	return []*Subscription{
-		{
-			signature: utils.Deposit,
-			handler:   l.handleErc20DepositedEvent,
-		},
-	}
-
-}
-
 // Start registers all subscriptions provided by the config
 func (l *Listener) Start() error {
 	l.log.Debug("Starting listener...")
-
-	subscriptions := l.GetSubscriptions()
-	for _, sub := range subscriptions {
-		err := l.RegisterEventHandler(sub.signature, sub.handler)
-		if err != nil {
-			l.log.Error("failed to register event handler", "err", err)
-		}
-	}
 
 	go func() {
 		err := l.pollBlocks()
@@ -100,10 +88,6 @@ func (l *Listener) pollBlocks() error {
 	l.log.Debug("Polling Blocks...")
 	var latestBlock = l.cfg.startBlock
 	for {
-		if len(l.subscriptions) == 0 {
-			l.log.Debug("No subscriptions, stopping Polling")
-			break
-		}
 		currBlock, err := l.conn.conn.BlockByNumber(l.conn.ctx, nil)
 		if err != nil {
 			return fmt.Errorf("unable to get latest block: %s", err)
@@ -113,7 +97,7 @@ func (l *Listener) pollBlocks() error {
 			continue
 		}
 
-		err = l.getEventsForBlock(latestBlock)
+		err = l.getDepositEventsForBlock(latestBlock)
 		if err != nil {
 			return err
 		}
@@ -124,26 +108,31 @@ func (l *Listener) pollBlocks() error {
 		}
 		latestBlock.Add(latestBlock, big.NewInt(1))
 	}
-
-	return nil
 }
 
-func (l *Listener) getEventsForBlock(latestBlock *big.Int) error {
+func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
+	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
 
-	for evt, sub := range l.subscriptions {
-		query := buildQuery(l.cfg.bridgeContract, evt, latestBlock, latestBlock)
+	logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
+	if err != nil {
+		return fmt.Errorf("unable to Filter Logs: %s", err)
+	}
 
-		logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
-		if err != nil {
-			return fmt.Errorf("Unable to Filter Logs: %s", err)
+	for _, log := range logs {
+		var m msg.Message
+		addr := ethcommon.BytesToAddress(log.Topics[2].Bytes())
+		destId := msg.ChainId(log.Topics[1].Big().Uint64())
+		nonce := msg.Nonce(log.Topics[3].Big().Uint64())
+
+		if addr == l.cfg.erc20HandlerContract {
+			m = l.handleErc20DepositedEvent(destId, nonce)
+		} else {
+			l.log.Error("Event has unrecognized handler", "handler", addr)
 		}
 
-		for _, log := range logs {
-			m := sub.handler(log)
-			err = l.router.Send(m)
-			if err != nil {
-				l.log.Error("subscription error: cannot send message", "sub", sub, "err", err)
-			}
+		err = l.router.Send(m)
+		if err != nil {
+			l.log.Error("subscription error: failed to route message", "err", err)
 		}
 	}
 
@@ -161,22 +150,6 @@ func buildQuery(contract ethcommon.Address, sig utils.EventSig, startBlock *big.
 		},
 	}
 	return query
-}
-
-// RegisterEventHandler creates a subscription for the provided event on the bridge bridgeContract.
-// Handler will be called for every instance of event.
-func (l *Listener) RegisterEventHandler(subscription utils.EventSig, handler evtHandlerFn) error {
-
-	if l.subscriptions[subscription] != nil {
-		return fmt.Errorf("event %s already registered", subscription)
-	}
-	sub := new(Subscription)
-	sub.handler = handler
-	sub.signature = subscription
-	l.subscriptions[subscription] = sub
-
-	return nil
-
 }
 
 // Stop cancels all subscriptions. Must be called before Connection.Stop().

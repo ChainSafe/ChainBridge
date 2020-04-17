@@ -10,10 +10,15 @@ import (
 	"testing"
 	"time"
 
+	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
+	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
+	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
@@ -35,18 +40,26 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	newConfig.startBlock = big.NewInt(0)
 
 	conn := newLocalConnection(t, &newConfig)
-	bridgeContract, err := createBridgeContract(newConfig.bridgeContract, conn)
+	bridgeContract, err := bridge.NewBridge(newConfig.bridgeContract, conn.conn)
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc20HandlerContract, err := createErc20HandlerContract(newConfig.erc20HandlerContract, conn)
+	erc20HandlerContract, err := erc20Handler.NewERC20Handler(newConfig.erc20HandlerContract, conn.conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	erc721HandlerContract, err := erc721Handler.NewERC721Handler(newConfig.erc721HandlerContract, conn.conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	genericHandlerContract, err := centrifugeHandler.NewCentrifugeAssetHandler(newConfig.genericHandlerContract, conn.conn)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	router := &MockRouter{msgs: make(chan msg.Message)}
 	listener := NewListener(conn, &newConfig, TestLogger, &blockstore.EmptyStore{})
-	listener.SetContracts(bridgeContract, erc20HandlerContract)
+	listener.SetContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 	listener.SetRouter(router)
 	// Start the listener
 	err = listener.Start()
@@ -72,7 +85,7 @@ func TestListener_start_stop(t *testing.T) {
 	}
 }
 
-func TestListener_depositEvent(t *testing.T) {
+func TestListener_Erc20DepositedEvent(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id)
 	l, router := createTestListener(t, aliceTestConfig, contracts)
 
@@ -157,6 +170,69 @@ func TestListener_depositEvent(t *testing.T) {
 	select {
 	case m := <-router.msgs:
 		err = compareMessage(expectedMessage2, m)
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(TestTimeout):
+		t.Fatalf("test timed out")
+	}
+}
+
+func TestListener_Erc721DepositedEvent(t *testing.T) {
+	contracts := deployTestContracts(t, aliceTestConfig.id)
+	l, router := createTestListener(t, aliceTestConfig, contracts)
+
+	// For debugging
+	go watchEvent(l.conn, utils.Deposit)
+
+	// Get transaction ready
+	opts, nonce, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
+	nonce.lock.Unlock() // We manual increment nonce in tests
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tokenId := big.NewInt(99)
+	erc721Contract := ethtest.DeployMintApproveErc721(t, l.conn.conn, opts, contracts.ERC721HandlerAddress, tokenId)
+	log15.Info("Deployed erc721, minted and approved handler", "handler", contracts.ERC721HandlerAddress, "contract", erc721Contract, "tokenId", tokenId.Bytes())
+	ethtest.IsOwner(t, l.conn.conn, erc721Contract, tokenId, opts.From)
+	src := msg.ChainId(0)
+	dst := msg.ChainId(1)
+	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Contract.Bytes(), 31), uint8(src)))
+	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
+
+	ethtest.RegisterErc721Resource(t, l.conn.conn, opts, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
+
+	expectedMessage := msg.NewNonFungibleTransfer(
+		src,
+		dst,
+		1,
+		resourceId,
+		tokenId.Bytes(),
+		common.HexToAddress(BobKp.Address()).Bytes(),
+		[]byte{},
+	)
+
+	// Create an ERC20 Deposit
+	err = createErc721Deposit(
+		l.bridgeContract,
+		opts,
+		resourceId,
+		l.cfg.erc721HandlerContract,
+
+		recipient,
+		dst,
+		tokenId,
+		[]byte{}, // Empty metadata
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Verify message
+	select {
+	case m := <-router.msgs:
+		err = compareMessage(expectedMessage, m)
 		if err != nil {
 			t.Fatal(err)
 		}
