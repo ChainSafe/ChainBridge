@@ -8,6 +8,7 @@ import (
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 )
 
@@ -28,10 +29,18 @@ func ConstructErc721DepositData(rId msg.ResourceId, tokenId *big.Int, destRecipi
 	data = append(data, destRecipient...)                                                  // Recipient
 
 	if len(metadata) > 0 {
-		data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(metadata))), 32)...)      // Length of metadata
-		data = append(data, metadata...)                                                       // Metadata
+		data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(metadata))), 32)...) // Length of metadata
+		data = append(data, metadata...)                                                  // Metadata
 	}
 
 	fmt.Printf("Data: %x\n", data)
+	return data
+}
+
+func ConstructGenericDepositData(rId msg.ResourceId, destRecipient []byte, metadata []byte) []byte {
+	var data []byte
+	data = append(rId[:], common.LeftPadBytes(destRecipient, 32)...)
+	data = append(data, metadata...)
+	fmt.Printf("%x\n", data)
 	return data
 }

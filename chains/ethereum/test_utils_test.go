@@ -85,13 +85,16 @@ func deployTestContracts(t *testing.T, id msg.ChainId) *utils.DeployedContracts 
 	return contracts
 }
 
-func createErc20Deposit(contract *Bridge.Bridge,
+func createErc20Deposit(
+	t *testing.T,
+	contract *Bridge.Bridge,
 	txOpts *bind.TransactOpts,
 	rId msg.ResourceId,
-	originHandler,
+	handler,
 	destRecipient common.Address,
 	destId msg.ChainId,
-	amount *big.Int) error {
+	amount *big.Int,
+) {
 
 	data := utils.ConstructErc20DepositData(rId, destRecipient.Bytes(), amount)
 
@@ -100,22 +103,24 @@ func createErc20Deposit(contract *Bridge.Bridge,
 	if _, err := contract.Deposit(
 		txOpts,
 		uint8(destId),
-		originHandler,
+		handler,
 		data,
 	); err != nil {
-		return err
+		t.Fatal(err)
 	}
-	return nil
 }
 
-func createErc721Deposit(bridge *Bridge.Bridge,
+func createErc721Deposit(
+	t *testing.T,
+	bridge *Bridge.Bridge,
 	txOpts *bind.TransactOpts,
 	rId msg.ResourceId,
-	originHandler,
+	handler,
 	destRecipient common.Address,
 	destId msg.ChainId,
 	tokenId *big.Int,
-	metadata []byte) error {
+	metadata []byte,
+) {
 
 	data := utils.ConstructErc721DepositData(rId, tokenId, destRecipient.Bytes(), metadata)
 
@@ -124,10 +129,33 @@ func createErc721Deposit(bridge *Bridge.Bridge,
 	if _, err := bridge.Deposit(
 		txOpts,
 		uint8(destId),
-		originHandler,
+		handler,
 		data,
 	); err != nil {
-		return err
+		t.Fatal(err)
 	}
-	return nil
+}
+
+func createGenericDeposit(
+	t *testing.T,
+	bridge *Bridge.Bridge,
+	txOpts *bind.TransactOpts,
+	rId msg.ResourceId,
+	handler common.Address,
+
+	destId msg.ChainId,
+	hash []byte) {
+
+	data := utils.ConstructGenericDepositData(rId, []byte{}, hash)
+
+	// Incrememnt Nonce by one
+	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
+	if _, err := bridge.Deposit(
+		txOpts,
+		uint8(destId),
+		handler,
+		data,
+	); err != nil {
+		t.Fatal(err)
+	}
 }

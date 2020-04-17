@@ -16,7 +16,7 @@ type evtHandlerFn func(ethtypes.Log) msg.Message
 func (l *Listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
 	l.log.Debug("Handling deposited event")
 
-	record, err := l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
+	record, err := l.erc20HandlerContract.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
 	if err != nil {
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
@@ -34,7 +34,7 @@ func (l *Listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce
 func (l *Listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
 	l.log.Debug("Handling deposited event")
 
-	record, err := l.erc721HandlerContract.ERC721HandlerCaller.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
+	record, err := l.erc721HandlerContract.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
 	if err != nil {
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
@@ -47,5 +47,22 @@ func (l *Listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonc
 		record.TokenID.Bytes(),
 		record.DestinationRecipientAddress,
 		record.MetaData,
+	)
+}
+
+func (l *Listener) handleGenericDepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
+	l.log.Debug("Handling deposited event")
+
+	record, err := l.genericHandlerContract.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
+	if err != nil {
+		l.log.Error("Error Unpacking Generic Deposit Record", "err", err)
+	}
+
+	return msg.NewGenericTransfer(
+		l.cfg.id,
+		destId,
+		nonce,
+		record.ResourceID,
+		record.MetaDataHash[:],
 	)
 }

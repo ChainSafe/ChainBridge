@@ -126,6 +126,10 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 
 		if addr == l.cfg.erc20HandlerContract {
 			m = l.handleErc20DepositedEvent(destId, nonce)
+		} else if addr == l.cfg.erc721HandlerContract {
+			m = l.handleErc721DepositedEvent(destId, nonce)
+		} else if addr == l.cfg.genericHandlerContract {
+			m = l.handleGenericDepositedEvent(destId, nonce)
 		} else {
 			l.log.Error("Event has unrecognized handler", "handler", addr)
 		}
