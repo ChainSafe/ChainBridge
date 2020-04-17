@@ -57,7 +57,6 @@ func CreateConfig(key string, chain msg.ChainId, bridgeAddress, erc20HandlerAddr
 }
 
 func DeployTestContracts(t *testing.T, id msg.ChainId, threshold *big.Int) *utils.DeployedContracts {
-	//deployPK string, chainID *big.Int, url string, relayers int, initialRelayerThreshold *big.Int, minCount uint8
 	contracts, err := utils.DeployContracts(
 		hexutil.Encode(AliceEthKp.Encode())[2:],
 		uint8(id),
@@ -68,11 +67,13 @@ func DeployTestContracts(t *testing.T, id msg.ChainId, threshold *big.Int) *util
 		t.Fatal(err)
 	}
 
-	fmt.Println("====== Contracts =======")
-	fmt.Printf("Bridge: %s\n", contracts.BridgeAddress.Hex())
-	fmt.Printf("Erc20Handler: %s\n", contracts.ERC20HandlerAddress.Hex())
-	fmt.Printf("(Generic) Centrifuge Handler: %s\n", contracts.CentrifugeHandlerAddress.Hex())
-	fmt.Println("========================")
+	fmt.Println("======================== Contracts Deployed ========================")
+	fmt.Printf("Chain ID:			%d\n", id)
+	fmt.Printf("Relayer Threshold:	%s\n", threshold.String())
+	fmt.Printf("Bridge:				%s\n", contracts.BridgeAddress.Hex())
+	fmt.Printf("Erc20Handler:		%s\n", contracts.ERC20HandlerAddress.Hex())
+	fmt.Printf("Generic/Centrifuge Handler: %s\n", contracts.CentrifugeHandlerAddress.Hex())
+	fmt.Println("====================================================================")
 	return contracts
 }
 
@@ -136,9 +137,9 @@ func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.Trans
 	}
 }
 
-func WaitForEthereumEvent(t *testing.T, client *ethclient.Client, contract common.Address, subStr utils.EventSig) {
+func WaitForEthereumEvent(t *testing.T, client *ethclient.Client, contract common.Address, subStr utils.EventSig, startBlock *big.Int) {
 	query := eth.FilterQuery{
-		FromBlock: big.NewInt(0),
+		FromBlock: startBlock,
 		Addresses: []common.Address{contract},
 		Topics: [][]common.Hash{
 			{subStr.GetTopic()},

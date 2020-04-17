@@ -40,6 +40,12 @@ func EnsureInitializedChain(client *utils.Client, relayers []types.AccountID, ch
 			panic(err)
 		}
 
+		fmt.Println("======================== Substrate Initialized ========================")
+		fmt.Printf("Relayers: 				%x\n", relayers)
+		fmt.Printf("Whitelisted Chain IDs: 	%x\n", chains)
+		fmt.Printf("Relayer Threshold: 		%x\n", threshold)
+		fmt.Println("========================================================================")
+
 	} else {
 		fmt.Println("=========================================================================")
 		fmt.Println("! WARNING: Running tests against an initialized chain, results may vary !")

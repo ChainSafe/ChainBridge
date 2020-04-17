@@ -25,12 +25,12 @@ var log = log15.New("e2e", "substrate")
 
 var AliceKp = keystore.TestKeyRing.SubstrateKeys[keystore.AliceKey]
 var BobKp = keystore.TestKeyRing.SubstrateKeys[keystore.BobKey]
-var DaveKp = keystore.TestKeyRing.SubstrateKeys[keystore.DaveKey]
+var CharlieKp = keystore.TestKeyRing.SubstrateKeys[keystore.CharlieKey]
 
 var RelayerSet = []types.AccountID{
 	types.NewAccountID(AliceKp.AsKeyringPair().PublicKey),
 	types.NewAccountID(BobKp.AsKeyringPair().PublicKey),
-	types.NewAccountID(DaveKp.AsKeyringPair().PublicKey),
+	types.NewAccountID(CharlieKp.AsKeyringPair().PublicKey),
 }
 
 func CreateConfig(key string, chain msg.ChainId) *core.ChainConfig {
