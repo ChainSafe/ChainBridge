@@ -9,4 +9,4 @@ set -e
 echo "Checking Solidity"
 git diff --quiet bindings/ 
 VAL=$?
-return VAL
+exit $VAL
