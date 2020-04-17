@@ -38,7 +38,7 @@ jobs:
       script:
         - set -e
         - make clean && make rebuild-contracts
-        - cd /solidity && SILENT=true make start-ganache
+        - cd chainbridge/solidity && SILENT=true make start-ganache
         - cd .. && ./scripts/substrate/run_chain_ci.sh
         - make test
 
@@ -48,6 +48,6 @@ jobs:
       script:
         - set -e
         - make clean && make rebuild-contracts
-        - cd /solidity && SILENT=true make start-ganache
+        - cd chainbridge/solidity && SILENT=true make start-ganache
         - cd .. && ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
