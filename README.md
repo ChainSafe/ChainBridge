@@ -104,12 +104,9 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
 First, run `make setup-sol-cli` to fetch the necessary scripts. Requires `truffle` and `ganache-cli`.
 
-Start a ganache instance with:
-```
-cd ../chainbridge-solidity
-make start-ganache
-```
-Go tests can then be run with:
+Refer to https://github.com/chainsafe/chainbridge-solidity#commands for starting the chain instances
+
+Go tests can be run with:
 ```
 make test
 ```
@@ -121,44 +118,6 @@ make test-sub
 ```
 
 **Note: Substrate tests are not yet able to be run locally and will fail.**
-
-# Simulations
-## Ethereum ERC20 Transfer
-Start chain 1 (terminal 1)
-```shell
-make setup-sol-cli
-cd ../chainbridge-solidity
-make start-ganache
-```
-
-Start chain 2 (terminal 2)
-```shell
-cd ../chainbridge-solidity
-PORT=8546 make start-ganache
-```
-
-Deploy the contracts (terminal 3)
-```shell
-make deploy-eth && PORT=8546 make deploy-eth
-```
-
-Build the latest ChainBridge binary & run it (terminal 3)
-```shell
-make build
-./build/chainbridge --verbosity=trace --config ./scripts/configs/config1.toml --testkey alice
-```
-
-Mint & make a deposit (terminal 4)
-```shell
-node solidity/scripts/cli/index.js mint --value 100
-node solidity/scripts/cli/index.js transfer --dest 1 --value 1
-```
-
-Notes: 
-- Alice (from the keyring) is always the deployer, if that key changes, then the constants will be different
-- Validators start from the keyring and move alphabetically down the list. For example if you specify `--validators 3`, the validators would be `Alice`, `Bob`, `Charlie`. If you said 4, `Dave` would join
-- `--test-only` ensures we don't re-deploy the contracts
-- `--dest` allows you to specify which chain_id you want to the transfer to go to
 
 ### Debugging
 Node script errors:
