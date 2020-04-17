@@ -200,7 +200,7 @@ func (_GenericHandler *GenericHandlerTransactorRaw) Transact(opts *bind.Transact
 
 // Balances is a free data retrieval call binding the contract method 0x6ebcf607.
 //
-// Solidity: function _balances(address ) constant returns(uint256)
+// Solidity: function _balances(address ) view returns(uint256)
 func (_GenericHandler *GenericHandlerCaller) Balances(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -212,21 +212,21 @@ func (_GenericHandler *GenericHandlerCaller) Balances(opts *bind.CallOpts, arg0 
 
 // Balances is a free data retrieval call binding the contract method 0x6ebcf607.
 //
-// Solidity: function _balances(address ) constant returns(uint256)
+// Solidity: function _balances(address ) view returns(uint256)
 func (_GenericHandler *GenericHandlerSession) Balances(arg0 common.Address) (*big.Int, error) {
 	return _GenericHandler.Contract.Balances(&_GenericHandler.CallOpts, arg0)
 }
 
 // Balances is a free data retrieval call binding the contract method 0x6ebcf607.
 //
-// Solidity: function _balances(address ) constant returns(uint256)
+// Solidity: function _balances(address ) view returns(uint256)
 func (_GenericHandler *GenericHandlerCallerSession) Balances(arg0 common.Address) (*big.Int, error) {
 	return _GenericHandler.Contract.Balances(&_GenericHandler.CallOpts, arg0)
 }
 
 // BridgeAddress is a free data retrieval call binding the contract method 0x318c136e.
 //
-// Solidity: function _bridgeAddress() constant returns(address)
+// Solidity: function _bridgeAddress() view returns(address)
 func (_GenericHandler *GenericHandlerCaller) BridgeAddress(opts *bind.CallOpts) (common.Address, error) {
 	var (
 		ret0 = new(common.Address)
@@ -238,21 +238,21 @@ func (_GenericHandler *GenericHandlerCaller) BridgeAddress(opts *bind.CallOpts) 
 
 // BridgeAddress is a free data retrieval call binding the contract method 0x318c136e.
 //
-// Solidity: function _bridgeAddress() constant returns(address)
+// Solidity: function _bridgeAddress() view returns(address)
 func (_GenericHandler *GenericHandlerSession) BridgeAddress() (common.Address, error) {
 	return _GenericHandler.Contract.BridgeAddress(&_GenericHandler.CallOpts)
 }
 
 // BridgeAddress is a free data retrieval call binding the contract method 0x318c136e.
 //
-// Solidity: function _bridgeAddress() constant returns(address)
+// Solidity: function _bridgeAddress() view returns(address)
 func (_GenericHandler *GenericHandlerCallerSession) BridgeAddress() (common.Address, error) {
 	return _GenericHandler.Contract.BridgeAddress(&_GenericHandler.CallOpts)
 }
 
 // ContractWhitelist is a free data retrieval call binding the contract method 0x7f79bea8.
 //
-// Solidity: function _contractWhitelist(address ) constant returns(bool)
+// Solidity: function _contractWhitelist(address ) view returns(bool)
 func (_GenericHandler *GenericHandlerCaller) ContractWhitelist(opts *bind.CallOpts, arg0 common.Address) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -264,21 +264,21 @@ func (_GenericHandler *GenericHandlerCaller) ContractWhitelist(opts *bind.CallOp
 
 // ContractWhitelist is a free data retrieval call binding the contract method 0x7f79bea8.
 //
-// Solidity: function _contractWhitelist(address ) constant returns(bool)
+// Solidity: function _contractWhitelist(address ) view returns(bool)
 func (_GenericHandler *GenericHandlerSession) ContractWhitelist(arg0 common.Address) (bool, error) {
 	return _GenericHandler.Contract.ContractWhitelist(&_GenericHandler.CallOpts, arg0)
 }
 
 // ContractWhitelist is a free data retrieval call binding the contract method 0x7f79bea8.
 //
-// Solidity: function _contractWhitelist(address ) constant returns(bool)
+// Solidity: function _contractWhitelist(address ) view returns(bool)
 func (_GenericHandler *GenericHandlerCallerSession) ContractWhitelist(arg0 common.Address) (bool, error) {
 	return _GenericHandler.Contract.ContractWhitelist(&_GenericHandler.CallOpts, arg0)
 }
 
 // DepositRecords is a free data retrieval call binding the contract method 0xe245386f.
 //
-// Solidity: function _depositRecords(uint256 ) constant returns(uint8 _destinationChainID, bytes32 _resourceID, address _destinationRecipientAddress, address _depositer, bytes _metaData)
+// Solidity: function _depositRecords(uint256 ) view returns(uint8 _destinationChainID, bytes32 _resourceID, address _destinationRecipientAddress, address _depositer, bytes _metaData)
 func (_GenericHandler *GenericHandlerCaller) DepositRecords(opts *bind.CallOpts, arg0 *big.Int) (struct {
 	DestinationChainID          uint8
 	ResourceID                  [32]byte
@@ -300,7 +300,7 @@ func (_GenericHandler *GenericHandlerCaller) DepositRecords(opts *bind.CallOpts,
 
 // DepositRecords is a free data retrieval call binding the contract method 0xe245386f.
 //
-// Solidity: function _depositRecords(uint256 ) constant returns(uint8 _destinationChainID, bytes32 _resourceID, address _destinationRecipientAddress, address _depositer, bytes _metaData)
+// Solidity: function _depositRecords(uint256 ) view returns(uint8 _destinationChainID, bytes32 _resourceID, address _destinationRecipientAddress, address _depositer, bytes _metaData)
 func (_GenericHandler *GenericHandlerSession) DepositRecords(arg0 *big.Int) (struct {
 	DestinationChainID          uint8
 	ResourceID                  [32]byte
@@ -313,7 +313,7 @@ func (_GenericHandler *GenericHandlerSession) DepositRecords(arg0 *big.Int) (str
 
 // DepositRecords is a free data retrieval call binding the contract method 0xe245386f.
 //
-// Solidity: function _depositRecords(uint256 ) constant returns(uint8 _destinationChainID, bytes32 _resourceID, address _destinationRecipientAddress, address _depositer, bytes _metaData)
+// Solidity: function _depositRecords(uint256 ) view returns(uint8 _destinationChainID, bytes32 _resourceID, address _destinationRecipientAddress, address _depositer, bytes _metaData)
 func (_GenericHandler *GenericHandlerCallerSession) DepositRecords(arg0 *big.Int) (struct {
 	DestinationChainID          uint8
 	ResourceID                  [32]byte
@@ -326,7 +326,7 @@ func (_GenericHandler *GenericHandlerCallerSession) DepositRecords(arg0 *big.Int
 
 // ResourceIDToTokenContractAddress is a free data retrieval call binding the contract method 0x0a6d55d8.
 //
-// Solidity: function _resourceIDToTokenContractAddress(bytes32 ) constant returns(address)
+// Solidity: function _resourceIDToTokenContractAddress(bytes32 ) view returns(address)
 func (_GenericHandler *GenericHandlerCaller) ResourceIDToTokenContractAddress(opts *bind.CallOpts, arg0 [32]byte) (common.Address, error) {
 	var (
 		ret0 = new(common.Address)
@@ -338,21 +338,21 @@ func (_GenericHandler *GenericHandlerCaller) ResourceIDToTokenContractAddress(op
 
 // ResourceIDToTokenContractAddress is a free data retrieval call binding the contract method 0x0a6d55d8.
 //
-// Solidity: function _resourceIDToTokenContractAddress(bytes32 ) constant returns(address)
+// Solidity: function _resourceIDToTokenContractAddress(bytes32 ) view returns(address)
 func (_GenericHandler *GenericHandlerSession) ResourceIDToTokenContractAddress(arg0 [32]byte) (common.Address, error) {
 	return _GenericHandler.Contract.ResourceIDToTokenContractAddress(&_GenericHandler.CallOpts, arg0)
 }
 
 // ResourceIDToTokenContractAddress is a free data retrieval call binding the contract method 0x0a6d55d8.
 //
-// Solidity: function _resourceIDToTokenContractAddress(bytes32 ) constant returns(address)
+// Solidity: function _resourceIDToTokenContractAddress(bytes32 ) view returns(address)
 func (_GenericHandler *GenericHandlerCallerSession) ResourceIDToTokenContractAddress(arg0 [32]byte) (common.Address, error) {
 	return _GenericHandler.Contract.ResourceIDToTokenContractAddress(&_GenericHandler.CallOpts, arg0)
 }
 
 // TokenContractAddressToResourceID is a free data retrieval call binding the contract method 0xc8ba6c87.
 //
-// Solidity: function _tokenContractAddressToResourceID(address ) constant returns(bytes32)
+// Solidity: function _tokenContractAddressToResourceID(address ) view returns(bytes32)
 func (_GenericHandler *GenericHandlerCaller) TokenContractAddressToResourceID(opts *bind.CallOpts, arg0 common.Address) ([32]byte, error) {
 	var (
 		ret0 = new([32]byte)
@@ -364,21 +364,21 @@ func (_GenericHandler *GenericHandlerCaller) TokenContractAddressToResourceID(op
 
 // TokenContractAddressToResourceID is a free data retrieval call binding the contract method 0xc8ba6c87.
 //
-// Solidity: function _tokenContractAddressToResourceID(address ) constant returns(bytes32)
+// Solidity: function _tokenContractAddressToResourceID(address ) view returns(bytes32)
 func (_GenericHandler *GenericHandlerSession) TokenContractAddressToResourceID(arg0 common.Address) ([32]byte, error) {
 	return _GenericHandler.Contract.TokenContractAddressToResourceID(&_GenericHandler.CallOpts, arg0)
 }
 
 // TokenContractAddressToResourceID is a free data retrieval call binding the contract method 0xc8ba6c87.
 //
-// Solidity: function _tokenContractAddressToResourceID(address ) constant returns(bytes32)
+// Solidity: function _tokenContractAddressToResourceID(address ) view returns(bytes32)
 func (_GenericHandler *GenericHandlerCallerSession) TokenContractAddressToResourceID(arg0 common.Address) ([32]byte, error) {
 	return _GenericHandler.Contract.TokenContractAddressToResourceID(&_GenericHandler.CallOpts, arg0)
 }
 
 // GetDepositRecord is a free data retrieval call binding the contract method 0xdb95e75c.
 //
-// Solidity: function getDepositRecord(uint256 depositNonce) constant returns(GenericHandlerDepositRecord)
+// Solidity: function getDepositRecord(uint256 depositNonce) view returns(GenericHandlerDepositRecord)
 func (_GenericHandler *GenericHandlerCaller) GetDepositRecord(opts *bind.CallOpts, depositNonce *big.Int) (GenericHandlerDepositRecord, error) {
 	var (
 		ret0 = new(GenericHandlerDepositRecord)
@@ -390,14 +390,14 @@ func (_GenericHandler *GenericHandlerCaller) GetDepositRecord(opts *bind.CallOpt
 
 // GetDepositRecord is a free data retrieval call binding the contract method 0xdb95e75c.
 //
-// Solidity: function getDepositRecord(uint256 depositNonce) constant returns(GenericHandlerDepositRecord)
+// Solidity: function getDepositRecord(uint256 depositNonce) view returns(GenericHandlerDepositRecord)
 func (_GenericHandler *GenericHandlerSession) GetDepositRecord(depositNonce *big.Int) (GenericHandlerDepositRecord, error) {
 	return _GenericHandler.Contract.GetDepositRecord(&_GenericHandler.CallOpts, depositNonce)
 }
 
 // GetDepositRecord is a free data retrieval call binding the contract method 0xdb95e75c.
 //
-// Solidity: function getDepositRecord(uint256 depositNonce) constant returns(GenericHandlerDepositRecord)
+// Solidity: function getDepositRecord(uint256 depositNonce) view returns(GenericHandlerDepositRecord)
 func (_GenericHandler *GenericHandlerCallerSession) GetDepositRecord(depositNonce *big.Int) (GenericHandlerDepositRecord, error) {
 	return _GenericHandler.Contract.GetDepositRecord(&_GenericHandler.CallOpts, depositNonce)
 }

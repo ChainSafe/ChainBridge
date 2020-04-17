@@ -191,7 +191,7 @@ func (_Migrations *MigrationsTransactorRaw) Transact(opts *bind.TransactOpts, me
 
 // LastCompletedMigration is a free data retrieval call binding the contract method 0x445df0ac.
 //
-// Solidity: function last_completed_migration() constant returns(uint256)
+// Solidity: function last_completed_migration() view returns(uint256)
 func (_Migrations *MigrationsCaller) LastCompletedMigration(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -203,21 +203,21 @@ func (_Migrations *MigrationsCaller) LastCompletedMigration(opts *bind.CallOpts)
 
 // LastCompletedMigration is a free data retrieval call binding the contract method 0x445df0ac.
 //
-// Solidity: function last_completed_migration() constant returns(uint256)
+// Solidity: function last_completed_migration() view returns(uint256)
 func (_Migrations *MigrationsSession) LastCompletedMigration() (*big.Int, error) {
 	return _Migrations.Contract.LastCompletedMigration(&_Migrations.CallOpts)
 }
 
 // LastCompletedMigration is a free data retrieval call binding the contract method 0x445df0ac.
 //
-// Solidity: function last_completed_migration() constant returns(uint256)
+// Solidity: function last_completed_migration() view returns(uint256)
 func (_Migrations *MigrationsCallerSession) LastCompletedMigration() (*big.Int, error) {
 	return _Migrations.Contract.LastCompletedMigration(&_Migrations.CallOpts)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() constant returns(address)
+// Solidity: function owner() view returns(address)
 func (_Migrations *MigrationsCaller) Owner(opts *bind.CallOpts) (common.Address, error) {
 	var (
 		ret0 = new(common.Address)
@@ -229,14 +229,14 @@ func (_Migrations *MigrationsCaller) Owner(opts *bind.CallOpts) (common.Address,
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() constant returns(address)
+// Solidity: function owner() view returns(address)
 func (_Migrations *MigrationsSession) Owner() (common.Address, error) {
 	return _Migrations.Contract.Owner(&_Migrations.CallOpts)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() constant returns(address)
+// Solidity: function owner() view returns(address)
 func (_Migrations *MigrationsCallerSession) Owner() (common.Address, error) {
 	return _Migrations.Contract.Owner(&_Migrations.CallOpts)
 }

@@ -191,7 +191,7 @@ func (_ERC721Safe *ERC721SafeTransactorRaw) Transact(opts *bind.TransactOpts, me
 
 // Balances is a free data retrieval call binding the contract method 0x6ebcf607.
 //
-// Solidity: function _balances(address ) constant returns(uint256)
+// Solidity: function _balances(address ) view returns(uint256)
 func (_ERC721Safe *ERC721SafeCaller) Balances(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -203,14 +203,14 @@ func (_ERC721Safe *ERC721SafeCaller) Balances(opts *bind.CallOpts, arg0 common.A
 
 // Balances is a free data retrieval call binding the contract method 0x6ebcf607.
 //
-// Solidity: function _balances(address ) constant returns(uint256)
+// Solidity: function _balances(address ) view returns(uint256)
 func (_ERC721Safe *ERC721SafeSession) Balances(arg0 common.Address) (*big.Int, error) {
 	return _ERC721Safe.Contract.Balances(&_ERC721Safe.CallOpts, arg0)
 }
 
 // Balances is a free data retrieval call binding the contract method 0x6ebcf607.
 //
-// Solidity: function _balances(address ) constant returns(uint256)
+// Solidity: function _balances(address ) view returns(uint256)
 func (_ERC721Safe *ERC721SafeCallerSession) Balances(arg0 common.Address) (*big.Int, error) {
 	return _ERC721Safe.Contract.Balances(&_ERC721Safe.CallOpts, arg0)
 }
