@@ -37,7 +37,7 @@ jobs:
       name: "Check solidity bindings"
       script:
         - set -e
-        - make clean && make rebuild-contracts
+        - make clean && make rebuild-contracts && make clean
         - ./scripts/check_diff.sh
 
     - language: go
