@@ -7,6 +7,6 @@
 set -e
 
 echo "Checking Solidity"
-git diff bindings/ --quiet
+git diff --quiet bindings/ 
 VAL=$?
 return VAL
