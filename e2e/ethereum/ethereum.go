@@ -28,8 +28,6 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-const TestEthEndpoint = "ws://localhost:8545"
-
 var TestTimeout = time.Second * 30
 
 var log = log15.New("e2e", "ethereum")
@@ -38,29 +36,35 @@ var AliceEthKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var CharlieEthKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 var CharlieEthAddr = common.HexToAddress(CharlieEthKp.Address())
 
-func CreateConfig(key string, chain msg.ChainId, bridgeAddress, erc20HandlerAddress, genericHandler string) *core.ChainConfig {
+type TestContext struct {
+	Contracts *utils.DeployedContracts
+	Client    *ethclient.Client
+	Opts      *bind.TransactOpts
+}
+
+func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *core.ChainConfig {
 	return &core.ChainConfig{
-		Name:           fmt.Sprintf("ethereum(%s)", key),
+		Name:           fmt.Sprintf("ethereum(%s,%d)", key, chain),
 		Id:             chain,
-		Endpoint:       TestEthEndpoint,
+		Endpoint:       endpoint,
 		From:           "",
 		KeystorePath:   key,
 		Insecure:       true,
 		FreshStart:     true,
 		BlockstorePath: os.TempDir(),
 		Opts: map[string]string{
-			"bridge":         bridgeAddress,
-			"erc20Handler":   erc20HandlerAddress,
-			"genericHandler": genericHandler,
+			"bridge":         contracts.BridgeAddress.String(),
+			"erc20Handler":   contracts.ERC20HandlerAddress.String(),
+			"genericHandler": contracts.CentrifugeHandlerAddress.String(),
 		},
 	}
 }
 
-func DeployTestContracts(t *testing.T, id msg.ChainId, threshold *big.Int) *utils.DeployedContracts {
+func DeployTestContracts(t *testing.T, endpoint string, id msg.ChainId, threshold *big.Int) *utils.DeployedContracts {
 	contracts, err := utils.DeployContracts(
 		hexutil.Encode(AliceEthKp.Encode())[2:],
 		uint8(id),
-		TestEthEndpoint,
+		endpoint,
 		threshold,
 	)
 	if err != nil {
@@ -68,6 +72,7 @@ func DeployTestContracts(t *testing.T, id msg.ChainId, threshold *big.Int) *util
 	}
 
 	fmt.Println("======================== Contracts Deployed ========================")
+	fmt.Printf("Endpoint:			%s\n", endpoint)
 	fmt.Printf("Chain ID:			%d\n", id)
 	fmt.Printf("Relayer Threshold:	%s\n", threshold.String())
 	fmt.Printf("Bridge:				%s\n", contracts.BridgeAddress.Hex())
@@ -77,9 +82,9 @@ func DeployTestContracts(t *testing.T, id msg.ChainId, threshold *big.Int) *util
 	return contracts
 }
 
-func CreateEthClient(t *testing.T) (*ethclient.Client, *bind.TransactOpts) {
+func CreateEthClient(t *testing.T, endpoint string) (*ethclient.Client, *bind.TransactOpts) {
 	ctx := context.Background()
-	rpcClient, err := rpc.DialWebsocket(ctx, TestEthEndpoint, "/ws")
+	rpcClient, err := rpc.DialWebsocket(ctx, endpoint, "/ws")
 	if err != nil {
 		t.Fatal(err)
 	}

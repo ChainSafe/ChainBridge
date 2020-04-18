@@ -68,11 +68,6 @@ func SubmitTx(client *Client, method Method, args ...interface{}) error {
 	}
 }
 
-func SubmitAndWait() {
-	// TODO
-
-}
-
 func SubmitSudoTx(client *Client, method Method, args ...interface{}) error {
 	call, err := types.NewCall(client.Meta, string(method), args...)
 	if err != nil {

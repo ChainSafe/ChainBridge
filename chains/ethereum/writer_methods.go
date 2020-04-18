@@ -167,6 +167,6 @@ func (w *Writer) executeProposal(m msg.Message, handler common.Address, data []b
 	)
 
 	if err != nil {
-		w.log.Warn("Failed to execute proposal, maybe already be complete", "err", err)
+		w.log.Warn("Failed to execute proposal, may already be complete", "err", err)
 	}
 }
