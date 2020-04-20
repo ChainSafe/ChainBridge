@@ -31,8 +31,8 @@ func Test_GenericTransferEvent(t *testing.T) {
 
 	ac := createAliceConnection(t)
 	alice := NewListener(ac, "Alice", 1, 0, AliceTestLogger, &blockstore.EmptyStore{})
-	alice.SetRouter(r)
-	err := alice.Start()
+	alice.setRouter(r)
+	err := alice.start()
 	if err != nil {
 		t.Fatal(err)
 	}

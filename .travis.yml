@@ -39,7 +39,7 @@ jobs:
         - set -e
         - make clean && make rebuild-contracts
         - cd solidity && SILENT=true make start-ganache
-        - cd .. && ./scripts/substrate/run_chain_ci.sh
+        - cd .. && RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test
 
     - language: go
@@ -49,5 +49,5 @@ jobs:
         - set -e
         - make clean && make rebuild-contracts
         - cd solidity && SILENT=true make start-ganache
-        - cd .. && ./scripts/substrate/run_chain_ci.sh
+        - cd .. && RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
