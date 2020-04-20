@@ -50,6 +50,8 @@ var accountCommand = cli.Command{
 	Description: "The account command is used to manage the bridge keystore.\n" +
 		"\tTo generate a new account, key type generated is based on the flag passed: chainbridge account generate\n" +
 		"\tTo import a keystore file: chainbridge account import path/to/file\n" +
+		"\tTo import a geth keystore file: chainbridge account import --ethereum path/to/file\n" +
+		"\tTo import a keystore file: chainbridge account import --privateKey private_key\n" +
 		"\tTo list keys: chainbridge account list",
 	Subcommands: []cli.Command{
 		{
@@ -62,12 +64,15 @@ var accountCommand = cli.Command{
 				"\tIf no options are specified, a secp256k1 key will be made.",
 		},
 		{
-			Action:      wrapHandler(handleImportCmd),
-			Name:        "import",
-			Usage:       "import bridge keystore",
-			Flags:       importFlags,
-			Category:    "KEYSTORE",
-			Description: "The import subcommand is used to import a keystore for the bridge.\n",
+			Action:   wrapHandler(handleImportCmd),
+			Name:     "import",
+			Usage:    "import bridge keystore",
+			Flags:    importFlags,
+			Category: "KEYSTORE",
+			Description: "The import subcommand is used to import a keystore for the bridge.\n" +
+				"\tA path to the keystore must be provided\n" +
+				"\tUse --ethereum to import an ethereum keystore from external sources such as geth\n" +
+				"\tUse --privateKey to create a keystore from a provided private key.",
 		},
 		{
 			Action:      wrapHandler(handleListCmd),
