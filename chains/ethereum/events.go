@@ -4,8 +4,6 @@
 package ethereum
 
 import (
-	// "math/big"
-
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -39,13 +37,15 @@ func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonc
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
 
+	recipient := record.DestinationRecipientAddress[:record.LenDestinationRecipientAddress.Int64()]
+
 	return msg.NewNonFungibleTransfer(
 		l.cfg.id,
 		destId,
 		nonce,
 		record.ResourceID,
 		record.TokenID.Bytes(),
-		record.DestinationRecipientAddress,
+		recipient,
 		record.MetaData,
 	)
 }

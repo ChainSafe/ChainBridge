@@ -36,3 +36,10 @@ func IsOwner(t *testing.T, client *ethclient.Client, erc721Contract common.Addre
 		t.Fatalf("address %s does not own %x, %s does", expected.Hex(), tokenId.Bytes(), addr.Hex())
 	}
 }
+
+func FundErc721Handler(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, handler, erc721Contract common.Address, tokenId *big.Int) {
+	err := utils.FundErc721Handler(client, opts, handler, erc721Contract, tokenId)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

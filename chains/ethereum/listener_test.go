@@ -198,7 +198,7 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Contract.Bytes(), 31), uint8(src)))
-	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
+	recipient := BobKp.CommonAddress()
 
 	ethtest.RegisterErc721Resource(t, l.conn.conn, opts, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 

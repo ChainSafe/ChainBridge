@@ -169,10 +169,8 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc721Address := ethtest.DeployMintApproveErc721(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, tokenId)
-
-	t.Skip("Need to implement fund")
-	//ethtest.FundErc721Handler(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, erc721Address, tokenId)
+	erc721Address := ethtest.DeployMintApproveErc721(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, tokenId)
+	ethtest.FundErc721Handler(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, erc721Address, tokenId)
 
 	// Create initial transfer message
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Address.Bytes(), 31), 0))

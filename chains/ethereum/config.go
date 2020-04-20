@@ -72,7 +72,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	}
 
 	if handler, ok := chainCfg.Opts["erc721Handler"]; ok && handler != "" {
-		config.erc20HandlerContract = common.HexToAddress(handler)
+		config.erc721HandlerContract = common.HexToAddress(handler)
 		delete(chainCfg.Opts, "erc721Handler")
 	} else {
 		return nil, fmt.Errorf("must provide opts.erc721Handler field for ethereum config")

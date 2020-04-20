@@ -53,9 +53,9 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 
 	switch m.Type {
 	case msg.FungibleTransfer:
-		return w.createErc20DepositProposal(m)
+		return w.createErc20Proposal(m)
 	case msg.NonFungibleTransfer:
-		panic("not yet implemented")
+		return w.createErc721Proposal(m)
 	case msg.GenericTransfer:
 		return w.createGenericDepositProposal(m)
 	default:

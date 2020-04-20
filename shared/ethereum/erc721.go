@@ -76,29 +76,29 @@ func ApproveErc721(client *ethclient.Client, opts *bind.TransactOpts, contractAd
 	return nil
 }
 
-//func FundErc721Handler(client *ethclient.Client, opts *bind.TransactOpts, handlerAddress, erc721Address common.Address, tokenId *big.Int) error {
-//	err := UpdateNonce(opts, client)
-//	if err != nil {
-//		return err
-//	}
-//
-//	err = ApproveErc721(client, opts, erc721Address, handlerAddress, tokenId)
-//	if err != nil {
-//		return err
-//	}
-//
-//	instance, err := ERC721Handler.NewERC721Handler(handlerAddress, client)
-//	if err != nil {
-//		return err
-//	}
-//
-//	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-//	_, err = instance.FundERC721(opts, erc721Address, opts.From, tokenId)
-//	if err != nil {
-//		return err
-//	}
-//	return nil
-//}
+func FundErc721Handler(client *ethclient.Client, opts *bind.TransactOpts, handlerAddress, erc721Address common.Address, tokenId *big.Int) error {
+	err := UpdateNonce(opts, client)
+	if err != nil {
+		return err
+	}
+
+	err = ApproveErc721(client, opts, erc721Address, handlerAddress, tokenId)
+	if err != nil {
+		return err
+	}
+
+	instance, err := ERC721Handler.NewERC721Handler(handlerAddress, client)
+	if err != nil {
+		return err
+	}
+
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
+	_, err = instance.FundERC721(opts, erc721Address, opts.From, tokenId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func OwnerOf(client *ethclient.Client, erc721Contrct common.Address, tokenId *big.Int) (common.Address, error) {
 	instance, err := ERC721Mintable.NewERC721Mintable(erc721Contrct, client)
