@@ -49,5 +49,6 @@ jobs:
         - set -e
         - make clean && make rebuild-contracts
         - cd solidity && SILENT=true make start-ganache
+        - SILENT=true PORT=8546 make start-ganache
         - cd .. && RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test-e2e

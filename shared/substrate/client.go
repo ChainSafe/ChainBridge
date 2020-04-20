@@ -78,3 +78,39 @@ func (c *Client) InitiateHashTransfer(hash types.Hash, destId msg.ChainId) error
 	log15.Info("Initiating hash transfer", "hash", hash.Hex())
 	return SubmitTx(c, ExampleTransferHashMethod, hash, types.U8(destId))
 }
+
+func (c *Client) NewSudoCall(call types.Call) (types.Call, error) {
+	return types.NewCall(c.Meta, string(SudoMethod), call)
+}
+
+func (c *Client) NewSetRelayerThresholdCall(threshold types.U32) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, string(SetThresholdMethod), threshold)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return c.NewSudoCall(call)
+}
+
+func (c *Client) NewAddRelayerCall(relayer types.AccountID) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, string(AddRelayerMethod), relayer)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return c.NewSudoCall(call)
+}
+
+func (c *Client) NewWhitelistChainCall(id msg.ChainId) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, string(WhitelistChainMethod), id)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return c.NewSudoCall(call)
+}
+
+func (c *Client) NewRegisterResourceCall(id msg.ResourceId, method string) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, string(SetResourceMethod), id, method)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return c.NewSudoCall(call)
+}

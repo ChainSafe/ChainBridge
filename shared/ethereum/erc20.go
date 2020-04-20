@@ -80,7 +80,47 @@ func DeployMintApproveErc20(client *ethclient.Client, opts *bind.TransactOpts, e
 	return erc20Addr, nil
 }
 
-func GetBalance(client *ethclient.Client, erc20Contract, account common.Address) (*big.Int, error) { //nolint:unused,deadcode
+func DeployAndMintErc20(client *ethclient.Client, opts *bind.TransactOpts, amount *big.Int) (common.Address, error) {
+	err := UpdateNonce(opts, client)
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	// Deploy
+	erc20Addr, _, erc20Instance, err := erc20Mintable.DeployERC20Mintable(opts, client)
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	// Mint
+	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
+	_, err = erc20Instance.Mint(opts, opts.From, amount)
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	return erc20Addr, nil
+}
+
+func Erc20Approve(client *ethclient.Client, opts *bind.TransactOpts, erc20Contract, recipient common.Address, amount *big.Int) error {
+	err := UpdateNonce(opts, client)
+	if err != nil {
+		return err
+	}
+
+	instance, err := erc20Mintable.NewERC20Mintable(erc20Contract, client)
+	if err != nil {
+		return err
+	}
+
+	_, err = instance.Approve(opts, recipient, amount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Erc20GetBalance(client *ethclient.Client, erc20Contract, account common.Address) (*big.Int, error) { //nolint:unused,deadcode
 	instance, err := erc20Mintable.NewERC20Mintable(erc20Contract, client)
 	if err != nil {
 		return nil, err
@@ -135,4 +175,50 @@ func FundErc20Handler(client *ethclient.Client, opts *bind.TransactOpts, handler
 		return err
 	}
 	return nil
+}
+
+func Erc20AddMinter(client *ethclient.Client, opts *bind.TransactOpts, erc20Contract, handler common.Address) error {
+	err := UpdateNonce(opts, client)
+	if err != nil {
+		return err
+	}
+
+	instance, err := erc20Mintable.NewERC20Mintable(erc20Contract, client)
+	if err != nil {
+		return err
+	}
+
+	_, err = instance.AddMinter(opts, handler)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Erc20GetAllowance(client *ethclient.Client, erc20Contract, owner, spender common.Address) (*big.Int, error) {
+	instance, err := erc20Mintable.NewERC20Mintable(erc20Contract, client)
+	if err != nil {
+		return nil, err
+	}
+
+	amount, err := instance.Allowance(&bind.CallOpts{}, owner, spender)
+	if err != nil {
+		return nil, err
+	}
+
+	return amount, nil
+}
+
+func Erc20GetResourceId(client *ethclient.Client, handler common.Address, rId msg.ResourceId) (common.Address, error) {
+	instance, err := ERC20Handler.NewERC20Handler(handler, client)
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	addr, err := instance.ResourceIDToTokenContractAddress(&bind.CallOpts{}, rId)
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	return addr, nil
 }
