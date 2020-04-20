@@ -7,7 +7,7 @@
 set -e
 
 echo "Checking Binding"
-git diff --quiet bindings/ 
+git diff --exit-code bindings/ 
 if [ $? -eq 0 ]
 then
   echo "Bindings are good"
