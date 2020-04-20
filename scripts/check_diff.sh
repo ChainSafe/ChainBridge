@@ -10,6 +10,7 @@ echo "Checking Binding"
 git diff --quiet bindings/ 
 if [ $? -eq 0 ]
 then
+  echo "Bindings are good"
   exit 0
 else
   echo "Bindings are out of date"
