@@ -7,7 +7,7 @@
 set -e
 
 echo "Checking Binding"
-if output=$(git diff --porcelain) && [ -z "$output" ]; then
+if output=$(git diff --exit-code ./bindings) && [ -z "$output" ]; then
   echo "Bindings are good"
   exit 0
 else
