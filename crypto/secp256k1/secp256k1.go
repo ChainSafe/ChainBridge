@@ -7,6 +7,7 @@ import (
 	"crypto/ecdsa"
 
 	"github.com/ChainSafe/ChainBridge/crypto"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
 	secp256k1 "github.com/ethereum/go-ethereum/crypto"
@@ -86,6 +87,11 @@ func (kp *Keypair) Decode(in []byte) error {
 // Address returns the Ethereum address format
 func (kp *Keypair) Address() string {
 	return secp256k1.PubkeyToAddress(*kp.public).String()
+}
+
+// CommonAddress returns the Ethereum address in the common.Address Format
+func (kp *Keypair) CommonAddress() common.Address {
+	return secp256k1.PubkeyToAddress(*kp.public)
 }
 
 // PublicKey returns the public key hex encoded

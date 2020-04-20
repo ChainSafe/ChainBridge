@@ -18,7 +18,7 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 )
 
-func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContracts) (*Connection, *Writer) {
+func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContracts) (*Connection, *writer) {
 	conn := newLocalConnection(t, cfg)
 	writer := NewWriter(conn, cfg, newTestLogger(cfg.name))
 
@@ -33,7 +33,7 @@ func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContra
 	writer.cfg.bridgeContract = contracts.BridgeAddress
 	writer.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
-	writer.SetContract(bridge)
+	writer.setContract(bridge)
 
 	return conn, writer
 }
@@ -44,12 +44,12 @@ func TestWriter_start_stop(t *testing.T) {
 
 	writer := NewWriter(conn, aliceTestConfig, TestLogger)
 
-	err := writer.Start()
+	err := writer.start()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = writer.Stop()
+	err = writer.stop()
 	if err != nil {
 		t.Fatal(err)
 	}

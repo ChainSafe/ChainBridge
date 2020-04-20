@@ -39,14 +39,13 @@ install:
 	@echo "  >  \033[32mInstalling bridge...\033[0m "
 	cd cmd/chainbridge && go install
 
-## Fetches solidity contracts and builds go bindings
-setup-contracts:
-	@echo " > \033[32mSetting up ethereum contracts... \033[0m "
-	TARGET=build ./scripts/setup_contracts.sh
-
 setup-sol-cli:
 	@echo " > \033[32mSetting up solidity cli... \033[0m "
 	TARGET=cli-only ./scripts/setup_contracts.sh
+
+rebuild-contracts:
+	rm -rf bindings/ solidity/
+	TARGET=build ./scripts/setup_contracts.sh
 
 ## license: Adds license header to missing files.
 license:
@@ -74,14 +73,16 @@ test-e2e:
 	@echo "  >  \033[32mRunning e2e tests...\033[0m "
 	go test ./e2e
 
-start-eth:
-	SOL_DIR=${SOL_DIR} ./scripts/start_eth.sh
+test-eth:
+	@echo "  >  \033[32mRunning ethereum tests...\033[0m "
+	go test ./chains/ethereum
 
-deploy-eth:
-	SOL_DIR=${SOL_DIR} ./scripts/deploy_eth.sh
+test-sub:
+	@echo "  >  \033[32mRunning substrate tests...\033[0m "
+	go test ./chains/substrate
 
 docker-start:
 	./scripts/docker/start-docker.sh
 
 clean:
-	rm -rf build/ bindings/ solidity/
+	rm -rf build/ solidity/

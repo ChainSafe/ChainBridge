@@ -58,7 +58,7 @@ func (p *proposal) encode() ([]byte, error) {
 	}{p.depositNonce, p.call})
 }
 
-func (w *Writer) createFungibleProposal(m msg.Message) (*proposal, error) {
+func (w *writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 	amount64 := big.NewInt(0).SetBytes(m.Payload[0].([]byte)).Uint64()
 	amount := types.U32(uint32(amount64))
 	recipient := types.NewAccountID(m.Payload[1].([]byte))
@@ -89,7 +89,7 @@ func (w *Writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 	}, nil
 }
 
-func (w *Writer) createGenericProposal(m msg.Message) (*proposal, error) {
+func (w *writer) createGenericProposal(m msg.Message) (*proposal, error) {
 	meta := w.conn.getMetadata()
 	method, err := w.resolveResourceId(m.ResourceId)
 	if err != nil {
