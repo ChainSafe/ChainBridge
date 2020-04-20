@@ -18,7 +18,7 @@
 ## Dependencies
 
 - [Subkey](https://github.com/paritytech/substrate): 
-Required for substrate key management.
+Used for substrate key management. Only required if connecting to a substrate chain.
 
   `make install-subkey`
 
@@ -102,9 +102,9 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
 # Testing
 
-First, run `make setup-sol-cli` to fetch the necessary scripts. Requires `truffle` and `ganache-cli`.
+Unit tests require an ethereum node running on `localhost:8545` and a substrate node running on `localhost:9944`. E2E tests require an additional ethereum node on `localhost:8546`.
 
-Refer to https://github.com/chainsafe/chainbridge-solidity#commands for starting the chain instances
+See [chainbridge-solidity](https://github.com/chainsafe/chainbridge-solidity) and [chainbridge-substrate-chain](https://github.com/ChainSafe/chainbridge-substrate-chain) for more information.
 
 Go tests can be run with:
 ```
@@ -116,12 +116,3 @@ make test-e2e
 make test-eth
 make test-sub
 ```
-
-**Note: Substrate tests are not yet able to be run locally and will fail.**
-
-### Debugging
-Node script errors:
-"Contract not found" or similar:
-- Check the deployments in step 3, do the addresses listed there match with the addresses saved in `solidity/scripts/cli/constants.js`? The constants file should be updated accordingly
-"Sender doesn't have funds" or similar when executing an erc20 transfer:
-- Check that the you ran `--mint <value>` (step 4) if you didn't the account has no tokens to deposit
