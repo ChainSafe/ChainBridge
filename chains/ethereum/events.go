@@ -13,7 +13,7 @@ import (
 
 type evtHandlerFn func(ethtypes.Log) msg.Message
 
-func (l *Listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
+func (l *listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
 	l.log.Debug("Handling deposited event")
 
 	record, err := l.erc20HandlerContract.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
@@ -31,7 +31,7 @@ func (l *Listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce
 	)
 }
 
-func (l *Listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
+func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
 	l.log.Debug("Handling deposited event")
 
 	record, err := l.erc721HandlerContract.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
@@ -50,7 +50,7 @@ func (l *Listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonc
 	)
 }
 
-func (l *Listener) handleGenericDepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
+func (l *listener) handleGenericDepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
 	l.log.Debug("Handling deposited event")
 
 	record, err := l.genericHandlerContract.GetDepositRecord(&bind.CallOpts{}, nonce.Big())

@@ -4,56 +4,17 @@
 package ethereum
 
 import (
-	"math/big"
-	"strings"
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 func TestConnect(t *testing.T) {
 	_ = deployTestContracts(t, aliceTestConfig.id)
 	conn := newLocalConnection(t, aliceTestConfig)
 	conn.Close()
-}
-
-func TestSendTx(t *testing.T) {
-	_ = deployTestContracts(t, aliceTestConfig.id)
-	conn := newLocalConnection(t, aliceTestConfig)
-	defer conn.Close()
-
-	currBlock, err := conn.LatestBlock()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	TestAddr := AliceKp.Address()
-	nonce, err := conn.NonceAt(ethcmn.HexToAddress(TestAddr), currBlock.Number())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	tx := ethtypes.NewTransaction(
-		nonce,
-		ethcmn.Address([20]byte{}),
-		big.NewInt(0),
-		1000000,
-		big.NewInt(1),
-		[]byte{},
-	)
-
-	data, err := tx.MarshalJSON()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = conn.SubmitTx(data)
-	if err != nil && strings.Compare(err.Error(), "insufficient funds for gas * price + value") != 0 {
-		t.Fatal(err)
-	}
 }
 
 func TestSubscribe(t *testing.T) {

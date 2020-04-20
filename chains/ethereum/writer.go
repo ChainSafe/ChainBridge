@@ -13,12 +13,12 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-var _ chains.Writer = &Writer{}
+var _ chains.Writer = &writer{}
 
 // https://github.com/ChainSafe/chainbridge-solidity/blob/b5ed13d9798feb7c340e737a726dd415b8815366/contracts/Bridge.sol#L20
 var PassedStatus uint8 = 2
 
-type Writer struct {
+type writer struct {
 	cfg            Config
 	conn           *Connection
 	bridgeContract *Bridge.Bridge // instance of bound receiver bridgeContract
@@ -27,8 +27,8 @@ type Writer struct {
 	log            log15.Logger
 }
 
-func NewWriter(conn *Connection, cfg *Config, log log15.Logger) *Writer {
-	return &Writer{
+func NewWriter(conn *Connection, cfg *Config, log log15.Logger) *writer {
+	return &writer{
 		cfg:      *cfg,
 		conn:     conn,
 		gasPrice: cfg.gasPrice,
@@ -37,18 +37,18 @@ func NewWriter(conn *Connection, cfg *Config, log log15.Logger) *Writer {
 	}
 }
 
-func (w *Writer) Start() error {
+func (w *writer) start() error {
 	w.log.Debug("Starting ethereum writer...")
 	return nil
 }
 
-func (w *Writer) SetContract(bridge *Bridge.Bridge) {
+func (w *writer) setContract(bridge *Bridge.Bridge) {
 	w.bridgeContract = bridge
 }
 
 // ResolveMessage handles any given message based on type
 // A bool is returned to indicate failure/success, this should be ignored except for within tests.
-func (w *Writer) ResolveMessage(m msg.Message) bool {
+func (w *writer) ResolveMessage(m msg.Message) bool {
 	w.log.Trace("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination)
 
 	switch m.Type {
@@ -64,7 +64,7 @@ func (w *Writer) ResolveMessage(m msg.Message) bool {
 	}
 }
 
-func (w *Writer) Stop() error {
+func (w *writer) stop() error {
 	return nil
 }
 

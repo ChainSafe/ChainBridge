@@ -42,26 +42,26 @@ var (
 var (
 	PasswordFlag = cli.StringFlag{
 		Name:  "password",
-		Usage: "Password used to encrypt the keystore. Used with --generate or --unlock",
+		Usage: "Password used to encrypt the keystore. Used with --generate, --import, or --unlock",
 	}
 	Sr25519Flag = cli.BoolFlag{
 		Name:  "sr25519",
-		Usage: "Specify account type as sr25519",
+		Usage: "Specify account/key type as sr25519.",
 	}
 	Secp256k1Flag = cli.BoolFlag{
 		Name:  "secp256k1",
-		Usage: "Specify account type as secp256k1",
+		Usage: "Specify account/key type as secp256k1.",
 	}
 )
 
 var (
 	EthereumImportFlag = cli.BoolFlag{
 		Name:  "ethereum",
-		Usage: "Import an existing ethereum keystore",
+		Usage: "Import an existing ethereum keystore, such as from geth.",
 	}
 	PrivateKeyFlag = cli.StringFlag{
 		Name:  "privateKey",
-		Usage: "Hex string private key used to generate a keypair.",
+		Usage: "Import a hex representation of a private key into a keystore.",
 	}
 )
 
@@ -69,6 +69,6 @@ var (
 var (
 	TestKeyFlag = cli.StringFlag{
 		Name:  "testkey",
-		Usage: "Applies a predetermined test keystore to the chains",
+		Usage: "Applies a predetermined test keystore to the chains.",
 	}
 )

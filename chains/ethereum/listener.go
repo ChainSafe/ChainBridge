@@ -34,7 +34,7 @@ type ActiveSubscription struct {
 	sub eth.Subscription
 }
 
-type Listener struct {
+type listener struct {
 	cfg                    Config
 	conn                   *Connection
 	subscriptions          map[utils.EventSig]*Subscription
@@ -47,8 +47,8 @@ type Listener struct {
 	blockstore             blockstore.Blockstorer
 }
 
-func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *Listener {
-	return &Listener{
+func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *listener {
+	return &listener{
 		cfg:           *cfg,
 		conn:          conn,
 		subscriptions: make(map[utils.EventSig]*Subscription),
@@ -57,19 +57,19 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.
 	}
 }
 
-func (l *Listener) SetContracts(bridge *Bridge.Bridge, erc20Handler *erc20Handler.ERC20Handler, erc721Handler *erc721Handler.ERC721Handler, genericHandler *centrifugeHandler.CentrifugeAssetHandler) {
+func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *erc20Handler.ERC20Handler, erc721Handler *erc721Handler.ERC721Handler, genericHandler *centrifugeHandler.CentrifugeAssetHandler) {
 	l.bridgeContract = bridge
 	l.erc20HandlerContract = erc20Handler
 	l.erc721HandlerContract = erc721Handler
 	l.genericHandlerContract = genericHandler
 }
 
-func (l *Listener) SetRouter(r chains.Router) {
+func (l *listener) setRouter(r chains.Router) {
 	l.router = r
 }
 
 // Start registers all subscriptions provided by the config
-func (l *Listener) Start() error {
+func (l *listener) start() error {
 	l.log.Debug("Starting listener...")
 
 	go func() {
@@ -84,7 +84,7 @@ func (l *Listener) Start() error {
 
 //pollBlocks continously check the blocks for subscription logs, and sends messages to the router if logs are encountered
 // stops where there are no subscriptions, and sleeps if we are at the current block
-func (l *Listener) pollBlocks() error {
+func (l *listener) pollBlocks() error {
 	l.log.Debug("Polling Blocks...")
 	var latestBlock = l.cfg.startBlock
 	for {
@@ -110,7 +110,7 @@ func (l *Listener) pollBlocks() error {
 	}
 }
 
-func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
+func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
 
 	logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
@@ -157,7 +157,7 @@ func buildQuery(contract ethcommon.Address, sig utils.EventSig, startBlock *big.
 }
 
 // Stop cancels all subscriptions. Must be called before Connection.Stop().
-func (l *Listener) Stop() error {
+func (l *listener) stop() error {
 	for sig := range l.subscriptions {
 		delete(l.subscriptions, sig)
 	}

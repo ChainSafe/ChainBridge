@@ -97,27 +97,6 @@ func (c *Connection) subscribeToEvent(query eth.FilterQuery) (*ActiveSubscriptio
 	}, nil
 }
 
-// SubmitTx submits a transaction to the chain
-// It assumes the input data is an ethtypes.Transaction, marshalled as JSON
-func (c *Connection) SubmitTx(data []byte) error {
-	tx := &ethtypes.Transaction{}
-	err := tx.UnmarshalJSON(data)
-	if err != nil {
-		return err
-	}
-
-	c.log.Debug("Submitting new tx", "to", tx.To(), "nonce", tx.Nonce(), "value", tx.Value(),
-		"gasLimit", tx.Gas(), "gasPrice", tx.GasPrice(), "calldata", tx.Data())
-
-	signedTx, err := ethtypes.SignTx(tx, c.signer, c.kp.PrivateKey())
-	if err != nil {
-		c.log.Trace("Signing tx failed", "err", err)
-		return err
-	}
-
-	return c.conn.SendTransaction(c.ctx, signedTx)
-}
-
 // PendingNonceAt returns the pending nonce of the given account and the given block
 func (c *Connection) PendingNonceAt(account [20]byte) (*Nonce, error) {
 	c.nonceLock.Lock()
