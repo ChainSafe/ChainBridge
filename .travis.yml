@@ -21,25 +21,25 @@ install:
     - sudo apt-get update
     - sudo apt-get install ethereum
     - wget -P $HOME/bin/ https://storage.googleapis.com/centrifuge-dev-public/subkey  && chmod +x $HOME/bin/subkey
+
 jobs:
   include:
     - language: go
       go: 1.13.x
       name: "Golang-ci Linter"
       script:
-        - make clean # Avoid adding license to auto-gen files
-        - make license-check
-        - make setup-contracts
         - make lint
+        - rm -rf bindings/ # Avoid adding license to bindings
+        - make license-check
 
     - language: go
       go: 1.13.x
       name: "Run Go tests"
       script:
         - set -e
-        - make clean && make setup-contracts
-        - SILENT=true make start-eth
-        - ./scripts/substrate/run_chain_ci.sh
+        - make clean && make rebuild-contracts
+        - cd solidity && SILENT=true make start-ganache
+        - cd .. && ./scripts/substrate/run_chain_ci.sh
         - make test
 
     - language: go
@@ -47,7 +47,7 @@ jobs:
       name: "Run Go e2e tests"
       script:
         - set -e
-        - make clean && make setup-contracts
-        - SILENT=true make start-eth
-        - ./scripts/substrate/run_chain_ci.sh
+        - make clean && make rebuild-contracts
+        - cd solidity && SILENT=true make start-ganache
+        - cd .. && ./scripts/substrate/run_chain_ci.sh
         - make test-e2e

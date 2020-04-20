@@ -18,7 +18,7 @@
 ## Dependencies
 
 - [Subkey](https://github.com/paritytech/substrate): 
-Required for substrate key management.
+Used for substrate key management. Only required if connecting to a substrate chain.
 
   `make install-subkey`
 
@@ -102,58 +102,17 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
 # Testing
 
-First, run `make setup-sol-cli` to fetch the necessary scripts. Requires `truffle` and `ganache-cli`.
+Unit tests require an ethereum node running on `localhost:8545` and a substrate node running on `localhost:9944`. E2E tests require an additional ethereum node on `localhost:8546`.
 
-Start a ganache instance with:
-```
-make start-eth
-```
-Go tests can then be run with:
+See [chainbridge-solidity](https://github.com/chainsafe/chainbridge-solidity) and [chainbridge-substrate-chain](https://github.com/ChainSafe/chainbridge-substrate-chain) for more information.
+
+Go tests can be run with:
 ```
 make test
 ```
-
-**Note: Substrate tests are not yet able to be run locally and will fail.**
-
-# Simulations
-## Ethereum ERC20 Transfer
-Start chain 1 (terminal 1)
-```shell
-make setup-sol-cli
-make start-eth
+Go tests for end-to-end, ethereum and substrate can be run with
 ```
-
-Start chain 2 (terminal 2)
-```shell
-PORT=8546 make start-eth
+make test-e2e
+make test-eth
+make test-sub
 ```
-
-Deploy the contracts (terminal 3)
-```shell
-make deploy-eth && PORT=8546 make deploy-eth
-```
-
-Build the latest ChainBridge binary & run it (terminal 3)
-```shell
-make build
-./build/chainbridge --verbosity=trace --config ./scripts/configs/config1.toml --testkey alice
-```
-
-Mint & make a deposit (terminal 4)
-```shell
-node solidity/scripts/cli/index.js mint --value 100
-node solidity/scripts/cli/index.js transfer --dest 1 --value 1
-```
-
-Notes: 
-- Alice (from the keyring) is always the deployer, if that key changes, then the constants will be different
-- Validators start from the keyring and move alphabetically down the list. For example if you specify `--validators 3`, the validators would be `Alice`, `Bob`, `Charlie`. If you said 4, `Dave` would join
-- `--test-only` ensures we don't re-deploy the contracts
-- `--dest` allows you to specify which chain_id you want to the transfer to go to
-
-### Debugging
-Node script errors:
-"Contract not found" or similar:
-- Check the deployments in step 3, do the addresses listed there match with the addresses saved in `solidity/scripts/cli/constants.js`? The constants file should be updated accordingly
-"Sender doesn't have funds" or similar when executing an erc20 transfer:
-- Check that the you ran `--mint <value>` (step 4) if you didn't the account has no tokens to deposit
