@@ -50,5 +50,5 @@ jobs:
         - make clean && make setup-contracts
         - SILENT=true make start-eth
         - SILENT=true PORT=8546 make start-eth
-        - ./scripts/substrate/run_chain_ci.sh
+        - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test-e2e

@@ -73,3 +73,39 @@ func (c *Client) InitiateSubstrateNativeTransfer(amount types.U32, recipient []b
 	log15.Info("Initiating Substrate native transfer", "amount", amount, "recipient", recipient, "destId", destId)
 	return SubmitTx(c, ExampleTransferNativeMethod, amount, recipient, types.U8(destId))
 }
+
+func (c *Client) NewSudoCall(call types.Call) (types.Call, error) {
+	return types.NewCall(c.Meta, string(SudoMethod), call)
+}
+
+func (c *Client) NewSetRelayerThresholdCall(threshold types.U32) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, string(SetThresholdMethod), threshold)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return c.NewSudoCall(call)
+}
+
+func (c *Client) NewAddRelayerCall(relayer types.AccountID) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, string(AddRelayerMethod), relayer)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return c.NewSudoCall(call)
+}
+
+func (c *Client) NewWhitelistChainCall(id msg.ChainId) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, string(WhitelistChainMethod), id)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return c.NewSudoCall(call)
+}
+
+func (c *Client) NewRegisterResourceCall(id msg.ResourceId, method string) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, string(SetResourceMethod), id, method)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return c.NewSudoCall(call)
+}
