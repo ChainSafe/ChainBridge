@@ -55,5 +55,6 @@ jobs:
       script:
         - set -e
         - npm install --global ganache-cli && SILENT=true ./scripts/start_ganache.sh
+        - PORT=8546 SILENT=true ./scripts/start_ganache.sh
         - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
