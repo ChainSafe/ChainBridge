@@ -27,7 +27,7 @@ func (r *MockRouter) Send(message msg.Message) error {
 	return nil
 }
 
-func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedContracts) (*Listener, *MockRouter) {
+func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedContracts) (*listener, *MockRouter) {
 	// Create copy and add deployed contract addresses
 	newConfig := *config
 	newConfig.bridgeContract = contracts.BridgeAddress
@@ -46,10 +46,10 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 
 	router := &MockRouter{msgs: make(chan msg.Message)}
 	listener := NewListener(conn, &newConfig, TestLogger, &blockstore.EmptyStore{})
-	listener.SetContracts(bridgeContract, erc20HandlerContract)
-	listener.SetRouter(router)
+	listener.setContracts(bridgeContract, erc20HandlerContract)
+	listener.setRouter(router)
 	// Start the listener
-	err = listener.Start()
+	err = listener.start()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,12 +61,12 @@ func TestListener_start_stop(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id)
 	l, _ := createTestListener(t, aliceTestConfig, contracts)
 
-	err := l.Start()
+	err := l.start()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = l.Stop()
+	err = l.stop()
 	if err != nil {
 		t.Fatal(err)
 	}

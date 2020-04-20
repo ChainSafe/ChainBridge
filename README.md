@@ -18,7 +18,7 @@
 ## Dependencies
 
 - [Subkey](https://github.com/paritytech/substrate): 
-Required for substrate key management.
+Used for substrate key management. Only required if connecting to a substrate chain.
 
   `make install-subkey`
 
@@ -102,9 +102,9 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
 # Testing
 
-First, run `make setup-sol-cli` to fetch the necessary scripts. Requires `truffle` and `ganache-cli`.
+Unit tests require an ethereum node running on `localhost:8545` and a substrate node running on `localhost:9944`. E2E tests require an additional ethereum node on `localhost:8546`.
 
-Refer to https://github.com/chainsafe/chainbridge-solidity#commands for starting the chain instances
+See [chainbridge-solidity](https://github.com/chainsafe/chainbridge-solidity) and [chainbridge-substrate-chain](https://github.com/ChainSafe/chainbridge-substrate-chain) for more information.
 
 Go tests can be run with:
 ```

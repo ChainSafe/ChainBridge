@@ -4,6 +4,7 @@
 package subtest
 
 import (
+	"math/big"
 	"testing"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -52,5 +53,24 @@ func RegisterResource(t *testing.T, client *utils.Client, id msg.ResourceId, met
 	err := client.RegisterResource(id, method)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func BalanceOf(t *testing.T, client *utils.Client, publicKey []byte) *big.Int {
+	balance, err := utils.BalanceOf(client, publicKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return balance
+}
+
+func AssertBalanceOf(t *testing.T, client *utils.Client, publicKey []byte, expected *big.Int) {
+	current, err := utils.BalanceOf(client, publicKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if expected.Cmp(current) != 0 {
+		t.Fatalf("Balance does not match expected. Expected: %s Got: %s (change %s) \n", expected.String(), current.String(), big.NewInt(0).Sub(current, expected).String())
 	}
 }

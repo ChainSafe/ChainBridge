@@ -46,7 +46,7 @@ jobs:
       script:
         - set -e
         - SILENT=true ./scripts/start-ganache
-        - ./scripts/substrate/run_chain_ci.sh
+        - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test
 
     - language: go
@@ -55,5 +55,5 @@ jobs:
       script:
         - set -e
         - SILENT=true make ./scripts/start-ganache
-        - ./scripts/substrate/run_chain_ci.sh
+        - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test-e2e

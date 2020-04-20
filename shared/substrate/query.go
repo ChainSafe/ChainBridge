@@ -5,6 +5,7 @@ package utils
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -31,10 +32,24 @@ func getConst(meta *types.Metadata, prefix, name string, res interface{}) error 
 	return fmt.Errorf("could not find constant %s.%s", prefix, name)
 }
 
+// QueryConst looks up a constant in the metadata
 func QueryConst(client *Client, prefix, name string, res interface{}) error {
 	err := getConst(client.Meta, prefix, name, res)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+// BalanceOf returns the free balance of an account
+func BalanceOf(client *Client, publicKey []byte) (*big.Int, error) {
+	var acct AccountData
+
+	ok, err := QueryStorage(client, "System", "Account", publicKey, nil, &acct)
+	if err != nil {
+		return nil, err
+	} else if !ok {
+		return nil, fmt.Errorf("no account data")
+	}
+	return acct.Data.Free.Int, nil
 }
