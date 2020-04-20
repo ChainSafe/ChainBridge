@@ -167,6 +167,6 @@ func (w *writer) executeProposal(m msg.Message, handler common.Address, data []b
 	)
 
 	if err != nil {
-		w.log.Error("Failed to submit executeDeposit transaction", "err", err)
+		w.log.Warn("Failed to execute proposal, may already be complete", "err", err)
 	}
 }

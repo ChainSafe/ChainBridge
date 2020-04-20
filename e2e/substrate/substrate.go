@@ -5,6 +5,7 @@ package substrate
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -18,27 +19,32 @@ import (
 
 const TestSubEndpoint = "ws://localhost:9944"
 
-var TestTimeout = time.Second * 60
+var TestTimeout = time.Second * 30
 
 var log = log15.New("e2e", "substrate")
 
 var AliceKp = keystore.TestKeyRing.SubstrateKeys[keystore.AliceKey]
 var BobKp = keystore.TestKeyRing.SubstrateKeys[keystore.BobKey]
+var CharlieKp = keystore.TestKeyRing.SubstrateKeys[keystore.CharlieKey]
+var DaveKp = keystore.TestKeyRing.SubstrateKeys[keystore.DaveKey]
 
 var RelayerSet = []types.AccountID{
 	types.NewAccountID(AliceKp.AsKeyringPair().PublicKey),
 	types.NewAccountID(BobKp.AsKeyringPair().PublicKey),
+	types.NewAccountID(CharlieKp.AsKeyringPair().PublicKey),
 }
 
 func CreateConfig(key string, chain msg.ChainId) *core.ChainConfig {
 	return &core.ChainConfig{
-		Name:         fmt.Sprintf("substrate(%s)", key),
-		Id:           chain,
-		Endpoint:     TestSubEndpoint,
-		From:         "",
-		KeystorePath: key,
-		Insecure:     true,
-		Opts:         map[string]string{},
+		Name:           fmt.Sprintf("substrate(%s)", key),
+		Id:             chain,
+		Endpoint:       TestSubEndpoint,
+		From:           "",
+		KeystorePath:   key,
+		Insecure:       true,
+		FreshStart:     true,
+		BlockstorePath: os.TempDir(),
+		Opts:           map[string]string{},
 	}
 }
 
