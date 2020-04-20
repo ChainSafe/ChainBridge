@@ -44,12 +44,12 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 			w.log.Error("Failed to construct fungible transfer from message", "err", err)
 			return false
 		}
-	//case msg.NonFungibleTransfer:
-	//	prop, err = w.createNonFungibleProposal(m)
-	//	if err != nil {
-	//		w.log.Error("Failed to construct nonfungible transfer from message", "err", err)
-	//		return false
-	//	}
+	case msg.NonFungibleTransfer:
+		prop, err = w.createNonFungibleProposal(m)
+		if err != nil {
+			w.log.Error("Failed to construct nonfungible transfer from message", "err", err)
+			return false
+		}
 	case msg.GenericTransfer:
 		prop, err = w.createGenericProposal(m)
 		if err != nil {

@@ -64,12 +64,17 @@ func (c *Client) RegisterResource(id msg.ResourceId, method string) error {
 	return SubmitSudoTx(c, SetResourceMethod, types.NewBytes32(id), []byte(method))
 }
 
+func (c *Client) InitiateNativeTransfer(amount types.U32, recipient []byte, destId msg.ChainId) error {
+	log15.Info("Initiating Substrate native transfer", "amount", amount, "recipient", recipient, "destId", destId)
+	return SubmitTx(c, ExampleTransferNativeMethod, amount, recipient, types.U8(destId))
+}
+
+func (c *Client) InitiateNonFungibleTransfer(tokenId types.U256, recipient []byte, destId msg.ChainId) error {
+	log15.Info("Initiating Substrate nft transfer", "tokenId", tokenId, "recipient", recipient, "destId", destId)
+	return SubmitTx(c, ExampleTransferErc721Method, recipient, tokenId, types.U8(destId))
+}
+
 func (c *Client) InitiateHashTransfer(hash types.Hash, destId msg.ChainId) error {
 	log15.Info("Initiating hash transfer", "hash", hash.Hex())
 	return SubmitTx(c, ExampleTransferHashMethod, hash, types.U8(destId))
-}
-
-func (c *Client) InitiateSubstrateNativeTransfer(amount types.U32, recipient []byte, destId msg.ChainId) error {
-	log15.Info("Initiating Substrate native transfer", "amount", amount, "recipient", recipient, "destId", destId)
-	return SubmitTx(c, ExampleTransferNativeMethod, amount, recipient, types.U8(destId))
 }

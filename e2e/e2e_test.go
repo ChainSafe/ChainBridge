@@ -159,7 +159,7 @@ func TestSubstrateToErc20(t *testing.T) {
 	for i := 1; i <= numberOfTxs; i++ {
 		ok := t.Run(fmt.Sprintf("Deposit %d", i), func(t *testing.T) {
 			// Execute transfer
-			subtest.InitiateSubstrateNativeTransfer(t, subClient, amount, recipient.Bytes(), EthChainId)
+			subtest.InitiateNativeTransfer(t, subClient, amount, recipient.Bytes(), EthChainId)
 
 			// Wait for event
 			eth.WaitForEthereumEvent(t, ethClient, contracts.BridgeAddress, ethutils.DepositProposalCreated)

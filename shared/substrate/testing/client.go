@@ -34,15 +34,22 @@ func WhitelistChain(t *testing.T, client *utils.Client, id msg.ChainId) {
 	}
 }
 
-func InitiateHashTransfer(t *testing.T, client *utils.Client, hash types.Hash, destId msg.ChainId) {
-	err := client.InitiateHashTransfer(hash, destId)
+func InitiateNativeTransfer(t *testing.T, client *utils.Client, amount types.U32, recipient []byte, destId msg.ChainId) {
+	err := client.InitiateNativeTransfer(amount, recipient, destId)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func InitiateSubstrateNativeTransfer(t *testing.T, client *utils.Client, amount types.U32, recipient []byte, destId msg.ChainId) {
-	err := client.InitiateSubstrateNativeTransfer(amount, recipient, destId)
+func InitiateNonFungibleTransfer(t *testing.T, client *utils.Client, tokenId types.U256, recipient []byte, destId msg.ChainId) {
+	err := client.InitiateNonFungibleTransfer(tokenId, recipient, destId)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func InitiateHashTransfer(t *testing.T, client *utils.Client, hash types.Hash, destId msg.ChainId) {
+	err := client.InitiateHashTransfer(hash, destId)
 	if err != nil {
 		t.Fatal(err)
 	}
