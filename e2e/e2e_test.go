@@ -162,7 +162,6 @@ func Test_ThreeRelayers(t *testing.T) {
 	ethtest.FundErc20Handler(t, ethClientA, optsA, contractsA.ERC20HandlerAddress, erc20ContractAEth, fundAmount)
 	// Approve the handler to transfer tokens for deposits
 	ethtest.Erc20Approve(t, ethClientA, optsA, erc20ContractAEth, contractsA.ERC20HandlerAddress, approveAmount)
-	log.Info("Approved handler", "handler", contractsA.ERC20HandlerAddress, "erc20Contract", erc20ContractAEth, "from", optsA.From)
 	// Register both erc20 contracts with resource IDs
 	ethErc20ResourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20ContractAEth.Bytes(), 31), 0))
 	ethtest.RegisterErc20Resource(t, ethClientA, optsA, contractsA.ERC20HandlerAddress, subErc20ResourceId, erc20ContractASub)
