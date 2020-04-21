@@ -207,7 +207,7 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 		dst,
 		1,
 		resourceId,
-		tokenId.Bytes(),
+		tokenId,
 		recipient.Bytes(),
 		[]byte{},
 	)

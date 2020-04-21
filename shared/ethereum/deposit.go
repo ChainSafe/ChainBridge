@@ -28,10 +28,8 @@ func ConstructErc721DepositData(rId msg.ResourceId, tokenId *big.Int, destRecipi
 	data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(destRecipient))), 32)...) // Length of recipient
 	data = append(data, destRecipient...)                                                  // Recipient
 
-	if len(metadata) > 0 {
-		data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(metadata))), 32)...) // Length of metadata
-		data = append(data, metadata...)                                                  // Metadata
-	}
+	data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(metadata))), 32)...) // Length of metadata
+	data = append(data, metadata...)                                                  // Metadata
 
 	fmt.Printf("Data: %x\n", data)
 	return data

@@ -44,7 +44,7 @@ func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonc
 		destId,
 		nonce,
 		record.ResourceID,
-		record.TokenID.Bytes(),
+		record.TokenID,
 		recipient,
 		record.MetaData,
 	)

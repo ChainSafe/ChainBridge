@@ -175,7 +175,7 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	// Create initial transfer message
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Address.Bytes(), 31), 0))
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
-	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId.Bytes(), recipient, []byte{})
+	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId, recipient, []byte{})
 	ethtest.RegisterErc721Resource(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, resourceId, erc721Address)
 	// Helpful for debugging
 	go watchEvent(alice.conn, utils.DepositProposalCreated)

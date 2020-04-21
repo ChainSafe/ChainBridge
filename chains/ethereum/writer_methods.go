@@ -34,12 +34,9 @@ func constructErc721ProposalData(tokenId []byte, resourceId msg.ResourceId, reci
 	data = append(data, common.LeftPadBytes(recipientLen, 32)...)
 	data = append(data, recipient...)
 
-	// Save 32 bytes if size is 0
-	if len(metadata) > 0 {
-		metadataLen := big.NewInt(int64(len(metadata))).Bytes()
-		data = append(data, common.LeftPadBytes(metadataLen, 32)...)
-		data = append(data, metadata...)
-	}
+	metadataLen := big.NewInt(int64(len(metadata))).Bytes()
+	data = append(data, common.LeftPadBytes(metadataLen, 32)...)
+	data = append(data, metadata...)
 	return data
 }
 
