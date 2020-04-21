@@ -191,7 +191,7 @@ func (_ERC721 *ERC721TransactorRaw) Transact(opts *bind.TransactOpts, method str
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address owner) constant returns(uint256)
+// Solidity: function balanceOf(address owner) view returns(uint256)
 func (_ERC721 *ERC721Caller) BalanceOf(opts *bind.CallOpts, owner common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -203,21 +203,21 @@ func (_ERC721 *ERC721Caller) BalanceOf(opts *bind.CallOpts, owner common.Address
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address owner) constant returns(uint256)
+// Solidity: function balanceOf(address owner) view returns(uint256)
 func (_ERC721 *ERC721Session) BalanceOf(owner common.Address) (*big.Int, error) {
 	return _ERC721.Contract.BalanceOf(&_ERC721.CallOpts, owner)
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address owner) constant returns(uint256)
+// Solidity: function balanceOf(address owner) view returns(uint256)
 func (_ERC721 *ERC721CallerSession) BalanceOf(owner common.Address) (*big.Int, error) {
 	return _ERC721.Contract.BalanceOf(&_ERC721.CallOpts, owner)
 }
 
 // GetApproved is a free data retrieval call binding the contract method 0x081812fc.
 //
-// Solidity: function getApproved(uint256 tokenId) constant returns(address)
+// Solidity: function getApproved(uint256 tokenId) view returns(address)
 func (_ERC721 *ERC721Caller) GetApproved(opts *bind.CallOpts, tokenId *big.Int) (common.Address, error) {
 	var (
 		ret0 = new(common.Address)
@@ -229,21 +229,21 @@ func (_ERC721 *ERC721Caller) GetApproved(opts *bind.CallOpts, tokenId *big.Int) 
 
 // GetApproved is a free data retrieval call binding the contract method 0x081812fc.
 //
-// Solidity: function getApproved(uint256 tokenId) constant returns(address)
+// Solidity: function getApproved(uint256 tokenId) view returns(address)
 func (_ERC721 *ERC721Session) GetApproved(tokenId *big.Int) (common.Address, error) {
 	return _ERC721.Contract.GetApproved(&_ERC721.CallOpts, tokenId)
 }
 
 // GetApproved is a free data retrieval call binding the contract method 0x081812fc.
 //
-// Solidity: function getApproved(uint256 tokenId) constant returns(address)
+// Solidity: function getApproved(uint256 tokenId) view returns(address)
 func (_ERC721 *ERC721CallerSession) GetApproved(tokenId *big.Int) (common.Address, error) {
 	return _ERC721.Contract.GetApproved(&_ERC721.CallOpts, tokenId)
 }
 
 // IsApprovedForAll is a free data retrieval call binding the contract method 0xe985e9c5.
 //
-// Solidity: function isApprovedForAll(address owner, address operator) constant returns(bool)
+// Solidity: function isApprovedForAll(address owner, address operator) view returns(bool)
 func (_ERC721 *ERC721Caller) IsApprovedForAll(opts *bind.CallOpts, owner common.Address, operator common.Address) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -255,21 +255,21 @@ func (_ERC721 *ERC721Caller) IsApprovedForAll(opts *bind.CallOpts, owner common.
 
 // IsApprovedForAll is a free data retrieval call binding the contract method 0xe985e9c5.
 //
-// Solidity: function isApprovedForAll(address owner, address operator) constant returns(bool)
+// Solidity: function isApprovedForAll(address owner, address operator) view returns(bool)
 func (_ERC721 *ERC721Session) IsApprovedForAll(owner common.Address, operator common.Address) (bool, error) {
 	return _ERC721.Contract.IsApprovedForAll(&_ERC721.CallOpts, owner, operator)
 }
 
 // IsApprovedForAll is a free data retrieval call binding the contract method 0xe985e9c5.
 //
-// Solidity: function isApprovedForAll(address owner, address operator) constant returns(bool)
+// Solidity: function isApprovedForAll(address owner, address operator) view returns(bool)
 func (_ERC721 *ERC721CallerSession) IsApprovedForAll(owner common.Address, operator common.Address) (bool, error) {
 	return _ERC721.Contract.IsApprovedForAll(&_ERC721.CallOpts, owner, operator)
 }
 
 // OwnerOf is a free data retrieval call binding the contract method 0x6352211e.
 //
-// Solidity: function ownerOf(uint256 tokenId) constant returns(address)
+// Solidity: function ownerOf(uint256 tokenId) view returns(address)
 func (_ERC721 *ERC721Caller) OwnerOf(opts *bind.CallOpts, tokenId *big.Int) (common.Address, error) {
 	var (
 		ret0 = new(common.Address)
@@ -281,21 +281,21 @@ func (_ERC721 *ERC721Caller) OwnerOf(opts *bind.CallOpts, tokenId *big.Int) (com
 
 // OwnerOf is a free data retrieval call binding the contract method 0x6352211e.
 //
-// Solidity: function ownerOf(uint256 tokenId) constant returns(address)
+// Solidity: function ownerOf(uint256 tokenId) view returns(address)
 func (_ERC721 *ERC721Session) OwnerOf(tokenId *big.Int) (common.Address, error) {
 	return _ERC721.Contract.OwnerOf(&_ERC721.CallOpts, tokenId)
 }
 
 // OwnerOf is a free data retrieval call binding the contract method 0x6352211e.
 //
-// Solidity: function ownerOf(uint256 tokenId) constant returns(address)
+// Solidity: function ownerOf(uint256 tokenId) view returns(address)
 func (_ERC721 *ERC721CallerSession) OwnerOf(tokenId *big.Int) (common.Address, error) {
 	return _ERC721.Contract.OwnerOf(&_ERC721.CallOpts, tokenId)
 }
 
 // SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
 //
-// Solidity: function supportsInterface(bytes4 interfaceId) constant returns(bool)
+// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
 func (_ERC721 *ERC721Caller) SupportsInterface(opts *bind.CallOpts, interfaceId [4]byte) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -307,14 +307,14 @@ func (_ERC721 *ERC721Caller) SupportsInterface(opts *bind.CallOpts, interfaceId 
 
 // SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
 //
-// Solidity: function supportsInterface(bytes4 interfaceId) constant returns(bool)
+// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
 func (_ERC721 *ERC721Session) SupportsInterface(interfaceId [4]byte) (bool, error) {
 	return _ERC721.Contract.SupportsInterface(&_ERC721.CallOpts, interfaceId)
 }
 
 // SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
 //
-// Solidity: function supportsInterface(bytes4 interfaceId) constant returns(bool)
+// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
 func (_ERC721 *ERC721CallerSession) SupportsInterface(interfaceId [4]byte) (bool, error) {
 	return _ERC721.Contract.SupportsInterface(&_ERC721.CallOpts, interfaceId)
 }

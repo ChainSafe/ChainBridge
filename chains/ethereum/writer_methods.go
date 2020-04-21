@@ -25,6 +25,21 @@ func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipi
 	return data
 }
 
+func constructErc721ProposalData(tokenId []byte, resourceId msg.ResourceId, recipient []byte, metadata []byte) []byte {
+	var data []byte
+	data = append(data, common.LeftPadBytes(tokenId, 32)...)
+	data = append(data, resourceId[:]...)
+
+	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
+	data = append(data, common.LeftPadBytes(recipientLen, 32)...)
+	data = append(data, recipient...)
+
+	metadataLen := big.NewInt(int64(len(metadata))).Bytes()
+	data = append(data, common.LeftPadBytes(metadataLen, 32)...)
+	data = append(data, metadata...)
+	return data
+}
+
 // proposalIsComplete returns true if the proposal state is either Passed(2) or Transferred(3)
 func (w *writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
 	prop, err := w.bridgeContract.GetDepositProposal(&bind.CallOpts{}, uint8(destId), nonce.Big())
@@ -35,7 +50,7 @@ func (w *writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
 	return prop.Status >= PassedStatus // Passed (2) or Transferred (3)
 }
 
-func (w *writer) createErc20DepositProposal(m msg.Message) bool {
+func (w *writer) createErc20Proposal(m msg.Message) bool {
 	w.log.Info("Creating erc20 proposal")
 
 	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
@@ -57,6 +72,45 @@ func (w *writer) createErc20DepositProposal(m msg.Message) bool {
 	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
 
 	w.log.Debug("Submitting CreateDepositProposal for ERC20", "source", m.Source, "depositNonce", m.DepositNonce)
+
+	_, err = w.bridgeContract.VoteDepositProposal(
+		opts,
+		uint8(m.Source),
+		m.DepositNonce.Big(),
+		hash,
+	)
+
+	if err != nil {
+		w.log.Error("Failed to submit createDepositProposal transaction", "err", err)
+		return false
+	}
+	nonce.lock.Unlock()
+
+	return true
+}
+
+func (w *writer) createErc721Proposal(m msg.Message) bool {
+	w.log.Info("Creating erc721 proposal")
+
+	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
+	if err != nil {
+		w.log.Error("Failed to build transaction opts", "err", err)
+		return false
+	}
+
+	data := constructErc721ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte), m.Payload[2].([]byte))
+	hash := hash(append(w.cfg.erc721HandlerContract.Bytes(), data...))
+
+	// Check if proposal has passed and skip if Passed or Transferred
+	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
+		w.log.Debug("Proposal complete, not voting")
+		nonce.lock.Unlock()
+		return true
+	}
+	// watch for execution event
+	go w.watchAndExecute(m, w.cfg.erc721HandlerContract, data)
+
+	w.log.Debug("Submitting CreateDepositProposal for ERC721", "source", m.Source, "depositNonce", m.DepositNonce)
 
 	_, err = w.bridgeContract.VoteDepositProposal(
 		opts,

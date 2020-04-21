@@ -4,7 +4,7 @@
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
 CONTRACTS_BRANCH="master"
-CONTRACTS_COMMIT="b5ed13d9798feb7c340e737a726dd415b8815366"
+CONTRACTS_COMMIT="762bb997f4582bd913b495fc0baf2e9d32b414a8"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 
@@ -33,3 +33,4 @@ case $TARGET in
 
 
 esac
+

@@ -4,32 +4,62 @@
 package ethereum
 
 import (
-	// "math/big"
-
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-type evtHandlerFn func(ethtypes.Log) msg.Message
-
-func (l *listener) handleErc20DepositedEvent(event ethtypes.Log) msg.Message {
+func (l *listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
 	l.log.Debug("Handling deposited event")
 
-	destId := event.Topics[1].Big().Uint64()
-	depositNonce := event.Topics[3].Big()
-
-	record, err := l.erc20HandlerContract.ERC20HandlerCaller.GetDepositRecord(&bind.CallOpts{}, depositNonce)
+	record, err := l.erc20HandlerContract.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
 	if err != nil {
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 	}
 
 	return msg.NewFungibleTransfer(
 		l.cfg.id,
-		msg.ChainId(destId),
-		msg.Nonce(depositNonce.Uint64()),
+		destId,
+		nonce,
 		record.Amount,
 		record.ResourceID,
 		record.DestinationRecipientAddress,
+	)
+}
+
+func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
+	l.log.Debug("Handling deposited event")
+
+	record, err := l.erc721HandlerContract.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
+	if err != nil {
+		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
+	}
+
+	recipient := record.DestinationRecipientAddress[:record.LenDestinationRecipientAddress.Int64()]
+
+	return msg.NewNonFungibleTransfer(
+		l.cfg.id,
+		destId,
+		nonce,
+		record.ResourceID,
+		record.TokenID,
+		recipient,
+		record.MetaData,
+	)
+}
+
+func (l *listener) handleGenericDepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
+	l.log.Debug("Handling deposited event")
+
+	record, err := l.genericHandlerContract.GetDepositRecord(&bind.CallOpts{}, nonce.Big())
+	if err != nil {
+		l.log.Error("Error Unpacking Generic Deposit Record", "err", err)
+	}
+
+	return msg.NewGenericTransfer(
+		l.cfg.id,
+		destId,
+		nonce,
+		record.ResourceID,
+		record.MetaDataHash[:],
 	)
 }

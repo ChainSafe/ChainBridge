@@ -49,13 +49,13 @@ func (w *writer) setContract(bridge *Bridge.Bridge) {
 // ResolveMessage handles any given message based on type
 // A bool is returned to indicate failure/success, this should be ignored except for within tests.
 func (w *writer) ResolveMessage(m msg.Message) bool {
-	w.log.Trace("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination)
+	w.log.Trace("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination, "rId", m.ResourceId.Hex())
 
 	switch m.Type {
 	case msg.FungibleTransfer:
-		return w.createErc20DepositProposal(m)
+		return w.createErc20Proposal(m)
 	case msg.NonFungibleTransfer:
-		panic("not yet implemented")
+		return w.createErc721Proposal(m)
 	case msg.GenericTransfer:
 		return w.createGenericDepositProposal(m)
 	default:

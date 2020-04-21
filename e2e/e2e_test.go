@@ -181,9 +181,9 @@ func Test_ThreeRelayers(t *testing.T) {
 	ethtest.RegisterErc20Resource(t, ethClientB, optsB, contractsB.ERC20HandlerAddress, ethErc20ResourceId, erc20ContractBEth)
 
 	// Setup substrate client, register resource, add relayers
-	resources := []subtest.Resource{
-		{Id: subErc20ResourceId, Method: subutils.ExampleTransferMethod},
-		{Id: genericHashResourceId, Method: subutils.ExampleRemarkMethod},
+	resources := map[msg.ResourceId]subutils.Method{
+		subErc20ResourceId:    subutils.ExampleTransferMethod,
+		genericHashResourceId: subutils.ExampleRemarkMethod,
 	}
 	subtest.EnsureInitializedChain(t, subClient, sub.RelayerSet, []msg.ChainId{EthAChainId}, resources, uint32(threshold))
 

@@ -63,6 +63,7 @@ func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContra
 		Opts: map[string]string{
 			"bridge":         contracts.BridgeAddress.String(),
 			"erc20Handler":   contracts.ERC20HandlerAddress.String(),
+			"erc721Handler":  contracts.ERC721HandlerAddress.String(),
 			"genericHandler": contracts.CentrifugeHandlerAddress.String(),
 		},
 	}
@@ -86,6 +87,7 @@ func DeployTestContracts(t *testing.T, endpoint string, id msg.ChainId, threshol
 	fmt.Printf("Relayer Threshold:	%s\n", threshold.String())
 	fmt.Printf("Bridge:				%s\n", contracts.BridgeAddress.Hex())
 	fmt.Printf("Erc20Handler:		%s\n", contracts.ERC20HandlerAddress.Hex())
+	fmt.Printf("Erc721Handler:		%s\n", contracts.ERC721HandlerAddress.Hex())
 	fmt.Printf("Generic/Centrifuge Handler: %s\n", contracts.CentrifugeHandlerAddress.Hex())
 	fmt.Println("====================================================================")
 	return contracts
