@@ -81,3 +81,10 @@ func AssertBalanceOf(t *testing.T, client *utils.Client, publicKey []byte, expec
 		t.Fatalf("Balance does not match expected. Expected: %s Got: %s (change %s) \n", expected.String(), current.String(), big.NewInt(0).Sub(current, expected).String())
 	}
 }
+
+func MintErc721(t *testing.T, client *utils.Client, tokenId *big.Int, metadata []byte, recipient *signature.KeyringPair) {
+	err := client.MintErc721(tokenId, metadata, recipient)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

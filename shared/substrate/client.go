@@ -4,6 +4,9 @@
 package utils
 
 import (
+	"fmt"
+	"math/big"
+
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
@@ -113,4 +116,17 @@ func (c *Client) NewRegisterResourceCall(id msg.ResourceId, method string) (type
 		return types.Call{}, err
 	}
 	return c.NewSudoCall(call)
+}
+
+func (c *Client) LatestBlock() (uint64, error) {
+	head, err := c.Api.RPC.Chain.GetHeaderLatest()
+	if err != nil {
+		return 0, err
+	}
+	return uint64(head.Number), nil
+}
+
+func (c *Client) MintErc721(tokenId *big.Int, metadata []byte, recipient *signature.KeyringPair) error {
+	fmt.Printf("Mint info: account %x amount: %x meta: %x\n", recipient.PublicKey, types.NewU256(*tokenId), types.Bytes(metadata))
+	return SubmitSudoTx(c, Erc721MintMethod, types.NewAccountID(recipient.PublicKey), types.NewU256(*tokenId), types.Bytes(metadata))
 }
