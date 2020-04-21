@@ -90,8 +90,7 @@ func (w *writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 }
 
 func (w *writer) createNonFungibleProposal(m msg.Message) (*proposal, error) {
-	tokenIdU64 := big.NewInt(0).SetBytes(m.Payload[0].([]byte)).Uint64()
-	tokenId := types.U32(uint32(tokenIdU64))
+	tokenId := types.NewU256(*big.NewInt(0).SetBytes(m.Payload[0].([]byte)))
 	recipient := types.NewAccountID(m.Payload[1].([]byte))
 	metadata := types.Bytes(m.Payload[2].([]byte))
 	depositNonce := types.U64(m.DepositNonce)
@@ -132,7 +131,7 @@ func (w *writer) createGenericProposal(m msg.Message) (*proposal, error) {
 	call, err := types.NewCall(
 		&meta,
 		method,
-		m.Payload[0].([]byte),
+		types.NewHash(m.Payload[0].([]byte)),
 	)
 
 	if err != nil {

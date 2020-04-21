@@ -12,7 +12,6 @@ import (
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/author"
-	"github.com/centrifuge/go-substrate-rpc-client/rpc/state"
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -151,21 +150,6 @@ func (c *Connection) watchSubmission(sub *author.ExtrinsicStatusSubscription) er
 			return err
 		}
 	}
-}
-
-// Subscribe creates a subscription to all events.
-func (c *Connection) Subscribe() (*state.StorageSubscription, error) {
-	meta := c.getMetadata()
-	key, err := types.CreateStorageKey(&meta, "System", "Events", nil, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	sub, err := c.api.RPC.State.SubscribeStorageRaw([]types.StorageKey{key})
-	if err != nil {
-		return nil, err
-	}
-	return sub, nil
 }
 
 // queryStorage performs a storage lookup. Arguments may be nil, result must be a pointer.

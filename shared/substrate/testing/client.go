@@ -4,6 +4,7 @@
 package subtest
 
 import (
+	"bytes"
 	"math/big"
 	"testing"
 
@@ -86,5 +87,16 @@ func MintErc721(t *testing.T, client *utils.Client, tokenId *big.Int, metadata [
 	err := client.MintErc721(tokenId, metadata, recipient)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func AssertOwnerOf(t *testing.T, client *utils.Client, tokenId *big.Int, expected types.AccountID) {
+	owner, err := client.OwnerOf(tokenId)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !bytes.Equal(owner[:], expected[:]) {
+		t.Fatalf("Owner does not match for token %s. Got: %x expected: %x", tokenId.String(), owner, expected)
 	}
 }

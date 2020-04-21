@@ -130,3 +130,20 @@ func (c *Client) MintErc721(tokenId *big.Int, metadata []byte, recipient *signat
 	fmt.Printf("Mint info: account %x amount: %x meta: %x\n", recipient.PublicKey, types.NewU256(*tokenId), types.Bytes(metadata))
 	return SubmitSudoTx(c, Erc721MintMethod, types.NewAccountID(recipient.PublicKey), types.NewU256(*tokenId), types.Bytes(metadata))
 }
+
+func (c *Client) OwnerOf(tokenId *big.Int) (types.AccountID, error) {
+	var owner types.AccountID
+	tokenIdBz, err := types.EncodeToBytes(types.NewU256(*tokenId))
+	if err != nil {
+		return types.AccountID{}, err
+	}
+
+	exists, err := QueryStorage(c, "TokenStorage", "TokenOwner", tokenIdBz, nil, &owner)
+	if err != nil {
+		return types.AccountID{}, err
+	}
+	if !exists {
+		return types.AccountID{}, fmt.Errorf("token %s doesn't have an owner", tokenId.String())
+	}
+	return owner, nil
+}

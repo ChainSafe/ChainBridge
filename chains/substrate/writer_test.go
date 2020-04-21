@@ -49,13 +49,13 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 	// Construct the message to initiate a vote
 	amount := big.NewInt(10000000)
 	m := message.NewFungibleTransfer(ForeignChain, ThisChain, 0, amount, rId, context.writerBob.conn.key.PublicKey)
-	// Create a assetTxProposal to help us check results
+	// Create a proposal to help us check results
 	prop, err := context.writerAlice.createFungibleProposal(m)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// First, ensure the assetTxProposal doesn't already exist
+	// First, ensure the proposal doesn't already exist
 	assertProposalState(t, context.writerAlice.conn, prop, nil, false)
 
 	// Submit the message for processing
@@ -95,4 +95,106 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 	} else {
 		t.Logf("Bob's new balance: %s (amount: %s)", bBal.String(), big.NewInt(0).Sub(bBal.Int, startingBalance.Int).String())
 	}
+}
+
+func TestWriter_ResolveMessage_NonFungibleProposal(t *testing.T) {
+	// Setup message and params
+	var rId [32]byte
+	subtest.QueryConst(t, context.client, "Example", "Erc721Id", &rId)
+	// Construct the message to initiate a vote
+	tokenId := big.NewInt(10000000)
+	context.latestInNonce = context.latestInNonce + 1
+	m := message.NewNonFungibleTransfer(ForeignChain, ThisChain, context.latestInNonce, rId, tokenId, context.writerBob.conn.key.PublicKey, []byte{})
+	// Create a proposal to help us check results
+	prop, err := context.writerAlice.createNonFungibleProposal(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// First, ensure the proposal doesn't already exist
+	assertProposalState(t, context.writerAlice.conn, prop, nil, false)
+
+	// Submit the message for processing
+	ok := context.writerAlice.ResolveMessage(m)
+	if !ok {
+		t.Fatal("Alice failed to resolve the message")
+	}
+
+	// Now check if the assetTxProposal exists on chain
+	singleVoteState := &voteState{
+		VotesFor: []types.AccountID{types.NewAccountID(context.writerAlice.conn.key.PublicKey)},
+		Status:   voteStatus{IsActive: true},
+	}
+	assertProposalState(t, context.writerAlice.conn, prop, singleVoteState, true)
+
+	// Submit a second vote from Bob this time
+	ok = context.writerBob.ResolveMessage(m)
+	if !ok {
+		t.Fatalf("Bob failed to resolve the message")
+	}
+
+	// Check the vote was added
+	finalVoteState := &voteState{
+		VotesFor: []types.AccountID{
+			types.NewAccountID(context.writerAlice.conn.key.PublicKey),
+			types.NewAccountID(context.writerBob.conn.key.PublicKey),
+		},
+		Status: voteStatus{IsApproved: true},
+	}
+	assertProposalState(t, context.writerAlice.conn, prop, finalVoteState, true)
+
+	// Assert token exists
+	subtest.AssertOwnerOf(t, context.client, tokenId, types.NewAccountID(BobKey.PublicKey))
+}
+
+func TestWriter_ResolveMessage_GenericProposal(t *testing.T) {
+	var rId [32]byte
+	subtest.QueryConst(t, context.client, "Example", "HashId", &rId)
+	// Construct the message to initiate a vote
+	hash, err := types.NewHashFromHexString("0xcf5e09e29b01f123a9a0de6b128cdd178e2dad4d741ec027ec603075bcb234d4")
+	if err != nil {
+		t.Fatal(err)
+	}
+	context.latestInNonce = context.latestInNonce + 1
+	m := message.NewGenericTransfer(ForeignChain, ThisChain, context.latestInNonce, rId, hash[:])
+	// Create a proposal to help us check results
+	prop, err := context.writerAlice.createGenericProposal(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// First, ensure the proposal doesn't already exist
+	assertProposalState(t, context.writerAlice.conn, prop, nil, false)
+
+	// Submit the message for processing
+	ok := context.writerAlice.ResolveMessage(m)
+	if !ok {
+		t.Fatal("Alice failed to resolve the message")
+	}
+
+	// Now check if the assetTxProposal exists on chain
+	singleVoteState := &voteState{
+		VotesFor: []types.AccountID{types.NewAccountID(context.writerAlice.conn.key.PublicKey)},
+		Status:   voteStatus{IsActive: true},
+	}
+	assertProposalState(t, context.writerAlice.conn, prop, singleVoteState, true)
+
+	// Submit a second vote from Bob this time
+	ok = context.writerBob.ResolveMessage(m)
+	if !ok {
+		t.Fatalf("Bob failed to resolve the message")
+	}
+
+	// Check the vote was added
+	finalVoteState := &voteState{
+		VotesFor: []types.AccountID{
+			types.NewAccountID(context.writerAlice.conn.key.PublicKey),
+			types.NewAccountID(context.writerBob.conn.key.PublicKey),
+		},
+		Status: voteStatus{IsApproved: true},
+	}
+	assertProposalState(t, context.writerAlice.conn, prop, finalVoteState, true)
+
+	// Assert remark event exists
+	subtest.WaitForRemarkEvent(t, context.client, hash)
 }
