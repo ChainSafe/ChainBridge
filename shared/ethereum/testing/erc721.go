@@ -29,7 +29,7 @@ func DeployMintApproveErc721(t *testing.T, client *ethclient.Client, opts *bind.
 	return addr
 }
 
-func IsOwner(t *testing.T, client *ethclient.Client, erc721Contract common.Address, tokenId *big.Int, expected common.Address) {
+func Erc721IsOwner(t *testing.T, client *ethclient.Client, erc721Contract common.Address, tokenId *big.Int, expected common.Address) {
 	addr, err := utils.OwnerOf(client, erc721Contract, tokenId)
 	if err != nil {
 		t.Fatal(err)

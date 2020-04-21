@@ -141,9 +141,9 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 
 	// Create initial transfer message
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0))
-	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
+	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey)
 	amount := big.NewInt(10)
-	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient)
+	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient.Bytes())
 	ethtest.RegisterErc20Resource(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, resourceId, erc20Address)
 	// Helpful for debugging
 	go watchEvent(alice.conn, utils.DepositProposalCreated)
@@ -152,6 +152,8 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	go watchEvent(alice.conn, utils.DepositProposalExecuted)
 
 	routeMessageAndWait(t, alice, bob, m)
+
+	ethtest.Erc20AssertBalance(t, alice.conn.conn, amount, erc20Address, recipient)
 }
 
 func TestCreateAndExecuteErc721Proposal(t *testing.T) {
@@ -174,8 +176,8 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 
 	// Create initial transfer message
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Address.Bytes(), 31), 0))
-	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey).Bytes()
-	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId, recipient, []byte{})
+	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey)
+	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId, recipient.Bytes(), []byte{})
 	ethtest.RegisterErc721Resource(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, resourceId, erc721Address)
 	// Helpful for debugging
 	go watchEvent(alice.conn, utils.DepositProposalCreated)
@@ -184,6 +186,8 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	go watchEvent(alice.conn, utils.DepositProposalExecuted)
 
 	routeMessageAndWait(t, alice, bob, m)
+
+	ethtest.Erc721IsOwner(t, alice.conn.conn, erc721Address, tokenId, recipient)
 }
 
 func TestCreateAndExecuteGenericProposal(t *testing.T) {

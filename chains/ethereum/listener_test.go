@@ -194,7 +194,7 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	tokenId := big.NewInt(99)
 	erc721Contract := ethtest.DeployMintApproveErc721(t, l.conn.conn, opts, contracts.ERC721HandlerAddress, tokenId)
 	log15.Info("Deployed erc721, minted and approved handler", "handler", contracts.ERC721HandlerAddress, "contract", erc721Contract, "tokenId", tokenId.Bytes())
-	ethtest.IsOwner(t, l.conn.conn, erc721Contract, tokenId, opts.From)
+	ethtest.Erc721IsOwner(t, l.conn.conn, erc721Contract, tokenId, opts.From)
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Contract.Bytes(), 31), uint8(src)))
