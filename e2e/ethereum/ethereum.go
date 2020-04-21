@@ -63,7 +63,7 @@ func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContra
 		Opts: map[string]string{
 			"bridge":         contracts.BridgeAddress.String(),
 			"erc20Handler":   contracts.ERC20HandlerAddress.String(),
-			"erc721Handler": contracts.ERC721HandlerAddress.String(),
+			"erc721Handler":  contracts.ERC721HandlerAddress.String(),
 			"genericHandler": contracts.CentrifugeHandlerAddress.String(),
 		},
 	}

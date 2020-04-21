@@ -6,10 +6,7 @@ package ethereum
 import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
-
-type evtHandlerFn func(ethtypes.Log) msg.Message
 
 func (l *listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce) msg.Message {
 	l.log.Debug("Handling deposited event")

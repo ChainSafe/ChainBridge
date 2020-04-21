@@ -24,11 +24,6 @@ import (
 
 var BlockRetryInterval = time.Second * 2
 
-type Subscription struct {
-	signature utils.EventSig
-	handler   evtHandlerFn
-}
-
 type ActiveSubscription struct {
 	ch  <-chan ethtypes.Log
 	sub eth.Subscription
@@ -37,7 +32,6 @@ type ActiveSubscription struct {
 type listener struct {
 	cfg                    Config
 	conn                   *Connection
-	subscriptions          map[utils.EventSig]*Subscription
 	router                 chains.Router
 	bridgeContract         *Bridge.Bridge // instance of bound bridge contract
 	erc20HandlerContract   *erc20Handler.ERC20Handler
@@ -49,11 +43,10 @@ type listener struct {
 
 func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *listener {
 	return &listener{
-		cfg:           *cfg,
-		conn:          conn,
-		subscriptions: make(map[utils.EventSig]*Subscription),
-		log:           log,
-		blockstore:    bs,
+		cfg:        *cfg,
+		conn:       conn,
+		log:        log,
+		blockstore: bs,
 	}
 }
 
@@ -156,10 +149,6 @@ func buildQuery(contract ethcommon.Address, sig utils.EventSig, startBlock *big.
 	return query
 }
 
-// Stop cancels all subscriptions. Must be called before Connection.Stop().
 func (l *listener) stop() error {
-	for sig := range l.subscriptions {
-		delete(l.subscriptions, sig)
-	}
 	return nil
 }

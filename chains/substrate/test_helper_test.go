@@ -84,6 +84,9 @@ func TestMain(m *testing.M) {
 	}
 
 	aliceConn, bobConn, err := createAliceAndBobConnections()
+	if err != nil {
+		panic(err)
+	}
 	l, r, err := newTestListener(client, aliceConn)
 	if err != nil {
 		panic(err)
