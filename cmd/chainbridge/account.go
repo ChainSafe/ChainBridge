@@ -99,12 +99,7 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 			password = []byte(pwdflag)
 		}
 
-		// Hex must not have leading 0x
-		if privkeyflag[0:2] == "0x" {
-			_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag[0:2], password)
-		} else {
-			_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag, password)
-		}
+		_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag, password)
 	}
 
 	if err != nil {
@@ -155,14 +150,18 @@ func importPrivKey(keytype, datadir, key string, password []byte) (string, error
 
 	if keytype == crypto.Sr25519Type {
 		// generate sr25519 keys
-		fmt.Printf("Seed: %s\n", key)
 		kp, err = sr25519.NewKeypairFromSeed(key)
 		if err != nil {
 			return "", fmt.Errorf("could not generate sr25519 keypair from given string: %s", err)
 		}
 	} else if keytype == crypto.Secp256k1Type {
-		// generate secp256k1 keys
-		kp, err = secp256k1.NewKeypairFromString(key)
+		// Hex must not have leading 0x
+		if key[0:2] == "0x" {
+			kp, err = secp256k1.NewKeypairFromString(key[2:])
+		} else {
+			kp, err = secp256k1.NewKeypairFromString(key)
+		}
+
 		if err != nil {
 			return "", fmt.Errorf("could not generate secp256k1 keypair from given string: %s", err)
 		}
