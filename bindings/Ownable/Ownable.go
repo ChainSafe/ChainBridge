@@ -174,7 +174,7 @@ func (_Ownable *OwnableTransactorRaw) Transact(opts *bind.TransactOpts, method s
 
 // IsOwner is a free data retrieval call binding the contract method 0x8f32d59b.
 //
-// Solidity: function isOwner() view returns(bool)
+// Solidity: function isOwner() constant returns(bool)
 func (_Ownable *OwnableCaller) IsOwner(opts *bind.CallOpts) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -186,21 +186,21 @@ func (_Ownable *OwnableCaller) IsOwner(opts *bind.CallOpts) (bool, error) {
 
 // IsOwner is a free data retrieval call binding the contract method 0x8f32d59b.
 //
-// Solidity: function isOwner() view returns(bool)
+// Solidity: function isOwner() constant returns(bool)
 func (_Ownable *OwnableSession) IsOwner() (bool, error) {
 	return _Ownable.Contract.IsOwner(&_Ownable.CallOpts)
 }
 
 // IsOwner is a free data retrieval call binding the contract method 0x8f32d59b.
 //
-// Solidity: function isOwner() view returns(bool)
+// Solidity: function isOwner() constant returns(bool)
 func (_Ownable *OwnableCallerSession) IsOwner() (bool, error) {
 	return _Ownable.Contract.IsOwner(&_Ownable.CallOpts)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() view returns(address)
+// Solidity: function owner() constant returns(address)
 func (_Ownable *OwnableCaller) Owner(opts *bind.CallOpts) (common.Address, error) {
 	var (
 		ret0 = new(common.Address)
@@ -212,14 +212,14 @@ func (_Ownable *OwnableCaller) Owner(opts *bind.CallOpts) (common.Address, error
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() view returns(address)
+// Solidity: function owner() constant returns(address)
 func (_Ownable *OwnableSession) Owner() (common.Address, error) {
 	return _Ownable.Contract.Owner(&_Ownable.CallOpts)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() view returns(address)
+// Solidity: function owner() constant returns(address)
 func (_Ownable *OwnableCallerSession) Owner() (common.Address, error) {
 	return _Ownable.Contract.Owner(&_Ownable.CallOpts)
 }
@@ -417,4 +417,5 @@ func (_Ownable *OwnableFilterer) ParseOwnershipTransferred(log types.Log) (*Owna
 	}
 	return event, nil
 }
+
 var RuntimeBytecode = "0x"

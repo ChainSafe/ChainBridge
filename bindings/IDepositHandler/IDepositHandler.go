@@ -213,4 +213,5 @@ func (_IDepositHandler *IDepositHandlerSession) ExecuteDeposit(data []byte) (*ty
 func (_IDepositHandler *IDepositHandlerTransactorSession) ExecuteDeposit(data []byte) (*types.Transaction, error) {
 	return _IDepositHandler.Contract.ExecuteDeposit(&_IDepositHandler.TransactOpts, data)
 }
+
 var RuntimeBytecode = "0x"

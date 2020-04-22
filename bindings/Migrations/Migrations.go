@@ -191,7 +191,7 @@ func (_Migrations *MigrationsTransactorRaw) Transact(opts *bind.TransactOpts, me
 
 // LastCompletedMigration is a free data retrieval call binding the contract method 0x445df0ac.
 //
-// Solidity: function last_completed_migration() view returns(uint256)
+// Solidity: function last_completed_migration() constant returns(uint256)
 func (_Migrations *MigrationsCaller) LastCompletedMigration(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -203,21 +203,21 @@ func (_Migrations *MigrationsCaller) LastCompletedMigration(opts *bind.CallOpts)
 
 // LastCompletedMigration is a free data retrieval call binding the contract method 0x445df0ac.
 //
-// Solidity: function last_completed_migration() view returns(uint256)
+// Solidity: function last_completed_migration() constant returns(uint256)
 func (_Migrations *MigrationsSession) LastCompletedMigration() (*big.Int, error) {
 	return _Migrations.Contract.LastCompletedMigration(&_Migrations.CallOpts)
 }
 
 // LastCompletedMigration is a free data retrieval call binding the contract method 0x445df0ac.
 //
-// Solidity: function last_completed_migration() view returns(uint256)
+// Solidity: function last_completed_migration() constant returns(uint256)
 func (_Migrations *MigrationsCallerSession) LastCompletedMigration() (*big.Int, error) {
 	return _Migrations.Contract.LastCompletedMigration(&_Migrations.CallOpts)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() view returns(address)
+// Solidity: function owner() constant returns(address)
 func (_Migrations *MigrationsCaller) Owner(opts *bind.CallOpts) (common.Address, error) {
 	var (
 		ret0 = new(common.Address)
@@ -229,14 +229,14 @@ func (_Migrations *MigrationsCaller) Owner(opts *bind.CallOpts) (common.Address,
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() view returns(address)
+// Solidity: function owner() constant returns(address)
 func (_Migrations *MigrationsSession) Owner() (common.Address, error) {
 	return _Migrations.Contract.Owner(&_Migrations.CallOpts)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() view returns(address)
+// Solidity: function owner() constant returns(address)
 func (_Migrations *MigrationsCallerSession) Owner() (common.Address, error) {
 	return _Migrations.Contract.Owner(&_Migrations.CallOpts)
 }
@@ -282,4 +282,5 @@ func (_Migrations *MigrationsSession) Upgrade(new_address common.Address) (*type
 func (_Migrations *MigrationsTransactorSession) Upgrade(new_address common.Address) (*types.Transaction, error) {
 	return _Migrations.Contract.Upgrade(&_Migrations.TransactOpts, new_address)
 }
+
 var RuntimeBytecode = "0x608060405234801561001057600080fd5b506004361061004c5760003560e01c80630900f01014610051578063445df0ac146100955780638da5cb5b146100b3578063fdacd576146100fd575b600080fd5b6100936004803603602081101561006757600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061012b565b005b61009d6101f7565b6040518082815260200191505060405180910390f35b6100bb6101fd565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6101296004803603602081101561011357600080fd5b8101908080359060200190929190505050610222565b005b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614156101f45760008190508073ffffffffffffffffffffffffffffffffffffffff1663fdacd5766001546040518263ffffffff1660e01b815260040180828152602001915050600060405180830381600087803b1580156101da57600080fd5b505af11580156101ee573d6000803e3d6000fd5b50505050505b50565b60015481565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16141561027f57806001819055505b5056fea264697066735822122027f6bee8468ee5e1304fe9dab170b8c15e83f50071326eafe48bae8c628b5b9c64736f6c63430006040033"
