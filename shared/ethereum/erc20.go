@@ -222,3 +222,21 @@ func Erc20GetResourceId(client *ethclient.Client, handler common.Address, rId ms
 
 	return addr, nil
 }
+
+func Erc20SetBurnable(client *ethclient.Client, opts *bind.TransactOpts, handler, erc20Contract common.Address) error {
+	instance, err := ERC20Handler.NewERC20Handler(handler, client)
+	if err != nil {
+		return err
+	}
+
+	err = UpdateNonce(opts, client)
+	if err != nil {
+		return err
+	}
+
+	_, err = instance.SetBurnable(opts, erc20Contract)
+	if err != nil {
+		return err
+	}
+	return nil
+}

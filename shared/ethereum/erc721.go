@@ -32,33 +32,38 @@ func RegisterErc721Resource(client *ethclient.Client, opts *bind.TransactOpts, e
 }
 
 // DeployMintAndApprove deploys a new erc721 contract, mints to the deployer, and approves the erc20 handler to transfer those token.
-func DeployMintApproveErc721(client *ethclient.Client, opts *bind.TransactOpts, erc721Handler common.Address, id *big.Int) (common.Address, error) {
+func DeployErc721(client *ethclient.Client, opts *bind.TransactOpts) (common.Address, error) {
 	err := UpdateNonce(opts, client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
 	// Deploy
-	addr, _, instance, err := ERC721Mintable.DeployERC721Mintable(opts, client)
-	if err != nil {
-		return ZeroAddress, err
-	}
-
-	// Mint
-	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	_, err = instance.Mint(opts, opts.From, id)
-	if err != nil {
-		return ZeroAddress, err
-	}
-
-	// Approve
-	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	_, err = instance.Approve(opts, erc721Handler, id)
+	addr, _, _, err := ERC721Mintable.DeployERC721Mintable(opts, client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
 	return addr, nil
+}
+
+func Erc721Mint(client *ethclient.Client, opts *bind.TransactOpts, erc721Contract common.Address, id *big.Int) error {
+	instance, err := ERC721Mintable.NewERC721Mintable(erc721Contract, client)
+	if err != nil {
+		return err
+	}
+
+	err = UpdateNonce(opts, client)
+	if err != nil {
+		return err
+	}
+
+	// Mint
+	_, err = instance.Mint(opts, opts.From, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func ApproveErc721(client *ethclient.Client, opts *bind.TransactOpts, contractAddress, recipient common.Address, tokenId *big.Int) error {
@@ -103,11 +108,47 @@ func FundErc721Handler(client *ethclient.Client, opts *bind.TransactOpts, handle
 	return nil
 }
 
-func OwnerOf(client *ethclient.Client, erc721Contrct common.Address, tokenId *big.Int) (common.Address, error) {
-	instance, err := ERC721Mintable.NewERC721Mintable(erc721Contrct, client)
+func OwnerOf(client *ethclient.Client, erc721Contract common.Address, tokenId *big.Int) (common.Address, error) {
+	instance, err := ERC721Mintable.NewERC721Mintable(erc721Contract, client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
 	return instance.OwnerOf(&bind.CallOpts{}, tokenId)
+}
+
+func Erc721AddMinter(client *ethclient.Client, opts *bind.TransactOpts, erc721Contract common.Address, minter common.Address) error {
+	instance, err := ERC721Mintable.NewERC721Mintable(erc721Contract, client)
+	if err != nil {
+		return err
+	}
+
+	err = UpdateNonce(opts, client)
+	if err != nil {
+		return err
+	}
+
+	_, err = instance.AddMinter(opts, minter)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Erc721SetBurnable(client *ethclient.Client, opts *bind.TransactOpts, handler, erc721Contract common.Address) error {
+	instance, err := ERC721Handler.NewERC721Handler(handler, client)
+	if err != nil {
+		return err
+	}
+
+	err = UpdateNonce(opts, client)
+	if err != nil {
+		return err
+	}
+
+	_, err = instance.SetBurnable(opts, erc721Contract)
+	if err != nil {
+		return err
+	}
+	return nil
 }

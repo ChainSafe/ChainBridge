@@ -100,3 +100,11 @@ func AssertOwnerOf(t *testing.T, client *utils.Client, tokenId *big.Int, expecte
 		t.Fatalf("Owner does not match for token %s. Got: %x expected: %x", tokenId.String(), owner, expected)
 	}
 }
+
+func GetDepositNonce(t *testing.T, client *utils.Client, chain msg.ChainId) uint64 {
+	count, err := client.GetDepositNonce(chain)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return count
+}

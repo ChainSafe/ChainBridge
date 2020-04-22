@@ -147,3 +147,19 @@ func (c *Client) OwnerOf(tokenId *big.Int) (types.AccountID, error) {
 	}
 	return owner, nil
 }
+
+func (c *Client) GetDepositNonce(chain msg.ChainId) (uint64, error) {
+	var count types.U64
+	chainId, err := types.EncodeToBytes(types.U8(chain))
+	if err != nil {
+		return 0, err
+	}
+	exists, err := QueryStorage(c, "Bridge", "ChainNonces", chainId, nil, &count)
+	if err != nil {
+		return 0, err
+	}
+	if !exists {
+		return 0, nil
+	}
+	return uint64(count), nil
+}

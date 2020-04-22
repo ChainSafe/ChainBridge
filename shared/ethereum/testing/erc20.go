@@ -9,6 +9,7 @@ import (
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
+	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -60,6 +61,7 @@ func Erc20AssertBalance(t *testing.T, client *ethclient.Client, amount *big.Int,
 	if actual.Cmp(amount) != 0 {
 		t.Fatalf("Balance mismatch. Expected: %s Got: %s", amount.String(), actual.String())
 	}
+	log15.Info("Asserted balance", "account", account, "balance", actual, "erc20Contract", erc20Contract.Hex())
 }
 
 func FundErc20Handler(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, handlerAddress, erc20Address common.Address, amount *big.Int) {
@@ -93,6 +95,7 @@ func Erc20AssertAllowance(t *testing.T, client *ethclient.Client, erc20Contract,
 	if amount.Cmp(expected) != 0 {
 		t.Fatalf("Allowance mismatch. Expected: %s Got: %s", expected.String(), amount.String())
 	}
+	log15.Info("Asserted allowance", "owner", owner, "spender", spender, "amount", amount, "erc20Contract", erc20Contract.Hex())
 }
 
 func Erc20AssertResourceMapping(t *testing.T, client *ethclient.Client, handler common.Address, rId msg.ResourceId, expected common.Address) {
@@ -103,5 +106,12 @@ func Erc20AssertResourceMapping(t *testing.T, client *ethclient.Client, handler 
 
 	if addr.String() != expected.String() {
 		t.Fatalf("Unexpected address for resource ID %x. Expected: %x Got: %x", rId, expected, addr)
+	}
+}
+
+func Erc20SetBurnable(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, handler, erc20Contract common.Address) {
+	err := utils.Erc20SetBurnable(client, opts, handler, erc20Contract)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
