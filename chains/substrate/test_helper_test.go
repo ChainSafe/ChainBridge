@@ -4,14 +4,15 @@
 package substrate
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/keystore"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 const TestEndpoint = "ws://127.0.0.1:9944"
@@ -26,58 +27,83 @@ var TestLogLevel = log15.LvlTrace
 var AliceTestLogger = newTestLogger("Alice")
 var BobTestLogger = newTestLogger("Bob")
 
-func TestMain(m *testing.M) {
-	ensureInitializedChain()
-	os.Exit(m.Run())
+var ThisChain msg.ChainId = 1
+var ForeignChain msg.ChainId = 2
+
+var relayers = []types.AccountID{
+	types.NewAccountID(AliceKey.PublicKey),
+	types.NewAccountID(BobKey.PublicKey),
 }
 
-func ensureInitializedChain() {
-	conn := NewConnection(TestEndpoint, "Test", AliceKey, AliceTestLogger)
-	err := conn.Connect()
+var resources = map[msg.ResourceId]utils.Method{
+	// These are taken from the Polkadot JS UI (Chain State -> Constants)
+	msg.ResourceIdFromSlice(hexutil.MustDecode("0x000000000000000000000000000000c76ebe4a02bbc34786d860b355f5a5ce00")): utils.ExampleTransferMethod,
+	msg.ResourceIdFromSlice(hexutil.MustDecode("0x000000000000000000000000000000e389d61c11e5fe32ec1735b3cd38c69501")): utils.ExampleMintErc721Method,
+	msg.ResourceIdFromSlice(hexutil.MustDecode("0x000000000000000000000000000000f44be64d2de895454c3467021928e55e01")): utils.ExampleRemarkMethod,
+}
+
+const relayerThreshold = 2
+
+type testContext struct {
+	client         *utils.Client
+	listener       *listener
+	router         *mockRouter
+	writerAlice    *writer
+	writerBob      *writer
+	latestOutNonce msg.Nonce
+	latestInNonce  msg.Nonce
+}
+
+var context testContext
+
+func TestMain(m *testing.M) {
+	client, err := utils.CreateClient(AliceKey, TestEndpoint)
 	if err != nil {
 		panic(err)
 	}
-	var exists types.Bool
-	_, err = conn.queryStorage("Bridge", "Relayers", AliceKey.PublicKey, nil, &exists)
+
+	var nativeTokenId, hashId, nftTokenId []byte
+
+	err = utils.QueryConst(client, "Example", "NativeTokenId", &nativeTokenId)
 	if err != nil {
 		panic(err)
 	}
 
-	if !exists {
-		meta := conn.getMetadata()
-		call, err := types.NewCall(&meta, string(utils.AddRelayerMethod), types.NewAccountID(AliceKey.PublicKey))
-		if err != nil {
-			panic(err)
-		}
-		err = conn.SubmitTx(utils.SudoMethod, call)
-		if err != nil {
-			panic(err)
-		}
-
-		call, err = types.NewCall(&meta, string(utils.AddRelayerMethod), types.NewAccountID(BobKey.PublicKey))
-		if err != nil {
-			panic(err)
-		}
-		err = conn.SubmitTx(utils.SudoMethod, call)
-		if err != nil {
-			panic(err)
-		}
-
-		call, err = types.NewCall(&meta, string(utils.SetThresholdMethod), types.U32(2))
-		if err != nil {
-			panic(err)
-		}
-		err = conn.SubmitTx(utils.SudoMethod, call)
-		if err != nil {
-			panic(err)
-		}
-
-	} else {
-		fmt.Println("=========================================================================")
-		fmt.Println("! WARNING: Running tests against an initialized chain, results may vary !")
-		fmt.Println("=========================================================================")
+	err = utils.QueryConst(client, "Example", "HashId", &hashId)
+	if err != nil {
+		panic(err)
 	}
-	conn.Close()
+	err = utils.QueryConst(client, "Example", "Erc721Id", &nftTokenId)
+	if err != nil {
+		panic(err)
+	}
+
+	err = utils.InitializeChain(client, relayers, []msg.ChainId{ForeignChain}, resources, relayerThreshold)
+	if err != nil {
+		panic(err)
+	}
+
+	aliceConn, bobConn, err := createAliceAndBobConnections()
+	if err != nil {
+		panic(err)
+	}
+	l, r, err := newTestListener(client, aliceConn)
+	if err != nil {
+		panic(err)
+	}
+	alice := NewWriter(aliceConn, AliceTestLogger)
+	bob := NewWriter(bobConn, BobTestLogger)
+	context = testContext{
+		client:         client,
+		listener:       l,
+		router:         r,
+		writerAlice:    alice,
+		writerBob:      bob,
+		latestInNonce:  0,
+		latestOutNonce: 0,
+	}
+
+	os.Exit(m.Run())
 }
 
 func newTestLogger(name string) log15.Logger {
@@ -87,26 +113,29 @@ func newTestLogger(name string) log15.Logger {
 }
 
 // createAliceConnection creates and starts a connection with the Alice keypair
-func createAliceConnection(t *testing.T) *Connection {
+func createAliceConnection() (*Connection, error) {
 	alice := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger)
 	err := alice.Connect()
 	if err != nil {
-		t.Fatal(err)
+		return nil, err
 	}
-	return alice
+	return alice, err
 }
 
 // createAliceAndBobConnections creates and calls `Connect()` on two Connections using the Alice and Bob keypairs
-func createAliceAndBobConnections(t *testing.T) (*Connection, *Connection) {
-	alice := createAliceConnection(t)
-
-	bob := NewConnection(TestEndpoint, "Bob", BobKey, AliceTestLogger)
-	err := bob.Connect()
+func createAliceAndBobConnections() (*Connection, *Connection, error) {
+	alice, err := createAliceConnection()
 	if err != nil {
-		t.Fatal(err)
+		return nil, nil, err
 	}
 
-	return alice, bob
+	bob := NewConnection(TestEndpoint, "Bob", BobKey, AliceTestLogger)
+	err = bob.Connect()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return alice, bob, nil
 }
 
 // getFreeBalance queries the balance for an account, storing the result in `res`

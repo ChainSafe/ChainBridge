@@ -4,6 +4,7 @@
 package subtest
 
 import (
+	"bytes"
 	"math/big"
 	"testing"
 
@@ -35,15 +36,22 @@ func WhitelistChain(t *testing.T, client *utils.Client, id msg.ChainId) {
 	}
 }
 
-func InitiateHashTransfer(t *testing.T, client *utils.Client, hash types.Hash, destId msg.ChainId) {
-	err := client.InitiateHashTransfer(hash, destId)
+func InitiateNativeTransfer(t *testing.T, client *utils.Client, amount types.U32, recipient []byte, destId msg.ChainId) {
+	err := client.InitiateNativeTransfer(amount, recipient, destId)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func InitiateSubstrateNativeTransfer(t *testing.T, client *utils.Client, amount types.U32, recipient []byte, destId msg.ChainId) {
-	err := client.InitiateSubstrateNativeTransfer(amount, recipient, destId)
+func InitiateNonFungibleTransfer(t *testing.T, client *utils.Client, tokenId types.U256, recipient []byte, destId msg.ChainId) {
+	err := client.InitiateNonFungibleTransfer(tokenId, recipient, destId)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func InitiateHashTransfer(t *testing.T, client *utils.Client, hash types.Hash, destId msg.ChainId) {
+	err := client.InitiateHashTransfer(hash, destId)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,5 +80,23 @@ func AssertBalanceOf(t *testing.T, client *utils.Client, publicKey []byte, expec
 
 	if expected.Cmp(current) != 0 {
 		t.Fatalf("Balance does not match expected. Expected: %s Got: %s (change %s) \n", expected.String(), current.String(), big.NewInt(0).Sub(current, expected).String())
+	}
+}
+
+func MintErc721(t *testing.T, client *utils.Client, tokenId *big.Int, metadata []byte, recipient *signature.KeyringPair) {
+	err := client.MintErc721(tokenId, metadata, recipient)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func AssertOwnerOf(t *testing.T, client *utils.Client, tokenId *big.Int, expected types.AccountID) {
+	owner, err := client.OwnerOf(tokenId)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !bytes.Equal(owner[:], expected[:]) {
+		t.Fatalf("Owner does not match for token %s. Got: %x expected: %x", tokenId.String(), owner, expected)
 	}
 }

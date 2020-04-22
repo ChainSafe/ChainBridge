@@ -191,7 +191,7 @@ func (_Relayer *RelayerTransactorRaw) Transact(opts *bind.TransactOpts, method s
 
 // RelayerProposals is a free data retrieval call binding the contract method 0x30fddf01.
 //
-// Solidity: function _relayerProposals(address ) constant returns(uint8 _action, uint8 _status)
+// Solidity: function _relayerProposals(address ) view returns(uint8 _action, uint8 _status)
 func (_Relayer *RelayerCaller) RelayerProposals(opts *bind.CallOpts, arg0 common.Address) (struct {
 	Action uint8
 	Status uint8
@@ -207,7 +207,7 @@ func (_Relayer *RelayerCaller) RelayerProposals(opts *bind.CallOpts, arg0 common
 
 // RelayerProposals is a free data retrieval call binding the contract method 0x30fddf01.
 //
-// Solidity: function _relayerProposals(address ) constant returns(uint8 _action, uint8 _status)
+// Solidity: function _relayerProposals(address ) view returns(uint8 _action, uint8 _status)
 func (_Relayer *RelayerSession) RelayerProposals(arg0 common.Address) (struct {
 	Action uint8
 	Status uint8
@@ -217,7 +217,7 @@ func (_Relayer *RelayerSession) RelayerProposals(arg0 common.Address) (struct {
 
 // RelayerProposals is a free data retrieval call binding the contract method 0x30fddf01.
 //
-// Solidity: function _relayerProposals(address ) constant returns(uint8 _action, uint8 _status)
+// Solidity: function _relayerProposals(address ) view returns(uint8 _action, uint8 _status)
 func (_Relayer *RelayerCallerSession) RelayerProposals(arg0 common.Address) (struct {
 	Action uint8
 	Status uint8
@@ -227,7 +227,7 @@ func (_Relayer *RelayerCallerSession) RelayerProposals(arg0 common.Address) (str
 
 // RelayerThreshold is a free data retrieval call binding the contract method 0xd7a9cd79.
 //
-// Solidity: function _relayerThreshold() constant returns(uint256)
+// Solidity: function _relayerThreshold() view returns(uint256)
 func (_Relayer *RelayerCaller) RelayerThreshold(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -239,21 +239,21 @@ func (_Relayer *RelayerCaller) RelayerThreshold(opts *bind.CallOpts) (*big.Int, 
 
 // RelayerThreshold is a free data retrieval call binding the contract method 0xd7a9cd79.
 //
-// Solidity: function _relayerThreshold() constant returns(uint256)
+// Solidity: function _relayerThreshold() view returns(uint256)
 func (_Relayer *RelayerSession) RelayerThreshold() (*big.Int, error) {
 	return _Relayer.Contract.RelayerThreshold(&_Relayer.CallOpts)
 }
 
 // RelayerThreshold is a free data retrieval call binding the contract method 0xd7a9cd79.
 //
-// Solidity: function _relayerThreshold() constant returns(uint256)
+// Solidity: function _relayerThreshold() view returns(uint256)
 func (_Relayer *RelayerCallerSession) RelayerThreshold() (*big.Int, error) {
 	return _Relayer.Contract.RelayerThreshold(&_Relayer.CallOpts)
 }
 
 // Relayers is a free data retrieval call binding the contract method 0x5d0db4db.
 //
-// Solidity: function _relayers(address ) constant returns(bool)
+// Solidity: function _relayers(address ) view returns(bool)
 func (_Relayer *RelayerCaller) Relayers(opts *bind.CallOpts, arg0 common.Address) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -265,21 +265,21 @@ func (_Relayer *RelayerCaller) Relayers(opts *bind.CallOpts, arg0 common.Address
 
 // Relayers is a free data retrieval call binding the contract method 0x5d0db4db.
 //
-// Solidity: function _relayers(address ) constant returns(bool)
+// Solidity: function _relayers(address ) view returns(bool)
 func (_Relayer *RelayerSession) Relayers(arg0 common.Address) (bool, error) {
 	return _Relayer.Contract.Relayers(&_Relayer.CallOpts, arg0)
 }
 
 // Relayers is a free data retrieval call binding the contract method 0x5d0db4db.
 //
-// Solidity: function _relayers(address ) constant returns(bool)
+// Solidity: function _relayers(address ) view returns(bool)
 func (_Relayer *RelayerCallerSession) Relayers(arg0 common.Address) (bool, error) {
 	return _Relayer.Contract.Relayers(&_Relayer.CallOpts, arg0)
 }
 
 // TotalRelayers is a free data retrieval call binding the contract method 0x802aabe8.
 //
-// Solidity: function _totalRelayers() constant returns(uint256)
+// Solidity: function _totalRelayers() view returns(uint256)
 func (_Relayer *RelayerCaller) TotalRelayers(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -291,21 +291,21 @@ func (_Relayer *RelayerCaller) TotalRelayers(opts *bind.CallOpts) (*big.Int, err
 
 // TotalRelayers is a free data retrieval call binding the contract method 0x802aabe8.
 //
-// Solidity: function _totalRelayers() constant returns(uint256)
+// Solidity: function _totalRelayers() view returns(uint256)
 func (_Relayer *RelayerSession) TotalRelayers() (*big.Int, error) {
 	return _Relayer.Contract.TotalRelayers(&_Relayer.CallOpts)
 }
 
 // TotalRelayers is a free data retrieval call binding the contract method 0x802aabe8.
 //
-// Solidity: function _totalRelayers() constant returns(uint256)
+// Solidity: function _totalRelayers() view returns(uint256)
 func (_Relayer *RelayerCallerSession) TotalRelayers() (*big.Int, error) {
 	return _Relayer.Contract.TotalRelayers(&_Relayer.CallOpts)
 }
 
 // GetCurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0x5f31b69c.
 //
-// Solidity: function getCurrentRelayerThresholdProposal() constant returns(uint256, address[], address[], uint8)
+// Solidity: function getCurrentRelayerThresholdProposal() view returns(uint256, address[], address[], uint8)
 func (_Relayer *RelayerCaller) GetCurrentRelayerThresholdProposal(opts *bind.CallOpts) (*big.Int, []common.Address, []common.Address, uint8, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -325,21 +325,21 @@ func (_Relayer *RelayerCaller) GetCurrentRelayerThresholdProposal(opts *bind.Cal
 
 // GetCurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0x5f31b69c.
 //
-// Solidity: function getCurrentRelayerThresholdProposal() constant returns(uint256, address[], address[], uint8)
+// Solidity: function getCurrentRelayerThresholdProposal() view returns(uint256, address[], address[], uint8)
 func (_Relayer *RelayerSession) GetCurrentRelayerThresholdProposal() (*big.Int, []common.Address, []common.Address, uint8, error) {
 	return _Relayer.Contract.GetCurrentRelayerThresholdProposal(&_Relayer.CallOpts)
 }
 
 // GetCurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0x5f31b69c.
 //
-// Solidity: function getCurrentRelayerThresholdProposal() constant returns(uint256, address[], address[], uint8)
+// Solidity: function getCurrentRelayerThresholdProposal() view returns(uint256, address[], address[], uint8)
 func (_Relayer *RelayerCallerSession) GetCurrentRelayerThresholdProposal() (*big.Int, []common.Address, []common.Address, uint8, error) {
 	return _Relayer.Contract.GetCurrentRelayerThresholdProposal(&_Relayer.CallOpts)
 }
 
 // GetRelayerProposal is a free data retrieval call binding the contract method 0x0051f244.
 //
-// Solidity: function getRelayerProposal(address proposedAddress) constant returns(uint8, address[], address[], uint8)
+// Solidity: function getRelayerProposal(address proposedAddress) view returns(uint8, address[], address[], uint8)
 func (_Relayer *RelayerCaller) GetRelayerProposal(opts *bind.CallOpts, proposedAddress common.Address) (uint8, []common.Address, []common.Address, uint8, error) {
 	var (
 		ret0 = new(uint8)
@@ -359,14 +359,14 @@ func (_Relayer *RelayerCaller) GetRelayerProposal(opts *bind.CallOpts, proposedA
 
 // GetRelayerProposal is a free data retrieval call binding the contract method 0x0051f244.
 //
-// Solidity: function getRelayerProposal(address proposedAddress) constant returns(uint8, address[], address[], uint8)
+// Solidity: function getRelayerProposal(address proposedAddress) view returns(uint8, address[], address[], uint8)
 func (_Relayer *RelayerSession) GetRelayerProposal(proposedAddress common.Address) (uint8, []common.Address, []common.Address, uint8, error) {
 	return _Relayer.Contract.GetRelayerProposal(&_Relayer.CallOpts, proposedAddress)
 }
 
 // GetRelayerProposal is a free data retrieval call binding the contract method 0x0051f244.
 //
-// Solidity: function getRelayerProposal(address proposedAddress) constant returns(uint8, address[], address[], uint8)
+// Solidity: function getRelayerProposal(address proposedAddress) view returns(uint8, address[], address[], uint8)
 func (_Relayer *RelayerCallerSession) GetRelayerProposal(proposedAddress common.Address) (uint8, []common.Address, []common.Address, uint8, error) {
 	return _Relayer.Contract.GetRelayerProposal(&_Relayer.CallOpts, proposedAddress)
 }

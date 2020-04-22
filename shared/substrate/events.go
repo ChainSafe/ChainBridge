@@ -75,6 +75,33 @@ type EventProposalFailed struct {
 	Topics       []types.Hash
 }
 
+type EventErc721Minted struct {
+	Phase   types.Phase
+	Owner   types.AccountID
+	TokenId types.U256
+	Topics  []types.Hash
+}
+
+type EventErc721Transferred struct {
+	Phase   types.Phase
+	From    types.AccountID
+	To      types.AccountID
+	TokenId types.U256
+	Topics  []types.Hash
+}
+
+type EventErc721Burned struct {
+	Phase   types.Phase
+	TokenId types.AccountID
+	Topics  []types.Hash
+}
+
+type EventExampleRemark struct {
+	Phase  types.Phase
+	Hash   types.Hash
+	Topics []types.Hash
+}
+
 // TODO: This should be added directly to GSRPC
 type EventSudid struct {
 	Phase   types.Phase
@@ -94,5 +121,9 @@ type Events struct {
 	Bridge_ProposalRejected        []EventProposalRejected        //nolint:stylecheck,golint
 	Bridge_ProposalSucceeded       []EventProposalSucceeded       //nolint:stylecheck,golint
 	Bridge_ProposalFailed          []EventProposalFailed          //nolint:stylecheck,golint
+	Erc721_Minted                  []EventErc721Minted            //nolint:stylecheck,golint
+	Erc721_Transferred             []EventErc721Transferred       //nolint:stylecheck,golint
+	Erc721_Burned                  []EventErc721Burned            //nolint:stylecheck,golint
+	Example_Remark                 []EventExampleRemark           //nolint:stylecheck,golint
 	Sudo_Sudid                     []EventSudid                   //nolint:stylecheck,golint
 }

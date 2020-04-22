@@ -9,9 +9,12 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
@@ -21,68 +24,46 @@ import (
 
 var BlockRetryInterval = time.Second * 2
 
-type Subscription struct {
-	signature utils.EventSig
-	handler   evtHandlerFn
-}
-
 type ActiveSubscription struct {
 	ch  <-chan ethtypes.Log
 	sub eth.Subscription
 }
 
 type listener struct {
-	cfg                  Config
-	conn                 *Connection
-	subscriptions        map[utils.EventSig]*Subscription
-	router               chains.Router
-	bridgeContract       *Bridge.Bridge // instance of bound bridge contract
-	erc20HandlerContract *erc20Handler.ERC20Handler
-	log                  log15.Logger
-	blockstore           blockstore.Blockstorer
+	cfg                    Config
+	conn                   *Connection
+	router                 chains.Router
+	bridgeContract         *Bridge.Bridge // instance of bound bridge contract
+	erc20HandlerContract   *erc20Handler.ERC20Handler
+	erc721HandlerContract  *erc721Handler.ERC721Handler
+	genericHandlerContract *centrifugeHandler.CentrifugeAssetHandler
+	log                    log15.Logger
+	blockstore             blockstore.Blockstorer
 }
 
 func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *listener {
 	return &listener{
-		cfg:           *cfg,
-		conn:          conn,
-		subscriptions: make(map[utils.EventSig]*Subscription),
-		log:           log,
-		blockstore:    bs,
+		cfg:        *cfg,
+		conn:       conn,
+		log:        log,
+		blockstore: bs,
 	}
 }
 
-func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *erc20Handler.ERC20Handler) {
+func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *erc20Handler.ERC20Handler, erc721Handler *erc721Handler.ERC721Handler, genericHandler *centrifugeHandler.CentrifugeAssetHandler) {
 	l.bridgeContract = bridge
 	l.erc20HandlerContract = erc20Handler
-
+	l.erc721HandlerContract = erc721Handler
+	l.genericHandlerContract = genericHandler
 }
 
 func (l *listener) setRouter(r chains.Router) {
 	l.router = r
 }
 
-func (l *listener) getSubscriptions() []*Subscription {
-	return []*Subscription{
-		{
-			signature: utils.Deposit,
-			handler:   l.handleErc20DepositedEvent,
-		},
-	}
-
-}
-
-// start registers all subscriptions provided by the config
+// Start registers all subscriptions provided by the config
 func (l *listener) start() error {
 	l.log.Debug("Starting listener...")
-
-	subscriptions := l.getSubscriptions()
-	for _, sub := range subscriptions {
-		err := l.registerEventHandler(sub.signature, sub.handler)
-		if err != nil {
-			l.log.Error("failed to register event handler", "err", err)
-		}
-	}
 
 	go func() {
 		err := l.pollBlocks()
@@ -100,10 +81,6 @@ func (l *listener) pollBlocks() error {
 	l.log.Debug("Polling Blocks...")
 	var latestBlock = l.cfg.startBlock
 	for {
-		if len(l.subscriptions) == 0 {
-			l.log.Debug("No subscriptions, stopping Polling")
-			break
-		}
 		currBlock, err := l.conn.conn.BlockByNumber(l.conn.ctx, nil)
 		if err != nil {
 			return fmt.Errorf("unable to get latest block: %s", err)
@@ -113,7 +90,7 @@ func (l *listener) pollBlocks() error {
 			continue
 		}
 
-		err = l.getEventsForBlock(latestBlock)
+		err = l.getDepositEventsForBlock(latestBlock)
 		if err != nil {
 			return err
 		}
@@ -124,26 +101,35 @@ func (l *listener) pollBlocks() error {
 		}
 		latestBlock.Add(latestBlock, big.NewInt(1))
 	}
-
-	return nil
 }
 
-func (l *listener) getEventsForBlock(latestBlock *big.Int) error {
+func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
+	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
 
-	for evt, sub := range l.subscriptions {
-		query := buildQuery(l.cfg.bridgeContract, evt, latestBlock, latestBlock)
+	logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
+	if err != nil {
+		return fmt.Errorf("unable to Filter Logs: %s", err)
+	}
 
-		logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
-		if err != nil {
-			return fmt.Errorf("Unable to Filter Logs: %s", err)
+	for _, log := range logs {
+		var m msg.Message
+		addr := ethcommon.BytesToAddress(log.Topics[2].Bytes())
+		destId := msg.ChainId(log.Topics[1].Big().Uint64())
+		nonce := msg.Nonce(log.Topics[3].Big().Uint64())
+
+		if addr == l.cfg.erc20HandlerContract {
+			m = l.handleErc20DepositedEvent(destId, nonce)
+		} else if addr == l.cfg.erc721HandlerContract {
+			m = l.handleErc721DepositedEvent(destId, nonce)
+		} else if addr == l.cfg.genericHandlerContract {
+			m = l.handleGenericDepositedEvent(destId, nonce)
+		} else {
+			l.log.Error("Event has unrecognized handler", "handler", addr)
 		}
 
-		for _, log := range logs {
-			m := sub.handler(log)
-			err = l.router.Send(m)
-			if err != nil {
-				l.log.Error("subscription error: cannot send message", "sub", sub, "err", err)
-			}
+		err = l.router.Send(m)
+		if err != nil {
+			l.log.Error("subscription error: failed to route message", "err", err)
 		}
 	}
 
@@ -163,26 +149,6 @@ func buildQuery(contract ethcommon.Address, sig utils.EventSig, startBlock *big.
 	return query
 }
 
-// registerEventHandler creates a subscription for the provided event on the bridge bridgeContract.
-// Handler will be called for every instance of event.
-func (l *listener) registerEventHandler(subscription utils.EventSig, handler evtHandlerFn) error {
-
-	if l.subscriptions[subscription] != nil {
-		return fmt.Errorf("event %s already registered", subscription)
-	}
-	sub := new(Subscription)
-	sub.handler = handler
-	sub.signature = subscription
-	l.subscriptions[subscription] = sub
-
-	return nil
-
-}
-
-// stop cancels all subscriptions. Must be called before Connection.Stop().
 func (l *listener) stop() error {
-	for sig := range l.subscriptions {
-		delete(l.subscriptions, sig)
-	}
 	return nil
 }

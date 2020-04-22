@@ -5,7 +5,9 @@ package ethereum
 
 import (
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
@@ -13,7 +15,6 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 type Chain struct {
@@ -21,14 +22,6 @@ type Chain struct {
 	conn     *Connection       // THe chains connection
 	listener *listener         // The listener of this chain
 	writer   *writer           // The writer of the chain
-}
-
-func createBridgeContract(addr common.Address, conn *Connection) (*bridge.Bridge, error) {
-	return bridge.NewBridge(addr, conn.conn)
-}
-
-func createErc20HandlerContract(addr common.Address, conn *Connection) (*erc20Handler.ERC20Handler, error) {
-	return erc20Handler.NewERC20Handler(addr, conn.conn)
 }
 
 // checkBlockstore queries the blockstore for the latest known block. If the latest block is
@@ -89,18 +82,28 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger) (*Chain, e
 		return nil, err
 	}
 
-	bridgeContract, err := createBridgeContract(cfg.bridgeContract, conn)
+	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.conn)
 	if err != nil {
 		return nil, err
 	}
 
-	erc20HandlerContract, err := createErc20HandlerContract(cfg.erc20HandlerContract, conn)
+	erc20HandlerContract, err := erc20Handler.NewERC20Handler(cfg.erc20HandlerContract, conn.conn)
+	if err != nil {
+		return nil, err
+	}
+
+	erc721HandlerContract, err := erc721Handler.NewERC721Handler(cfg.erc721HandlerContract, conn.conn)
+	if err != nil {
+		return nil, err
+	}
+
+	genericHandlerContract, err := centrifugeHandler.NewCentrifugeAssetHandler(cfg.genericHandlerContract, conn.conn)
 	if err != nil {
 		return nil, err
 	}
 
 	listener := NewListener(conn, cfg, logger, bs)
-	listener.setContracts(bridgeContract, erc20HandlerContract)
+	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 
 	writer := NewWriter(conn, cfg, logger)
 	writer.setContract(bridgeContract)

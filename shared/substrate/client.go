@@ -4,6 +4,9 @@
 package utils
 
 import (
+	"fmt"
+	"math/big"
+
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
@@ -64,14 +67,19 @@ func (c *Client) RegisterResource(id msg.ResourceId, method string) error {
 	return SubmitSudoTx(c, SetResourceMethod, types.NewBytes32(id), []byte(method))
 }
 
+func (c *Client) InitiateNativeTransfer(amount types.U32, recipient []byte, destId msg.ChainId) error {
+	log15.Info("Initiating Substrate native transfer", "amount", amount, "recipient", recipient, "destId", destId)
+	return SubmitTx(c, ExampleTransferNativeMethod, amount, recipient, types.U8(destId))
+}
+
+func (c *Client) InitiateNonFungibleTransfer(tokenId types.U256, recipient []byte, destId msg.ChainId) error {
+	log15.Info("Initiating Substrate nft transfer", "tokenId", tokenId, "recipient", recipient, "destId", destId)
+	return SubmitTx(c, ExampleTransferErc721Method, recipient, tokenId, types.U8(destId))
+}
+
 func (c *Client) InitiateHashTransfer(hash types.Hash, destId msg.ChainId) error {
 	log15.Info("Initiating hash transfer", "hash", hash.Hex())
 	return SubmitTx(c, ExampleTransferHashMethod, hash, types.U8(destId))
-}
-
-func (c *Client) InitiateSubstrateNativeTransfer(amount types.U32, recipient []byte, destId msg.ChainId) error {
-	log15.Info("Initiating Substrate native transfer", "amount", amount, "recipient", recipient, "destId", destId)
-	return SubmitTx(c, ExampleTransferNativeMethod, amount, recipient, types.U8(destId))
 }
 
 func (c *Client) NewSudoCall(call types.Call) (types.Call, error) {
@@ -108,4 +116,34 @@ func (c *Client) NewRegisterResourceCall(id msg.ResourceId, method string) (type
 		return types.Call{}, err
 	}
 	return c.NewSudoCall(call)
+}
+
+func (c *Client) LatestBlock() (uint64, error) {
+	head, err := c.Api.RPC.Chain.GetHeaderLatest()
+	if err != nil {
+		return 0, err
+	}
+	return uint64(head.Number), nil
+}
+
+func (c *Client) MintErc721(tokenId *big.Int, metadata []byte, recipient *signature.KeyringPair) error {
+	fmt.Printf("Mint info: account %x amount: %x meta: %x\n", recipient.PublicKey, types.NewU256(*tokenId), types.Bytes(metadata))
+	return SubmitSudoTx(c, Erc721MintMethod, types.NewAccountID(recipient.PublicKey), types.NewU256(*tokenId), types.Bytes(metadata))
+}
+
+func (c *Client) OwnerOf(tokenId *big.Int) (types.AccountID, error) {
+	var owner types.AccountID
+	tokenIdBz, err := types.EncodeToBytes(types.NewU256(*tokenId))
+	if err != nil {
+		return types.AccountID{}, err
+	}
+
+	exists, err := QueryStorage(c, "TokenStorage", "TokenOwner", tokenIdBz, nil, &owner)
+	if err != nil {
+		return types.AccountID{}, err
+	}
+	if !exists {
+		return types.AccountID{}, fmt.Errorf("token %s doesn't have an owner", tokenId.String())
+	}
+	return owner, nil
 }

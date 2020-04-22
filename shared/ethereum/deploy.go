@@ -166,7 +166,7 @@ func deployERC20Handler(opts *bind.TransactOpts, client *ethclient.Client, bridg
 		return ZeroAddress, err
 	}
 
-	erc20HandlerAddr, _, _, err := erc20Handler.DeployERC20Handler(opts, client, bridgeAddress, [][32]byte{}, []common.Address{})
+	erc20HandlerAddr, _, _, err := erc20Handler.DeployERC20Handler(opts, client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{})
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -180,7 +180,7 @@ func deployERC721Handler(opts *bind.TransactOpts, client *ethclient.Client, brid
 		return ZeroAddress, err
 	}
 
-	erc721HandlerAddr, _, _, err := erc721Handler.DeployERC721Handler(opts, client, bridgeAddress, [][32]byte{}, []common.Address{})
+	erc721HandlerAddr, _, _, err := erc721Handler.DeployERC721Handler(opts, client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{})
 	if err != nil {
 		return ZeroAddress, err
 	}

@@ -52,7 +52,7 @@ func testSubstrateToErc20(t *testing.T, ctx *testContext) {
 
 			// Execute transfer
 			amount := types.NewU32(uint32(i * 5))
-			subtest.InitiateSubstrateNativeTransfer(t, ctx.subClient, amount, recipient.Bytes(), EthAChainId)
+			subtest.InitiateNativeTransfer(t, ctx.subClient, amount, recipient.Bytes(), EthAChainId)
 
 			// Wait for event
 			eth.WaitForEthereumEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, ethutils.DepositProposalCreated, latestEthBlock)
@@ -144,7 +144,7 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			// Execute transfer
 			amount := types.NewU32(uint32(i * 5))
 			log.Info("Submitting transaction", "number", i, "amount", amount)
-			subtest.InitiateSubstrateNativeTransfer(t, ctx.subClient, amount, ethRecipient.Bytes(), EthAChainId)
+			subtest.InitiateNativeTransfer(t, ctx.subClient, amount, ethRecipient.Bytes(), EthAChainId)
 
 			// Wait for event
 			eth.WaitForEthereumEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, ethutils.DepositProposalCreated, latestEthBlock)

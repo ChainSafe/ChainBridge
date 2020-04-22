@@ -36,7 +36,7 @@ func TestConnect_CheckChainId(t *testing.T) {
 	}
 	defer conn.Close()
 
-	err = conn.checkChainId(1)
+	err = conn.checkChainId(ThisChain)
 	if err != nil {
 		t.Fatal(err)
 	}

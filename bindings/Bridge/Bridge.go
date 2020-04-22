@@ -199,7 +199,7 @@ func (_Bridge *BridgeTransactorRaw) Transact(opts *bind.TransactOpts, method str
 
 // ChainID is a free data retrieval call binding the contract method 0xbeab7131.
 //
-// Solidity: function _chainID() constant returns(uint8)
+// Solidity: function _chainID() view returns(uint8)
 func (_Bridge *BridgeCaller) ChainID(opts *bind.CallOpts) (uint8, error) {
 	var (
 		ret0 = new(uint8)
@@ -211,21 +211,21 @@ func (_Bridge *BridgeCaller) ChainID(opts *bind.CallOpts) (uint8, error) {
 
 // ChainID is a free data retrieval call binding the contract method 0xbeab7131.
 //
-// Solidity: function _chainID() constant returns(uint8)
+// Solidity: function _chainID() view returns(uint8)
 func (_Bridge *BridgeSession) ChainID() (uint8, error) {
 	return _Bridge.Contract.ChainID(&_Bridge.CallOpts)
 }
 
 // ChainID is a free data retrieval call binding the contract method 0xbeab7131.
 //
-// Solidity: function _chainID() constant returns(uint8)
+// Solidity: function _chainID() view returns(uint8)
 func (_Bridge *BridgeCallerSession) ChainID() (uint8, error) {
 	return _Bridge.Contract.ChainID(&_Bridge.CallOpts)
 }
 
 // CurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0xfe612136.
 //
-// Solidity: function _currentRelayerThresholdProposal() constant returns(uint256 _proposedValue, uint8 _status)
+// Solidity: function _currentRelayerThresholdProposal() view returns(uint256 _proposedValue, uint8 _status)
 func (_Bridge *BridgeCaller) CurrentRelayerThresholdProposal(opts *bind.CallOpts) (struct {
 	ProposedValue *big.Int
 	Status        uint8
@@ -241,7 +241,7 @@ func (_Bridge *BridgeCaller) CurrentRelayerThresholdProposal(opts *bind.CallOpts
 
 // CurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0xfe612136.
 //
-// Solidity: function _currentRelayerThresholdProposal() constant returns(uint256 _proposedValue, uint8 _status)
+// Solidity: function _currentRelayerThresholdProposal() view returns(uint256 _proposedValue, uint8 _status)
 func (_Bridge *BridgeSession) CurrentRelayerThresholdProposal() (struct {
 	ProposedValue *big.Int
 	Status        uint8
@@ -251,7 +251,7 @@ func (_Bridge *BridgeSession) CurrentRelayerThresholdProposal() (struct {
 
 // CurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0xfe612136.
 //
-// Solidity: function _currentRelayerThresholdProposal() constant returns(uint256 _proposedValue, uint8 _status)
+// Solidity: function _currentRelayerThresholdProposal() view returns(uint256 _proposedValue, uint8 _status)
 func (_Bridge *BridgeCallerSession) CurrentRelayerThresholdProposal() (struct {
 	ProposedValue *big.Int
 	Status        uint8
@@ -261,7 +261,7 @@ func (_Bridge *BridgeCallerSession) CurrentRelayerThresholdProposal() (struct {
 
 // DepositCounts is a free data retrieval call binding the contract method 0x4b0b919d.
 //
-// Solidity: function _depositCounts(uint8 ) constant returns(uint256)
+// Solidity: function _depositCounts(uint8 ) view returns(uint256)
 func (_Bridge *BridgeCaller) DepositCounts(opts *bind.CallOpts, arg0 uint8) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -273,21 +273,21 @@ func (_Bridge *BridgeCaller) DepositCounts(opts *bind.CallOpts, arg0 uint8) (*bi
 
 // DepositCounts is a free data retrieval call binding the contract method 0x4b0b919d.
 //
-// Solidity: function _depositCounts(uint8 ) constant returns(uint256)
+// Solidity: function _depositCounts(uint8 ) view returns(uint256)
 func (_Bridge *BridgeSession) DepositCounts(arg0 uint8) (*big.Int, error) {
 	return _Bridge.Contract.DepositCounts(&_Bridge.CallOpts, arg0)
 }
 
 // DepositCounts is a free data retrieval call binding the contract method 0x4b0b919d.
 //
-// Solidity: function _depositCounts(uint8 ) constant returns(uint256)
+// Solidity: function _depositCounts(uint8 ) view returns(uint256)
 func (_Bridge *BridgeCallerSession) DepositCounts(arg0 uint8) (*big.Int, error) {
 	return _Bridge.Contract.DepositCounts(&_Bridge.CallOpts, arg0)
 }
 
 // DepositProposals is a free data retrieval call binding the contract method 0x7820b222.
 //
-// Solidity: function _depositProposals(uint8 , uint256 ) constant returns(bytes32 _dataHash, uint8 _status)
+// Solidity: function _depositProposals(uint8 , uint256 ) view returns(bytes32 _dataHash, uint8 _status)
 func (_Bridge *BridgeCaller) DepositProposals(opts *bind.CallOpts, arg0 uint8, arg1 *big.Int) (struct {
 	DataHash [32]byte
 	Status   uint8
@@ -303,7 +303,7 @@ func (_Bridge *BridgeCaller) DepositProposals(opts *bind.CallOpts, arg0 uint8, a
 
 // DepositProposals is a free data retrieval call binding the contract method 0x7820b222.
 //
-// Solidity: function _depositProposals(uint8 , uint256 ) constant returns(bytes32 _dataHash, uint8 _status)
+// Solidity: function _depositProposals(uint8 , uint256 ) view returns(bytes32 _dataHash, uint8 _status)
 func (_Bridge *BridgeSession) DepositProposals(arg0 uint8, arg1 *big.Int) (struct {
 	DataHash [32]byte
 	Status   uint8
@@ -313,7 +313,7 @@ func (_Bridge *BridgeSession) DepositProposals(arg0 uint8, arg1 *big.Int) (struc
 
 // DepositProposals is a free data retrieval call binding the contract method 0x7820b222.
 //
-// Solidity: function _depositProposals(uint8 , uint256 ) constant returns(bytes32 _dataHash, uint8 _status)
+// Solidity: function _depositProposals(uint8 , uint256 ) view returns(bytes32 _dataHash, uint8 _status)
 func (_Bridge *BridgeCallerSession) DepositProposals(arg0 uint8, arg1 *big.Int) (struct {
 	DataHash [32]byte
 	Status   uint8
@@ -323,7 +323,7 @@ func (_Bridge *BridgeCallerSession) DepositProposals(arg0 uint8, arg1 *big.Int) 
 
 // DepositRecords is a free data retrieval call binding the contract method 0xce3d5784.
 //
-// Solidity: function _depositRecords(uint8 , uint256 ) constant returns(bytes)
+// Solidity: function _depositRecords(uint8 , uint256 ) view returns(bytes)
 func (_Bridge *BridgeCaller) DepositRecords(opts *bind.CallOpts, arg0 uint8, arg1 *big.Int) ([]byte, error) {
 	var (
 		ret0 = new([]byte)
@@ -335,21 +335,21 @@ func (_Bridge *BridgeCaller) DepositRecords(opts *bind.CallOpts, arg0 uint8, arg
 
 // DepositRecords is a free data retrieval call binding the contract method 0xce3d5784.
 //
-// Solidity: function _depositRecords(uint8 , uint256 ) constant returns(bytes)
+// Solidity: function _depositRecords(uint8 , uint256 ) view returns(bytes)
 func (_Bridge *BridgeSession) DepositRecords(arg0 uint8, arg1 *big.Int) ([]byte, error) {
 	return _Bridge.Contract.DepositRecords(&_Bridge.CallOpts, arg0, arg1)
 }
 
 // DepositRecords is a free data retrieval call binding the contract method 0xce3d5784.
 //
-// Solidity: function _depositRecords(uint8 , uint256 ) constant returns(bytes)
+// Solidity: function _depositRecords(uint8 , uint256 ) view returns(bytes)
 func (_Bridge *BridgeCallerSession) DepositRecords(arg0 uint8, arg1 *big.Int) ([]byte, error) {
 	return _Bridge.Contract.DepositRecords(&_Bridge.CallOpts, arg0, arg1)
 }
 
 // HasVotedOnDepositProposal is a free data retrieval call binding the contract method 0x8ba3706a.
 //
-// Solidity: function _hasVotedOnDepositProposal(uint8 , uint256 , address ) constant returns(bool)
+// Solidity: function _hasVotedOnDepositProposal(uint8 , uint256 , address ) view returns(bool)
 func (_Bridge *BridgeCaller) HasVotedOnDepositProposal(opts *bind.CallOpts, arg0 uint8, arg1 *big.Int, arg2 common.Address) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -361,21 +361,21 @@ func (_Bridge *BridgeCaller) HasVotedOnDepositProposal(opts *bind.CallOpts, arg0
 
 // HasVotedOnDepositProposal is a free data retrieval call binding the contract method 0x8ba3706a.
 //
-// Solidity: function _hasVotedOnDepositProposal(uint8 , uint256 , address ) constant returns(bool)
+// Solidity: function _hasVotedOnDepositProposal(uint8 , uint256 , address ) view returns(bool)
 func (_Bridge *BridgeSession) HasVotedOnDepositProposal(arg0 uint8, arg1 *big.Int, arg2 common.Address) (bool, error) {
 	return _Bridge.Contract.HasVotedOnDepositProposal(&_Bridge.CallOpts, arg0, arg1, arg2)
 }
 
 // HasVotedOnDepositProposal is a free data retrieval call binding the contract method 0x8ba3706a.
 //
-// Solidity: function _hasVotedOnDepositProposal(uint8 , uint256 , address ) constant returns(bool)
+// Solidity: function _hasVotedOnDepositProposal(uint8 , uint256 , address ) view returns(bool)
 func (_Bridge *BridgeCallerSession) HasVotedOnDepositProposal(arg0 uint8, arg1 *big.Int, arg2 common.Address) (bool, error) {
 	return _Bridge.Contract.HasVotedOnDepositProposal(&_Bridge.CallOpts, arg0, arg1, arg2)
 }
 
 // RelayerContract is a free data retrieval call binding the contract method 0xea059625.
 //
-// Solidity: function _relayerContract() constant returns(address)
+// Solidity: function _relayerContract() view returns(address)
 func (_Bridge *BridgeCaller) RelayerContract(opts *bind.CallOpts) (common.Address, error) {
 	var (
 		ret0 = new(common.Address)
@@ -387,21 +387,21 @@ func (_Bridge *BridgeCaller) RelayerContract(opts *bind.CallOpts) (common.Addres
 
 // RelayerContract is a free data retrieval call binding the contract method 0xea059625.
 //
-// Solidity: function _relayerContract() constant returns(address)
+// Solidity: function _relayerContract() view returns(address)
 func (_Bridge *BridgeSession) RelayerContract() (common.Address, error) {
 	return _Bridge.Contract.RelayerContract(&_Bridge.CallOpts)
 }
 
 // RelayerContract is a free data retrieval call binding the contract method 0xea059625.
 //
-// Solidity: function _relayerContract() constant returns(address)
+// Solidity: function _relayerContract() view returns(address)
 func (_Bridge *BridgeCallerSession) RelayerContract() (common.Address, error) {
 	return _Bridge.Contract.RelayerContract(&_Bridge.CallOpts)
 }
 
 // RelayerThreshold is a free data retrieval call binding the contract method 0xd7a9cd79.
 //
-// Solidity: function _relayerThreshold() constant returns(uint256)
+// Solidity: function _relayerThreshold() view returns(uint256)
 func (_Bridge *BridgeCaller) RelayerThreshold(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -413,21 +413,21 @@ func (_Bridge *BridgeCaller) RelayerThreshold(opts *bind.CallOpts) (*big.Int, er
 
 // RelayerThreshold is a free data retrieval call binding the contract method 0xd7a9cd79.
 //
-// Solidity: function _relayerThreshold() constant returns(uint256)
+// Solidity: function _relayerThreshold() view returns(uint256)
 func (_Bridge *BridgeSession) RelayerThreshold() (*big.Int, error) {
 	return _Bridge.Contract.RelayerThreshold(&_Bridge.CallOpts)
 }
 
 // RelayerThreshold is a free data retrieval call binding the contract method 0xd7a9cd79.
 //
-// Solidity: function _relayerThreshold() constant returns(uint256)
+// Solidity: function _relayerThreshold() view returns(uint256)
 func (_Bridge *BridgeCallerSession) RelayerThreshold() (*big.Int, error) {
 	return _Bridge.Contract.RelayerThreshold(&_Bridge.CallOpts)
 }
 
 // TotalDepositProposals is a free data retrieval call binding the contract method 0x06899ca4.
 //
-// Solidity: function _totalDepositProposals() constant returns(uint256)
+// Solidity: function _totalDepositProposals() view returns(uint256)
 func (_Bridge *BridgeCaller) TotalDepositProposals(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -439,21 +439,21 @@ func (_Bridge *BridgeCaller) TotalDepositProposals(opts *bind.CallOpts) (*big.In
 
 // TotalDepositProposals is a free data retrieval call binding the contract method 0x06899ca4.
 //
-// Solidity: function _totalDepositProposals() constant returns(uint256)
+// Solidity: function _totalDepositProposals() view returns(uint256)
 func (_Bridge *BridgeSession) TotalDepositProposals() (*big.Int, error) {
 	return _Bridge.Contract.TotalDepositProposals(&_Bridge.CallOpts)
 }
 
 // TotalDepositProposals is a free data retrieval call binding the contract method 0x06899ca4.
 //
-// Solidity: function _totalDepositProposals() constant returns(uint256)
+// Solidity: function _totalDepositProposals() view returns(uint256)
 func (_Bridge *BridgeCallerSession) TotalDepositProposals() (*big.Int, error) {
 	return _Bridge.Contract.TotalDepositProposals(&_Bridge.CallOpts)
 }
 
 // GetCurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0x5f31b69c.
 //
-// Solidity: function getCurrentRelayerThresholdProposal() constant returns(uint256, address[], address[], uint8)
+// Solidity: function getCurrentRelayerThresholdProposal() view returns(uint256, address[], address[], uint8)
 func (_Bridge *BridgeCaller) GetCurrentRelayerThresholdProposal(opts *bind.CallOpts) (*big.Int, []common.Address, []common.Address, uint8, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -473,21 +473,21 @@ func (_Bridge *BridgeCaller) GetCurrentRelayerThresholdProposal(opts *bind.CallO
 
 // GetCurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0x5f31b69c.
 //
-// Solidity: function getCurrentRelayerThresholdProposal() constant returns(uint256, address[], address[], uint8)
+// Solidity: function getCurrentRelayerThresholdProposal() view returns(uint256, address[], address[], uint8)
 func (_Bridge *BridgeSession) GetCurrentRelayerThresholdProposal() (*big.Int, []common.Address, []common.Address, uint8, error) {
 	return _Bridge.Contract.GetCurrentRelayerThresholdProposal(&_Bridge.CallOpts)
 }
 
 // GetCurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0x5f31b69c.
 //
-// Solidity: function getCurrentRelayerThresholdProposal() constant returns(uint256, address[], address[], uint8)
+// Solidity: function getCurrentRelayerThresholdProposal() view returns(uint256, address[], address[], uint8)
 func (_Bridge *BridgeCallerSession) GetCurrentRelayerThresholdProposal() (*big.Int, []common.Address, []common.Address, uint8, error) {
 	return _Bridge.Contract.GetCurrentRelayerThresholdProposal(&_Bridge.CallOpts)
 }
 
 // GetDepositProposal is a free data retrieval call binding the contract method 0xaca18b26.
 //
-// Solidity: function getDepositProposal(uint8 destinationChainID, uint256 depositNonce) constant returns(BridgeDepositProposal)
+// Solidity: function getDepositProposal(uint8 destinationChainID, uint256 depositNonce) view returns(BridgeDepositProposal)
 func (_Bridge *BridgeCaller) GetDepositProposal(opts *bind.CallOpts, destinationChainID uint8, depositNonce *big.Int) (BridgeDepositProposal, error) {
 	var (
 		ret0 = new(BridgeDepositProposal)
@@ -499,14 +499,14 @@ func (_Bridge *BridgeCaller) GetDepositProposal(opts *bind.CallOpts, destination
 
 // GetDepositProposal is a free data retrieval call binding the contract method 0xaca18b26.
 //
-// Solidity: function getDepositProposal(uint8 destinationChainID, uint256 depositNonce) constant returns(BridgeDepositProposal)
+// Solidity: function getDepositProposal(uint8 destinationChainID, uint256 depositNonce) view returns(BridgeDepositProposal)
 func (_Bridge *BridgeSession) GetDepositProposal(destinationChainID uint8, depositNonce *big.Int) (BridgeDepositProposal, error) {
 	return _Bridge.Contract.GetDepositProposal(&_Bridge.CallOpts, destinationChainID, depositNonce)
 }
 
 // GetDepositProposal is a free data retrieval call binding the contract method 0xaca18b26.
 //
-// Solidity: function getDepositProposal(uint8 destinationChainID, uint256 depositNonce) constant returns(BridgeDepositProposal)
+// Solidity: function getDepositProposal(uint8 destinationChainID, uint256 depositNonce) view returns(BridgeDepositProposal)
 func (_Bridge *BridgeCallerSession) GetDepositProposal(destinationChainID uint8, depositNonce *big.Int) (BridgeDepositProposal, error) {
 	return _Bridge.Contract.GetDepositProposal(&_Bridge.CallOpts, destinationChainID, depositNonce)
 }

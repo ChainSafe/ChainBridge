@@ -28,6 +28,7 @@ type Config struct {
 	freshStart             bool // Disables loading from blockstore at start
 	bridgeContract         common.Address
 	erc20HandlerContract   common.Address
+	erc721HandlerContract  common.Address
 	genericHandlerContract common.Address
 	gasLimit               *big.Int
 	gasPrice               *big.Int
@@ -48,6 +49,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		freshStart:             chainCfg.FreshStart,
 		bridgeContract:         utils.ZeroAddress,
 		erc20HandlerContract:   utils.ZeroAddress,
+		erc721HandlerContract:  utils.ZeroAddress,
 		genericHandlerContract: utils.ZeroAddress,
 		gasLimit:               big.NewInt(DefaultGasLimit),
 		gasPrice:               big.NewInt(DefaultGasPrice),
@@ -67,6 +69,13 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		delete(chainCfg.Opts, "erc20Handler")
 	} else {
 		return nil, fmt.Errorf("must provide opts.erc20Handler field for ethereum config")
+	}
+
+	if handler, ok := chainCfg.Opts["erc721Handler"]; ok && handler != "" {
+		config.erc721HandlerContract = common.HexToAddress(handler)
+		delete(chainCfg.Opts, "erc721Handler")
+	} else {
+		return nil, fmt.Errorf("must provide opts.erc721Handler field for ethereum config")
 	}
 
 	if handler, ok := chainCfg.Opts["genericHandler"]; ok && handler != "" {

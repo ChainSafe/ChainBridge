@@ -105,7 +105,7 @@ func nonFungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message
 		msg.ChainId(evt.Destination),
 		msg.Nonce(evt.DepositNonce),
 		msg.ResourceId(evt.ResourceId),
-		evt.TokenId,
+		big.NewInt(0).SetBytes(evt.TokenId[:]),
 		evt.Recipient,
 		evt.Metadata,
 	), nil
