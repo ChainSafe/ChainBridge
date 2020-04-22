@@ -39,7 +39,7 @@ jobs:
         - set -e
         - make rebuild-contracts && make clean
         - go fmt ./...
-        - git diff --exit-code ./bindings
+        - ./scripts/check_diff.sh
 
     - language: go
       go: 1.13.x

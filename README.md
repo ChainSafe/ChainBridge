@@ -117,12 +117,3 @@ make test-e2e
 make test-eth
 make test-sub
 ```
-
-**Note: Substrate tests are not yet able to be run locally and will fail.**
-
-### Debugging
-Node script errors:
-"Contract not found" or similar:
-- Check the deployments in step 3, do the addresses listed there match with the addresses saved in `solidity/scripts/cli/constants.js`? The constants file should be updated accordingly
-"Sender doesn't have funds" or similar when executing an erc20 transfer:
-- Check that the you ran `--mint <value>` (step 4) if you didn't the account has no tokens to deposit
