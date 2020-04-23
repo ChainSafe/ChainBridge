@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
-CONTRACTS_BRANCH="david/mint-and-burn"
-CONTRACTS_COMMIT="d6f1b4a2e38027987c5acfc984ec8c9d9ee30ad2"
+CONTRACTS_BRANCH="master"
+CONTRACTS_COMMIT="2dd9b2aa07bbb93e21abc228ec99a884d0466fee"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 
