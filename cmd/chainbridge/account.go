@@ -73,43 +73,37 @@ func handleGenerateCmd(ctx *cli.Context, dHandler *dataHandler) error {
 func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 	// import key
-	if keyimport := ctx.Args().First(); keyimport != "" {
-		var err error
 
-		log.Info("Importing key...")
+	var err error
 
-		// check if --ed25519 or --sr25519 is set
-		keytype := crypto.Secp256k1Type
-		if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
-			keytype = crypto.Sr25519Type
-		} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
-			keytype = crypto.Secp256k1Type
-		}
+	log.Info("Importing key...")
 
-		if ctx.Bool(EthereumImportFlag.Name) {
+	// check if --ed25519 or --sr25519 is set
+	keytype := crypto.Secp256k1Type
+	if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
+		keytype = crypto.Sr25519Type
+	} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
+		keytype = crypto.Secp256k1Type
+	}
+
+	if ctx.Bool(EthereumImportFlag.Name) {
+		if keyimport := ctx.Args().First(); keyimport != "" {
 			_, err = importEthKey(keyimport, dHandler.datadir)
-		} else if privkeyflag := ctx.String(PrivateKeyFlag.Name); privkeyflag != "" {
-			// check if --password is set
-			var password []byte = nil
-			if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
-				password = []byte(pwdflag)
-			}
-
-			// Hex must not have leading 0x
-			if privkeyflag[0:2] == "0x" {
-				_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag[0:2], password)
-			} else {
-				_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag, password)
-			}
 		} else {
-			_, err = importKey(keyimport, dHandler.datadir)
+			return fmt.Errorf("Must provide a key to import.")
+		}
+	} else if privkeyflag := ctx.String(PrivateKeyFlag.Name); privkeyflag != "" {
+		// check if --password is set
+		var password []byte = nil
+		if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
+			password = []byte(pwdflag)
 		}
 
-		if err != nil {
-			return fmt.Errorf("failed to import key: %s", err)
-		}
-	} else {
-		return fmt.Errorf("Must provide a key to import.")
+		_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag, password)
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to import key: %s", err)
 	}
 
 	return nil
@@ -161,8 +155,13 @@ func importPrivKey(keytype, datadir, key string, password []byte) (string, error
 			return "", fmt.Errorf("could not generate sr25519 keypair from given string: %s", err)
 		}
 	} else if keytype == crypto.Secp256k1Type {
-		// generate secp256k1 keys
-		kp, err = secp256k1.NewKeypairFromString(key)
+		// Hex must not have leading 0x
+		if key[0:2] == "0x" {
+			kp, err = secp256k1.NewKeypairFromString(key[2:])
+		} else {
+			kp, err = secp256k1.NewKeypairFromString(key)
+		}
+
 		if err != nil {
 			return "", fmt.Errorf("could not generate secp256k1 keypair from given string: %s", err)
 		}
