@@ -30,9 +30,9 @@ func Erc721Deploy(t *testing.T, client *ethclient.Client, opts *bind.TransactOpt
 	return addr
 }
 
-func Erc721Mint(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc721Contract common.Address, id *big.Int) {
+func Erc721Mint(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc721Contract common.Address, id *big.Int, metadata []byte) {
 	log15.Info("Minting erc721 token", "contract", erc721Contract.Hex(), "id", id)
-	err := utils.Erc721Mint(client, opts, erc721Contract, id)
+	err := utils.Erc721Mint(client, opts, erc721Contract, id, metadata)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +40,7 @@ func Erc721Mint(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts,
 
 func Erc721MintMany(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc721Contract common.Address, start, numberOfTokens int) {
 	for i := start; i < start+numberOfTokens; i++ {
-		Erc721Mint(t, client, opts, erc721Contract, big.NewInt(int64(i)))
+		Erc721Mint(t, client, opts, erc721Contract, big.NewInt(int64(i)), []byte{})
 	}
 }
 

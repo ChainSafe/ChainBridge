@@ -172,7 +172,7 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 		t.Fatal(err)
 	}
 	erc721Contract := ethtest.Erc721Deploy(t, aliceConn.conn, opts)
-	ethtest.Erc721Mint(t, aliceConn.conn, opts, erc721Contract, tokenId)
+	ethtest.Erc721Mint(t, aliceConn.conn, opts, erc721Contract, tokenId, []byte{})
 	ethtest.Erc721FundHandler(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, erc721Contract, tokenId)
 
 	// Create initial transfer message
