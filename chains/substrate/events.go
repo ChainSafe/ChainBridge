@@ -35,7 +35,7 @@ type EventFungibleTransfer struct {
 	Destination  types.U8
 	DepositNonce types.U64
 	ResourceId   types.Bytes32
-	Amount       types.U32
+	Amount       types.U256
 	Recipient    types.Bytes
 	Topics       []types.Hash
 }
@@ -86,7 +86,7 @@ func fungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, e
 		0, // Unset
 		msg.ChainId(evt.Destination),
 		msg.Nonce(evt.DepositNonce),
-		big.NewInt(int64(evt.Amount)),
+		evt.Amount.Int,
 		resourceId,
 		evt.Recipient,
 	), nil

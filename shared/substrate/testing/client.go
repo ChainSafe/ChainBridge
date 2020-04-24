@@ -36,7 +36,7 @@ func WhitelistChain(t *testing.T, client *utils.Client, id msg.ChainId) {
 	}
 }
 
-func InitiateNativeTransfer(t *testing.T, client *utils.Client, amount types.U32, recipient []byte, destId msg.ChainId) {
+func InitiateNativeTransfer(t *testing.T, client *utils.Client, amount types.U128, recipient []byte, destId msg.ChainId) {
 	err := client.InitiateNativeTransfer(amount, recipient, destId)
 	if err != nil {
 		t.Fatal(err)

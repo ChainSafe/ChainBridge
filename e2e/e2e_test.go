@@ -63,12 +63,9 @@ type testContext struct {
 	GenericHashResourceId  msg.ResourceId
 }
 
-func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *ethutils.DeployedContracts) *core.Core {
+func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *ethutils.DeployedContracts) (*core.Core, log.Logger) {
 	// Create logger to write to a file, and store the log file name in global var
 	logger := log.Root().New()
-	fileName := name + ".output"
-	logFiles = append(logFiles, fileName)
-	logger.SetHandler(log.Must.FileHandler(fileName, log.TerminalFormat()))
 
 	ethACfg := eth.CreateConfig(name, EthAChainId, contractsA, EthAEndpoint)
 	ethA, err := ethChain.InitializeChain(ethACfg, logger.New("relayer", name, "chain", "ethA"))
@@ -108,7 +105,7 @@ func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *eth
 		t.Fatal(err)
 	}
 
-	return bridge
+	return bridge, logger
 }
 
 func attemptToPrintLogs() {
@@ -217,9 +214,9 @@ func Test_ThreeRelayers(t *testing.T) {
 	subtest.EnsureInitializedChain(t, subClient, sub.RelayerSet, []msg.ChainId{EthAChainId}, resources, uint32(threshold))
 
 	// Create and start three bridges with both chains
-	_ = createAndStartBridge(t, "alice", contractsA, contractsB)
-	_ = createAndStartBridge(t, "bob", contractsA, contractsB)
-	_ = createAndStartBridge(t, "charlie", contractsA, contractsB)
+	_, aliceLog := createAndStartBridge(t, "alice", contractsA, contractsB)
+	_, bobLog := createAndStartBridge(t, "bob", contractsA, contractsB)
+	_, charlieLog := createAndStartBridge(t, "charlie", contractsA, contractsB)
 
 	ctx := &testContext{
 		ethA: &eth.TestContext{
@@ -254,9 +251,27 @@ func Test_ThreeRelayers(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
+
+		// Swap handler
+		fileName := "alice" + ".output"
+		logFiles = append(logFiles, fileName)
+		aliceLog.SetHandler(log.Must.FileHandler(fileName, log.TerminalFormat()))
+
+		// Swap handler
+		fileName = "bob" + ".output"
+		logFiles = append(logFiles, fileName)
+		bobLog.SetHandler(log.Must.FileHandler(fileName, log.TerminalFormat()))
+
+		// Swap handler
+		fileName = "charlie" + ".output"
+		logFiles = append(logFiles, fileName)
+		charlieLog.SetHandler(log.Must.FileHandler(fileName, log.TerminalFormat()))
+
 		t.Run(tt.name, func(t *testing.T) {
 			tt.fn(t, ctx)
 		})
+
+		// Flush logs
+		attemptToPrintLogs()
 	}
-	attemptToPrintLogs()
 }

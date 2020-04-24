@@ -83,7 +83,7 @@ func Test_FungibleTransferEvent(t *testing.T) {
 	context.latestOutNonce = context.latestOutNonce + 1
 	expected := msg.NewFungibleTransfer(ThisChain, ForeignChain, context.latestOutNonce, amount, rId, recipient)
 
-	subtest.InitiateNativeTransfer(t, context.client, types.NewU32(uint32(amount.Int64())), recipient, ForeignChain)
+	subtest.InitiateNativeTransfer(t, context.client, types.NewU128(*amount), recipient, ForeignChain)
 
 	verifyResultingMessage(t, context.router, expected)
 }

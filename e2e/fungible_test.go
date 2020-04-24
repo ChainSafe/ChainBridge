@@ -32,7 +32,6 @@ func testErc20ToSubstrate(t *testing.T, ctx *testContext) {
 			nonce++
 		})
 		if !ok {
-			attemptToPrintLogs()
 			return
 		}
 	}
@@ -49,7 +48,7 @@ func testSubstrateToErc20(t *testing.T, ctx *testContext) {
 		i := i // for scope
 		ok := t.Run(fmt.Sprintf("Transfer %d", i), func(t *testing.T) {
 			// Execute transfer
-			amount := types.NewU32(uint32(i * 5))
+			amount := types.NewU128(*big.NewInt(int64(i * 5)))
 			subtest.InitiateNativeTransfer(t, ctx.subClient, amount, recipient.Bytes(), EthAChainId)
 
 			// Wait for event
@@ -58,11 +57,10 @@ func testSubstrateToErc20(t *testing.T, ctx *testContext) {
 			nonce++
 
 			// Verify balance change
-			expectedBalance.Add(expectedBalance, big.NewInt(int64(amount)))
+			expectedBalance.Add(expectedBalance, amount.Int)
 			ethtest.Erc20AssertBalance(t, ctx.ethA.Client, expectedBalance, ctx.ethA.TestContracts.Erc20Sub, recipient)
 		})
 		if !ok {
-			attemptToPrintLogs()
 			return
 		}
 	}
@@ -91,7 +89,6 @@ func testErc20ToErc20(t *testing.T, ctx *testContext) {
 			ethtest.Erc20AssertBalance(t, ctx.ethB.Client, expectedBalance, ctx.ethB.TestContracts.Erc20Eth, recipient)
 		})
 		if !ok {
-			attemptToPrintLogs()
 			return
 		}
 	}
@@ -128,7 +125,6 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 
 		})
 		if !ok {
-			attemptToPrintLogs()
 			return
 		}
 	}
@@ -142,7 +138,7 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 		i := i // for scope
 		ok := t.Run(fmt.Sprintf("Substrate to Eth Transfer %d", i), func(t *testing.T) {
 			// Execute transfer
-			amount := types.NewU32(uint32(i * 5))
+			amount := types.NewU128(*big.NewInt(int64(i * 5)))
 			log.Info("Submitting transaction", "number", i, "amount", amount)
 			subtest.InitiateNativeTransfer(t, ctx.subClient, amount, ethRecipient.Bytes(), EthAChainId)
 
@@ -152,7 +148,7 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			nonce++
 
 			// Verify balance change
-			expectedEthBalance.Add(expectedEthBalance, big.NewInt(int64(amount)))
+			expectedEthBalance.Add(expectedEthBalance, amount.Int)
 			ethtest.Erc20AssertBalance(t, ctx.ethA.Client, expectedEthBalance, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
 			log.Info("Asserted balance", "owner", ethRecipient, "balance", expectedEthBalance.String())
 			// TODO: Presently unable to take gas costs into consideration.
@@ -160,7 +156,6 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			//subtest.AssertBalanceOf(t, ctx.subClient, subRecipient, expectedSubBalance)
 		})
 		if !ok {
-			attemptToPrintLogs()
 			return
 		}
 	}

@@ -32,7 +32,6 @@ func testSubstrateHashToGenericHandler(t *testing.T, ctx *testContext) {
 			ethtest.AssertHashExistence(t, ctx.ethA.Client, hash, ctx.ethA.BaseContracts.CentrifugeHandlerAddress)
 		})
 		if !ok {
-			attemptToPrintLogs()
 			return
 		}
 	}

@@ -40,7 +40,6 @@ func testErc721ToSubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			subtest.AssertOwnerOf(t, ctx.subClient, id, types.NewAccountID(subRecipient))
 		})
 		if !ok {
-			attemptToPrintLogs()
 			return
 		}
 	}
@@ -64,7 +63,6 @@ func testErc721ToSubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			ethtest.Erc721AssertOwner(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc721Sub, id.Int, ethRecipient)
 		})
 		if !ok {
-			attemptToPrintLogs()
 			return
 		}
 	}
@@ -94,7 +92,6 @@ func testErc721EthToEthRoundTrip(t *testing.T, ctx *testContext) {
 			ethtest.Erc721AssertOwner(t, ctx.ethB.Client, ctx.ethB.TestContracts.Erc721Eth, id, ethBRecipient)
 		})
 		if !ok {
-			attemptToPrintLogs()
 			return
 		}
 	}
@@ -120,7 +117,6 @@ func testErc721EthToEthRoundTrip(t *testing.T, ctx *testContext) {
 			ethtest.Erc721AssertOwner(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc721Eth, id, ethARecipient)
 		})
 		if !ok {
-			attemptToPrintLogs()
 			return
 		}
 	}
