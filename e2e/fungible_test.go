@@ -32,7 +32,6 @@ func testErc20ToSubstrate(t *testing.T, ctx *testContext) {
 			nonce++
 		})
 		if !ok {
-			//attemptToPrintLogs()
 			return
 		}
 	}
@@ -62,7 +61,6 @@ func testSubstrateToErc20(t *testing.T, ctx *testContext) {
 			ethtest.Erc20AssertBalance(t, ctx.ethA.Client, expectedBalance, ctx.ethA.TestContracts.Erc20Sub, recipient)
 		})
 		if !ok {
-			//attemptToPrintLogs()
 			return
 		}
 	}
@@ -91,7 +89,6 @@ func testErc20ToErc20(t *testing.T, ctx *testContext) {
 			ethtest.Erc20AssertBalance(t, ctx.ethB.Client, expectedBalance, ctx.ethB.TestContracts.Erc20Eth, recipient)
 		})
 		if !ok {
-			//attemptToPrintLogs()
 			return
 		}
 	}
@@ -128,7 +125,6 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 
 		})
 		if !ok {
-			//attemptToPrintLogs()
 			return
 		}
 	}
@@ -160,7 +156,6 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			//subtest.AssertBalanceOf(t, ctx.subClient, subRecipient, expectedSubBalance)
 		})
 		if !ok {
-			//attemptToPrintLogs()
 			return
 		}
 	}
