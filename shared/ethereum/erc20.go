@@ -8,7 +8,7 @@ import (
 
 	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
 	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
-	erc20Mintable "github.com/ChainSafe/ChainBridge/bindings/ERC20Mintable"
+	erc20Mintable "github.com/ChainSafe/ChainBridge/bindings/ERC20PresetMinterPauser"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -58,7 +58,7 @@ func DeployMintApproveErc20(client *ethclient.Client, opts *bind.TransactOpts, e
 	}
 
 	// Deploy
-	erc20Addr, _, erc20Instance, err := erc20Mintable.DeployERC20Mintable(opts, client)
+	erc20Addr, _, erc20Instance, err := erc20Mintable.DeployERC20PresetMinterPauser(opts, client, "", "")
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -87,7 +87,7 @@ func DeployAndMintErc20(client *ethclient.Client, opts *bind.TransactOpts, amoun
 	}
 
 	// Deploy
-	erc20Addr, _, erc20Instance, err := erc20Mintable.DeployERC20Mintable(opts, client)
+	erc20Addr, _, erc20Instance, err := erc20Mintable.DeployERC20PresetMinterPauser(opts, client, "", "")
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -108,7 +108,7 @@ func Erc20Approve(client *ethclient.Client, opts *bind.TransactOpts, erc20Contra
 		return err
 	}
 
-	instance, err := erc20Mintable.NewERC20Mintable(erc20Contract, client)
+	instance, err := erc20Mintable.NewERC20PresetMinterPauser(erc20Contract, client)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func Erc20Approve(client *ethclient.Client, opts *bind.TransactOpts, erc20Contra
 }
 
 func Erc20GetBalance(client *ethclient.Client, erc20Contract, account common.Address) (*big.Int, error) { //nolint:unused,deadcode
-	instance, err := erc20Mintable.NewERC20Mintable(erc20Contract, client)
+	instance, err := erc20Mintable.NewERC20PresetMinterPauser(erc20Contract, client)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func ApproveErc20(client *ethclient.Client, opts *bind.TransactOpts, contractAdd
 		return err
 	}
 
-	erc20Instance, err := erc20Mintable.NewERC20Mintable(contractAddress, client)
+	erc20Instance, err := erc20Mintable.NewERC20PresetMinterPauser(contractAddress, client)
 	if err != nil {
 		return err
 	}
@@ -183,12 +183,17 @@ func Erc20AddMinter(client *ethclient.Client, opts *bind.TransactOpts, erc20Cont
 		return err
 	}
 
-	instance, err := erc20Mintable.NewERC20Mintable(erc20Contract, client)
+	instance, err := erc20Mintable.NewERC20PresetMinterPauser(erc20Contract, client)
 	if err != nil {
 		return err
 	}
 
-	_, err = instance.AddMinter(opts, handler)
+	role, err := instance.MINTERROLE(&bind.CallOpts{})
+	if err != nil {
+		return err
+	}
+
+	_, err = instance.GrantRole(opts, role, handler)
 	if err != nil {
 		return err
 	}
@@ -196,7 +201,7 @@ func Erc20AddMinter(client *ethclient.Client, opts *bind.TransactOpts, erc20Cont
 }
 
 func Erc20GetAllowance(client *ethclient.Client, erc20Contract, owner, spender common.Address) (*big.Int, error) {
-	instance, err := erc20Mintable.NewERC20Mintable(erc20Contract, client)
+	instance, err := erc20Mintable.NewERC20PresetMinterPauser(erc20Contract, client)
 	if err != nil {
 		return nil, err
 	}
@@ -221,4 +226,22 @@ func Erc20GetResourceId(client *ethclient.Client, handler common.Address, rId ms
 	}
 
 	return addr, nil
+}
+
+func Erc20SetBurnable(client *ethclient.Client, opts *bind.TransactOpts, handler, erc20Contract common.Address) error {
+	instance, err := ERC20Handler.NewERC20Handler(handler, client)
+	if err != nil {
+		return err
+	}
+
+	err = UpdateNonce(opts, client)
+	if err != nil {
+		return err
+	}
+
+	_, err = instance.SetBurnable(opts, erc20Contract)
+	if err != nil {
+		return err
+	}
+	return nil
 }

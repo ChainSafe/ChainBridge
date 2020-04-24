@@ -10,8 +10,8 @@ import (
 
 type EventSig string
 
-func (en *EventSig) GetTopic() common.Hash {
-	return crypto.Keccak256Hash([]byte(*en))
+func (es EventSig) GetTopic() common.Hash {
+	return crypto.Keccak256Hash([]byte(es))
 }
 
 const (

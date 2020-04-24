@@ -171,14 +171,15 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc721Address := ethtest.DeployMintApproveErc721(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, tokenId)
-	ethtest.FundErc721Handler(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, erc721Address, tokenId)
+	erc721Contract := ethtest.Erc721Deploy(t, aliceConn.conn, opts)
+	ethtest.Erc721Mint(t, aliceConn.conn, opts, erc721Contract, tokenId, []byte{})
+	ethtest.Erc721FundHandler(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, erc721Contract, tokenId)
 
 	// Create initial transfer message
-	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Address.Bytes(), 31), 0))
+	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Contract.Bytes(), 31), 0))
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey)
 	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId, recipient.Bytes(), []byte{})
-	ethtest.RegisterErc721Resource(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, resourceId, erc721Address)
+	ethtest.RegisterErc721Resource(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 	// Helpful for debugging
 	go watchEvent(alice.conn, utils.DepositProposalCreated)
 	go watchEvent(alice.conn, utils.DepositProposalVote)
@@ -187,7 +188,7 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 
 	routeMessageAndWait(t, alice, bob, m)
 
-	ethtest.Erc721IsOwner(t, alice.conn.conn, erc721Address, tokenId, recipient)
+	ethtest.Erc721AssertOwner(t, alice.conn.conn, erc721Contract, tokenId, recipient)
 }
 
 func TestCreateAndExecuteGenericProposal(t *testing.T) {
