@@ -67,7 +67,7 @@ func (c *Client) RegisterResource(id msg.ResourceId, method string) error {
 	return SubmitSudoTx(c, SetResourceMethod, types.NewBytes32(id), []byte(method))
 }
 
-func (c *Client) InitiateNativeTransfer(amount types.U32, recipient []byte, destId msg.ChainId) error {
+func (c *Client) InitiateNativeTransfer(amount types.U128, recipient []byte, destId msg.ChainId) error {
 	log15.Info("Initiating Substrate native transfer", "amount", amount, "recipient", recipient, "destId", destId)
 	return SubmitTx(c, ExampleTransferNativeMethod, amount, recipient, types.U8(destId))
 }
