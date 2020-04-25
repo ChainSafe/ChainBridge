@@ -5,9 +5,9 @@ package ethereum
 
 import (
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
+	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
@@ -97,7 +97,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger) (*Chain, e
 		return nil, err
 	}
 
-	genericHandlerContract, err := centrifugeHandler.NewCentrifugeAssetHandler(cfg.genericHandlerContract, conn.conn)
+	genericHandlerContract, err := GenericHandler.NewGenericHandler(cfg.genericHandlerContract, conn.conn)
 	if err != nil {
 		return nil, err
 	}

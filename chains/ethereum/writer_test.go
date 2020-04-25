@@ -31,11 +31,11 @@ func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContra
 	writer.conn.cfg.bridgeContract = contracts.BridgeAddress
 	writer.conn.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.conn.cfg.erc721HandlerContract = contracts.ERC721HandlerAddress
-	writer.conn.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
+	writer.conn.cfg.genericHandlerContract = contracts.GenericHandlerAddress
 	writer.cfg.bridgeContract = contracts.BridgeAddress
 	writer.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
 	writer.cfg.erc721HandlerContract = contracts.ERC721HandlerAddress
-	writer.cfg.genericHandlerContract = contracts.CentrifugeHandlerAddress
+	writer.cfg.genericHandlerContract = contracts.GenericHandlerAddress
 	writer.setContract(bridge)
 
 	return conn, writer
@@ -82,7 +82,7 @@ func watchEvent(conn *Connection, subStr utils.EventSig) {
 
 func routeMessageAndWait(t *testing.T, alice, bob *writer, m msg.Message) {
 	// Watch for executed event
-	query := buildQuery(alice.cfg.bridgeContract, utils.DepositProposalExecuted, big.NewInt(0), nil)
+	query := buildQuery(alice.cfg.bridgeContract, utils.ProposalExecuted, big.NewInt(0), nil)
 	eventSubscription, err := alice.conn.subscribeToEvent(query)
 	if err != nil {
 		log15.Error("Failed to subscribe to finalization event", "err", err)
@@ -144,12 +144,12 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey)
 	amount := big.NewInt(10)
 	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient.Bytes())
-	ethtest.RegisterErc20Resource(t, aliceConn.conn, opts, contracts.ERC20HandlerAddress, resourceId, erc20Address)
+	ethtest.RegisterResource(t, aliceConn.conn, opts, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Address)
 	// Helpful for debugging
-	go watchEvent(alice.conn, utils.DepositProposalCreated)
-	go watchEvent(alice.conn, utils.DepositProposalVote)
-	go watchEvent(alice.conn, utils.DepositProposalFinalized)
-	go watchEvent(alice.conn, utils.DepositProposalExecuted)
+	go watchEvent(alice.conn, utils.ProposalCreated)
+	go watchEvent(alice.conn, utils.ProposalVote)
+	go watchEvent(alice.conn, utils.ProposalFinalized)
+	go watchEvent(alice.conn, utils.ProposalExecuted)
 
 	routeMessageAndWait(t, alice, bob, m)
 
@@ -179,12 +179,12 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Contract.Bytes(), 31), 0))
 	recipient := ethcrypto.PubkeyToAddress(bob.conn.kp.PrivateKey().PublicKey)
 	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId, recipient.Bytes(), []byte{})
-	ethtest.RegisterErc721Resource(t, aliceConn.conn, opts, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
+	ethtest.RegisterResource(t, aliceConn.conn, opts, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 	// Helpful for debugging
-	go watchEvent(alice.conn, utils.DepositProposalCreated)
-	go watchEvent(alice.conn, utils.DepositProposalVote)
-	go watchEvent(alice.conn, utils.DepositProposalFinalized)
-	go watchEvent(alice.conn, utils.DepositProposalExecuted)
+	go watchEvent(alice.conn, utils.ProposalCreated)
+	go watchEvent(alice.conn, utils.ProposalVote)
+	go watchEvent(alice.conn, utils.ProposalFinalized)
+	go watchEvent(alice.conn, utils.ProposalExecuted)
 
 	routeMessageAndWait(t, alice, bob, m)
 
@@ -200,17 +200,22 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	bobConn, bob := createTestWriter(t, bobTestConfig, contracts)
 	defer bobConn.Close()
 
-	// Whitelist resourceID (arbitrary for centrifuge handler)
-	rId := msg.ResourceIdFromSlice(common.LeftPadBytes([]byte{1, 1}, 32))
-	addr := common.BytesToAddress(common.LeftPadBytes([]byte{1}, 32))
-
 	opts, nonce, err := aliceConn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
 	nonce.lock.Unlock() // We manual increment nonce in tests
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ethtest.RegisterErc20Resource(t, aliceConn.conn, opts, contracts.CentrifugeHandlerAddress, rId, addr)
+	assetStoreAddr, err := utils.DeployAssetStore(aliceConn.conn, opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rId := msg.ResourceIdFromSlice(common.LeftPadBytes(assetStoreAddr.Bytes(), 32))
+	depositSig := utils.CreateFunctionSignature("")
+	executeSig := utils.CreateFunctionSignature("store(bytes32)")
+
+	ethtest.RegisterGenericResource(t, aliceConn.conn, opts, contracts.BridgeAddress, contracts.GenericHandlerAddress, rId, assetStoreAddr, depositSig, executeSig)
 	// Create initial transfer message
 	hash := common.HexToHash("0xf0a8748d2b102eb4e0e116047753b9beff0396d81b830693b19a1376ac4b14e8")
 	m := msg.Message{
@@ -225,12 +230,12 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	}
 
 	// Helpful for debugging
-	go watchEvent(alice.conn, utils.DepositProposalCreated)
-	go watchEvent(alice.conn, utils.DepositProposalVote)
-	go watchEvent(alice.conn, utils.DepositProposalFinalized)
-	go watchEvent(alice.conn, utils.DepositProposalExecuted)
+	go watchEvent(alice.conn, utils.ProposalCreated)
+	go watchEvent(alice.conn, utils.ProposalVote)
+	go watchEvent(alice.conn, utils.ProposalFinalized)
+	go watchEvent(alice.conn, utils.ProposalExecuted)
 
 	routeMessageAndWait(t, alice, bob, m)
 
-	ethtest.AssertHashExistence(t, aliceConn.conn, hash, contracts.CentrifugeHandlerAddress)
+	ethtest.AssertHashExistence(t, aliceConn.conn, hash, assetStoreAddr)
 }

@@ -60,6 +60,6 @@ func (l *listener) handleGenericDepositedEvent(destId msg.ChainId, nonce msg.Non
 		destId,
 		nonce,
 		record.ResourceID,
-		record.MetaDataHash[:],
+		record.MetaData[:],
 	)
 }
