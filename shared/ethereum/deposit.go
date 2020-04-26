@@ -20,14 +20,11 @@ func ConstructErc20DepositData(rId msg.ResourceId, destRecipient []byte, amount 
 }
 
 // constructErc20Data constructs the data field to be passed into an erc721 deposit call
-func ConstructErc721DepositData(rId msg.ResourceId, tokenId *big.Int, destRecipient []byte, metadata []byte) []byte {
+func ConstructErc721DepositData(rId msg.ResourceId, tokenId *big.Int, destRecipient []byte) []byte {
 	var data []byte
 	data = append(rId[:], math.PaddedBigBytes(tokenId, 32)...)                             // Resource Id + Token Id
 	data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(destRecipient))), 32)...) // Length of recipient
 	data = append(data, destRecipient...)                                                  // Recipient
-
-	data = append(data, math.PaddedBigBytes(big.NewInt(int64(len(metadata))), 32)...) // Length of metadata
-	data = append(data, metadata...)                                                  // Metadata
 
 	return data
 }

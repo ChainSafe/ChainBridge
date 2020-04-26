@@ -19,3 +19,8 @@ type AccountData struct {
 		FreeFrozen types.U128
 	}
 }
+
+type Erc721Token struct {
+	Id       types.U256
+	Metadata types.Bytes
+}
