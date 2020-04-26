@@ -188,7 +188,7 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 
 	routeMessageAndWait(t, alice, bob, m)
 
-	ethtest.Erc721AssertOwner(t, alice.conn.conn, erc721Contract, tokenId, recipient)
+	ethtest.Erc721AssertOwner(t, alice.conn.conn, opts, erc721Contract, tokenId, recipient)
 }
 
 func TestCreateAndExecuteGenericProposal(t *testing.T) {
