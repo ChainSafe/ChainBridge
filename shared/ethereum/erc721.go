@@ -8,28 +8,10 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/ERC721MinterBurnerPauser"
-	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
-
-func RegisterErc721Resource(client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address, rId msg.ResourceId, addr common.Address) error {
-	instance, err := ERC721Handler.NewERC721Handler(erc20Handler, client)
-	if err != nil {
-		return err
-	}
-
-	err = UpdateNonce(opts, client)
-	if err != nil {
-		return err
-	}
-	_, err = instance.SetResourceIDAndContractAddress(opts, rId, addr)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 // DeployMintAndApprove deploys a new erc721 contract, mints to the deployer, and approves the erc20 handler to transfer those token.
 func DeployErc721(client *ethclient.Client, opts *bind.TransactOpts) (common.Address, error) {
@@ -134,24 +116,6 @@ func Erc721AddMinter(client *ethclient.Client, opts *bind.TransactOpts, erc721Co
 	}
 
 	_, err = instance.GrantRole(opts, role, minter)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func Erc721SetBurnable(client *ethclient.Client, opts *bind.TransactOpts, handler, erc721Contract common.Address) error {
-	instance, err := ERC721Handler.NewERC721Handler(handler, client)
-	if err != nil {
-		return err
-	}
-
-	err = UpdateNonce(opts, client)
-	if err != nil {
-		return err
-	}
-
-	_, err = instance.SetBurnable(opts, erc721Contract)
 	if err != nil {
 		return err
 	}

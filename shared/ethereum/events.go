@@ -15,9 +15,9 @@ func (es EventSig) GetTopic() common.Hash {
 }
 
 const (
-	Deposit                  EventSig = "Deposit(uint8,address,uint256)"
-	DepositProposalCreated   EventSig = "DepositProposalCreated(uint8,uint8,uint256,bytes32)"
-	DepositProposalVote      EventSig = "DepositProposalVote(uint8,uint8,uint256,uint8)"
-	DepositProposalFinalized EventSig = "DepositProposalFinalized(uint8,uint8,uint256)"
-	DepositProposalExecuted  EventSig = "DepositProposalExecuted(uint8,uint8,uint256)"
+	Deposit           EventSig = "Deposit(uint8,address,uint256)"
+	ProposalCreated   EventSig = "ProposalCreated(uint8,uint8,uint256,bytes32)"
+	ProposalVote      EventSig = "ProposalVote(uint8,uint8,uint256,uint8)"
+	ProposalFinalized EventSig = "ProposalFinalized(uint8,uint8,uint256)"
+	ProposalExecuted  EventSig = "ProposalExecuted(uint8,uint8,uint256)"
 )

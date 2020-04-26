@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
-	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
-	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
+	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	"github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
+	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
@@ -38,7 +38,7 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	newConfig.bridgeContract = contracts.BridgeAddress
 	newConfig.erc20HandlerContract = contracts.ERC20HandlerAddress
 	newConfig.erc721HandlerContract = contracts.ERC721HandlerAddress
-	newConfig.genericHandlerContract = contracts.CentrifugeHandlerAddress
+	newConfig.genericHandlerContract = contracts.GenericHandlerAddress
 
 	conn := newLocalConnection(t, &newConfig)
 	latestBlock, err := conn.latestBlock()
@@ -47,19 +47,19 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	}
 	newConfig.startBlock = latestBlock
 
-	bridgeContract, err := bridge.NewBridge(newConfig.bridgeContract, conn.conn)
+	bridgeContract, err := Bridge.NewBridge(newConfig.bridgeContract, conn.conn)
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc20HandlerContract, err := erc20Handler.NewERC20Handler(newConfig.erc20HandlerContract, conn.conn)
+	erc20HandlerContract, err := ERC20Handler.NewERC20Handler(newConfig.erc20HandlerContract, conn.conn)
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc721HandlerContract, err := erc721Handler.NewERC721Handler(newConfig.erc721HandlerContract, conn.conn)
+	erc721HandlerContract, err := ERC721Handler.NewERC721Handler(newConfig.erc721HandlerContract, conn.conn)
 	if err != nil {
 		t.Fatal(err)
 	}
-	genericHandlerContract, err := centrifugeHandler.NewCentrifugeAssetHandler(newConfig.genericHandlerContract, conn.conn)
+	genericHandlerContract, err := GenericHandler.NewGenericHandler(newConfig.genericHandlerContract, conn.conn)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +114,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Contract.Bytes(), 31), uint8(src)))
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
 
-	ethtest.RegisterErc20Resource(t, l.conn.conn, opts, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
+	ethtest.RegisterResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
 
 	expectedMessage := msg.NewFungibleTransfer(
 		src,
@@ -206,7 +206,7 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Contract.Bytes(), 31), uint8(src)))
 	recipient := BobKp.CommonAddress()
 
-	ethtest.RegisterErc721Resource(t, l.conn.conn, opts, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
+	ethtest.RegisterResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 
 	expectedMessage := msg.NewNonFungibleTransfer(
 		src,
@@ -260,9 +260,11 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
-	hash := hash(common.LeftPadBytes([]byte{1}, 32))
+	hash := utils.Hash(common.LeftPadBytes([]byte{1}, 32))
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes([]byte{1}, 31), uint8(src)))
-	ethtest.RegisterGenericResource(t, l.conn.conn, opts, contracts.CentrifugeHandlerAddress, resourceId, utils.ZeroAddress)
+	depositSig := utils.CreateFunctionSignature("")
+	executeSig := utils.CreateFunctionSignature("store()")
+	ethtest.RegisterGenericResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.GenericHandlerAddress, resourceId, utils.ZeroAddress, depositSig, executeSig)
 
 	expectedMessage := msg.NewGenericTransfer(
 		src,

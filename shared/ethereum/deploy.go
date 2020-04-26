@@ -8,16 +8,15 @@ import (
 	"crypto/ecdsa"
 	"math/big"
 
+	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
-	relayer "github.com/ChainSafe/ChainBridge/bindings/Relayer"
 	"github.com/ChainSafe/ChainBridge/keystore"
 )
 
@@ -34,11 +33,10 @@ var (
 )
 
 type DeployedContracts struct {
-	BridgeAddress            common.Address
-	RelayerAddress           common.Address
-	ERC20HandlerAddress      common.Address
-	ERC721HandlerAddress     common.Address
-	CentrifugeHandlerAddress common.Address
+	BridgeAddress         common.Address
+	ERC20HandlerAddress   common.Address
+	ERC721HandlerAddress  common.Address
+	GenericHandlerAddress common.Address
 }
 
 // DeployContracts deploys Bridge, Relayer, ERC20Handler, ERC721Handler and CentrifugeAssetHandler and returns the addresses
@@ -49,12 +47,7 @@ func DeployContracts(deployPK string, chainID uint8, url string, initialRelayerT
 		return nil, err
 	}
 
-	relayerAddr, err := deployRelayer(opts, client, RelayerAddresses, initialRelayerThreshold)
-	if err != nil {
-		return nil, err
-	}
-
-	bridgeAddr, err := deployBridge(opts, client, chainID, relayerAddr, initialRelayerThreshold)
+	bridgeAddr, err := deployBridge(opts, client, chainID, RelayerAddresses, initialRelayerThreshold)
 	if err != nil {
 		return nil, err
 	}
@@ -69,12 +62,12 @@ func DeployContracts(deployPK string, chainID uint8, url string, initialRelayerT
 		return nil, err
 	}
 
-	centrifugeHandlerAddr, err := deployCentrifugeHandler(opts, client, bridgeAddr)
+	genericHandlerAddr, err := deployGenericHandler(opts, client, bridgeAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	deployedContracts := DeployedContracts{bridgeAddr, relayerAddr, erc20HandlerAddr, erc721HandlerAddr, centrifugeHandlerAddr}
+	deployedContracts := DeployedContracts{bridgeAddr, erc20HandlerAddr, erc721HandlerAddr, genericHandlerAddr}
 
 	return &deployedContracts, nil
 
@@ -130,33 +123,19 @@ func accountSetUp(url string, deployPK string) (*ethclient.Client, *bind.Transac
 
 }
 
-func deployBridge(opts *bind.TransactOpts, client *ethclient.Client, chainID uint8, relayerContract common.Address, initialRelayerThreshold *big.Int) (common.Address, error) {
+func deployBridge(opts *bind.TransactOpts, client *ethclient.Client, chainID uint8, relayerAddrs []common.Address, initialRelayerThreshold *big.Int) (common.Address, error) {
 	err := UpdateNonce(opts, client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
-	bridgeAddr, _, _, err := bridge.DeployBridge(opts, client, chainID, relayerContract, initialRelayerThreshold)
+	bridgeAddr, _, _, err := bridge.DeployBridge(opts, client, chainID, relayerAddrs, initialRelayerThreshold)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
 	return bridgeAddr, nil
 
-}
-
-func deployRelayer(opts *bind.TransactOpts, client *ethclient.Client, initialRelayers []common.Address, initialRelayerThreshold *big.Int) (common.Address, error) {
-	err := UpdateNonce(opts, client)
-	if err != nil {
-		return ZeroAddress, err
-	}
-
-	relAddr, _, _, err := relayer.DeployRelayer(opts, client, initialRelayers, initialRelayerThreshold)
-	if err != nil {
-		return ZeroAddress, err
-	}
-
-	return relAddr, nil
 }
 
 func deployERC20Handler(opts *bind.TransactOpts, client *ethclient.Client, bridgeAddress common.Address) (common.Address, error) {
@@ -187,16 +166,16 @@ func deployERC721Handler(opts *bind.TransactOpts, client *ethclient.Client, brid
 	return erc721HandlerAddr, nil
 }
 
-func deployCentrifugeHandler(opts *bind.TransactOpts, client *ethclient.Client, bridgeAddress common.Address) (common.Address, error) {
+func deployGenericHandler(opts *bind.TransactOpts, client *ethclient.Client, bridgeAddress common.Address) (common.Address, error) {
 	err := UpdateNonce(opts, client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
-	centrifugeHandlerAddr, _, _, err := centrifugeHandler.DeployCentrifugeAssetHandler(opts, client, bridgeAddress, [][32]byte{}, []common.Address{})
+	addr, _, _, err := GenericHandler.DeployGenericHandler(opts, client, bridgeAddress, [][32]byte{}, []common.Address{}, [][4]byte{}, [][4]byte{})
 	if err != nil {
 		return ZeroAddress, err
 	}
 
-	return centrifugeHandlerAddr, nil
+	return addr, nil
 }

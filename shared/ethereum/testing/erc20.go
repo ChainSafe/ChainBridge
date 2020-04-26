@@ -15,20 +15,6 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func RegisterErc20Resource(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address, rId msg.ResourceId, addr common.Address) {
-	err := utils.RegisterErc20Resource(client, opts, erc20Handler, rId, addr)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func RegisterGenericResource(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, genericHandler common.Address, rId msg.ResourceId, addr common.Address) {
-	err := utils.RegisterGenericResource(client, opts, genericHandler, rId, addr)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
 func DeployMintApproveErc20(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address, amount *big.Int) common.Address {
 	addr, err := utils.DeployMintApproveErc20(client, opts, erc20Handler, amount)
 	if err != nil {
@@ -106,12 +92,5 @@ func Erc20AssertResourceMapping(t *testing.T, client *ethclient.Client, handler 
 
 	if addr.String() != expected.String() {
 		t.Fatalf("Unexpected address for resource ID %x. Expected: %x Got: %x", rId, expected, addr)
-	}
-}
-
-func Erc20SetBurnable(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, handler, erc20Contract common.Address) {
-	err := utils.Erc20SetBurnable(client, opts, handler, erc20Contract)
-	if err != nil {
-		t.Fatal(err)
 	}
 }

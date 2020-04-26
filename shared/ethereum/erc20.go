@@ -6,7 +6,6 @@ package utils
 import (
 	"math/big"
 
-	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
 	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc20Mintable "github.com/ChainSafe/ChainBridge/bindings/ERC20PresetMinterPauser"
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -14,41 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
-
-func RegisterErc20Resource(client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address, rId msg.ResourceId, addr common.Address) error {
-	instance, err := ERC20Handler.NewERC20Handler(erc20Handler, client)
-	if err != nil {
-		return err
-	}
-
-	err = UpdateNonce(opts, client)
-	if err != nil {
-		return err
-	}
-	_, err = instance.SetResourceIDAndContractAddress(opts, rId, addr)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func RegisterGenericResource(client *ethclient.Client, opts *bind.TransactOpts, genericHandler common.Address, rId msg.ResourceId, addr common.Address) error {
-	instance, err := centrifugeHandler.NewCentrifugeAssetHandler(genericHandler, client)
-	if err != nil {
-		return err
-	}
-
-	err = UpdateNonce(opts, client)
-	if err != nil {
-		return err
-	}
-
-	_, err = instance.SetResourceIDAndContractAddress(opts, rId, addr)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 // DeployMintAndApprove deploys a new erc20 contract, mints to the deployer, and approves the erc20 handler to transfer those token.
 func DeployMintApproveErc20(client *ethclient.Client, opts *bind.TransactOpts, erc20Handler common.Address, amount *big.Int) (common.Address, error) {
@@ -226,22 +190,4 @@ func Erc20GetResourceId(client *ethclient.Client, handler common.Address, rId ms
 	}
 
 	return addr, nil
-}
-
-func Erc20SetBurnable(client *ethclient.Client, opts *bind.TransactOpts, handler, erc20Contract common.Address) error {
-	instance, err := ERC20Handler.NewERC20Handler(handler, client)
-	if err != nil {
-		return err
-	}
-
-	err = UpdateNonce(opts, client)
-	if err != nil {
-		return err
-	}
-
-	_, err = instance.SetBurnable(opts, erc20Contract)
-	if err != nil {
-		return err
-	}
-	return nil
 }

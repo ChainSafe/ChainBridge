@@ -28,7 +28,7 @@ var (
 )
 
 // IDepositHandlerABI is the input ABI used to generate the binding from.
-const IDepositHandlerABI = "[{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"depositer\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"executeDeposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const IDepositHandlerABI = "[{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"depositer\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"executeDeposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"setResourceIDAndContractAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // IDepositHandler is an auto generated Go binding around an Ethereum contract.
 type IDepositHandler struct {
@@ -212,6 +212,27 @@ func (_IDepositHandler *IDepositHandlerSession) ExecuteDeposit(data []byte) (*ty
 // Solidity: function executeDeposit(bytes data) returns()
 func (_IDepositHandler *IDepositHandlerTransactorSession) ExecuteDeposit(data []byte) (*types.Transaction, error) {
 	return _IDepositHandler.Contract.ExecuteDeposit(&_IDepositHandler.TransactOpts, data)
+}
+
+// SetResourceIDAndContractAddress is a paid mutator transaction binding the contract method 0x8a025ce8.
+//
+// Solidity: function setResourceIDAndContractAddress(bytes32 , address ) returns()
+func (_IDepositHandler *IDepositHandlerTransactor) SetResourceIDAndContractAddress(opts *bind.TransactOpts, arg0 [32]byte, arg1 common.Address) (*types.Transaction, error) {
+	return _IDepositHandler.contract.Transact(opts, "setResourceIDAndContractAddress", arg0, arg1)
+}
+
+// SetResourceIDAndContractAddress is a paid mutator transaction binding the contract method 0x8a025ce8.
+//
+// Solidity: function setResourceIDAndContractAddress(bytes32 , address ) returns()
+func (_IDepositHandler *IDepositHandlerSession) SetResourceIDAndContractAddress(arg0 [32]byte, arg1 common.Address) (*types.Transaction, error) {
+	return _IDepositHandler.Contract.SetResourceIDAndContractAddress(&_IDepositHandler.TransactOpts, arg0, arg1)
+}
+
+// SetResourceIDAndContractAddress is a paid mutator transaction binding the contract method 0x8a025ce8.
+//
+// Solidity: function setResourceIDAndContractAddress(bytes32 , address ) returns()
+func (_IDepositHandler *IDepositHandlerTransactorSession) SetResourceIDAndContractAddress(arg0 [32]byte, arg1 common.Address) (*types.Transaction, error) {
+	return _IDepositHandler.Contract.SetResourceIDAndContractAddress(&_IDepositHandler.TransactOpts, arg0, arg1)
 }
 
 var RuntimeBytecode = "0x"

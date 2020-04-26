@@ -7,20 +7,12 @@ import (
 	"math/big"
 	"testing"
 
-	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
-
-func RegisterErc721Resource(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, handler common.Address, rId msg.ResourceId, addr common.Address) {
-	err := utils.RegisterErc721Resource(client, opts, handler, rId, addr)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
 
 func Erc721Deploy(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts) common.Address {
 	addr, err := utils.DeployErc721(client, opts)
@@ -86,13 +78,6 @@ func Erc721FundHandlerMany(t *testing.T, client *ethclient.Client, opts *bind.Tr
 
 func Erc721AddMinter(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc721Contract common.Address, minter common.Address) {
 	err := utils.Erc721AddMinter(client, opts, erc721Contract, minter)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func Erc721SetBurnable(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, handler, erc721Contract common.Address) {
-	err := utils.Erc721SetBurnable(client, opts, handler, erc721Contract)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	centrifugeHandler "github.com/ChainSafe/ChainBridge/bindings/CentrifugeAssetHandler"
-	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
-	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
+	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	"github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
+	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -34,9 +34,9 @@ type listener struct {
 	conn                   *Connection
 	router                 chains.Router
 	bridgeContract         *Bridge.Bridge // instance of bound bridge contract
-	erc20HandlerContract   *erc20Handler.ERC20Handler
-	erc721HandlerContract  *erc721Handler.ERC721Handler
-	genericHandlerContract *centrifugeHandler.CentrifugeAssetHandler
+	erc20HandlerContract   *ERC20Handler.ERC20Handler
+	erc721HandlerContract  *ERC721Handler.ERC721Handler
+	genericHandlerContract *GenericHandler.GenericHandler
 	log                    log15.Logger
 	blockstore             blockstore.Blockstorer
 }
@@ -50,7 +50,7 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.
 	}
 }
 
-func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *erc20Handler.ERC20Handler, erc721Handler *erc721Handler.ERC721Handler, genericHandler *centrifugeHandler.CentrifugeAssetHandler) {
+func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handler.ERC20Handler, erc721Handler *ERC721Handler.ERC721Handler, genericHandler *GenericHandler.GenericHandler) {
 	l.bridgeContract = bridge
 	l.erc20HandlerContract = erc20Handler
 	l.erc721HandlerContract = erc721Handler

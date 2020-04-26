@@ -12,6 +12,7 @@ import (
 	log "github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/math"
 )
 
 func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipient []byte) []byte {
@@ -40,6 +41,13 @@ func constructErc721ProposalData(tokenId []byte, resourceId msg.ResourceId, reci
 	return data
 }
 
+func constructGenericProposalData(resourceId msg.ResourceId, metadata []byte) []byte {
+	var data []byte
+	data = append(resourceId[:], math.PaddedBigBytes(big.NewInt(int64(len(metadata))), 32)...)
+	data = append(data, metadata...)
+	return data
+}
+
 // proposalIsComplete returns true if the proposal state is either Passed(2) or Transferred(3)
 func (w *writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
 	prop, err := w.bridgeContract.GetDepositProposal(&bind.CallOpts{}, uint8(destId), nonce.Big())
@@ -60,7 +68,7 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 	}
 
 	data := constructErc20ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte))
-	hash := hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
+	hash := utils.Hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 
 	// Check if proposal has passed and skip if Passed or Transferred
 	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
@@ -99,7 +107,7 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 	}
 
 	data := constructErc721ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte), m.Payload[2].([]byte))
-	hash := hash(append(w.cfg.erc721HandlerContract.Bytes(), data...))
+	hash := utils.Hash(append(w.cfg.erc721HandlerContract.Bytes(), data...))
 
 	// Check if proposal has passed and skip if Passed or Transferred
 	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
@@ -137,10 +145,10 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 		return false
 	}
 
-	h := m.Payload[0].([]byte)
-	data := append(m.ResourceId[:], h...)
+	metadata := m.Payload[0].([]byte)
+	data := constructGenericProposalData(m.ResourceId, metadata)
 	toHash := append(w.cfg.genericHandlerContract.Bytes(), data...)
-	dataHash := hash(toHash)
+	dataHash := utils.Hash(toHash)
 
 	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
 		w.log.Debug("Proposal complete, not voting")
@@ -171,7 +179,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 func (w *writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
 	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
 	// TODO: Skip existing blocks
-	query := buildQuery(w.cfg.bridgeContract, utils.DepositProposalFinalized, w.cfg.startBlock, nil)
+	query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, w.cfg.startBlock, nil)
 	eventSubscription, err := w.conn.subscribeToEvent(query)
 	if err != nil {
 		w.log.Error("Failed to subscribe to finalization event", "err", err)
