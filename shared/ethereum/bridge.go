@@ -21,7 +21,7 @@ func RegisterResource(client *ethclient.Client, opts *bind.TransactOpts, bridge,
 	if err != nil {
 		return err
 	}
-	_, err = instance.AdminSetResourceIDAndContractAddress(opts, handler, rId, addr)
+	_, err = instance.AdminSetResource(opts, handler, rId, addr)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func RegisterGenericResource(client *ethclient.Client, opts *bind.TransactOpts, 
 	if err != nil {
 		return err
 	}
-	_, err = instance.AdminSetResourceIdInGenericHandler(opts, handler, rId, addr, depositSig, executeSig)
+	_, err = instance.AdminSetGenericResource(opts, handler, rId, addr, depositSig, executeSig)
 	if err != nil {
 		return err
 	}
