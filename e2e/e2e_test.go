@@ -44,12 +44,14 @@ type test struct {
 var tests = []test{
 	{"Erc20ToSubstrate", testErc20ToSubstrate},
 	{"SubstrateToErc20", testSubstrateToErc20},
-	{"SubstrateHashToGenericHandler", testSubstrateHashToGenericHandler},
-	{"Eth to Eth HashToGenericHandler", testEthereumHashToGenericHandler},
 	{"Erc20toErc20", testErc20ToErc20},
 	{"Erc20 to Substrate Round Trip", testErc20SubstrateRoundTrip},
+
 	{"Erc721 to Substrate Round Trip", testErc721ToSubstrateRoundTrip},
 	{"Erc721 to Erc721 Round Trip", testErc721EthToEthRoundTrip},
+
+	{"SubstrateHashToGenericHandler", testSubstrateHashToGenericHandler},
+	{"Eth to Eth HashToGenericHandler", testEthereumHashToGenericHandler},
 }
 
 type testContext struct {
@@ -123,6 +125,84 @@ func attemptToPrintLogs() {
 	}
 }
 
+func setupFungibleTests(t *testing.T, ctx *testContext) {
+	mintAmount := big.NewInt(1000)
+	approveAmount := big.NewInt(500)
+
+	// Deploy Sub<>Eth erc20 on ethA, register resource ID, add handler as minter
+	erc20ContractASub := ethtest.Erc20DeployMint(t, ctx.ethA.Client, ctx.ethA.Opts, mintAmount)
+	log.Info("Deployed erc20 contract", "address", erc20ContractASub)
+	ethtest.Erc20Approve(t, ctx.ethA.Client, ctx.ethA.Opts, erc20ContractASub, ctx.ethA.BaseContracts.ERC20HandlerAddress, approveAmount)
+	ethtest.Erc20AddMinter(t, ctx.ethA.Client, ctx.ethA.Opts, erc20ContractASub, ctx.ethA.BaseContracts.ERC20HandlerAddress)
+	ethtest.RegisterResource(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.ERC20HandlerAddress, ctx.EthSubErc20ResourceId, erc20ContractASub)
+	ethtest.SetBurnable(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.ERC20HandlerAddress, erc20ContractASub)
+
+	// Deploy Eth<>Eth erc20 on ethA, register resource ID, add handler as minter
+	erc20ContractAEth := ethtest.Erc20DeployMint(t, ctx.ethA.Client, ctx.ethA.Opts, mintAmount)
+	log.Info("Deployed erc20 contract", "address", erc20ContractAEth)
+	ethtest.Erc20Approve(t, ctx.ethA.Client, ctx.ethA.Opts, erc20ContractAEth, ctx.ethA.BaseContracts.ERC20HandlerAddress, approveAmount)
+	ethtest.Erc20AddMinter(t, ctx.ethA.Client, ctx.ethA.Opts, erc20ContractAEth, ctx.ethA.BaseContracts.ERC20HandlerAddress)
+	ethErc20ResourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20ContractAEth.Bytes(), 31), 0))
+	ethtest.RegisterResource(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.ERC20HandlerAddress, ethErc20ResourceId, erc20ContractAEth)
+	ethtest.SetBurnable(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.ERC20HandlerAddress, erc20ContractAEth)
+
+	// Deploy Eth<>Eth erc20 on ethB, add handler as minter
+	erc20ContractBEth := ethtest.Erc20DeployMint(t, ctx.ethB.Client, ctx.ethB.Opts, mintAmount)
+	log.Info("Deployed erc20 contract", "address", erc20ContractBEth)
+	ethtest.Erc20AddMinter(t, ctx.ethB.Client, ctx.ethB.Opts, erc20ContractBEth, ctx.ethB.BaseContracts.ERC20HandlerAddress)
+	ethtest.RegisterResource(t, ctx.ethB.Client, ctx.ethB.Opts, ctx.ethB.BaseContracts.BridgeAddress, ctx.ethB.BaseContracts.ERC20HandlerAddress, ethErc20ResourceId, erc20ContractBEth)
+	ethtest.SetBurnable(t, ctx.ethB.Client, ctx.ethB.Opts, ctx.ethB.BaseContracts.BridgeAddress, ctx.ethB.BaseContracts.ERC20HandlerAddress, erc20ContractBEth)
+
+	ctx.ethA.TestContracts.Erc20Sub = erc20ContractASub
+	ctx.ethA.TestContracts.Erc20Eth = erc20ContractAEth
+	ctx.ethB.TestContracts.Erc20Eth = erc20ContractBEth
+	ctx.EthEthErc20ResourceId = ethErc20ResourceId
+}
+
+func setupNonFungibleTests(t *testing.T, ctx *testContext) {
+
+	// Deploy Sub<>Eth erc721 on ethA, register resource ID, set burnable
+	erc721ContractASub := ethtest.Erc721Deploy(t, ctx.ethA.Client, ctx.ethB.Opts)
+	ethtest.Erc721AddMinter(t, ctx.ethA.Client, ctx.ethA.Opts, erc721ContractASub, ctx.ethA.BaseContracts.ERC721HandlerAddress)
+	ethtest.RegisterResource(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.ERC721HandlerAddress, ctx.EthSubErc721ResourceId, erc721ContractASub)
+	ethtest.SetBurnable(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.ERC721HandlerAddress, erc721ContractASub)
+
+	// Deploy Eth<>Eth erc721 on ethA, register resource ID, set burnable
+	erc721ContractAEth := ethtest.Erc721Deploy(t, ctx.ethA.Client, ctx.ethB.Opts)
+	ethtest.Erc721AddMinter(t, ctx.ethA.Client, ctx.ethA.Opts, erc721ContractAEth, ctx.ethA.BaseContracts.ERC721HandlerAddress)
+	ethErc721ResourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721ContractAEth.Bytes(), 31), byte(EthAChainId)))
+	ethtest.RegisterResource(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.ERC721HandlerAddress, ethErc721ResourceId, erc721ContractAEth)
+	ethtest.SetBurnable(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.ERC721HandlerAddress, erc721ContractASub)
+
+	// Deploy Eth<>Eth erc721 on ethB, register resource ID, set burnable
+	erc721ContractBEth := ethtest.Erc721Deploy(t, ctx.ethB.Client, ctx.ethB.Opts)
+	ethtest.Erc721AddMinter(t, ctx.ethB.Client, ctx.ethB.Opts, erc721ContractBEth, ctx.ethB.BaseContracts.ERC721HandlerAddress)
+	ethtest.RegisterResource(t, ctx.ethB.Client, ctx.ethB.Opts, ctx.ethB.BaseContracts.BridgeAddress, ctx.ethB.BaseContracts.ERC721HandlerAddress, ethErc721ResourceId, erc721ContractBEth)
+	ethtest.SetBurnable(t, ctx.ethB.Client, ctx.ethB.Opts, ctx.ethB.BaseContracts.BridgeAddress, ctx.ethB.BaseContracts.ERC721HandlerAddress, erc721ContractBEth)
+
+	ctx.ethA.TestContracts.Erc721Sub = erc721ContractASub
+	ctx.ethA.TestContracts.Erc721Eth = erc721ContractAEth
+	ctx.ethB.TestContracts.Erc721Eth = erc721ContractBEth
+	ctx.EthEthErc721ResourceId = ethErc721ResourceId
+}
+
+func setupGenericTests(t *testing.T, ctx *testContext) {
+	// Deploy asset store for sub->eth on ethA, register resource ID
+	assetStoreContractASub := ethtest.DeployAssetStore(t, ctx.ethA.Client, ctx.ethA.Opts)
+	ethtest.RegisterGenericResource(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.GenericHandlerAddress, ctx.GenericHashResourceId, assetStoreContractASub, [4]byte{}, ethutils.StoreFunctionSig)
+
+	// Deploy asset store for eth->eth on ethB, register resource ID
+	assetStoreContractBEth := ethtest.DeployAssetStore(t, ctx.ethB.Client, ctx.ethB.Opts)
+	ethGenericResourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(assetStoreContractBEth.Bytes(), 31), byte(EthBChainId)))
+	ethtest.RegisterGenericResource(t, ctx.ethB.Client, ctx.ethB.Opts, ctx.ethB.BaseContracts.BridgeAddress, ctx.ethB.BaseContracts.GenericHandlerAddress, ethGenericResourceId, assetStoreContractBEth, [4]byte{}, ethutils.StoreFunctionSig)
+	// Register resource on ethA as well for deposit, address used could be anything
+	ethtest.RegisterGenericResource(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.GenericHandlerAddress, ethGenericResourceId, assetStoreContractBEth, [4]byte{}, ethutils.StoreFunctionSig)
+
+	ctx.ethA.TestContracts.AssetStoreSub = assetStoreContractASub
+	ctx.ethB.TestContracts.AssetStoreEth = assetStoreContractBEth
+	ctx.EthGenericResourceId = ethGenericResourceId
+}
+
 // This tests three relayers connected to three chains (2 ethereum, 1 substrate).
 //
 // EthA:
@@ -135,9 +215,6 @@ func attemptToPrintLogs() {
 func Test_ThreeRelayers(t *testing.T) {
 	shared.SetLogger(log.LvlTrace)
 	threshold := 3
-	mintAmount := big.NewInt(1000)
-	fundAmount := big.NewInt(500)
-	approveAmount := big.NewInt(500)
 
 	// Setup test client connections for each chain
 	ethClientA, optsA := eth.CreateEthClient(t, EthAEndpoint, eth.AliceKp)
@@ -155,65 +232,32 @@ func Test_ThreeRelayers(t *testing.T) {
 
 	// Base setup for ethA
 	contractsA := eth.DeployTestContracts(t, EthAEndpoint, EthAChainId, big.NewInt(int64(threshold)))
-
-	// ERC20 - bridge is funded and depositer has tokens approved for transfer
-	// Deploy erc20 for substrate transfers
-	erc20ContractASub := ethtest.Erc20DeployMint(t, ethClientA, optsA, mintAmount)
-	ethtest.FundErc20Handler(t, ethClientA, optsA, contractsA.ERC20HandlerAddress, erc20ContractASub, fundAmount)
-	ethtest.Erc20Approve(t, ethClientA, optsA, erc20ContractASub, contractsA.ERC20HandlerAddress, approveAmount)
-	// Create another erc20 for eth to eth
-	erc20ContractAEth := ethtest.Erc20DeployMint(t, ethClientA, optsA, mintAmount)
-	ethtest.FundErc20Handler(t, ethClientA, optsA, contractsA.ERC20HandlerAddress, erc20ContractAEth, fundAmount)
-	ethtest.Erc20Approve(t, ethClientA, optsA, erc20ContractAEth, contractsA.ERC20HandlerAddress, approveAmount)
-	// Register both erc20 contracts with resource IDs
-	ethErc20ResourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20ContractAEth.Bytes(), 31), 0))
-	ethtest.RegisterResource(t, ethClientA, optsA, contractsA.BridgeAddress, contractsA.ERC20HandlerAddress, subErc20ResourceId, erc20ContractASub)
-	ethtest.RegisterResource(t, ethClientA, optsA, contractsA.BridgeAddress, contractsA.ERC20HandlerAddress, ethErc20ResourceId, erc20ContractAEth)
-
-	// ERC721 for Eth <-> Substrate - bridge is funded and depositer has tokens approved for transfer
-	erc721ContractASub := ethtest.Erc721Deploy(t, ethClientA, optsA)
-	ethtest.Erc721MintMany(t, ethClientA, optsA, erc721ContractASub, 1, 10)
-	ethtest.Erc721ApproveMany(t, ethClientA, optsA, erc721ContractASub, contractsA.ERC721HandlerAddress, 1, 5)
-	ethtest.Erc721FundHandlerMany(t, ethClientA, optsA, contractsA.ERC721HandlerAddress, erc721ContractASub, 6, 5)
-	ethtest.Erc721AddMinter(t, ethClientA, optsA, erc721ContractASub, contractsA.ERC721HandlerAddress)
-	ethtest.RegisterResource(t, ethClientA, optsA, contractsA.BridgeAddress, contractsA.ERC721HandlerAddress, subErc721ResourceId, erc721ContractASub)
-	ethtest.SetBurnable(t, ethClientA, optsA, contractsA.BridgeAddress, contractsA.ERC721HandlerAddress, erc721ContractASub)
-
-	// Erc721 for Eth <-> Eth - bridge is funded and depositer has tokens approved for transfer
-	// Enable mint/burn so tokens can only exist on one chain
-	erc721ContractAEth := ethtest.Erc721Deploy(t, ethClientA, optsA)
-	ethtest.Erc721MintMany(t, ethClientA, optsA, erc721ContractAEth, 11, 10)
-	ethtest.Erc721ApproveMany(t, ethClientA, optsA, erc721ContractAEth, contractsA.ERC721HandlerAddress, 11, 5)
-	ethtest.Erc721FundHandlerMany(t, ethClientA, optsA, contractsA.ERC721HandlerAddress, erc721ContractAEth, 16, 5)
-	ethtest.Erc721AddMinter(t, ethClientA, optsA, erc721ContractAEth, contractsA.ERC721HandlerAddress)
-	ethErc721ResourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721ContractAEth.Bytes(), 31), byte(EthAChainId)))
-	ethtest.RegisterResource(t, ethClientA, optsA, contractsA.BridgeAddress, contractsA.ERC721HandlerAddress, ethErc721ResourceId, erc721ContractAEth)
-	ethtest.SetBurnable(t, ethClientA, optsA, contractsA.BridgeAddress, contractsA.ERC721HandlerAddress, erc721ContractAEth)
-
-	// Asset store for sub -> eth tests
-	assetStoreContractASub := ethtest.DeployAssetStore(t, ethClientA, optsA)
-	ethtest.RegisterGenericResource(t, ethClientA, optsA, contractsA.BridgeAddress, contractsA.GenericHandlerAddress, genericHashResourceId, assetStoreContractASub, [4]byte{}, ethutils.StoreFunctionSig)
-
 	// Base setup for ethB ERC20 - handler can mint
 	contractsB := eth.DeployTestContracts(t, EthBEndpoint, EthBChainId, big.NewInt(int64(threshold)))
-	// Deploy erc20 for eth to eth transfers
-	erc20ContractBEth := ethtest.Erc20DeployMint(t, ethClientB, optsB, mintAmount)
-	ethtest.Erc20Approve(t, ethClientB, optsB, erc20ContractBEth, contractsB.ERC20HandlerAddress, approveAmount)
-	ethtest.Erc20AddMinter(t, ethClientB, optsB, erc20ContractBEth, contractsB.ERC20HandlerAddress)
-	ethtest.RegisterResource(t, ethClientB, optsB, contractsB.BridgeAddress, contractsB.ERC20HandlerAddress, ethErc20ResourceId, erc20ContractBEth)
-	ethtest.SetBurnable(t, ethClientB, optsB, contractsB.BridgeAddress, contractsB.ERC20HandlerAddress, erc20ContractBEth)
 
-	erc721ContractBEth := ethtest.Erc721Deploy(t, ethClientB, optsB)
-	ethtest.Erc721AddMinter(t, ethClientB, optsB, erc721ContractBEth, contractsB.ERC721HandlerAddress)
-	ethtest.RegisterResource(t, ethClientB, optsB, contractsB.BridgeAddress, contractsB.ERC721HandlerAddress, ethErc721ResourceId, erc721ContractBEth)
-	ethtest.SetBurnable(t, ethClientB, optsB, contractsB.BridgeAddress, contractsB.ERC721HandlerAddress, erc721ContractBEth)
+	// Create the initial context, added to in setup functions
+	ctx := &testContext{
+		ethA: &eth.TestContext{
+			BaseContracts: contractsA,
+			TestContracts: eth.TestContracts{},
+			Client:        ethClientA,
+			Opts:          optsA,
+		},
+		ethB: &eth.TestContext{
+			BaseContracts: contractsB,
+			TestContracts: eth.TestContracts{},
+			Client:        ethClientB,
+			Opts:          optsB,
+		},
+		subClient:              subClient,
+		EthSubErc20ResourceId:  subErc20ResourceId,
+		EthSubErc721ResourceId: subErc721ResourceId,
+		GenericHashResourceId:  genericHashResourceId,
+	}
 
-	// Asset store for eth -> eth test
-	assetStoreContractBEth := ethtest.DeployAssetStore(t, ethClientB, optsB)
-	ethGenericResourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(assetStoreContractBEth.Bytes(), 31), byte(EthBChainId)))
-	ethtest.RegisterGenericResource(t, ethClientB, optsB, contractsB.BridgeAddress, contractsB.GenericHandlerAddress, ethGenericResourceId, assetStoreContractBEth, [4]byte{}, ethutils.StoreFunctionSig)
-	// Register resource on ethA as well, address used could be anything
-	ethtest.RegisterGenericResource(t, ethClientA, optsA, contractsA.BridgeAddress, contractsA.GenericHandlerAddress, ethGenericResourceId, assetStoreContractBEth, [4]byte{}, ethutils.StoreFunctionSig)
+	setupFungibleTests(t, ctx)
+	setupNonFungibleTests(t, ctx)
+	setupGenericTests(t, ctx)
 
 	// Setup substrate client, register resource, add relayers
 	resources := map[msg.ResourceId]subutils.Method{
@@ -227,42 +271,6 @@ func Test_ThreeRelayers(t *testing.T) {
 	_, aliceLog := createAndStartBridge(t, "alice", contractsA, contractsB)
 	_, bobLog := createAndStartBridge(t, "bob", contractsA, contractsB)
 	_, charlieLog := createAndStartBridge(t, "charlie", contractsA, contractsB)
-
-	ctx := &testContext{
-		ethA: &eth.TestContext{
-			BaseContracts: contractsA,
-			TestContracts: eth.TestContracts{
-				Erc20Sub:      erc20ContractASub,
-				Erc20Eth:      erc20ContractAEth,
-				Erc721Sub:     erc721ContractASub,
-				Erc721Eth:     erc721ContractAEth,
-				AssetStoreSub: assetStoreContractASub,
-				AssetStoreEth: common.Address{},
-			},
-			Client: ethClientA,
-			Opts:   optsA,
-		},
-		ethB: &eth.TestContext{
-			BaseContracts: contractsB,
-			TestContracts: eth.TestContracts{
-				Erc20Sub:      common.Address{}, // Not used
-				Erc20Eth:      erc20ContractBEth,
-				Erc721Sub:     common.Address{}, // Not used
-				Erc721Eth:     erc721ContractBEth,
-				AssetStoreSub: common.Address{},
-				AssetStoreEth: assetStoreContractBEth,
-			},
-			Client: ethClientB,
-			Opts:   optsB,
-		},
-		subClient:              subClient,
-		EthSubErc20ResourceId:  subErc20ResourceId,
-		EthEthErc20ResourceId:  ethErc20ResourceId,
-		EthSubErc721ResourceId: subErc721ResourceId,
-		EthEthErc721ResourceId: ethErc721ResourceId,
-		GenericHashResourceId:  genericHashResourceId,
-		EthGenericResourceId:   ethGenericResourceId,
-	}
 
 	for _, tt := range tests {
 		tt := tt

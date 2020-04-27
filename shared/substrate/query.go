@@ -53,3 +53,19 @@ func BalanceOf(client *Client, publicKey []byte) (*big.Int, error) {
 	}
 	return acct.Data.Free.Int, nil
 }
+
+func GetErc721Token(client *Client, id types.U256) (*Erc721Token, error) {
+	var res Erc721Token
+	tokenIdBz, err := types.EncodeToBytes(id)
+	if err != nil {
+		return nil, err
+	}
+	exists, err := QueryStorage(client, "TokenStorage", "Tokens", tokenIdBz, nil, &res)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, fmt.Errorf("token %s does not exist", id.String())
+	}
+	return &res, nil
+}

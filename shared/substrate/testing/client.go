@@ -10,6 +10,7 @@ import (
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -99,6 +100,7 @@ func AssertOwnerOf(t *testing.T, client *utils.Client, tokenId *big.Int, expecte
 	if !bytes.Equal(owner[:], expected[:]) {
 		t.Fatalf("Owner does not match for token %s. Got: %x expected: %x", tokenId.String(), owner, expected)
 	}
+	log15.Info("Asserted ownership of erc721", "tokenId", tokenId.String(), "owner", owner)
 }
 
 func GetDepositNonce(t *testing.T, client *utils.Client, chain msg.ChainId) uint64 {

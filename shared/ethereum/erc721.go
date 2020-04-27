@@ -90,13 +90,21 @@ func FundErc721Handler(client *ethclient.Client, opts *bind.TransactOpts, handle
 	return nil
 }
 
-func OwnerOf(client *ethclient.Client, erc721Contract common.Address, tokenId *big.Int) (common.Address, error) {
+func OwnerOf(client *ethclient.Client, opts *bind.TransactOpts, erc721Contract common.Address, tokenId *big.Int) (common.Address, error) {
 	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(erc721Contract, client)
 	if err != nil {
 		return ZeroAddress, err
 	}
+	return instance.OwnerOf(&bind.CallOpts{From: opts.From}, tokenId)
+}
 
-	return instance.OwnerOf(&bind.CallOpts{}, tokenId)
+func Erc721GetTokenURI(client *ethclient.Client, opts *bind.TransactOpts, erc721Contract common.Address, tokenId *big.Int) (string, error) {
+	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(erc721Contract, client)
+	if err != nil {
+		return "", err
+	}
+
+	return instance.TokenURI(&bind.CallOpts{From: opts.From}, tokenId)
 }
 
 func Erc721AddMinter(client *ethclient.Client, opts *bind.TransactOpts, erc721Contract common.Address, minter common.Address) error {

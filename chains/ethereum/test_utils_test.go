@@ -122,7 +122,7 @@ func createErc721Deposit(
 	metadata []byte,
 ) {
 
-	data := utils.ConstructErc721DepositData(rId, tokenId, destRecipient.Bytes(), metadata)
+	data := utils.ConstructErc721DepositData(rId, tokenId, destRecipient.Bytes())
 
 	// Incrememnt Nonce by one
 	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
