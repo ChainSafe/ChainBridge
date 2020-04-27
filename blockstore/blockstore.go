@@ -65,7 +65,7 @@ func (b *Blockstore) StoreBlock(block *big.Int) error {
 
 	// Write bytes to file
 	data := []byte(block.String())
-	err := ioutil.WriteFile(b.fullPath, data, 0644)
+	err := ioutil.WriteFile(b.fullPath, data, 0600)
 	if err != nil {
 		return err
 	}
