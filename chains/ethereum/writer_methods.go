@@ -17,8 +17,8 @@ import (
 
 func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipient []byte) []byte {
 	var data []byte
-	data = append(data, common.LeftPadBytes(amount, 32)...) // amount
 	data = append(data, resourceId[:]...)                   // resourceId
+	data = append(data, common.LeftPadBytes(amount, 32)...) // amount
 
 	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
 	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
@@ -50,7 +50,7 @@ func constructGenericProposalData(resourceId msg.ResourceId, metadata []byte) []
 
 // proposalIsComplete returns true if the proposal state is either Passed(2) or Transferred(3)
 func (w *writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
-	prop, err := w.bridgeContract.GetDepositProposal(&bind.CallOpts{}, uint8(destId), nonce.Big())
+	prop, err := w.bridgeContract.GetProposal(&bind.CallOpts{}, uint8(destId), nonce.Big())
 	if err != nil {
 		log.Error("Failed to check deposit proposal", "err", err)
 		return false
@@ -81,7 +81,7 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 
 	w.log.Debug("Submitting CreateDepositProposal for ERC20", "source", m.Source, "depositNonce", m.DepositNonce)
 
-	_, err = w.bridgeContract.VoteDepositProposal(
+	_, err = w.bridgeContract.VoteProposal(
 		opts,
 		uint8(m.Source),
 		m.DepositNonce.Big(),
@@ -118,9 +118,9 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.erc721HandlerContract, data)
 
-	w.log.Debug("Submitting CreateDepositProposal for ERC721", "source", m.Source, "depositNonce", m.DepositNonce)
+	w.log.Debug("Submitting VoteProposal for ERC721", "source", m.Source, "depositNonce", m.DepositNonce)
 
-	_, err = w.bridgeContract.VoteDepositProposal(
+	_, err = w.bridgeContract.VoteProposal(
 		opts,
 		uint8(m.Source),
 		m.DepositNonce.Big(),
@@ -128,7 +128,7 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 	)
 
 	if err != nil {
-		w.log.Error("Failed to submit createDepositProposal transaction", "err", err)
+		w.log.Error("Failed to submit VoteProposal transaction", "err", err)
 		return false
 	}
 	nonce.lock.Unlock()
@@ -159,8 +159,8 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	// watch for execution event
 	go w.watchAndExecute(m, w.cfg.genericHandlerContract, data)
 
-	w.log.Trace("Submitting CreateDepositProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
-	_, err = w.bridgeContract.VoteDepositProposal(
+	w.log.Trace("Submitting VoteProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
+	_, err = w.bridgeContract.VoteProposal(
 		opts,
 		uint8(m.Source),
 		m.DepositNonce.Big(),
@@ -168,7 +168,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	)
 
 	if err != nil {
-		w.log.Error("Failed to submit voteDepsitProposal transaction", "err", err)
+		w.log.Error("Failed to submit VoteProposal transaction", "err", err)
 		return false
 	}
 	nonce.lock.Unlock()
@@ -220,7 +220,7 @@ func (w *writer) executeProposal(m msg.Message, handler common.Address, data []b
 	}
 	defer nonce.lock.Unlock()
 
-	_, err = w.bridgeContract.ExecuteDepositProposal(
+	_, err = w.bridgeContract.ExecuteProposal(
 		opts,
 		uint8(m.Source),
 		m.DepositNonce.Big(),
