@@ -111,16 +111,16 @@ type EventSudid struct {
 
 type Events struct {
 	types.EventRecords
-	Bridge_RelayerThresholdChanged []EventRelayerThresholdChanged //nolint:stylecheck,golint
-	Bridge_ChainWhitelisted        []EventChainWhitelisted        //nolint:stylecheck,golint
-	Bridge_RelayerAdded            []EventRelayerAdded            //nolint:stylecheck,golint
-	Bridge_RelayerRemoved          []EventRelayerRemoved          //nolint:stylecheck,golint
-	Bridge_VoteFor                 []EventVoteFor                 //nolint:stylecheck,golint
-	Bridge_VoteAgainst             []EventVoteAgainst             //nolint:stylecheck,golint
-	Bridge_ProposalApproved        []EventProposalApproved        //nolint:stylecheck,golint
-	Bridge_ProposalRejected        []EventProposalRejected        //nolint:stylecheck,golint
-	Bridge_ProposalSucceeded       []EventProposalSucceeded       //nolint:stylecheck,golint
-	Bridge_ProposalFailed          []EventProposalFailed          //nolint:stylecheck,golint
+	ChainBridge_RelayerThresholdChanged []EventRelayerThresholdChanged //nolint:stylecheck,golint
+	ChainBridge_ChainWhitelisted        []EventChainWhitelisted        //nolint:stylecheck,golint
+	ChainBridge_RelayerAdded            []EventRelayerAdded            //nolint:stylecheck,golint
+	ChainBridge_RelayerRemoved          []EventRelayerRemoved          //nolint:stylecheck,golint
+	ChainBridge_VoteFor                 []EventVoteFor                 //nolint:stylecheck,golint
+	ChainBridge_VoteAgainst             []EventVoteAgainst             //nolint:stylecheck,golint
+	ChainBridge_ProposalApproved        []EventProposalApproved        //nolint:stylecheck,golint
+	ChainBridge_ProposalRejected        []EventProposalRejected        //nolint:stylecheck,golint
+	ChainBridge_ProposalSucceeded       []EventProposalSucceeded       //nolint:stylecheck,golint
+	ChainBridge_ProposalFailed          []EventProposalFailed          //nolint:stylecheck,golint
 	Erc721_Minted                  []EventErc721Minted            //nolint:stylecheck,golint
 	Erc721_Transferred             []EventErc721Transferred       //nolint:stylecheck,golint
 	Erc721_Burned                  []EventErc721Burned            //nolint:stylecheck,golint
