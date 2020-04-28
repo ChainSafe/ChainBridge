@@ -23,7 +23,7 @@ func assertProposalState(t *testing.T, conn *Connection, prop *proposal, votes *
 	if err != nil {
 		t.Fatal(err)
 	}
-	ok, err := conn.queryStorage("Bridge", "Votes", srcId, propBz, &voteRes)
+	ok, err := conn.queryStorage("ChainBridge", "Votes", srcId, propBz, &voteRes)
 	if err != nil {
 		t.Fatalf("failed to query votes: %s", err)
 	}
