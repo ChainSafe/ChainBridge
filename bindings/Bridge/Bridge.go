@@ -27,8 +27,8 @@ var (
 	_ = event.NewSubscription
 )
 
-// BridgeDepositProposal is an auto generated low-level Go binding around an user-defined struct.
-type BridgeDepositProposal struct {
+// BridgeProposal is an auto generated low-level Go binding around an user-defined struct.
+type BridgeProposal struct {
 	DataHash [32]byte
 	YesVotes []common.Address
 	NoVotes  []common.Address
@@ -36,19 +36,19 @@ type BridgeDepositProposal struct {
 }
 
 // BridgeABI is the input ABI used to generate the binding from.
-const BridgeABI = "[{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"chainID\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"relayerContract\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"initialRelayerThreshold\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"originChainHandlerAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"}],\"name\":\"Deposit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"dataHash\",\"type\":\"bytes32\"}],\"name\":\"DepositProposalCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"}],\"name\":\"DepositProposalExecuted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"}],\"name\":\"DepositProposalFinalized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"enumBridge.DepositProposalStatus\",\"name\":\"status\",\"type\":\"uint8\"}],\"name\":\"DepositProposalVote\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"newThreshold\",\"type\":\"uint256\"}],\"name\":\"RelayerThresholdChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"proposedValue\",\"type\":\"uint256\"}],\"name\":\"RelayerThresholdProposalCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"enumBridge.Vote\",\"name\":\"vote\",\"type\":\"uint8\"}],\"name\":\"RelayerThresholdProposalVote\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"_chainID\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_currentRelayerThresholdProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"_proposedValue\",\"type\":\"uint256\"},{\"internalType\":\"enumBridge.RelayerThresholdProposalStatus\",\"name\":\"_status\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"name\":\"_depositCounts\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"_depositProposals\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"_dataHash\",\"type\":\"bytes32\"},{\"internalType\":\"enumBridge.DepositProposalStatus\",\"name\":\"_status\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"_depositRecords\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_hasVotedOnDepositProposal\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_relayerContract\",\"outputs\":[{\"internalType\":\"contractIRelayer\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_relayerThreshold\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_totalDepositProposals\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCurrentRelayerThresholdProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"},{\"internalType\":\"enumBridge.RelayerThresholdProposalStatus\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"}],\"name\":\"getDepositProposal\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"_dataHash\",\"type\":\"bytes32\"},{\"internalType\":\"address[]\",\"name\":\"_yesVotes\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"_noVotes\",\"type\":\"address[]\"},{\"internalType\":\"enumBridge.DepositProposalStatus\",\"name\":\"_status\",\"type\":\"uint8\"}],\"internalType\":\"structBridge.DepositProposal\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"originChainHandlerAddress\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"dataHash\",\"type\":\"bytes32\"}],\"name\":\"voteDepositProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"destinationChainHandlerAddress\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"executeDepositProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"proposedValue\",\"type\":\"uint256\"}],\"name\":\"createRelayerThresholdProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumBridge.Vote\",\"name\":\"vote\",\"type\":\"uint8\"}],\"name\":\"voteRelayerThresholdProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const BridgeABI = "[{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"chainID\",\"type\":\"uint8\"},{\"internalType\":\"address[]\",\"name\":\"initialRelayers\",\"type\":\"address[]\"},{\"internalType\":\"uint256\",\"name\":\"initialRelayerThreshold\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"handlerAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"}],\"name\":\"Deposit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"dataHash\",\"type\":\"bytes32\"}],\"name\":\"ProposalCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"}],\"name\":\"ProposalExecuted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"}],\"name\":\"ProposalFinalized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"enumBridge.ProposalStatus\",\"name\":\"status\",\"type\":\"uint8\"}],\"name\":\"ProposalVote\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"relayer\",\"type\":\"address\"}],\"name\":\"RelayerAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"relayer\",\"type\":\"address\"}],\"name\":\"RelayerRemoved\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"newThreshold\",\"type\":\"uint256\"}],\"name\":\"RelayerThresholdChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"RELAYER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_chainID\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"name\":\"_depositCounts\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"_depositRecords\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_hasVotedOnProposal\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"_proposals\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"_dataHash\",\"type\":\"bytes32\"},{\"internalType\":\"enumBridge.ProposalStatus\",\"name\":\"_status\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_relayerThreshold\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_totalProposals\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_totalRelayers\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleAdmin\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"getRoleMember\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleMemberCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"grantRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"renounceRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"relayer\",\"type\":\"address\"}],\"name\":\"isRelayer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"}],\"name\":\"renounceAdmin\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"adminPauseTransfers\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"adminUnpauseTransfers\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"newThreshold\",\"type\":\"uint256\"}],\"name\":\"adminChangeRelayerThreshold\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"relayerAddress\",\"type\":\"address\"}],\"name\":\"adminAddRelayer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"relayerAddress\",\"type\":\"address\"}],\"name\":\"adminRemoveRelayer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"handlerAddress\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"resourceID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"}],\"name\":\"adminSetResource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"handlerAddress\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"resourceID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"depositFunctionSig\",\"type\":\"bytes4\"},{\"internalType\":\"bytes4\",\"name\":\"executeFunctionSig\",\"type\":\"bytes4\"}],\"name\":\"adminSetGenericResource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"handlerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"}],\"name\":\"adminSetBurnable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"}],\"name\":\"getProposal\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"_dataHash\",\"type\":\"bytes32\"},{\"internalType\":\"address[]\",\"name\":\"_yesVotes\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"_noVotes\",\"type\":\"address[]\"},{\"internalType\":\"enumBridge.ProposalStatus\",\"name\":\"_status\",\"type\":\"uint8\"}],\"internalType\":\"structBridge.Proposal\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"destinationChainID\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"handler\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"dataHash\",\"type\":\"bytes32\"}],\"name\":\"voteProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"originChainID\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"depositNonce\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"handler\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"executeProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // BridgeBin is the compiled bytecode used for deploying new contracts.
-var BridgeBin = "0x60806040523480156200001157600080fd5b50604051620030ba380380620030ba8339818101604052810190620000379190620000e7565b826000806101000a81548160ff021916908360ff16021790555081600060016101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555080600181905550505050620001d6565b600081519050620000b38162000188565b92915050565b600081519050620000ca81620001a2565b92915050565b600081519050620000e181620001bc565b92915050565b600080600060608486031215620000fd57600080fd5b60006200010d86828701620000d0565b93505060206200012086828701620000a2565b92505060406200013386828701620000b9565b9150509250925092565b60006200014a8262000151565b9050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b600060ff82169050919050565b62000193816200013d565b81146200019f57600080fd5b50565b620001ad8162000171565b8114620001b957600080fd5b50565b620001c7816200017b565b8114620001d357600080fd5b50565b612ed480620001e66000396000f3fe608060405234801561001057600080fd5b50600436106101005760003560e01c8063beab713111610097578063e9cdaead11610066578063e9cdaead146102c5578063ea059625146102e1578063fe612136146102ff578063ff6ae0031461031e57610100565b8063beab71311461023d578063ce3d57841461025b578063d7a9cd791461028b578063df269060146102a957610100565b80635f31b69c116100d35780635f31b69c1461018b5780637820b222146101ac5780638ba3706a146101dd578063aca18b261461020d57610100565b806306899ca4146101055780633e87ba3c14610123578063478fa2401461013f5780634b0b919d1461015b575b600080fd5b61010d61033a565b60405161011a9190612a31565b60405180910390f35b61013d60048036038101906101389190611f11565b610340565b005b61015960048036038101906101549190612003565b61046e565b005b61017560048036038101906101709190611ee8565b6106c0565b6040516101829190612a31565b60405180910390f35b6101936106d8565b6040516101a39493929190612a4c565b60405180910390f35b6101c660048036038101906101c19190611f78565b61081f565b6040516101d49291906127cf565b60405180910390f35b6101f760048036038101906101f29190611fb4565b61085d565b6040516102049190612799565b60405180910390f35b61022760048036038101906102229190611f78565b610899565b6040516102349190612a0f565b60405180910390f35b610245610a31565b6040516102529190612ac8565b60405180910390f35b61027560048036038101906102709190611f78565b610a43565b60405161028291906127f8565b60405180910390f35b610293610b00565b6040516102a09190612a31565b60405180910390f35b6102c360048036038101906102be9190611e96565b610b06565b005b6102df60048036038101906102da9190611e6d565b610f92565b005b6102e96114bb565b6040516102f6919061283c565b60405180910390f35b6103076114e1565b604051610315929190612a9f565b60405180910390f35b6103386004803603810190610333919061207e565b611500565b005b60075481565b6000600860008560ff1660ff16815260200190815260200160002060008154600101919050819055905081600960008660ff1660ff168152602001908152602001600020600083815260200190815260200160002090805190602001906103a8929190611bb5565b5060008390508073ffffffffffffffffffffffffffffffffffffffff166345a104db868433876040518563ffffffff1660e01b81526004016103ed9493929190612ae3565b600060405180830381600087803b15801561040757600080fd5b505af115801561041b573d6000803e3d6000fd5b50505050818473ffffffffffffffffffffffffffffffffffffffff168660ff167f47903cb3f3dd35755d4df452f71612f60bd0bfc2f66f52901e099f3ac2f319fe60405160405180910390a45050505050565b6000600a60008660ff1660ff16815260200190815260200160002060008581526020019081526020016000209050600060038111156104a957fe5b8160030160009054906101000a900460ff1660038111156104c657fe5b1415610507576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104fe906128af565b60405180910390fd5b6002600381111561051457fe5b8160030160009054906101000a900460ff16600381111561053157fe5b14610571576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016105689061298f565b60405180910390fd5b80600001548383604051602001610589929190612756565b60405160208183030381529060405280519060200120146105df576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016105d69061292f565b60405180910390fd5b60008390508073ffffffffffffffffffffffffffffffffffffffff1663fc9539cd846040518263ffffffff1660e01b815260040161061d919061281a565b600060405180830381600087803b15801561063757600080fd5b505af115801561064b573d6000803e3d6000fd5b5050505060038260030160006101000a81548160ff0219169083600381111561067057fe5b0217905550846000809054906101000a900460ff1660ff168760ff167f640ba3edbd745a745b6a269a81cb65a1b89988ab7e874ee1f55ac8e75b62e91a60405160405180910390a4505050505050565b60086020528060005260406000206000915090505481565b60006060806000600260000154600280016002600301600260040160009054906101000a900460ff168280548060200260200160405190810160405280929190818152602001828054801561078257602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019060010190808311610738575b505050505092508180548060200260200160405190810160405280929190818152602001828054801561080a57602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190600101908083116107c0575b50505050509150935093509350935090919293565b600a602052816000526040600020602052806000526040600020600091509150508060000154908060030160009054906101000a900460ff16905082565b600b602052826000526040600020602052816000526040600020602052806000526040600020600092509250509054906101000a900460ff1681565b6108a1611c35565b600a60008460ff1660ff1681526020019081526020016000206000838152602001908152602001600020604051806080016040529081600082015481526020016001820180548060200260200160405190810160405280929190818152602001828054801561096557602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001906001019080831161091b575b50505050508152602001600282018054806020026020016040519081016040528092919081815260200182805480156109f357602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190600101908083116109a9575b505050505081526020016003820160009054906101000a900460ff166003811115610a1a57fe5b6003811115610a2557fe5b81525050905092915050565b6000809054906101000a900460ff1681565b6009602052816000526040600020602052806000526040600020600091509150508054600181600116156101000203166002900480601f016020809104026020016040519081016040528092919081815260200182805460018160011615610100020316600290048015610af85780601f10610acd57610100808354040283529160200191610af8565b820191906000526020600020905b815481529060010190602001808311610adb57829003601f168201915b505050505081565b60015481565b60008060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff1663541d5548336040518263ffffffff1660e01b8152600401610b65919061277e565b602060405180830381600087803b158015610b7f57600080fd5b505af1158015610b93573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610bb79190611e44565b610bf6576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610bed906129af565b60405180910390fd5b60006001811115610c0357fe5b600260040160009054906101000a900460ff166001811115610c2157fe5b14610c61576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610c58906129cf565b60405180910390fd5b600060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663933b46676040518163ffffffff1660e01b8152600401602060405180830381600087803b158015610ccb57600080fd5b505af1158015610cdf573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610d039190611ebf565b821115610d45576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610d3c906128ef565b60405180910390fd5b60405180608001604052808381526020016001604051908082528060200260200182016040528015610d865781602001602082028036833780820191505090505b5081526020016000604051908082528060200260200182016040528015610dbc5781602001602082028036833780820191505090505b508152602001600180811115610dce57fe5b8152506002600082015181600001556020820151816002019080519060200190610df9929190611c6b565b506040820151816003019080519060200190610e16929190611c6b565b5060608201518160040160006101000a81548160ff02191690836001811115610e3b57fe5b02179055509050506001805411610ead576002600001546001819055506000600260040160006101000a81548160ff02191690836001811115610e7a57fe5b0217905550817fa20d6b84cd798a24038be305eff8a45ca82ef54a2aa2082005d8e14c0a4746c860405160405180910390a25b3360028001600081548110610ebe57fe5b9060005260206000200160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506001600260010160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff021916908315150217905550817f79a7cdf066fccb1627ec87a3dd0bf8dcb3a186313f941c8bf80ed979aa62d38d60405160405180910390a25050565b60008060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff1663541d5548336040518263ffffffff1660e01b8152600401610ff1919061277e565b602060405180830381600087803b15801561100b57600080fd5b505af115801561101f573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906110439190611e44565b611082576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611079906129af565b60405180910390fd5b60018081111561108e57fe5b600260040160009054906101000a900460ff1660018111156110ac57fe5b146110ec576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016110e39061294f565b60405180910390fd5b600260010160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff161561117c576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016111739061290f565b60405180910390fd5b600182600181111561118a57fe5b60ff1611156111ce576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016111c5906129ef565b60405180910390fd5b6001808111156111da57fe5b8260018111156111e657fe5b14156112565760028001339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506112bd565b6002600301339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b6001600260010160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff0219169083151502179055507fe6124fe2b7a19e7cdd807fb16247ec258d8fb0bfde2949b023bcb0c1eea19cb1826040516113479190612872565b60405180910390a16001546002800180549050106113c9576002600001546001819055506000600260040160006101000a81548160ff0219169083600181111561138d57fe5b02179055506002600001547fa20d6b84cd798a24038be305eff8a45ca82ef54a2aa2082005d8e14c0a4746c860405160405180910390a26114b7565b600154611488600260030180549050600060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663933b46676040518163ffffffff1660e01b8152600401602060405180830381600087803b15801561144257600080fd5b505af1158015611456573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061147a9190611ebf565b611b1090919063ffffffff16565b10156114b6576000600260040160006101000a81548160ff021916908360018111156114b057fe5b02179055505b5b5050565b600060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60028060000154908060040160009054906101000a900460ff16905082565b60008060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff1663541d5548336040518263ffffffff1660e01b815260040161155f919061277e565b602060405180830381600087803b15801561157957600080fd5b505af115801561158d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906115b19190611e44565b6115f0576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016115e7906129af565b60405180910390fd5b6000600a60008660ff1660ff1681526020019081526020016000206000858152602001908152602001600020905060018160030160009054906101000a900460ff16600381111561163d57fe5b111561167e576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016116759061296f565b60405180910390fd5b600b60008660ff1660ff168152602001908152602001600020600085815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff1615611733576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161172a906128cf565b60405180910390fd5b60008160030160009054906101000a900460ff16600381111561175257fe5b141561193b5760076000815460010191905081905550604051806080016040528084815260200160016040519080825280602002602001820160405280156117a95781602001602082028036833780820191505090505b50815260200160006040519080825280602002602001820160405280156117df5781602001602082028036833780820191505090505b508152602001600160038111156117f257fe5b815250600a60008760ff1660ff1681526020019081526020016000206000868152602001908152602001600020600082015181600001556020820151816001019080519060200190611845929190611c6b565b506040820151816002019080519060200190611862929190611c6b565b5060608201518160030160006101000a81548160ff0219169083600381111561188757fe5b021790555090505033816001016000815481106118a057fe5b9060005260206000200160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550836000809054906101000a900460ff1660ff168660ff167f3cf2380ab0b4b694f36db8d3dc8d091a58b09ba7ef5fb8e1034f8ccb08374eba8660405161192e91906127b4565b60405180910390a46119a1565b80600101339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b6001600b60008760ff1660ff168152602001908152602001600020600086815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff021916908315150217905550836000809054906101000a900460ff1660ff168660ff167f9303f7ba0a914d8845f7d7f02b6ceb8cc2c254ee29400249d83a7c927bdfc91b8460030160009054906101000a900460ff16604051611a789190612857565b60405180910390a460018054111580611a9a5750600154816001018054905010155b15611b095760028160030160006101000a81548160ff02191690836003811115611ac057fe5b0217905550836000809054906101000a900460ff1660ff168660ff167f1c08c42c3aaddc0b858614077f65d320290b2be47c2e837005e199e921184ff560405160405180910390a45b5050505050565b6000611b5283836040518060400160405280601e81526020017f536166654d6174683a207375627472616374696f6e206f766572666c6f770000815250611b5a565b905092915050565b6000838311158290611ba2576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611b99919061288d565b60405180910390fd5b5060008385039050809150509392505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f10611bf657805160ff1916838001178555611c24565b82800160010185558215611c24579182015b82811115611c23578251825591602001919060010190611c08565b5b509050611c319190611cf5565b5090565b604051806080016040528060008019168152602001606081526020016060815260200160006003811115611c6557fe5b81525090565b828054828255906000526020600020908101928215611ce4579160200282015b82811115611ce35782518260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555091602001919060010190611c8b565b5b509050611cf19190611d1a565b5090565b611d1791905b80821115611d13576000816000905550600101611cfb565b5090565b90565b611d5a91905b80821115611d5657600081816101000a81549073ffffffffffffffffffffffffffffffffffffffff021916905550600101611d20565b5090565b90565b600081359050611d6c81612e1b565b92915050565b600081519050611d8181612e32565b92915050565b600081359050611d9681612e49565b92915050565b600082601f830112611dad57600080fd5b8135611dc0611dbb82612b5c565b612b2f565b91508082526020830160208301858383011115611ddc57600080fd5b611de7838284612d70565b50505092915050565b600081359050611dff81612e60565b92915050565b600081359050611e1481612e70565b92915050565b600081519050611e2981612e70565b92915050565b600081359050611e3e81612e87565b92915050565b600060208284031215611e5657600080fd5b6000611e6484828501611d72565b91505092915050565b600060208284031215611e7f57600080fd5b6000611e8d84828501611df0565b91505092915050565b600060208284031215611ea857600080fd5b6000611eb684828501611e05565b91505092915050565b600060208284031215611ed157600080fd5b6000611edf84828501611e1a565b91505092915050565b600060208284031215611efa57600080fd5b6000611f0884828501611e2f565b91505092915050565b600080600060608486031215611f2657600080fd5b6000611f3486828701611e2f565b9350506020611f4586828701611d5d565b925050604084013567ffffffffffffffff811115611f6257600080fd5b611f6e86828701611d9c565b9150509250925092565b60008060408385031215611f8b57600080fd5b6000611f9985828601611e2f565b9250506020611faa85828601611e05565b9150509250929050565b600080600060608486031215611fc957600080fd5b6000611fd786828701611e2f565b9350506020611fe886828701611e05565b9250506040611ff986828701611d5d565b9150509250925092565b6000806000806080858703121561201957600080fd5b600061202787828801611e2f565b945050602061203887828801611e05565b935050604061204987828801611d5d565b925050606085013567ffffffffffffffff81111561206657600080fd5b61207287828801611d9c565b91505092959194509250565b60008060006060848603121561209357600080fd5b60006120a186828701611e2f565b93505060206120b286828701611e05565b92505060406120c386828701611d87565b9150509250925092565b60006120d983836120f4565b60208301905092915050565b6120ee81612ce0565b82525050565b6120fd81612c48565b82525050565b61211461210f82612c48565b612db2565b82525050565b600061212582612bb3565b61212f8185612c0a565b935061213a83612b98565b8060005b8381101561216b57815161215288826120cd565b975061215d83612bec565b92505060018101905061213e565b5085935050505092915050565b600061218382612ba8565b61218d8185612bf9565b935061219883612b88565b8060005b838110156121c95781516121b088826120cd565b97506121bb83612bdf565b92505060018101905061219c565b5085935050505092915050565b6121df81612c5a565b82525050565b6121ee81612c66565b82525050565b6121fd81612c66565b82525050565b600061220e82612bc9565b6122188185612c1b565b9350612228818560208601612d7f565b61223181612dd6565b840191505092915050565b600061224782612bc9565b6122518185612c2c565b9350612261818560208601612d7f565b80840191505092915050565b600061227882612bbe565b6122828185612c1b565b9350612292818560208601612d7f565b61229b81612dd6565b840191505092915050565b6122af81612cf2565b82525050565b6122be81612d16565b82525050565b6122cd81612d16565b82525050565b6122dc81612d28565b82525050565b6122eb81612d3a565b82525050565b60006122fc82612bd4565b6123068185612c37565b9350612316818560208601612d7f565b61231f81612dd6565b840191505092915050565b6000612337601683612c37565b91507f70726f706f73616c206973206e6f7420616374697665000000000000000000006000830152602082019050919050565b6000612377602583612c37565b91507f72656c617965722068617320616c726561647920766f746564206f6e2070726f60008301527f706f73616c0000000000000000000000000000000000000000000000000000006020830152604082019050919050565b60006123dd604283612c37565b91507f70726f706f7365642076616c75652063616e6e6f74206265206772656174657260008301527f207468616e2074686520746f74616c206e756d626572206f662072656c61796560208301527f72730000000000000000000000000000000000000000000000000000000000006040830152606082019050919050565b6000612469601983612c37565b91507f72656c617965722068617320616c726561647920766f746564000000000000006000830152602082019050919050565b60006124a9603183612c37565b91507f70726f7669646564206461746120646f6573206e6f74206d617463682070726f60008301527f706f73616c2773206461746120686173680000000000000000000000000000006020830152604082019050919050565b600061250f601f83612c37565b91507f6e6f2070726f706f73616c2069732063757272656e746c7920616374697665006000830152602082019050919050565b600061254f602f83612c37565b91507f70726f706f73616c2068617320616c7265616479206265656e2070617373656460008301527f206f72207472616e7366657272656400000000000000000000000000000000006020830152604082019050919050565b60006125b5603783612c37565b91507f70726f706f73616c20776173206e6f7420706173736564206f7220686173206160008301527f6c7265616479206265656e207472616e736665727265640000000000000000006020830152604082019050919050565b600061261b601883612c37565b91507f73656e646572206d75737420626520612072656c6179657200000000000000006000830152602082019050919050565b600061265b601e83612c37565b91507f612070726f706f73616c2069732063757272656e746c792061637469766500006000830152602082019050919050565b600061269b601f83612c37565b91507f766f7465206f7574206f662074686520766f746520656e756d2072616e6765006000830152602082019050919050565b60006080830160008301516126e660008601826121e5565b50602083015184820360208601526126fe8282612178565b915050604083015184820360408601526127188282612178565b915050606083015161272d60608601826122b5565b508091505092915050565b61274181612cc9565b82525050565b61275081612cd3565b82525050565b60006127628285612103565b601482019150612772828461223c565b91508190509392505050565b600060208201905061279360008301846120e5565b92915050565b60006020820190506127ae60008301846121d6565b92915050565b60006020820190506127c960008301846121f4565b92915050565b60006040820190506127e460008301856121f4565b6127f160208301846122c4565b9392505050565b60006020820190508181036000830152612812818461226d565b905092915050565b600060208201905081810360008301526128348184612203565b905092915050565b600060208201905061285160008301846122a6565b92915050565b600060208201905061286c60008301846122c4565b92915050565b600060208201905061288760008301846122e2565b92915050565b600060208201905081810360008301526128a781846122f1565b905092915050565b600060208201905081810360008301526128c88161232a565b9050919050565b600060208201905081810360008301526128e88161236a565b9050919050565b60006020820190508181036000830152612908816123d0565b9050919050565b600060208201905081810360008301526129288161245c565b9050919050565b600060208201905081810360008301526129488161249c565b9050919050565b6000602082019050818103600083015261296881612502565b9050919050565b6000602082019050818103600083015261298881612542565b9050919050565b600060208201905081810360008301526129a8816125a8565b9050919050565b600060208201905081810360008301526129c88161260e565b9050919050565b600060208201905081810360008301526129e88161264e565b9050919050565b60006020820190508181036000830152612a088161268e565b9050919050565b60006020820190508181036000830152612a2981846126ce565b905092915050565b6000602082019050612a466000830184612738565b92915050565b6000608082019050612a616000830187612738565b8181036020830152612a73818661211a565b90508181036040830152612a87818561211a565b9050612a9660608301846122d3565b95945050505050565b6000604082019050612ab46000830185612738565b612ac160208301846122d3565b9392505050565b6000602082019050612add6000830184612747565b92915050565b6000608082019050612af86000830187612747565b612b056020830186612738565b612b1260408301856120e5565b8181036060830152612b248184612203565b905095945050505050565b6000604051905081810181811067ffffffffffffffff82111715612b5257600080fd5b8060405250919050565b600067ffffffffffffffff821115612b7357600080fd5b601f19601f8301169050602081019050919050565b6000819050602082019050919050565b6000819050602082019050919050565b600081519050919050565b600081519050919050565b600081519050919050565b600081519050919050565b600081519050919050565b6000602082019050919050565b6000602082019050919050565b600082825260208201905092915050565b600082825260208201905092915050565b600082825260208201905092915050565b600081905092915050565b600082825260208201905092915050565b6000612c5382612ca9565b9050919050565b60008115159050919050565b6000819050919050565b6000819050612c7e82612df4565b919050565b6000819050612c9182612e01565b919050565b6000819050612ca482612e0e565b919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b600060ff82169050919050565b6000612ceb82612d4c565b9050919050565b6000612cfd82612d04565b9050919050565b6000612d0f82612ca9565b9050919050565b6000612d2182612c70565b9050919050565b6000612d3382612c83565b9050919050565b6000612d4582612c96565b9050919050565b6000612d5782612d5e565b9050919050565b6000612d6982612ca9565b9050919050565b82818337600083830152505050565b60005b83811015612d9d578082015181840152602081019050612d82565b83811115612dac576000848401525b50505050565b6000612dbd82612dc4565b9050919050565b6000612dcf82612de7565b9050919050565b6000601f19601f8301169050919050565b60008160601b9050919050565b60048110612dfe57fe5b50565b60028110612e0b57fe5b50565b60028110612e1857fe5b50565b612e2481612c48565b8114612e2f57600080fd5b50565b612e3b81612c5a565b8114612e4657600080fd5b50565b612e5281612c66565b8114612e5d57600080fd5b50565b60028110612e6d57600080fd5b50565b612e7981612cc9565b8114612e8457600080fd5b50565b612e9081612cd3565b8114612e9b57600080fd5b5056fea2646970667358221220139f61ca3e9abd98c36a77ce70a23a837c08acc1cab79db76f9802ada8bb8c0a64736f6c63430006040033"
+var BridgeBin = "0x60806040523480156200001157600080fd5b50604051620038a9380380620038a98339818101604052810190620000379190620004ac565b60008060006101000a81548160ff02191690831515021790555082600260006101000a81548160ff021916908360ff16021790555080600381905550620000886000801b336200012460201b60201c565b620000b26040516200009a90620005c5565b60405180910390206000801b6200013a60201b60201c565b60005b82518110156200011a57620000fa604051620000d190620005c5565b6040518091039020848381518110620000e657fe5b60200260200101516200015960201b60201c565b6004600081548092919060010191905055508080600101915050620000b5565b505050506200070a565b620001368282620001e860201b60201c565b5050565b8060016000848152602001908152602001600020600201819055505050565b620001906001600084815260200190815260200160002060020154620001846200028c60201b60201c565b6200029460201b60201c565b620001d2576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401620001c990620005dc565b60405180910390fd5b620001e48282620001e860201b60201c565b5050565b620002178160016000858152602001908152602001600020600001620002cd60201b62001be51790919060201c565b1562000288576200022d6200028c60201b60201c565b73ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff16837f2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d60405160405180910390a45b5050565b600033905090565b6000620002c582600160008681526020019081526020016000206000016200030560201b62001af81790919060201c565b905092915050565b6000620002fd836000018373ffffffffffffffffffffffffffffffffffffffff1660001b6200033d60201b60201c565b905092915050565b600062000335836000018373ffffffffffffffffffffffffffffffffffffffff1660001b620003b760201b60201c565b905092915050565b6000620003518383620003b760201b60201c565b620003ac578260000182908060018154018082558091505060019003906000526020600020016000909190919091505582600001805490508360010160008481526020019081526020016000208190555060019050620003b1565b600090505b92915050565b600080836001016000848152602001908152602001600020541415905092915050565b600081519050620003eb81620006bc565b92915050565b600082601f8301126200040357600080fd5b81516200041a62000414826200062c565b620005fe565b915081818352602084019350602081019050838560208402820111156200044057600080fd5b60005b83811015620004745781620004598882620003da565b84526020840193506020830192505060018101905062000443565b5050505092915050565b6000815190506200048f81620006d6565b92915050565b600081519050620004a681620006f0565b92915050565b600080600060608486031215620004c257600080fd5b6000620004d28682870162000495565b935050602084015167ffffffffffffffff811115620004f057600080fd5b620004fe86828701620003f1565b925050604062000511868287016200047e565b9150509250925092565b60006200052a602f8362000655565b91507f416363657373436f6e74726f6c3a2073656e646572206d75737420626520616e60008301527f2061646d696e20746f206772616e7400000000000000000000000000000000006020830152604082019050919050565b600062000592600c8362000666565b91507f52454c415945525f524f4c4500000000000000000000000000000000000000006000830152600c82019050919050565b6000620005d28262000583565b9150819050919050565b60006020820190508181036000830152620005f7816200051b565b9050919050565b6000604051905081810181811067ffffffffffffffff821117156200062257600080fd5b8060405250919050565b600067ffffffffffffffff8211156200064457600080fd5b602082029050602081019050919050565b600082825260208201905092915050565b600081905092915050565b60006200067e8262000685565b9050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b600060ff82169050919050565b620006c78162000671565b8114620006d357600080fd5b50565b620006e181620006a5565b8114620006ed57600080fd5b50565b620006fb81620006af565b81146200070757600080fd5b50565b61318f806200071a6000396000f3fe608060405234801561001057600080fd5b50600436106101f05760003560e01c806391d148541161010f578063cb10f215116100a2578063d7a9cd7911610071578063d7a9cd79146105b4578063e250a8fc146105d2578063e8437ee714610602578063ffaac0eb1461061e576101f0565b8063cb10f21514610530578063cdb0f73a1461054c578063ce3d578414610568578063d547741f14610598576101f0565b80639d82dd63116100de5780639d82dd63146104a8578063a217fddf146104c4578063beab7131146104e2578063ca15c87314610500576101f0565b806391d1485414610420578063926d7d7f146104505780639923ed101461046e5780639d5773e01461048a576101f0565b80635525e8791161018757806380ae1c281161015657806380ae1c28146103ae57806382f5ef3e146103b85780638c0c2631146103d45780639010d07c146103f0576101f0565b80635525e879146103265780635c975abb146103565780635e1fab0f14610374578063802aabe814610390576101f0565b80633e87ba3c116101c35780633e87ba3c1461028e5780634b0b919d146102aa5780634e056005146102da578063541d5548146102f6576101f0565b8063248a9ca3146101f55780632f2ff15d14610225578063340679391461024157806336568abe14610272575b600080fd5b61020f600480360381019061020a91906121ce565b610628565b60405161021c9190612b7a565b60405180910390f35b61023f600480360381019061023a91906121f7565b610648565b005b61025b60048036038101906102569190612328565b6106bc565b604051610269929190612c03565b60405180910390f35b61028c600480360381019061028791906121f7565b6106fa565b005b6102a860048036038101906102a391906122c1565b61077d565b005b6102c460048036038101906102bf9190612298565b6108fa565b6040516102d19190612e0d565b60405180910390f35b6102f460048036038101906102ef919061226f565b610912565b005b610310600480360381019061030b91906120a3565b61095f565b60405161031d9190612b5f565b60405180910390f35b610340600480360381019061033b9190612364565b610985565b60405161034d9190612b5f565b60405180910390f35b61035e6109c1565b60405161036b9190612b5f565b60405180910390f35b61038e600480360381019061038991906120a3565b6109d7565b005b610398610a0a565b6040516103a59190612e0d565b60405180910390f35b6103b6610a10565b005b6103d260048036038101906103cd91906123b3565b610a30565b005b6103ee60048036038101906103e991906120cc565b610cf8565b005b61040a60048036038101906104059190612233565b610d83565b6040516104179190612b29565b60405180910390f35b61043a600480360381019061043591906121f7565b610db5565b6040516104479190612b5f565b60405180910390f35b610458610de7565b6040516104659190612b7a565b60405180910390f35b6104886004803603810190610483919061242e565b610dfe565b005b610492611396565b60405161049f9190612e0d565b60405180910390f35b6104c260048036038101906104bd91906120a3565b61139c565b005b6104cc611428565b6040516104d99190612b7a565b60405180910390f35b6104ea61142f565b6040516104f79190612e28565b60405180910390f35b61051a600480360381019061051591906121ce565b611442565b6040516105279190612e0d565b60405180910390f35b61054a60048036038101906105459190612108565b611469565b005b610566600480360381019061056191906120a3565b6114f7565b005b610582600480360381019061057d9190612328565b611582565b60405161058f9190612c2c565b60405180910390f35b6105b260048036038101906105ad91906121f7565b61163f565b005b6105bc6116b3565b6040516105c99190612e0d565b60405180910390f35b6105ec60048036038101906105e79190612328565b6116b9565b6040516105f99190612deb565b60405180910390f35b61061c60048036038101906106179190612157565b611851565b005b6106266118e5565b005b600060016000838152602001908152602001600020600201549050919050565b61066f600160008481526020019081526020016000206002015461066a611905565b610db5565b6106ae576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016106a590612ccb565b60405180910390fd5b6106b8828261190d565b5050565b6008602052816000526040600020602052806000526040600020600091509150508060000154908060030160009054906101000a900460ff16905082565b610702611905565b73ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff161461076f576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161076690612dcb565b60405180910390fd5b61077982826119a1565b5050565b6000809054906101000a900460ff16156107cc576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016107c390612d4b565b60405180910390fd5b6000600660008560ff1660ff16815260200190815260200160002060008154600101919050819055905081600760008660ff1660ff16815260200190815260200160002060008381526020019081526020016000209080519060200190610834929190611e3e565b5060008390508073ffffffffffffffffffffffffffffffffffffffff166345a104db868433876040518563ffffffff1660e01b81526004016108799493929190612e43565b600060405180830381600087803b15801561089357600080fd5b505af11580156108a7573d6000803e3d6000fd5b50505050818473ffffffffffffffffffffffffffffffffffffffff168660ff167f47903cb3f3dd35755d4df452f71612f60bd0bfc2f66f52901e099f3ac2f319fe60405160405180910390a45050505050565b60066020528060005260406000206000915090505481565b61091f6000801b33610db5565b61092857600080fd5b80600381905550807fa20d6b84cd798a24038be305eff8a45ca82ef54a2aa2082005d8e14c0a4746c860405160405180910390a250565b600061097e60405161097090612b14565b604051809103902083610db5565b9050919050565b6009602052826000526040600020602052816000526040600020602052806000526040600020600092509250509054906101000a900460ff1681565b60008060009054906101000a900460ff16905090565b6109e46000801b33610db5565b6109ed57600080fd5b6109fa6000801b82610648565b610a076000801b336106fa565b50565b60045481565b610a1d6000801b33610db5565b610a2657600080fd5b610a2e611a35565b565b610a4d604051610a3f90612b14565b604051809103902033610db5565b610a5657600080fd5b6000809054906101000a900460ff1615610aa5576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610a9c90612d4b565b60405180910390fd5b6000600860008660ff1660ff1681526020019081526020016000206000858152602001908152602001600020905060006003811115610ae057fe5b8160030160009054906101000a900460ff166003811115610afd57fe5b1415610b3e576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610b3590612c8b565b60405180910390fd5b60026003811115610b4b57fe5b8160030160009054906101000a900460ff166003811115610b6857fe5b14610ba8576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610b9f90612dab565b60405180910390fd5b80600001548383604051602001610bc0929190612aec565b6040516020818303038152906040528051906020012014610c16576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610c0d90612d6b565b60405180910390fd5b60008390508073ffffffffffffffffffffffffffffffffffffffff1663fc9539cd846040518263ffffffff1660e01b8152600401610c549190612c4e565b600060405180830381600087803b158015610c6e57600080fd5b505af1158015610c82573d6000803e3d6000fd5b5050505060038260030160006101000a81548160ff02191690836003811115610ca757fe5b021790555084600260009054906101000a900460ff1660ff168760ff167fa5c8f3b7dbf19ce2d73c2641a6b4a360c9011cd3ae7f6d12e0454fe81570dc3060405160405180910390a4505050505050565b610d056000801b33610db5565b610d0e57600080fd5b60008290508073ffffffffffffffffffffffffffffffffffffffff166307b7ed99836040518263ffffffff1660e01b8152600401610d4c9190612b29565b600060405180830381600087803b158015610d6657600080fd5b505af1158015610d7a573d6000803e3d6000fd5b50505050505050565b6000610dad8260016000868152602001908152602001600020600001611ade90919063ffffffff16565b905092915050565b6000610ddf8260016000868152602001908152602001600020600001611af890919063ffffffff16565b905092915050565b604051610df390612b14565b604051809103902081565b610e1b604051610e0d90612b14565b604051809103902033610db5565b610e2457600080fd5b6000809054906101000a900460ff1615610e73576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610e6a90612d4b565b60405180910390fd5b6000600860008560ff1660ff1681526020019081526020016000206000848152602001908152602001600020905060018160030160009054906101000a900460ff166003811115610ec057fe5b1115610f01576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610ef890612d8b565b60405180910390fd5b600960008560ff1660ff168152602001908152602001600020600084815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff1615610fb6576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610fad90612d0b565b60405180910390fd5b60008160030160009054906101000a900460ff166003811115610fd557fe5b14156111bf57600560008154600101919050819055506040518060800160405280838152602001600160405190808252806020026020018201604052801561102c5781602001602082028036833780820191505090505b50815260200160006040519080825280602002602001820160405280156110625781602001602082028036833780820191505090505b5081526020016001600381111561107557fe5b815250600860008660ff1660ff16815260200190815260200160002060008581526020019081526020016000206000820151816000015560208201518160010190805190602001906110c8929190611ebe565b5060408201518160020190805190602001906110e5929190611ebe565b5060608201518160030160006101000a81548160ff0219169083600381111561110a57fe5b0217905550905050338160010160008154811061112357fe5b9060005260206000200160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555082600260009054906101000a900460ff1660ff168560ff167f194898110d0d38ea3cd7aa3fa939f87bb9bbad8427482df365d5ecc36b743805856040516111b29190612b7a565b60405180910390a4611225565b80600101339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b6001600960008660ff1660ff168152602001908152602001600020600085815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff02191690831515021790555082600260009054906101000a900460ff1660ff168560ff167fc954da58dd7f8bea0c2f55f3f557dc861271ad571074e3b417749eff0af46aab8460030160009054906101000a900460ff166040516112fd9190612c70565b60405180910390a460016003541115806113205750600354816001018054905010155b156113905760028160030160006101000a81548160ff0219169083600381111561134657fe5b021790555082600260009054906101000a900460ff1660ff168560ff167f0da2fadf3d07092b7c0be5f24e643fe608e8023f38fe97f88988495116d332fd60405160405180910390a45b50505050565b60055481565b6113a96000801b33610db5565b6113b257600080fd5b6113cf6040516113c190612b14565b60405180910390208261163f565b8073ffffffffffffffffffffffffffffffffffffffff167f10e1f7ce9fd7d1b90a66d13a2ab3cb8dd7f29f3f8d520b143b063ccfbab6906b60405160405180910390a26004600081548092919060019003919050555050565b6000801b81565b600260009054906101000a900460ff1681565b600061146260016000848152602001908152602001600020600001611b28565b9050919050565b6114766000801b33610db5565b61147f57600080fd5b60008390508073ffffffffffffffffffffffffffffffffffffffff1663b8fa373684846040518363ffffffff1660e01b81526004016114bf929190612b95565b600060405180830381600087803b1580156114d957600080fd5b505af11580156114ed573d6000803e3d6000fd5b5050505050505050565b6115046000801b33610db5565b61150d57600080fd5b61152a60405161151c90612b14565b604051809103902082610648565b8073ffffffffffffffffffffffffffffffffffffffff167f03580ee9f53a62b7cb409a2cb56f9be87747dd15017afc5cef6eef321e4fb2c560405160405180910390a260046000815480929190600101919050555050565b6007602052816000526040600020602052806000526040600020600091509150508054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156116375780601f1061160c57610100808354040283529160200191611637565b820191906000526020600020905b81548152906001019060200180831161161a57829003601f168201915b505050505081565b6116666001600084815260200190815260200160002060020154611661611905565b610db5565b6116a5576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161169c90612d2b565b60405180910390fd5b6116af82826119a1565b5050565b60035481565b6116c1611f48565b600860008460ff1660ff1681526020019081526020016000206000838152602001908152602001600020604051806080016040529081600082015481526020016001820180548060200260200160405190810160405280929190818152602001828054801561178557602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001906001019080831161173b575b505050505081526020016002820180548060200260200160405190810160405280929190818152602001828054801561181357602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190600101908083116117c9575b505050505081526020016003820160009054906101000a900460ff16600381111561183a57fe5b600381111561184557fe5b81525050905092915050565b61185e6000801b33610db5565b61186757600080fd5b60008590508073ffffffffffffffffffffffffffffffffffffffff1663bba8185a868686866040518563ffffffff1660e01b81526004016118ab9493929190612bbe565b600060405180830381600087803b1580156118c557600080fd5b505af11580156118d9573d6000803e3d6000fd5b50505050505050505050565b6118f26000801b33610db5565b6118fb57600080fd5b611903611b3d565b565b600033905090565b6119358160016000858152602001908152602001600020600001611be590919063ffffffff16565b1561199d57611942611905565b73ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff16837f2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d60405160405180910390a45b5050565b6119c98160016000858152602001908152602001600020600001611c1590919063ffffffff16565b15611a31576119d6611905565b73ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff16837ff6391f5c32d9c69d2a47ea670b442974b53935d1edc7fd64eb21e047a839171b60405160405180910390a45b5050565b6000809054906101000a900460ff1615611a84576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611a7b90612d4b565b60405180910390fd5b60016000806101000a81548160ff0219169083151502179055507f62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258611ac7611905565b604051611ad49190612b44565b60405180910390a1565b6000611aed8360000183611c45565b60001c905092915050565b6000611b20836000018373ffffffffffffffffffffffffffffffffffffffff1660001b611cb2565b905092915050565b6000611b3682600001611cd5565b9050919050565b6000809054906101000a900460ff16611b8b576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611b8290612ceb565b60405180910390fd5b60008060006101000a81548160ff0219169083151502179055507f5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa611bce611905565b604051611bdb9190612b44565b60405180910390a1565b6000611c0d836000018373ffffffffffffffffffffffffffffffffffffffff1660001b611ce6565b905092915050565b6000611c3d836000018373ffffffffffffffffffffffffffffffffffffffff1660001b611d56565b905092915050565b600081836000018054905011611c90576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611c8790612cab565b60405180910390fd5b826000018281548110611c9f57fe5b9060005260206000200154905092915050565b600080836001016000848152602001908152602001600020541415905092915050565b600081600001805490509050919050565b6000611cf28383611cb2565b611d4b578260000182908060018154018082558091505060019003906000526020600020016000909190919091505582600001805490508360010160008481526020019081526020016000208190555060019050611d50565b600090505b92915050565b60008083600101600084815260200190815260200160002054905060008114611e325760006001820390506000600186600001805490500390506000866000018281548110611da157fe5b9060005260206000200154905080876000018481548110611dbe57fe5b9060005260206000200181905550600183018760010160008381526020019081526020016000208190555086600001805480611df657fe5b60019003818190600052602060002001600090559055866001016000878152602001908152602001600020600090556001945050505050611e38565b60009150505b92915050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f10611e7f57805160ff1916838001178555611ead565b82800160010185558215611ead579182015b82811115611eac578251825591602001919060010190611e91565b5b509050611eba9190611f7e565b5090565b828054828255906000526020600020908101928215611f37579160200282015b82811115611f365782518260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555091602001919060010190611ede565b5b509050611f449190611fa3565b5090565b604051806080016040528060008019168152602001606081526020016060815260200160006003811115611f7857fe5b81525090565b611fa091905b80821115611f9c576000816000905550600101611f84565b5090565b90565b611fe391905b80821115611fdf57600081816101000a81549073ffffffffffffffffffffffffffffffffffffffff021916905550600101611fa9565b5090565b90565b600081359050611ff5816130e6565b92915050565b60008135905061200a816130fd565b92915050565b60008135905061201f81613114565b92915050565b600082601f83011261203657600080fd5b813561204961204482612ebc565b612e8f565b9150808252602083016020830185838301111561206557600080fd5b612070838284613055565b50505092915050565b6000813590506120888161312b565b92915050565b60008135905061209d81613142565b92915050565b6000602082840312156120b557600080fd5b60006120c384828501611fe6565b91505092915050565b600080604083850312156120df57600080fd5b60006120ed85828601611fe6565b92505060206120fe85828601611fe6565b9150509250929050565b60008060006060848603121561211d57600080fd5b600061212b86828701611fe6565b935050602061213c86828701611ffb565b925050604061214d86828701611fe6565b9150509250925092565b600080600080600060a0868803121561216f57600080fd5b600061217d88828901611fe6565b955050602061218e88828901611ffb565b945050604061219f88828901611fe6565b93505060606121b088828901612010565b92505060806121c188828901612010565b9150509295509295909350565b6000602082840312156121e057600080fd5b60006121ee84828501611ffb565b91505092915050565b6000806040838503121561220a57600080fd5b600061221885828601611ffb565b925050602061222985828601611fe6565b9150509250929050565b6000806040838503121561224657600080fd5b600061225485828601611ffb565b925050602061226585828601612079565b9150509250929050565b60006020828403121561228157600080fd5b600061228f84828501612079565b91505092915050565b6000602082840312156122aa57600080fd5b60006122b88482850161208e565b91505092915050565b6000806000606084860312156122d657600080fd5b60006122e48682870161208e565b93505060206122f586828701611fe6565b925050604084013567ffffffffffffffff81111561231257600080fd5b61231e86828701612025565b9150509250925092565b6000806040838503121561233b57600080fd5b60006123498582860161208e565b925050602061235a85828601612079565b9150509250929050565b60008060006060848603121561237957600080fd5b60006123878682870161208e565b935050602061239886828701612079565b92505060406123a986828701611fe6565b9150509250925092565b600080600080608085870312156123c957600080fd5b60006123d78782880161208e565b94505060206123e887828801612079565b93505060406123f987828801611fe6565b925050606085013567ffffffffffffffff81111561241657600080fd5b61242287828801612025565b91505092959194509250565b60008060006060848603121561244357600080fd5b60006124518682870161208e565b935050602061246286828701612079565b925050604061247386828701611ffb565b9150509250925092565b600061248983836124a4565b60208301905092915050565b61249e8161300d565b82525050565b6124ad81612f6f565b82525050565b6124bc81612f6f565b82525050565b6124d36124ce82612f6f565b613097565b82525050565b60006124e482612ef8565b6124ee8185612f26565b93506124f983612ee8565b8060005b8381101561252a578151612511888261247d565b975061251c83612f19565b9250506001810190506124fd565b5085935050505092915050565b61254081612f81565b82525050565b61254f81612f8d565b82525050565b61255e81612f8d565b82525050565b61256d81612f97565b82525050565b600061257e82612f0e565b6125888185612f37565b9350612598818560208601613064565b6125a1816130bb565b840191505092915050565b60006125b782612f0e565b6125c18185612f48565b93506125d1818560208601613064565b80840191505092915050565b60006125e882612f03565b6125f28185612f37565b9350612602818560208601613064565b61260b816130bb565b840191505092915050565b61261f8161301f565b82525050565b61262e8161301f565b82525050565b6000612641601683612f53565b91507f70726f706f73616c206973206e6f7420616374697665000000000000000000006000830152602082019050919050565b6000612681602283612f53565b91507f456e756d657261626c655365743a20696e646578206f7574206f6620626f756e60008301527f64730000000000000000000000000000000000000000000000000000000000006020830152604082019050919050565b60006126e7602f83612f53565b91507f416363657373436f6e74726f6c3a2073656e646572206d75737420626520616e60008301527f2061646d696e20746f206772616e7400000000000000000000000000000000006020830152604082019050919050565b600061274d601483612f53565b91507f5061757361626c653a206e6f74207061757365640000000000000000000000006000830152602082019050919050565b600061278d602583612f53565b91507f72656c617965722068617320616c726561647920766f746564206f6e2070726f60008301527f706f73616c0000000000000000000000000000000000000000000000000000006020830152604082019050919050565b60006127f3603083612f53565b91507f416363657373436f6e74726f6c3a2073656e646572206d75737420626520616e60008301527f2061646d696e20746f207265766f6b65000000000000000000000000000000006020830152604082019050919050565b6000612859601083612f53565b91507f5061757361626c653a20706175736564000000000000000000000000000000006000830152602082019050919050565b6000612899603183612f53565b91507f70726f7669646564206461746120646f6573206e6f74206d617463682070726f60008301527f706f73616c2773206461746120686173680000000000000000000000000000006020830152604082019050919050565b60006128ff602f83612f53565b91507f70726f706f73616c2068617320616c7265616479206265656e2070617373656460008301527f206f72207472616e7366657272656400000000000000000000000000000000006020830152604082019050919050565b6000612965603783612f53565b91507f70726f706f73616c20776173206e6f7420706173736564206f7220686173206160008301527f6c7265616479206265656e207472616e736665727265640000000000000000006020830152604082019050919050565b60006129cb600c83612f64565b91507f52454c415945525f524f4c4500000000000000000000000000000000000000006000830152600c82019050919050565b6000612a0b602f83612f53565b91507f416363657373436f6e74726f6c3a2063616e206f6e6c792072656e6f756e636560008301527f20726f6c657320666f722073656c6600000000000000000000000000000000006020830152604082019050919050565b6000608083016000830151612a7c6000860182612546565b5060208301518482036020860152612a9482826124d9565b91505060408301518482036040860152612aae82826124d9565b9150506060830151612ac36060860182612616565b508091505092915050565b612ad781612ff6565b82525050565b612ae681613000565b82525050565b6000612af882856124c2565b601482019150612b0882846125ac565b91508190509392505050565b6000612b1f826129be565b9150819050919050565b6000602082019050612b3e60008301846124b3565b92915050565b6000602082019050612b596000830184612495565b92915050565b6000602082019050612b746000830184612537565b92915050565b6000602082019050612b8f6000830184612555565b92915050565b6000604082019050612baa6000830185612555565b612bb760208301846124b3565b9392505050565b6000608082019050612bd36000830187612555565b612be060208301866124b3565b612bed6040830185612564565b612bfa6060830184612564565b95945050505050565b6000604082019050612c186000830185612555565b612c256020830184612625565b9392505050565b60006020820190508181036000830152612c4681846125dd565b905092915050565b60006020820190508181036000830152612c688184612573565b905092915050565b6000602082019050612c856000830184612625565b92915050565b60006020820190508181036000830152612ca481612634565b9050919050565b60006020820190508181036000830152612cc481612674565b9050919050565b60006020820190508181036000830152612ce4816126da565b9050919050565b60006020820190508181036000830152612d0481612740565b9050919050565b60006020820190508181036000830152612d2481612780565b9050919050565b60006020820190508181036000830152612d44816127e6565b9050919050565b60006020820190508181036000830152612d648161284c565b9050919050565b60006020820190508181036000830152612d848161288c565b9050919050565b60006020820190508181036000830152612da4816128f2565b9050919050565b60006020820190508181036000830152612dc481612958565b9050919050565b60006020820190508181036000830152612de4816129fe565b9050919050565b60006020820190508181036000830152612e058184612a64565b905092915050565b6000602082019050612e226000830184612ace565b92915050565b6000602082019050612e3d6000830184612add565b92915050565b6000608082019050612e586000830187612add565b612e656020830186612ace565b612e726040830185612495565b8181036060830152612e848184612573565b905095945050505050565b6000604051905081810181811067ffffffffffffffff82111715612eb257600080fd5b8060405250919050565b600067ffffffffffffffff821115612ed357600080fd5b601f19601f8301169050602081019050919050565b6000819050602082019050919050565b600081519050919050565b600081519050919050565b600081519050919050565b6000602082019050919050565b600082825260208201905092915050565b600082825260208201905092915050565b600081905092915050565b600082825260208201905092915050565b600081905092915050565b6000612f7a82612fd6565b9050919050565b60008115159050919050565b6000819050919050565b60007fffffffff0000000000000000000000000000000000000000000000000000000082169050919050565b6000819050612fd1826130d9565b919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b600060ff82169050919050565b600061301882613031565b9050919050565b600061302a82612fc3565b9050919050565b600061303c82613043565b9050919050565b600061304e82612fd6565b9050919050565b82818337600083830152505050565b60005b83811015613082578082015181840152602081019050613067565b83811115613091576000848401525b50505050565b60006130a2826130a9565b9050919050565b60006130b4826130cc565b9050919050565b6000601f19601f8301169050919050565b60008160601b9050919050565b600481106130e357fe5b50565b6130ef81612f6f565b81146130fa57600080fd5b50565b61310681612f8d565b811461311157600080fd5b50565b61311d81612f97565b811461312857600080fd5b50565b61313481612ff6565b811461313f57600080fd5b50565b61314b81613000565b811461315657600080fd5b5056fea26469706673582212200b2ea8c73c4b2c7675cdfbeaf4622386eb2dc7e352fe3127abb33efcbdcb620564736f6c63430006040033"
 
 // DeployBridge deploys a new Ethereum contract, binding an instance of Bridge to it.
-func DeployBridge(auth *bind.TransactOpts, backend bind.ContractBackend, chainID uint8, relayerContract common.Address, initialRelayerThreshold *big.Int) (common.Address, *types.Transaction, *Bridge, error) {
+func DeployBridge(auth *bind.TransactOpts, backend bind.ContractBackend, chainID uint8, initialRelayers []common.Address, initialRelayerThreshold *big.Int) (common.Address, *types.Transaction, *Bridge, error) {
 	parsed, err := abi.JSON(strings.NewReader(BridgeABI))
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
 
-	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(BridgeBin), backend, chainID, relayerContract, initialRelayerThreshold)
+	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(BridgeBin), backend, chainID, initialRelayers, initialRelayerThreshold)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
@@ -197,6 +197,58 @@ func (_Bridge *BridgeTransactorRaw) Transact(opts *bind.TransactOpts, method str
 	return _Bridge.Contract.contract.Transact(opts, method, params...)
 }
 
+// DEFAULTADMINROLE is a free data retrieval call binding the contract method 0xa217fddf.
+//
+// Solidity: function DEFAULT_ADMIN_ROLE() view returns(bytes32)
+func (_Bridge *BridgeCaller) DEFAULTADMINROLE(opts *bind.CallOpts) ([32]byte, error) {
+	var (
+		ret0 = new([32]byte)
+	)
+	out := ret0
+	err := _Bridge.contract.Call(opts, out, "DEFAULT_ADMIN_ROLE")
+	return *ret0, err
+}
+
+// DEFAULTADMINROLE is a free data retrieval call binding the contract method 0xa217fddf.
+//
+// Solidity: function DEFAULT_ADMIN_ROLE() view returns(bytes32)
+func (_Bridge *BridgeSession) DEFAULTADMINROLE() ([32]byte, error) {
+	return _Bridge.Contract.DEFAULTADMINROLE(&_Bridge.CallOpts)
+}
+
+// DEFAULTADMINROLE is a free data retrieval call binding the contract method 0xa217fddf.
+//
+// Solidity: function DEFAULT_ADMIN_ROLE() view returns(bytes32)
+func (_Bridge *BridgeCallerSession) DEFAULTADMINROLE() ([32]byte, error) {
+	return _Bridge.Contract.DEFAULTADMINROLE(&_Bridge.CallOpts)
+}
+
+// RELAYERROLE is a free data retrieval call binding the contract method 0x926d7d7f.
+//
+// Solidity: function RELAYER_ROLE() view returns(bytes32)
+func (_Bridge *BridgeCaller) RELAYERROLE(opts *bind.CallOpts) ([32]byte, error) {
+	var (
+		ret0 = new([32]byte)
+	)
+	out := ret0
+	err := _Bridge.contract.Call(opts, out, "RELAYER_ROLE")
+	return *ret0, err
+}
+
+// RELAYERROLE is a free data retrieval call binding the contract method 0x926d7d7f.
+//
+// Solidity: function RELAYER_ROLE() view returns(bytes32)
+func (_Bridge *BridgeSession) RELAYERROLE() ([32]byte, error) {
+	return _Bridge.Contract.RELAYERROLE(&_Bridge.CallOpts)
+}
+
+// RELAYERROLE is a free data retrieval call binding the contract method 0x926d7d7f.
+//
+// Solidity: function RELAYER_ROLE() view returns(bytes32)
+func (_Bridge *BridgeCallerSession) RELAYERROLE() ([32]byte, error) {
+	return _Bridge.Contract.RELAYERROLE(&_Bridge.CallOpts)
+}
+
 // ChainID is a free data retrieval call binding the contract method 0xbeab7131.
 //
 // Solidity: function _chainID() view returns(uint8)
@@ -221,42 +273,6 @@ func (_Bridge *BridgeSession) ChainID() (uint8, error) {
 // Solidity: function _chainID() view returns(uint8)
 func (_Bridge *BridgeCallerSession) ChainID() (uint8, error) {
 	return _Bridge.Contract.ChainID(&_Bridge.CallOpts)
-}
-
-// CurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0xfe612136.
-//
-// Solidity: function _currentRelayerThresholdProposal() view returns(uint256 _proposedValue, uint8 _status)
-func (_Bridge *BridgeCaller) CurrentRelayerThresholdProposal(opts *bind.CallOpts) (struct {
-	ProposedValue *big.Int
-	Status        uint8
-}, error) {
-	ret := new(struct {
-		ProposedValue *big.Int
-		Status        uint8
-	})
-	out := ret
-	err := _Bridge.contract.Call(opts, out, "_currentRelayerThresholdProposal")
-	return *ret, err
-}
-
-// CurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0xfe612136.
-//
-// Solidity: function _currentRelayerThresholdProposal() view returns(uint256 _proposedValue, uint8 _status)
-func (_Bridge *BridgeSession) CurrentRelayerThresholdProposal() (struct {
-	ProposedValue *big.Int
-	Status        uint8
-}, error) {
-	return _Bridge.Contract.CurrentRelayerThresholdProposal(&_Bridge.CallOpts)
-}
-
-// CurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0xfe612136.
-//
-// Solidity: function _currentRelayerThresholdProposal() view returns(uint256 _proposedValue, uint8 _status)
-func (_Bridge *BridgeCallerSession) CurrentRelayerThresholdProposal() (struct {
-	ProposedValue *big.Int
-	Status        uint8
-}, error) {
-	return _Bridge.Contract.CurrentRelayerThresholdProposal(&_Bridge.CallOpts)
 }
 
 // DepositCounts is a free data retrieval call binding the contract method 0x4b0b919d.
@@ -285,42 +301,6 @@ func (_Bridge *BridgeCallerSession) DepositCounts(arg0 uint8) (*big.Int, error) 
 	return _Bridge.Contract.DepositCounts(&_Bridge.CallOpts, arg0)
 }
 
-// DepositProposals is a free data retrieval call binding the contract method 0x7820b222.
-//
-// Solidity: function _depositProposals(uint8 , uint256 ) view returns(bytes32 _dataHash, uint8 _status)
-func (_Bridge *BridgeCaller) DepositProposals(opts *bind.CallOpts, arg0 uint8, arg1 *big.Int) (struct {
-	DataHash [32]byte
-	Status   uint8
-}, error) {
-	ret := new(struct {
-		DataHash [32]byte
-		Status   uint8
-	})
-	out := ret
-	err := _Bridge.contract.Call(opts, out, "_depositProposals", arg0, arg1)
-	return *ret, err
-}
-
-// DepositProposals is a free data retrieval call binding the contract method 0x7820b222.
-//
-// Solidity: function _depositProposals(uint8 , uint256 ) view returns(bytes32 _dataHash, uint8 _status)
-func (_Bridge *BridgeSession) DepositProposals(arg0 uint8, arg1 *big.Int) (struct {
-	DataHash [32]byte
-	Status   uint8
-}, error) {
-	return _Bridge.Contract.DepositProposals(&_Bridge.CallOpts, arg0, arg1)
-}
-
-// DepositProposals is a free data retrieval call binding the contract method 0x7820b222.
-//
-// Solidity: function _depositProposals(uint8 , uint256 ) view returns(bytes32 _dataHash, uint8 _status)
-func (_Bridge *BridgeCallerSession) DepositProposals(arg0 uint8, arg1 *big.Int) (struct {
-	DataHash [32]byte
-	Status   uint8
-}, error) {
-	return _Bridge.Contract.DepositProposals(&_Bridge.CallOpts, arg0, arg1)
-}
-
 // DepositRecords is a free data retrieval call binding the contract method 0xce3d5784.
 //
 // Solidity: function _depositRecords(uint8 , uint256 ) view returns(bytes)
@@ -347,56 +327,66 @@ func (_Bridge *BridgeCallerSession) DepositRecords(arg0 uint8, arg1 *big.Int) ([
 	return _Bridge.Contract.DepositRecords(&_Bridge.CallOpts, arg0, arg1)
 }
 
-// HasVotedOnDepositProposal is a free data retrieval call binding the contract method 0x8ba3706a.
+// HasVotedOnProposal is a free data retrieval call binding the contract method 0x5525e879.
 //
-// Solidity: function _hasVotedOnDepositProposal(uint8 , uint256 , address ) view returns(bool)
-func (_Bridge *BridgeCaller) HasVotedOnDepositProposal(opts *bind.CallOpts, arg0 uint8, arg1 *big.Int, arg2 common.Address) (bool, error) {
+// Solidity: function _hasVotedOnProposal(uint8 , uint256 , address ) view returns(bool)
+func (_Bridge *BridgeCaller) HasVotedOnProposal(opts *bind.CallOpts, arg0 uint8, arg1 *big.Int, arg2 common.Address) (bool, error) {
 	var (
 		ret0 = new(bool)
 	)
 	out := ret0
-	err := _Bridge.contract.Call(opts, out, "_hasVotedOnDepositProposal", arg0, arg1, arg2)
+	err := _Bridge.contract.Call(opts, out, "_hasVotedOnProposal", arg0, arg1, arg2)
 	return *ret0, err
 }
 
-// HasVotedOnDepositProposal is a free data retrieval call binding the contract method 0x8ba3706a.
+// HasVotedOnProposal is a free data retrieval call binding the contract method 0x5525e879.
 //
-// Solidity: function _hasVotedOnDepositProposal(uint8 , uint256 , address ) view returns(bool)
-func (_Bridge *BridgeSession) HasVotedOnDepositProposal(arg0 uint8, arg1 *big.Int, arg2 common.Address) (bool, error) {
-	return _Bridge.Contract.HasVotedOnDepositProposal(&_Bridge.CallOpts, arg0, arg1, arg2)
+// Solidity: function _hasVotedOnProposal(uint8 , uint256 , address ) view returns(bool)
+func (_Bridge *BridgeSession) HasVotedOnProposal(arg0 uint8, arg1 *big.Int, arg2 common.Address) (bool, error) {
+	return _Bridge.Contract.HasVotedOnProposal(&_Bridge.CallOpts, arg0, arg1, arg2)
 }
 
-// HasVotedOnDepositProposal is a free data retrieval call binding the contract method 0x8ba3706a.
+// HasVotedOnProposal is a free data retrieval call binding the contract method 0x5525e879.
 //
-// Solidity: function _hasVotedOnDepositProposal(uint8 , uint256 , address ) view returns(bool)
-func (_Bridge *BridgeCallerSession) HasVotedOnDepositProposal(arg0 uint8, arg1 *big.Int, arg2 common.Address) (bool, error) {
-	return _Bridge.Contract.HasVotedOnDepositProposal(&_Bridge.CallOpts, arg0, arg1, arg2)
+// Solidity: function _hasVotedOnProposal(uint8 , uint256 , address ) view returns(bool)
+func (_Bridge *BridgeCallerSession) HasVotedOnProposal(arg0 uint8, arg1 *big.Int, arg2 common.Address) (bool, error) {
+	return _Bridge.Contract.HasVotedOnProposal(&_Bridge.CallOpts, arg0, arg1, arg2)
 }
 
-// RelayerContract is a free data retrieval call binding the contract method 0xea059625.
+// Proposals is a free data retrieval call binding the contract method 0x34067939.
 //
-// Solidity: function _relayerContract() view returns(address)
-func (_Bridge *BridgeCaller) RelayerContract(opts *bind.CallOpts) (common.Address, error) {
-	var (
-		ret0 = new(common.Address)
-	)
-	out := ret0
-	err := _Bridge.contract.Call(opts, out, "_relayerContract")
-	return *ret0, err
+// Solidity: function _proposals(uint8 , uint256 ) view returns(bytes32 _dataHash, uint8 _status)
+func (_Bridge *BridgeCaller) Proposals(opts *bind.CallOpts, arg0 uint8, arg1 *big.Int) (struct {
+	DataHash [32]byte
+	Status   uint8
+}, error) {
+	ret := new(struct {
+		DataHash [32]byte
+		Status   uint8
+	})
+	out := ret
+	err := _Bridge.contract.Call(opts, out, "_proposals", arg0, arg1)
+	return *ret, err
 }
 
-// RelayerContract is a free data retrieval call binding the contract method 0xea059625.
+// Proposals is a free data retrieval call binding the contract method 0x34067939.
 //
-// Solidity: function _relayerContract() view returns(address)
-func (_Bridge *BridgeSession) RelayerContract() (common.Address, error) {
-	return _Bridge.Contract.RelayerContract(&_Bridge.CallOpts)
+// Solidity: function _proposals(uint8 , uint256 ) view returns(bytes32 _dataHash, uint8 _status)
+func (_Bridge *BridgeSession) Proposals(arg0 uint8, arg1 *big.Int) (struct {
+	DataHash [32]byte
+	Status   uint8
+}, error) {
+	return _Bridge.Contract.Proposals(&_Bridge.CallOpts, arg0, arg1)
 }
 
-// RelayerContract is a free data retrieval call binding the contract method 0xea059625.
+// Proposals is a free data retrieval call binding the contract method 0x34067939.
 //
-// Solidity: function _relayerContract() view returns(address)
-func (_Bridge *BridgeCallerSession) RelayerContract() (common.Address, error) {
-	return _Bridge.Contract.RelayerContract(&_Bridge.CallOpts)
+// Solidity: function _proposals(uint8 , uint256 ) view returns(bytes32 _dataHash, uint8 _status)
+func (_Bridge *BridgeCallerSession) Proposals(arg0 uint8, arg1 *big.Int) (struct {
+	DataHash [32]byte
+	Status   uint8
+}, error) {
+	return _Bridge.Contract.Proposals(&_Bridge.CallOpts, arg0, arg1)
 }
 
 // RelayerThreshold is a free data retrieval call binding the contract method 0xd7a9cd79.
@@ -425,195 +415,553 @@ func (_Bridge *BridgeCallerSession) RelayerThreshold() (*big.Int, error) {
 	return _Bridge.Contract.RelayerThreshold(&_Bridge.CallOpts)
 }
 
-// TotalDepositProposals is a free data retrieval call binding the contract method 0x06899ca4.
+// TotalProposals is a free data retrieval call binding the contract method 0x9d5773e0.
 //
-// Solidity: function _totalDepositProposals() view returns(uint256)
-func (_Bridge *BridgeCaller) TotalDepositProposals(opts *bind.CallOpts) (*big.Int, error) {
+// Solidity: function _totalProposals() view returns(uint256)
+func (_Bridge *BridgeCaller) TotalProposals(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
 	)
 	out := ret0
-	err := _Bridge.contract.Call(opts, out, "_totalDepositProposals")
+	err := _Bridge.contract.Call(opts, out, "_totalProposals")
 	return *ret0, err
 }
 
-// TotalDepositProposals is a free data retrieval call binding the contract method 0x06899ca4.
+// TotalProposals is a free data retrieval call binding the contract method 0x9d5773e0.
 //
-// Solidity: function _totalDepositProposals() view returns(uint256)
-func (_Bridge *BridgeSession) TotalDepositProposals() (*big.Int, error) {
-	return _Bridge.Contract.TotalDepositProposals(&_Bridge.CallOpts)
+// Solidity: function _totalProposals() view returns(uint256)
+func (_Bridge *BridgeSession) TotalProposals() (*big.Int, error) {
+	return _Bridge.Contract.TotalProposals(&_Bridge.CallOpts)
 }
 
-// TotalDepositProposals is a free data retrieval call binding the contract method 0x06899ca4.
+// TotalProposals is a free data retrieval call binding the contract method 0x9d5773e0.
 //
-// Solidity: function _totalDepositProposals() view returns(uint256)
-func (_Bridge *BridgeCallerSession) TotalDepositProposals() (*big.Int, error) {
-	return _Bridge.Contract.TotalDepositProposals(&_Bridge.CallOpts)
+// Solidity: function _totalProposals() view returns(uint256)
+func (_Bridge *BridgeCallerSession) TotalProposals() (*big.Int, error) {
+	return _Bridge.Contract.TotalProposals(&_Bridge.CallOpts)
 }
 
-// GetCurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0x5f31b69c.
+// TotalRelayers is a free data retrieval call binding the contract method 0x802aabe8.
 //
-// Solidity: function getCurrentRelayerThresholdProposal() view returns(uint256, address[], address[], uint8)
-func (_Bridge *BridgeCaller) GetCurrentRelayerThresholdProposal(opts *bind.CallOpts) (*big.Int, []common.Address, []common.Address, uint8, error) {
+// Solidity: function _totalRelayers() view returns(uint256)
+func (_Bridge *BridgeCaller) TotalRelayers(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
-		ret1 = new([]common.Address)
-		ret2 = new([]common.Address)
-		ret3 = new(uint8)
-	)
-	out := &[]interface{}{
-		ret0,
-		ret1,
-		ret2,
-		ret3,
-	}
-	err := _Bridge.contract.Call(opts, out, "getCurrentRelayerThresholdProposal")
-	return *ret0, *ret1, *ret2, *ret3, err
-}
-
-// GetCurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0x5f31b69c.
-//
-// Solidity: function getCurrentRelayerThresholdProposal() view returns(uint256, address[], address[], uint8)
-func (_Bridge *BridgeSession) GetCurrentRelayerThresholdProposal() (*big.Int, []common.Address, []common.Address, uint8, error) {
-	return _Bridge.Contract.GetCurrentRelayerThresholdProposal(&_Bridge.CallOpts)
-}
-
-// GetCurrentRelayerThresholdProposal is a free data retrieval call binding the contract method 0x5f31b69c.
-//
-// Solidity: function getCurrentRelayerThresholdProposal() view returns(uint256, address[], address[], uint8)
-func (_Bridge *BridgeCallerSession) GetCurrentRelayerThresholdProposal() (*big.Int, []common.Address, []common.Address, uint8, error) {
-	return _Bridge.Contract.GetCurrentRelayerThresholdProposal(&_Bridge.CallOpts)
-}
-
-// GetDepositProposal is a free data retrieval call binding the contract method 0xaca18b26.
-//
-// Solidity: function getDepositProposal(uint8 destinationChainID, uint256 depositNonce) view returns(BridgeDepositProposal)
-func (_Bridge *BridgeCaller) GetDepositProposal(opts *bind.CallOpts, destinationChainID uint8, depositNonce *big.Int) (BridgeDepositProposal, error) {
-	var (
-		ret0 = new(BridgeDepositProposal)
 	)
 	out := ret0
-	err := _Bridge.contract.Call(opts, out, "getDepositProposal", destinationChainID, depositNonce)
+	err := _Bridge.contract.Call(opts, out, "_totalRelayers")
 	return *ret0, err
 }
 
-// GetDepositProposal is a free data retrieval call binding the contract method 0xaca18b26.
+// TotalRelayers is a free data retrieval call binding the contract method 0x802aabe8.
 //
-// Solidity: function getDepositProposal(uint8 destinationChainID, uint256 depositNonce) view returns(BridgeDepositProposal)
-func (_Bridge *BridgeSession) GetDepositProposal(destinationChainID uint8, depositNonce *big.Int) (BridgeDepositProposal, error) {
-	return _Bridge.Contract.GetDepositProposal(&_Bridge.CallOpts, destinationChainID, depositNonce)
+// Solidity: function _totalRelayers() view returns(uint256)
+func (_Bridge *BridgeSession) TotalRelayers() (*big.Int, error) {
+	return _Bridge.Contract.TotalRelayers(&_Bridge.CallOpts)
 }
 
-// GetDepositProposal is a free data retrieval call binding the contract method 0xaca18b26.
+// TotalRelayers is a free data retrieval call binding the contract method 0x802aabe8.
 //
-// Solidity: function getDepositProposal(uint8 destinationChainID, uint256 depositNonce) view returns(BridgeDepositProposal)
-func (_Bridge *BridgeCallerSession) GetDepositProposal(destinationChainID uint8, depositNonce *big.Int) (BridgeDepositProposal, error) {
-	return _Bridge.Contract.GetDepositProposal(&_Bridge.CallOpts, destinationChainID, depositNonce)
+// Solidity: function _totalRelayers() view returns(uint256)
+func (_Bridge *BridgeCallerSession) TotalRelayers() (*big.Int, error) {
+	return _Bridge.Contract.TotalRelayers(&_Bridge.CallOpts)
 }
 
-// CreateRelayerThresholdProposal is a paid mutator transaction binding the contract method 0xdf269060.
+// GetProposal is a free data retrieval call binding the contract method 0xe250a8fc.
 //
-// Solidity: function createRelayerThresholdProposal(uint256 proposedValue) returns()
-func (_Bridge *BridgeTransactor) CreateRelayerThresholdProposal(opts *bind.TransactOpts, proposedValue *big.Int) (*types.Transaction, error) {
-	return _Bridge.contract.Transact(opts, "createRelayerThresholdProposal", proposedValue)
+// Solidity: function getProposal(uint8 originChainID, uint256 depositNonce) view returns(BridgeProposal)
+func (_Bridge *BridgeCaller) GetProposal(opts *bind.CallOpts, originChainID uint8, depositNonce *big.Int) (BridgeProposal, error) {
+	var (
+		ret0 = new(BridgeProposal)
+	)
+	out := ret0
+	err := _Bridge.contract.Call(opts, out, "getProposal", originChainID, depositNonce)
+	return *ret0, err
 }
 
-// CreateRelayerThresholdProposal is a paid mutator transaction binding the contract method 0xdf269060.
+// GetProposal is a free data retrieval call binding the contract method 0xe250a8fc.
 //
-// Solidity: function createRelayerThresholdProposal(uint256 proposedValue) returns()
-func (_Bridge *BridgeSession) CreateRelayerThresholdProposal(proposedValue *big.Int) (*types.Transaction, error) {
-	return _Bridge.Contract.CreateRelayerThresholdProposal(&_Bridge.TransactOpts, proposedValue)
+// Solidity: function getProposal(uint8 originChainID, uint256 depositNonce) view returns(BridgeProposal)
+func (_Bridge *BridgeSession) GetProposal(originChainID uint8, depositNonce *big.Int) (BridgeProposal, error) {
+	return _Bridge.Contract.GetProposal(&_Bridge.CallOpts, originChainID, depositNonce)
 }
 
-// CreateRelayerThresholdProposal is a paid mutator transaction binding the contract method 0xdf269060.
+// GetProposal is a free data retrieval call binding the contract method 0xe250a8fc.
 //
-// Solidity: function createRelayerThresholdProposal(uint256 proposedValue) returns()
-func (_Bridge *BridgeTransactorSession) CreateRelayerThresholdProposal(proposedValue *big.Int) (*types.Transaction, error) {
-	return _Bridge.Contract.CreateRelayerThresholdProposal(&_Bridge.TransactOpts, proposedValue)
+// Solidity: function getProposal(uint8 originChainID, uint256 depositNonce) view returns(BridgeProposal)
+func (_Bridge *BridgeCallerSession) GetProposal(originChainID uint8, depositNonce *big.Int) (BridgeProposal, error) {
+	return _Bridge.Contract.GetProposal(&_Bridge.CallOpts, originChainID, depositNonce)
+}
+
+// GetRoleAdmin is a free data retrieval call binding the contract method 0x248a9ca3.
+//
+// Solidity: function getRoleAdmin(bytes32 role) view returns(bytes32)
+func (_Bridge *BridgeCaller) GetRoleAdmin(opts *bind.CallOpts, role [32]byte) ([32]byte, error) {
+	var (
+		ret0 = new([32]byte)
+	)
+	out := ret0
+	err := _Bridge.contract.Call(opts, out, "getRoleAdmin", role)
+	return *ret0, err
+}
+
+// GetRoleAdmin is a free data retrieval call binding the contract method 0x248a9ca3.
+//
+// Solidity: function getRoleAdmin(bytes32 role) view returns(bytes32)
+func (_Bridge *BridgeSession) GetRoleAdmin(role [32]byte) ([32]byte, error) {
+	return _Bridge.Contract.GetRoleAdmin(&_Bridge.CallOpts, role)
+}
+
+// GetRoleAdmin is a free data retrieval call binding the contract method 0x248a9ca3.
+//
+// Solidity: function getRoleAdmin(bytes32 role) view returns(bytes32)
+func (_Bridge *BridgeCallerSession) GetRoleAdmin(role [32]byte) ([32]byte, error) {
+	return _Bridge.Contract.GetRoleAdmin(&_Bridge.CallOpts, role)
+}
+
+// GetRoleMember is a free data retrieval call binding the contract method 0x9010d07c.
+//
+// Solidity: function getRoleMember(bytes32 role, uint256 index) view returns(address)
+func (_Bridge *BridgeCaller) GetRoleMember(opts *bind.CallOpts, role [32]byte, index *big.Int) (common.Address, error) {
+	var (
+		ret0 = new(common.Address)
+	)
+	out := ret0
+	err := _Bridge.contract.Call(opts, out, "getRoleMember", role, index)
+	return *ret0, err
+}
+
+// GetRoleMember is a free data retrieval call binding the contract method 0x9010d07c.
+//
+// Solidity: function getRoleMember(bytes32 role, uint256 index) view returns(address)
+func (_Bridge *BridgeSession) GetRoleMember(role [32]byte, index *big.Int) (common.Address, error) {
+	return _Bridge.Contract.GetRoleMember(&_Bridge.CallOpts, role, index)
+}
+
+// GetRoleMember is a free data retrieval call binding the contract method 0x9010d07c.
+//
+// Solidity: function getRoleMember(bytes32 role, uint256 index) view returns(address)
+func (_Bridge *BridgeCallerSession) GetRoleMember(role [32]byte, index *big.Int) (common.Address, error) {
+	return _Bridge.Contract.GetRoleMember(&_Bridge.CallOpts, role, index)
+}
+
+// GetRoleMemberCount is a free data retrieval call binding the contract method 0xca15c873.
+//
+// Solidity: function getRoleMemberCount(bytes32 role) view returns(uint256)
+func (_Bridge *BridgeCaller) GetRoleMemberCount(opts *bind.CallOpts, role [32]byte) (*big.Int, error) {
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := _Bridge.contract.Call(opts, out, "getRoleMemberCount", role)
+	return *ret0, err
+}
+
+// GetRoleMemberCount is a free data retrieval call binding the contract method 0xca15c873.
+//
+// Solidity: function getRoleMemberCount(bytes32 role) view returns(uint256)
+func (_Bridge *BridgeSession) GetRoleMemberCount(role [32]byte) (*big.Int, error) {
+	return _Bridge.Contract.GetRoleMemberCount(&_Bridge.CallOpts, role)
+}
+
+// GetRoleMemberCount is a free data retrieval call binding the contract method 0xca15c873.
+//
+// Solidity: function getRoleMemberCount(bytes32 role) view returns(uint256)
+func (_Bridge *BridgeCallerSession) GetRoleMemberCount(role [32]byte) (*big.Int, error) {
+	return _Bridge.Contract.GetRoleMemberCount(&_Bridge.CallOpts, role)
+}
+
+// HasRole is a free data retrieval call binding the contract method 0x91d14854.
+//
+// Solidity: function hasRole(bytes32 role, address account) view returns(bool)
+func (_Bridge *BridgeCaller) HasRole(opts *bind.CallOpts, role [32]byte, account common.Address) (bool, error) {
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := _Bridge.contract.Call(opts, out, "hasRole", role, account)
+	return *ret0, err
+}
+
+// HasRole is a free data retrieval call binding the contract method 0x91d14854.
+//
+// Solidity: function hasRole(bytes32 role, address account) view returns(bool)
+func (_Bridge *BridgeSession) HasRole(role [32]byte, account common.Address) (bool, error) {
+	return _Bridge.Contract.HasRole(&_Bridge.CallOpts, role, account)
+}
+
+// HasRole is a free data retrieval call binding the contract method 0x91d14854.
+//
+// Solidity: function hasRole(bytes32 role, address account) view returns(bool)
+func (_Bridge *BridgeCallerSession) HasRole(role [32]byte, account common.Address) (bool, error) {
+	return _Bridge.Contract.HasRole(&_Bridge.CallOpts, role, account)
+}
+
+// IsRelayer is a free data retrieval call binding the contract method 0x541d5548.
+//
+// Solidity: function isRelayer(address relayer) view returns(bool)
+func (_Bridge *BridgeCaller) IsRelayer(opts *bind.CallOpts, relayer common.Address) (bool, error) {
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := _Bridge.contract.Call(opts, out, "isRelayer", relayer)
+	return *ret0, err
+}
+
+// IsRelayer is a free data retrieval call binding the contract method 0x541d5548.
+//
+// Solidity: function isRelayer(address relayer) view returns(bool)
+func (_Bridge *BridgeSession) IsRelayer(relayer common.Address) (bool, error) {
+	return _Bridge.Contract.IsRelayer(&_Bridge.CallOpts, relayer)
+}
+
+// IsRelayer is a free data retrieval call binding the contract method 0x541d5548.
+//
+// Solidity: function isRelayer(address relayer) view returns(bool)
+func (_Bridge *BridgeCallerSession) IsRelayer(relayer common.Address) (bool, error) {
+	return _Bridge.Contract.IsRelayer(&_Bridge.CallOpts, relayer)
+}
+
+// Paused is a free data retrieval call binding the contract method 0x5c975abb.
+//
+// Solidity: function paused() view returns(bool)
+func (_Bridge *BridgeCaller) Paused(opts *bind.CallOpts) (bool, error) {
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := _Bridge.contract.Call(opts, out, "paused")
+	return *ret0, err
+}
+
+// Paused is a free data retrieval call binding the contract method 0x5c975abb.
+//
+// Solidity: function paused() view returns(bool)
+func (_Bridge *BridgeSession) Paused() (bool, error) {
+	return _Bridge.Contract.Paused(&_Bridge.CallOpts)
+}
+
+// Paused is a free data retrieval call binding the contract method 0x5c975abb.
+//
+// Solidity: function paused() view returns(bool)
+func (_Bridge *BridgeCallerSession) Paused() (bool, error) {
+	return _Bridge.Contract.Paused(&_Bridge.CallOpts)
+}
+
+// AdminAddRelayer is a paid mutator transaction binding the contract method 0xcdb0f73a.
+//
+// Solidity: function adminAddRelayer(address relayerAddress) returns()
+func (_Bridge *BridgeTransactor) AdminAddRelayer(opts *bind.TransactOpts, relayerAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "adminAddRelayer", relayerAddress)
+}
+
+// AdminAddRelayer is a paid mutator transaction binding the contract method 0xcdb0f73a.
+//
+// Solidity: function adminAddRelayer(address relayerAddress) returns()
+func (_Bridge *BridgeSession) AdminAddRelayer(relayerAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminAddRelayer(&_Bridge.TransactOpts, relayerAddress)
+}
+
+// AdminAddRelayer is a paid mutator transaction binding the contract method 0xcdb0f73a.
+//
+// Solidity: function adminAddRelayer(address relayerAddress) returns()
+func (_Bridge *BridgeTransactorSession) AdminAddRelayer(relayerAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminAddRelayer(&_Bridge.TransactOpts, relayerAddress)
+}
+
+// AdminChangeRelayerThreshold is a paid mutator transaction binding the contract method 0x4e056005.
+//
+// Solidity: function adminChangeRelayerThreshold(uint256 newThreshold) returns()
+func (_Bridge *BridgeTransactor) AdminChangeRelayerThreshold(opts *bind.TransactOpts, newThreshold *big.Int) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "adminChangeRelayerThreshold", newThreshold)
+}
+
+// AdminChangeRelayerThreshold is a paid mutator transaction binding the contract method 0x4e056005.
+//
+// Solidity: function adminChangeRelayerThreshold(uint256 newThreshold) returns()
+func (_Bridge *BridgeSession) AdminChangeRelayerThreshold(newThreshold *big.Int) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminChangeRelayerThreshold(&_Bridge.TransactOpts, newThreshold)
+}
+
+// AdminChangeRelayerThreshold is a paid mutator transaction binding the contract method 0x4e056005.
+//
+// Solidity: function adminChangeRelayerThreshold(uint256 newThreshold) returns()
+func (_Bridge *BridgeTransactorSession) AdminChangeRelayerThreshold(newThreshold *big.Int) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminChangeRelayerThreshold(&_Bridge.TransactOpts, newThreshold)
+}
+
+// AdminPauseTransfers is a paid mutator transaction binding the contract method 0x80ae1c28.
+//
+// Solidity: function adminPauseTransfers() returns()
+func (_Bridge *BridgeTransactor) AdminPauseTransfers(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "adminPauseTransfers")
+}
+
+// AdminPauseTransfers is a paid mutator transaction binding the contract method 0x80ae1c28.
+//
+// Solidity: function adminPauseTransfers() returns()
+func (_Bridge *BridgeSession) AdminPauseTransfers() (*types.Transaction, error) {
+	return _Bridge.Contract.AdminPauseTransfers(&_Bridge.TransactOpts)
+}
+
+// AdminPauseTransfers is a paid mutator transaction binding the contract method 0x80ae1c28.
+//
+// Solidity: function adminPauseTransfers() returns()
+func (_Bridge *BridgeTransactorSession) AdminPauseTransfers() (*types.Transaction, error) {
+	return _Bridge.Contract.AdminPauseTransfers(&_Bridge.TransactOpts)
+}
+
+// AdminRemoveRelayer is a paid mutator transaction binding the contract method 0x9d82dd63.
+//
+// Solidity: function adminRemoveRelayer(address relayerAddress) returns()
+func (_Bridge *BridgeTransactor) AdminRemoveRelayer(opts *bind.TransactOpts, relayerAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "adminRemoveRelayer", relayerAddress)
+}
+
+// AdminRemoveRelayer is a paid mutator transaction binding the contract method 0x9d82dd63.
+//
+// Solidity: function adminRemoveRelayer(address relayerAddress) returns()
+func (_Bridge *BridgeSession) AdminRemoveRelayer(relayerAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminRemoveRelayer(&_Bridge.TransactOpts, relayerAddress)
+}
+
+// AdminRemoveRelayer is a paid mutator transaction binding the contract method 0x9d82dd63.
+//
+// Solidity: function adminRemoveRelayer(address relayerAddress) returns()
+func (_Bridge *BridgeTransactorSession) AdminRemoveRelayer(relayerAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminRemoveRelayer(&_Bridge.TransactOpts, relayerAddress)
+}
+
+// AdminSetBurnable is a paid mutator transaction binding the contract method 0x8c0c2631.
+//
+// Solidity: function adminSetBurnable(address handlerAddress, address tokenAddress) returns()
+func (_Bridge *BridgeTransactor) AdminSetBurnable(opts *bind.TransactOpts, handlerAddress common.Address, tokenAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "adminSetBurnable", handlerAddress, tokenAddress)
+}
+
+// AdminSetBurnable is a paid mutator transaction binding the contract method 0x8c0c2631.
+//
+// Solidity: function adminSetBurnable(address handlerAddress, address tokenAddress) returns()
+func (_Bridge *BridgeSession) AdminSetBurnable(handlerAddress common.Address, tokenAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminSetBurnable(&_Bridge.TransactOpts, handlerAddress, tokenAddress)
+}
+
+// AdminSetBurnable is a paid mutator transaction binding the contract method 0x8c0c2631.
+//
+// Solidity: function adminSetBurnable(address handlerAddress, address tokenAddress) returns()
+func (_Bridge *BridgeTransactorSession) AdminSetBurnable(handlerAddress common.Address, tokenAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminSetBurnable(&_Bridge.TransactOpts, handlerAddress, tokenAddress)
+}
+
+// AdminSetGenericResource is a paid mutator transaction binding the contract method 0xe8437ee7.
+//
+// Solidity: function adminSetGenericResource(address handlerAddress, bytes32 resourceID, address contractAddress, bytes4 depositFunctionSig, bytes4 executeFunctionSig) returns()
+func (_Bridge *BridgeTransactor) AdminSetGenericResource(opts *bind.TransactOpts, handlerAddress common.Address, resourceID [32]byte, contractAddress common.Address, depositFunctionSig [4]byte, executeFunctionSig [4]byte) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "adminSetGenericResource", handlerAddress, resourceID, contractAddress, depositFunctionSig, executeFunctionSig)
+}
+
+// AdminSetGenericResource is a paid mutator transaction binding the contract method 0xe8437ee7.
+//
+// Solidity: function adminSetGenericResource(address handlerAddress, bytes32 resourceID, address contractAddress, bytes4 depositFunctionSig, bytes4 executeFunctionSig) returns()
+func (_Bridge *BridgeSession) AdminSetGenericResource(handlerAddress common.Address, resourceID [32]byte, contractAddress common.Address, depositFunctionSig [4]byte, executeFunctionSig [4]byte) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminSetGenericResource(&_Bridge.TransactOpts, handlerAddress, resourceID, contractAddress, depositFunctionSig, executeFunctionSig)
+}
+
+// AdminSetGenericResource is a paid mutator transaction binding the contract method 0xe8437ee7.
+//
+// Solidity: function adminSetGenericResource(address handlerAddress, bytes32 resourceID, address contractAddress, bytes4 depositFunctionSig, bytes4 executeFunctionSig) returns()
+func (_Bridge *BridgeTransactorSession) AdminSetGenericResource(handlerAddress common.Address, resourceID [32]byte, contractAddress common.Address, depositFunctionSig [4]byte, executeFunctionSig [4]byte) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminSetGenericResource(&_Bridge.TransactOpts, handlerAddress, resourceID, contractAddress, depositFunctionSig, executeFunctionSig)
+}
+
+// AdminSetResource is a paid mutator transaction binding the contract method 0xcb10f215.
+//
+// Solidity: function adminSetResource(address handlerAddress, bytes32 resourceID, address tokenAddress) returns()
+func (_Bridge *BridgeTransactor) AdminSetResource(opts *bind.TransactOpts, handlerAddress common.Address, resourceID [32]byte, tokenAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "adminSetResource", handlerAddress, resourceID, tokenAddress)
+}
+
+// AdminSetResource is a paid mutator transaction binding the contract method 0xcb10f215.
+//
+// Solidity: function adminSetResource(address handlerAddress, bytes32 resourceID, address tokenAddress) returns()
+func (_Bridge *BridgeSession) AdminSetResource(handlerAddress common.Address, resourceID [32]byte, tokenAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminSetResource(&_Bridge.TransactOpts, handlerAddress, resourceID, tokenAddress)
+}
+
+// AdminSetResource is a paid mutator transaction binding the contract method 0xcb10f215.
+//
+// Solidity: function adminSetResource(address handlerAddress, bytes32 resourceID, address tokenAddress) returns()
+func (_Bridge *BridgeTransactorSession) AdminSetResource(handlerAddress common.Address, resourceID [32]byte, tokenAddress common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.AdminSetResource(&_Bridge.TransactOpts, handlerAddress, resourceID, tokenAddress)
+}
+
+// AdminUnpauseTransfers is a paid mutator transaction binding the contract method 0xffaac0eb.
+//
+// Solidity: function adminUnpauseTransfers() returns()
+func (_Bridge *BridgeTransactor) AdminUnpauseTransfers(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "adminUnpauseTransfers")
+}
+
+// AdminUnpauseTransfers is a paid mutator transaction binding the contract method 0xffaac0eb.
+//
+// Solidity: function adminUnpauseTransfers() returns()
+func (_Bridge *BridgeSession) AdminUnpauseTransfers() (*types.Transaction, error) {
+	return _Bridge.Contract.AdminUnpauseTransfers(&_Bridge.TransactOpts)
+}
+
+// AdminUnpauseTransfers is a paid mutator transaction binding the contract method 0xffaac0eb.
+//
+// Solidity: function adminUnpauseTransfers() returns()
+func (_Bridge *BridgeTransactorSession) AdminUnpauseTransfers() (*types.Transaction, error) {
+	return _Bridge.Contract.AdminUnpauseTransfers(&_Bridge.TransactOpts)
 }
 
 // Deposit is a paid mutator transaction binding the contract method 0x3e87ba3c.
 //
-// Solidity: function deposit(uint8 destinationChainID, address originChainHandlerAddress, bytes data) returns()
-func (_Bridge *BridgeTransactor) Deposit(opts *bind.TransactOpts, destinationChainID uint8, originChainHandlerAddress common.Address, data []byte) (*types.Transaction, error) {
-	return _Bridge.contract.Transact(opts, "deposit", destinationChainID, originChainHandlerAddress, data)
+// Solidity: function deposit(uint8 destinationChainID, address handler, bytes data) returns()
+func (_Bridge *BridgeTransactor) Deposit(opts *bind.TransactOpts, destinationChainID uint8, handler common.Address, data []byte) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "deposit", destinationChainID, handler, data)
 }
 
 // Deposit is a paid mutator transaction binding the contract method 0x3e87ba3c.
 //
-// Solidity: function deposit(uint8 destinationChainID, address originChainHandlerAddress, bytes data) returns()
-func (_Bridge *BridgeSession) Deposit(destinationChainID uint8, originChainHandlerAddress common.Address, data []byte) (*types.Transaction, error) {
-	return _Bridge.Contract.Deposit(&_Bridge.TransactOpts, destinationChainID, originChainHandlerAddress, data)
+// Solidity: function deposit(uint8 destinationChainID, address handler, bytes data) returns()
+func (_Bridge *BridgeSession) Deposit(destinationChainID uint8, handler common.Address, data []byte) (*types.Transaction, error) {
+	return _Bridge.Contract.Deposit(&_Bridge.TransactOpts, destinationChainID, handler, data)
 }
 
 // Deposit is a paid mutator transaction binding the contract method 0x3e87ba3c.
 //
-// Solidity: function deposit(uint8 destinationChainID, address originChainHandlerAddress, bytes data) returns()
-func (_Bridge *BridgeTransactorSession) Deposit(destinationChainID uint8, originChainHandlerAddress common.Address, data []byte) (*types.Transaction, error) {
-	return _Bridge.Contract.Deposit(&_Bridge.TransactOpts, destinationChainID, originChainHandlerAddress, data)
+// Solidity: function deposit(uint8 destinationChainID, address handler, bytes data) returns()
+func (_Bridge *BridgeTransactorSession) Deposit(destinationChainID uint8, handler common.Address, data []byte) (*types.Transaction, error) {
+	return _Bridge.Contract.Deposit(&_Bridge.TransactOpts, destinationChainID, handler, data)
 }
 
-// ExecuteDepositProposal is a paid mutator transaction binding the contract method 0x478fa240.
+// ExecuteProposal is a paid mutator transaction binding the contract method 0x82f5ef3e.
 //
-// Solidity: function executeDepositProposal(uint8 originChainID, uint256 depositNonce, address destinationChainHandlerAddress, bytes data) returns()
-func (_Bridge *BridgeTransactor) ExecuteDepositProposal(opts *bind.TransactOpts, originChainID uint8, depositNonce *big.Int, destinationChainHandlerAddress common.Address, data []byte) (*types.Transaction, error) {
-	return _Bridge.contract.Transact(opts, "executeDepositProposal", originChainID, depositNonce, destinationChainHandlerAddress, data)
+// Solidity: function executeProposal(uint8 originChainID, uint256 depositNonce, address handler, bytes data) returns()
+func (_Bridge *BridgeTransactor) ExecuteProposal(opts *bind.TransactOpts, originChainID uint8, depositNonce *big.Int, handler common.Address, data []byte) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "executeProposal", originChainID, depositNonce, handler, data)
 }
 
-// ExecuteDepositProposal is a paid mutator transaction binding the contract method 0x478fa240.
+// ExecuteProposal is a paid mutator transaction binding the contract method 0x82f5ef3e.
 //
-// Solidity: function executeDepositProposal(uint8 originChainID, uint256 depositNonce, address destinationChainHandlerAddress, bytes data) returns()
-func (_Bridge *BridgeSession) ExecuteDepositProposal(originChainID uint8, depositNonce *big.Int, destinationChainHandlerAddress common.Address, data []byte) (*types.Transaction, error) {
-	return _Bridge.Contract.ExecuteDepositProposal(&_Bridge.TransactOpts, originChainID, depositNonce, destinationChainHandlerAddress, data)
+// Solidity: function executeProposal(uint8 originChainID, uint256 depositNonce, address handler, bytes data) returns()
+func (_Bridge *BridgeSession) ExecuteProposal(originChainID uint8, depositNonce *big.Int, handler common.Address, data []byte) (*types.Transaction, error) {
+	return _Bridge.Contract.ExecuteProposal(&_Bridge.TransactOpts, originChainID, depositNonce, handler, data)
 }
 
-// ExecuteDepositProposal is a paid mutator transaction binding the contract method 0x478fa240.
+// ExecuteProposal is a paid mutator transaction binding the contract method 0x82f5ef3e.
 //
-// Solidity: function executeDepositProposal(uint8 originChainID, uint256 depositNonce, address destinationChainHandlerAddress, bytes data) returns()
-func (_Bridge *BridgeTransactorSession) ExecuteDepositProposal(originChainID uint8, depositNonce *big.Int, destinationChainHandlerAddress common.Address, data []byte) (*types.Transaction, error) {
-	return _Bridge.Contract.ExecuteDepositProposal(&_Bridge.TransactOpts, originChainID, depositNonce, destinationChainHandlerAddress, data)
+// Solidity: function executeProposal(uint8 originChainID, uint256 depositNonce, address handler, bytes data) returns()
+func (_Bridge *BridgeTransactorSession) ExecuteProposal(originChainID uint8, depositNonce *big.Int, handler common.Address, data []byte) (*types.Transaction, error) {
+	return _Bridge.Contract.ExecuteProposal(&_Bridge.TransactOpts, originChainID, depositNonce, handler, data)
 }
 
-// VoteDepositProposal is a paid mutator transaction binding the contract method 0xff6ae003.
+// GrantRole is a paid mutator transaction binding the contract method 0x2f2ff15d.
 //
-// Solidity: function voteDepositProposal(uint8 originChainID, uint256 depositNonce, bytes32 dataHash) returns()
-func (_Bridge *BridgeTransactor) VoteDepositProposal(opts *bind.TransactOpts, originChainID uint8, depositNonce *big.Int, dataHash [32]byte) (*types.Transaction, error) {
-	return _Bridge.contract.Transact(opts, "voteDepositProposal", originChainID, depositNonce, dataHash)
+// Solidity: function grantRole(bytes32 role, address account) returns()
+func (_Bridge *BridgeTransactor) GrantRole(opts *bind.TransactOpts, role [32]byte, account common.Address) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "grantRole", role, account)
 }
 
-// VoteDepositProposal is a paid mutator transaction binding the contract method 0xff6ae003.
+// GrantRole is a paid mutator transaction binding the contract method 0x2f2ff15d.
 //
-// Solidity: function voteDepositProposal(uint8 originChainID, uint256 depositNonce, bytes32 dataHash) returns()
-func (_Bridge *BridgeSession) VoteDepositProposal(originChainID uint8, depositNonce *big.Int, dataHash [32]byte) (*types.Transaction, error) {
-	return _Bridge.Contract.VoteDepositProposal(&_Bridge.TransactOpts, originChainID, depositNonce, dataHash)
+// Solidity: function grantRole(bytes32 role, address account) returns()
+func (_Bridge *BridgeSession) GrantRole(role [32]byte, account common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.GrantRole(&_Bridge.TransactOpts, role, account)
 }
 
-// VoteDepositProposal is a paid mutator transaction binding the contract method 0xff6ae003.
+// GrantRole is a paid mutator transaction binding the contract method 0x2f2ff15d.
 //
-// Solidity: function voteDepositProposal(uint8 originChainID, uint256 depositNonce, bytes32 dataHash) returns()
-func (_Bridge *BridgeTransactorSession) VoteDepositProposal(originChainID uint8, depositNonce *big.Int, dataHash [32]byte) (*types.Transaction, error) {
-	return _Bridge.Contract.VoteDepositProposal(&_Bridge.TransactOpts, originChainID, depositNonce, dataHash)
+// Solidity: function grantRole(bytes32 role, address account) returns()
+func (_Bridge *BridgeTransactorSession) GrantRole(role [32]byte, account common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.GrantRole(&_Bridge.TransactOpts, role, account)
 }
 
-// VoteRelayerThresholdProposal is a paid mutator transaction binding the contract method 0xe9cdaead.
+// RenounceAdmin is a paid mutator transaction binding the contract method 0x5e1fab0f.
 //
-// Solidity: function voteRelayerThresholdProposal(uint8 vote) returns()
-func (_Bridge *BridgeTransactor) VoteRelayerThresholdProposal(opts *bind.TransactOpts, vote uint8) (*types.Transaction, error) {
-	return _Bridge.contract.Transact(opts, "voteRelayerThresholdProposal", vote)
+// Solidity: function renounceAdmin(address newAdmin) returns()
+func (_Bridge *BridgeTransactor) RenounceAdmin(opts *bind.TransactOpts, newAdmin common.Address) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "renounceAdmin", newAdmin)
 }
 
-// VoteRelayerThresholdProposal is a paid mutator transaction binding the contract method 0xe9cdaead.
+// RenounceAdmin is a paid mutator transaction binding the contract method 0x5e1fab0f.
 //
-// Solidity: function voteRelayerThresholdProposal(uint8 vote) returns()
-func (_Bridge *BridgeSession) VoteRelayerThresholdProposal(vote uint8) (*types.Transaction, error) {
-	return _Bridge.Contract.VoteRelayerThresholdProposal(&_Bridge.TransactOpts, vote)
+// Solidity: function renounceAdmin(address newAdmin) returns()
+func (_Bridge *BridgeSession) RenounceAdmin(newAdmin common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.RenounceAdmin(&_Bridge.TransactOpts, newAdmin)
 }
 
-// VoteRelayerThresholdProposal is a paid mutator transaction binding the contract method 0xe9cdaead.
+// RenounceAdmin is a paid mutator transaction binding the contract method 0x5e1fab0f.
 //
-// Solidity: function voteRelayerThresholdProposal(uint8 vote) returns()
-func (_Bridge *BridgeTransactorSession) VoteRelayerThresholdProposal(vote uint8) (*types.Transaction, error) {
-	return _Bridge.Contract.VoteRelayerThresholdProposal(&_Bridge.TransactOpts, vote)
+// Solidity: function renounceAdmin(address newAdmin) returns()
+func (_Bridge *BridgeTransactorSession) RenounceAdmin(newAdmin common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.RenounceAdmin(&_Bridge.TransactOpts, newAdmin)
+}
+
+// RenounceRole is a paid mutator transaction binding the contract method 0x36568abe.
+//
+// Solidity: function renounceRole(bytes32 role, address account) returns()
+func (_Bridge *BridgeTransactor) RenounceRole(opts *bind.TransactOpts, role [32]byte, account common.Address) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "renounceRole", role, account)
+}
+
+// RenounceRole is a paid mutator transaction binding the contract method 0x36568abe.
+//
+// Solidity: function renounceRole(bytes32 role, address account) returns()
+func (_Bridge *BridgeSession) RenounceRole(role [32]byte, account common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.RenounceRole(&_Bridge.TransactOpts, role, account)
+}
+
+// RenounceRole is a paid mutator transaction binding the contract method 0x36568abe.
+//
+// Solidity: function renounceRole(bytes32 role, address account) returns()
+func (_Bridge *BridgeTransactorSession) RenounceRole(role [32]byte, account common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.RenounceRole(&_Bridge.TransactOpts, role, account)
+}
+
+// RevokeRole is a paid mutator transaction binding the contract method 0xd547741f.
+//
+// Solidity: function revokeRole(bytes32 role, address account) returns()
+func (_Bridge *BridgeTransactor) RevokeRole(opts *bind.TransactOpts, role [32]byte, account common.Address) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "revokeRole", role, account)
+}
+
+// RevokeRole is a paid mutator transaction binding the contract method 0xd547741f.
+//
+// Solidity: function revokeRole(bytes32 role, address account) returns()
+func (_Bridge *BridgeSession) RevokeRole(role [32]byte, account common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.RevokeRole(&_Bridge.TransactOpts, role, account)
+}
+
+// RevokeRole is a paid mutator transaction binding the contract method 0xd547741f.
+//
+// Solidity: function revokeRole(bytes32 role, address account) returns()
+func (_Bridge *BridgeTransactorSession) RevokeRole(role [32]byte, account common.Address) (*types.Transaction, error) {
+	return _Bridge.Contract.RevokeRole(&_Bridge.TransactOpts, role, account)
+}
+
+// VoteProposal is a paid mutator transaction binding the contract method 0x9923ed10.
+//
+// Solidity: function voteProposal(uint8 originChainID, uint256 depositNonce, bytes32 dataHash) returns()
+func (_Bridge *BridgeTransactor) VoteProposal(opts *bind.TransactOpts, originChainID uint8, depositNonce *big.Int, dataHash [32]byte) (*types.Transaction, error) {
+	return _Bridge.contract.Transact(opts, "voteProposal", originChainID, depositNonce, dataHash)
+}
+
+// VoteProposal is a paid mutator transaction binding the contract method 0x9923ed10.
+//
+// Solidity: function voteProposal(uint8 originChainID, uint256 depositNonce, bytes32 dataHash) returns()
+func (_Bridge *BridgeSession) VoteProposal(originChainID uint8, depositNonce *big.Int, dataHash [32]byte) (*types.Transaction, error) {
+	return _Bridge.Contract.VoteProposal(&_Bridge.TransactOpts, originChainID, depositNonce, dataHash)
+}
+
+// VoteProposal is a paid mutator transaction binding the contract method 0x9923ed10.
+//
+// Solidity: function voteProposal(uint8 originChainID, uint256 depositNonce, bytes32 dataHash) returns()
+func (_Bridge *BridgeTransactorSession) VoteProposal(originChainID uint8, depositNonce *big.Int, dataHash [32]byte) (*types.Transaction, error) {
+	return _Bridge.Contract.VoteProposal(&_Bridge.TransactOpts, originChainID, depositNonce, dataHash)
 }
 
 // BridgeDepositIterator is returned from FilterDeposit and is used to iterate over the raw logs and unpacked data for Deposit events raised by the Bridge contract.
@@ -685,31 +1033,31 @@ func (it *BridgeDepositIterator) Close() error {
 
 // BridgeDeposit represents a Deposit event raised by the Bridge contract.
 type BridgeDeposit struct {
-	DestinationChainID        uint8
-	OriginChainHandlerAddress common.Address
-	DepositNonce              *big.Int
-	Raw                       types.Log // Blockchain specific contextual infos
+	DestinationChainID uint8
+	HandlerAddress     common.Address
+	DepositNonce       *big.Int
+	Raw                types.Log // Blockchain specific contextual infos
 }
 
 // FilterDeposit is a free log retrieval operation binding the contract event 0x47903cb3f3dd35755d4df452f71612f60bd0bfc2f66f52901e099f3ac2f319fe.
 //
-// Solidity: event Deposit(uint8 indexed destinationChainID, address indexed originChainHandlerAddress, uint256 indexed depositNonce)
-func (_Bridge *BridgeFilterer) FilterDeposit(opts *bind.FilterOpts, destinationChainID []uint8, originChainHandlerAddress []common.Address, depositNonce []*big.Int) (*BridgeDepositIterator, error) {
+// Solidity: event Deposit(uint8 indexed destinationChainID, address indexed handlerAddress, uint256 indexed depositNonce)
+func (_Bridge *BridgeFilterer) FilterDeposit(opts *bind.FilterOpts, destinationChainID []uint8, handlerAddress []common.Address, depositNonce []*big.Int) (*BridgeDepositIterator, error) {
 
 	var destinationChainIDRule []interface{}
 	for _, destinationChainIDItem := range destinationChainID {
 		destinationChainIDRule = append(destinationChainIDRule, destinationChainIDItem)
 	}
-	var originChainHandlerAddressRule []interface{}
-	for _, originChainHandlerAddressItem := range originChainHandlerAddress {
-		originChainHandlerAddressRule = append(originChainHandlerAddressRule, originChainHandlerAddressItem)
+	var handlerAddressRule []interface{}
+	for _, handlerAddressItem := range handlerAddress {
+		handlerAddressRule = append(handlerAddressRule, handlerAddressItem)
 	}
 	var depositNonceRule []interface{}
 	for _, depositNonceItem := range depositNonce {
 		depositNonceRule = append(depositNonceRule, depositNonceItem)
 	}
 
-	logs, sub, err := _Bridge.contract.FilterLogs(opts, "Deposit", destinationChainIDRule, originChainHandlerAddressRule, depositNonceRule)
+	logs, sub, err := _Bridge.contract.FilterLogs(opts, "Deposit", destinationChainIDRule, handlerAddressRule, depositNonceRule)
 	if err != nil {
 		return nil, err
 	}
@@ -718,23 +1066,23 @@ func (_Bridge *BridgeFilterer) FilterDeposit(opts *bind.FilterOpts, destinationC
 
 // WatchDeposit is a free log subscription operation binding the contract event 0x47903cb3f3dd35755d4df452f71612f60bd0bfc2f66f52901e099f3ac2f319fe.
 //
-// Solidity: event Deposit(uint8 indexed destinationChainID, address indexed originChainHandlerAddress, uint256 indexed depositNonce)
-func (_Bridge *BridgeFilterer) WatchDeposit(opts *bind.WatchOpts, sink chan<- *BridgeDeposit, destinationChainID []uint8, originChainHandlerAddress []common.Address, depositNonce []*big.Int) (event.Subscription, error) {
+// Solidity: event Deposit(uint8 indexed destinationChainID, address indexed handlerAddress, uint256 indexed depositNonce)
+func (_Bridge *BridgeFilterer) WatchDeposit(opts *bind.WatchOpts, sink chan<- *BridgeDeposit, destinationChainID []uint8, handlerAddress []common.Address, depositNonce []*big.Int) (event.Subscription, error) {
 
 	var destinationChainIDRule []interface{}
 	for _, destinationChainIDItem := range destinationChainID {
 		destinationChainIDRule = append(destinationChainIDRule, destinationChainIDItem)
 	}
-	var originChainHandlerAddressRule []interface{}
-	for _, originChainHandlerAddressItem := range originChainHandlerAddress {
-		originChainHandlerAddressRule = append(originChainHandlerAddressRule, originChainHandlerAddressItem)
+	var handlerAddressRule []interface{}
+	for _, handlerAddressItem := range handlerAddress {
+		handlerAddressRule = append(handlerAddressRule, handlerAddressItem)
 	}
 	var depositNonceRule []interface{}
 	for _, depositNonceItem := range depositNonce {
 		depositNonceRule = append(depositNonceRule, depositNonceItem)
 	}
 
-	logs, sub, err := _Bridge.contract.WatchLogs(opts, "Deposit", destinationChainIDRule, originChainHandlerAddressRule, depositNonceRule)
+	logs, sub, err := _Bridge.contract.WatchLogs(opts, "Deposit", destinationChainIDRule, handlerAddressRule, depositNonceRule)
 	if err != nil {
 		return nil, err
 	}
@@ -768,7 +1116,7 @@ func (_Bridge *BridgeFilterer) WatchDeposit(opts *bind.WatchOpts, sink chan<- *B
 
 // ParseDeposit is a log parse operation binding the contract event 0x47903cb3f3dd35755d4df452f71612f60bd0bfc2f66f52901e099f3ac2f319fe.
 //
-// Solidity: event Deposit(uint8 indexed destinationChainID, address indexed originChainHandlerAddress, uint256 indexed depositNonce)
+// Solidity: event Deposit(uint8 indexed destinationChainID, address indexed handlerAddress, uint256 indexed depositNonce)
 func (_Bridge *BridgeFilterer) ParseDeposit(log types.Log) (*BridgeDeposit, error) {
 	event := new(BridgeDeposit)
 	if err := _Bridge.contract.UnpackLog(event, "Deposit", log); err != nil {
@@ -777,9 +1125,9 @@ func (_Bridge *BridgeFilterer) ParseDeposit(log types.Log) (*BridgeDeposit, erro
 	return event, nil
 }
 
-// BridgeDepositProposalCreatedIterator is returned from FilterDepositProposalCreated and is used to iterate over the raw logs and unpacked data for DepositProposalCreated events raised by the Bridge contract.
-type BridgeDepositProposalCreatedIterator struct {
-	Event *BridgeDepositProposalCreated // Event containing the contract specifics and raw log
+// BridgePausedIterator is returned from FilterPaused and is used to iterate over the raw logs and unpacked data for Paused events raised by the Bridge contract.
+type BridgePausedIterator struct {
+	Event *BridgePaused // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -793,7 +1141,7 @@ type BridgeDepositProposalCreatedIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *BridgeDepositProposalCreatedIterator) Next() bool {
+func (it *BridgePausedIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -802,7 +1150,7 @@ func (it *BridgeDepositProposalCreatedIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(BridgeDepositProposalCreated)
+			it.Event = new(BridgePaused)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -817,7 +1165,7 @@ func (it *BridgeDepositProposalCreatedIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(BridgeDepositProposalCreated)
+		it.Event = new(BridgePaused)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -833,19 +1181,152 @@ func (it *BridgeDepositProposalCreatedIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *BridgeDepositProposalCreatedIterator) Error() error {
+func (it *BridgePausedIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *BridgeDepositProposalCreatedIterator) Close() error {
+func (it *BridgePausedIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// BridgeDepositProposalCreated represents a DepositProposalCreated event raised by the Bridge contract.
-type BridgeDepositProposalCreated struct {
+// BridgePaused represents a Paused event raised by the Bridge contract.
+type BridgePaused struct {
+	Account common.Address
+	Raw     types.Log // Blockchain specific contextual infos
+}
+
+// FilterPaused is a free log retrieval operation binding the contract event 0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258.
+//
+// Solidity: event Paused(address account)
+func (_Bridge *BridgeFilterer) FilterPaused(opts *bind.FilterOpts) (*BridgePausedIterator, error) {
+
+	logs, sub, err := _Bridge.contract.FilterLogs(opts, "Paused")
+	if err != nil {
+		return nil, err
+	}
+	return &BridgePausedIterator{contract: _Bridge.contract, event: "Paused", logs: logs, sub: sub}, nil
+}
+
+// WatchPaused is a free log subscription operation binding the contract event 0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258.
+//
+// Solidity: event Paused(address account)
+func (_Bridge *BridgeFilterer) WatchPaused(opts *bind.WatchOpts, sink chan<- *BridgePaused) (event.Subscription, error) {
+
+	logs, sub, err := _Bridge.contract.WatchLogs(opts, "Paused")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(BridgePaused)
+				if err := _Bridge.contract.UnpackLog(event, "Paused", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParsePaused is a log parse operation binding the contract event 0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258.
+//
+// Solidity: event Paused(address account)
+func (_Bridge *BridgeFilterer) ParsePaused(log types.Log) (*BridgePaused, error) {
+	event := new(BridgePaused)
+	if err := _Bridge.contract.UnpackLog(event, "Paused", log); err != nil {
+		return nil, err
+	}
+	return event, nil
+}
+
+// BridgeProposalCreatedIterator is returned from FilterProposalCreated and is used to iterate over the raw logs and unpacked data for ProposalCreated events raised by the Bridge contract.
+type BridgeProposalCreatedIterator struct {
+	Event *BridgeProposalCreated // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *BridgeProposalCreatedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(BridgeProposalCreated)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(BridgeProposalCreated)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *BridgeProposalCreatedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *BridgeProposalCreatedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// BridgeProposalCreated represents a ProposalCreated event raised by the Bridge contract.
+type BridgeProposalCreated struct {
 	OriginChainID      uint8
 	DestinationChainID uint8
 	DepositNonce       *big.Int
@@ -853,10 +1334,10 @@ type BridgeDepositProposalCreated struct {
 	Raw                types.Log // Blockchain specific contextual infos
 }
 
-// FilterDepositProposalCreated is a free log retrieval operation binding the contract event 0x3cf2380ab0b4b694f36db8d3dc8d091a58b09ba7ef5fb8e1034f8ccb08374eba.
+// FilterProposalCreated is a free log retrieval operation binding the contract event 0x194898110d0d38ea3cd7aa3fa939f87bb9bbad8427482df365d5ecc36b743805.
 //
-// Solidity: event DepositProposalCreated(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, bytes32 dataHash)
-func (_Bridge *BridgeFilterer) FilterDepositProposalCreated(opts *bind.FilterOpts, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (*BridgeDepositProposalCreatedIterator, error) {
+// Solidity: event ProposalCreated(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, bytes32 dataHash)
+func (_Bridge *BridgeFilterer) FilterProposalCreated(opts *bind.FilterOpts, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (*BridgeProposalCreatedIterator, error) {
 
 	var originChainIDRule []interface{}
 	for _, originChainIDItem := range originChainID {
@@ -871,17 +1352,17 @@ func (_Bridge *BridgeFilterer) FilterDepositProposalCreated(opts *bind.FilterOpt
 		depositNonceRule = append(depositNonceRule, depositNonceItem)
 	}
 
-	logs, sub, err := _Bridge.contract.FilterLogs(opts, "DepositProposalCreated", originChainIDRule, destinationChainIDRule, depositNonceRule)
+	logs, sub, err := _Bridge.contract.FilterLogs(opts, "ProposalCreated", originChainIDRule, destinationChainIDRule, depositNonceRule)
 	if err != nil {
 		return nil, err
 	}
-	return &BridgeDepositProposalCreatedIterator{contract: _Bridge.contract, event: "DepositProposalCreated", logs: logs, sub: sub}, nil
+	return &BridgeProposalCreatedIterator{contract: _Bridge.contract, event: "ProposalCreated", logs: logs, sub: sub}, nil
 }
 
-// WatchDepositProposalCreated is a free log subscription operation binding the contract event 0x3cf2380ab0b4b694f36db8d3dc8d091a58b09ba7ef5fb8e1034f8ccb08374eba.
+// WatchProposalCreated is a free log subscription operation binding the contract event 0x194898110d0d38ea3cd7aa3fa939f87bb9bbad8427482df365d5ecc36b743805.
 //
-// Solidity: event DepositProposalCreated(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, bytes32 dataHash)
-func (_Bridge *BridgeFilterer) WatchDepositProposalCreated(opts *bind.WatchOpts, sink chan<- *BridgeDepositProposalCreated, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (event.Subscription, error) {
+// Solidity: event ProposalCreated(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, bytes32 dataHash)
+func (_Bridge *BridgeFilterer) WatchProposalCreated(opts *bind.WatchOpts, sink chan<- *BridgeProposalCreated, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (event.Subscription, error) {
 
 	var originChainIDRule []interface{}
 	for _, originChainIDItem := range originChainID {
@@ -896,7 +1377,7 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalCreated(opts *bind.WatchOpts,
 		depositNonceRule = append(depositNonceRule, depositNonceItem)
 	}
 
-	logs, sub, err := _Bridge.contract.WatchLogs(opts, "DepositProposalCreated", originChainIDRule, destinationChainIDRule, depositNonceRule)
+	logs, sub, err := _Bridge.contract.WatchLogs(opts, "ProposalCreated", originChainIDRule, destinationChainIDRule, depositNonceRule)
 	if err != nil {
 		return nil, err
 	}
@@ -906,8 +1387,8 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalCreated(opts *bind.WatchOpts,
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(BridgeDepositProposalCreated)
-				if err := _Bridge.contract.UnpackLog(event, "DepositProposalCreated", log); err != nil {
+				event := new(BridgeProposalCreated)
+				if err := _Bridge.contract.UnpackLog(event, "ProposalCreated", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -928,20 +1409,20 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalCreated(opts *bind.WatchOpts,
 	}), nil
 }
 
-// ParseDepositProposalCreated is a log parse operation binding the contract event 0x3cf2380ab0b4b694f36db8d3dc8d091a58b09ba7ef5fb8e1034f8ccb08374eba.
+// ParseProposalCreated is a log parse operation binding the contract event 0x194898110d0d38ea3cd7aa3fa939f87bb9bbad8427482df365d5ecc36b743805.
 //
-// Solidity: event DepositProposalCreated(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, bytes32 dataHash)
-func (_Bridge *BridgeFilterer) ParseDepositProposalCreated(log types.Log) (*BridgeDepositProposalCreated, error) {
-	event := new(BridgeDepositProposalCreated)
-	if err := _Bridge.contract.UnpackLog(event, "DepositProposalCreated", log); err != nil {
+// Solidity: event ProposalCreated(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, bytes32 dataHash)
+func (_Bridge *BridgeFilterer) ParseProposalCreated(log types.Log) (*BridgeProposalCreated, error) {
+	event := new(BridgeProposalCreated)
+	if err := _Bridge.contract.UnpackLog(event, "ProposalCreated", log); err != nil {
 		return nil, err
 	}
 	return event, nil
 }
 
-// BridgeDepositProposalExecutedIterator is returned from FilterDepositProposalExecuted and is used to iterate over the raw logs and unpacked data for DepositProposalExecuted events raised by the Bridge contract.
-type BridgeDepositProposalExecutedIterator struct {
-	Event *BridgeDepositProposalExecuted // Event containing the contract specifics and raw log
+// BridgeProposalExecutedIterator is returned from FilterProposalExecuted and is used to iterate over the raw logs and unpacked data for ProposalExecuted events raised by the Bridge contract.
+type BridgeProposalExecutedIterator struct {
+	Event *BridgeProposalExecuted // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -955,7 +1436,7 @@ type BridgeDepositProposalExecutedIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *BridgeDepositProposalExecutedIterator) Next() bool {
+func (it *BridgeProposalExecutedIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -964,7 +1445,7 @@ func (it *BridgeDepositProposalExecutedIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(BridgeDepositProposalExecuted)
+			it.Event = new(BridgeProposalExecuted)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -979,7 +1460,7 @@ func (it *BridgeDepositProposalExecutedIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(BridgeDepositProposalExecuted)
+		it.Event = new(BridgeProposalExecuted)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -995,29 +1476,29 @@ func (it *BridgeDepositProposalExecutedIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *BridgeDepositProposalExecutedIterator) Error() error {
+func (it *BridgeProposalExecutedIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *BridgeDepositProposalExecutedIterator) Close() error {
+func (it *BridgeProposalExecutedIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// BridgeDepositProposalExecuted represents a DepositProposalExecuted event raised by the Bridge contract.
-type BridgeDepositProposalExecuted struct {
+// BridgeProposalExecuted represents a ProposalExecuted event raised by the Bridge contract.
+type BridgeProposalExecuted struct {
 	OriginChainID      uint8
 	DestinationChainID uint8
 	DepositNonce       *big.Int
 	Raw                types.Log // Blockchain specific contextual infos
 }
 
-// FilterDepositProposalExecuted is a free log retrieval operation binding the contract event 0x640ba3edbd745a745b6a269a81cb65a1b89988ab7e874ee1f55ac8e75b62e91a.
+// FilterProposalExecuted is a free log retrieval operation binding the contract event 0xa5c8f3b7dbf19ce2d73c2641a6b4a360c9011cd3ae7f6d12e0454fe81570dc30.
 //
-// Solidity: event DepositProposalExecuted(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
-func (_Bridge *BridgeFilterer) FilterDepositProposalExecuted(opts *bind.FilterOpts, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (*BridgeDepositProposalExecutedIterator, error) {
+// Solidity: event ProposalExecuted(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
+func (_Bridge *BridgeFilterer) FilterProposalExecuted(opts *bind.FilterOpts, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (*BridgeProposalExecutedIterator, error) {
 
 	var originChainIDRule []interface{}
 	for _, originChainIDItem := range originChainID {
@@ -1032,17 +1513,17 @@ func (_Bridge *BridgeFilterer) FilterDepositProposalExecuted(opts *bind.FilterOp
 		depositNonceRule = append(depositNonceRule, depositNonceItem)
 	}
 
-	logs, sub, err := _Bridge.contract.FilterLogs(opts, "DepositProposalExecuted", originChainIDRule, destinationChainIDRule, depositNonceRule)
+	logs, sub, err := _Bridge.contract.FilterLogs(opts, "ProposalExecuted", originChainIDRule, destinationChainIDRule, depositNonceRule)
 	if err != nil {
 		return nil, err
 	}
-	return &BridgeDepositProposalExecutedIterator{contract: _Bridge.contract, event: "DepositProposalExecuted", logs: logs, sub: sub}, nil
+	return &BridgeProposalExecutedIterator{contract: _Bridge.contract, event: "ProposalExecuted", logs: logs, sub: sub}, nil
 }
 
-// WatchDepositProposalExecuted is a free log subscription operation binding the contract event 0x640ba3edbd745a745b6a269a81cb65a1b89988ab7e874ee1f55ac8e75b62e91a.
+// WatchProposalExecuted is a free log subscription operation binding the contract event 0xa5c8f3b7dbf19ce2d73c2641a6b4a360c9011cd3ae7f6d12e0454fe81570dc30.
 //
-// Solidity: event DepositProposalExecuted(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
-func (_Bridge *BridgeFilterer) WatchDepositProposalExecuted(opts *bind.WatchOpts, sink chan<- *BridgeDepositProposalExecuted, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (event.Subscription, error) {
+// Solidity: event ProposalExecuted(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
+func (_Bridge *BridgeFilterer) WatchProposalExecuted(opts *bind.WatchOpts, sink chan<- *BridgeProposalExecuted, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (event.Subscription, error) {
 
 	var originChainIDRule []interface{}
 	for _, originChainIDItem := range originChainID {
@@ -1057,7 +1538,7 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalExecuted(opts *bind.WatchOpts
 		depositNonceRule = append(depositNonceRule, depositNonceItem)
 	}
 
-	logs, sub, err := _Bridge.contract.WatchLogs(opts, "DepositProposalExecuted", originChainIDRule, destinationChainIDRule, depositNonceRule)
+	logs, sub, err := _Bridge.contract.WatchLogs(opts, "ProposalExecuted", originChainIDRule, destinationChainIDRule, depositNonceRule)
 	if err != nil {
 		return nil, err
 	}
@@ -1067,8 +1548,8 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalExecuted(opts *bind.WatchOpts
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(BridgeDepositProposalExecuted)
-				if err := _Bridge.contract.UnpackLog(event, "DepositProposalExecuted", log); err != nil {
+				event := new(BridgeProposalExecuted)
+				if err := _Bridge.contract.UnpackLog(event, "ProposalExecuted", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1089,20 +1570,20 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalExecuted(opts *bind.WatchOpts
 	}), nil
 }
 
-// ParseDepositProposalExecuted is a log parse operation binding the contract event 0x640ba3edbd745a745b6a269a81cb65a1b89988ab7e874ee1f55ac8e75b62e91a.
+// ParseProposalExecuted is a log parse operation binding the contract event 0xa5c8f3b7dbf19ce2d73c2641a6b4a360c9011cd3ae7f6d12e0454fe81570dc30.
 //
-// Solidity: event DepositProposalExecuted(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
-func (_Bridge *BridgeFilterer) ParseDepositProposalExecuted(log types.Log) (*BridgeDepositProposalExecuted, error) {
-	event := new(BridgeDepositProposalExecuted)
-	if err := _Bridge.contract.UnpackLog(event, "DepositProposalExecuted", log); err != nil {
+// Solidity: event ProposalExecuted(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
+func (_Bridge *BridgeFilterer) ParseProposalExecuted(log types.Log) (*BridgeProposalExecuted, error) {
+	event := new(BridgeProposalExecuted)
+	if err := _Bridge.contract.UnpackLog(event, "ProposalExecuted", log); err != nil {
 		return nil, err
 	}
 	return event, nil
 }
 
-// BridgeDepositProposalFinalizedIterator is returned from FilterDepositProposalFinalized and is used to iterate over the raw logs and unpacked data for DepositProposalFinalized events raised by the Bridge contract.
-type BridgeDepositProposalFinalizedIterator struct {
-	Event *BridgeDepositProposalFinalized // Event containing the contract specifics and raw log
+// BridgeProposalFinalizedIterator is returned from FilterProposalFinalized and is used to iterate over the raw logs and unpacked data for ProposalFinalized events raised by the Bridge contract.
+type BridgeProposalFinalizedIterator struct {
+	Event *BridgeProposalFinalized // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -1116,7 +1597,7 @@ type BridgeDepositProposalFinalizedIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *BridgeDepositProposalFinalizedIterator) Next() bool {
+func (it *BridgeProposalFinalizedIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -1125,7 +1606,7 @@ func (it *BridgeDepositProposalFinalizedIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(BridgeDepositProposalFinalized)
+			it.Event = new(BridgeProposalFinalized)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -1140,7 +1621,7 @@ func (it *BridgeDepositProposalFinalizedIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(BridgeDepositProposalFinalized)
+		it.Event = new(BridgeProposalFinalized)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -1156,29 +1637,29 @@ func (it *BridgeDepositProposalFinalizedIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *BridgeDepositProposalFinalizedIterator) Error() error {
+func (it *BridgeProposalFinalizedIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *BridgeDepositProposalFinalizedIterator) Close() error {
+func (it *BridgeProposalFinalizedIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// BridgeDepositProposalFinalized represents a DepositProposalFinalized event raised by the Bridge contract.
-type BridgeDepositProposalFinalized struct {
+// BridgeProposalFinalized represents a ProposalFinalized event raised by the Bridge contract.
+type BridgeProposalFinalized struct {
 	OriginChainID      uint8
 	DestinationChainID uint8
 	DepositNonce       *big.Int
 	Raw                types.Log // Blockchain specific contextual infos
 }
 
-// FilterDepositProposalFinalized is a free log retrieval operation binding the contract event 0x1c08c42c3aaddc0b858614077f65d320290b2be47c2e837005e199e921184ff5.
+// FilterProposalFinalized is a free log retrieval operation binding the contract event 0x0da2fadf3d07092b7c0be5f24e643fe608e8023f38fe97f88988495116d332fd.
 //
-// Solidity: event DepositProposalFinalized(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
-func (_Bridge *BridgeFilterer) FilterDepositProposalFinalized(opts *bind.FilterOpts, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (*BridgeDepositProposalFinalizedIterator, error) {
+// Solidity: event ProposalFinalized(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
+func (_Bridge *BridgeFilterer) FilterProposalFinalized(opts *bind.FilterOpts, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (*BridgeProposalFinalizedIterator, error) {
 
 	var originChainIDRule []interface{}
 	for _, originChainIDItem := range originChainID {
@@ -1193,17 +1674,17 @@ func (_Bridge *BridgeFilterer) FilterDepositProposalFinalized(opts *bind.FilterO
 		depositNonceRule = append(depositNonceRule, depositNonceItem)
 	}
 
-	logs, sub, err := _Bridge.contract.FilterLogs(opts, "DepositProposalFinalized", originChainIDRule, destinationChainIDRule, depositNonceRule)
+	logs, sub, err := _Bridge.contract.FilterLogs(opts, "ProposalFinalized", originChainIDRule, destinationChainIDRule, depositNonceRule)
 	if err != nil {
 		return nil, err
 	}
-	return &BridgeDepositProposalFinalizedIterator{contract: _Bridge.contract, event: "DepositProposalFinalized", logs: logs, sub: sub}, nil
+	return &BridgeProposalFinalizedIterator{contract: _Bridge.contract, event: "ProposalFinalized", logs: logs, sub: sub}, nil
 }
 
-// WatchDepositProposalFinalized is a free log subscription operation binding the contract event 0x1c08c42c3aaddc0b858614077f65d320290b2be47c2e837005e199e921184ff5.
+// WatchProposalFinalized is a free log subscription operation binding the contract event 0x0da2fadf3d07092b7c0be5f24e643fe608e8023f38fe97f88988495116d332fd.
 //
-// Solidity: event DepositProposalFinalized(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
-func (_Bridge *BridgeFilterer) WatchDepositProposalFinalized(opts *bind.WatchOpts, sink chan<- *BridgeDepositProposalFinalized, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (event.Subscription, error) {
+// Solidity: event ProposalFinalized(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
+func (_Bridge *BridgeFilterer) WatchProposalFinalized(opts *bind.WatchOpts, sink chan<- *BridgeProposalFinalized, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (event.Subscription, error) {
 
 	var originChainIDRule []interface{}
 	for _, originChainIDItem := range originChainID {
@@ -1218,7 +1699,7 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalFinalized(opts *bind.WatchOpt
 		depositNonceRule = append(depositNonceRule, depositNonceItem)
 	}
 
-	logs, sub, err := _Bridge.contract.WatchLogs(opts, "DepositProposalFinalized", originChainIDRule, destinationChainIDRule, depositNonceRule)
+	logs, sub, err := _Bridge.contract.WatchLogs(opts, "ProposalFinalized", originChainIDRule, destinationChainIDRule, depositNonceRule)
 	if err != nil {
 		return nil, err
 	}
@@ -1228,8 +1709,8 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalFinalized(opts *bind.WatchOpt
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(BridgeDepositProposalFinalized)
-				if err := _Bridge.contract.UnpackLog(event, "DepositProposalFinalized", log); err != nil {
+				event := new(BridgeProposalFinalized)
+				if err := _Bridge.contract.UnpackLog(event, "ProposalFinalized", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1250,20 +1731,20 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalFinalized(opts *bind.WatchOpt
 	}), nil
 }
 
-// ParseDepositProposalFinalized is a log parse operation binding the contract event 0x1c08c42c3aaddc0b858614077f65d320290b2be47c2e837005e199e921184ff5.
+// ParseProposalFinalized is a log parse operation binding the contract event 0x0da2fadf3d07092b7c0be5f24e643fe608e8023f38fe97f88988495116d332fd.
 //
-// Solidity: event DepositProposalFinalized(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
-func (_Bridge *BridgeFilterer) ParseDepositProposalFinalized(log types.Log) (*BridgeDepositProposalFinalized, error) {
-	event := new(BridgeDepositProposalFinalized)
-	if err := _Bridge.contract.UnpackLog(event, "DepositProposalFinalized", log); err != nil {
+// Solidity: event ProposalFinalized(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce)
+func (_Bridge *BridgeFilterer) ParseProposalFinalized(log types.Log) (*BridgeProposalFinalized, error) {
+	event := new(BridgeProposalFinalized)
+	if err := _Bridge.contract.UnpackLog(event, "ProposalFinalized", log); err != nil {
 		return nil, err
 	}
 	return event, nil
 }
 
-// BridgeDepositProposalVoteIterator is returned from FilterDepositProposalVote and is used to iterate over the raw logs and unpacked data for DepositProposalVote events raised by the Bridge contract.
-type BridgeDepositProposalVoteIterator struct {
-	Event *BridgeDepositProposalVote // Event containing the contract specifics and raw log
+// BridgeProposalVoteIterator is returned from FilterProposalVote and is used to iterate over the raw logs and unpacked data for ProposalVote events raised by the Bridge contract.
+type BridgeProposalVoteIterator struct {
+	Event *BridgeProposalVote // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -1277,7 +1758,7 @@ type BridgeDepositProposalVoteIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *BridgeDepositProposalVoteIterator) Next() bool {
+func (it *BridgeProposalVoteIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -1286,7 +1767,7 @@ func (it *BridgeDepositProposalVoteIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(BridgeDepositProposalVote)
+			it.Event = new(BridgeProposalVote)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -1301,7 +1782,7 @@ func (it *BridgeDepositProposalVoteIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(BridgeDepositProposalVote)
+		it.Event = new(BridgeProposalVote)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -1317,19 +1798,19 @@ func (it *BridgeDepositProposalVoteIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *BridgeDepositProposalVoteIterator) Error() error {
+func (it *BridgeProposalVoteIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *BridgeDepositProposalVoteIterator) Close() error {
+func (it *BridgeProposalVoteIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// BridgeDepositProposalVote represents a DepositProposalVote event raised by the Bridge contract.
-type BridgeDepositProposalVote struct {
+// BridgeProposalVote represents a ProposalVote event raised by the Bridge contract.
+type BridgeProposalVote struct {
 	OriginChainID      uint8
 	DestinationChainID uint8
 	DepositNonce       *big.Int
@@ -1337,10 +1818,10 @@ type BridgeDepositProposalVote struct {
 	Raw                types.Log // Blockchain specific contextual infos
 }
 
-// FilterDepositProposalVote is a free log retrieval operation binding the contract event 0x9303f7ba0a914d8845f7d7f02b6ceb8cc2c254ee29400249d83a7c927bdfc91b.
+// FilterProposalVote is a free log retrieval operation binding the contract event 0xc954da58dd7f8bea0c2f55f3f557dc861271ad571074e3b417749eff0af46aab.
 //
-// Solidity: event DepositProposalVote(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, uint8 status)
-func (_Bridge *BridgeFilterer) FilterDepositProposalVote(opts *bind.FilterOpts, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (*BridgeDepositProposalVoteIterator, error) {
+// Solidity: event ProposalVote(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, uint8 status)
+func (_Bridge *BridgeFilterer) FilterProposalVote(opts *bind.FilterOpts, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (*BridgeProposalVoteIterator, error) {
 
 	var originChainIDRule []interface{}
 	for _, originChainIDItem := range originChainID {
@@ -1355,17 +1836,17 @@ func (_Bridge *BridgeFilterer) FilterDepositProposalVote(opts *bind.FilterOpts, 
 		depositNonceRule = append(depositNonceRule, depositNonceItem)
 	}
 
-	logs, sub, err := _Bridge.contract.FilterLogs(opts, "DepositProposalVote", originChainIDRule, destinationChainIDRule, depositNonceRule)
+	logs, sub, err := _Bridge.contract.FilterLogs(opts, "ProposalVote", originChainIDRule, destinationChainIDRule, depositNonceRule)
 	if err != nil {
 		return nil, err
 	}
-	return &BridgeDepositProposalVoteIterator{contract: _Bridge.contract, event: "DepositProposalVote", logs: logs, sub: sub}, nil
+	return &BridgeProposalVoteIterator{contract: _Bridge.contract, event: "ProposalVote", logs: logs, sub: sub}, nil
 }
 
-// WatchDepositProposalVote is a free log subscription operation binding the contract event 0x9303f7ba0a914d8845f7d7f02b6ceb8cc2c254ee29400249d83a7c927bdfc91b.
+// WatchProposalVote is a free log subscription operation binding the contract event 0xc954da58dd7f8bea0c2f55f3f557dc861271ad571074e3b417749eff0af46aab.
 //
-// Solidity: event DepositProposalVote(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, uint8 status)
-func (_Bridge *BridgeFilterer) WatchDepositProposalVote(opts *bind.WatchOpts, sink chan<- *BridgeDepositProposalVote, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (event.Subscription, error) {
+// Solidity: event ProposalVote(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, uint8 status)
+func (_Bridge *BridgeFilterer) WatchProposalVote(opts *bind.WatchOpts, sink chan<- *BridgeProposalVote, originChainID []uint8, destinationChainID []uint8, depositNonce []*big.Int) (event.Subscription, error) {
 
 	var originChainIDRule []interface{}
 	for _, originChainIDItem := range originChainID {
@@ -1380,7 +1861,7 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalVote(opts *bind.WatchOpts, si
 		depositNonceRule = append(depositNonceRule, depositNonceItem)
 	}
 
-	logs, sub, err := _Bridge.contract.WatchLogs(opts, "DepositProposalVote", originChainIDRule, destinationChainIDRule, depositNonceRule)
+	logs, sub, err := _Bridge.contract.WatchLogs(opts, "ProposalVote", originChainIDRule, destinationChainIDRule, depositNonceRule)
 	if err != nil {
 		return nil, err
 	}
@@ -1390,8 +1871,8 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalVote(opts *bind.WatchOpts, si
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(BridgeDepositProposalVote)
-				if err := _Bridge.contract.UnpackLog(event, "DepositProposalVote", log); err != nil {
+				event := new(BridgeProposalVote)
+				if err := _Bridge.contract.UnpackLog(event, "ProposalVote", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1412,12 +1893,298 @@ func (_Bridge *BridgeFilterer) WatchDepositProposalVote(opts *bind.WatchOpts, si
 	}), nil
 }
 
-// ParseDepositProposalVote is a log parse operation binding the contract event 0x9303f7ba0a914d8845f7d7f02b6ceb8cc2c254ee29400249d83a7c927bdfc91b.
+// ParseProposalVote is a log parse operation binding the contract event 0xc954da58dd7f8bea0c2f55f3f557dc861271ad571074e3b417749eff0af46aab.
 //
-// Solidity: event DepositProposalVote(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, uint8 status)
-func (_Bridge *BridgeFilterer) ParseDepositProposalVote(log types.Log) (*BridgeDepositProposalVote, error) {
-	event := new(BridgeDepositProposalVote)
-	if err := _Bridge.contract.UnpackLog(event, "DepositProposalVote", log); err != nil {
+// Solidity: event ProposalVote(uint8 indexed originChainID, uint8 indexed destinationChainID, uint256 indexed depositNonce, uint8 status)
+func (_Bridge *BridgeFilterer) ParseProposalVote(log types.Log) (*BridgeProposalVote, error) {
+	event := new(BridgeProposalVote)
+	if err := _Bridge.contract.UnpackLog(event, "ProposalVote", log); err != nil {
+		return nil, err
+	}
+	return event, nil
+}
+
+// BridgeRelayerAddedIterator is returned from FilterRelayerAdded and is used to iterate over the raw logs and unpacked data for RelayerAdded events raised by the Bridge contract.
+type BridgeRelayerAddedIterator struct {
+	Event *BridgeRelayerAdded // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *BridgeRelayerAddedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(BridgeRelayerAdded)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(BridgeRelayerAdded)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *BridgeRelayerAddedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *BridgeRelayerAddedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// BridgeRelayerAdded represents a RelayerAdded event raised by the Bridge contract.
+type BridgeRelayerAdded struct {
+	Relayer common.Address
+	Raw     types.Log // Blockchain specific contextual infos
+}
+
+// FilterRelayerAdded is a free log retrieval operation binding the contract event 0x03580ee9f53a62b7cb409a2cb56f9be87747dd15017afc5cef6eef321e4fb2c5.
+//
+// Solidity: event RelayerAdded(address indexed relayer)
+func (_Bridge *BridgeFilterer) FilterRelayerAdded(opts *bind.FilterOpts, relayer []common.Address) (*BridgeRelayerAddedIterator, error) {
+
+	var relayerRule []interface{}
+	for _, relayerItem := range relayer {
+		relayerRule = append(relayerRule, relayerItem)
+	}
+
+	logs, sub, err := _Bridge.contract.FilterLogs(opts, "RelayerAdded", relayerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &BridgeRelayerAddedIterator{contract: _Bridge.contract, event: "RelayerAdded", logs: logs, sub: sub}, nil
+}
+
+// WatchRelayerAdded is a free log subscription operation binding the contract event 0x03580ee9f53a62b7cb409a2cb56f9be87747dd15017afc5cef6eef321e4fb2c5.
+//
+// Solidity: event RelayerAdded(address indexed relayer)
+func (_Bridge *BridgeFilterer) WatchRelayerAdded(opts *bind.WatchOpts, sink chan<- *BridgeRelayerAdded, relayer []common.Address) (event.Subscription, error) {
+
+	var relayerRule []interface{}
+	for _, relayerItem := range relayer {
+		relayerRule = append(relayerRule, relayerItem)
+	}
+
+	logs, sub, err := _Bridge.contract.WatchLogs(opts, "RelayerAdded", relayerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(BridgeRelayerAdded)
+				if err := _Bridge.contract.UnpackLog(event, "RelayerAdded", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseRelayerAdded is a log parse operation binding the contract event 0x03580ee9f53a62b7cb409a2cb56f9be87747dd15017afc5cef6eef321e4fb2c5.
+//
+// Solidity: event RelayerAdded(address indexed relayer)
+func (_Bridge *BridgeFilterer) ParseRelayerAdded(log types.Log) (*BridgeRelayerAdded, error) {
+	event := new(BridgeRelayerAdded)
+	if err := _Bridge.contract.UnpackLog(event, "RelayerAdded", log); err != nil {
+		return nil, err
+	}
+	return event, nil
+}
+
+// BridgeRelayerRemovedIterator is returned from FilterRelayerRemoved and is used to iterate over the raw logs and unpacked data for RelayerRemoved events raised by the Bridge contract.
+type BridgeRelayerRemovedIterator struct {
+	Event *BridgeRelayerRemoved // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *BridgeRelayerRemovedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(BridgeRelayerRemoved)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(BridgeRelayerRemoved)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *BridgeRelayerRemovedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *BridgeRelayerRemovedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// BridgeRelayerRemoved represents a RelayerRemoved event raised by the Bridge contract.
+type BridgeRelayerRemoved struct {
+	Relayer common.Address
+	Raw     types.Log // Blockchain specific contextual infos
+}
+
+// FilterRelayerRemoved is a free log retrieval operation binding the contract event 0x10e1f7ce9fd7d1b90a66d13a2ab3cb8dd7f29f3f8d520b143b063ccfbab6906b.
+//
+// Solidity: event RelayerRemoved(address indexed relayer)
+func (_Bridge *BridgeFilterer) FilterRelayerRemoved(opts *bind.FilterOpts, relayer []common.Address) (*BridgeRelayerRemovedIterator, error) {
+
+	var relayerRule []interface{}
+	for _, relayerItem := range relayer {
+		relayerRule = append(relayerRule, relayerItem)
+	}
+
+	logs, sub, err := _Bridge.contract.FilterLogs(opts, "RelayerRemoved", relayerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &BridgeRelayerRemovedIterator{contract: _Bridge.contract, event: "RelayerRemoved", logs: logs, sub: sub}, nil
+}
+
+// WatchRelayerRemoved is a free log subscription operation binding the contract event 0x10e1f7ce9fd7d1b90a66d13a2ab3cb8dd7f29f3f8d520b143b063ccfbab6906b.
+//
+// Solidity: event RelayerRemoved(address indexed relayer)
+func (_Bridge *BridgeFilterer) WatchRelayerRemoved(opts *bind.WatchOpts, sink chan<- *BridgeRelayerRemoved, relayer []common.Address) (event.Subscription, error) {
+
+	var relayerRule []interface{}
+	for _, relayerItem := range relayer {
+		relayerRule = append(relayerRule, relayerItem)
+	}
+
+	logs, sub, err := _Bridge.contract.WatchLogs(opts, "RelayerRemoved", relayerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(BridgeRelayerRemoved)
+				if err := _Bridge.contract.UnpackLog(event, "RelayerRemoved", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseRelayerRemoved is a log parse operation binding the contract event 0x10e1f7ce9fd7d1b90a66d13a2ab3cb8dd7f29f3f8d520b143b063ccfbab6906b.
+//
+// Solidity: event RelayerRemoved(address indexed relayer)
+func (_Bridge *BridgeFilterer) ParseRelayerRemoved(log types.Log) (*BridgeRelayerRemoved, error) {
+	event := new(BridgeRelayerRemoved)
+	if err := _Bridge.contract.UnpackLog(event, "RelayerRemoved", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -1566,9 +2333,9 @@ func (_Bridge *BridgeFilterer) ParseRelayerThresholdChanged(log types.Log) (*Bri
 	return event, nil
 }
 
-// BridgeRelayerThresholdProposalCreatedIterator is returned from FilterRelayerThresholdProposalCreated and is used to iterate over the raw logs and unpacked data for RelayerThresholdProposalCreated events raised by the Bridge contract.
-type BridgeRelayerThresholdProposalCreatedIterator struct {
-	Event *BridgeRelayerThresholdProposalCreated // Event containing the contract specifics and raw log
+// BridgeRoleGrantedIterator is returned from FilterRoleGranted and is used to iterate over the raw logs and unpacked data for RoleGranted events raised by the Bridge contract.
+type BridgeRoleGrantedIterator struct {
+	Event *BridgeRoleGranted // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -1582,7 +2349,7 @@ type BridgeRelayerThresholdProposalCreatedIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *BridgeRelayerThresholdProposalCreatedIterator) Next() bool {
+func (it *BridgeRoleGrantedIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -1591,7 +2358,7 @@ func (it *BridgeRelayerThresholdProposalCreatedIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(BridgeRelayerThresholdProposalCreated)
+			it.Event = new(BridgeRoleGranted)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -1606,7 +2373,7 @@ func (it *BridgeRelayerThresholdProposalCreatedIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(BridgeRelayerThresholdProposalCreated)
+		it.Event = new(BridgeRoleGranted)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -1622,51 +2389,69 @@ func (it *BridgeRelayerThresholdProposalCreatedIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *BridgeRelayerThresholdProposalCreatedIterator) Error() error {
+func (it *BridgeRoleGrantedIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *BridgeRelayerThresholdProposalCreatedIterator) Close() error {
+func (it *BridgeRoleGrantedIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// BridgeRelayerThresholdProposalCreated represents a RelayerThresholdProposalCreated event raised by the Bridge contract.
-type BridgeRelayerThresholdProposalCreated struct {
-	ProposedValue *big.Int
-	Raw           types.Log // Blockchain specific contextual infos
+// BridgeRoleGranted represents a RoleGranted event raised by the Bridge contract.
+type BridgeRoleGranted struct {
+	Role    [32]byte
+	Account common.Address
+	Sender  common.Address
+	Raw     types.Log // Blockchain specific contextual infos
 }
 
-// FilterRelayerThresholdProposalCreated is a free log retrieval operation binding the contract event 0x79a7cdf066fccb1627ec87a3dd0bf8dcb3a186313f941c8bf80ed979aa62d38d.
+// FilterRoleGranted is a free log retrieval operation binding the contract event 0x2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d.
 //
-// Solidity: event RelayerThresholdProposalCreated(uint256 indexed proposedValue)
-func (_Bridge *BridgeFilterer) FilterRelayerThresholdProposalCreated(opts *bind.FilterOpts, proposedValue []*big.Int) (*BridgeRelayerThresholdProposalCreatedIterator, error) {
+// Solidity: event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)
+func (_Bridge *BridgeFilterer) FilterRoleGranted(opts *bind.FilterOpts, role [][32]byte, account []common.Address, sender []common.Address) (*BridgeRoleGrantedIterator, error) {
 
-	var proposedValueRule []interface{}
-	for _, proposedValueItem := range proposedValue {
-		proposedValueRule = append(proposedValueRule, proposedValueItem)
+	var roleRule []interface{}
+	for _, roleItem := range role {
+		roleRule = append(roleRule, roleItem)
+	}
+	var accountRule []interface{}
+	for _, accountItem := range account {
+		accountRule = append(accountRule, accountItem)
+	}
+	var senderRule []interface{}
+	for _, senderItem := range sender {
+		senderRule = append(senderRule, senderItem)
 	}
 
-	logs, sub, err := _Bridge.contract.FilterLogs(opts, "RelayerThresholdProposalCreated", proposedValueRule)
+	logs, sub, err := _Bridge.contract.FilterLogs(opts, "RoleGranted", roleRule, accountRule, senderRule)
 	if err != nil {
 		return nil, err
 	}
-	return &BridgeRelayerThresholdProposalCreatedIterator{contract: _Bridge.contract, event: "RelayerThresholdProposalCreated", logs: logs, sub: sub}, nil
+	return &BridgeRoleGrantedIterator{contract: _Bridge.contract, event: "RoleGranted", logs: logs, sub: sub}, nil
 }
 
-// WatchRelayerThresholdProposalCreated is a free log subscription operation binding the contract event 0x79a7cdf066fccb1627ec87a3dd0bf8dcb3a186313f941c8bf80ed979aa62d38d.
+// WatchRoleGranted is a free log subscription operation binding the contract event 0x2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d.
 //
-// Solidity: event RelayerThresholdProposalCreated(uint256 indexed proposedValue)
-func (_Bridge *BridgeFilterer) WatchRelayerThresholdProposalCreated(opts *bind.WatchOpts, sink chan<- *BridgeRelayerThresholdProposalCreated, proposedValue []*big.Int) (event.Subscription, error) {
+// Solidity: event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)
+func (_Bridge *BridgeFilterer) WatchRoleGranted(opts *bind.WatchOpts, sink chan<- *BridgeRoleGranted, role [][32]byte, account []common.Address, sender []common.Address) (event.Subscription, error) {
 
-	var proposedValueRule []interface{}
-	for _, proposedValueItem := range proposedValue {
-		proposedValueRule = append(proposedValueRule, proposedValueItem)
+	var roleRule []interface{}
+	for _, roleItem := range role {
+		roleRule = append(roleRule, roleItem)
+	}
+	var accountRule []interface{}
+	for _, accountItem := range account {
+		accountRule = append(accountRule, accountItem)
+	}
+	var senderRule []interface{}
+	for _, senderItem := range sender {
+		senderRule = append(senderRule, senderItem)
 	}
 
-	logs, sub, err := _Bridge.contract.WatchLogs(opts, "RelayerThresholdProposalCreated", proposedValueRule)
+	logs, sub, err := _Bridge.contract.WatchLogs(opts, "RoleGranted", roleRule, accountRule, senderRule)
 	if err != nil {
 		return nil, err
 	}
@@ -1676,8 +2461,8 @@ func (_Bridge *BridgeFilterer) WatchRelayerThresholdProposalCreated(opts *bind.W
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(BridgeRelayerThresholdProposalCreated)
-				if err := _Bridge.contract.UnpackLog(event, "RelayerThresholdProposalCreated", log); err != nil {
+				event := new(BridgeRoleGranted)
+				if err := _Bridge.contract.UnpackLog(event, "RoleGranted", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1698,20 +2483,20 @@ func (_Bridge *BridgeFilterer) WatchRelayerThresholdProposalCreated(opts *bind.W
 	}), nil
 }
 
-// ParseRelayerThresholdProposalCreated is a log parse operation binding the contract event 0x79a7cdf066fccb1627ec87a3dd0bf8dcb3a186313f941c8bf80ed979aa62d38d.
+// ParseRoleGranted is a log parse operation binding the contract event 0x2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d.
 //
-// Solidity: event RelayerThresholdProposalCreated(uint256 indexed proposedValue)
-func (_Bridge *BridgeFilterer) ParseRelayerThresholdProposalCreated(log types.Log) (*BridgeRelayerThresholdProposalCreated, error) {
-	event := new(BridgeRelayerThresholdProposalCreated)
-	if err := _Bridge.contract.UnpackLog(event, "RelayerThresholdProposalCreated", log); err != nil {
+// Solidity: event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)
+func (_Bridge *BridgeFilterer) ParseRoleGranted(log types.Log) (*BridgeRoleGranted, error) {
+	event := new(BridgeRoleGranted)
+	if err := _Bridge.contract.UnpackLog(event, "RoleGranted", log); err != nil {
 		return nil, err
 	}
 	return event, nil
 }
 
-// BridgeRelayerThresholdProposalVoteIterator is returned from FilterRelayerThresholdProposalVote and is used to iterate over the raw logs and unpacked data for RelayerThresholdProposalVote events raised by the Bridge contract.
-type BridgeRelayerThresholdProposalVoteIterator struct {
-	Event *BridgeRelayerThresholdProposalVote // Event containing the contract specifics and raw log
+// BridgeRoleRevokedIterator is returned from FilterRoleRevoked and is used to iterate over the raw logs and unpacked data for RoleRevoked events raised by the Bridge contract.
+type BridgeRoleRevokedIterator struct {
+	Event *BridgeRoleRevoked // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -1725,7 +2510,7 @@ type BridgeRelayerThresholdProposalVoteIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *BridgeRelayerThresholdProposalVoteIterator) Next() bool {
+func (it *BridgeRoleRevokedIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -1734,7 +2519,7 @@ func (it *BridgeRelayerThresholdProposalVoteIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(BridgeRelayerThresholdProposalVote)
+			it.Event = new(BridgeRoleRevoked)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -1749,7 +2534,7 @@ func (it *BridgeRelayerThresholdProposalVoteIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(BridgeRelayerThresholdProposalVote)
+		it.Event = new(BridgeRoleRevoked)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -1765,41 +2550,69 @@ func (it *BridgeRelayerThresholdProposalVoteIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *BridgeRelayerThresholdProposalVoteIterator) Error() error {
+func (it *BridgeRoleRevokedIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *BridgeRelayerThresholdProposalVoteIterator) Close() error {
+func (it *BridgeRoleRevokedIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// BridgeRelayerThresholdProposalVote represents a RelayerThresholdProposalVote event raised by the Bridge contract.
-type BridgeRelayerThresholdProposalVote struct {
-	Vote uint8
-	Raw  types.Log // Blockchain specific contextual infos
+// BridgeRoleRevoked represents a RoleRevoked event raised by the Bridge contract.
+type BridgeRoleRevoked struct {
+	Role    [32]byte
+	Account common.Address
+	Sender  common.Address
+	Raw     types.Log // Blockchain specific contextual infos
 }
 
-// FilterRelayerThresholdProposalVote is a free log retrieval operation binding the contract event 0xe6124fe2b7a19e7cdd807fb16247ec258d8fb0bfde2949b023bcb0c1eea19cb1.
+// FilterRoleRevoked is a free log retrieval operation binding the contract event 0xf6391f5c32d9c69d2a47ea670b442974b53935d1edc7fd64eb21e047a839171b.
 //
-// Solidity: event RelayerThresholdProposalVote(uint8 vote)
-func (_Bridge *BridgeFilterer) FilterRelayerThresholdProposalVote(opts *bind.FilterOpts) (*BridgeRelayerThresholdProposalVoteIterator, error) {
+// Solidity: event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)
+func (_Bridge *BridgeFilterer) FilterRoleRevoked(opts *bind.FilterOpts, role [][32]byte, account []common.Address, sender []common.Address) (*BridgeRoleRevokedIterator, error) {
 
-	logs, sub, err := _Bridge.contract.FilterLogs(opts, "RelayerThresholdProposalVote")
+	var roleRule []interface{}
+	for _, roleItem := range role {
+		roleRule = append(roleRule, roleItem)
+	}
+	var accountRule []interface{}
+	for _, accountItem := range account {
+		accountRule = append(accountRule, accountItem)
+	}
+	var senderRule []interface{}
+	for _, senderItem := range sender {
+		senderRule = append(senderRule, senderItem)
+	}
+
+	logs, sub, err := _Bridge.contract.FilterLogs(opts, "RoleRevoked", roleRule, accountRule, senderRule)
 	if err != nil {
 		return nil, err
 	}
-	return &BridgeRelayerThresholdProposalVoteIterator{contract: _Bridge.contract, event: "RelayerThresholdProposalVote", logs: logs, sub: sub}, nil
+	return &BridgeRoleRevokedIterator{contract: _Bridge.contract, event: "RoleRevoked", logs: logs, sub: sub}, nil
 }
 
-// WatchRelayerThresholdProposalVote is a free log subscription operation binding the contract event 0xe6124fe2b7a19e7cdd807fb16247ec258d8fb0bfde2949b023bcb0c1eea19cb1.
+// WatchRoleRevoked is a free log subscription operation binding the contract event 0xf6391f5c32d9c69d2a47ea670b442974b53935d1edc7fd64eb21e047a839171b.
 //
-// Solidity: event RelayerThresholdProposalVote(uint8 vote)
-func (_Bridge *BridgeFilterer) WatchRelayerThresholdProposalVote(opts *bind.WatchOpts, sink chan<- *BridgeRelayerThresholdProposalVote) (event.Subscription, error) {
+// Solidity: event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)
+func (_Bridge *BridgeFilterer) WatchRoleRevoked(opts *bind.WatchOpts, sink chan<- *BridgeRoleRevoked, role [][32]byte, account []common.Address, sender []common.Address) (event.Subscription, error) {
 
-	logs, sub, err := _Bridge.contract.WatchLogs(opts, "RelayerThresholdProposalVote")
+	var roleRule []interface{}
+	for _, roleItem := range role {
+		roleRule = append(roleRule, roleItem)
+	}
+	var accountRule []interface{}
+	for _, accountItem := range account {
+		accountRule = append(accountRule, accountItem)
+	}
+	var senderRule []interface{}
+	for _, senderItem := range sender {
+		senderRule = append(senderRule, senderItem)
+	}
+
+	logs, sub, err := _Bridge.contract.WatchLogs(opts, "RoleRevoked", roleRule, accountRule, senderRule)
 	if err != nil {
 		return nil, err
 	}
@@ -1809,8 +2622,8 @@ func (_Bridge *BridgeFilterer) WatchRelayerThresholdProposalVote(opts *bind.Watc
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(BridgeRelayerThresholdProposalVote)
-				if err := _Bridge.contract.UnpackLog(event, "RelayerThresholdProposalVote", log); err != nil {
+				event := new(BridgeRoleRevoked)
+				if err := _Bridge.contract.UnpackLog(event, "RoleRevoked", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1831,15 +2644,148 @@ func (_Bridge *BridgeFilterer) WatchRelayerThresholdProposalVote(opts *bind.Watc
 	}), nil
 }
 
-// ParseRelayerThresholdProposalVote is a log parse operation binding the contract event 0xe6124fe2b7a19e7cdd807fb16247ec258d8fb0bfde2949b023bcb0c1eea19cb1.
+// ParseRoleRevoked is a log parse operation binding the contract event 0xf6391f5c32d9c69d2a47ea670b442974b53935d1edc7fd64eb21e047a839171b.
 //
-// Solidity: event RelayerThresholdProposalVote(uint8 vote)
-func (_Bridge *BridgeFilterer) ParseRelayerThresholdProposalVote(log types.Log) (*BridgeRelayerThresholdProposalVote, error) {
-	event := new(BridgeRelayerThresholdProposalVote)
-	if err := _Bridge.contract.UnpackLog(event, "RelayerThresholdProposalVote", log); err != nil {
+// Solidity: event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)
+func (_Bridge *BridgeFilterer) ParseRoleRevoked(log types.Log) (*BridgeRoleRevoked, error) {
+	event := new(BridgeRoleRevoked)
+	if err := _Bridge.contract.UnpackLog(event, "RoleRevoked", log); err != nil {
 		return nil, err
 	}
 	return event, nil
 }
 
-var RuntimeBytecode = "0x608060405234801561001057600080fd5b50600436106101005760003560e01c8063beab713111610097578063e9cdaead11610066578063e9cdaead146102c5578063ea059625146102e1578063fe612136146102ff578063ff6ae0031461031e57610100565b8063beab71311461023d578063ce3d57841461025b578063d7a9cd791461028b578063df269060146102a957610100565b80635f31b69c116100d35780635f31b69c1461018b5780637820b222146101ac5780638ba3706a146101dd578063aca18b261461020d57610100565b806306899ca4146101055780633e87ba3c14610123578063478fa2401461013f5780634b0b919d1461015b575b600080fd5b61010d61033a565b60405161011a9190612a31565b60405180910390f35b61013d60048036038101906101389190611f11565b610340565b005b61015960048036038101906101549190612003565b61046e565b005b61017560048036038101906101709190611ee8565b6106c0565b6040516101829190612a31565b60405180910390f35b6101936106d8565b6040516101a39493929190612a4c565b60405180910390f35b6101c660048036038101906101c19190611f78565b61081f565b6040516101d49291906127cf565b60405180910390f35b6101f760048036038101906101f29190611fb4565b61085d565b6040516102049190612799565b60405180910390f35b61022760048036038101906102229190611f78565b610899565b6040516102349190612a0f565b60405180910390f35b610245610a31565b6040516102529190612ac8565b60405180910390f35b61027560048036038101906102709190611f78565b610a43565b60405161028291906127f8565b60405180910390f35b610293610b00565b6040516102a09190612a31565b60405180910390f35b6102c360048036038101906102be9190611e96565b610b06565b005b6102df60048036038101906102da9190611e6d565b610f92565b005b6102e96114bb565b6040516102f6919061283c565b60405180910390f35b6103076114e1565b604051610315929190612a9f565b60405180910390f35b6103386004803603810190610333919061207e565b611500565b005b60075481565b6000600860008560ff1660ff16815260200190815260200160002060008154600101919050819055905081600960008660ff1660ff168152602001908152602001600020600083815260200190815260200160002090805190602001906103a8929190611bb5565b5060008390508073ffffffffffffffffffffffffffffffffffffffff166345a104db868433876040518563ffffffff1660e01b81526004016103ed9493929190612ae3565b600060405180830381600087803b15801561040757600080fd5b505af115801561041b573d6000803e3d6000fd5b50505050818473ffffffffffffffffffffffffffffffffffffffff168660ff167f47903cb3f3dd35755d4df452f71612f60bd0bfc2f66f52901e099f3ac2f319fe60405160405180910390a45050505050565b6000600a60008660ff1660ff16815260200190815260200160002060008581526020019081526020016000209050600060038111156104a957fe5b8160030160009054906101000a900460ff1660038111156104c657fe5b1415610507576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104fe906128af565b60405180910390fd5b6002600381111561051457fe5b8160030160009054906101000a900460ff16600381111561053157fe5b14610571576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016105689061298f565b60405180910390fd5b80600001548383604051602001610589929190612756565b60405160208183030381529060405280519060200120146105df576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016105d69061292f565b60405180910390fd5b60008390508073ffffffffffffffffffffffffffffffffffffffff1663fc9539cd846040518263ffffffff1660e01b815260040161061d919061281a565b600060405180830381600087803b15801561063757600080fd5b505af115801561064b573d6000803e3d6000fd5b5050505060038260030160006101000a81548160ff0219169083600381111561067057fe5b0217905550846000809054906101000a900460ff1660ff168760ff167f640ba3edbd745a745b6a269a81cb65a1b89988ab7e874ee1f55ac8e75b62e91a60405160405180910390a4505050505050565b60086020528060005260406000206000915090505481565b60006060806000600260000154600280016002600301600260040160009054906101000a900460ff168280548060200260200160405190810160405280929190818152602001828054801561078257602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019060010190808311610738575b505050505092508180548060200260200160405190810160405280929190818152602001828054801561080a57602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190600101908083116107c0575b50505050509150935093509350935090919293565b600a602052816000526040600020602052806000526040600020600091509150508060000154908060030160009054906101000a900460ff16905082565b600b602052826000526040600020602052816000526040600020602052806000526040600020600092509250509054906101000a900460ff1681565b6108a1611c35565b600a60008460ff1660ff1681526020019081526020016000206000838152602001908152602001600020604051806080016040529081600082015481526020016001820180548060200260200160405190810160405280929190818152602001828054801561096557602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001906001019080831161091b575b50505050508152602001600282018054806020026020016040519081016040528092919081815260200182805480156109f357602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190600101908083116109a9575b505050505081526020016003820160009054906101000a900460ff166003811115610a1a57fe5b6003811115610a2557fe5b81525050905092915050565b6000809054906101000a900460ff1681565b6009602052816000526040600020602052806000526040600020600091509150508054600181600116156101000203166002900480601f016020809104026020016040519081016040528092919081815260200182805460018160011615610100020316600290048015610af85780601f10610acd57610100808354040283529160200191610af8565b820191906000526020600020905b815481529060010190602001808311610adb57829003601f168201915b505050505081565b60015481565b60008060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff1663541d5548336040518263ffffffff1660e01b8152600401610b65919061277e565b602060405180830381600087803b158015610b7f57600080fd5b505af1158015610b93573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610bb79190611e44565b610bf6576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610bed906129af565b60405180910390fd5b60006001811115610c0357fe5b600260040160009054906101000a900460ff166001811115610c2157fe5b14610c61576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610c58906129cf565b60405180910390fd5b600060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663933b46676040518163ffffffff1660e01b8152600401602060405180830381600087803b158015610ccb57600080fd5b505af1158015610cdf573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610d039190611ebf565b821115610d45576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610d3c906128ef565b60405180910390fd5b60405180608001604052808381526020016001604051908082528060200260200182016040528015610d865781602001602082028036833780820191505090505b5081526020016000604051908082528060200260200182016040528015610dbc5781602001602082028036833780820191505090505b508152602001600180811115610dce57fe5b8152506002600082015181600001556020820151816002019080519060200190610df9929190611c6b565b506040820151816003019080519060200190610e16929190611c6b565b5060608201518160040160006101000a81548160ff02191690836001811115610e3b57fe5b02179055509050506001805411610ead576002600001546001819055506000600260040160006101000a81548160ff02191690836001811115610e7a57fe5b0217905550817fa20d6b84cd798a24038be305eff8a45ca82ef54a2aa2082005d8e14c0a4746c860405160405180910390a25b3360028001600081548110610ebe57fe5b9060005260206000200160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506001600260010160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff021916908315150217905550817f79a7cdf066fccb1627ec87a3dd0bf8dcb3a186313f941c8bf80ed979aa62d38d60405160405180910390a25050565b60008060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff1663541d5548336040518263ffffffff1660e01b8152600401610ff1919061277e565b602060405180830381600087803b15801561100b57600080fd5b505af115801561101f573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906110439190611e44565b611082576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611079906129af565b60405180910390fd5b60018081111561108e57fe5b600260040160009054906101000a900460ff1660018111156110ac57fe5b146110ec576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016110e39061294f565b60405180910390fd5b600260010160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff161561117c576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016111739061290f565b60405180910390fd5b600182600181111561118a57fe5b60ff1611156111ce576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016111c5906129ef565b60405180910390fd5b6001808111156111da57fe5b8260018111156111e657fe5b14156112565760028001339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506112bd565b6002600301339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b6001600260010160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff0219169083151502179055507fe6124fe2b7a19e7cdd807fb16247ec258d8fb0bfde2949b023bcb0c1eea19cb1826040516113479190612872565b60405180910390a16001546002800180549050106113c9576002600001546001819055506000600260040160006101000a81548160ff0219169083600181111561138d57fe5b02179055506002600001547fa20d6b84cd798a24038be305eff8a45ca82ef54a2aa2082005d8e14c0a4746c860405160405180910390a26114b7565b600154611488600260030180549050600060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663933b46676040518163ffffffff1660e01b8152600401602060405180830381600087803b15801561144257600080fd5b505af1158015611456573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061147a9190611ebf565b611b1090919063ffffffff16565b10156114b6576000600260040160006101000a81548160ff021916908360018111156114b057fe5b02179055505b5b5050565b600060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60028060000154908060040160009054906101000a900460ff16905082565b60008060019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff1663541d5548336040518263ffffffff1660e01b815260040161155f919061277e565b602060405180830381600087803b15801561157957600080fd5b505af115801561158d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906115b19190611e44565b6115f0576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016115e7906129af565b60405180910390fd5b6000600a60008660ff1660ff1681526020019081526020016000206000858152602001908152602001600020905060018160030160009054906101000a900460ff16600381111561163d57fe5b111561167e576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016116759061296f565b60405180910390fd5b600b60008660ff1660ff168152602001908152602001600020600085815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff1615611733576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161172a906128cf565b60405180910390fd5b60008160030160009054906101000a900460ff16600381111561175257fe5b141561193b5760076000815460010191905081905550604051806080016040528084815260200160016040519080825280602002602001820160405280156117a95781602001602082028036833780820191505090505b50815260200160006040519080825280602002602001820160405280156117df5781602001602082028036833780820191505090505b508152602001600160038111156117f257fe5b815250600a60008760ff1660ff1681526020019081526020016000206000868152602001908152602001600020600082015181600001556020820151816001019080519060200190611845929190611c6b565b506040820151816002019080519060200190611862929190611c6b565b5060608201518160030160006101000a81548160ff0219169083600381111561188757fe5b021790555090505033816001016000815481106118a057fe5b9060005260206000200160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550836000809054906101000a900460ff1660ff168660ff167f3cf2380ab0b4b694f36db8d3dc8d091a58b09ba7ef5fb8e1034f8ccb08374eba8660405161192e91906127b4565b60405180910390a46119a1565b80600101339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b6001600b60008760ff1660ff168152602001908152602001600020600086815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff021916908315150217905550836000809054906101000a900460ff1660ff168660ff167f9303f7ba0a914d8845f7d7f02b6ceb8cc2c254ee29400249d83a7c927bdfc91b8460030160009054906101000a900460ff16604051611a789190612857565b60405180910390a460018054111580611a9a5750600154816001018054905010155b15611b095760028160030160006101000a81548160ff02191690836003811115611ac057fe5b0217905550836000809054906101000a900460ff1660ff168660ff167f1c08c42c3aaddc0b858614077f65d320290b2be47c2e837005e199e921184ff560405160405180910390a45b5050505050565b6000611b5283836040518060400160405280601e81526020017f536166654d6174683a207375627472616374696f6e206f766572666c6f770000815250611b5a565b905092915050565b6000838311158290611ba2576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611b99919061288d565b60405180910390fd5b5060008385039050809150509392505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f10611bf657805160ff1916838001178555611c24565b82800160010185558215611c24579182015b82811115611c23578251825591602001919060010190611c08565b5b509050611c319190611cf5565b5090565b604051806080016040528060008019168152602001606081526020016060815260200160006003811115611c6557fe5b81525090565b828054828255906000526020600020908101928215611ce4579160200282015b82811115611ce35782518260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555091602001919060010190611c8b565b5b509050611cf19190611d1a565b5090565b611d1791905b80821115611d13576000816000905550600101611cfb565b5090565b90565b611d5a91905b80821115611d5657600081816101000a81549073ffffffffffffffffffffffffffffffffffffffff021916905550600101611d20565b5090565b90565b600081359050611d6c81612e1b565b92915050565b600081519050611d8181612e32565b92915050565b600081359050611d9681612e49565b92915050565b600082601f830112611dad57600080fd5b8135611dc0611dbb82612b5c565b612b2f565b91508082526020830160208301858383011115611ddc57600080fd5b611de7838284612d70565b50505092915050565b600081359050611dff81612e60565b92915050565b600081359050611e1481612e70565b92915050565b600081519050611e2981612e70565b92915050565b600081359050611e3e81612e87565b92915050565b600060208284031215611e5657600080fd5b6000611e6484828501611d72565b91505092915050565b600060208284031215611e7f57600080fd5b6000611e8d84828501611df0565b91505092915050565b600060208284031215611ea857600080fd5b6000611eb684828501611e05565b91505092915050565b600060208284031215611ed157600080fd5b6000611edf84828501611e1a565b91505092915050565b600060208284031215611efa57600080fd5b6000611f0884828501611e2f565b91505092915050565b600080600060608486031215611f2657600080fd5b6000611f3486828701611e2f565b9350506020611f4586828701611d5d565b925050604084013567ffffffffffffffff811115611f6257600080fd5b611f6e86828701611d9c565b9150509250925092565b60008060408385031215611f8b57600080fd5b6000611f9985828601611e2f565b9250506020611faa85828601611e05565b9150509250929050565b600080600060608486031215611fc957600080fd5b6000611fd786828701611e2f565b9350506020611fe886828701611e05565b9250506040611ff986828701611d5d565b9150509250925092565b6000806000806080858703121561201957600080fd5b600061202787828801611e2f565b945050602061203887828801611e05565b935050604061204987828801611d5d565b925050606085013567ffffffffffffffff81111561206657600080fd5b61207287828801611d9c565b91505092959194509250565b60008060006060848603121561209357600080fd5b60006120a186828701611e2f565b93505060206120b286828701611e05565b92505060406120c386828701611d87565b9150509250925092565b60006120d983836120f4565b60208301905092915050565b6120ee81612ce0565b82525050565b6120fd81612c48565b82525050565b61211461210f82612c48565b612db2565b82525050565b600061212582612bb3565b61212f8185612c0a565b935061213a83612b98565b8060005b8381101561216b57815161215288826120cd565b975061215d83612bec565b92505060018101905061213e565b5085935050505092915050565b600061218382612ba8565b61218d8185612bf9565b935061219883612b88565b8060005b838110156121c95781516121b088826120cd565b97506121bb83612bdf565b92505060018101905061219c565b5085935050505092915050565b6121df81612c5a565b82525050565b6121ee81612c66565b82525050565b6121fd81612c66565b82525050565b600061220e82612bc9565b6122188185612c1b565b9350612228818560208601612d7f565b61223181612dd6565b840191505092915050565b600061224782612bc9565b6122518185612c2c565b9350612261818560208601612d7f565b80840191505092915050565b600061227882612bbe565b6122828185612c1b565b9350612292818560208601612d7f565b61229b81612dd6565b840191505092915050565b6122af81612cf2565b82525050565b6122be81612d16565b82525050565b6122cd81612d16565b82525050565b6122dc81612d28565b82525050565b6122eb81612d3a565b82525050565b60006122fc82612bd4565b6123068185612c37565b9350612316818560208601612d7f565b61231f81612dd6565b840191505092915050565b6000612337601683612c37565b91507f70726f706f73616c206973206e6f7420616374697665000000000000000000006000830152602082019050919050565b6000612377602583612c37565b91507f72656c617965722068617320616c726561647920766f746564206f6e2070726f60008301527f706f73616c0000000000000000000000000000000000000000000000000000006020830152604082019050919050565b60006123dd604283612c37565b91507f70726f706f7365642076616c75652063616e6e6f74206265206772656174657260008301527f207468616e2074686520746f74616c206e756d626572206f662072656c61796560208301527f72730000000000000000000000000000000000000000000000000000000000006040830152606082019050919050565b6000612469601983612c37565b91507f72656c617965722068617320616c726561647920766f746564000000000000006000830152602082019050919050565b60006124a9603183612c37565b91507f70726f7669646564206461746120646f6573206e6f74206d617463682070726f60008301527f706f73616c2773206461746120686173680000000000000000000000000000006020830152604082019050919050565b600061250f601f83612c37565b91507f6e6f2070726f706f73616c2069732063757272656e746c7920616374697665006000830152602082019050919050565b600061254f602f83612c37565b91507f70726f706f73616c2068617320616c7265616479206265656e2070617373656460008301527f206f72207472616e7366657272656400000000000000000000000000000000006020830152604082019050919050565b60006125b5603783612c37565b91507f70726f706f73616c20776173206e6f7420706173736564206f7220686173206160008301527f6c7265616479206265656e207472616e736665727265640000000000000000006020830152604082019050919050565b600061261b601883612c37565b91507f73656e646572206d75737420626520612072656c6179657200000000000000006000830152602082019050919050565b600061265b601e83612c37565b91507f612070726f706f73616c2069732063757272656e746c792061637469766500006000830152602082019050919050565b600061269b601f83612c37565b91507f766f7465206f7574206f662074686520766f746520656e756d2072616e6765006000830152602082019050919050565b60006080830160008301516126e660008601826121e5565b50602083015184820360208601526126fe8282612178565b915050604083015184820360408601526127188282612178565b915050606083015161272d60608601826122b5565b508091505092915050565b61274181612cc9565b82525050565b61275081612cd3565b82525050565b60006127628285612103565b601482019150612772828461223c565b91508190509392505050565b600060208201905061279360008301846120e5565b92915050565b60006020820190506127ae60008301846121d6565b92915050565b60006020820190506127c960008301846121f4565b92915050565b60006040820190506127e460008301856121f4565b6127f160208301846122c4565b9392505050565b60006020820190508181036000830152612812818461226d565b905092915050565b600060208201905081810360008301526128348184612203565b905092915050565b600060208201905061285160008301846122a6565b92915050565b600060208201905061286c60008301846122c4565b92915050565b600060208201905061288760008301846122e2565b92915050565b600060208201905081810360008301526128a781846122f1565b905092915050565b600060208201905081810360008301526128c88161232a565b9050919050565b600060208201905081810360008301526128e88161236a565b9050919050565b60006020820190508181036000830152612908816123d0565b9050919050565b600060208201905081810360008301526129288161245c565b9050919050565b600060208201905081810360008301526129488161249c565b9050919050565b6000602082019050818103600083015261296881612502565b9050919050565b6000602082019050818103600083015261298881612542565b9050919050565b600060208201905081810360008301526129a8816125a8565b9050919050565b600060208201905081810360008301526129c88161260e565b9050919050565b600060208201905081810360008301526129e88161264e565b9050919050565b60006020820190508181036000830152612a088161268e565b9050919050565b60006020820190508181036000830152612a2981846126ce565b905092915050565b6000602082019050612a466000830184612738565b92915050565b6000608082019050612a616000830187612738565b8181036020830152612a73818661211a565b90508181036040830152612a87818561211a565b9050612a9660608301846122d3565b95945050505050565b6000604082019050612ab46000830185612738565b612ac160208301846122d3565b9392505050565b6000602082019050612add6000830184612747565b92915050565b6000608082019050612af86000830187612747565b612b056020830186612738565b612b1260408301856120e5565b8181036060830152612b248184612203565b905095945050505050565b6000604051905081810181811067ffffffffffffffff82111715612b5257600080fd5b8060405250919050565b600067ffffffffffffffff821115612b7357600080fd5b601f19601f8301169050602081019050919050565b6000819050602082019050919050565b6000819050602082019050919050565b600081519050919050565b600081519050919050565b600081519050919050565b600081519050919050565b600081519050919050565b6000602082019050919050565b6000602082019050919050565b600082825260208201905092915050565b600082825260208201905092915050565b600082825260208201905092915050565b600081905092915050565b600082825260208201905092915050565b6000612c5382612ca9565b9050919050565b60008115159050919050565b6000819050919050565b6000819050612c7e82612df4565b919050565b6000819050612c9182612e01565b919050565b6000819050612ca482612e0e565b919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b600060ff82169050919050565b6000612ceb82612d4c565b9050919050565b6000612cfd82612d04565b9050919050565b6000612d0f82612ca9565b9050919050565b6000612d2182612c70565b9050919050565b6000612d3382612c83565b9050919050565b6000612d4582612c96565b9050919050565b6000612d5782612d5e565b9050919050565b6000612d6982612ca9565b9050919050565b82818337600083830152505050565b60005b83811015612d9d578082015181840152602081019050612d82565b83811115612dac576000848401525b50505050565b6000612dbd82612dc4565b9050919050565b6000612dcf82612de7565b9050919050565b6000601f19601f8301169050919050565b60008160601b9050919050565b60048110612dfe57fe5b50565b60028110612e0b57fe5b50565b60028110612e1857fe5b50565b612e2481612c48565b8114612e2f57600080fd5b50565b612e3b81612c5a565b8114612e4657600080fd5b50565b612e5281612c66565b8114612e5d57600080fd5b50565b60028110612e6d57600080fd5b50565b612e7981612cc9565b8114612e8457600080fd5b50565b612e9081612cd3565b8114612e9b57600080fd5b5056fea2646970667358221220139f61ca3e9abd98c36a77ce70a23a837c08acc1cab79db76f9802ada8bb8c0a64736f6c63430006040033"
+// BridgeUnpausedIterator is returned from FilterUnpaused and is used to iterate over the raw logs and unpacked data for Unpaused events raised by the Bridge contract.
+type BridgeUnpausedIterator struct {
+	Event *BridgeUnpaused // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *BridgeUnpausedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(BridgeUnpaused)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(BridgeUnpaused)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *BridgeUnpausedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *BridgeUnpausedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// BridgeUnpaused represents a Unpaused event raised by the Bridge contract.
+type BridgeUnpaused struct {
+	Account common.Address
+	Raw     types.Log // Blockchain specific contextual infos
+}
+
+// FilterUnpaused is a free log retrieval operation binding the contract event 0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa.
+//
+// Solidity: event Unpaused(address account)
+func (_Bridge *BridgeFilterer) FilterUnpaused(opts *bind.FilterOpts) (*BridgeUnpausedIterator, error) {
+
+	logs, sub, err := _Bridge.contract.FilterLogs(opts, "Unpaused")
+	if err != nil {
+		return nil, err
+	}
+	return &BridgeUnpausedIterator{contract: _Bridge.contract, event: "Unpaused", logs: logs, sub: sub}, nil
+}
+
+// WatchUnpaused is a free log subscription operation binding the contract event 0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa.
+//
+// Solidity: event Unpaused(address account)
+func (_Bridge *BridgeFilterer) WatchUnpaused(opts *bind.WatchOpts, sink chan<- *BridgeUnpaused) (event.Subscription, error) {
+
+	logs, sub, err := _Bridge.contract.WatchLogs(opts, "Unpaused")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(BridgeUnpaused)
+				if err := _Bridge.contract.UnpackLog(event, "Unpaused", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseUnpaused is a log parse operation binding the contract event 0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa.
+//
+// Solidity: event Unpaused(address account)
+func (_Bridge *BridgeFilterer) ParseUnpaused(log types.Log) (*BridgeUnpaused, error) {
+	event := new(BridgeUnpaused)
+	if err := _Bridge.contract.UnpackLog(event, "Unpaused", log); err != nil {
+		return nil, err
+	}
+	return event, nil
+}
+
+var RuntimeBytecode = "0x608060405234801561001057600080fd5b50600436106101f05760003560e01c806391d148541161010f578063cb10f215116100a2578063d7a9cd7911610071578063d7a9cd79146105b4578063e250a8fc146105d2578063e8437ee714610602578063ffaac0eb1461061e576101f0565b8063cb10f21514610530578063cdb0f73a1461054c578063ce3d578414610568578063d547741f14610598576101f0565b80639d82dd63116100de5780639d82dd63146104a8578063a217fddf146104c4578063beab7131146104e2578063ca15c87314610500576101f0565b806391d1485414610420578063926d7d7f146104505780639923ed101461046e5780639d5773e01461048a576101f0565b80635525e8791161018757806380ae1c281161015657806380ae1c28146103ae57806382f5ef3e146103b85780638c0c2631146103d45780639010d07c146103f0576101f0565b80635525e879146103265780635c975abb146103565780635e1fab0f14610374578063802aabe814610390576101f0565b80633e87ba3c116101c35780633e87ba3c1461028e5780634b0b919d146102aa5780634e056005146102da578063541d5548146102f6576101f0565b8063248a9ca3146101f55780632f2ff15d14610225578063340679391461024157806336568abe14610272575b600080fd5b61020f600480360381019061020a91906121ce565b610628565b60405161021c9190612b7a565b60405180910390f35b61023f600480360381019061023a91906121f7565b610648565b005b61025b60048036038101906102569190612328565b6106bc565b604051610269929190612c03565b60405180910390f35b61028c600480360381019061028791906121f7565b6106fa565b005b6102a860048036038101906102a391906122c1565b61077d565b005b6102c460048036038101906102bf9190612298565b6108fa565b6040516102d19190612e0d565b60405180910390f35b6102f460048036038101906102ef919061226f565b610912565b005b610310600480360381019061030b91906120a3565b61095f565b60405161031d9190612b5f565b60405180910390f35b610340600480360381019061033b9190612364565b610985565b60405161034d9190612b5f565b60405180910390f35b61035e6109c1565b60405161036b9190612b5f565b60405180910390f35b61038e600480360381019061038991906120a3565b6109d7565b005b610398610a0a565b6040516103a59190612e0d565b60405180910390f35b6103b6610a10565b005b6103d260048036038101906103cd91906123b3565b610a30565b005b6103ee60048036038101906103e991906120cc565b610cf8565b005b61040a60048036038101906104059190612233565b610d83565b6040516104179190612b29565b60405180910390f35b61043a600480360381019061043591906121f7565b610db5565b6040516104479190612b5f565b60405180910390f35b610458610de7565b6040516104659190612b7a565b60405180910390f35b6104886004803603810190610483919061242e565b610dfe565b005b610492611396565b60405161049f9190612e0d565b60405180910390f35b6104c260048036038101906104bd91906120a3565b61139c565b005b6104cc611428565b6040516104d99190612b7a565b60405180910390f35b6104ea61142f565b6040516104f79190612e28565b60405180910390f35b61051a600480360381019061051591906121ce565b611442565b6040516105279190612e0d565b60405180910390f35b61054a60048036038101906105459190612108565b611469565b005b610566600480360381019061056191906120a3565b6114f7565b005b610582600480360381019061057d9190612328565b611582565b60405161058f9190612c2c565b60405180910390f35b6105b260048036038101906105ad91906121f7565b61163f565b005b6105bc6116b3565b6040516105c99190612e0d565b60405180910390f35b6105ec60048036038101906105e79190612328565b6116b9565b6040516105f99190612deb565b60405180910390f35b61061c60048036038101906106179190612157565b611851565b005b6106266118e5565b005b600060016000838152602001908152602001600020600201549050919050565b61066f600160008481526020019081526020016000206002015461066a611905565b610db5565b6106ae576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016106a590612ccb565b60405180910390fd5b6106b8828261190d565b5050565b6008602052816000526040600020602052806000526040600020600091509150508060000154908060030160009054906101000a900460ff16905082565b610702611905565b73ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff161461076f576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161076690612dcb565b60405180910390fd5b61077982826119a1565b5050565b6000809054906101000a900460ff16156107cc576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016107c390612d4b565b60405180910390fd5b6000600660008560ff1660ff16815260200190815260200160002060008154600101919050819055905081600760008660ff1660ff16815260200190815260200160002060008381526020019081526020016000209080519060200190610834929190611e3e565b5060008390508073ffffffffffffffffffffffffffffffffffffffff166345a104db868433876040518563ffffffff1660e01b81526004016108799493929190612e43565b600060405180830381600087803b15801561089357600080fd5b505af11580156108a7573d6000803e3d6000fd5b50505050818473ffffffffffffffffffffffffffffffffffffffff168660ff167f47903cb3f3dd35755d4df452f71612f60bd0bfc2f66f52901e099f3ac2f319fe60405160405180910390a45050505050565b60066020528060005260406000206000915090505481565b61091f6000801b33610db5565b61092857600080fd5b80600381905550807fa20d6b84cd798a24038be305eff8a45ca82ef54a2aa2082005d8e14c0a4746c860405160405180910390a250565b600061097e60405161097090612b14565b604051809103902083610db5565b9050919050565b6009602052826000526040600020602052816000526040600020602052806000526040600020600092509250509054906101000a900460ff1681565b60008060009054906101000a900460ff16905090565b6109e46000801b33610db5565b6109ed57600080fd5b6109fa6000801b82610648565b610a076000801b336106fa565b50565b60045481565b610a1d6000801b33610db5565b610a2657600080fd5b610a2e611a35565b565b610a4d604051610a3f90612b14565b604051809103902033610db5565b610a5657600080fd5b6000809054906101000a900460ff1615610aa5576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610a9c90612d4b565b60405180910390fd5b6000600860008660ff1660ff1681526020019081526020016000206000858152602001908152602001600020905060006003811115610ae057fe5b8160030160009054906101000a900460ff166003811115610afd57fe5b1415610b3e576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610b3590612c8b565b60405180910390fd5b60026003811115610b4b57fe5b8160030160009054906101000a900460ff166003811115610b6857fe5b14610ba8576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610b9f90612dab565b60405180910390fd5b80600001548383604051602001610bc0929190612aec565b6040516020818303038152906040528051906020012014610c16576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610c0d90612d6b565b60405180910390fd5b60008390508073ffffffffffffffffffffffffffffffffffffffff1663fc9539cd846040518263ffffffff1660e01b8152600401610c549190612c4e565b600060405180830381600087803b158015610c6e57600080fd5b505af1158015610c82573d6000803e3d6000fd5b5050505060038260030160006101000a81548160ff02191690836003811115610ca757fe5b021790555084600260009054906101000a900460ff1660ff168760ff167fa5c8f3b7dbf19ce2d73c2641a6b4a360c9011cd3ae7f6d12e0454fe81570dc3060405160405180910390a4505050505050565b610d056000801b33610db5565b610d0e57600080fd5b60008290508073ffffffffffffffffffffffffffffffffffffffff166307b7ed99836040518263ffffffff1660e01b8152600401610d4c9190612b29565b600060405180830381600087803b158015610d6657600080fd5b505af1158015610d7a573d6000803e3d6000fd5b50505050505050565b6000610dad8260016000868152602001908152602001600020600001611ade90919063ffffffff16565b905092915050565b6000610ddf8260016000868152602001908152602001600020600001611af890919063ffffffff16565b905092915050565b604051610df390612b14565b604051809103902081565b610e1b604051610e0d90612b14565b604051809103902033610db5565b610e2457600080fd5b6000809054906101000a900460ff1615610e73576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610e6a90612d4b565b60405180910390fd5b6000600860008560ff1660ff1681526020019081526020016000206000848152602001908152602001600020905060018160030160009054906101000a900460ff166003811115610ec057fe5b1115610f01576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610ef890612d8b565b60405180910390fd5b600960008560ff1660ff168152602001908152602001600020600084815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff1615610fb6576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610fad90612d0b565b60405180910390fd5b60008160030160009054906101000a900460ff166003811115610fd557fe5b14156111bf57600560008154600101919050819055506040518060800160405280838152602001600160405190808252806020026020018201604052801561102c5781602001602082028036833780820191505090505b50815260200160006040519080825280602002602001820160405280156110625781602001602082028036833780820191505090505b5081526020016001600381111561107557fe5b815250600860008660ff1660ff16815260200190815260200160002060008581526020019081526020016000206000820151816000015560208201518160010190805190602001906110c8929190611ebe565b5060408201518160020190805190602001906110e5929190611ebe565b5060608201518160030160006101000a81548160ff0219169083600381111561110a57fe5b0217905550905050338160010160008154811061112357fe5b9060005260206000200160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555082600260009054906101000a900460ff1660ff168560ff167f194898110d0d38ea3cd7aa3fa939f87bb9bbad8427482df365d5ecc36b743805856040516111b29190612b7a565b60405180910390a4611225565b80600101339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b6001600960008660ff1660ff168152602001908152602001600020600085815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff02191690831515021790555082600260009054906101000a900460ff1660ff168560ff167fc954da58dd7f8bea0c2f55f3f557dc861271ad571074e3b417749eff0af46aab8460030160009054906101000a900460ff166040516112fd9190612c70565b60405180910390a460016003541115806113205750600354816001018054905010155b156113905760028160030160006101000a81548160ff0219169083600381111561134657fe5b021790555082600260009054906101000a900460ff1660ff168560ff167f0da2fadf3d07092b7c0be5f24e643fe608e8023f38fe97f88988495116d332fd60405160405180910390a45b50505050565b60055481565b6113a96000801b33610db5565b6113b257600080fd5b6113cf6040516113c190612b14565b60405180910390208261163f565b8073ffffffffffffffffffffffffffffffffffffffff167f10e1f7ce9fd7d1b90a66d13a2ab3cb8dd7f29f3f8d520b143b063ccfbab6906b60405160405180910390a26004600081548092919060019003919050555050565b6000801b81565b600260009054906101000a900460ff1681565b600061146260016000848152602001908152602001600020600001611b28565b9050919050565b6114766000801b33610db5565b61147f57600080fd5b60008390508073ffffffffffffffffffffffffffffffffffffffff1663b8fa373684846040518363ffffffff1660e01b81526004016114bf929190612b95565b600060405180830381600087803b1580156114d957600080fd5b505af11580156114ed573d6000803e3d6000fd5b5050505050505050565b6115046000801b33610db5565b61150d57600080fd5b61152a60405161151c90612b14565b604051809103902082610648565b8073ffffffffffffffffffffffffffffffffffffffff167f03580ee9f53a62b7cb409a2cb56f9be87747dd15017afc5cef6eef321e4fb2c560405160405180910390a260046000815480929190600101919050555050565b6007602052816000526040600020602052806000526040600020600091509150508054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156116375780601f1061160c57610100808354040283529160200191611637565b820191906000526020600020905b81548152906001019060200180831161161a57829003601f168201915b505050505081565b6116666001600084815260200190815260200160002060020154611661611905565b610db5565b6116a5576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161169c90612d2b565b60405180910390fd5b6116af82826119a1565b5050565b60035481565b6116c1611f48565b600860008460ff1660ff1681526020019081526020016000206000838152602001908152602001600020604051806080016040529081600082015481526020016001820180548060200260200160405190810160405280929190818152602001828054801561178557602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001906001019080831161173b575b505050505081526020016002820180548060200260200160405190810160405280929190818152602001828054801561181357602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190600101908083116117c9575b505050505081526020016003820160009054906101000a900460ff16600381111561183a57fe5b600381111561184557fe5b81525050905092915050565b61185e6000801b33610db5565b61186757600080fd5b60008590508073ffffffffffffffffffffffffffffffffffffffff1663bba8185a868686866040518563ffffffff1660e01b81526004016118ab9493929190612bbe565b600060405180830381600087803b1580156118c557600080fd5b505af11580156118d9573d6000803e3d6000fd5b50505050505050505050565b6118f26000801b33610db5565b6118fb57600080fd5b611903611b3d565b565b600033905090565b6119358160016000858152602001908152602001600020600001611be590919063ffffffff16565b1561199d57611942611905565b73ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff16837f2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d60405160405180910390a45b5050565b6119c98160016000858152602001908152602001600020600001611c1590919063ffffffff16565b15611a31576119d6611905565b73ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff16837ff6391f5c32d9c69d2a47ea670b442974b53935d1edc7fd64eb21e047a839171b60405160405180910390a45b5050565b6000809054906101000a900460ff1615611a84576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611a7b90612d4b565b60405180910390fd5b60016000806101000a81548160ff0219169083151502179055507f62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258611ac7611905565b604051611ad49190612b44565b60405180910390a1565b6000611aed8360000183611c45565b60001c905092915050565b6000611b20836000018373ffffffffffffffffffffffffffffffffffffffff1660001b611cb2565b905092915050565b6000611b3682600001611cd5565b9050919050565b6000809054906101000a900460ff16611b8b576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611b8290612ceb565b60405180910390fd5b60008060006101000a81548160ff0219169083151502179055507f5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa611bce611905565b604051611bdb9190612b44565b60405180910390a1565b6000611c0d836000018373ffffffffffffffffffffffffffffffffffffffff1660001b611ce6565b905092915050565b6000611c3d836000018373ffffffffffffffffffffffffffffffffffffffff1660001b611d56565b905092915050565b600081836000018054905011611c90576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611c8790612cab565b60405180910390fd5b826000018281548110611c9f57fe5b9060005260206000200154905092915050565b600080836001016000848152602001908152602001600020541415905092915050565b600081600001805490509050919050565b6000611cf28383611cb2565b611d4b578260000182908060018154018082558091505060019003906000526020600020016000909190919091505582600001805490508360010160008481526020019081526020016000208190555060019050611d50565b600090505b92915050565b60008083600101600084815260200190815260200160002054905060008114611e325760006001820390506000600186600001805490500390506000866000018281548110611da157fe5b9060005260206000200154905080876000018481548110611dbe57fe5b9060005260206000200181905550600183018760010160008381526020019081526020016000208190555086600001805480611df657fe5b60019003818190600052602060002001600090559055866001016000878152602001908152602001600020600090556001945050505050611e38565b60009150505b92915050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f10611e7f57805160ff1916838001178555611ead565b82800160010185558215611ead579182015b82811115611eac578251825591602001919060010190611e91565b5b509050611eba9190611f7e565b5090565b828054828255906000526020600020908101928215611f37579160200282015b82811115611f365782518260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555091602001919060010190611ede565b5b509050611f449190611fa3565b5090565b604051806080016040528060008019168152602001606081526020016060815260200160006003811115611f7857fe5b81525090565b611fa091905b80821115611f9c576000816000905550600101611f84565b5090565b90565b611fe391905b80821115611fdf57600081816101000a81549073ffffffffffffffffffffffffffffffffffffffff021916905550600101611fa9565b5090565b90565b600081359050611ff5816130e6565b92915050565b60008135905061200a816130fd565b92915050565b60008135905061201f81613114565b92915050565b600082601f83011261203657600080fd5b813561204961204482612ebc565b612e8f565b9150808252602083016020830185838301111561206557600080fd5b612070838284613055565b50505092915050565b6000813590506120888161312b565b92915050565b60008135905061209d81613142565b92915050565b6000602082840312156120b557600080fd5b60006120c384828501611fe6565b91505092915050565b600080604083850312156120df57600080fd5b60006120ed85828601611fe6565b92505060206120fe85828601611fe6565b9150509250929050565b60008060006060848603121561211d57600080fd5b600061212b86828701611fe6565b935050602061213c86828701611ffb565b925050604061214d86828701611fe6565b9150509250925092565b600080600080600060a0868803121561216f57600080fd5b600061217d88828901611fe6565b955050602061218e88828901611ffb565b945050604061219f88828901611fe6565b93505060606121b088828901612010565b92505060806121c188828901612010565b9150509295509295909350565b6000602082840312156121e057600080fd5b60006121ee84828501611ffb565b91505092915050565b6000806040838503121561220a57600080fd5b600061221885828601611ffb565b925050602061222985828601611fe6565b9150509250929050565b6000806040838503121561224657600080fd5b600061225485828601611ffb565b925050602061226585828601612079565b9150509250929050565b60006020828403121561228157600080fd5b600061228f84828501612079565b91505092915050565b6000602082840312156122aa57600080fd5b60006122b88482850161208e565b91505092915050565b6000806000606084860312156122d657600080fd5b60006122e48682870161208e565b93505060206122f586828701611fe6565b925050604084013567ffffffffffffffff81111561231257600080fd5b61231e86828701612025565b9150509250925092565b6000806040838503121561233b57600080fd5b60006123498582860161208e565b925050602061235a85828601612079565b9150509250929050565b60008060006060848603121561237957600080fd5b60006123878682870161208e565b935050602061239886828701612079565b92505060406123a986828701611fe6565b9150509250925092565b600080600080608085870312156123c957600080fd5b60006123d78782880161208e565b94505060206123e887828801612079565b93505060406123f987828801611fe6565b925050606085013567ffffffffffffffff81111561241657600080fd5b61242287828801612025565b91505092959194509250565b60008060006060848603121561244357600080fd5b60006124518682870161208e565b935050602061246286828701612079565b925050604061247386828701611ffb565b9150509250925092565b600061248983836124a4565b60208301905092915050565b61249e8161300d565b82525050565b6124ad81612f6f565b82525050565b6124bc81612f6f565b82525050565b6124d36124ce82612f6f565b613097565b82525050565b60006124e482612ef8565b6124ee8185612f26565b93506124f983612ee8565b8060005b8381101561252a578151612511888261247d565b975061251c83612f19565b9250506001810190506124fd565b5085935050505092915050565b61254081612f81565b82525050565b61254f81612f8d565b82525050565b61255e81612f8d565b82525050565b61256d81612f97565b82525050565b600061257e82612f0e565b6125888185612f37565b9350612598818560208601613064565b6125a1816130bb565b840191505092915050565b60006125b782612f0e565b6125c18185612f48565b93506125d1818560208601613064565b80840191505092915050565b60006125e882612f03565b6125f28185612f37565b9350612602818560208601613064565b61260b816130bb565b840191505092915050565b61261f8161301f565b82525050565b61262e8161301f565b82525050565b6000612641601683612f53565b91507f70726f706f73616c206973206e6f7420616374697665000000000000000000006000830152602082019050919050565b6000612681602283612f53565b91507f456e756d657261626c655365743a20696e646578206f7574206f6620626f756e60008301527f64730000000000000000000000000000000000000000000000000000000000006020830152604082019050919050565b60006126e7602f83612f53565b91507f416363657373436f6e74726f6c3a2073656e646572206d75737420626520616e60008301527f2061646d696e20746f206772616e7400000000000000000000000000000000006020830152604082019050919050565b600061274d601483612f53565b91507f5061757361626c653a206e6f74207061757365640000000000000000000000006000830152602082019050919050565b600061278d602583612f53565b91507f72656c617965722068617320616c726561647920766f746564206f6e2070726f60008301527f706f73616c0000000000000000000000000000000000000000000000000000006020830152604082019050919050565b60006127f3603083612f53565b91507f416363657373436f6e74726f6c3a2073656e646572206d75737420626520616e60008301527f2061646d696e20746f207265766f6b65000000000000000000000000000000006020830152604082019050919050565b6000612859601083612f53565b91507f5061757361626c653a20706175736564000000000000000000000000000000006000830152602082019050919050565b6000612899603183612f53565b91507f70726f7669646564206461746120646f6573206e6f74206d617463682070726f60008301527f706f73616c2773206461746120686173680000000000000000000000000000006020830152604082019050919050565b60006128ff602f83612f53565b91507f70726f706f73616c2068617320616c7265616479206265656e2070617373656460008301527f206f72207472616e7366657272656400000000000000000000000000000000006020830152604082019050919050565b6000612965603783612f53565b91507f70726f706f73616c20776173206e6f7420706173736564206f7220686173206160008301527f6c7265616479206265656e207472616e736665727265640000000000000000006020830152604082019050919050565b60006129cb600c83612f64565b91507f52454c415945525f524f4c4500000000000000000000000000000000000000006000830152600c82019050919050565b6000612a0b602f83612f53565b91507f416363657373436f6e74726f6c3a2063616e206f6e6c792072656e6f756e636560008301527f20726f6c657320666f722073656c6600000000000000000000000000000000006020830152604082019050919050565b6000608083016000830151612a7c6000860182612546565b5060208301518482036020860152612a9482826124d9565b91505060408301518482036040860152612aae82826124d9565b9150506060830151612ac36060860182612616565b508091505092915050565b612ad781612ff6565b82525050565b612ae681613000565b82525050565b6000612af882856124c2565b601482019150612b0882846125ac565b91508190509392505050565b6000612b1f826129be565b9150819050919050565b6000602082019050612b3e60008301846124b3565b92915050565b6000602082019050612b596000830184612495565b92915050565b6000602082019050612b746000830184612537565b92915050565b6000602082019050612b8f6000830184612555565b92915050565b6000604082019050612baa6000830185612555565b612bb760208301846124b3565b9392505050565b6000608082019050612bd36000830187612555565b612be060208301866124b3565b612bed6040830185612564565b612bfa6060830184612564565b95945050505050565b6000604082019050612c186000830185612555565b612c256020830184612625565b9392505050565b60006020820190508181036000830152612c4681846125dd565b905092915050565b60006020820190508181036000830152612c688184612573565b905092915050565b6000602082019050612c856000830184612625565b92915050565b60006020820190508181036000830152612ca481612634565b9050919050565b60006020820190508181036000830152612cc481612674565b9050919050565b60006020820190508181036000830152612ce4816126da565b9050919050565b60006020820190508181036000830152612d0481612740565b9050919050565b60006020820190508181036000830152612d2481612780565b9050919050565b60006020820190508181036000830152612d44816127e6565b9050919050565b60006020820190508181036000830152612d648161284c565b9050919050565b60006020820190508181036000830152612d848161288c565b9050919050565b60006020820190508181036000830152612da4816128f2565b9050919050565b60006020820190508181036000830152612dc481612958565b9050919050565b60006020820190508181036000830152612de4816129fe565b9050919050565b60006020820190508181036000830152612e058184612a64565b905092915050565b6000602082019050612e226000830184612ace565b92915050565b6000602082019050612e3d6000830184612add565b92915050565b6000608082019050612e586000830187612add565b612e656020830186612ace565b612e726040830185612495565b8181036060830152612e848184612573565b905095945050505050565b6000604051905081810181811067ffffffffffffffff82111715612eb257600080fd5b8060405250919050565b600067ffffffffffffffff821115612ed357600080fd5b601f19601f8301169050602081019050919050565b6000819050602082019050919050565b600081519050919050565b600081519050919050565b600081519050919050565b6000602082019050919050565b600082825260208201905092915050565b600082825260208201905092915050565b600081905092915050565b600082825260208201905092915050565b600081905092915050565b6000612f7a82612fd6565b9050919050565b60008115159050919050565b6000819050919050565b60007fffffffff0000000000000000000000000000000000000000000000000000000082169050919050565b6000819050612fd1826130d9565b919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b600060ff82169050919050565b600061301882613031565b9050919050565b600061302a82612fc3565b9050919050565b600061303c82613043565b9050919050565b600061304e82612fd6565b9050919050565b82818337600083830152505050565b60005b83811015613082578082015181840152602081019050613067565b83811115613091576000848401525b50505050565b60006130a2826130a9565b9050919050565b60006130b4826130cc565b9050919050565b6000601f19601f8301169050919050565b60008160601b9050919050565b600481106130e357fe5b50565b6130ef81612f6f565b81146130fa57600080fd5b50565b61310681612f8d565b811461311157600080fd5b50565b61311d81612f97565b811461312857600080fd5b50565b61313481612ff6565b811461313f57600080fd5b50565b61314b81613000565b811461315657600080fd5b5056fea26469706673582212200b2ea8c73c4b2c7675cdfbeaf4622386eb2dc7e352fe3127abb33efcbdcb620564736f6c63430006040033"

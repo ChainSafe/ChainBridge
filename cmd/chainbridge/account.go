@@ -271,7 +271,7 @@ func importKey(filename, datadir string) (string, error) {
 		return "", fmt.Errorf("could not create keystore file path: %s", err)
 	}
 
-	err = ioutil.WriteFile(keystorefile, importdata, 0644)
+	err = ioutil.WriteFile(keystorefile, importdata, 0600)
 	if err != nil {
 		return "", fmt.Errorf("could not write to keystore directory: %s", err)
 	}

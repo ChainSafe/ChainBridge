@@ -18,6 +18,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
+	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -46,8 +47,12 @@ type TestContext struct {
 }
 
 type TestContracts struct {
-	Erc20Sub common.Address // Contract configured for substrate transfers
-	Erc20Eth common.Address // Contact configured for eth to eth transfer
+	Erc20Sub      common.Address // Contract configured for substrate erc20 transfers
+	Erc20Eth      common.Address // Contact configured for eth to eth erc20 transfer
+	Erc721Sub     common.Address // Contract configured for substrate erc721 transfers
+	Erc721Eth     common.Address // Contract configured for eth to eth erc721 transfer
+	AssetStoreSub common.Address // Contract configure for substrate generic transfer
+	AssetStoreEth common.Address // Contract configured for eth to eth generic transfer
 }
 
 func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *core.ChainConfig {
@@ -64,7 +69,7 @@ func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContra
 			"bridge":         contracts.BridgeAddress.String(),
 			"erc20Handler":   contracts.ERC20HandlerAddress.String(),
 			"erc721Handler":  contracts.ERC721HandlerAddress.String(),
-			"genericHandler": contracts.CentrifugeHandlerAddress.String(),
+			"genericHandler": contracts.GenericHandlerAddress.String(),
 		},
 	}
 }
@@ -88,7 +93,7 @@ func DeployTestContracts(t *testing.T, endpoint string, id msg.ChainId, threshol
 	fmt.Printf("Bridge:				%s\n", contracts.BridgeAddress.Hex())
 	fmt.Printf("Erc20Handler:		%s\n", contracts.ERC20HandlerAddress.Hex())
 	fmt.Printf("Erc721Handler:		%s\n", contracts.ERC721HandlerAddress.Hex())
-	fmt.Printf("Generic/Centrifuge Handler: %s\n", contracts.CentrifugeHandlerAddress.Hex())
+	fmt.Printf("GenericHandler: 		%s\n", contracts.GenericHandlerAddress.Hex())
 	fmt.Println("====================================================================")
 	return contracts
 }
@@ -138,12 +143,60 @@ func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.Trans
 	}
 }
 
-func WaitForEthereumEvent(t *testing.T, client *ethclient.Client, contract common.Address, subStr utils.EventSig, startBlock *big.Int) {
+func CreateErc721Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, recipient []byte, tokenId *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+	data := utils.ConstructErc721DepositData(rId, tokenId, recipient)
+
+	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = utils.UpdateNonce(opts, client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := bridgeInstance.Deposit(
+		opts,
+		uint8(destId),
+		contracts.ERC721HandlerAddress,
+		data,
+	); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func CreateGenericDeposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, metadata []byte, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+	data := utils.ConstructGenericDepositData(rId, metadata)
+
+	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = utils.UpdateNonce(opts, client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := bridgeInstance.Deposit(
+		opts,
+		uint8(destId),
+		contracts.GenericHandlerAddress,
+		data,
+	); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func WaitForDepositCreatedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
+	startBlock := ethtest.GetLatestBlock(t, client)
+
 	query := eth.FilterQuery{
 		FromBlock: startBlock,
-		Addresses: []common.Address{contract},
+		Addresses: []common.Address{bridge},
 		Topics: [][]common.Hash{
-			{subStr.GetTopic()},
+			{utils.ProposalCreated.GetTopic()},
 		},
 	}
 
@@ -156,16 +209,62 @@ func WaitForEthereumEvent(t *testing.T, client *ethclient.Client, contract commo
 	for {
 		select {
 		case evt := <-ch:
-			log.Info("Got event, continuing...", "event", subStr, "topics", evt.Topics)
-			sub.Unsubscribe()
-			close(ch)
-			return
+			currentNonce := evt.Topics[3].Big()
+			// Check nonce matches
+			if currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
+				log.Info("Got matching ProposalCreated event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
+				sub.Unsubscribe()
+				close(ch)
+				return
+			} else {
+				log.Info("Incorrect ProposalCreated event", "nonce", currentNonce, "expectedNonce", nonce, "topics", evt.Topics)
+			}
 		case err := <-sub.Err():
 			if err != nil {
 				t.Fatal(err)
 			}
 		case <-time.After(TestTimeout):
-			t.Fatalf("Test timed out waiting for event %s", subStr)
+			t.Fatalf("Test timed out waiting for ProposalCreated event")
+		}
+	}
+}
+
+func WaitForDepositExecutedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
+	startBlock := ethtest.GetLatestBlock(t, client)
+
+	query := eth.FilterQuery{
+		FromBlock: startBlock,
+		Addresses: []common.Address{bridge},
+		Topics: [][]common.Hash{
+			{utils.ProposalExecuted.GetTopic()},
+		},
+	}
+
+	ch := make(chan ethtypes.Log)
+	sub, err := client.SubscribeFilterLogs(context.Background(), query, ch)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for {
+		select {
+		case evt := <-ch:
+			currentNonce := evt.Topics[3].Big()
+			// Check nonce matches
+			if currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
+				log.Info("Got matching ProposalExecuted event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
+				sub.Unsubscribe()
+				close(ch)
+				return
+			} else {
+				log.Info("Incorrect ProposalExecuted event", "nonce", currentNonce, "expectedNonce", nonce, "topics", evt.Topics)
+			}
+		case err := <-sub.Err():
+			if err != nil {
+				t.Fatal(err)
+			}
+		case <-time.After(TestTimeout):
+			t.Fatalf("Test timed out waiting for ProposalExecuted event")
 		}
 	}
 }
