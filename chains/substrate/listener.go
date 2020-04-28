@@ -86,6 +86,9 @@ func (l *listener) registerEventHandler(name eventName, handler eventHandler) er
 
 var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
 
+// pollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
+// Polling begins at the block defined in `l.startBlock`. Failed attempts to fetch the latest block or parse
+// a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *listener) pollBlocks() error {
 	var latestBlock = l.startBlock
 	var retry = BlockRetryLimit

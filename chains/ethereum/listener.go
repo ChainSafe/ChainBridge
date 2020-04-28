@@ -77,8 +77,8 @@ func (l *listener) start() error {
 }
 
 // pollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
-// Polling begins at the block defined in `l.cfg.startBlock`. Attempts to fetch the latest block or parse a block will
-// be retried up to BlockRetryLimit times.
+// Polling begins at the block defined in `l.cfg.startBlock`. Failed attempts to fetch the latest block or parse
+// a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *listener) pollBlocks() error {
 	l.log.Debug("Polling Blocks...")
 	var latestBlock = l.cfg.startBlock
