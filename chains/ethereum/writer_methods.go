@@ -77,7 +77,7 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 		return true
 	}
 	// watch for execution event
-	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
+	go w.watchThenExecute(m, w.cfg.erc20HandlerContract, data)
 
 	w.log.Debug("Submitting CreateDepositProposal for ERC20", "source", m.Source, "depositNonce", m.DepositNonce)
 
@@ -116,7 +116,7 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 		return true
 	}
 	// watch for execution event
-	go w.watchAndExecute(m, w.cfg.erc721HandlerContract, data)
+	w.watchThenExecute(m, w.cfg.erc721HandlerContract, data)
 
 	w.log.Debug("Submitting VoteProposal for ERC721", "source", m.Source, "depositNonce", m.DepositNonce)
 
@@ -157,7 +157,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	}
 
 	// watch for execution event
-	go w.watchAndExecute(m, w.cfg.genericHandlerContract, data)
+	go w.watchThenExecute(m, w.cfg.genericHandlerContract, data)
 
 	w.log.Trace("Submitting VoteProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
 	_, err = w.bridgeContract.VoteProposal(
@@ -176,10 +176,20 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	return true
 }
 
-func (w *writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
+func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []byte) {
 	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
-	// TODO: Skip existing blocks
-	query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, w.cfg.startBlock, nil)
+	var latestBlock *big.Int
+	var err error
+	latestBlock, err = w.conn.latestBlock()
+	if err != nil {
+		// Fallback to start back
+		latestBlock = w.cfg.startBlock
+	} else {
+		// Ensure we don't miss the event
+		latestBlock.Sub(latestBlock, big.NewInt(1))
+	}
+
+	query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, latestBlock, nil)
 	eventSubscription, err := w.conn.subscribeToEvent(query)
 	if err != nil {
 		w.log.Error("Failed to subscribe to finalization event", "err", err)

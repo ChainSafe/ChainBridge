@@ -38,7 +38,7 @@ func (r *Router) Send(msg msg.Message) error {
 		return fmt.Errorf("unknown destination chainId: %d", msg.Destination)
 	}
 	// TODO: Need to preserve ordering, perhaps a queue would help
-	w.ResolveMessage(msg)
+	go w.ResolveMessage(msg)
 	return nil
 }
 

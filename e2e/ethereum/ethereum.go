@@ -33,11 +33,8 @@ var TestTimeout = time.Second * 30
 
 var log = log15.New("e2e", "ethereum")
 
-// TODO: Remove extra addrs vars when PR #339 lands
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
-var AliceAddr = common.HexToAddress(AliceKp.Address())
 var CharlieKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
-var CharlieAddr = common.HexToAddress(CharlieKp.Address())
 
 type TestContext struct {
 	BaseContracts *utils.DeployedContracts // All the contracts required for the bridge
