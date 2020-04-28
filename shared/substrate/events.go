@@ -121,9 +121,9 @@ type Events struct {
 	ChainBridge_ProposalRejected        []EventProposalRejected        //nolint:stylecheck,golint
 	ChainBridge_ProposalSucceeded       []EventProposalSucceeded       //nolint:stylecheck,golint
 	ChainBridge_ProposalFailed          []EventProposalFailed          //nolint:stylecheck,golint
-	Erc721_Minted                  []EventErc721Minted            //nolint:stylecheck,golint
-	Erc721_Transferred             []EventErc721Transferred       //nolint:stylecheck,golint
-	Erc721_Burned                  []EventErc721Burned            //nolint:stylecheck,golint
-	Example_Remark                 []EventExampleRemark           //nolint:stylecheck,golint
-	Sudo_Sudid                     []EventSudid                   //nolint:stylecheck,golint
+	Erc721_Minted                       []EventErc721Minted            //nolint:stylecheck,golint
+	Erc721_Transferred                  []EventErc721Transferred       //nolint:stylecheck,golint
+	Erc721_Burned                       []EventErc721Burned            //nolint:stylecheck,golint
+	Example_Remark                      []EventExampleRemark           //nolint:stylecheck,golint
+	Sudo_Sudid                          []EventSudid                   //nolint:stylecheck,golint
 }

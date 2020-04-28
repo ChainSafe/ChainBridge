@@ -149,10 +149,10 @@ type EventCodeUpdated struct {
 
 type Events struct {
 	utils.Events
-	ChainBridge_FungibleTransfer    []EventFungibleTransfer    //nolint:stylecheck,golint
-	ChainBridge_NonFungibleTransfer []EventNonFungibleTransfer //nolint:stylecheck,golint
-	ChainBridge_GenericTransfer     []EventGenericTransfer     //nolint:stylecheck,golint
-	System_CodeUpdated         []EventCodeUpdated         //nolint:stylecheck,golint
+	ChainBridge_FungibleTransfer     []EventFungibleTransfer               //nolint:stylecheck,golint
+	ChainBridge_NonFungibleTransfer  []EventNonFungibleTransfer            //nolint:stylecheck,golint
+	ChainBridge_GenericTransfer      []EventGenericTransfer                //nolint:stylecheck,golint
+	System_CodeUpdated               []EventCodeUpdated                    //nolint:stylecheck,golint
 	Nfts_DepositAsset                []EventNFTDeposited                   //nolint:stylecheck,golint
 	Council_Proposed                 []types.EventCollectiveProposed       //nolint:stylecheck,golint
 	Council_Voted                    []types.EventCollectiveProposed       //nolint:stylecheck,golint

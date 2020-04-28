@@ -79,7 +79,7 @@ func WaitForProposalSuccessOrFail(t *testing.T, client *utils.Client, nonce type
 					t.Fatal(err)
 				}
 
-				for _, evt := range events.Bridge_ProposalSucceeded {
+				for _, evt := range events.ChainBridge_ProposalSucceeded {
 					if evt.DepositNonce == nonce && evt.SourceId == chain {
 						log.Info("Proposal succeeded", "depositNonce", evt.DepositNonce, "source", evt.SourceId)
 						return
@@ -88,7 +88,7 @@ func WaitForProposalSuccessOrFail(t *testing.T, client *utils.Client, nonce type
 					}
 				}
 
-				for _, evt := range events.Bridge_ProposalFailed {
+				for _, evt := range events.ChainBridge_ProposalFailed {
 					if evt.DepositNonce == nonce && evt.SourceId == chain {
 						log.Info("Proposal failed", "depositNonce", evt.DepositNonce, "source", evt.SourceId)
 						t.Fatalf("Proposal failed. Nonce: %d Source: %d", evt.DepositNonce, evt.SourceId)
