@@ -29,7 +29,7 @@ func SubmitTx(client *Client, method Method, args ...interface{}) error {
 		return err
 	}
 
-	var acct AccountData
+	var acct types.AccountInfo
 	_, err = QueryStorage(client, "System", "Account", client.Key.PublicKey, nil, &acct)
 	if err != nil {
 		return err
@@ -87,7 +87,7 @@ func BatchSubmit(client *Client, calls []types.Call) error {
 		return err
 	}
 
-	var acct AccountData
+	var acct types.AccountInfo
 	_, err = QueryStorage(client, "System", "Account", client.Key.PublicKey, nil, &acct)
 	if err != nil {
 		return err
