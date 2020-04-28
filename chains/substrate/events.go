@@ -62,9 +62,9 @@ type EventGenericTransfer struct {
 
 type Events struct {
 	utils.Events
-	ChainBridge_FungibleTransfer     []EventFungibleTransfer               //nolint:stylecheck,golint
-	ChainBridge_NonFungibleTransfer  []EventNonFungibleTransfer            //nolint:stylecheck,golint
-	ChainBridge_GenericTransfer      []EventGenericTransfer                //nolint:stylecheck,golint
+	ChainBridge_FungibleTransfer    []EventFungibleTransfer    //nolint:stylecheck,golint
+	ChainBridge_NonFungibleTransfer []EventNonFungibleTransfer //nolint:stylecheck,golint
+	ChainBridge_GenericTransfer     []EventGenericTransfer     //nolint:stylecheck,golint
 }
 
 func fungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, error) {

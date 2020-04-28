@@ -6,10 +6,10 @@ package utils
 // An available method on the substrate chain
 type Method string
 
-var AddRelayerMethod Method = BridgePalletName+".add_relayer"
-var SetResourceMethod Method = BridgePalletName+".set_resource"
-var SetThresholdMethod Method = BridgePalletName+".set_threshold"
-var WhitelistChainMethod Method = BridgePalletName+".whitelist_chain"
+var AddRelayerMethod Method = BridgePalletName + ".add_relayer"
+var SetResourceMethod Method = BridgePalletName + ".set_resource"
+var SetThresholdMethod Method = BridgePalletName + ".set_threshold"
+var WhitelistChainMethod Method = BridgePalletName + ".whitelist_chain"
 var ExampleTransferNativeMethod Method = "Example.transfer_native"
 var ExampleTransferErc721Method Method = "Example.transfer_erc721"
 var ExampleTransferHashMethod Method = "Example.transfer_hash"

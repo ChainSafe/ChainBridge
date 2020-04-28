@@ -15,7 +15,7 @@ import (
 
 var _ chains.Writer = &writer{}
 
-var AcknowledgeProposal utils.Method = utils.BridgePalletName+".acknowledge_proposal"
+var AcknowledgeProposal utils.Method = utils.BridgePalletName + ".acknowledge_proposal"
 
 type writer struct {
 	conn *Connection
