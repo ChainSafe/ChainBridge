@@ -29,6 +29,7 @@ type listener struct {
 
 // Frequency of polling for a new block
 var BlockRetryInterval = time.Second * 2
+var BlockRetryLimit = 3
 
 func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer) *listener {
 	return &listener{
@@ -85,19 +86,36 @@ func (l *listener) registerEventHandler(name eventName, handler eventHandler) er
 
 var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
 
+// pollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
+// Polling begins at the block defined in `l.startBlock`. Failed attempts to fetch the latest block or parse
+// a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *listener) pollBlocks() error {
 	var latestBlock = l.startBlock
+	var retry = BlockRetryLimit
 	for {
+		// No more retries, goto next block
+		if retry == 0 {
+			latestBlock++
+			retry = BlockRetryLimit
+		}
+
+		// Get hash for latest block, sleep and retry if not ready
 		hash, err := l.conn.api.RPC.Chain.GetBlockHash(latestBlock)
 		if err != nil && err.Error() == ErrBlockNotReady.Error() {
 			time.Sleep(BlockRetryInterval)
 			continue
 		} else if err != nil {
-			return err
+			l.log.Error("Failed to query latest block", "block", latestBlock, "err", err)
+			retry--
+			time.Sleep(BlockRetryInterval)
+			continue
 		}
+
 		err = l.processEvents(hash)
 		if err != nil {
-			return err
+			l.log.Error("Failed to process events in block", "block", latestBlock, "err", err)
+			retry--
+			continue
 		}
 
 		// Write to blockstore
@@ -106,6 +124,7 @@ func (l *listener) pollBlocks() error {
 			l.log.Error("Failed to write to blockstore", "err", err)
 		}
 		latestBlock++
+		retry = BlockRetryLimit
 	}
 }
 

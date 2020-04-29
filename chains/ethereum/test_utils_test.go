@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"context"
 	"fmt"
 	"math/big"
 	"testing"
@@ -55,7 +56,7 @@ func newTestLogger(name string) log15.Logger {
 
 func newLocalConnection(t *testing.T, cfg *Config) *Connection {
 	kp := keystore.TestKeyRing.EthereumKeys[cfg.from]
-	conn := NewConnection(cfg, kp, TestLogger)
+	conn := NewConnection(cfg, kp, TestLogger, context.Background())
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
