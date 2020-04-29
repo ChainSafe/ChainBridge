@@ -4,6 +4,8 @@
 package ethereum
 
 import (
+	"context"
+
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
@@ -46,7 +48,7 @@ func setupBlockstore(cfg *Config, kp *secp256k1.Keypair) (*blockstore.Blockstore
 	return bs, nil
 }
 
-func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger) (*Chain, error) {
+func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, ctx context.Context) (*Chain, error) {
 	cfg, err := parseChainConfig(chainCfg)
 	if err != nil {
 		return nil, err
@@ -63,7 +65,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger) (*Chain, e
 		return nil, err
 	}
 
-	conn := NewConnection(cfg, kp, logger)
+	conn := NewConnection(cfg, kp, logger, ctx)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err

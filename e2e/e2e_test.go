@@ -4,6 +4,7 @@
 package e2e
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"math/big"
@@ -72,7 +73,7 @@ func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *eth
 	logger := log.Root().New()
 
 	ethACfg := eth.CreateConfig(name, EthAChainId, contractsA, EthAEndpoint)
-	ethA, err := ethChain.InitializeChain(ethACfg, logger.New("relayer", name, "chain", "ethA"))
+	ethA, err := ethChain.InitializeChain(ethACfg, logger.New("relayer", name, "chain", "ethA"), context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,7 +85,7 @@ func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *eth
 	}
 
 	ethBCfg := eth.CreateConfig(name, EthBChainId, contractsB, EthBEndpoint)
-	ethB, err := ethChain.InitializeChain(ethBCfg, logger.New("relayer", name, "chain", "ethB"))
+	ethB, err := ethChain.InitializeChain(ethBCfg, logger.New("relayer", name, "chain", "ethB"), context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
