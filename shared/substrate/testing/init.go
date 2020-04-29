@@ -15,7 +15,7 @@ import (
 // WARNING: THIS METHOD IS UNSAFE AND MAY PANIC
 func EnsureInitializedChain(t *testing.T, client *utils.Client, relayers []types.AccountID, chains []msg.ChainId, resources map[msg.ResourceId]utils.Method, threshold uint32) {
 	var count types.U32
-	_, err := utils.QueryStorage(client, "Bridge", "RelayerCount", nil, nil, &count)
+	_, err := utils.QueryStorage(client, utils.BridgeStoragePrefix, "RelayerCount", nil, nil, &count)
 	if err != nil {
 		t.Fatal(err)
 	}

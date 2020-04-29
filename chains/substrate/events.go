@@ -60,17 +60,11 @@ type EventGenericTransfer struct {
 	Topics       []types.Hash
 }
 
-type EventCodeUpdated struct {
-	Phase  types.Phase
-	Topics []types.Hash
-}
-
 type Events struct {
 	utils.Events
-	Bridge_FungibleTransfer    []EventFungibleTransfer    //nolint:stylecheck,golint
-	Bridge_NonFungibleTransfer []EventNonFungibleTransfer //nolint:stylecheck,golint
-	Bridge_GenericTransfer     []EventGenericTransfer     //nolint:stylecheck,golint
-	System_CodeUpdated         []EventCodeUpdated         //nolint:stylecheck,golint
+	ChainBridge_FungibleTransfer    []EventFungibleTransfer    //nolint:stylecheck,golint
+	ChainBridge_NonFungibleTransfer []EventNonFungibleTransfer //nolint:stylecheck,golint
+	ChainBridge_GenericTransfer     []EventGenericTransfer     //nolint:stylecheck,golint
 }
 
 func fungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, error) {
