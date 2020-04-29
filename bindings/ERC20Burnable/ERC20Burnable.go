@@ -780,5 +780,3 @@ func (_ERC20Burnable *ERC20BurnableFilterer) ParseTransfer(log types.Log) (*ERC2
 	}
 	return event, nil
 }
-
-var RuntimeBytecode = "0x"
