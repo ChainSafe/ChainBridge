@@ -154,7 +154,7 @@ func (c *Client) GetDepositNonce(chain msg.ChainId) (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
-	exists, err := QueryStorage(c, "Bridge", "ChainNonces", chainId, nil, &count)
+	exists, err := QueryStorage(c, BridgeStoragePrefix, "ChainNonces", chainId, nil, &count)
 	if err != nil {
 		return 0, err
 	}

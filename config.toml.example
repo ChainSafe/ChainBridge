@@ -3,13 +3,13 @@ name = "ethereum"
 type = "ethereum"
 id = 0
 endpoint = "ws://localhost:8545"
-from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c"
-opts = { bridge = "0x3167776db165D8eA0f51790CA2bbf44Db5105ADF", erc20Handler = "0x3f709398808af36ADBA86ACC617FeB7F5B7B193E", genericHandler = "0x21605f71845f372A9ed84253d2D024B7B10999f4" }
+from = "0xC1Ff6D91D629Ff243c04c242d7C32A78F398c184"
+opts = { bridge = "0x3D332eb7a1E4ca7Ba745792896Af80f50a4eb06F", erc721Handler = "0xDFf2DAe272EF653c34428b48747be8D8769F86a0", erc20Handler = "0x900D899d92e5b9Eb6948b39E7B8EAb7cc648E4bd", genericHandler = "0x252B2FF85128C232b3e084f6A60c1756DD2C13EC" }
 
 [[chains]]
 name = "substrate"
 type = "substrate"
 id = 1
 endpoint = "ws://localhost:9944"
-from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c"
+from = "5GVimUaccBq1XbjZ99Zmm8aytG6HaPCjkZGKSHC1vgrsQsLQ"
 opts = { }

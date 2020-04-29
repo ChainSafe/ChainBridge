@@ -43,7 +43,7 @@ func QueryConst(client *Client, prefix, name string, res interface{}) error {
 
 // BalanceOf returns the free balance of an account
 func BalanceOf(client *Client, publicKey []byte) (*big.Int, error) {
-	var acct AccountData
+	var acct types.AccountInfo
 
 	ok, err := QueryStorage(client, "System", "Account", publicKey, nil, &acct)
 	if err != nil {

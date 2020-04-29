@@ -55,7 +55,7 @@ func setEmitterAddress(ctx *cli.Context) error {
 
 	c, err := types.NewCall(
 		meta,
-		"Bridge.set_address",
+		"ChainBridge.set_address",
 		newAddr,
 	)
 
@@ -77,7 +77,7 @@ func getEmitterAddress(ctx *cli.Context) error {
 		panic(err)
 	}
 
-	key, err := types.CreateStorageKey(meta, "Bridge", "EmitterAddress", nil, nil)
+	key, err := types.CreateStorageKey(meta, "ChainBridge", "EmitterAddress", nil, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -112,7 +112,7 @@ func whitelistChain(ctx *cli.Context) error {
 
 	c, err := types.NewCall(
 		meta,
-		"Bridge.whitelist_chain",
+		"ChainBridge.whitelist_chain",
 		id,
 	)
 
@@ -158,7 +158,7 @@ func submitAssetTx(ctx *cli.Context) error {
 
 	c, err := types.NewCall(
 		meta,
-		"Bridge.transfer_asset",
+		"ChainBridge.transfer_asset",
 		destId,
 		to,
 		tokenId,
