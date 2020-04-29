@@ -15,7 +15,7 @@ import (
 
 var _ chains.Writer = &writer{}
 
-var AcknowledgeProposal utils.Method = "Bridge.acknowledge_proposal"
+var AcknowledgeProposal utils.Method = utils.BridgePalletName + ".acknowledge_proposal"
 
 type writer struct {
 	conn *Connection
@@ -84,7 +84,7 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 
 func (w *writer) resolveResourceId(id [32]byte) (string, error) {
 	var res []byte
-	exists, err := w.conn.queryStorage("Bridge", "Resources", id[:], nil, &res)
+	exists, err := w.conn.queryStorage(utils.BridgeStoragePrefix, "Resources", id[:], nil, &res)
 	if err != nil {
 		return "", err
 	}
@@ -105,7 +105,7 @@ func (w *writer) proposalNotCompleted(prop *proposal) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	exists, err := w.conn.queryStorage("Bridge", "Votes", srcId, propBz, &voteRes)
+	exists, err := w.conn.queryStorage(utils.BridgeStoragePrefix, "Votes", srcId, propBz, &voteRes)
 	if err != nil {
 		return false, err
 	}

@@ -10,7 +10,6 @@ import (
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum/crypto"
 )
 
 var _ chains.Writer = &writer{}
@@ -66,8 +65,4 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 
 func (w *writer) stop() error {
 	return nil
-}
-
-func hash(data []byte) [32]byte {
-	return crypto.Keccak256Hash(data)
 }

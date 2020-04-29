@@ -43,7 +43,7 @@ func QueryConst(client *Client, prefix, name string, res interface{}) error {
 
 // BalanceOf returns the free balance of an account
 func BalanceOf(client *Client, publicKey []byte) (*big.Int, error) {
-	var acct AccountData
+	var acct types.AccountInfo
 
 	ok, err := QueryStorage(client, "System", "Account", publicKey, nil, &acct)
 	if err != nil {
@@ -52,4 +52,20 @@ func BalanceOf(client *Client, publicKey []byte) (*big.Int, error) {
 		return nil, fmt.Errorf("no account data")
 	}
 	return acct.Data.Free.Int, nil
+}
+
+func GetErc721Token(client *Client, id types.U256) (*Erc721Token, error) {
+	var res Erc721Token
+	tokenIdBz, err := types.EncodeToBytes(id)
+	if err != nil {
+		return nil, err
+	}
+	exists, err := QueryStorage(client, "TokenStorage", "Tokens", tokenIdBz, nil, &res)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, fmt.Errorf("token %s does not exist", id.String())
+	}
+	return &res, nil
 }

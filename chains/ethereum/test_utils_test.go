@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"context"
 	"fmt"
 	"math/big"
 	"testing"
@@ -55,7 +56,7 @@ func newTestLogger(name string) log15.Logger {
 
 func newLocalConnection(t *testing.T, cfg *Config) *Connection {
 	kp := keystore.TestKeyRing.EthereumKeys[cfg.from]
-	conn := NewConnection(cfg, kp, TestLogger)
+	conn := NewConnection(cfg, kp, TestLogger, context.Background())
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -79,7 +80,7 @@ func deployTestContracts(t *testing.T, id msg.ChainId) *utils.DeployedContracts 
 	fmt.Printf("Bridge: %s\n", contracts.BridgeAddress.Hex())
 	fmt.Printf("Erc20Handler: %s\n", contracts.ERC20HandlerAddress.Hex())
 	fmt.Printf("ERC721Handler: %s\n", contracts.ERC721HandlerAddress.Hex())
-	fmt.Printf("Centrifuge Handler: %s\n", contracts.CentrifugeHandlerAddress.Hex())
+	fmt.Printf("GenericHandler: %s\n", contracts.GenericHandlerAddress.Hex())
 	fmt.Println("========================================================")
 
 	return contracts
@@ -122,7 +123,7 @@ func createErc721Deposit(
 	metadata []byte,
 ) {
 
-	data := utils.ConstructErc721DepositData(rId, tokenId, destRecipient.Bytes(), metadata)
+	data := utils.ConstructErc721DepositData(rId, tokenId, destRecipient.Bytes())
 
 	// Incrememnt Nonce by one
 	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
@@ -146,7 +147,7 @@ func createGenericDeposit(
 	destId msg.ChainId,
 	hash []byte) {
 
-	data := utils.ConstructGenericDepositData(rId, []byte{}, hash)
+	data := utils.ConstructGenericDepositData(rId, hash)
 
 	// Incrememnt Nonce by one
 	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))

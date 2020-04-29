@@ -67,7 +67,7 @@ func (c *Client) RegisterResource(id msg.ResourceId, method string) error {
 	return SubmitSudoTx(c, SetResourceMethod, types.NewBytes32(id), []byte(method))
 }
 
-func (c *Client) InitiateNativeTransfer(amount types.U32, recipient []byte, destId msg.ChainId) error {
+func (c *Client) InitiateNativeTransfer(amount types.U128, recipient []byte, destId msg.ChainId) error {
 	log15.Info("Initiating Substrate native transfer", "amount", amount, "recipient", recipient, "destId", destId)
 	return SubmitTx(c, ExampleTransferNativeMethod, amount, recipient, types.U8(destId))
 }
@@ -146,4 +146,20 @@ func (c *Client) OwnerOf(tokenId *big.Int) (types.AccountID, error) {
 		return types.AccountID{}, fmt.Errorf("token %s doesn't have an owner", tokenId.String())
 	}
 	return owner, nil
+}
+
+func (c *Client) GetDepositNonce(chain msg.ChainId) (uint64, error) {
+	var count types.U64
+	chainId, err := types.EncodeToBytes(types.U8(chain))
+	if err != nil {
+		return 0, err
+	}
+	exists, err := QueryStorage(c, BridgeStoragePrefix, "ChainNonces", chainId, nil, &count)
+	if err != nil {
+		return 0, err
+	}
+	if !exists {
+		return 0, nil
+	}
+	return uint64(count), nil
 }
