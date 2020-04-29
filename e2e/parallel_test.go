@@ -10,6 +10,7 @@ import (
 	"time"
 
 	eth "github.com/ChainSafe/ChainBridge/e2e/ethereum"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	subutils "github.com/ChainSafe/ChainBridge/shared/substrate"
@@ -20,18 +21,31 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// Random recipient
 var SteveSubKp = signature.KeyringPair{
 	URI:       "//Steve",
 	Address:   "5F7UdYV6noJeqbMfiiJKfHDTGYnBiqhMgY2EBi3nFAqcL33w",
 	PublicKey: []byte{0x86, 0xd1, 0xe9, 0xb3, 0x79, 0x37, 0x23, 0x39, 0x02, 0xca, 0xe0, 0x62, 0xf5, 0xd0, 0x1c, 0xae, 0x46, 0x38, 0x58, 0x42, 0xe7, 0xec, 0x9d, 0x1c, 0xeb, 0x6b, 0x1b, 0x10, 0x67, 0x0e, 0x30, 0x27},
 }
-var SteveEthAddr = common.HexToAddress("0x880fd09782C3183c489595111637bb3bc906f215") // Random addr
+var SteveEthAddr = common.HexToAddress("0x880fd09782C3183c489595111637bb3bc906f215")
+
+// Final recipients
 var subRecipient = SteveSubKp.PublicKey
 var ethRecipient = SteveEthAddr
+
+// Tx's per configuration
 var numberOfTxs = 5
+
+// Value per transaction
 var amountPerTest = types.NewU128(*big.NewInt(500))
+
+// Expected overall balance change for recipients
 var balanceDelta = big.NewInt(0).Mul(amountPerTest.Int, big.NewInt(int64(numberOfTxs)))
+
+// Substrate block time
 var blockTime = time.Second * 5
+
+// Delay between tx's to allow more interleaving
 var txInterval = time.Millisecond * 200
 
 func testThreeChainsParallel(t *testing.T, ctx *testContext) {
@@ -62,23 +76,23 @@ func testThreeChainsParallel(t *testing.T, ctx *testContext) {
 		t.Run("Submit Sub to Eth", func(t *testing.T) {
 			// TODO: Need to run this in sequence, doesn't return if parallel
 			//t.Parallel()
-			submitSubToEth(t, ctx, subClient)
+			submitSubToEth(t, subClient, EthAChainId, ethRecipient.Bytes(), amountPerTest, ctx.EthSubErc20ResourceId)
 
 		})
 		// EthA -> Substrate
 		t.Run("Submit Eth to Sub", func(t *testing.T) {
 			t.Parallel()
-			submitEthToSub(t, ctx, ethAClientA)
+			submitEthDeposit("Eth to Sub", t, ctx.ethA, ethAClientA, SubChainId, subRecipient, amountPerTest.Int, ctx.EthSubErc20ResourceId)
 		})
 		// EthA -> EthB
 		t.Run("Submit EthA to EthB", func(t *testing.T) {
 			t.Parallel()
-			submitEthAToEthB(t, ctx, ethAClientB)
+			submitEthDeposit("EthA to EthB", t, ctx.ethA, ethAClientB, EthBChainId, ethRecipient.Bytes(), amountPerTest.Int, ctx.EthEthErc20ResourceId)
 		})
 		// EthB -> EthA
 		t.Run("Submit EthB to EthA", func(t *testing.T) {
 			t.Parallel()
-			submitEthBToEthA(t, ctx, ethBClientA)
+			submitEthDeposit("EthB to EthA", t, ctx.ethB, ethBClientA, EthAChainId, ethRecipient.Bytes(), amountPerTest.Int, ctx.EthEthErc20ResourceId)
 		})
 	})
 
@@ -101,27 +115,27 @@ func testThreeChainsParallel(t *testing.T, ctx *testContext) {
 
 }
 
-func submitEthToSub(t *testing.T, ctx *testContext, ethClient *ethutils.Client) {
+func submitEthDeposit(name string, t *testing.T, ethCtx *eth.TestContext, client *ethutils.Client, destId msg.ChainId, recipient []byte, amount *big.Int, rId msg.ResourceId) {
 	for i := 1; i <= numberOfTxs; i++ {
 		i := i // for scope
-		t.Run(fmt.Sprintf("Eth to Substrate Transfer %d", i), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s Transfer %d", name, i), func(t *testing.T) {
 			// Initiate transfer
-			log.Info("Submitting transaction", "number", i, "recipient", ethRecipient, "amount", amountPerTest, "rId", ctx.EthSubErc20ResourceId.Hex())
-			eth.CreateErc20Deposit(t, ethClient.Client, ethClient.Opts, SubChainId, subRecipient, amountPerTest.Int, ctx.ethA.BaseContracts, ctx.EthSubErc20ResourceId)
+			log.Info("Submitting transaction", "number", i, "recipient", recipient, "amount", amount, "rId", rId.Hex())
+			eth.CreateErc20Deposit(t, client.Client, client.Opts, destId, recipient, amount, ethCtx.BaseContracts, rId)
 
 			time.Sleep(txInterval)
 		})
 	}
 }
 
-func submitSubToEth(t *testing.T, ctx *testContext, client *subutils.Client) {
+func submitSubToEth(t *testing.T, client *subutils.Client, destId msg.ChainId, recipient []byte, amount types.U128, rId msg.ResourceId) {
 	var calls []types.Call
 	for i := 1; i <= numberOfTxs; i++ {
 		i := i // for scope
 		t.Run(fmt.Sprintf("Substrate to Eth Transfer %d", i), func(t *testing.T) {
 			// Execute transfer
-			log.Info("Creating transaction", "number", i, "recipient", ethRecipient, "amount", amountPerTest, "rId", ctx.EthSubErc20ResourceId.Hex())
-			call := subtest.NewNativeTransferCall(t, client, amountPerTest, ethRecipient.Bytes(), EthAChainId)
+			log.Info("Creating transaction", "number", i, "recipient", recipient, "amount", amount, "rId", rId.Hex())
+			call := subtest.NewNativeTransferCall(t, client, amount, recipient, destId)
 			calls = append(calls, call)
 		})
 	}
@@ -130,29 +144,5 @@ func submitSubToEth(t *testing.T, ctx *testContext, client *subutils.Client) {
 	err := subutils.BatchSubmit(client, calls)
 	if err != nil {
 		t.Fatal(err)
-	}
-}
-
-func submitEthAToEthB(t *testing.T, ctx *testContext, client *ethutils.Client) {
-	for i := 1; i <= numberOfTxs; i++ {
-		i := i // for scope
-		t.Run(fmt.Sprintf("Transfer %d", i), func(t *testing.T) {
-			log.Info("Submitting transaction", "number", i, "recipient", ethRecipient, "resourceId", ctx.EthEthErc20ResourceId.Hex(), "amount", amountPerTest, "from", ctx.ethA.Opts.From, "handler", ctx.ethA.BaseContracts.ERC20HandlerAddress)
-			eth.CreateErc20Deposit(t, client.Client, client.Opts, EthBChainId, ethRecipient.Bytes(), amountPerTest.Int, ctx.ethA.BaseContracts, ctx.EthEthErc20ResourceId)
-
-			time.Sleep(txInterval)
-		})
-	}
-}
-
-func submitEthBToEthA(t *testing.T, ctx *testContext, client *ethutils.Client) {
-	for i := 1; i <= numberOfTxs; i++ {
-		i := i // for scope
-		t.Run(fmt.Sprintf("Transfer %d", i), func(t *testing.T) {
-			log.Info("Submitting transaction", "number", i, "recipient", ethRecipient, "resourceId", ctx.EthEthErc20ResourceId.Hex(), "amount", amountPerTest, "from", ctx.ethB.Opts.From, "handler", ctx.ethB.BaseContracts.ERC20HandlerAddress)
-			eth.CreateErc20Deposit(t, client.Client, client.Opts, EthAChainId, ethRecipient.Bytes(), amountPerTest.Int, ctx.ethB.BaseContracts, ctx.EthEthErc20ResourceId)
-
-			time.Sleep(txInterval)
-		})
 	}
 }
