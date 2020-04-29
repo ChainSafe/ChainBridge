@@ -213,5 +213,3 @@ func (_IERCHandler *IERCHandlerSession) SetResource(arg0 [32]byte, arg1 common.A
 func (_IERCHandler *IERCHandlerTransactorSession) SetResource(arg0 [32]byte, arg1 common.Address) (*types.Transaction, error) {
 	return _IERCHandler.Contract.SetResource(&_IERCHandler.TransactOpts, arg0, arg1)
 }
-
-var RuntimeBytecode = "0x"

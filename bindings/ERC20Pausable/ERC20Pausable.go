@@ -1030,5 +1030,3 @@ func (_ERC20Pausable *ERC20PausableFilterer) ParseUnpaused(log types.Log) (*ERC2
 	}
 	return event, nil
 }
-
-var RuntimeBytecode = "0x"

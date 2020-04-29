@@ -1084,5 +1084,3 @@ func (_ERC721Burnable *ERC721BurnableFilterer) ParseTransfer(log types.Log) (*ER
 	}
 	return event, nil
 }
-
-var RuntimeBytecode = "0x"
