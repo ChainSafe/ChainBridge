@@ -129,7 +129,7 @@ func deployBridge(opts *bind.TransactOpts, client *ethclient.Client, chainID uin
 		return ZeroAddress, err
 	}
 
-	bridgeAddr, _, _, err := bridge.DeployBridge(opts, client, chainID, relayerAddrs, initialRelayerThreshold)
+	bridgeAddr, _, _, err := bridge.DeployBridge(opts, client, chainID, relayerAddrs, initialRelayerThreshold, big.NewInt(0))
 	if err != nil {
 		return ZeroAddress, err
 	}

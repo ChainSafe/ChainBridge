@@ -23,6 +23,7 @@ import (
 )
 
 var BlockRetryInterval = time.Second * 2
+var BlockRetryLimit = 3
 
 type ActiveSubscription struct {
 	ch  <-chan ethtypes.Log
@@ -75,31 +76,51 @@ func (l *listener) start() error {
 	return nil
 }
 
-//pollBlocks continously check the blocks for subscription logs, and sends messages to the router if logs are encountered
-// stops where there are no subscriptions, and sleeps if we are at the current block
+// pollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
+// Polling begins at the block defined in `l.cfg.startBlock`. Failed attempts to fetch the latest block or parse
+// a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *listener) pollBlocks() error {
 	l.log.Debug("Polling Blocks...")
 	var latestBlock = l.cfg.startBlock
+	var retry = BlockRetryLimit
 	for {
-		currBlock, err := l.conn.conn.BlockByNumber(l.conn.ctx, nil)
-		if err != nil {
-			return fmt.Errorf("unable to get latest block: %s", err)
+		// No more retries, goto next block
+		if retry == 0 {
+			latestBlock.Add(latestBlock, big.NewInt(1))
+			retry = BlockRetryLimit
 		}
-		if currBlock.Number().Cmp(latestBlock) < 0 {
+
+		currBlock, err := l.conn.conn.HeaderByNumber(l.conn.ctx, nil)
+		if err != nil {
+			l.log.Error("Unable to get latest block", "block", "err", err)
+			retry--
 			time.Sleep(BlockRetryInterval)
 			continue
 		}
 
-		err = l.getDepositEventsForBlock(latestBlock)
-		if err != nil {
-			return err
+		// Sleep if the current block > latest
+		if currBlock.Number.Cmp(latestBlock) == -1 {
+			time.Sleep(BlockRetryInterval)
+			continue
 		}
 
+		// Parse out events
+		err = l.getDepositEventsForBlock(latestBlock)
+		if err != nil {
+			l.log.Error("Failed to get events for block", "block", latestBlock, "err", err)
+			retry--
+			continue
+		}
+
+		// Write to block store. Not a critical operation, no need to retry
 		err = l.blockstore.StoreBlock(latestBlock)
 		if err != nil {
-			return err
+			l.log.Error("Failed to write latest block to blockstore", "block", latestBlock, "err", err)
 		}
+
+		// Goto next block and reset retry counter
 		latestBlock.Add(latestBlock, big.NewInt(1))
+		retry = BlockRetryLimit
 	}
 }
 
