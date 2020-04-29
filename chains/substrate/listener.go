@@ -139,19 +139,19 @@ func (l *listener) processEvents(hash types.Hash) error {
 // handleEvents calls the associated handler for all registered event types
 func (l *listener) handleEvents(evts Events) {
 	if l.subscriptions[FungibleTransfer] != nil {
-		for _, evt := range evts.Bridge_FungibleTransfer {
+		for _, evt := range evts.ChainBridge_FungibleTransfer {
 			l.log.Trace("Handling FungibleTransfer event")
 			l.submitMessage(l.subscriptions[FungibleTransfer](evt, l.log))
 		}
 	}
 	if l.subscriptions[NonFungibleTransfer] != nil {
-		for _, evt := range evts.Bridge_NonFungibleTransfer {
+		for _, evt := range evts.ChainBridge_NonFungibleTransfer {
 			l.log.Trace("Handling NonFungibleTransfer event")
 			l.submitMessage(l.subscriptions[NonFungibleTransfer](evt, l.log))
 		}
 	}
 	if l.subscriptions[GenericTransfer] != nil {
-		for _, evt := range evts.Bridge_GenericTransfer {
+		for _, evt := range evts.ChainBridge_GenericTransfer {
 			l.log.Trace("Handling GenericTransfer event")
 			l.submitMessage(l.subscriptions[GenericTransfer](evt, l.log))
 		}

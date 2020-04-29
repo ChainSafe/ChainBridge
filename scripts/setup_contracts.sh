@@ -4,7 +4,7 @@
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
 CONTRACTS_BRANCH="master"
-CONTRACTS_COMMIT="762bb997f4582bd913b495fc0baf2e9d32b414a8"
+CONTRACTS_COMMIT="ccbf5ca24c428f194125641ce5d4f66ad8f5f8e7"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 

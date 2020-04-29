@@ -97,8 +97,8 @@ func (c *Connection) subscribeToEvent(query eth.FilterQuery) (*ActiveSubscriptio
 	}, nil
 }
 
-// PendingNonceAt returns the pending nonce of the given account and the given block
-func (c *Connection) PendingNonceAt(account [20]byte) (*Nonce, error) {
+// pendingNonceAt returns the pending nonce of the given account and the given block
+func (c *Connection) pendingNonceAt(account [20]byte) (*Nonce, error) {
 	c.nonceLock.Lock()
 	nonce, err := c.conn.PendingNonceAt(c.ctx, ethcommon.Address(account))
 	if err != nil {
@@ -112,14 +112,13 @@ func (c *Connection) PendingNonceAt(account [20]byte) (*Nonce, error) {
 	}, nil
 }
 
-// NonceAt returns the nonce of the given account and the given block
-func (c *Connection) NonceAt(account [20]byte, blockNum *big.Int) (uint64, error) {
-	return c.conn.NonceAt(c.ctx, ethcommon.Address(account), blockNum)
-}
-
-// LatestBlock returns the latest block from the current chain
-func (c *Connection) LatestBlock() (*ethtypes.Block, error) {
-	return c.conn.BlockByNumber(c.ctx, nil)
+// latestBlock returns the latest block from the current chain
+func (c *Connection) latestBlock() (*big.Int, error) {
+	block, err := c.conn.BlockByNumber(c.ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	return block.Number(), nil
 }
 
 // newTransactOpts builds the TransactOpts for the connection's keypair.
@@ -127,7 +126,7 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 	privateKey := c.kp.PrivateKey()
 	address := ethcrypto.PubkeyToAddress(privateKey.PublicKey)
 
-	nonce, err := c.PendingNonceAt(address)
+	nonce, err := c.pendingNonceAt(address)
 	if err != nil {
 		return nil, nil, err
 	}
