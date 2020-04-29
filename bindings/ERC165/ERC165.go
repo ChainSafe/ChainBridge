@@ -197,5 +197,3 @@ func (_ERC165 *ERC165Session) SupportsInterface(interfaceId [4]byte) (bool, erro
 func (_ERC165 *ERC165CallerSession) SupportsInterface(interfaceId [4]byte) (bool, error) {
 	return _ERC165.Contract.SupportsInterface(&_ERC165.CallOpts, interfaceId)
 }
-
-var RuntimeBytecode = "0x"

@@ -192,5 +192,3 @@ func (_IGenericHandler *IGenericHandlerSession) SetResource(arg0 [32]byte, arg1 
 func (_IGenericHandler *IGenericHandlerTransactorSession) SetResource(arg0 [32]byte, arg1 common.Address, arg2 [4]byte, arg3 [4]byte) (*types.Transaction, error) {
 	return _IGenericHandler.Contract.SetResource(&_IGenericHandler.TransactOpts, arg0, arg1, arg2, arg3)
 }
-
-var RuntimeBytecode = "0x"

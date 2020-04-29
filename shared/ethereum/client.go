@@ -11,13 +11,12 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-
 const DefaultGasLimit = 6721975
 const DefaultGasPrice = 20000000000
 
 type Client struct {
-	Client *ethclient.Client
-	Opts *bind.TransactOpts
+	Client   *ethclient.Client
+	Opts     *bind.TransactOpts
 	CallOpts *bind.CallOpts
 }
 
@@ -34,17 +33,17 @@ func NewClient(endpoint string, kp *secp256k1.Keypair) (*Client, error) {
 		return nil, err
 	}
 	opts := bind.NewKeyedTransactor(kp.PrivateKey())
-	opts.Nonce = big.NewInt(int64(nonce - 1))        // -1 since we always increment before calling
-	opts.Value = big.NewInt(0)                       // in wei
-	opts.GasLimit = uint64(DefaultGasLimit) // in units
+	opts.Nonce = big.NewInt(int64(nonce - 1)) // -1 since we always increment before calling
+	opts.Value = big.NewInt(0)                // in wei
+	opts.GasLimit = uint64(DefaultGasLimit)   // in units
 	opts.GasPrice = big.NewInt(DefaultGasPrice)
 	opts.Context = ctx
 
 	return &Client{
-		Client:   client,
-		Opts:     opts,
+		Client: client,
+		Opts:   opts,
 		CallOpts: &bind.CallOpts{
-			From:        opts.From,
+			From: opts.From,
 		},
 	}, nil
 }

@@ -391,5 +391,3 @@ func (_Ownable *OwnableFilterer) ParseOwnershipTransferred(log types.Log) (*Owna
 	}
 	return event, nil
 }
-
-var RuntimeBytecode = "0x"

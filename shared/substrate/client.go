@@ -125,8 +125,8 @@ func (c *Client) NewRegisterResourceCall(id msg.ResourceId, method string) (type
 	return c.NewSudoCall(call)
 }
 
-func (c *Client) NewNativeTransferCall(amount types.U128, recipient types.AccountID, destId msg.ChainId) (types.Call, error) {
-	return types.NewCall(c.Meta, string(ExampleTransferMethod), amount, recipient, types.U8(destId))
+func (c *Client) NewNativeTransferCall(amount types.U128, recipient []byte, destId msg.ChainId) (types.Call, error) {
+	return types.NewCall(c.Meta, string(ExampleTransferNativeMethod), amount, recipient, types.U8(destId))
 }
 
 // Utility methods

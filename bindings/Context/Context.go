@@ -171,5 +171,3 @@ func (_Context *ContextTransactorRaw) Transfer(opts *bind.TransactOpts) (*types.
 func (_Context *ContextTransactorRaw) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error) {
 	return _Context.Contract.contract.Transact(opts, method, params...)
 }
-
-var RuntimeBytecode = "0x"

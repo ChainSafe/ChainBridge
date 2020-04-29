@@ -1355,5 +1355,3 @@ func (_ERC721Pausable *ERC721PausableFilterer) ParseUnpaused(log types.Log) (*ER
 	}
 	return event, nil
 }
-
-var RuntimeBytecode = "0x"

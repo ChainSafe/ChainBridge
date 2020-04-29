@@ -30,6 +30,7 @@ import (
 )
 
 var TestTimeout = time.Second * 30
+
 const EthAEndpoint = "ws://localhost:8545"
 const EthBEndpoint = "ws://localhost:8546"
 
@@ -38,6 +39,7 @@ var log = log15.New("e2e", "ethereum")
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var CharlieKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 var DaveKp = keystore.TestKeyRing.EthereumKeys[keystore.DaveKey]
+var EveKp = keystore.TestKeyRing.EthereumKeys[keystore.EveKey]
 
 type TestContext struct {
 	BaseContracts *utils.DeployedContracts // All the contracts required for the bridge
