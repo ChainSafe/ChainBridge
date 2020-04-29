@@ -9,7 +9,6 @@ import (
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	log "github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
@@ -52,7 +51,7 @@ func constructGenericProposalData(resourceId msg.ResourceId, metadata []byte) []
 func (w *writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
 	prop, err := w.bridgeContract.GetProposal(&bind.CallOpts{}, uint8(destId), nonce.Big())
 	if err != nil {
-		log.Error("Failed to check deposit proposal", "err", err)
+		w.log.Error("Failed to check deposit proposal", "err", err)
 		return false
 	}
 	return prop.Status >= PassedStatus // Passed (2) or Transferred (3)
@@ -116,7 +115,7 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 		return true
 	}
 	// watch for execution event
-	w.watchThenExecute(m, w.cfg.erc721HandlerContract, data)
+	go w.watchThenExecute(m, w.cfg.erc721HandlerContract, data)
 
 	w.log.Debug("Submitting VoteProposal for ERC721", "source", m.Source, "depositNonce", m.DepositNonce)
 
@@ -178,18 +177,8 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 
 func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []byte) {
 	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
-	var latestBlock *big.Int
-	var err error
-	latestBlock, err = w.conn.latestBlock()
-	if err != nil {
-		// Fallback to start back
-		latestBlock = w.cfg.startBlock
-	} else {
-		// Ensure we don't miss the event
-		latestBlock.Sub(latestBlock, big.NewInt(1))
-	}
 
-	query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, latestBlock, nil)
+	query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, w.cfg.startBlock, nil)
 	eventSubscription, err := w.conn.subscribeToEvent(query)
 	if err != nil {
 		w.log.Error("Failed to subscribe to finalization event", "err", err)
