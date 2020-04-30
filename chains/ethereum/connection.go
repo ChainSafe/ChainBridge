@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math/big"
 	"sync"
+	"time"
 
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
@@ -114,11 +115,11 @@ func (c *Connection) pendingNonceAt(account [20]byte) (*Nonce, error) {
 
 // latestBlock returns the latest block from the current chain
 func (c *Connection) latestBlock() (*big.Int, error) {
-	block, err := c.conn.BlockByNumber(c.ctx, nil)
+	header, err := c.conn.HeaderByNumber(c.ctx, nil)
 	if err != nil {
 		return nil, err
 	}
-	return block.Number(), nil
+	return header.Number, nil
 }
 
 // newTransactOpts builds the TransactOpts for the connection's keypair.
@@ -152,4 +153,22 @@ func (c *Connection) ensureHasBytecode(addr ethcommon.Address) error {
 		return fmt.Errorf("no bytecode found at %s", addr.Hex())
 	}
 	return nil
+}
+
+// waitForBlock will poll for the block number until the current block is equal or greater than
+func (c *Connection) waitForBlock(block *big.Int) error {
+	for {
+		currBlock, err := c.latestBlock()
+		if err != nil {
+			return err
+		}
+
+		// Equal or greater than target
+		if currBlock.Cmp(block) >= 0 {
+			return nil
+		}
+
+		time.Sleep(BlockRetryInterval)
+		continue
+	}
 }
