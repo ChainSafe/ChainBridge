@@ -9,7 +9,6 @@ import (
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	log "github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
@@ -52,7 +51,7 @@ func constructGenericProposalData(resourceId msg.ResourceId, metadata []byte) []
 func (w *writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
 	prop, err := w.bridgeContract.GetProposal(&bind.CallOpts{}, uint8(destId), nonce.Big())
 	if err != nil {
-		log.Error("Failed to check deposit proposal", "err", err)
+		w.log.Error("Failed to check deposit proposal", "err", err)
 		return false
 	}
 	return prop.Status >= PassedStatus // Passed (2) or Transferred (3)
@@ -77,7 +76,7 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 		return true
 	}
 	// watch for execution event
-	go w.watchAndExecute(m, w.cfg.erc20HandlerContract, data)
+	go w.watchThenExecute(m, w.cfg.erc20HandlerContract, data)
 
 	w.log.Debug("Submitting CreateDepositProposal for ERC20", "source", m.Source, "depositNonce", m.DepositNonce)
 
@@ -116,7 +115,7 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 		return true
 	}
 	// watch for execution event
-	go w.watchAndExecute(m, w.cfg.erc721HandlerContract, data)
+	go w.watchThenExecute(m, w.cfg.erc721HandlerContract, data)
 
 	w.log.Debug("Submitting VoteProposal for ERC721", "source", m.Source, "depositNonce", m.DepositNonce)
 
@@ -157,7 +156,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	}
 
 	// watch for execution event
-	go w.watchAndExecute(m, w.cfg.genericHandlerContract, data)
+	go w.watchThenExecute(m, w.cfg.genericHandlerContract, data)
 
 	w.log.Trace("Submitting VoteProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
 	_, err = w.bridgeContract.VoteProposal(
@@ -176,9 +175,9 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	return true
 }
 
-func (w *writer) watchAndExecute(m msg.Message, handler common.Address, data []byte) {
+func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []byte) {
 	w.log.Trace("Watching for finalization event", "depositNonce", m.DepositNonce)
-	// TODO: Skip existing blocks
+
 	query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, w.cfg.startBlock, nil)
 	eventSubscription, err := w.conn.subscribeToEvent(query)
 	if err != nil {

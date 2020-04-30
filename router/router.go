@@ -29,10 +29,10 @@ func NewRouter(log log.Logger) *Router {
 
 // Send passes a message to the destination Writer if it exists
 func (r *Router) Send(msg msg.Message) error {
-	r.lock.RLock()
-	defer r.lock.RUnlock()
+	r.lock.Lock()
+	defer r.lock.Unlock()
 
-	r.log.Trace("Routing message", "src", msg.Source, "dest", msg.Destination)
+	r.log.Trace("Routing message", "src", msg.Source, "dest", msg.Destination, "nonce", msg.DepositNonce, "rId", msg.ResourceId.Hex())
 	w := r.registry[msg.Destination]
 	if w == nil {
 		return fmt.Errorf("unknown destination chainId: %d", msg.Destination)

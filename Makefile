@@ -71,7 +71,7 @@ test:
 
 test-e2e:
 	@echo "  >  \033[32mRunning e2e tests...\033[0m "
-	go test ./e2e
+	go test -v ./e2e
 
 test-eth:
 	@echo "  >  \033[32mRunning ethereum tests...\033[0m "

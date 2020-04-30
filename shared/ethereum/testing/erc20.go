@@ -31,6 +31,13 @@ func Erc20DeployMint(t *testing.T, client *ethclient.Client, opts *bind.Transact
 	return addr
 }
 
+func Erc20Mint(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Contract, recipient common.Address, amount *big.Int) {
+	err := utils.Erc20Mint(client, opts, erc20Contract, recipient, amount)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func Erc20Approve(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, erc20Contract, recipient common.Address, amount *big.Int) {
 	err := utils.Erc20Approve(client, opts, erc20Contract, recipient, amount)
 	if err != nil {

@@ -110,3 +110,11 @@ func GetDepositNonce(t *testing.T, client *utils.Client, chain msg.ChainId) uint
 	}
 	return count
 }
+
+func NewNativeTransferCall(t *testing.T, client *utils.Client, amount types.U128, recipient []byte, destId msg.ChainId) types.Call {
+	call, err := client.NewNativeTransferCall(amount, recipient, destId)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return call
+}

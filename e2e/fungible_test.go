@@ -40,7 +40,7 @@ func testErc20ToSubstrate(t *testing.T, ctx *testContext) {
 func testSubstrateToErc20(t *testing.T, ctx *testContext) {
 	numberOfTxs := 5
 	expectedBalance := big.NewInt(0)
-	recipient := eth.CharlieAddr
+	recipient := eth.CharlieKp.CommonAddress()
 	ethtest.Erc20AssertBalance(t, ctx.ethA.Client, expectedBalance, ctx.ethA.TestContracts.Erc20Sub, recipient)
 	nonce := subtest.GetDepositNonce(t, ctx.subClient, EthAChainId) + 1
 
@@ -67,7 +67,7 @@ func testSubstrateToErc20(t *testing.T, ctx *testContext) {
 }
 
 func testErc20ToErc20(t *testing.T, ctx *testContext) {
-	recipient := eth.CharlieAddr
+	recipient := eth.CharlieKp.CommonAddress()
 	expectedBalance := big.NewInt(0)
 	nonce := ethtest.GetDepositNonce(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, EthBChainId) + 1
 
@@ -97,10 +97,12 @@ func testErc20ToErc20(t *testing.T, ctx *testContext) {
 func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 	// Transfer params
 	numberOfTxs := 5
-	subRecipient := sub.DaveKp.AsKeyringPair().PublicKey
-	ethRecipient := eth.AliceAddr
+	subRecipient := sub.AliceKp.AsKeyringPair().PublicKey
+	ethRecipient := eth.AliceKp.CommonAddress()
 
 	expectedSubBalance := subtest.BalanceOf(t, ctx.subClient, subRecipient)
+	feePerTx := big.NewInt(510196)
+
 	initialEthBalance := ethtest.Erc20BalanceOf(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
 	expectedEthBalance := ethtest.Erc20BalanceOf(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
 	nonce := ethtest.GetDepositNonce(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, SubChainId) + 1
@@ -118,7 +120,9 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			nonce++
 			// Verify balance
 			expectedSubBalance.Add(expectedSubBalance, amount)
+			expectedSubBalance.Sub(expectedSubBalance, feePerTx)
 			subtest.AssertBalanceOf(t, ctx.subClient, subRecipient, expectedSubBalance)
+
 			expectedEthBalance.Sub(expectedEthBalance, amount)
 			ethtest.Erc20AssertBalance(t, ctx.ethA.Client, expectedEthBalance, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
 			log.Info("Asserted balance", "owner", ethRecipient, "balance", expectedEthBalance.String())
@@ -131,6 +135,8 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 
 	// Repeat the process in the opposite direction
 	expectedEthBalance = ethtest.Erc20BalanceOf(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
+	expectedSubBalance = subtest.BalanceOf(t, ctx.subClient, subRecipient)
+	feePerTx = big.NewInt(10143)
 	nonce = subtest.GetDepositNonce(t, ctx.subClient, EthAChainId) + 1
 
 	log.Info("Asserted resulting balance", "owner", ethRecipient, "balance", expectedEthBalance.String())
@@ -151,9 +157,10 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			expectedEthBalance.Add(expectedEthBalance, amount.Int)
 			ethtest.Erc20AssertBalance(t, ctx.ethA.Client, expectedEthBalance, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
 			log.Info("Asserted balance", "owner", ethRecipient, "balance", expectedEthBalance.String())
-			// TODO: Presently unable to take gas costs into consideration.
-			//expectedSubBalance.Add(expectedSubBalance, big.NewInt(int64(amount)))
-			//subtest.AssertBalanceOf(t, ctx.subClient, subRecipient, expectedSubBalance)
+
+			expectedSubBalance.Sub(expectedSubBalance, amount.Int)
+			expectedSubBalance.Sub(expectedSubBalance, feePerTx)
+			subtest.AssertBalanceOf(t, ctx.subClient, subRecipient, expectedSubBalance)
 		})
 		if !ok {
 			return
