@@ -16,7 +16,7 @@ import (
 )
 
 // Number of blocks to wait for an finalization event
-var ExecuteBlockWatchLimit = 10
+var ExecuteBlockWatchLimit = 50
 
 func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipient []byte) []byte {
 	var data []byte
@@ -231,7 +231,6 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 				return
 			} else {
 				w.log.Trace("Ignoring finalization event", "source", sourceId, "dest", destId, "nonce", depositNonce)
-				w.log.Trace("Expected", "source", m.Source, "dest", m.Destination, "nonce", uint64(m.DepositNonce))
 			}
 		}
 
