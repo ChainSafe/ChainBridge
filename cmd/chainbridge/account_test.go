@@ -23,6 +23,9 @@ import (
 var testKeystoreDir = "./test_datadir/"
 var testPassword = []byte("1234")
 
+var GethKeystore struct {
+}
+
 // newTestContext creates a cli context for a test given a set of flags and values
 func newTestContext(description string, flags []string, values []interface{}) (*cli.Context, error) {
 	set := flag.NewFlagSet(description, 0)
@@ -77,7 +80,20 @@ func TestAccountCommands(t *testing.T) {
 	testApp := cli.NewApp()
 	testApp.Writer = ioutil.Discard
 
+	keypath := "."
+
+	srFile, err := generateKeypair("sr25519", keypath, testPassword)
+	if err != nil {
+		t.Fatal(err)
+	}
+	secpFile, err := generateKeypair("secp256k1", keypath, testPassword)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	defer os.RemoveAll(testKeystoreDir)
+	defer os.RemoveAll(srFile)
+	defer os.RemoveAll(secpFile)
 
 	testcases := []struct {
 		description string
@@ -97,10 +113,22 @@ func TestAccountCommands(t *testing.T) {
 			[]interface{}{true, "abc"},
 			handleGenerateCmd,
 		},
+		// {
+		// 	"Test chainbridge account import --secp256k1 --password \"abc\" " + secpFile,
+		// 	[]string{"secp256k1", "password"},
+		// 	[]interface{}{true, "abc"},
+		// 	handleImportCmd,
+		// },
 		{
 			"Test chainbridge account import --secp256k1 --password \"abc\" --privateKey 000000000000000000000000000000000000000000000000000000416c696365",
 			[]string{"secp256k1", "password", "privateKey"},
 			[]interface{}{true, "abc", "000000000000000000000000000000000000000000000000000000416c696365"},
+			handleImportCmd,
+		},
+		{
+			"Test chainbridge account import --sr25519 --password \"abc\" --privateKey 000000000000000000000000000000000000000000000000000000416c696365",
+			[]string{"sr25519", "password", "privateKey"},
+			[]interface{}{true, "abc", "0xfa67e5b3c421ac1b9e3d59a74f09fa18f9ad41ec381ba95e5087cb164c03121b"},
 			handleImportCmd,
 		},
 		{
@@ -116,12 +144,47 @@ func TestAccountCommands(t *testing.T) {
 		t.Run(c.description, func(t *testing.T) {
 			ctx, err := newTestContext(c.description, c.flags, c.values)
 			require.Nil(t, err)
-			keypath := "../../"
+			keypath := testKeystoreDir
 			dh := dataHandler{datadir: keypath}
 			err = c.function(ctx, &dh)
 			require.Nil(t, err)
 		})
 	}
+}
+
+func TestGetDatadir(t *testing.T) {
+	description := "Testing Datadir"
+	flags := []string{}
+	values := []interface{}{}
+
+	ctx, err := newTestContext(description, flags, values)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = getDataDir(ctx)
+	if err == nil {
+		t.Fatal("No provided datadir should return error")
+	}
+
+	flags = []string{"keystore"}
+	values = []interface{}{"../.."}
+	ctx, err = newTestContext(description, flags, values)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = getDataDir(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+}
+
+func TestWrapHandler(t *testing.T) {
+
+	wrapHandler(handleListCmd)
+
 }
 
 func TestGenerateKey_NoType(t *testing.T) {
