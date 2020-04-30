@@ -51,7 +51,7 @@ var tests = []test{
 	{"SubstrateHashToGenericHandler", testSubstrateHashToGenericHandler},
 	{"Eth to Eth HashToGenericHandler", testEthereumHashToGenericHandler},
 
-	{"Three chain in parallet", testThreeChainsParallel},
+	{"Three chain with parallel submission", testThreeChainsParallel},
 }
 
 type testContext struct {
