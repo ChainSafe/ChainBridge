@@ -60,38 +60,36 @@ func (w *writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
 func (w *writer) createErc20Proposal(m msg.Message) bool {
 	w.log.Info("Creating erc20 proposal")
 
-	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
-	if err != nil {
-		w.log.Error("Failed to build transaction opts", "err", err)
-		return false
-	}
-
 	data := constructErc20ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte))
 	hash := utils.Hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 
 	// Check if proposal has passed and skip if Passed or Transferred
 	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
 		w.log.Debug("Proposal complete, not voting")
-		nonce.lock.Unlock()
 		return true
 	}
 	// watch for execution event
 	go w.watchThenExecute(m, w.cfg.erc20HandlerContract, data)
 
-	w.log.Debug("Submitting CreateDepositProposal for ERC20", "source", m.Source, "depositNonce", m.DepositNonce)
+	err := w.lockAndUpdateNonce()
+	if err != nil {
+		w.log.Error("Failed to update nonce", "err", err)
+		return false
+	}
 
+	w.log.Debug("Submitting CreateDepositProposal for ERC20", "source", m.Source, "depositNonce", m.DepositNonce)
 	_, err = w.bridgeContract.VoteProposal(
-		opts,
+		w.opts,
 		uint8(m.Source),
 		m.DepositNonce.Big(),
 		hash,
 	)
+	w.unlockNonce()
 
 	if err != nil {
 		w.log.Error("Failed to submit createDepositProposal transaction", "err", err)
 		return false
 	}
-	nonce.lock.Unlock()
 
 	return true
 }
@@ -99,50 +97,42 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 func (w *writer) createErc721Proposal(m msg.Message) bool {
 	w.log.Info("Creating erc721 proposal")
 
-	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
-	if err != nil {
-		w.log.Error("Failed to build transaction opts", "err", err)
-		return false
-	}
-
 	data := constructErc721ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte), m.Payload[2].([]byte))
 	hash := utils.Hash(append(w.cfg.erc721HandlerContract.Bytes(), data...))
 
 	// Check if proposal has passed and skip if Passed or Transferred
 	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
 		w.log.Debug("Proposal complete, not voting")
-		nonce.lock.Unlock()
 		return true
 	}
 	// watch for execution event
 	go w.watchThenExecute(m, w.cfg.erc721HandlerContract, data)
 
-	w.log.Debug("Submitting VoteProposal for ERC721", "source", m.Source, "depositNonce", m.DepositNonce)
+	err := w.lockAndUpdateNonce()
+	if err != nil {
+		w.log.Error("Failed to update nonce", "err", err)
+		return false
+	}
 
+	w.log.Debug("Submitting VoteProposal for ERC721", "source", m.Source, "depositNonce", m.DepositNonce)
 	_, err = w.bridgeContract.VoteProposal(
-		opts,
+		w.opts,
 		uint8(m.Source),
 		m.DepositNonce.Big(),
 		hash,
 	)
+	w.unlockNonce()
 
 	if err != nil {
 		w.log.Error("Failed to submit VoteProposal transaction", "err", err)
 		return false
 	}
-	nonce.lock.Unlock()
 
 	return true
 }
 
 func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	w.log.Info("Creating generic proposal", "handler", w.cfg.genericHandlerContract)
-
-	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
-	if err != nil {
-		w.log.Error("Failed to build transaction opts", "err", err)
-		return false
-	}
 
 	metadata := m.Payload[0].([]byte)
 	data := constructGenericProposalData(m.ResourceId, metadata)
@@ -151,26 +141,31 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 
 	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
 		w.log.Debug("Proposal complete, not voting")
-		nonce.lock.Unlock()
 		return true
 	}
 
 	// watch for execution event
 	go w.watchThenExecute(m, w.cfg.genericHandlerContract, data)
 
+	err := w.lockAndUpdateNonce()
+	if err != nil {
+		w.log.Error("Failed to update nonce", "err", err)
+		return false
+	}
+
 	w.log.Trace("Submitting VoteProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
 	_, err = w.bridgeContract.VoteProposal(
-		opts,
+		w.opts,
 		uint8(m.Source),
 		m.DepositNonce.Big(),
 		dataHash,
 	)
+	w.unlockNonce()
 
 	if err != nil {
 		w.log.Error("Failed to submit VoteProposal transaction", "err", err)
 		return false
 	}
-	nonce.lock.Unlock()
 
 	return true
 }
@@ -210,22 +205,20 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 }
 
 func (w *writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
-	w.log.Info("Executing proposal", "handler", handler, "data", fmt.Sprintf("%x", data))
-
-	opts, nonce, err := w.conn.newTransactOpts(big.NewInt(0), w.gasLimit, w.gasPrice)
+	err := w.lockAndUpdateNonce()
 	if err != nil {
-		w.log.Error("Failed to build transaction opts", "err", err)
+		w.log.Error("Failed to update nonce", "err", err)
 		return
 	}
-	defer nonce.lock.Unlock()
-
+	w.log.Info("Executing proposal", "handler", handler, "data", fmt.Sprintf("%x", data))
 	_, err = w.bridgeContract.ExecuteProposal(
-		opts,
+		w.opts,
 		uint8(m.Source),
 		m.DepositNonce.Big(),
 		handler,
 		data,
 	)
+	w.unlockNonce()
 
 	if err != nil {
 		w.log.Warn("Failed to execute proposal, may already be complete", "err", err)
