@@ -191,3 +191,21 @@ func Erc20GetResourceId(client *ethclient.Client, handler common.Address, rId ms
 
 	return addr, nil
 }
+
+func Erc20Mint(client *ethclient.Client, opts *bind.TransactOpts, erc20Address, recipient common.Address, amount *big.Int) error {
+	err := UpdateNonce(opts, client)
+	if err != nil {
+		return err
+	}
+
+	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Address, client)
+	if err != nil {
+		return err
+	}
+
+	_, err = instance.Mint(opts, recipient, amount)
+	if err != nil {
+		return err
+	}
+	return nil
+}

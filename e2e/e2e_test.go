@@ -32,9 +32,6 @@ const EthAChainId = msg.ChainId(0)
 const SubChainId = msg.ChainId(1)
 const EthBChainId = msg.ChainId(2)
 
-const EthAEndpoint = "ws://localhost:8545"
-const EthBEndpoint = "ws://localhost:8546"
-
 var logFiles = []string{}
 
 type test struct {
@@ -53,6 +50,8 @@ var tests = []test{
 
 	{"SubstrateHashToGenericHandler", testSubstrateHashToGenericHandler},
 	{"Eth to Eth HashToGenericHandler", testEthereumHashToGenericHandler},
+
+	{"Three chain with parallel submission", testThreeChainsParallel},
 }
 
 type testContext struct {
@@ -72,7 +71,7 @@ func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *eth
 	// Create logger to write to a file, and store the log file name in global var
 	logger := log.Root().New()
 
-	ethACfg := eth.CreateConfig(name, EthAChainId, contractsA, EthAEndpoint)
+	ethACfg := eth.CreateConfig(name, EthAChainId, contractsA, eth.EthAEndpoint)
 	ethA, err := ethChain.InitializeChain(ethACfg, logger.New("relayer", name, "chain", "ethA"), context.Background())
 	if err != nil {
 		t.Fatal(err)
@@ -84,7 +83,7 @@ func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *eth
 		t.Fatal(err)
 	}
 
-	ethBCfg := eth.CreateConfig(name, EthBChainId, contractsB, EthBEndpoint)
+	ethBCfg := eth.CreateConfig(name, EthBChainId, contractsB, eth.EthBEndpoint)
 	ethB, err := ethChain.InitializeChain(ethBCfg, logger.New("relayer", name, "chain", "ethB"), context.Background())
 	if err != nil {
 		t.Fatal(err)
@@ -151,6 +150,7 @@ func setupFungibleTests(t *testing.T, ctx *testContext) {
 	erc20ContractBEth := ethtest.Erc20DeployMint(t, ctx.ethB.Client, ctx.ethB.Opts, mintAmount)
 	log.Info("Deployed erc20 contract", "address", erc20ContractBEth)
 	ethtest.Erc20AddMinter(t, ctx.ethB.Client, ctx.ethB.Opts, erc20ContractBEth, ctx.ethB.BaseContracts.ERC20HandlerAddress)
+	ethtest.Erc20Approve(t, ctx.ethB.Client, ctx.ethB.Opts, erc20ContractBEth, ctx.ethB.BaseContracts.ERC20HandlerAddress, approveAmount)
 	ethtest.RegisterResource(t, ctx.ethB.Client, ctx.ethB.Opts, ctx.ethB.BaseContracts.BridgeAddress, ctx.ethB.BaseContracts.ERC20HandlerAddress, ethErc20ResourceId, erc20ContractBEth)
 	ethtest.SetBurnable(t, ctx.ethB.Client, ctx.ethB.Opts, ctx.ethB.BaseContracts.BridgeAddress, ctx.ethB.BaseContracts.ERC20HandlerAddress, erc20ContractBEth)
 
@@ -218,8 +218,8 @@ func Test_ThreeRelayers(t *testing.T) {
 	threshold := 3
 
 	// Setup test client connections for each chain
-	ethClientA, optsA := eth.CreateEthClient(t, EthAEndpoint, eth.AliceKp)
-	ethClientB, optsB := eth.CreateEthClient(t, EthBEndpoint, eth.AliceKp)
+	ethClientA, optsA := eth.CreateEthClient(t, eth.EthAEndpoint, eth.AliceKp)
+	ethClientB, optsB := eth.CreateEthClient(t, eth.EthBEndpoint, eth.AliceKp)
 	subClient := subtest.CreateClient(t, sub.AliceKp.AsKeyringPair(), sub.TestSubEndpoint)
 
 	// First lookup the substrate resource IDs
@@ -232,9 +232,9 @@ func Test_ThreeRelayers(t *testing.T) {
 	genericHashResourceId := msg.ResourceIdFromSlice(rawRId[:])
 
 	// Base setup for ethA
-	contractsA := eth.DeployTestContracts(t, EthAEndpoint, EthAChainId, big.NewInt(int64(threshold)))
+	contractsA := eth.DeployTestContracts(t, eth.EthAEndpoint, EthAChainId, big.NewInt(int64(threshold)))
 	// Base setup for ethB ERC20 - handler can mint
-	contractsB := eth.DeployTestContracts(t, EthBEndpoint, EthBChainId, big.NewInt(int64(threshold)))
+	contractsB := eth.DeployTestContracts(t, eth.EthBEndpoint, EthBChainId, big.NewInt(int64(threshold)))
 
 	// Create the initial context, added to in setup functions
 	ctx := &testContext{

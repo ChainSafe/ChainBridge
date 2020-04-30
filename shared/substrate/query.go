@@ -49,7 +49,7 @@ func BalanceOf(client *Client, publicKey []byte) (*big.Int, error) {
 	if err != nil {
 		return nil, err
 	} else if !ok {
-		return nil, fmt.Errorf("no account data")
+		return big.NewInt(0), nil
 	}
 	return acct.Data.Free.Int, nil
 }

@@ -28,7 +28,7 @@ var (
 )
 
 // IERCHandlerABI is the input ABI used to generate the binding from.
-const IERCHandlerABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"setBurnable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"setResource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const IERCHandlerABI = "[{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"resourceID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setResource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setBurnable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountOrTokenID\",\"type\":\"uint256\"}],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // IERCHandler is an auto generated Go binding around an Ethereum contract.
 type IERCHandler struct {
@@ -174,42 +174,63 @@ func (_IERCHandler *IERCHandlerTransactorRaw) Transact(opts *bind.TransactOpts, 
 
 // SetBurnable is a paid mutator transaction binding the contract method 0x07b7ed99.
 //
-// Solidity: function setBurnable(address ) returns()
-func (_IERCHandler *IERCHandlerTransactor) SetBurnable(opts *bind.TransactOpts, arg0 common.Address) (*types.Transaction, error) {
-	return _IERCHandler.contract.Transact(opts, "setBurnable", arg0)
+// Solidity: function setBurnable(address contractAddress) returns()
+func (_IERCHandler *IERCHandlerTransactor) SetBurnable(opts *bind.TransactOpts, contractAddress common.Address) (*types.Transaction, error) {
+	return _IERCHandler.contract.Transact(opts, "setBurnable", contractAddress)
 }
 
 // SetBurnable is a paid mutator transaction binding the contract method 0x07b7ed99.
 //
-// Solidity: function setBurnable(address ) returns()
-func (_IERCHandler *IERCHandlerSession) SetBurnable(arg0 common.Address) (*types.Transaction, error) {
-	return _IERCHandler.Contract.SetBurnable(&_IERCHandler.TransactOpts, arg0)
+// Solidity: function setBurnable(address contractAddress) returns()
+func (_IERCHandler *IERCHandlerSession) SetBurnable(contractAddress common.Address) (*types.Transaction, error) {
+	return _IERCHandler.Contract.SetBurnable(&_IERCHandler.TransactOpts, contractAddress)
 }
 
 // SetBurnable is a paid mutator transaction binding the contract method 0x07b7ed99.
 //
-// Solidity: function setBurnable(address ) returns()
-func (_IERCHandler *IERCHandlerTransactorSession) SetBurnable(arg0 common.Address) (*types.Transaction, error) {
-	return _IERCHandler.Contract.SetBurnable(&_IERCHandler.TransactOpts, arg0)
+// Solidity: function setBurnable(address contractAddress) returns()
+func (_IERCHandler *IERCHandlerTransactorSession) SetBurnable(contractAddress common.Address) (*types.Transaction, error) {
+	return _IERCHandler.Contract.SetBurnable(&_IERCHandler.TransactOpts, contractAddress)
 }
 
 // SetResource is a paid mutator transaction binding the contract method 0xb8fa3736.
 //
-// Solidity: function setResource(bytes32 , address ) returns()
-func (_IERCHandler *IERCHandlerTransactor) SetResource(opts *bind.TransactOpts, arg0 [32]byte, arg1 common.Address) (*types.Transaction, error) {
-	return _IERCHandler.contract.Transact(opts, "setResource", arg0, arg1)
+// Solidity: function setResource(bytes32 resourceID, address contractAddress) returns()
+func (_IERCHandler *IERCHandlerTransactor) SetResource(opts *bind.TransactOpts, resourceID [32]byte, contractAddress common.Address) (*types.Transaction, error) {
+	return _IERCHandler.contract.Transact(opts, "setResource", resourceID, contractAddress)
 }
 
 // SetResource is a paid mutator transaction binding the contract method 0xb8fa3736.
 //
-// Solidity: function setResource(bytes32 , address ) returns()
-func (_IERCHandler *IERCHandlerSession) SetResource(arg0 [32]byte, arg1 common.Address) (*types.Transaction, error) {
-	return _IERCHandler.Contract.SetResource(&_IERCHandler.TransactOpts, arg0, arg1)
+// Solidity: function setResource(bytes32 resourceID, address contractAddress) returns()
+func (_IERCHandler *IERCHandlerSession) SetResource(resourceID [32]byte, contractAddress common.Address) (*types.Transaction, error) {
+	return _IERCHandler.Contract.SetResource(&_IERCHandler.TransactOpts, resourceID, contractAddress)
 }
 
 // SetResource is a paid mutator transaction binding the contract method 0xb8fa3736.
 //
-// Solidity: function setResource(bytes32 , address ) returns()
-func (_IERCHandler *IERCHandlerTransactorSession) SetResource(arg0 [32]byte, arg1 common.Address) (*types.Transaction, error) {
-	return _IERCHandler.Contract.SetResource(&_IERCHandler.TransactOpts, arg0, arg1)
+// Solidity: function setResource(bytes32 resourceID, address contractAddress) returns()
+func (_IERCHandler *IERCHandlerTransactorSession) SetResource(resourceID [32]byte, contractAddress common.Address) (*types.Transaction, error) {
+	return _IERCHandler.Contract.SetResource(&_IERCHandler.TransactOpts, resourceID, contractAddress)
+}
+
+// Withdraw is a paid mutator transaction binding the contract method 0xd9caed12.
+//
+// Solidity: function withdraw(address tokenAddress, address recipient, uint256 amountOrTokenID) returns()
+func (_IERCHandler *IERCHandlerTransactor) Withdraw(opts *bind.TransactOpts, tokenAddress common.Address, recipient common.Address, amountOrTokenID *big.Int) (*types.Transaction, error) {
+	return _IERCHandler.contract.Transact(opts, "withdraw", tokenAddress, recipient, amountOrTokenID)
+}
+
+// Withdraw is a paid mutator transaction binding the contract method 0xd9caed12.
+//
+// Solidity: function withdraw(address tokenAddress, address recipient, uint256 amountOrTokenID) returns()
+func (_IERCHandler *IERCHandlerSession) Withdraw(tokenAddress common.Address, recipient common.Address, amountOrTokenID *big.Int) (*types.Transaction, error) {
+	return _IERCHandler.Contract.Withdraw(&_IERCHandler.TransactOpts, tokenAddress, recipient, amountOrTokenID)
+}
+
+// Withdraw is a paid mutator transaction binding the contract method 0xd9caed12.
+//
+// Solidity: function withdraw(address tokenAddress, address recipient, uint256 amountOrTokenID) returns()
+func (_IERCHandler *IERCHandlerTransactorSession) Withdraw(tokenAddress common.Address, recipient common.Address, amountOrTokenID *big.Int) (*types.Transaction, error) {
+	return _IERCHandler.Contract.Withdraw(&_IERCHandler.TransactOpts, tokenAddress, recipient, amountOrTokenID)
 }
