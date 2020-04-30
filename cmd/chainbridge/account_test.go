@@ -5,6 +5,8 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -14,10 +16,113 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/crypto"
 	"github.com/ChainSafe/ChainBridge/keystore"
+	"github.com/stretchr/testify/require"
+	"github.com/urfave/cli"
 )
 
 var testKeystoreDir = "./test_datadir/"
 var testPassword = []byte("1234")
+
+// newTestContext creates a cli context for a test given a set of flags and values
+func newTestContext(description string, flags []string, values []interface{}) (*cli.Context, error) {
+	set := flag.NewFlagSet(description, 0)
+	for i := range values {
+		switch v := values[i].(type) {
+		case bool:
+			set.Bool(flags[i], v, "")
+		case string:
+			set.String(flags[i], v, "")
+		case uint:
+			set.Uint(flags[i], v, "")
+		default:
+			return nil, fmt.Errorf("unexpected cli value type: %T", values[i])
+		}
+	}
+
+	ctx := cli.NewContext(nil, set, nil)
+
+	for i := range values {
+		switch v := values[i].(type) {
+		case bool:
+			if v {
+				err := ctx.Set(flags[i], "true")
+				if err != nil {
+					return nil, fmt.Errorf("failed to set cli flag: %T", flags[i])
+				}
+			} else {
+				err := ctx.Set(flags[i], "false")
+				if err != nil {
+					return nil, fmt.Errorf("failed to set cli flag: %T", flags[i])
+				}
+			}
+		case string:
+			err := ctx.Set(flags[i], v)
+			if err != nil {
+				return nil, fmt.Errorf("failed to set cli flag: %T", flags[i])
+			}
+		case uint:
+			err := ctx.Set(flags[i], string(v))
+			if err != nil {
+				return nil, fmt.Errorf("failed to set cli flag: %T", flags[i])
+			}
+		default:
+			return nil, fmt.Errorf("unexpected cli value type: %T", values[i])
+		}
+	}
+
+	return ctx, nil
+}
+
+func TestAccountCommands(t *testing.T) {
+	testApp := cli.NewApp()
+	testApp.Writer = ioutil.Discard
+
+	defer os.RemoveAll(testKeystoreDir)
+
+	testcases := []struct {
+		description string
+		flags       []string
+		values      []interface{}
+		function    func(*cli.Context, *dataHandler) error
+	}{
+		{
+			"Test chainbridge account generate --secp256k1 --password \"abc\"",
+			[]string{"secp256k1", "password"},
+			[]interface{}{true, "abc"},
+			handleGenerateCmd,
+		},
+		{
+			"Test chainbridge account generate --sr25519 --password \"abc\"",
+			[]string{"sr25519", "password"},
+			[]interface{}{true, "abc"},
+			handleGenerateCmd,
+		},
+		{
+			"Test chainbridge account import --secp256k1 --password \"abc\" --privateKey 000000000000000000000000000000000000000000000000000000416c696365",
+			[]string{"secp256k1", "password", "privateKey"},
+			[]interface{}{true, "abc", "000000000000000000000000000000000000000000000000000000416c696365"},
+			handleImportCmd,
+		},
+		{
+			"Test chainbridge account list",
+			[]string{},
+			[]interface{}{},
+			handleListCmd,
+		},
+	}
+
+	for _, c := range testcases {
+		c := c // bypass scopelint false positive
+		t.Run(c.description, func(t *testing.T) {
+			ctx, err := newTestContext(c.description, c.flags, c.values)
+			require.Nil(t, err)
+			keypath := "../../"
+			dh := dataHandler{datadir: keypath}
+			err = c.function(ctx, &dh)
+			require.Nil(t, err)
+		})
+	}
+}
 
 func TestGenerateKey_NoType(t *testing.T) {
 	keyfile, err := generateKeypair("", testKeystoreDir, testPassword)

@@ -100,6 +100,12 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 		}
 
 		_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag, password)
+	} else {
+		if keyimport := ctx.Args().First(); keyimport != "" {
+			_, err = importKey(keyimport, dHandler.datadir)
+		} else {
+			return fmt.Errorf("Must provide a key to import.")
+		}
 	}
 
 	if err != nil {
