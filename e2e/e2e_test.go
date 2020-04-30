@@ -40,16 +40,16 @@ type test struct {
 }
 
 var tests = []test{
-	//{"Erc20ToSubstrate", testErc20ToSubstrate},
-	//{"SubstrateToErc20", testSubstrateToErc20},
-	//{"Erc20toErc20", testErc20ToErc20},
-	//{"Erc20 to Substrate Round Trip", testErc20SubstrateRoundTrip},
-	//
-	//{"Erc721 to Substrate Round Trip", testErc721ToSubstrateRoundTrip},
-	//{"Erc721 to Erc721 Round Trip", testErc721EthToEthRoundTrip},
-	//
-	//{"SubstrateHashToGenericHandler", testSubstrateHashToGenericHandler},
-	//{"Eth to Eth HashToGenericHandler", testEthereumHashToGenericHandler},
+	{"Erc20ToSubstrate", testErc20ToSubstrate},
+	{"SubstrateToErc20", testSubstrateToErc20},
+	{"Erc20toErc20", testErc20ToErc20},
+	{"Erc20 to Substrate Round Trip", testErc20SubstrateRoundTrip},
+
+	{"Erc721 to Substrate Round Trip", testErc721ToSubstrateRoundTrip},
+	{"Erc721 to Erc721 Round Trip", testErc721EthToEthRoundTrip},
+
+	{"SubstrateHashToGenericHandler", testSubstrateHashToGenericHandler},
+	{"Eth to Eth HashToGenericHandler", testEthereumHashToGenericHandler},
 
 	{"Three chain with parallel submission", testThreeChainsParallel},
 }
