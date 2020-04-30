@@ -28,7 +28,7 @@ var (
 )
 
 // IGenericHandlerABI is the input ABI used to generate the binding from.
-const IGenericHandlerABI = "[{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"},{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"name\":\"setResource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const IGenericHandlerABI = "[{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"resourceID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"depositFunctionSig\",\"type\":\"bytes4\"},{\"internalType\":\"bytes4\",\"name\":\"executeFunctionSig\",\"type\":\"bytes4\"}],\"name\":\"setResource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // IGenericHandler is an auto generated Go binding around an Ethereum contract.
 type IGenericHandler struct {
@@ -174,21 +174,21 @@ func (_IGenericHandler *IGenericHandlerTransactorRaw) Transact(opts *bind.Transa
 
 // SetResource is a paid mutator transaction binding the contract method 0xbba8185a.
 //
-// Solidity: function setResource(bytes32 , address , bytes4 , bytes4 ) returns()
-func (_IGenericHandler *IGenericHandlerTransactor) SetResource(opts *bind.TransactOpts, arg0 [32]byte, arg1 common.Address, arg2 [4]byte, arg3 [4]byte) (*types.Transaction, error) {
-	return _IGenericHandler.contract.Transact(opts, "setResource", arg0, arg1, arg2, arg3)
+// Solidity: function setResource(bytes32 resourceID, address contractAddress, bytes4 depositFunctionSig, bytes4 executeFunctionSig) returns()
+func (_IGenericHandler *IGenericHandlerTransactor) SetResource(opts *bind.TransactOpts, resourceID [32]byte, contractAddress common.Address, depositFunctionSig [4]byte, executeFunctionSig [4]byte) (*types.Transaction, error) {
+	return _IGenericHandler.contract.Transact(opts, "setResource", resourceID, contractAddress, depositFunctionSig, executeFunctionSig)
 }
 
 // SetResource is a paid mutator transaction binding the contract method 0xbba8185a.
 //
-// Solidity: function setResource(bytes32 , address , bytes4 , bytes4 ) returns()
-func (_IGenericHandler *IGenericHandlerSession) SetResource(arg0 [32]byte, arg1 common.Address, arg2 [4]byte, arg3 [4]byte) (*types.Transaction, error) {
-	return _IGenericHandler.Contract.SetResource(&_IGenericHandler.TransactOpts, arg0, arg1, arg2, arg3)
+// Solidity: function setResource(bytes32 resourceID, address contractAddress, bytes4 depositFunctionSig, bytes4 executeFunctionSig) returns()
+func (_IGenericHandler *IGenericHandlerSession) SetResource(resourceID [32]byte, contractAddress common.Address, depositFunctionSig [4]byte, executeFunctionSig [4]byte) (*types.Transaction, error) {
+	return _IGenericHandler.Contract.SetResource(&_IGenericHandler.TransactOpts, resourceID, contractAddress, depositFunctionSig, executeFunctionSig)
 }
 
 // SetResource is a paid mutator transaction binding the contract method 0xbba8185a.
 //
-// Solidity: function setResource(bytes32 , address , bytes4 , bytes4 ) returns()
-func (_IGenericHandler *IGenericHandlerTransactorSession) SetResource(arg0 [32]byte, arg1 common.Address, arg2 [4]byte, arg3 [4]byte) (*types.Transaction, error) {
-	return _IGenericHandler.Contract.SetResource(&_IGenericHandler.TransactOpts, arg0, arg1, arg2, arg3)
+// Solidity: function setResource(bytes32 resourceID, address contractAddress, bytes4 depositFunctionSig, bytes4 executeFunctionSig) returns()
+func (_IGenericHandler *IGenericHandlerTransactorSession) SetResource(resourceID [32]byte, contractAddress common.Address, depositFunctionSig [4]byte, executeFunctionSig [4]byte) (*types.Transaction, error) {
+	return _IGenericHandler.Contract.SetResource(&_IGenericHandler.TransactOpts, resourceID, contractAddress, depositFunctionSig, executeFunctionSig)
 }
