@@ -86,18 +86,19 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 		keytype = crypto.Secp256k1Type
 	}
 
+	var password []byte = nil
+	if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
+		password = []byte(pwdflag)
+	}
+
 	if ctx.Bool(EthereumImportFlag.Name) {
 		if keyimport := ctx.Args().First(); keyimport != "" {
-			_, err = importEthKey(keyimport, dHandler.datadir)
+			_, err = importEthKey(keyimport, dHandler.datadir, password, nil)
 		} else {
 			return fmt.Errorf("Must provide a key to import.")
 		}
 	} else if privkeyflag := ctx.String(PrivateKeyFlag.Name); privkeyflag != "" {
 		// check if --password is set
-		var password []byte = nil
-		if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
-			password = []byte(pwdflag)
-		}
 
 		_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag, password)
 	} else {
@@ -203,7 +204,7 @@ func importPrivKey(keytype, datadir, key string, password []byte) (string, error
 }
 
 //importEthKey takes an ethereum keystore and converts it to our keystore format
-func importEthKey(filename, datadir string) (string, error) {
+func importEthKey(filename, datadir string, password, newPassword []byte) (string, error) {
 	keystorepath, err := keystoreDir(datadir)
 	if err != nil {
 		return "", fmt.Errorf("could not get keystore directory: %s", err)
@@ -214,7 +215,9 @@ func importEthKey(filename, datadir string) (string, error) {
 		return "", fmt.Errorf("could not read import file: %s", err)
 	}
 
-	password := keystore.GetPassword("Enter password to decrypt keystore file:")
+	if password == nil {
+		password = keystore.GetPassword("Enter password to decrypt keystore file:")
+	}
 
 	key, err := gokeystore.DecryptKey(importdata, string(password))
 	if err != nil {
@@ -240,7 +243,9 @@ func importEthKey(filename, datadir string) (string, error) {
 		}
 	}()
 
-	newPassword := keystore.GetPassword("Enter password to encrypt new keystore file:")
+	if newPassword == nil {
+		newPassword = keystore.GetPassword("Enter password to encrypt new keystore file:")
+	}
 
 	err = keystore.EncryptAndWriteToFile(file, kp, newPassword)
 	if err != nil {
