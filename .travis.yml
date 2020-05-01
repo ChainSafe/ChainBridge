@@ -59,7 +59,7 @@ jobs:
       script:
         - set -e
         - make clean && make rebuild-contracts
-        - QUIET=true ./solidity/scripts/get/start-geth.sh &
-        - QUIET=true ./solidity/scripts/geth/start-geth2.sh &
+        - QUIET=true FORK=true INSTANCE=1 ./scripts/geth/run_geth.sh
+        - QUIET=true FORK=true INSTANCE=2 ./scripts/geth/run_geth.sh
         - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
