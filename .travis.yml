@@ -44,11 +44,22 @@ jobs:
 
     - language: go
       go: 1.13.x
-      name: "Run Go e2e tests"
+      name: "Run e2e tests (Ganache)"
       script:
         - set -e
         - make clean && make rebuild-contracts
         - cd solidity && SILENT=true make start-ganache
         - SILENT=true PORT=8546 make start-ganache
         - cd .. && RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
+        - make test-e2e
+
+    - language: go
+      go: 1.13.x
+      name: "Run e2e tests (Geth)"
+      script:
+        - set -e
+        - make clean && make rebuild-contracts
+        - QUIET=true ./solidity/scripts/get/start-geth.sh &
+        - QUIET=true ./solidity/scripts/geth/start-geth2.sh &
+        - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
