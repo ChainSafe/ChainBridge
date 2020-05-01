@@ -90,16 +90,16 @@ func (l *listener) pollBlocks() error {
 			retry = BlockRetryLimit
 		}
 
-		currBlock, err := l.conn.conn.HeaderByNumber(l.conn.ctx, nil)
+		currBlock, err := l.conn.latestBlock()
 		if err != nil {
-			l.log.Error("Unable to get latest block", "block", "err", err)
+			l.log.Error("Unable to get latest block", "block", latestBlock, "err", err)
 			retry--
 			time.Sleep(BlockRetryInterval)
 			continue
 		}
 
 		// Sleep if the current block > latest
-		if currBlock.Number.Cmp(latestBlock) == -1 {
+		if currBlock.Cmp(latestBlock) == -1 {
 			time.Sleep(BlockRetryInterval)
 			continue
 		}
@@ -139,13 +139,17 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		nonce := msg.Nonce(log.Topics[3].Big().Uint64())
 
 		if addr == l.cfg.erc20HandlerContract {
-			m = l.handleErc20DepositedEvent(destId, nonce)
+			m, err = l.handleErc20DepositedEvent(destId, nonce)
 		} else if addr == l.cfg.erc721HandlerContract {
-			m = l.handleErc721DepositedEvent(destId, nonce)
+			m, err = l.handleErc721DepositedEvent(destId, nonce)
 		} else if addr == l.cfg.genericHandlerContract {
-			m = l.handleGenericDepositedEvent(destId, nonce)
+			m, err = l.handleGenericDepositedEvent(destId, nonce)
 		} else {
 			l.log.Error("Event has unrecognized handler", "handler", addr)
+		}
+
+		if err != nil {
+			return err
 		}
 
 		err = l.router.Send(m)
