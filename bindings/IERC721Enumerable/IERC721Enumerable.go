@@ -959,5 +959,3 @@ func (_IERC721Enumerable *IERC721EnumerableFilterer) ParseTransfer(log types.Log
 	}
 	return event, nil
 }
-
-var RuntimeBytecode = "0x"

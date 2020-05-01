@@ -47,6 +47,9 @@ func CreateClient(key *signature.KeyringPair, endpoint string) (*Client, error) 
 
 	return c, nil
 }
+
+// Admin calls
+
 func (c *Client) SetRelayerThreshold(threshold types.U32) error {
 	log15.Info("Setting threshold", "threshold", threshold)
 	return SubmitSudoTx(c, SetThresholdMethod, threshold)
@@ -67,8 +70,10 @@ func (c *Client) RegisterResource(id msg.ResourceId, method string) error {
 	return SubmitSudoTx(c, SetResourceMethod, types.NewBytes32(id), []byte(method))
 }
 
+// Standard transfer calls
+
 func (c *Client) InitiateNativeTransfer(amount types.U128, recipient []byte, destId msg.ChainId) error {
-	log15.Info("Initiating Substrate native transfer", "amount", amount, "recipient", recipient, "destId", destId)
+	log15.Info("Initiating Substrate native transfer", "amount", amount, "recipient", fmt.Sprintf("%x", recipient), "destId", destId)
 	return SubmitTx(c, ExampleTransferNativeMethod, amount, recipient, types.U8(destId))
 }
 
@@ -81,6 +86,8 @@ func (c *Client) InitiateHashTransfer(hash types.Hash, destId msg.ChainId) error
 	log15.Info("Initiating hash transfer", "hash", hash.Hex())
 	return SubmitTx(c, ExampleTransferHashMethod, hash, types.U8(destId))
 }
+
+// Call creation methods for batching
 
 func (c *Client) NewSudoCall(call types.Call) (types.Call, error) {
 	return types.NewCall(c.Meta, string(SudoMethod), call)
@@ -118,6 +125,12 @@ func (c *Client) NewRegisterResourceCall(id msg.ResourceId, method string) (type
 	return c.NewSudoCall(call)
 }
 
+func (c *Client) NewNativeTransferCall(amount types.U128, recipient []byte, destId msg.ChainId) (types.Call, error) {
+	return types.NewCall(c.Meta, string(ExampleTransferNativeMethod), amount, recipient, types.U8(destId))
+}
+
+// Utility methods
+
 func (c *Client) LatestBlock() (uint64, error) {
 	head, err := c.Api.RPC.Chain.GetHeaderLatest()
 	if err != nil {
@@ -154,7 +167,7 @@ func (c *Client) GetDepositNonce(chain msg.ChainId) (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
-	exists, err := QueryStorage(c, "Bridge", "ChainNonces", chainId, nil, &count)
+	exists, err := QueryStorage(c, BridgeStoragePrefix, "ChainNonces", chainId, nil, &count)
 	if err != nil {
 		return 0, err
 	}

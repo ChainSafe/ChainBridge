@@ -4,6 +4,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -16,6 +17,7 @@ import (
 )
 
 type Core struct {
+	ctx      context.Context
 	registry map[msg.ChainId]Chain
 	route    *router.Router
 	log      log15.Logger
@@ -23,10 +25,15 @@ type Core struct {
 
 func NewCore() *Core {
 	return &Core{
+		ctx:      context.Background(),
 		registry: make(map[msg.ChainId]Chain),
 		route:    router.NewRouter(log15.New("system", "router")),
 		log:      log15.New("system", "core"),
 	}
+}
+
+func (c *Core) Context() context.Context {
+	return c.ctx
 }
 
 // AddChain registers the chain in the registry and calls Chain.SetRouter()
@@ -55,8 +62,13 @@ func (c *Core) Start() {
 	defer signal.Stop(sigc)
 
 	// Block here and wait for a signal
-	<-sigc
-	c.log.Info("Interrupt received, shutting down now.")
+	select {
+	case <-sigc:
+		c.log.Warn("Interrupt received, shutting down now.")
+	case <-c.ctx.Done():
+		c.log.Warn("Context cancelled, shutting down now.")
+	}
+
 	for _, ch := range c.registry {
 		err := ch.Stop()
 		if err != nil {

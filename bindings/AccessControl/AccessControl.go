@@ -686,5 +686,3 @@ func (_AccessControl *AccessControlFilterer) ParseRoleRevoked(log types.Log) (*A
 	}
 	return event, nil
 }
-
-var RuntimeBytecode = "0x"

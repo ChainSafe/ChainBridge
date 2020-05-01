@@ -959,5 +959,3 @@ func (_IERC721Metadata *IERC721MetadataFilterer) ParseTransfer(log types.Log) (*
 	}
 	return event, nil
 }
-
-var RuntimeBytecode = "0x"
