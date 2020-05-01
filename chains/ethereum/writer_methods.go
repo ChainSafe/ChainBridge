@@ -238,10 +238,10 @@ func (w *writer) executeProposal(m msg.Message, handler common.Address, data []b
 		if err == nil {
 			return
 		} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
-			w.log.Info("Nonce too low, will retry")
+			w.log.Debug("Nonce too low, will retry")
 			time.Sleep(NonceRetryInterval)
 		} else {
-			w.log.Info("Unexpected tx error", "err", err)
+			w.log.Warn("Execution failed, proposal may already be complete", "err", err)
 			time.Sleep(NonceRetryInterval)
 		}
 	}
