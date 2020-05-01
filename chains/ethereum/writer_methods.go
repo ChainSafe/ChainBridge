@@ -4,8 +4,10 @@
 package ethereum
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
+	"time"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
@@ -13,6 +15,12 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 )
+
+var ErrNonceTooLow = errors.New("nonce too low")
+var ErrTxUnderpriced = errors.New("replacement transaction underpriced")
+var NonceRetryInterval = time.Second * 2
+
+const TxRetryLimit = 10
 
 func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipient []byte) []byte {
 	var data []byte
@@ -71,25 +79,7 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 	// watch for execution event
 	go w.watchThenExecute(m, w.cfg.erc20HandlerContract, data)
 
-	err := w.lockAndUpdateNonce()
-	if err != nil {
-		w.log.Error("Failed to update nonce", "err", err)
-		return false
-	}
-
-	w.log.Debug("Submitting CreateDepositProposal for ERC20", "source", m.Source, "depositNonce", m.DepositNonce)
-	_, err = w.bridgeContract.VoteProposal(
-		w.opts,
-		uint8(m.Source),
-		m.DepositNonce.Big(),
-		hash,
-	)
-	w.unlockNonce()
-
-	if err != nil {
-		w.log.Error("Failed to submit createDepositProposal transaction", "err", err)
-		return false
-	}
+	w.voteProposal(m, hash)
 
 	return true
 }
@@ -108,25 +98,7 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 	// watch for execution event
 	go w.watchThenExecute(m, w.cfg.erc721HandlerContract, data)
 
-	err := w.lockAndUpdateNonce()
-	if err != nil {
-		w.log.Error("Failed to update nonce", "err", err)
-		return false
-	}
-
-	w.log.Debug("Submitting VoteProposal for ERC721", "source", m.Source, "depositNonce", m.DepositNonce)
-	_, err = w.bridgeContract.VoteProposal(
-		w.opts,
-		uint8(m.Source),
-		m.DepositNonce.Big(),
-		hash,
-	)
-	w.unlockNonce()
-
-	if err != nil {
-		w.log.Error("Failed to submit VoteProposal transaction", "err", err)
-		return false
-	}
+	w.voteProposal(m, hash)
 
 	return true
 }
@@ -147,25 +119,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	// watch for execution event
 	go w.watchThenExecute(m, w.cfg.genericHandlerContract, data)
 
-	err := w.lockAndUpdateNonce()
-	if err != nil {
-		w.log.Error("Failed to update nonce", "err", err)
-		return false
-	}
-
-	w.log.Trace("Submitting VoteProposal transaction", "source", m.Source, "depositNonce", m.DepositNonce)
-	_, err = w.bridgeContract.VoteProposal(
-		w.opts,
-		uint8(m.Source),
-		m.DepositNonce.Big(),
-		dataHash,
-	)
-	w.unlockNonce()
-
-	if err != nil {
-		w.log.Error("Failed to submit VoteProposal transaction", "err", err)
-		return false
-	}
+	w.voteProposal(m, dataHash)
 
 	return true
 }
@@ -204,23 +158,61 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 	}
 }
 
-func (w *writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
-	err := w.lockAndUpdateNonce()
-	if err != nil {
-		w.log.Error("Failed to update nonce", "err", err)
-		return
-	}
-	w.log.Info("Executing proposal", "handler", handler, "data", fmt.Sprintf("%x", data))
-	_, err = w.bridgeContract.ExecuteProposal(
-		w.opts,
-		uint8(m.Source),
-		m.DepositNonce.Big(),
-		handler,
-		data,
-	)
-	w.unlockNonce()
+func (w *writer) voteProposal(m msg.Message, hash [32]byte) {
+	for i := 0; i < TxRetryLimit; i++ {
+		err := w.lockAndUpdateNonce()
+		if err != nil {
+			w.log.Error("Failed to update nonce", "err", err)
+			continue
+		}
 
-	if err != nil {
-		w.log.Warn("Failed to execute proposal, may already be complete", "err", err)
+		w.log.Debug("Submitting VoteProposal", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
+		_, err = w.bridgeContract.VoteProposal(
+			w.opts,
+			uint8(m.Source),
+			m.DepositNonce.Big(),
+			hash,
+		)
+		w.unlockNonce()
+
+		if err == nil {
+			return
+		} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
+			w.log.Info("Nonce too low, will retry")
+			time.Sleep(NonceRetryInterval)
+		} else {
+			w.log.Info("Unexpected tx error", "err", err)
+			time.Sleep(NonceRetryInterval)
+		}
+	}
+}
+
+func (w *writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
+	for i := 0; i < TxRetryLimit; i++ {
+		err := w.lockAndUpdateNonce()
+		if err != nil {
+			w.log.Error("Failed to update nonce", "err", err)
+			return
+		}
+
+		w.log.Info("Executing proposal", "handler", handler, "data", fmt.Sprintf("%x", data))
+		_, err = w.bridgeContract.ExecuteProposal(
+			w.opts,
+			uint8(m.Source),
+			m.DepositNonce.Big(),
+			handler,
+			data,
+		)
+		w.unlockNonce()
+
+		if err == nil {
+			return
+		} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
+			w.log.Info("Nonce too low, will retry")
+			time.Sleep(NonceRetryInterval)
+		} else {
+			w.log.Info("Unexpected tx error", "err", err)
+			time.Sleep(NonceRetryInterval)
+		}
 	}
 }
