@@ -286,6 +286,9 @@ func TestImportKey(t *testing.T) {
 
 func TestImportEthKey(t *testing.T) {
 	gethJSON, err := json.Marshal(createTestGethKeystore())
+	if err != nil {
+		t.Fatal(err)
+	}
 	importkeyfile := "../../test.json"
 	ioutil.WriteFile(importkeyfile, gethJSON, 0644)
 
