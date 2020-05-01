@@ -23,7 +23,47 @@ import (
 var testKeystoreDir = "./test_datadir/"
 var testPassword = []byte("1234")
 
-var GethKeystore struct {
+type gethKeystore struct {
+	Address string `json:"address"`
+	Crypto  struct {
+		Cipher       string `json:"cipher"`
+		Cipherparams struct {
+			Iv string `json:"iv"`
+		}
+		Ciphertext string `json:"ciphertext"`
+		Kdf        string `json:"kdf"`
+		Kdfparams  struct {
+			Dklen int    `json:"dklen"`
+			N     int    `json:"n"`
+			P     int    `json:"p"`
+			R     int    `json:"r"`
+			Salt  string `json:"salt"`
+		}
+		Mac string `json:"mac"`
+	}
+	Id      string `json:"id"`
+	Version int    `json:"version"`
+}
+
+func createTestGethKeystore() gethKeystore {
+	gks := gethKeystore{}
+	gks.Address = "395a40da74fe28fb3154135ea64007230a68ffb1"
+
+	gks.Crypto.Cipher = "aes-128-ctr"
+	gks.Crypto.Ciphertext = "54d1981684fa0a9e2e0b0d3f748884b745363a721381f1be9d64c1689cf762ee"
+	gks.Crypto.Cipherparams.Iv = "c05a1f9374d4d8e227a90208d41462b9"
+	gks.Crypto.Kdf = "scrypt"
+	gks.Crypto.Kdfparams.Dklen = 32
+	gks.Crypto.Kdfparams.N = 262144
+	gks.Crypto.Kdfparams.P = 1
+	gks.Crypto.Kdfparams.R = 8
+	gks.Crypto.Kdfparams.Salt = "f4a8c387cc8939b656c92feb705b110725e4ed17f6af9acce367989b526e03f7"
+	gks.Crypto.Mac = "dfaf15c18c25b3364e1f96b89207a3b76ed24fac9beea7cbf4937fa9da9d8b1c"
+
+	gks.Id = "deb2f093-c5d8-46d6-9c71-40e09c483667"
+	gks.Version = 3
+
+	return gks
 }
 
 // newTestContext creates a cli context for a test given a set of flags and values
@@ -79,6 +119,9 @@ func newTestContext(description string, flags []string, values []interface{}) (*
 func TestAccountCommands(t *testing.T) {
 	testApp := cli.NewApp()
 	testApp.Writer = ioutil.Discard
+	testApp.Commands = []cli.Command{
+		accountCommand,
+	}
 
 	keypath := "."
 
@@ -87,6 +130,10 @@ func TestAccountCommands(t *testing.T) {
 		t.Fatal(err)
 	}
 	secpFile, err := generateKeypair("secp256k1", keypath, testPassword)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -113,12 +160,6 @@ func TestAccountCommands(t *testing.T) {
 			[]interface{}{true, "abc"},
 			handleGenerateCmd,
 		},
-		// {
-		// 	"Test chainbridge account import --secp256k1 --password \"abc\" " + secpFile,
-		// 	[]string{"secp256k1", "password"},
-		// 	[]interface{}{true, "abc"},
-		// 	handleImportCmd,
-		// },
 		{
 			"Test chainbridge account import --secp256k1 --password \"abc\" --privateKey 000000000000000000000000000000000000000000000000000000416c696365",
 			[]string{"secp256k1", "password", "privateKey"},
@@ -181,12 +222,6 @@ func TestGetDatadir(t *testing.T) {
 
 }
 
-func TestWrapHandler(t *testing.T) {
-
-	wrapHandler(handleListCmd)
-
-}
-
 func TestGenerateKey_NoType(t *testing.T) {
 	keyfile, err := generateKeypair("", testKeystoreDir, testPassword)
 	if err != nil {
@@ -229,6 +264,34 @@ func TestImportKey(t *testing.T) {
 	defer os.RemoveAll(importkeyfile)
 
 	keyfile, err := importKey(importkeyfile, testKeystoreDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	keys, err := listKeys(testKeystoreDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(testKeystoreDir)
+
+	if len(keys) != 1 {
+		t.Fatal("fail")
+	}
+
+	if strings.Compare(keys[0], filepath.Base(keyfile)) != 0 {
+		t.Fatalf("Fail: got %s expected %s", keys[0], keyfile)
+	}
+}
+
+func TestImportEthKey(t *testing.T) {
+	gethJSON, err := json.Marshal(createTestGethKeystore())
+	importkeyfile := "../../test.json"
+	ioutil.WriteFile(importkeyfile, gethJSON, 0644)
+
+	defer os.RemoveAll(importkeyfile)
+
+	keyfile, err := importEthKey(importkeyfile, testKeystoreDir, []byte{}, []byte{})
 	if err != nil {
 		t.Fatal(err)
 	}
