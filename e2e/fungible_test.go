@@ -112,7 +112,6 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 	ethRecipient := eth.AliceKp.CommonAddress()
 
 	expectedSubBalance := subtest.BalanceOf(t, ctx.subClient, subRecipient)
-	//feePerTx := big.NewInt(510196)
 
 	initialEthBalance := ethtest.Erc20BalanceOf(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
 	expectedEthBalance := ethtest.Erc20BalanceOf(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
@@ -137,7 +136,6 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			nonce++
 			// Verify balance
 			expectedSubBalance.Add(expectedSubBalance, amount)
-			//expectedSubBalance.Sub(expectedSubBalance, feePerTx)
 			subtest.AssertBalanceOf(t, ctx.subClient, subRecipient, expectedSubBalance)
 
 			expectedEthBalance.Sub(expectedEthBalance, amount)

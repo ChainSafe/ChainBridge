@@ -122,7 +122,7 @@ func Erc721AssertNonExistence(t *testing.T, client *ethclient.Client, opts *bind
 		//if err.Error() != NonExistentTokenError.Error() {
 		//	t.Fatal(err)
 		//}
-		log15.Info("Asserted non-existence of erc721", "tokenId", id)
+		log15.Info("Asserted non-existence of erc721", "tokenId", id, "result", err)
 	}
 
 }
