@@ -18,35 +18,40 @@ import (
 // Number of blocks to wait for an finalization event
 var ExecuteBlockWatchLimit = 50
 
+// constructErc20ProposalData returns the bytes to construct a proposal suitable for Erc20
 func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipient []byte) []byte {
 	var data []byte
-	data = append(data, resourceId[:]...)                   // resourceId
-	data = append(data, common.LeftPadBytes(amount, 32)...) // amount
+	data = append(data, resourceId[:]...)                   // resourceId (bytes32)
+	data = append(data, common.LeftPadBytes(amount, 32)...) // amount (uint256)
 
 	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
-	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // Length of recipient
-	data = append(data, recipient...)                             // recipient
+	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // length of recipient (uint256)
+	data = append(data, recipient...)                             // recipient ([]byte)
 	return data
 }
 
+// constructErc721ProposalData returns the bytes to construct a proposal suitable for Erc721
 func constructErc721ProposalData(tokenId []byte, resourceId msg.ResourceId, recipient []byte, metadata []byte) []byte {
 	var data []byte
-	data = append(data, common.LeftPadBytes(tokenId, 32)...)
-	data = append(data, resourceId[:]...)
+	data = append(data, common.LeftPadBytes(tokenId, 32)...) // tokenId ([]byte)
+	data = append(data, resourceId[:]...)                    // resourceId (bytes32)
 
 	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
-	data = append(data, common.LeftPadBytes(recipientLen, 32)...)
-	data = append(data, recipient...)
+	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // length of recipient
+	data = append(data, recipient...)                             // recipient ([]byte)
 
 	metadataLen := big.NewInt(int64(len(metadata))).Bytes()
-	data = append(data, common.LeftPadBytes(metadataLen, 32)...)
-	data = append(data, metadata...)
+	data = append(data, common.LeftPadBytes(metadataLen, 32)...) // length of metadata (uint256)
+	data = append(data, metadata...)                             // metadata ([]byte)
 	return data
 }
 
+// constructGenericProposalData returns the bytes to construct a generic proposal
 func constructGenericProposalData(resourceId msg.ResourceId, metadata []byte) []byte {
 	var data []byte
-	data = append(resourceId[:], math.PaddedBigBytes(big.NewInt(int64(len(metadata))), 32)...)
+
+	metadataLen := big.NewInt(int64(len(metadata)))
+	data = append(resourceId[:], math.PaddedBigBytes(metadataLen, 32)...) // length of metadata (uint256)
 	data = append(data, metadata...)
 	return data
 }
@@ -61,6 +66,8 @@ func (w *writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
 	return prop.Status >= PassedStatus // Passed (2) or Transferred (3)
 }
 
+// createErc20Proposal creates an Erc20 proposal
+// returns true if the proposal is succesfully created or is complete
 func (w *writer) createErc20Proposal(m msg.Message) bool {
 	w.log.Info("Creating erc20 proposal")
 
@@ -108,6 +115,8 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 	return true
 }
 
+// createErc721Proposal creates an Erc721 proposal
+// returns true if the proposal is succesfully created or is complete
 func (w *writer) createErc721Proposal(m msg.Message) bool {
 	w.log.Info("Creating erc721 proposal")
 
@@ -155,6 +164,8 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 	return true
 }
 
+// createGenericDepositProposal creates a generic proposal
+// returns true if the proposal is complete or is succesfully created
 func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	w.log.Info("Creating generic proposal", "handler", w.cfg.genericHandlerContract)
 
@@ -202,9 +213,11 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	return true
 }
 
+// watchThenExecute watches for the latest block and executes once the matching event is found
 func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []byte, latestBlock *big.Int) {
 	w.log.Trace("Watching for finalization event", "source", m.Source, "dest", m.Destination, "nonce", m.DepositNonce)
 
+	// waiting to connect to the block
 	for i := 0; i < ExecuteBlockWatchLimit; i++ {
 		err := w.conn.waitForBlock(latestBlock)
 		if err != nil {
@@ -212,6 +225,7 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 			return
 		}
 
+		// fetching logs
 		query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, latestBlock, latestBlock)
 		evts, err := w.conn.conn.FilterLogs(w.conn.ctx, query)
 		if err != nil {
@@ -219,6 +233,7 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 			return
 		}
 
+		// execute the proposal once we find the matching event
 		for _, evt := range evts {
 			sourceId := evt.Topics[1].Big().Uint64()
 			destId := evt.Topics[2].Big().Uint64()
@@ -239,6 +254,7 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 	log.Warn("Block watch limit exceeded, skipping execution", "source", m.Source, "dest", m.Destination, "nonce", m.DepositNonce)
 }
 
+// executeProposal executes the proposal
 func (w *writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
 	w.log.Info("Executing proposal", "handler", handler, "data", fmt.Sprintf("%x", data))
 
