@@ -52,7 +52,7 @@ func constructGenericProposalData(resourceId msg.ResourceId, metadata []byte) []
 
 	metadataLen := big.NewInt(int64(len(metadata)))
 	data = append(resourceId[:], math.PaddedBigBytes(metadataLen, 32)...) // length of metadata (uint256)
-	data = append(data, metadata...)
+	data = append(data, metadata...)                                      // metadata ([]byte)
 	return data
 }
 

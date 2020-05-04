@@ -27,7 +27,7 @@ var BlockRetryLimit = 3
 
 type ActiveSubscription struct {
 	ch  <-chan ethtypes.Log
-	sub eth.Subscription
+	sub eth.Subscription // subscribe to specific events
 }
 
 type listener struct {
@@ -42,6 +42,7 @@ type listener struct {
 	blockstore             blockstore.Blockstorer
 }
 
+// NewListener creates and returns &listener
 func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *listener {
 	return &listener{
 		cfg:        *cfg,
@@ -51,6 +52,7 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.
 	}
 }
 
+// setContracts sets the listener with the appropriate contract handlers
 func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handler.ERC20Handler, erc721Handler *ERC721Handler.ERC721Handler, genericHandler *GenericHandler.GenericHandler) {
 	l.bridgeContract = bridge
 	l.erc20HandlerContract = erc20Handler
@@ -58,6 +60,7 @@ func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handle
 	l.genericHandlerContract = genericHandler
 }
 
+// sets the router
 func (l *listener) setRouter(r chains.Router) {
 	l.router = r
 }
