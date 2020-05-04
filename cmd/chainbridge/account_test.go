@@ -23,6 +23,8 @@ import (
 var testKeystoreDir = "./test_datadir/"
 var testPassword = []byte("1234")
 
+// gethKeystore is a struct representation of the geth keystore file
+// used for testing so that we don't need to call geth to test imported ethereum keys
 type gethKeystore struct {
 	Address string `json:"address"`
 	Crypto  struct {
@@ -307,7 +309,7 @@ func TestImportEthKey(t *testing.T) {
 	defer os.RemoveAll(testKeystoreDir)
 
 	if len(keys) != 1 {
-		t.Fatal("fail")
+		t.Fatal("Wrong Number of Keys listed")
 	}
 
 	if strings.Compare(keys[0], filepath.Base(keyfile)) != 0 {

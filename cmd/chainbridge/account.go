@@ -86,19 +86,23 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 		keytype = crypto.Secp256k1Type
 	}
 
-	var password []byte = nil
-	if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
-		password = []byte(pwdflag)
-	}
-
 	if ctx.Bool(EthereumImportFlag.Name) {
 		if keyimport := ctx.Args().First(); keyimport != "" {
+			// check if --password is set
+			var password []byte = nil
+			if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
+				password = []byte(pwdflag)
+			}
 			_, err = importEthKey(keyimport, dHandler.datadir, password, nil)
 		} else {
 			return fmt.Errorf("Must provide a key to import.")
 		}
 	} else if privkeyflag := ctx.String(PrivateKeyFlag.Name); privkeyflag != "" {
 		// check if --password is set
+		var password []byte = nil
+		if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
+			password = []byte(pwdflag)
+		}
 
 		_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag, password)
 	} else {
