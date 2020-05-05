@@ -17,9 +17,11 @@ exec geth \
     --ws \
     --wsport 8545 \
     --wsorigins="*" \
+    --wsaddr 0.0.0.0 \
     --rpc \
     --rpcport 8545 \
     --rpccorsdomain="*" \
+    --rpcaddr 0.0.0.0 \
     --networkid 5 \
     --targetgaslimit 8000000 \
     --allow-insecure-unlock \
