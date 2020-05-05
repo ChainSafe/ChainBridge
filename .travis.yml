@@ -63,7 +63,7 @@ jobs:
       name: "E2E tests (Geth)"
       script:
         - set -e
-        - docker-compose -f ./docker-compose-e2e.yml up --dV --abort-on-container-exit
+        - docker-compose -f ./docker-compose-e2e.yml up -dV --abort-on-container-exit
         - docker ps
         - make test-e2e
 
