@@ -203,6 +203,8 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 	log.Warn("Block watch limit exceeded, skipping execution", "source", m.Source, "dest", m.Destination, "nonce", m.DepositNonce)
 }
 
+// voteProposal submits a vote proposal
+// a vote proposal will try to be submitted up to the TxRetryLimit times
 func (w *writer) voteProposal(m msg.Message, hash [32]byte) {
 	for i := 0; i < TxRetryLimit; i++ {
 		err := w.lockAndUpdateNonce()
