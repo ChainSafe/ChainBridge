@@ -225,7 +225,7 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 			return
 		}
 
-		// fetching logs
+		// querying for logs
 		query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, latestBlock, latestBlock)
 		evts, err := w.conn.conn.FilterLogs(w.conn.ctx, query)
 		if err != nil {
