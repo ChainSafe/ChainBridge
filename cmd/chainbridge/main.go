@@ -147,6 +147,8 @@ func run(ctx *cli.Context) error {
 	}
 
 	c := core.NewCore()
+	// Used to signal shutdown to chains
+	stop := make(chan int)
 
 	for _, chain := range cfg.Chains {
 		chainConfig := &core.ChainConfig{
@@ -163,9 +165,9 @@ func run(ctx *cli.Context) error {
 		var newChain core.Chain
 		logger := log.Root().New("chain", chainConfig.Name)
 		if chain.Type == "ethereum" {
-			newChain, err = ethereum.InitializeChain(chainConfig, logger, c.Context())
+			newChain, err = ethereum.InitializeChain(chainConfig, logger, stop)
 		} else if chain.Type == "substrate" {
-			newChain, err = substrate.InitializeChain(chainConfig, logger)
+			newChain, err = substrate.InitializeChain(chainConfig, logger, stop)
 		} else {
 			return errors.New("unrecognized Chain Type")
 		}
@@ -176,7 +178,7 @@ func run(ctx *cli.Context) error {
 		c.AddChain(newChain)
 	}
 
-	c.Start()
+	c.Start(stop)
 
 	return nil
 }

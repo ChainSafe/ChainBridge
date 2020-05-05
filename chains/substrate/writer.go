@@ -116,7 +116,3 @@ func (w *writer) proposalNotCompleted(prop *proposal) (bool, error) {
 	}
 	return false, nil
 }
-
-func (w *writer) Stop() error {
-	return nil
-}

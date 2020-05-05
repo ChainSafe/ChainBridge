@@ -32,7 +32,7 @@ func (r *MockRouter) Send(message msg.Message) error {
 	return nil
 }
 
-func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedContracts) (*listener, *MockRouter) {
+func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedContracts, stop <-chan int) (*listener, *MockRouter) {
 	// Create copy and add deployed contract addresses
 	newConfig := *config
 	newConfig.bridgeContract = contracts.BridgeAddress
@@ -65,7 +65,7 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	}
 
 	router := &MockRouter{msgs: make(chan msg.Message)}
-	listener := NewListener(conn, &newConfig, TestLogger, &blockstore.EmptyStore{})
+	listener := NewListener(conn, &newConfig, TestLogger, &blockstore.EmptyStore{}, stop)
 	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 	listener.setRouter(router)
 	// Start the listener
@@ -79,22 +79,21 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 
 func TestListener_start_stop(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
-	l, _ := createTestListener(t, aliceTestConfig, contracts)
+	stop := make(chan int)
+	l, _ := createTestListener(t, aliceTestConfig, contracts, stop)
 
 	err := l.start()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = l.stop()
-	if err != nil {
-		t.Fatal(err)
-	}
+	// Initiate shutdown
+	close(stop)
 }
 
 func TestListener_Erc20DepositedEvent(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
-	l, router := createTestListener(t, aliceTestConfig, contracts)
+	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int))
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
@@ -182,7 +181,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 
 func TestListener_Erc721DepositedEvent(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
-	l, router := createTestListener(t, aliceTestConfig, contracts)
+	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int))
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
@@ -244,7 +243,7 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 
 func TestListener_GenericDepositedEvent(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
-	l, router := createTestListener(t, aliceTestConfig, contracts)
+	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int))
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)

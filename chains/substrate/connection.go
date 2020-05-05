@@ -4,6 +4,7 @@
 package substrate
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 
@@ -27,10 +28,11 @@ type Connection struct {
 	log         log15.Logger
 	nonce       types.U32
 	nonceLock   sync.Mutex
+	stop        <-chan int
 }
 
-func NewConnection(url string, name string, key *signature.KeyringPair, log log15.Logger) *Connection {
-	return &Connection{url: url, name: name, key: key, log: log}
+func NewConnection(url string, name string, key *signature.KeyringPair, log log15.Logger, stop <-chan int) *Connection {
+	return &Connection{url: url, name: name, key: key, log: log, stop: stop}
 }
 
 func (c *Connection) getMetadata() (meta types.Metadata) {
@@ -143,6 +145,8 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 func (c *Connection) watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 	for {
 		select {
+		case <-c.stop:
+			return errors.New("terminated")
 		case status := <-sub.Chan():
 			switch {
 			case status.IsInBlock:

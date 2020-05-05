@@ -35,7 +35,7 @@ func checkBlockstore(bs *blockstore.Blockstore, startBlock uint64) (uint64, erro
 	}
 }
 
-func InitializeChain(cfg *core.ChainConfig, logger log15.Logger) (*Chain, error) {
+func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, stop <-chan int) (*Chain, error) {
 	kp, err := keystore.KeypairFromAddress(cfg.From, keystore.SubChain, cfg.KeystorePath, cfg.Insecure)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger) (*Chain, error)
 	}
 
 	// Setup connection
-	conn := NewConnection(cfg.Endpoint, cfg.Name, krp, logger)
+	conn := NewConnection(cfg.Endpoint, cfg.Name, krp, logger, stop)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger) (*Chain, error)
 	}
 
 	// Setup listener & writer
-	l := NewListener(conn, cfg.Name, cfg.Id, startBlock, logger, bs)
+	l := NewListener(conn, cfg.Name, cfg.Id, startBlock, logger, bs, stop)
 	w := NewWriter(conn, logger)
 	return &Chain{
 		cfg:      cfg,
@@ -105,20 +105,4 @@ func (c *Chain) Id() msg.ChainId {
 
 func (c *Chain) Name() string {
 	return c.cfg.Name
-}
-
-func (c *Chain) Stop() error {
-	err := c.listener.Stop()
-	if err != nil {
-		return err
-	}
-
-	err = c.writer.Stop()
-	if err != nil {
-		return err
-	}
-
-	c.conn.Close()
-
-	return nil
 }

@@ -4,8 +4,6 @@
 package ethereum
 
 import (
-	"context"
-
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
@@ -48,7 +46,7 @@ func setupBlockstore(cfg *Config, kp *secp256k1.Keypair) (*blockstore.Blockstore
 	return bs, nil
 }
 
-func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, ctx context.Context) (*Chain, error) {
+func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, stop <-chan int) (*Chain, error) {
 	cfg, err := parseChainConfig(chainCfg)
 	if err != nil {
 		return nil, err
@@ -65,7 +63,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, ctx contex
 		return nil, err
 	}
 
-	conn := NewConnection(cfg, kp, logger, ctx)
+	conn := NewConnection(cfg, kp, logger, stop)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
@@ -104,10 +102,10 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, ctx contex
 		return nil, err
 	}
 
-	listener := NewListener(conn, cfg, logger, bs)
+	listener := NewListener(conn, cfg, logger, bs, stop)
 	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 
-	writer := NewWriter(conn, cfg, logger)
+	writer := NewWriter(conn, cfg, logger, stop)
 	writer.setContract(bridgeContract)
 
 	return &Chain{
@@ -144,20 +142,4 @@ func (c *Chain) Id() msg.ChainId {
 
 func (c *Chain) Name() string {
 	return c.cfg.Name
-}
-
-func (c *Chain) Stop() error {
-	err := c.listener.stop()
-	if err != nil {
-		return err
-	}
-
-	err = c.writer.stop()
-	if err != nil {
-		return err
-	}
-
-	c.conn.Close()
-
-	return nil
 }

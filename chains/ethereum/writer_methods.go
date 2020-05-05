@@ -155,94 +155,109 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 	w.log.Trace("Watching for finalization event", "source", m.Source, "dest", m.Destination, "nonce", m.DepositNonce)
 
 	for i := 0; i < ExecuteBlockWatchLimit; i++ {
-		err := w.conn.waitForBlock(latestBlock)
-		if err != nil {
-			w.log.Error("Waiting for block failed", "err", err)
+		select {
+		case <-w.stop:
 			return
-		}
-
-		query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, latestBlock, latestBlock)
-		evts, err := w.conn.conn.FilterLogs(w.conn.ctx, query)
-		if err != nil {
-			log.Error("Failed to fetch logs", "err", err)
-			return
-		}
-
-		for _, evt := range evts {
-			sourceId := evt.Topics[1].Big().Uint64()
-			destId := evt.Topics[2].Big().Uint64()
-			depositNonce := evt.Topics[3].Big().Uint64()
-
-			if m.Source == msg.ChainId(sourceId) &&
-				m.Destination == msg.ChainId(destId) &&
-				m.DepositNonce.Big().Uint64() == depositNonce {
-				w.executeProposal(m, handler, data)
+		default:
+			err := w.conn.waitForBlock(latestBlock)
+			if err != nil {
+				w.log.Error("Waiting for block failed", "err", err)
 				return
-			} else {
-				w.log.Trace("Ignoring finalization event", "source", sourceId, "dest", destId, "nonce", depositNonce)
 			}
-		}
 
-		latestBlock = latestBlock.Add(latestBlock, big.NewInt(1))
+			query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, latestBlock, latestBlock)
+			evts, err := w.conn.conn.FilterLogs(w.conn.ctx, query)
+			if err != nil {
+				log.Error("Failed to fetch logs", "err", err)
+				return
+			}
+
+			for _, evt := range evts {
+				sourceId := evt.Topics[1].Big().Uint64()
+				destId := evt.Topics[2].Big().Uint64()
+				depositNonce := evt.Topics[3].Big().Uint64()
+
+				if m.Source == msg.ChainId(sourceId) &&
+					m.Destination == msg.ChainId(destId) &&
+					m.DepositNonce.Big().Uint64() == depositNonce {
+					w.executeProposal(m, handler, data)
+					return
+				} else {
+					w.log.Trace("Ignoring finalization event", "source", sourceId, "dest", destId, "nonce", depositNonce)
+				}
+			}
+
+			latestBlock = latestBlock.Add(latestBlock, big.NewInt(1))
+		}
 	}
 	log.Warn("Block watch limit exceeded, skipping execution", "source", m.Source, "dest", m.Destination, "nonce", m.DepositNonce)
 }
 
 func (w *writer) voteProposal(m msg.Message, hash [32]byte) {
 	for i := 0; i < TxRetryLimit; i++ {
-		err := w.lockAndUpdateNonce()
-		if err != nil {
-			w.log.Error("Failed to update nonce", "err", err)
-			continue
-		}
-
-		w.log.Debug("Submitting VoteProposal", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
-		_, err = w.bridgeContract.VoteProposal(
-			w.opts,
-			uint8(m.Source),
-			m.DepositNonce.Big(),
-			hash,
-		)
-		w.unlockNonce()
-
-		if err == nil {
+		select {
+		case <-w.stop:
 			return
-		} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
-			w.log.Info("Nonce too low, will retry")
-			time.Sleep(NonceRetryInterval)
-		} else {
-			w.log.Info("Unexpected tx error", "err", err)
-			time.Sleep(NonceRetryInterval)
+		default:
+			err := w.lockAndUpdateNonce()
+			if err != nil {
+				w.log.Error("Failed to update nonce", "err", err)
+				continue
+			}
+
+			w.log.Debug("Submitting VoteProposal", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
+			_, err = w.bridgeContract.VoteProposal(
+				w.opts,
+				uint8(m.Source),
+				m.DepositNonce.Big(),
+				hash,
+			)
+			w.unlockNonce()
+
+			if err == nil {
+				return
+			} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
+				w.log.Info("Nonce too low, will retry")
+				time.Sleep(NonceRetryInterval)
+			} else {
+				w.log.Info("Unexpected tx error", "err", err)
+				time.Sleep(NonceRetryInterval)
+			}
 		}
 	}
 }
 
 func (w *writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
 	for i := 0; i < TxRetryLimit; i++ {
-		err := w.lockAndUpdateNonce()
-		if err != nil {
-			w.log.Error("Failed to update nonce", "err", err)
+		select {
+		case <-w.stop:
 			return
-		}
+		default:
+			err := w.lockAndUpdateNonce()
+			if err != nil {
+				w.log.Error("Failed to update nonce", "err", err)
+				return
+			}
 
-		w.log.Info("Executing proposal", "handler", handler, "data", fmt.Sprintf("%x", data))
-		_, err = w.bridgeContract.ExecuteProposal(
-			w.opts,
-			uint8(m.Source),
-			m.DepositNonce.Big(),
-			handler,
-			data,
-		)
-		w.unlockNonce()
+			w.log.Info("Executing proposal", "handler", handler, "data", fmt.Sprintf("%x", data))
+			_, err = w.bridgeContract.ExecuteProposal(
+				w.opts,
+				uint8(m.Source),
+				m.DepositNonce.Big(),
+				handler,
+				data,
+			)
+			w.unlockNonce()
 
-		if err == nil {
-			return
-		} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
-			w.log.Debug("Nonce too low, will retry")
-			time.Sleep(NonceRetryInterval)
-		} else {
-			w.log.Warn("Execution failed, proposal may already be complete", "err", err)
-			time.Sleep(NonceRetryInterval)
+			if err == nil {
+				return
+			} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
+				w.log.Debug("Nonce too low, will retry")
+				time.Sleep(NonceRetryInterval)
+			} else {
+				w.log.Warn("Execution failed, proposal may already be complete", "err", err)
+				time.Sleep(NonceRetryInterval)
+			}
 		}
 	}
 }

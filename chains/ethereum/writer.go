@@ -28,13 +28,15 @@ type writer struct {
 	nonce          uint64
 	nonceLock      sync.Mutex
 	log            log15.Logger
+	stop           <-chan int
 }
 
-func NewWriter(conn *Connection, cfg *Config, log log15.Logger) *writer {
+func NewWriter(conn *Connection, cfg *Config, log log15.Logger, stop <-chan int) *writer {
 	return &writer{
 		cfg:  *cfg,
 		conn: conn,
 		log:  log,
+		stop: stop,
 	}
 }
 
@@ -87,8 +89,4 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 		w.log.Warn("Unknown message type received", "type", m.Type)
 		return false
 	}
-}
-
-func (w *writer) stop() error {
-	return nil
 }

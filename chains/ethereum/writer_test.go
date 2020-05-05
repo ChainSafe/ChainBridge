@@ -27,7 +27,7 @@ func createWritersAndClient(t *testing.T, contracts *utils.DeployedContracts) (*
 
 func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContracts) *writer {
 	conn := newLocalConnection(t, cfg)
-	writer := NewWriter(conn, cfg, newTestLogger(cfg.name))
+	writer := NewWriter(conn, cfg, newTestLogger(cfg.name), make(chan int))
 
 	bridge, err := Bridge.NewBridge(contracts.BridgeAddress, conn.conn)
 	if err != nil {
@@ -55,17 +55,16 @@ func TestWriter_start_stop(t *testing.T) {
 	conn := newLocalConnection(t, aliceTestConfig)
 	defer conn.Close()
 
-	writer := NewWriter(conn, aliceTestConfig, TestLogger)
+	stop := make(chan int)
+	writer := NewWriter(conn, aliceTestConfig, TestLogger, stop)
 
 	err := writer.start()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = writer.stop()
-	if err != nil {
-		t.Fatal(err)
-	}
+	// Initiate shutdown
+	close(stop)
 }
 
 func watchEvent(conn *Connection, subStr utils.EventSig) {

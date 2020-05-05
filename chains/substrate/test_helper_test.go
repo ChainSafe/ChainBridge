@@ -114,7 +114,7 @@ func newTestLogger(name string) log15.Logger {
 
 // createAliceConnection creates and starts a connection with the Alice keypair
 func createAliceConnection() (*Connection, error) {
-	alice := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger)
+	alice := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger, make(chan int))
 	err := alice.Connect()
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func createAliceAndBobConnections() (*Connection, *Connection, error) {
 		return nil, nil, err
 	}
 
-	bob := NewConnection(TestEndpoint, "Bob", BobKey, AliceTestLogger)
+	bob := NewConnection(TestEndpoint, "Bob", BobKey, AliceTestLogger, make(chan int))
 	err = bob.Connect()
 	if err != nil {
 		return nil, nil, err

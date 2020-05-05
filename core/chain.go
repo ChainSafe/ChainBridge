@@ -10,7 +10,6 @@ import (
 
 type Chain interface {
 	Start() error // Start chain
-	Stop() error  // Stop chain
 	SetRouter(*router.Router)
 	Id() msg.ChainId
 	Name() string
