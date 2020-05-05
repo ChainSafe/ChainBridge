@@ -12,6 +12,11 @@ import (
 
 const EnvPassword = "KEYSTORE_PASSWORD"
 
+var keyMapping = map[string]string{
+	"ethereum":  "secp256k1",
+	"substrate": "sr25519",
+}
+
 // KeypairFromAddress attempts to load the encrypted key file for the provided address,
 // prompting the user for the password.
 func KeypairFromAddress(addr, chainType, path string, insecure bool) (crypto.Keypair, error) {
@@ -31,7 +36,7 @@ func KeypairFromAddress(addr, chainType, path string, insecure bool) (crypto.Key
 		pswd = GetPassword(fmt.Sprintf("Enter password for key %s:", path))
 	}
 
-	kp, err := ReadFromFileAndDecrypt(path, pswd)
+	kp, err := ReadFromFileAndDecrypt(path, pswd, keyMapping[chainType])
 	if err != nil {
 		return nil, err
 	}
