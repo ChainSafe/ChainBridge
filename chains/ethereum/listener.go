@@ -42,7 +42,7 @@ type listener struct {
 	blockstore             blockstore.Blockstorer
 }
 
-// NewListener creates and returns &listener
+// NewListener creates and returns a listener
 func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *listener {
 	return &listener{
 		cfg:        *cfg,
@@ -52,7 +52,7 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.
 	}
 }
 
-// setContracts sets the listener with the appropriate contract handlers
+// setContracts sets the listener with the appropriate contracts
 func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handler.ERC20Handler, erc721Handler *ERC721Handler.ERC721Handler, genericHandler *GenericHandler.GenericHandler) {
 	l.bridgeContract = bridge
 	l.erc20HandlerContract = erc20Handler
@@ -127,7 +127,7 @@ func (l *listener) pollBlocks() error {
 	}
 }
 
-// getDepositEventsForBlock
+// getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
 

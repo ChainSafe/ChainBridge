@@ -30,7 +30,7 @@ type writer struct {
 	log            log15.Logger
 }
 
-// NewWriter creates and returns &writer
+// NewWriter creates and returns writer
 func NewWriter(conn *Connection, cfg *Config, log log15.Logger) *writer {
 	return &writer{
 		cfg:  *cfg,

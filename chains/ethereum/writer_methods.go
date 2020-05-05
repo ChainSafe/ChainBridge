@@ -162,12 +162,14 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	return true
 }
 
-// watchThenExecute watches for the latest block and executes once the matching event is found
+// watchThenExecute watches for the latest block and executes once the matching finalized event is found
 func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []byte, latestBlock *big.Int) {
 	w.log.Trace("Watching for finalization event", "source", m.Source, "dest", m.Destination, "nonce", m.DepositNonce)
 
-	// waiting to connect to the block
+	// watching for the latest block, querying and matching the finalized event will be retried up to ExecuteBlockWatchLimit times
 	for i := 0; i < ExecuteBlockWatchLimit; i++ {
+		
+		// watches for the lastest block
 		err := w.conn.waitForBlock(latestBlock)
 		if err != nil {
 			w.log.Error("Waiting for block failed", "err", err)
@@ -182,7 +184,7 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 			return
 		}
 
-		// execute the proposal once we find the matching event
+		// execute the proposal once we find the matching finalized event
 		for _, evt := range evts {
 			sourceId := evt.Topics[1].Big().Uint64()
 			destId := evt.Topics[2].Big().Uint64()
