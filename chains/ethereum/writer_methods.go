@@ -29,8 +29,8 @@ const TxRetryLimit = 10
 // constructErc20ProposalData returns the bytes to construct a proposal suitable for Erc20
 func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipient []byte) []byte {
 	var data []byte
-	data = append(data, resourceId[:]...)                   // resourceId (bytes32)
-	data = append(data, common.LeftPadBytes(amount, 32)...) // amount (uint256)
+	data = append(data, resourceId[:]...)                   	  // resourceId (bytes32)
+	data = append(data, common.LeftPadBytes(amount, 32)...) 	  // amount (uint256)
 
 	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
 	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // length of recipient (uint256)
@@ -41,16 +41,16 @@ func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipi
 // constructErc721ProposalData returns the bytes to construct a proposal suitable for Erc721
 func constructErc721ProposalData(tokenId []byte, resourceId msg.ResourceId, recipient []byte, metadata []byte) []byte {
 	var data []byte
-	data = append(data, common.LeftPadBytes(tokenId, 32)...) // tokenId ([]byte)
-	data = append(data, resourceId[:]...)                    // resourceId (bytes32)
+	data = append(data, common.LeftPadBytes(tokenId, 32)...) 	  // tokenId ([]byte)
+	data = append(data, resourceId[:]...)                    	  // resourceId (bytes32)
 
 	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
 	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // length of recipient
 	data = append(data, recipient...)                             // recipient ([]byte)
 
 	metadataLen := big.NewInt(int64(len(metadata))).Bytes()
-	data = append(data, common.LeftPadBytes(metadataLen, 32)...) // length of metadata (uint256)
-	data = append(data, metadata...)                             // metadata ([]byte)
+	data = append(data, common.LeftPadBytes(metadataLen, 32)...)  // length of metadata (uint256)
+	data = append(data, metadata...)                              // metadata ([]byte)
 	return data
 }
 
