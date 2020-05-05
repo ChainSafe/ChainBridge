@@ -39,7 +39,7 @@ func NewWriter(conn *Connection, cfg *Config, log log15.Logger) *writer {
 	}
 }
 
-// start logs that the ethereum writer is starting
+// start adds contract call options and transaction options to the writer
 func (w *writer) start() error {
 	w.log.Debug("Starting ethereum writer...")
 
