@@ -22,9 +22,11 @@ install:
     - sudo apt-get install ethereum
     - wget -P $HOME/bin/ https://storage.googleapis.com/centrifuge-dev-public/subkey  && chmod +x $HOME/bin/subkey
 
+
 jobs:
   include:
-    - language: go
+    - stage: "Test"
+      language: go
       go: 1.13.x
       name: "Golang-ci Linter"
       script:
@@ -32,7 +34,8 @@ jobs:
         - rm -rf bindings/ # Avoid adding license to bindings
         - make license-check
 
-    - language: go
+    - stage: "Test"
+      language: go
       go: 1.13.x
       name: "Run Go tests"
       script:
@@ -42,9 +45,10 @@ jobs:
         - cd .. && RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test
 
-    - language: go
+    - stage: "Test"
+      language: go
       go: 1.13.x
-      name: "Run Go e2e tests"
+      name: "Run e2e tests (Ganache)"
       script:
         - set -e
         - make clean && make rebuild-contracts
@@ -52,3 +56,19 @@ jobs:
         - SILENT=true PORT=8546 make start-ganache
         - cd .. && RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
+
+    - stage: "Test"
+      language: go
+      go: 1.13.x
+      name: "Run e2e tests (Geth)"
+      script:
+        - set -e
+        - make clean && make rebuild-contracts
+        - QUIET=true FORK=true INSTANCE=1 ./scripts/geth/run_geth.sh
+        - QUIET=true FORK=true INSTANCE=2 ./scripts/geth/run_geth.sh
+        - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
+        - make test-e2e
+
+    - stage: "Docker Deploy"
+      if: (NOT type IN (pull_request)) AND (branch = master)
+      script: ./scripts/ci_docker.sh

@@ -31,6 +31,7 @@ keys/
 config.toml
 ./centrifuge-chain
 *.block
-
+gethdata1/
+gethdata2/
 # Solidity
 /solidity

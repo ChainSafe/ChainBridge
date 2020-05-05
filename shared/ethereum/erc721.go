@@ -21,7 +21,12 @@ func DeployErc721(client *ethclient.Client, opts *bind.TransactOpts) (common.Add
 	}
 
 	// Deploy
-	addr, _, _, err := ERC721MinterBurnerPauser.DeployERC721MinterBurnerPauser(opts, client, "", "", "")
+	addr, tx, _, err := ERC721MinterBurnerPauser.DeployERC721MinterBurnerPauser(opts, client, "", "", "")
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	err = WaitForTx(client, tx)
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -41,7 +46,12 @@ func Erc721Mint(client *ethclient.Client, opts *bind.TransactOpts, erc721Contrac
 	}
 
 	// Mint
-	_, err = instance.Mint(opts, opts.From, id, string(metadata))
+	tx, err := instance.Mint(opts, opts.From, id, string(metadata))
+	if err != nil {
+		return err
+	}
+
+	err = WaitForTx(client, tx)
 	if err != nil {
 		return err
 	}
@@ -59,20 +69,21 @@ func ApproveErc721(client *ethclient.Client, opts *bind.TransactOpts, contractAd
 		return err
 	}
 
-	_, err = instance.Approve(opts, recipient, tokenId)
+	tx, err := instance.Approve(opts, recipient, tokenId)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func FundErc721Handler(client *ethclient.Client, opts *bind.TransactOpts, handlerAddress, erc721Address common.Address, tokenId *big.Int) error {
-	err := UpdateNonce(opts, client)
-	if err != nil {
-		return err
-	}
-
-	err = ApproveErc721(client, opts, erc721Address, handlerAddress, tokenId)
+	err := ApproveErc721(client, opts, erc721Address, handlerAddress, tokenId)
 	if err != nil {
 		return err
 	}
@@ -82,11 +93,21 @@ func FundErc721Handler(client *ethclient.Client, opts *bind.TransactOpts, handle
 		return err
 	}
 
-	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	_, err = instance.FundERC721(opts, erc721Address, opts.From, tokenId)
+	err = UpdateNonce(opts, client)
 	if err != nil {
 		return err
 	}
+
+	tx, err := instance.FundERC721(opts, erc721Address, opts.From, tokenId)
+	if err != nil {
+		return err
+	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -123,9 +144,15 @@ func Erc721AddMinter(client *ethclient.Client, opts *bind.TransactOpts, erc721Co
 		return err
 	}
 
-	_, err = instance.GrantRole(opts, role, minter)
+	tx, err := instance.GrantRole(opts, role, minter)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
