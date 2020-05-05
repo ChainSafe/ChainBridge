@@ -21,10 +21,12 @@ type Connection struct {
 	url         string
 	name        string
 	meta        types.Metadata
+	metaLock    sync.RWMutex
 	genesisHash types.Hash
 	key         *signature.KeyringPair
-	metaLock    sync.RWMutex
 	log         log15.Logger
+	nonce       types.U32
+	nonceLock   sync.Mutex
 }
 
 func NewConnection(url string, name string, key *signature.KeyringPair, log log15.Logger) *Connection {
@@ -100,10 +102,14 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 		return err
 	}
 
-	var acct types.AccountInfo
-	_, err = c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
+	c.nonceLock.Lock()
+	latestNonce, err := c.getLatestNonce()
 	if err != nil {
+		c.nonceLock.Unlock()
 		return err
+	}
+	if latestNonce > c.nonce {
+		c.nonce = latestNonce
 	}
 
 	// Sign the extrinsic
@@ -111,17 +117,21 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 		BlockHash:   c.genesisHash,
 		Era:         types.ExtrinsicEra{IsMortalEra: false},
 		GenesisHash: c.genesisHash,
-		Nonce:       types.UCompact(acct.Nonce),
+		Nonce:       types.UCompact(c.nonce),
 		SpecVersion: rv.SpecVersion,
 		Tip:         0,
 	}
+
 	err = ext.Sign(*c.key, o)
 	if err != nil {
+		c.nonceLock.Unlock()
 		return err
 	}
 
 	// Submit and watch the extrinsic
 	sub, err := c.api.RPC.Author.SubmitAndWatchExtrinsic(ext)
+	c.nonce++
+	c.nonceLock.Unlock()
 	if err != nil {
 		return fmt.Errorf("submission of extrinsic failed: %s", err.Error())
 	}
@@ -196,6 +206,19 @@ func (c *Connection) checkChainId(expected msg.ChainId) error {
 	return nil
 }
 
+func (c *Connection) getLatestNonce() (types.U32, error) {
+	var acct types.AccountInfo
+	exists, err := c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
+	if err != nil {
+		return 0, err
+	}
+	if !exists {
+		return 0, nil
+	}
+
+	return acct.Nonce, nil
+
+}
 func (c *Connection) Close() {
 	// TODO: Anything required to shutdown GRPC?
 }

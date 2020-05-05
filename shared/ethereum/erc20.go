@@ -22,7 +22,12 @@ func DeployMintApproveErc20(client *ethclient.Client, opts *bind.TransactOpts, e
 	}
 
 	// Deploy
-	erc20Addr, _, erc20Instance, err := ERC20.DeployERC20PresetMinterPauser(opts, client, "", "")
+	erc20Addr, tx, erc20Instance, err := ERC20.DeployERC20PresetMinterPauser(opts, client, "", "")
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	err = WaitForTx(client, tx)
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -36,7 +41,12 @@ func DeployMintApproveErc20(client *ethclient.Client, opts *bind.TransactOpts, e
 
 	// Approve
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	_, err = erc20Instance.Approve(opts, erc20Handler, amount)
+	tx, err = erc20Instance.Approve(opts, erc20Handler, amount)
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	err = WaitForTx(client, tx)
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -51,14 +61,24 @@ func DeployAndMintErc20(client *ethclient.Client, opts *bind.TransactOpts, amoun
 	}
 
 	// Deploy
-	erc20Addr, _, erc20Instance, err := ERC20.DeployERC20PresetMinterPauser(opts, client, "", "")
+	erc20Addr, tx, erc20Instance, err := ERC20.DeployERC20PresetMinterPauser(opts, client, "", "")
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	err = WaitForTx(client, tx)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
 	// Mint
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	_, err = erc20Instance.Mint(opts, opts.From, amount)
+	mintTx, err := erc20Instance.Mint(opts, opts.From, amount)
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	err = WaitForTx(client, mintTx)
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -77,10 +97,16 @@ func Erc20Approve(client *ethclient.Client, opts *bind.TransactOpts, erc20Contra
 		return err
 	}
 
-	_, err = instance.Approve(opts, recipient, amount)
+	tx, err := instance.Approve(opts, recipient, amount)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -99,31 +125,8 @@ func Erc20GetBalance(client *ethclient.Client, erc20Contract, account common.Add
 
 }
 
-func ApproveErc20(client *ethclient.Client, opts *bind.TransactOpts, contractAddress, recipient common.Address, amount *big.Int) error {
-	err := UpdateNonce(opts, client)
-	if err != nil {
-		return err
-	}
-
-	erc20Instance, err := ERC20.NewERC20PresetMinterPauser(contractAddress, client)
-	if err != nil {
-		return err
-	}
-
-	_, err = erc20Instance.Approve(opts, recipient, amount)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func FundErc20Handler(client *ethclient.Client, opts *bind.TransactOpts, handlerAddress, erc20Address common.Address, amount *big.Int) error {
-	err := UpdateNonce(opts, client)
-	if err != nil {
-		return err
-	}
-
-	err = ApproveErc20(client, opts, erc20Address, handlerAddress, amount)
+	err := Erc20Approve(client, opts, erc20Address, handlerAddress, amount)
 	if err != nil {
 		return err
 	}
@@ -134,10 +137,16 @@ func FundErc20Handler(client *ethclient.Client, opts *bind.TransactOpts, handler
 	}
 
 	opts.Nonce = opts.Nonce.Add(opts.Nonce, big.NewInt(1))
-	_, err = instance.FundERC20(opts, erc20Address, opts.From, amount)
+	tx, err := instance.FundERC20(opts, erc20Address, opts.From, amount)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -157,10 +166,16 @@ func Erc20AddMinter(client *ethclient.Client, opts *bind.TransactOpts, erc20Cont
 		return err
 	}
 
-	_, err = instance.GrantRole(opts, role, handler)
+	tx, err := instance.GrantRole(opts, role, handler)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -203,9 +218,15 @@ func Erc20Mint(client *ethclient.Client, opts *bind.TransactOpts, erc20Address, 
 		return err
 	}
 
-	_, err = instance.Mint(opts, recipient, amount)
+	tx, err := instance.Mint(opts, recipient, amount)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

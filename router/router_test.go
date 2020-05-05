@@ -6,6 +6,7 @@ package router
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
@@ -52,6 +53,8 @@ func TestRouter(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	time.Sleep(time.Second)
 
 	if !reflect.DeepEqual(ethW.msgs[0], msgCtfgToEth) {
 		t.Error("Unexpected message")

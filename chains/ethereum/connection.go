@@ -22,15 +22,6 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-// Nonce is a struct that wraps the Nonce with a mutex lock
-// this struct was implemented to prevent race conditions where
-// two transactions try to transact at the same time and recieve
-// the same nonce, causing one to be rejected.
-type Nonce struct {
-	nonce uint64
-	lock  *sync.Mutex
-}
-
 type Connection struct {
 	cfg       Config
 	ctx       context.Context
@@ -98,21 +89,6 @@ func (c *Connection) subscribeToEvent(query eth.FilterQuery) (*ActiveSubscriptio
 	}, nil
 }
 
-// pendingNonceAt returns the pending nonce of the given account and the given block
-func (c *Connection) pendingNonceAt(account [20]byte) (*Nonce, error) {
-	c.nonceLock.Lock()
-	nonce, err := c.conn.PendingNonceAt(c.ctx, ethcommon.Address(account))
-	if err != nil {
-		c.nonceLock.Unlock()
-		return nil, err
-	}
-
-	return &Nonce{
-		nonce,
-		&c.nonceLock,
-	}, nil
-}
-
 // latestBlock returns the latest block from the current chain
 func (c *Connection) latestBlock() (*big.Int, error) {
 	header, err := c.conn.HeaderByNumber(c.ctx, nil)
@@ -123,19 +99,19 @@ func (c *Connection) latestBlock() (*big.Int, error) {
 }
 
 // newTransactOpts builds the TransactOpts for the connection's keypair.
-func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, *Nonce, error) {
+func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, uint64, error) {
 	privateKey := c.kp.PrivateKey()
 	address := ethcrypto.PubkeyToAddress(privateKey.PublicKey)
 
-	nonce, err := c.pendingNonceAt(address)
+	nonce, err := c.conn.PendingNonceAt(c.ctx, address)
 	if err != nil {
-		return nil, nil, err
+		return nil, 0, err
 	}
 
 	auth := bind.NewKeyedTransactor(privateKey)
-	auth.Nonce = big.NewInt(int64(nonce.nonce))
-	auth.Value = big.NewInt(0)               // in wei
-	auth.GasLimit = uint64(gasLimit.Int64()) // in units
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = value
+	auth.GasLimit = uint64(gasLimit.Int64())
 	auth.GasPrice = gasPrice
 	auth.Context = c.ctx
 

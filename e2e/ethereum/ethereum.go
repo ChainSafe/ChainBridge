@@ -130,11 +130,6 @@ func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.Trans
 		t.Fatal(err)
 	}
 
-	err = utils.UpdateNonce(opts, client)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	if _, err := bridgeInstance.Deposit(
 		opts,
 		uint8(destId),
