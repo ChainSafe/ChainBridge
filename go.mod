@@ -13,5 +13,4 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/urfave/cli v1.22.2
 	golang.org/x/crypto v0.0.0-20200427165652-729f1e841bcc
-	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 )

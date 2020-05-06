@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
@@ -48,6 +49,15 @@ var bobTestConfig = &Config{
 	gasPrice: big.NewInt(DefaultGasPrice),
 }
 
+var charlieTestConfig = &Config{
+	id:       msg.ChainId(0),
+	name:     "charlie",
+	endpoint: TestEndpoint,
+	from:     keystore.CharlieKey,
+	gasLimit: big.NewInt(DefaultGasLimit),
+	gasPrice: big.NewInt(DefaultGasPrice),
+}
+
 func newTestLogger(name string) log15.Logger {
 	tLog := log15.New("chain", name)
 	tLog.SetHandler(log15.LvlFilterHandler(log15.LvlTrace, tLog.GetHandler()))
@@ -65,9 +75,9 @@ func newLocalConnection(t *testing.T, cfg *Config) *Connection {
 	return conn
 }
 
-func deployTestContracts(t *testing.T, id msg.ChainId) *utils.DeployedContracts {
+func deployTestContracts(t *testing.T, id msg.ChainId, kp *secp256k1.Keypair) *utils.DeployedContracts {
 	contracts, err := utils.DeployContracts(
-		hexutil.Encode(AliceKp.Encode())[2:],
+		hexutil.Encode(kp.Encode())[2:],
 		uint8(id),
 		TestEndpoint,
 		TestRelayerThreshold,

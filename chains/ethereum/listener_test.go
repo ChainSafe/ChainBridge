@@ -78,7 +78,7 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 }
 
 func TestListener_start_stop(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id)
+	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
 	l, _ := createTestListener(t, aliceTestConfig, contracts)
 
 	err := l.start()
@@ -93,15 +93,14 @@ func TestListener_start_stop(t *testing.T) {
 }
 
 func TestListener_Erc20DepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id)
+	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
 	l, router := createTestListener(t, aliceTestConfig, contracts)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
 
 	// Get transaction ready
-	opts, nonce, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	nonce.lock.Unlock() // We manual increment nonce in tests
+	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,15 +181,14 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 }
 
 func TestListener_Erc721DepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id)
+	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
 	l, router := createTestListener(t, aliceTestConfig, contracts)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
 
 	// Get transaction ready
-	opts, nonce, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	nonce.lock.Unlock() // We manual increment nonce in tests
+	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -245,15 +243,14 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 }
 
 func TestListener_GenericDepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id)
+	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
 	l, router := createTestListener(t, aliceTestConfig, contracts)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
 
 	// Get transaction ready
-	opts, nonce, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	nonce.lock.Unlock() // We manual increment nonce in tests
+	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
 	if err != nil {
 		t.Fatal(err)
 	}

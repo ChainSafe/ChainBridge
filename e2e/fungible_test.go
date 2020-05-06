@@ -10,6 +10,7 @@ import (
 
 	eth "github.com/ChainSafe/ChainBridge/e2e/ethereum"
 	sub "github.com/ChainSafe/ChainBridge/e2e/substrate"
+	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
 	log "github.com/ChainSafe/log15"
@@ -24,6 +25,11 @@ func testErc20ToSubstrate(t *testing.T, ctx *testContext) {
 		ok := t.Run(fmt.Sprintf("Transfer %d", i), func(t *testing.T) {
 			amount := big.NewInt(0).Mul(big.NewInt(int64(i)), big.NewInt(5))
 			log.Info("Submitting transaction", "number", i, "from", ctx.ethA.Opts.From, "handler", ctx.ethA.BaseContracts.ERC20HandlerAddress.String(), "amount", amount.String())
+
+			err := utils.UpdateNonce(ctx.ethA.Opts, ctx.ethA.Client)
+			if err != nil {
+				t.Fatal(err)
+			}
 			// Initiate transfer
 			eth.CreateErc20Deposit(t, ctx.ethA.Client, ctx.ethA.Opts, SubChainId, sub.BobKp.AsKeyringPair().PublicKey, amount, ctx.ethA.BaseContracts, ctx.EthSubErc20ResourceId)
 
@@ -78,6 +84,11 @@ func testErc20ToErc20(t *testing.T, ctx *testContext) {
 			amount := big.NewInt(0).Mul(big.NewInt(int64(i)), big.NewInt(5))
 			log.Info("Submitting transaction", "number", i, "recipient", recipient, "resourcId", ctx.EthEthErc20ResourceId.Hex(), "amount", amount.String(), "from", ctx.ethA.Opts.From, "handler", ctx.ethA.BaseContracts.ERC20HandlerAddress)
 
+			err := utils.UpdateNonce(ctx.ethA.Opts, ctx.ethA.Client)
+			if err != nil {
+				t.Fatal(err)
+			}
+
 			eth.CreateErc20Deposit(t, ctx.ethA.Client, ctx.ethA.Opts, EthBChainId, recipient.Bytes(), amount, ctx.ethA.BaseContracts, ctx.EthEthErc20ResourceId)
 
 			eth.WaitForDepositCreatedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
@@ -101,7 +112,6 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 	ethRecipient := eth.AliceKp.CommonAddress()
 
 	expectedSubBalance := subtest.BalanceOf(t, ctx.subClient, subRecipient)
-	feePerTx := big.NewInt(510196)
 
 	initialEthBalance := ethtest.Erc20BalanceOf(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
 	expectedEthBalance := ethtest.Erc20BalanceOf(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
@@ -113,6 +123,12 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			// Initiate transfer
 			amount := big.NewInt(0).Mul(big.NewInt(int64(i)), big.NewInt(5))
 			log.Info("Submitting transaction", "number", i, "amount", amount.String())
+
+			err := utils.UpdateNonce(ctx.ethA.Opts, ctx.ethA.Client)
+			if err != nil {
+				t.Fatal(err)
+			}
+
 			eth.CreateErc20Deposit(t, ctx.ethA.Client, ctx.ethA.Opts, SubChainId, subRecipient, amount, ctx.ethA.BaseContracts, ctx.EthSubErc20ResourceId)
 
 			// Check for success event
@@ -120,7 +136,6 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			nonce++
 			// Verify balance
 			expectedSubBalance.Add(expectedSubBalance, amount)
-			expectedSubBalance.Sub(expectedSubBalance, feePerTx)
 			subtest.AssertBalanceOf(t, ctx.subClient, subRecipient, expectedSubBalance)
 
 			expectedEthBalance.Sub(expectedEthBalance, amount)
@@ -136,7 +151,7 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 	// Repeat the process in the opposite direction
 	expectedEthBalance = ethtest.Erc20BalanceOf(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
 	expectedSubBalance = subtest.BalanceOf(t, ctx.subClient, subRecipient)
-	feePerTx = big.NewInt(10143)
+	feePerTx := big.NewInt(10143)
 	nonce = subtest.GetDepositNonce(t, ctx.subClient, EthAChainId) + 1
 
 	log.Info("Asserted resulting balance", "owner", ethRecipient, "balance", expectedEthBalance.String())

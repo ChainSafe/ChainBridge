@@ -269,20 +269,15 @@ func Test_ThreeRelayers(t *testing.T) {
 	subtest.EnsureInitializedChain(t, subClient, sub.RelayerSet, []msg.ChainId{EthAChainId}, resources, uint32(threshold))
 
 	// Create and start three bridges with both chains
-	_, aliceLog := createAndStartBridge(t, "alice", contractsA, contractsB)
 	_, bobLog := createAndStartBridge(t, "bob", contractsA, contractsB)
 	_, charlieLog := createAndStartBridge(t, "charlie", contractsA, contractsB)
+	_, aliceLog := createAndStartBridge(t, "dave", contractsA, contractsB)
 
 	for _, tt := range tests {
 		tt := tt
 
 		// Swap handler
-		fileName := "alice" + ".output"
-		logFiles = append(logFiles, fileName)
-		aliceLog.SetHandler(log.Must.FileHandler(fileName, log.TerminalFormat()))
-
-		// Swap handler
-		fileName = "bob" + ".output"
+		fileName := "bob" + ".output"
 		logFiles = append(logFiles, fileName)
 		bobLog.SetHandler(log.Must.FileHandler(fileName, log.TerminalFormat()))
 
@@ -290,6 +285,11 @@ func Test_ThreeRelayers(t *testing.T) {
 		fileName = "charlie" + ".output"
 		logFiles = append(logFiles, fileName)
 		charlieLog.SetHandler(log.Must.FileHandler(fileName, log.TerminalFormat()))
+
+		// Swap handler
+		fileName = "dave" + ".output"
+		logFiles = append(logFiles, fileName)
+		aliceLog.SetHandler(log.Must.FileHandler(fileName, log.TerminalFormat()))
 
 		t.Run(tt.name, func(t *testing.T) {
 			tt.fn(t, ctx)
