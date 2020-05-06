@@ -79,7 +79,7 @@ func (c *Config) validate() error {
 		if chain.Name == "" {
 			return fmt.Errorf("required field chain.Name empty for chain %d", chain.Id)
 		}
-		if chain.Id == "" {
+		if chain.Id == 0 {
 			return fmt.Errorf("required field chain.Id empty for chain %d", chain.Id)
 		}
 		if chain.From == "" {
