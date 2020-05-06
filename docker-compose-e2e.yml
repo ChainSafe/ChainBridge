@@ -1,0 +1,23 @@
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
+
+version: '3'
+services:
+  geth1:
+    image: "chainsafe/chainbridge-geth:latest"
+    container_name: geth1
+    ports:
+    - "8545:8545"
+
+  geth2:
+    image: "chainsafe/chainbridge-geth:latest"
+    container_name: geth2
+    ports:
+    - "8546:8545"
+
+  sub-chain:
+    image: "chainsafe/chainbridge-substrate-chain"
+    container_name: sub-chain
+    command: chainbridge-substrate-chain --dev --alice --ws-external --rpc-external
+    ports:
+    - "9944:9944"
