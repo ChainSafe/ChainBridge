@@ -103,17 +103,22 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
 # Testing
 
-Unit tests require an ethereum node running on `localhost:8545` and a substrate node running on `localhost:9944`. E2E tests require an additional ethereum node on `localhost:8546`.
+Unit tests require an ethereum node running on `localhost:8545` and a substrate node running on `localhost:9944`. E2E tests require an additional ethereum node on `localhost:8546`. 
 
-See [chainbridge-solidity](https://github.com/chainsafe/chainbridge-solidity) and [chainbridge-substrate-chain](https://github.com/ChainSafe/chainbridge-substrate-chain) for more information.
+A docker-compose file is provided to run two Geth nodes and a chainbridge-substrate-chain node in isolated environments:
+```
+$ docker-compose -f ./docker-compose-e2e.yml up
+```
 
-Go tests can be run with:
+See [chainbridge-solidity](https://github.com/chainsafe/chainbridge-solidity) and [chainbridge-substrate-chain](https://github.com/ChainSafe/chainbridge-substrate-chain) for more information on testing facilities.
+
+All Go tests can be run with:
 ```
-make test
+$ make test
 ```
-Go tests for end-to-end, ethereum and substrate can be run with
+Go tests specifically for ethereum, substrate and E2E can be run with
 ```
-make test-e2e
-make test-eth
-make test-sub
+$ make test-eth
+$ make test-sub
+$ make test-e2e
 ```
