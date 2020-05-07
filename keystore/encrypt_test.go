@@ -94,7 +94,7 @@ func TestEncryptAndDecryptFromFile_Secp256k1(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := ReadFromFileAndDecrypt(fp, password)
+	res, err := ReadFromFileAndDecrypt(fp, password, "secp256k1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -119,12 +119,33 @@ func TestEncryptAndDecryptFromFile_Sr25519(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := ReadFromFileAndDecrypt(fp, password)
+	res, err := ReadFromFileAndDecrypt(fp, password, "sr25519")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if !bytes.Equal(kp.Encode(), res.Encode()) {
 		t.Fatalf("Fail: got %#v expected %#v", res, kp)
+	}
+}
+
+func TestDecryptIncorrectType(t *testing.T) {
+	password := []byte("ansermino")
+	file, fp := createTestFile(t)
+	defer os.Remove(fp)
+
+	kp, err := sr25519.NewKeypairFromSeed("//seed")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = EncryptAndWriteToFile(file, kp, password)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = ReadFromFileAndDecrypt(fp, password, "secp256k1")
+	if err == nil {
+		t.Fatal("Expected mismatch error, got none.")
 	}
 }
