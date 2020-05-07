@@ -1,6 +1,33 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
+/*
+The ethereum package contains the logic for interacting with ethereum chains.
 
+There are 4 major components: The chain, the connection, the listener, and the writer.
+
+The Chain
+
+The chain handles the overheard and initalization of the chain. The `main` package calls the chain to create and connect to the proper ports and set the listener and writer.
+In addition to setting up the chain, it also has the functionality to start the chain and send transactions to the chain.
+
+The Connection
+
+The connection function within the chain is to poll blocks and pass those blocks to the listener.
+It also handles connecting to the chain and report any issues.
+
+The Listener
+
+The listener's job is to handle events happening on the local change and send the events to the bridge.
+The listen vs write verbs are relative to the chain that the service is attached too.
+The ethereum listener "listens" to the chain and writes to the router (eg other chains)
+The ethereum writer "writes" to the chain and listens to the router.
+The listener currently Erc20, Erc721, and generic deposit events.
+
+The Writer
+
+The writer's job is to obtain events from the router, and create the corresponding event on the ethereum chain and then post that event to the chain.
+The currently supported events are Erc20, Erc721, and generic deposit events.
+*/
 package ethereum
 
 import (
