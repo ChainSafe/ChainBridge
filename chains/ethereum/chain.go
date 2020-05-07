@@ -4,29 +4,34 @@
 The ethereum package contains the logic for interacting with ethereum chains.
 
 There are 4 major components: The chain, the connection, the listener, and the writer.
+The currently supported actions are The currently supported events are Erc20, Erc721, and generic deposit events.
 
 The Chain
 
-The chain handles the overheard and initalization of the chain. The `main` package calls the chain to create and connect to the proper ports and set the listener and writer.
-In addition to setting up the chain, it also has the functionality to start the chain and send transactions to the chain.
+The Chain handles the overheard and initalization of the Chain. Calling the Chain to create and connect to the proper ports and set the listener and writer.
+In addition to setting up the Chain, it also has the functionality to start the Chain and send transactions to the ethereum chain.
 
 The Connection
 
-The connection function within the chain is to poll blocks and pass those blocks to the listener.
-It also handles connecting to the chain and report any issues.
+The connection connects to the ethereum client and can be accessed by both the writer and listener.
 
 The Listener
 
-The listener's job is to handle events happening on the local change and send the events to the bridge.
+The listener's job is to handle events happening on the local chain and send the events to the bridge.
 The listen vs write verbs are relative to the chain that the service is attached too.
-The ethereum listener "listens" to the chain and writes to the router (eg other chains)
+The ethereum listener "listens" to the chain and writes to the router.
 The ethereum writer "writes" to the chain and listens to the router.
-The listener currently Erc20, Erc721, and generic deposit events.
+
 
 The Writer
 
 The writer's job is to obtain events from the router, and create the corresponding event on the ethereum chain and then post that event to the chain.
-The currently supported events are Erc20, Erc721, and generic deposit events.
+An example flow of the writer would be:
+ - A listener on a source chain hears an event and parses the event into a message and sends it the router.
+ - The router passes the message to the ethereum writer.
+ - The writer recieves the message and creates a proposal on-chain.
+ - The writer then watches for a finalization event.
+ - After seeing the finalization event, the writer executes the proposal.
 */
 package ethereum
 

@@ -12,16 +12,15 @@ The keystore file is used as a file representation of a key. It contains 4 parts
 - The Address
 - The ciphertext
 
-This keystore may also require a password to decrypt into a usable key.
+This keystore also requires a password to decrypt into a usable key.
 The keystore library can be used to both encrypt keys into keystores, and decrypt keystore into keys.
-For more information on how to encrypt and decrypt from the command line, reference the `main` package in `cmd/chainbridge`.
+For more information on how to encrypt and decrypt from the command line, reference the README: https://github.com/ChainSafe/ChainBridge
 
 The Keyring
 
-The keyring provided predefined secp256k1 and srr25519 keys to use in testing.
-These keys do not live in a keystore, but rather are coded into the keystore.
+The keyring provides predefined secp256k1 and srr25519 keys to use in testing.
+These keys are automatically provided during runtime and stored in memory rather than being stored on disk.
 There are 5 keys currenty supported: Alice, Bob, Charlie, Dave, and Eve.
-For information on how to use these keys, reference the chainbridge help information `chainbridge --help`
 
 */
 package keystore

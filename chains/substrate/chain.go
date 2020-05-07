@@ -3,31 +3,33 @@
 
 /*
 The substrate package contains the logic for interacting with substrate chains.
+The current supported events are Fungible, Nonfungible, and generic transfer events.
 
 There are 4 major components: The chain, the connection, the listener, and the writer.
 
 The Chain
 
-The chain handles the overheard and initalization of the chain. The `main` package calls the chain to create and connect to the proper ports and set the listener and writer.
-In addition to setting up the chain, it also has the functionality to start the chain and send transactions to the chain.
+The Chain handles initializing the Chain, which includes creating the connection, writer, and listener.
+There is also functionality for starting and stopping the Chain.
 
 The Connection
 
-The connection function within the chain is to poll blocks and pass those blocks to the listener.
-It also handles connecting to the chain and report any issues.
+The Connection handles connecting to the substrate client, and submitting transactions to the client.
+In addition, the connection also can query and obtain both data and metadata from the client.
+The connection is shared by the writer and listener.
 
 The Listener
 
-The listener's job is to handle events happening on the local change and send the events to the bridge.
-The listen vs write verbs are relative to the chain that the service is attached too.
-The substrate listener "listens" to the chain and writes to the router (eg other chains)
-The substrate writer "writes" to the chain and listens to the router.
-The listener currently Fungible, Nonfungible, and generic transfer events.
+The listener listens to event coming from the client and posts them to the router.
+To accomplish this, the listener requests the data within the blocks on the chain (known as polling the blocks) and reads the data to determine if any events have happened.
+If any events do happen, the listener sends a message to the router, which will be passed onto the destination chains writer.
 
 The Writer
 
-The writer's job is to obtain events from the router, and create the corresponding event on the substrate chain and then post that event to the chain.
-The currently supported events are Fungible, Nonfungible, and transfer deposit events.
+The writer listens to event coming from the router and writes them to the chain.
+The writer upon hearing from the router posts a proposal message to the client.
+If the proposal is found to be active, then the writer executes the event on the chain.
+
 */
 package substrate
 
