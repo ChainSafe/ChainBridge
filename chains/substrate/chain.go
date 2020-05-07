@@ -21,7 +21,7 @@ The connection is shared by the writer and listener.
 The Listener
 
 The listener listens to event coming from the client and posts them to the router.
-To accomplish this, the listener requests the data within the blocks on the chain (known as polling the blocks) and reads the data to determine if any events have happened.
+To accomplish this, the listener requests the data within the blocks on the chain (also known as polling the blocks) and reads the data to determine if any events have happened.
 If any events do happen, the listener sends a message to the router, which will be passed onto the destination chains writer.
 
 The Writer
