@@ -30,6 +30,7 @@ type writer struct {
 	log            log15.Logger
 }
 
+// NewWriter creates and returns writer
 func NewWriter(conn *Connection, cfg *Config, log log15.Logger) *writer {
 	return &writer{
 		cfg:  *cfg,
@@ -38,6 +39,7 @@ func NewWriter(conn *Connection, cfg *Config, log log15.Logger) *writer {
 	}
 }
 
+// start adds contract call options and transaction options to the writer
 func (w *writer) start() error {
 	w.log.Debug("Starting ethereum writer...")
 
@@ -52,6 +54,7 @@ func (w *writer) start() error {
 	return nil
 }
 
+// setContract adds the bound receiver bridgeContract to the writer
 func (w *writer) setContract(bridge *Bridge.Bridge) {
 	w.bridgeContract = bridge
 }
@@ -89,6 +92,7 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 	}
 }
 
+// stop stops the writer
 func (w *writer) stop() error {
 	return nil
 }
