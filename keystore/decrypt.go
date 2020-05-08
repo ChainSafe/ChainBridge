@@ -26,6 +26,9 @@ func Decrypt(data, password []byte) ([]byte, error) {
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
+		if err.Error() == "cipher: message authentication failed" {
+			err = errors.New(err.Error() + ". Incorrect Password.")
+		}
 		return nil, err
 	}
 
