@@ -33,6 +33,7 @@ type writer struct {
 	sysErr         chan<- error // Reports fatal error to core
 }
 
+// NewWriter creates and returns writer
 func NewWriter(conn *Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error) *writer {
 	return &writer{
 		cfg:    *cfg,
@@ -43,6 +44,7 @@ func NewWriter(conn *Connection, cfg *Config, log log15.Logger, stop <-chan int,
 	}
 }
 
+// start adds contract call options and transaction options to the writer
 func (w *writer) start() error {
 	w.log.Debug("Starting ethereum writer...")
 
@@ -57,6 +59,7 @@ func (w *writer) start() error {
 	return nil
 }
 
+// setContract adds the bound receiver bridgeContract to the writer
 func (w *writer) setContract(bridge *Bridge.Bridge) {
 	w.bridgeContract = bridge
 }

@@ -28,7 +28,7 @@ var BlockRetryLimit = 5
 
 type ActiveSubscription struct {
 	ch  <-chan ethtypes.Log
-	sub eth.Subscription
+	sub eth.Subscription // subscribe to specific events
 }
 
 type listener struct {
@@ -45,6 +45,7 @@ type listener struct {
 	sysErr                 chan<- error // Reports fatal error to core
 }
 
+// NewListener creates and returns a listener
 func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
 	return &listener{
 		cfg:        *cfg,
@@ -56,6 +57,7 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.
 	}
 }
 
+// setContracts sets the listener with the appropriate contracts
 func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handler.ERC20Handler, erc721Handler *ERC721Handler.ERC721Handler, genericHandler *GenericHandler.GenericHandler) {
 	l.bridgeContract = bridge
 	l.erc20HandlerContract = erc20Handler
@@ -63,11 +65,12 @@ func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handle
 	l.genericHandlerContract = genericHandler
 }
 
+// sets the router
 func (l *listener) setRouter(r chains.Router) {
 	l.router = r
 }
 
-// Start registers all subscriptions provided by the config
+// start registers all subscriptions provided by the config
 func (l *listener) start() error {
 	l.log.Debug("Starting listener...")
 
@@ -134,14 +137,17 @@ func (l *listener) pollBlocks() error {
 	}
 }
 
+// getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
 
+	// querying for logs
 	logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
 	if err != nil {
 		return fmt.Errorf("unable to Filter Logs: %s", err)
 	}
 
+	// read through the log events and handle their deposit event if handler is recognized
 	for _, log := range logs {
 		var m msg.Message
 		addr := ethcommon.BytesToAddress(log.Topics[2].Bytes())
