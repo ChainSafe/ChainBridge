@@ -149,9 +149,13 @@ func run(ctx *cli.Context) error {
 	c := core.NewCore()
 
 	for _, chain := range cfg.Chains {
+		chainId, err := strconv.Atoi(chain.Id)
+		if err != nil {
+			return err
+		}
 		chainConfig := &core.ChainConfig{
 			Name:           chain.Name,
-			Id:             chain.Id,
+			Id:             strconv.Atoi(chain.Id),
 			Endpoint:       chain.Endpoint,
 			From:           chain.From,
 			KeystorePath:   ks,

@@ -28,7 +28,7 @@ type Config struct {
 type RawChainConfig struct {
 	Name     string            `toml:"name"`
 	Type     string            `toml:"type"`
-	Id       msg.ChainId       `toml:"id"`       // ChainID
+	Id       string		       `toml:"id"`       // ChainID
 	Endpoint string            `toml:"endpoint"` // url for rpc endpoint
 	From     string            `toml:"from"`     // address of key to use
 	Opts     map[string]string `toml:"opts"`
