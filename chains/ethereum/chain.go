@@ -3,35 +3,20 @@
 /*
 The ethereum package contains the logic for interacting with ethereum chains.
 
-There are 4 major components: The chain, the connection, the listener, and the writer.
-The currently supported actions are The currently supported events are Erc20, Erc721, and generic deposit events.
+There are 3 major components: the connection, the listener, and the writer.
+The currently supported transfer types are Fungible (ERC20), Non-Fungible (ERC721), and generic.
 
-The Chain
+Connection
 
-The Chain handles the overheard and initalization of the Chain. Calling the Chain to create and connect to the proper ports and set the listener and writer.
-In addition to setting up the Chain, it also has the functionality to start the Chain and send transactions to the ethereum chain.
+The connection contains the ethereum RPC client and can be accessed by both the writer and listener.
 
-The Connection
+Listener
 
-The connection connects to the ethereum client and can be accessed by both the writer and listener.
+The listener polls for each new block and looks for deposit events in the bridge contract. If a deposit occurs, the listener will fetch additional information from the handler before constructing a message and forwarding it to the router.
 
-The Listener
+Writer
 
-The listener's job is to handle events happening on the local chain and send the events to the bridge.
-The listen vs write verbs are relative to the chain that the service is attached too.
-The ethereum listener "listens" to the chain and writes to the router.
-The ethereum writer "writes" to the chain and listens to the router.
-
-
-The Writer
-
-The writer's job is to obtain events from the router, and create the corresponding event on the ethereum chain and then post that event to the chain.
-An example flow of the writer would be:
- - A listener on a source chain hears an event and parses the event into a message and sends it the router.
- - The router passes the message to the ethereum writer.
- - The writer recieves the message and creates a proposal on-chain.
- - The writer then watches for a finalization event.
- - After seeing the finalization event, the writer executes the proposal.
+The writer recieves the message and creates a proposals on-chain. Once a proposal is made, the writer then watches for a finalization event and will attempt to execute the proposal if a matching event occurs. The writer skips over any proposals it has already seen.
 */
 package ethereum
 
