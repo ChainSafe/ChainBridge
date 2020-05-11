@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 
+	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
 	"github.com/ChainSafe/ChainBridge/core"
@@ -155,7 +156,7 @@ func run(ctx *cli.Context) error {
 		}
 		chainConfig := &core.ChainConfig{
 			Name:           chain.Name,
-			Id:             strconv.Atoi(chain.Id),
+			Id:             msg.ChainId(chainId),
 			Endpoint:       chain.Endpoint,
 			From:           chain.From,
 			KeystorePath:   ks,

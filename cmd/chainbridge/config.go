@@ -10,7 +10,6 @@ import (
 	"reflect"
 	"unicode"
 
-	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/naoina/toml"
 	"github.com/urfave/cli"
@@ -79,7 +78,7 @@ func (c *Config) validate() error {
 		if chain.Name == "" {
 			return fmt.Errorf("required field chain.Name empty for chain %d", chain.Id)
 		}
-		if chain.Id == 0 {
+		if chain.Id == "" {
 			return fmt.Errorf("required field chain.Id empty for chain %d", chain.Id)
 		}
 		if chain.From == "" {
