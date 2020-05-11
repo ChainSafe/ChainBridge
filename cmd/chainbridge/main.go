@@ -11,6 +11,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
 	"github.com/ChainSafe/ChainBridge/core"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -149,9 +150,13 @@ func run(ctx *cli.Context) error {
 	c := core.NewCore()
 
 	for _, chain := range cfg.Chains {
+		chainId, err := strconv.Atoi(chain.Id)
+		if err != nil {
+			return err
+		}
 		chainConfig := &core.ChainConfig{
 			Name:           chain.Name,
-			Id:             chain.Id,
+			Id:             msg.ChainId(chainId),
 			Endpoint:       chain.Endpoint,
 			From:           chain.From,
 			KeystorePath:   ks,
