@@ -19,7 +19,7 @@ func createTempConfigFile() (*os.File, *Config) {
 	ethCfg := RawChainConfig{
 		Name:     "chain",
 		Type:     "ethereum",
-		Id:       1,
+		Id:       "1",
 		Endpoint: "endpoint",
 		From:     "0x0",
 		Opts:     nil,
@@ -75,7 +75,7 @@ func TestValdiateConfig(t *testing.T) {
 	valid := RawChainConfig{
 		Name:     "chain",
 		Type:     "ethereum",
-		Id:       1,
+		Id:       "1",
 		Endpoint: "endpoint",
 		From:     "0x0",
 		Opts:     nil,
@@ -84,7 +84,7 @@ func TestValdiateConfig(t *testing.T) {
 	missingType := RawChainConfig{
 		Name:     "chain",
 		Type:     "",
-		Id:       1,
+		Id:       "1",
 		Endpoint: "endpoint",
 		From:     "0x0",
 		Opts:     nil,
@@ -93,7 +93,7 @@ func TestValdiateConfig(t *testing.T) {
 	missingEndpoint := RawChainConfig{
 		Name:     "chain",
 		Type:     "ethereum",
-		Id:       1,
+		Id:       "1",
 		Endpoint: "",
 		From:     "0x0",
 		Opts:     nil,
@@ -102,7 +102,7 @@ func TestValdiateConfig(t *testing.T) {
 	missingName := RawChainConfig{
 		Name:     "",
 		Type:     "ethereum",
-		Id:       1,
+		Id:       "1",
 		Endpoint: "endpoint",
 		From:     "0x0",
 		Opts:     nil,
