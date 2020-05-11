@@ -8,10 +8,10 @@ import (
 	"os"
 	"strconv"
 
-	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
 	"github.com/ChainSafe/ChainBridge/core"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
