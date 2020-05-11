@@ -26,13 +26,14 @@ type listener struct {
 	router        chains.Router
 	log           log15.Logger
 	stop          <-chan int
+	sysErr        chan<- error
 }
 
 // Frequency of polling for a new block
-var BlockRetryInterval = time.Second * 2
-var BlockRetryLimit = 3
+var BlockRetryInterval = time.Second * 5
+var BlockRetryLimit = 5
 
-func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int) *listener {
+func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
 	return &listener{
 		name:          name,
 		chainId:       id,
@@ -42,6 +43,7 @@ func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint6
 		subscriptions: make(map[eventName]eventHandler),
 		log:           log,
 		stop:          stop,
+		sysErr:        sysErr,
 	}
 }
 
@@ -90,7 +92,7 @@ var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
 
 // pollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
 // Polling begins at the block defined in `l.startBlock`. Failed attempts to fetch the latest block or parse
-// a block will be retried up to BlockRetryLimit times before continuing to the next block.
+// a block will be retried up to BlockRetryLimit times before exiting with a .
 func (l *listener) pollBlocks() error {
 	var latestBlock = l.startBlock
 	var retry = BlockRetryLimit
@@ -101,8 +103,8 @@ func (l *listener) pollBlocks() error {
 		default:
 			// No more retries, goto next block
 			if retry == 0 {
-				latestBlock++
-				retry = BlockRetryLimit
+				l.sysErr <- fmt.Errorf("event polling retries exceeded (chain=%d, name=%s)", l.chainId, l.name)
+				return nil
 			}
 
 			// Get hash for latest block, sleep and retry if not ready
@@ -129,6 +131,7 @@ func (l *listener) pollBlocks() error {
 			if err != nil {
 				l.log.Error("Failed to write to blockstore", "err", err)
 			}
+
 			latestBlock++
 			retry = BlockRetryLimit
 		}

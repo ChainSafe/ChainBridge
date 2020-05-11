@@ -29,10 +29,11 @@ type Connection struct {
 	nonce       types.U32
 	nonceLock   sync.Mutex
 	stop        <-chan int
+	sysErr      chan<- error
 }
 
-func NewConnection(url string, name string, key *signature.KeyringPair, log log15.Logger, stop <-chan int) *Connection {
-	return &Connection{url: url, name: name, key: key, log: log, stop: stop}
+func NewConnection(url string, name string, key *signature.KeyringPair, log log15.Logger, stop <-chan int, sysErr chan<- error) *Connection {
+	return &Connection{url: url, name: name, key: key, log: log, stop: stop, sysErr: sysErr}
 }
 
 func (c *Connection) getMetadata() (meta types.Metadata) {
@@ -139,7 +140,11 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 	}
 	c.log.Debug("Extrinsic submission succeeded")
 	defer sub.Unsubscribe()
-	return c.watchSubmission(sub)
+
+	err = c.watchSubmission(sub)
+	if err != nil {
+
+	}
 }
 
 func (c *Connection) watchSubmission(sub *author.ExtrinsicStatusSubscription) error {

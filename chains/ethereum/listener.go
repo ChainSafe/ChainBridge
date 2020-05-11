@@ -23,8 +23,8 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-var BlockRetryInterval = time.Second * 2
-var BlockRetryLimit = 3
+var BlockRetryInterval = time.Second * 5
+var BlockRetryLimit = 5
 
 type ActiveSubscription struct {
 	ch  <-chan ethtypes.Log
@@ -42,15 +42,17 @@ type listener struct {
 	log                    log15.Logger
 	blockstore             blockstore.Blockstorer
 	stop                   <-chan int
+	sysErr                 chan<- error // Reports fatal error to core
 }
 
-func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int) *listener {
+func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
 	return &listener{
 		cfg:        *cfg,
 		conn:       conn,
 		log:        log,
 		blockstore: bs,
 		stop:       stop,
+		sysErr:     sysErr,
 	}
 }
 
@@ -93,8 +95,8 @@ func (l *listener) pollBlocks() error {
 		default:
 			// No more retries, goto next block
 			if retry == 0 {
-				latestBlock.Add(latestBlock, big.NewInt(1))
-				retry = BlockRetryLimit
+				l.sysErr <- fmt.Errorf("fatal error: retries exceeded (chain=%d)", l.cfg.id)
+				return nil
 			}
 
 			currBlock, err := l.conn.latestBlock()

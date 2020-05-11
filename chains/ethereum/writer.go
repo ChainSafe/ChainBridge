@@ -18,6 +18,7 @@ var _ chains.Writer = &writer{}
 
 // https://github.com/ChainSafe/chainbridge-solidity/blob/b5ed13d9798feb7c340e737a726dd415b8815366/contracts/Bridge.sol#L20
 var PassedStatus uint8 = 2
+var TransferredStatus uint8 = 3
 
 type writer struct {
 	cfg            Config
@@ -29,14 +30,16 @@ type writer struct {
 	nonceLock      sync.Mutex
 	log            log15.Logger
 	stop           <-chan int
+	sysErr         chan<- error // Reports fatal error to core
 }
 
-func NewWriter(conn *Connection, cfg *Config, log log15.Logger, stop <-chan int) *writer {
+func NewWriter(conn *Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error) *writer {
 	return &writer{
-		cfg:  *cfg,
-		conn: conn,
-		log:  log,
-		stop: stop,
+		cfg:    *cfg,
+		conn:   conn,
+		log:    log,
+		stop:   stop,
+		sysErr: sysErr,
 	}
 }
 

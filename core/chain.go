@@ -13,6 +13,7 @@ type Chain interface {
 	SetRouter(*router.Router)
 	Id() msg.ChainId
 	Name() string
+	Stop()
 }
 
 type ChainConfig struct {

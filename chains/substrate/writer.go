@@ -5,6 +5,7 @@ package substrate
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -18,14 +19,16 @@ var _ chains.Writer = &writer{}
 var AcknowledgeProposal utils.Method = utils.BridgePalletName + ".acknowledge_proposal"
 
 type writer struct {
-	conn *Connection
-	log  log15.Logger
+	conn   *Connection
+	log    log15.Logger
+	sysErr chan<- error
 }
 
-func NewWriter(conn *Connection, log log15.Logger) *writer {
+func NewWriter(conn *Connection, log log15.Logger, sysErr chan<- error) *writer {
 	return &writer{
-		conn: conn,
-		log:  log,
+		conn:   conn,
+		log:    log,
+		sysErr: sysErr,
 	}
 }
 
@@ -37,48 +40,48 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 	var prop *proposal
 	var err error
 
+	// Construct the proposal
 	switch m.Type {
 	case msg.FungibleTransfer:
 		prop, err = w.createFungibleProposal(m)
-		if err != nil {
-			w.log.Error("Failed to construct fungible transfer from message", "err", err)
-			return false
-		}
 	case msg.NonFungibleTransfer:
 		prop, err = w.createNonFungibleProposal(m)
-		if err != nil {
-			w.log.Error("Failed to construct nonfungible transfer from message", "err", err)
-			return false
-		}
 	case msg.GenericTransfer:
 		prop, err = w.createGenericProposal(m)
-		if err != nil {
-			w.log.Error("Failed to construct generic transfer from message", "err", err)
-			return false
-		}
-
 	default:
-		w.log.Error("Unrecognized message type", "type", m.Type)
+		w.sysErr <- fmt.Errorf("unrecognized message type received (chain=%d, name=%s)", m.Destination, w.conn.name)
 		return false
 	}
 
-	// Ensure we only submit a vote if the proposal hasn't completed
-	active, err := w.proposalNotCompleted(prop)
 	if err != nil {
-		w.log.Error("Failed to assert proposal state", "err", err)
+		w.sysErr <- fmt.Errorf("failed to construct proposal (chain=%d, name=%s) Error: %s", m.Destination, w.conn.name, err)
 		return false
 	}
-	if active {
-		w.log.Trace("Acknowledging proposal on chain", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", fmt.Sprintf("%x", prop.resourceId), "method", prop.method)
-		err = w.conn.SubmitTx(AcknowledgeProposal, prop.depositNonce, prop.sourceId, prop.resourceId, prop.call)
-		if err != nil {
-			w.log.Error("Failed to execute extrinsic", "err", err)
-			return false
-		}
-	} else {
-		w.log.Debug("Ignoring previously completed proposal", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)
-	}
 
+	for i := 0; i < BlockRetryLimit; i++ {
+		// Ensure we only submit a vote if the proposal hasn't completed
+		active, err := w.proposalNotCompleted(prop)
+		if err != nil {
+			w.log.Error("Failed to assert proposal state", "err", err)
+			time.Sleep(BlockRetryInterval)
+			continue
+		}
+
+		// If active submit call, otherwise skip it. Retry on failure.
+		if active {
+			w.log.Trace("Acknowledging proposal on chain", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", fmt.Sprintf("%x", prop.resourceId), "method", prop.method)
+			err = w.conn.SubmitTx(AcknowledgeProposal, prop.depositNonce, prop.sourceId, prop.resourceId, prop.call)
+			if err != nil {
+				w.log.Error("Failed to execute extrinsic", "err", err)
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+			return true
+		} else {
+			w.log.Debug("Ignoring previously completed proposal", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)
+			return true
+		}
+	}
 	return true
 }
 

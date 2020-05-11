@@ -18,6 +18,7 @@ type Chain struct {
 	conn     *Connection       // THe chains connection
 	listener *listener         // The listener of this chain
 	writer   *writer           // The writer of the chain
+	stop     chan<- int
 }
 
 // checkBlockstore queries the blockstore for the latest known block. If the latest block is
@@ -35,7 +36,7 @@ func checkBlockstore(bs *blockstore.Blockstore, startBlock uint64) (uint64, erro
 	}
 }
 
-func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, stop <-chan int) (*Chain, error) {
+func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, sysErr chan<- error) (*Chain, error) {
 	kp, err := keystore.KeypairFromAddress(cfg.From, keystore.SubChain, cfg.KeystorePath, cfg.Insecure)
 	if err != nil {
 		return nil, err
@@ -56,8 +57,9 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, stop <-chan int
 		}
 	}
 
+	stop := make(chan int)
 	// Setup connection
-	conn := NewConnection(cfg.Endpoint, cfg.Name, krp, logger, stop)
+	conn := NewConnection(cfg.Endpoint, cfg.Name, krp, logger, stop, sysErr)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
@@ -69,8 +71,8 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, stop <-chan int
 	}
 
 	// Setup listener & writer
-	l := NewListener(conn, cfg.Name, cfg.Id, startBlock, logger, bs, stop)
-	w := NewWriter(conn, logger)
+	l := NewListener(conn, cfg.Name, cfg.Id, startBlock, logger, bs, stop, sysErr)
+	w := NewWriter(conn, logger, sysErr)
 	return &Chain{
 		cfg:      cfg,
 		conn:     conn,
@@ -105,4 +107,8 @@ func (c *Chain) Id() msg.ChainId {
 
 func (c *Chain) Name() string {
 	return c.cfg.Name
+}
+
+func (c *Chain) Stop() {
+	close(c.stop)
 }

@@ -19,13 +19,15 @@ type Core struct {
 	registry map[msg.ChainId]Chain
 	route    *router.Router
 	log      log15.Logger
+	sysErr   <-chan error
 }
 
-func NewCore() *Core {
+func NewCore(sysErr <-chan error) *Core {
 	return &Core{
 		registry: make(map[msg.ChainId]Chain),
 		route:    router.NewRouter(log15.New("system", "router")),
 		log:      log15.New("system", "core"),
+		sysErr:   sysErr,
 	}
 }
 
@@ -36,7 +38,7 @@ func (c *Core) AddChain(chain Chain) {
 }
 
 // Start will call all registered chains' Start methods and block forever (or until signal is received)
-func (c *Core) Start(stop chan<- int) {
+func (c *Core) Start() {
 	for _, chain := range c.registry {
 		err := chain.Start()
 		if err != nil {
@@ -56,9 +58,14 @@ func (c *Core) Start(stop chan<- int) {
 
 	// Block here and wait for a signal
 	select {
+	case err := <-c.sysErr:
+		c.log.Error("FATAL ERROR. Shutting down.", "err", err)
 	case <-sigc:
-		// Signal chains to shutdown
-		close(stop)
 		c.log.Warn("Interrupt received, shutting down now.")
+	}
+
+	// Signal chains to shutdown
+	for _, chain := range c.registry {
+		chain.Stop()
 	}
 }

@@ -22,6 +22,7 @@ type Chain struct {
 	conn     *Connection       // THe chains connection
 	listener *listener         // The listener of this chain
 	writer   *writer           // The writer of the chain
+	stop     chan<- int
 }
 
 // checkBlockstore queries the blockstore for the latest known block. If the latest block is
@@ -46,7 +47,7 @@ func setupBlockstore(cfg *Config, kp *secp256k1.Keypair) (*blockstore.Blockstore
 	return bs, nil
 }
 
-func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, stop <-chan int) (*Chain, error) {
+func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr chan<- error) (*Chain, error) {
 	cfg, err := parseChainConfig(chainCfg)
 	if err != nil {
 		return nil, err
@@ -63,6 +64,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, stop <-cha
 		return nil, err
 	}
 
+	stop := make(chan int)
 	conn := NewConnection(cfg, kp, logger, stop)
 	err = conn.Connect()
 	if err != nil {
@@ -102,10 +104,10 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, stop <-cha
 		return nil, err
 	}
 
-	listener := NewListener(conn, cfg, logger, bs, stop)
+	listener := NewListener(conn, cfg, logger, bs, stop, sysErr)
 	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 
-	writer := NewWriter(conn, cfg, logger, stop)
+	writer := NewWriter(conn, cfg, logger, stop, sysErr)
 	writer.setContract(bridgeContract)
 
 	return &Chain{
@@ -113,6 +115,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, stop <-cha
 		conn:     conn,
 		writer:   writer,
 		listener: listener,
+		stop:     stop,
 	}, nil
 }
 
@@ -142,4 +145,9 @@ func (c *Chain) Id() msg.ChainId {
 
 func (c *Chain) Name() string {
 	return c.cfg.Name
+}
+
+// Stop signals to any running routines to exit
+func (c *Chain) Stop() {
+	close(c.stop)
 }

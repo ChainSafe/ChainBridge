@@ -12,7 +12,6 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	log "github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 )
@@ -61,12 +60,22 @@ func constructGenericProposalData(resourceId msg.ResourceId, metadata []byte) []
 
 // proposalIsComplete returns true if the proposal state is either Passed(2) or Transferred(3)
 func (w *writer) proposalIsComplete(destId msg.ChainId, nonce msg.Nonce) bool {
-	prop, err := w.bridgeContract.GetProposal(&bind.CallOpts{From: w.conn.kp.CommonAddress()}, uint8(destId), nonce.Big())
+	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(destId), nonce.Big())
 	if err != nil {
 		w.log.Error("Failed to check proposal existence", "err", err)
 		return false
 	}
 	return prop.Status >= PassedStatus // Passed (2) or Transferred (3)
+}
+
+// proposalIsComplete returns true if the proposal state is Transferred(3)
+func (w *writer) proposalIsFinalized(destId msg.ChainId, nonce msg.Nonce) bool {
+	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(destId), nonce.Big())
+	if err != nil {
+		w.log.Error("Failed to check proposal existence", "err", err)
+		return false
+	}
+	return prop.Status >= TransferredStatus // Transferred (3)
 }
 
 func (w *writer) createErc20Proposal(m msg.Message) bool {
@@ -217,14 +226,21 @@ func (w *writer) voteProposal(m msg.Message, hash [32]byte) {
 			if err == nil {
 				return
 			} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
-				w.log.Info("Nonce too low, will retry")
+				w.log.Debug("Nonce too low, will retry")
 				time.Sleep(NonceRetryInterval)
 			} else {
-				w.log.Info("Unexpected tx error", "err", err)
+				w.log.Warn("Execution failed, proposal may already be complete", "err", err)
 				time.Sleep(NonceRetryInterval)
+			}
+
+			// Verify proposal is still open for voting, otherwise no need to retry
+			if w.proposalIsComplete(m.Destination, m.DepositNonce) {
+				w.log.Debug("Proposal voting complete on chain", "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
+				return
 			}
 		}
 	}
+	w.sysErr <- fmt.Errorf("submission of transaction failed (chain=%d)", w.cfg.id)
 }
 
 func (w *writer) executeProposal(m msg.Message, handler common.Address, data []byte) {
@@ -258,6 +274,14 @@ func (w *writer) executeProposal(m msg.Message, handler common.Address, data []b
 				w.log.Warn("Execution failed, proposal may already be complete", "err", err)
 				time.Sleep(NonceRetryInterval)
 			}
+
+			// Verify proposal is still open for execution, tx will fail if we aren't the first to execute,
+			// but there is no need to retry
+			if w.proposalIsFinalized(m.Destination, m.DepositNonce) {
+				w.log.Debug("Proposal finalized on chain", "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
+				return
+			}
 		}
 	}
+	w.sysErr <- fmt.Errorf("submission of transaction failed (chain=%d)", w.cfg.id)
 }
