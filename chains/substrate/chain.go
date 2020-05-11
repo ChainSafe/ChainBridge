@@ -3,32 +3,22 @@
 
 /*
 The substrate package contains the logic for interacting with substrate chains.
-The current supported events are Fungible, Nonfungible, and generic transfer events.
+The current supported transfer types are Fungible, Nonfungible, and generic.
 
-There are 4 major components: The chain, the connection, the listener, and the writer.
+There are 3 major components: the connection, the listener, and the writer.
 
-The Chain
-
-The Chain handles initializing the Chain, which includes creating the connection, writer, and listener.
-There is also functionality for starting and stopping the Chain.
-
-The Connection
+Connection
 
 The Connection handles connecting to the substrate client, and submitting transactions to the client.
-In addition, the connection also can query and obtain both data and metadata from the client.
-The connection is shared by the writer and listener.
+It also handles state queries. The connection is shared by the writer and listener.
 
-The Listener
+Listener
 
-The listener listens to event coming from the client and posts them to the router.
-To accomplish this, the listener requests the data within the blocks on the chain (known as polling the blocks) and reads the data to determine if any events have happened.
-If any events do happen, the listener sends a message to the router, which will be passed onto the destination chains writer.
+The substrate listener polls blocks and parses the associated events for the three transfer types. It then forwards these into the router.
 
-The Writer
+Writer
 
-The writer listens to event coming from the router and writes them to the chain.
-The writer upon hearing from the router posts a proposal message to the client.
-If the proposal is found to be active, then the writer executes the event on the chain.
+As the writer recieves messages from the router, it constructs proposals. If a proposal is still active, the writer will attempt to vote on it. Resource IDs are resolved to method name on-chain, which are then used in the proposals when constructing the resulting Call struct.
 
 */
 package substrate
