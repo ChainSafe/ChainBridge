@@ -8,7 +8,7 @@ The current supported types are secp256k1 and sr25519.
 Keypairs
 
 The keypair interface is used to bridge the different types of crypto formats.
-Every Keypair has a Encode and Decode function that allows writing and reading from keystore files.
+Every Keypair has both a Encode and Decode function that allows writing and reading from keystore files.
 There is also the Address and PublicKey functions that allow access to public facing fields.
 
 Types
