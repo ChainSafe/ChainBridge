@@ -1,17 +1,9 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 /*
-Package main (under cmd/chainbridge) provide command-line interface functionality for the chainbridge application.
+Provides the command-line interface for the chainbridge application.
 
-Calling the Bridge
-
-Running the Bridge can be called with the `chainbridge command.`
-For more information on configuring the chain, refer to: https://pkg.go.dev/mod/github.com/ChainSafe/ChainBridge#configuration
-
-Config
-
-The configs section of main support converting the ChainConfig structs to TOML and vice versa. For more information on configuration, refer to https://pkg.go.dev/mod/github.com/ChainSafe/ChainBridge#configuration.
-
+For configuration and CLI commands see the README: https://github.com/ChainSafe/ChainBridge.
 */
 package main
 
