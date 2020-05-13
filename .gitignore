@@ -29,9 +29,9 @@ keys/
 
 # Chainbridge
 config.toml
-./centrifuge-chain
 *.block
 gethdata1/
 gethdata2/
+centrifuge-chain/
 # Solidity
 /solidity
