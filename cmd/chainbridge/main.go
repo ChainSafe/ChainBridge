@@ -1,6 +1,10 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
+/*
+Provides the command-line interface for the chainbridge application.
 
+For configuration and CLI commands see the README: https://github.com/ChainSafe/ChainBridge.
+*/
 package main
 
 import (
