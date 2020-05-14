@@ -21,7 +21,7 @@ func NewClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) *utils.Clie
 	return client
 }
 
-func GetLatestBlock(t *testing.T, client *ethclient.Client) *big.Int {
+func GetLatestBlock(t *testing.T, client *utils.Client) *big.Int {
 	block, err := client.BlockByNumber(context.Background(), nil)
 	if err != nil {
 		t.Fatal(err)

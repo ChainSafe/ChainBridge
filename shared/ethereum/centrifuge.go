@@ -10,13 +10,13 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func DeployAssetStore(client *ethclient.Client, opts *bind.TransactOpts) (common.Address, error) {
-	err := UpdateNonce(opts, client)
+func DeployAssetStore(client *utils.Client) (common.Address, error) {
+	err := UpdateNonce(client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
-	addr, _, _, err := CentrifugeAsset.DeployCentrifugeAsset(opts, client)
+	addr, _, _, err := CentrifugeAsset.DeployCentrifugeAsset(client)
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -24,13 +24,13 @@ func DeployAssetStore(client *ethclient.Client, opts *bind.TransactOpts) (common
 	return addr, nil
 }
 
-func HashExists(client *ethclient.Client, hash [32]byte, contract common.Address) (bool, error) {
+func HashExists(client *utils.Client, hash [32]byte, contract common.Address) (bool, error) {
 	instance, err := CentrifugeAsset.NewCentrifugeAsset(contract, client)
 	if err != nil {
 		return false, err
 	}
 
-	exists, err := instance.AssetsStored(&bind.CallOpts{}, hash)
+	exists, err := instance.AssetsStored(client.CallOpts{}, hash)
 	if err != nil {
 		return false, err
 	}

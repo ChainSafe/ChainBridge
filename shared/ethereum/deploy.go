@@ -13,11 +13,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/keystore"
+
 )
 
 var (
@@ -42,27 +44,27 @@ type DeployedContracts struct {
 // DeployContracts deploys Bridge, Relayer, ERC20Handler, ERC721Handler and CentrifugeAssetHandler and returns the addresses
 func DeployContracts(deployPK string, chainID uint8, url string, initialRelayerThreshold *big.Int) (*DeployedContracts, error) {
 
-	client, opts, err := accountSetUp(url, deployPK)
+	client, err := accountSetUp(url, deployPK)
 	if err != nil {
 		return nil, err
 	}
 
-	bridgeAddr, err := deployBridge(opts, client, chainID, RelayerAddresses, initialRelayerThreshold)
+	bridgeAddr, err := deployBridge(client, chainID, RelayerAddresses, initialRelayerThreshold)
 	if err != nil {
 		return nil, err
 	}
 
-	erc20HandlerAddr, err := deployERC20Handler(opts, client, bridgeAddr)
+	erc20HandlerAddr, err := deployERC20Handler(client, bridgeAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	erc721HandlerAddr, err := deployERC721Handler(opts, client, bridgeAddr)
+	erc721HandlerAddr, err := deployERC721Handler(client, bridgeAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	genericHandlerAddr, err := deployGenericHandler(opts, client, bridgeAddr)
+	genericHandlerAddr, err := deployGenericHandler(client, bridgeAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -73,20 +75,25 @@ func DeployContracts(deployPK string, chainID uint8, url string, initialRelayerT
 
 }
 
-func UpdateNonce(opts *bind.TransactOpts, client *ethclient.Client) error {
-	newNonce, err := client.PendingNonceAt(context.Background(), opts.From)
+func UpdateNonce(client *utils.Client) error {
+	newNonce, err := client.PendingNonceAt(context.Background(), client.CallOpts.From)
 	if err != nil {
 		return err
 	}
 
-	opts.Nonce = big.NewInt(int64(newNonce))
+	client.CallOpts.Nonce = big.NewInt(int64(newNonce))
 
 	return nil
 }
 
-func accountSetUp(url string, deployPK string) (*ethclient.Client, *bind.TransactOpts, error) {
+func accountSetUp(url string, deployPK string) (*utils.Client, error) {
 
-	client, err := ethclient.Dial(url)
+	newKeyPair, err := secp256k1.NewKeypairFromString(deployPK)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	client, err := utils.NewClient(url, newKeyPair)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -123,13 +130,13 @@ func accountSetUp(url string, deployPK string) (*ethclient.Client, *bind.Transac
 
 }
 
-func deployBridge(opts *bind.TransactOpts, client *ethclient.Client, chainID uint8, relayerAddrs []common.Address, initialRelayerThreshold *big.Int) (common.Address, error) {
-	err := UpdateNonce(opts, client)
+func deployBridge(client *utils.Client, chainID uint8, relayerAddrs []common.Address, initialRelayerThreshold *big.Int) (common.Address, error) {
+	err := UpdateNonce(client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
-	bridgeAddr, tx, _, err := bridge.DeployBridge(opts, client, chainID, relayerAddrs, initialRelayerThreshold, big.NewInt(0))
+	bridgeAddr, tx, _, err := bridge.DeployBridge(client, chainID, relayerAddrs, initialRelayerThreshold, big.NewInt(0))
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -143,13 +150,13 @@ func deployBridge(opts *bind.TransactOpts, client *ethclient.Client, chainID uin
 
 }
 
-func deployERC20Handler(opts *bind.TransactOpts, client *ethclient.Client, bridgeAddress common.Address) (common.Address, error) {
-	err := UpdateNonce(opts, client)
+func deployERC20Handler(client *utils.Client, bridgeAddress common.Address) (common.Address, error) {
+	err := UpdateNonce(client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
-	erc20HandlerAddr, tx, _, err := erc20Handler.DeployERC20Handler(opts, client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{})
+	erc20HandlerAddr, tx, _, err := erc20Handler.DeployERC20Handler(client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{})
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -162,13 +169,13 @@ func deployERC20Handler(opts *bind.TransactOpts, client *ethclient.Client, bridg
 	return erc20HandlerAddr, nil
 }
 
-func deployERC721Handler(opts *bind.TransactOpts, client *ethclient.Client, bridgeAddress common.Address) (common.Address, error) {
-	err := UpdateNonce(opts, client)
+func deployERC721Handler(client *utils.Client, bridgeAddress common.Address) (common.Address, error) {
+	err := UpdateNonce(client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
-	erc721HandlerAddr, tx, _, err := erc721Handler.DeployERC721Handler(opts, client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{})
+	erc721HandlerAddr, tx, _, err := erc721Handler.DeployERC721Handler(client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{})
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -180,13 +187,13 @@ func deployERC721Handler(opts *bind.TransactOpts, client *ethclient.Client, brid
 	return erc721HandlerAddr, nil
 }
 
-func deployGenericHandler(opts *bind.TransactOpts, client *ethclient.Client, bridgeAddress common.Address) (common.Address, error) {
-	err := UpdateNonce(opts, client)
+func deployGenericHandler(client *utils.Client, bridgeAddress common.Address) (common.Address, error) {
+	err := UpdateNonce(client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
-	addr, tx, _, err := GenericHandler.DeployGenericHandler(opts, client, bridgeAddress, [][32]byte{}, []common.Address{}, [][4]byte{}, [][4]byte{})
+	addr, tx, _, err := GenericHandler.DeployGenericHandler(client, bridgeAddress, [][32]byte{}, []common.Address{}, [][4]byte{}, [][4]byte{})
 	if err != nil {
 		return ZeroAddress, err
 	}

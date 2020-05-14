@@ -13,7 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func DeployAssetStore(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts) common.Address {
+func DeployAssetStore(t *testing.T, client *utils.Client) common.Address {
 	addr, err := utils.DeployAssetStore(client, opts)
 	if err != nil {
 		t.Fatal(err)
@@ -21,7 +21,7 @@ func DeployAssetStore(t *testing.T, client *ethclient.Client, opts *bind.Transac
 	return addr
 }
 
-func AssertHashExistence(t *testing.T, client *ethclient.Client, hash [32]byte, contract common.Address) {
+func AssertHashExistence(t *testing.T, client *utils.Client, hash [32]byte, contract common.Address) {
 	exists, err := utils.HashExists(client, hash, contract)
 	if err != nil {
 		t.Fatal(err)

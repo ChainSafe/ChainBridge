@@ -21,13 +21,13 @@ func CreateFunctionSignature(sig string) [4]byte {
 	return res
 }
 
-func GetGenericResourceAddress(client *ethclient.Client, handler common.Address, rId msg.ResourceId) (common.Address, error) {
+func GetGenericResourceAddress(client *utils.Client, handler common.Address, rId msg.ResourceId) (common.Address, error) {
 	instance, err := GenericHandler.NewGenericHandler(handler, client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
-	addr, err := instance.ResourceIDToContractAddress(&bind.CallOpts{}, rId)
+	addr, err := instance.ResourceIDToContractAddress(client.CallOpts{}, rId)
 	if err != nil {
 		return ZeroAddress, err
 	}
