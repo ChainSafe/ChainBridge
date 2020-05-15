@@ -6,13 +6,11 @@ package utils
 import (
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	msg "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func RegisterResource(client *utils.Client, bridge, handler common.Address, rId msg.ResourceId, addr common.Address) error {
-	instance, err := Bridge.NewBridge(bridge, client)
+func RegisterResource(client *Client, bridge, handler common.Address, rId msg.ResourceId, addr common.Address) error {
+	instance, err := Bridge.NewBridge(bridge, client.Client)
 	if err != nil {
 		return err
 	}
@@ -21,15 +19,15 @@ func RegisterResource(client *utils.Client, bridge, handler common.Address, rId 
 	if err != nil {
 		return err
 	}
-	_, err = instance.AdminSetResource(handler, rId, addr)
+	_, err = instance.AdminSetResource(client.Opts, handler, rId, addr)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func RegisterGenericResource(client *utils.Client, bridge, handler common.Address, rId msg.ResourceId, addr common.Address, depositSig, executeSig [4]byte) error {
-	instance, err := Bridge.NewBridge(bridge, client)
+func RegisterGenericResource(client *Client, bridge, handler common.Address, rId msg.ResourceId, addr common.Address, depositSig, executeSig [4]byte) error {
+	instance, err := Bridge.NewBridge(bridge, client.Client)
 	if err != nil {
 		return err
 	}
@@ -38,15 +36,15 @@ func RegisterGenericResource(client *utils.Client, bridge, handler common.Addres
 	if err != nil {
 		return err
 	}
-	_, err = instance.AdminSetGenericResource(handler, rId, addr, depositSig, executeSig)
+	_, err = instance.AdminSetGenericResource(client.Opts, handler, rId, addr, depositSig, executeSig)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func SetBurnable(client *utils.Client, bridge, handler, contract common.Address) error {
-	instance, err := Bridge.NewBridge(bridge, client)
+func SetBurnable(client *Client, bridge, handler, contract common.Address) error {
+	instance, err := Bridge.NewBridge(bridge, client.Client)
 	if err != nil {
 		return err
 	}
@@ -56,20 +54,20 @@ func SetBurnable(client *utils.Client, bridge, handler, contract common.Address)
 		return err
 	}
 
-	_, err = instance.AdminSetBurnable(handler, contract)
+	_, err = instance.AdminSetBurnable(client.Opts, handler, contract)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func GetDepositNonce(client *utils.Client, bridge common.Address, chain msg.ChainId) (uint64, error) {
-	instance, err := Bridge.NewBridge(bridge, client)
+func GetDepositNonce(client *Client, bridge common.Address, chain msg.ChainId) (uint64, error) {
+	instance, err := Bridge.NewBridge(bridge, client.Client)
 	if err != nil {
 		return 0, err
 	}
 
-	count, err := instance.DepositCounts(client.CallOpts{}, uint8(chain))
+	count, err := instance.DepositCounts(client.CallOpts, uint8(chain))
 	if err != nil {
 		return 0, err
 	}

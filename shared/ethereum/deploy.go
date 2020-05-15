@@ -9,10 +9,8 @@ import (
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
@@ -75,7 +73,7 @@ func DeployContracts(deployPK string, chainID uint8, url string, initialRelayerT
 
 }
 
-func UpdateNonce(client *utils.Client) error {
+func UpdateNonce(client *Client) error {
 	newNonce, err := client.PendingNonceAt(context.Background(), client.CallOpts.From)
 	if err != nil {
 		return err
@@ -86,14 +84,14 @@ func UpdateNonce(client *utils.Client) error {
 	return nil
 }
 
-func accountSetUp(url string, deployPK string) (*utils.Client, error) {
+func accountSetUp(url string, deployPK string) (*Client, error) {
 
 	newKeyPair, err := secp256k1.NewKeypairFromString(deployPK)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	client, err := utils.NewClient(url, newKeyPair)
+	client, err := NewClient(url, newKeyPair)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -130,7 +128,7 @@ func accountSetUp(url string, deployPK string) (*utils.Client, error) {
 
 }
 
-func deployBridge(client *utils.Client, chainID uint8, relayerAddrs []common.Address, initialRelayerThreshold *big.Int) (common.Address, error) {
+func deployBridge(client *Client, chainID uint8, relayerAddrs []common.Address, initialRelayerThreshold *big.Int) (common.Address, error) {
 	err := UpdateNonce(client)
 	if err != nil {
 		return ZeroAddress, err
@@ -150,7 +148,7 @@ func deployBridge(client *utils.Client, chainID uint8, relayerAddrs []common.Add
 
 }
 
-func deployERC20Handler(client *utils.Client, bridgeAddress common.Address) (common.Address, error) {
+func deployERC20Handler(client *Client, bridgeAddress common.Address) (common.Address, error) {
 	err := UpdateNonce(client)
 	if err != nil {
 		return ZeroAddress, err
@@ -169,7 +167,7 @@ func deployERC20Handler(client *utils.Client, bridgeAddress common.Address) (com
 	return erc20HandlerAddr, nil
 }
 
-func deployERC721Handler(client *utils.Client, bridgeAddress common.Address) (common.Address, error) {
+func deployERC721Handler(client *Client, bridgeAddress common.Address) (common.Address, error) {
 	err := UpdateNonce(client)
 	if err != nil {
 		return ZeroAddress, err
@@ -187,7 +185,7 @@ func deployERC721Handler(client *utils.Client, bridgeAddress common.Address) (co
 	return erc721HandlerAddr, nil
 }
 
-func deployGenericHandler(client *utils.Client, bridgeAddress common.Address) (common.Address, error) {
+func deployGenericHandler(client *Client, bridgeAddress common.Address) (common.Address, error) {
 	err := UpdateNonce(client)
 	if err != nil {
 		return ZeroAddress, err

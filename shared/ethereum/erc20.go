@@ -9,13 +9,12 @@ import (
 	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	ERC20 "github.com/ChainSafe/ChainBridge/bindings/ERC20PresetMinterPauser"
 	msg "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 // DeployMintAndApprove deploys a new erc20 contract, mints to the deployer, and approves the erc20 handler to transfer those token.
-func DeployMintApproveErc20(client *utils.Client, erc20Handler common.Address, amount *big.Int) (common.Address, error) {
+func DeployMintApproveErc20(client *Client, erc20Handler common.Address, amount *big.Int) (common.Address, error) {
 	err := UpdateNonce(client)
 	if err != nil {
 		return ZeroAddress, err
@@ -110,7 +109,7 @@ func Erc20Approve(client *ethclient.Client, erc20Contract, recipient common.Addr
 	return nil
 }
 
-func Erc20GetBalance(client *utils.Client, erc20Contract, account common.Address) (*big.Int, error) { //nolint:unused,deadcode
+func Erc20GetBalance(client *Client, erc20Contract, account common.Address) (*big.Int, error) { //nolint:unused,deadcode
 	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Contract, client)
 	if err != nil {
 		return nil, err
@@ -150,7 +149,7 @@ func FundErc20Handler(client *ethclient.Client, handlerAddress, erc20Address com
 	return nil
 }
 
-func Erc20AddMinter(client *utils.Client, erc20Contract, handler common.Address) error {
+func Erc20AddMinter(client *Client, erc20Contract, handler common.Address) error {
 	err := UpdateNonce(client)
 	if err != nil {
 		return err
@@ -193,7 +192,7 @@ func Erc20GetAllowance(client *ethclient.Client, erc20Contract, owner, spender c
 	return amount, nil
 }
 
-func Erc20GetResourceId(client *utils.Client, handler common.Address, rId msg.ResourceId) (common.Address, error) {
+func Erc20GetResourceId(client *Client, handler common.Address, rId msg.ResourceId) (common.Address, error) {
 	instance, err := ERC20Handler.NewERC20Handler(handler, client)
 	if err != nil {
 		return ZeroAddress, err
