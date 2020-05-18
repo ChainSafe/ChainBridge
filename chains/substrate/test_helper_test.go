@@ -52,6 +52,7 @@ type testContext struct {
 	writerBob      *writer
 	latestOutNonce msg.Nonce
 	latestInNonce  msg.Nonce
+	sysErr         chan error
 }
 
 var context testContext
@@ -83,16 +84,16 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	aliceConn, bobConn, err := createAliceAndBobConnections()
+	aliceConn, bobConn, sysErr, err := createAliceAndBobConnections()
 	if err != nil {
 		panic(err)
 	}
-	l, r, err := newTestListener(client, aliceConn)
+	l, sysErr, r, err := newTestListener(client, aliceConn)
 	if err != nil {
 		panic(err)
 	}
-	alice := NewWriter(aliceConn, AliceTestLogger)
-	bob := NewWriter(bobConn, BobTestLogger)
+	alice := NewWriter(aliceConn, AliceTestLogger, sysErr)
+	bob := NewWriter(bobConn, BobTestLogger, sysErr)
 	context = testContext{
 		client:         client,
 		listener:       l,
@@ -101,6 +102,7 @@ func TestMain(m *testing.M) {
 		writerBob:      bob,
 		latestInNonce:  0,
 		latestOutNonce: 0,
+		sysErr:         sysErr,
 	}
 
 	os.Exit(m.Run())
@@ -113,29 +115,30 @@ func newTestLogger(name string) log15.Logger {
 }
 
 // createAliceConnection creates and starts a connection with the Alice keypair
-func createAliceConnection() (*Connection, error) {
-	alice := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger, make(chan int))
+func createAliceConnection() (*Connection, chan error, error) {
+	sysErr := make(chan error)
+	alice := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger, make(chan int), sysErr)
 	err := alice.Connect()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return alice, err
+	return alice, sysErr, err
 }
 
 // createAliceAndBobConnections creates and calls `Connect()` on two Connections using the Alice and Bob keypairs
-func createAliceAndBobConnections() (*Connection, *Connection, error) {
-	alice, err := createAliceConnection()
+func createAliceAndBobConnections() (*Connection, *Connection, chan error, error) {
+	alice, sysErr, err := createAliceConnection()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	bob := NewConnection(TestEndpoint, "Bob", BobKey, AliceTestLogger, make(chan int))
+	bob := NewConnection(TestEndpoint, "Bob", BobKey, AliceTestLogger, make(chan int), sysErr)
 	err = bob.Connect()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	return alice, bob, nil
+	return alice, bob, sysErr, nil
 }
 
 // getFreeBalance queries the balance for an account, storing the result in `res`

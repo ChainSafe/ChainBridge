@@ -4,6 +4,7 @@
 package substrate
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 var _ chains.Writer = &writer{}
 
 var AcknowledgeProposal utils.Method = utils.BridgePalletName + ".acknowledge_proposal"
+var TerminatedError = errors.New("terminated")
 
 type writer struct {
 	conn   *Connection
@@ -71,7 +73,9 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 		if active {
 			w.log.Trace("Acknowledging proposal on chain", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", fmt.Sprintf("%x", prop.resourceId), "method", prop.method)
 			err = w.conn.SubmitTx(AcknowledgeProposal, prop.depositNonce, prop.sourceId, prop.resourceId, prop.call)
-			if err != nil {
+			if err != nil && err.Error() == TerminatedError.Error() {
+				return false
+			} else if err != nil {
 				w.log.Error("Failed to execute extrinsic", "err", err)
 				time.Sleep(BlockRetryInterval)
 				continue

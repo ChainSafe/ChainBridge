@@ -69,3 +69,7 @@ func (c *Core) Start() {
 		chain.Stop()
 	}
 }
+
+func (c *Core) Errors() <-chan error {
+	return c.sysErr
+}

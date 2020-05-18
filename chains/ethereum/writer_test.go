@@ -18,16 +18,17 @@ import (
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
-func createWritersAndClient(t *testing.T, contracts *utils.DeployedContracts) (*writer, *writer, *utils.Client) {
-	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	bob := createTestWriter(t, bobTestConfig, contracts)
-	charlie := createTestWriter(t, charlieTestConfig, contracts)
-	return bob, charlie, client
+func createWritersAndClient(t *testing.T, contracts *utils.DeployedContracts) (*writer, *writer, chan error, chan error) {
+	errA := make(chan error)
+	bob := createTestWriter(t, bobTestConfig, contracts, errA)
+	errB := make(chan error)
+	charlie := createTestWriter(t, charlieTestConfig, contracts, errB)
+	return bob, charlie, errA, errB
 }
 
-func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContracts) *writer {
+func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContracts, errs chan<- error) *writer {
 	conn := newLocalConnection(t, cfg)
-	writer := NewWriter(conn, cfg, newTestLogger(cfg.name), make(chan int))
+	writer := NewWriter(conn, cfg, newTestLogger(cfg.name), make(chan int), errs)
 
 	bridge, err := Bridge.NewBridge(contracts.BridgeAddress, conn.conn)
 	if err != nil {
@@ -56,7 +57,7 @@ func TestWriter_start_stop(t *testing.T) {
 	defer conn.Close()
 
 	stop := make(chan int)
-	writer := NewWriter(conn, aliceTestConfig, TestLogger, stop)
+	writer := NewWriter(conn, aliceTestConfig, TestLogger, stop, nil)
 
 	err := writer.start()
 	if err != nil {
@@ -89,7 +90,7 @@ func watchEvent(conn *Connection, subStr utils.EventSig) {
 	}
 }
 
-func routeMessageAndWait(t *testing.T, alice, bob *writer, m msg.Message) {
+func routeMessageAndWait(t *testing.T, alice, bob *writer, m msg.Message, aliceErr, bobErr chan error) {
 	// Watch for executed event
 	query := buildQuery(alice.cfg.bridgeContract, utils.ProposalExecuted, big.NewInt(0), nil)
 	eventSubscription, err := alice.conn.subscribeToEvent(query)
@@ -124,7 +125,10 @@ func routeMessageAndWait(t *testing.T, alice, bob *writer, m msg.Message) {
 			if err != nil {
 				t.Fatal(err)
 			}
-
+		case err = <-aliceErr:
+			t.Fatalf("Fatal error: %s", err)
+		case err = <-bobErr:
+			t.Fatalf("Fatal error: %s", err)
 		case <-time.After(TestTimeout):
 			t.Fatal("test timed out")
 		}
@@ -133,7 +137,8 @@ func routeMessageAndWait(t *testing.T, alice, bob *writer, m msg.Message) {
 
 func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
-	writerA, writerB, client := createWritersAndClient(t, contracts)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
 
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()
@@ -153,14 +158,15 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	go watchEvent(writerA.conn, utils.ProposalFinalized)
 	go watchEvent(writerA.conn, utils.ProposalExecuted)
 
-	routeMessageAndWait(t, writerA, writerB, m)
+	routeMessageAndWait(t, writerA, writerB, m, errA, errB)
 
 	ethtest.Erc20AssertBalance(t, client.Client, amount, erc20Address, recipient)
 }
 
 func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
-	writerA, writerB, client := createWritersAndClient(t, contracts)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()
 
@@ -181,14 +187,15 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	go watchEvent(writerA.conn, utils.ProposalFinalized)
 	go watchEvent(writerA.conn, utils.ProposalExecuted)
 
-	routeMessageAndWait(t, writerA, writerB, m)
+	routeMessageAndWait(t, writerA, writerB, m, errA, errB)
 
 	ethtest.Erc721AssertOwner(t, client.Client, client.Opts, erc721Contract, tokenId, recipient)
 }
 
 func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
-	writerA, writerB, client := createWritersAndClient(t, contracts)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()
 
@@ -221,7 +228,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	go watchEvent(writerA.conn, utils.ProposalFinalized)
 	go watchEvent(writerA.conn, utils.ProposalExecuted)
 
-	routeMessageAndWait(t, writerA, writerB, m)
+	routeMessageAndWait(t, writerA, writerB, m, errA, errB)
 
 	ethtest.AssertHashExistence(t, client.Client, hash, assetStoreAddr)
 }

@@ -13,6 +13,8 @@ import (
 	"github.com/ChainSafe/log15"
 )
 
+var _ core.Chain = &Chain{}
+
 type Chain struct {
 	cfg      *core.ChainConfig // The config of the chain
 	conn     *Connection       // THe chains connection

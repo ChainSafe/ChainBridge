@@ -4,7 +4,6 @@
 package substrate
 
 import (
-	"errors"
 	"fmt"
 	"sync"
 
@@ -19,17 +18,17 @@ import (
 
 type Connection struct {
 	api         *gsrpc.SubstrateAPI
-	url         string
-	name        string
-	meta        types.Metadata
-	metaLock    sync.RWMutex
-	genesisHash types.Hash
-	key         *signature.KeyringPair
 	log         log15.Logger
-	nonce       types.U32
-	nonceLock   sync.Mutex
-	stop        <-chan int
-	sysErr      chan<- error
+	url         string                 // API endpoint
+	name        string                 // Chain name
+	meta        types.Metadata         // Latest chain metadata
+	metaLock    sync.RWMutex           // Lock metadata for updates, allows concurrent reads
+	genesisHash types.Hash             // Chain genesis hash
+	key         *signature.KeyringPair // Keyring used for signing
+	nonce       types.U32              // Latest account nonce
+	nonceLock   sync.Mutex             // Locks nonce for updates
+	stop        <-chan int             // Signals system shutdown, should be observed in all selects and loops
+	sysErr      chan<- error           // Propagates fatal errors to core
 }
 
 func NewConnection(url string, name string, key *signature.KeyringPair, log log15.Logger, stop <-chan int, sysErr chan<- error) *Connection {
@@ -141,17 +140,14 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 	c.log.Debug("Extrinsic submission succeeded")
 	defer sub.Unsubscribe()
 
-	err = c.watchSubmission(sub)
-	if err != nil {
-
-	}
+	return c.watchSubmission(sub)
 }
 
 func (c *Connection) watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 	for {
 		select {
 		case <-c.stop:
-			return errors.New("terminated")
+			return TerminatedError
 		case status := <-sub.Chan():
 			switch {
 			case status.IsInBlock:
@@ -226,7 +222,6 @@ func (c *Connection) getLatestNonce() (types.U32, error) {
 	}
 
 	return acct.Nonce, nil
-
 }
 func (c *Connection) Close() {
 	// TODO: Anything required to shutdown GRPC?

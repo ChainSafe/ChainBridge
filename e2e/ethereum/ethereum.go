@@ -186,7 +186,7 @@ func CreateGenericDeposit(t *testing.T, client *ethclient.Client, opts *bind.Tra
 	}
 }
 
-func WaitForDepositCreatedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
+func WaitForProposalCreatedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
 	startBlock := ethtest.GetLatestBlock(t, client)
 
 	query := eth.FilterQuery{
@@ -202,6 +202,7 @@ func WaitForDepositCreatedEvent(t *testing.T, client *ethclient.Client, bridge c
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer sub.Unsubscribe()
 
 	for {
 		select {
@@ -210,7 +211,6 @@ func WaitForDepositCreatedEvent(t *testing.T, client *ethclient.Client, bridge c
 			// Check nonce matches
 			if currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
 				log.Info("Got matching ProposalCreated event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
-				sub.Unsubscribe()
 				close(ch)
 				return
 			} else {
@@ -226,7 +226,7 @@ func WaitForDepositCreatedEvent(t *testing.T, client *ethclient.Client, bridge c
 	}
 }
 
-func WaitForDepositExecutedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
+func WaitForProposalExecutedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
 	startBlock := ethtest.GetLatestBlock(t, client)
 
 	query := eth.FilterQuery{
@@ -242,6 +242,7 @@ func WaitForDepositExecutedEvent(t *testing.T, client *ethclient.Client, bridge 
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer sub.Unsubscribe()
 
 	for {
 		select {
@@ -250,7 +251,6 @@ func WaitForDepositExecutedEvent(t *testing.T, client *ethclient.Client, bridge 
 			// Check nonce matches
 			if currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
 				log.Info("Got matching ProposalExecuted event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
-				sub.Unsubscribe()
 				close(ch)
 				return
 			} else {
