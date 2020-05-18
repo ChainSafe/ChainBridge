@@ -9,7 +9,6 @@ import (
 	"github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/ERC721MinterBurnerPauser"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 // DeployMintAndApprove deploys a new erc721 contract, mints to the deployer, and approves the erc20 handler to transfer those token.
@@ -20,7 +19,7 @@ func DeployErc721(client *Client) (common.Address, error) {
 	}
 
 	// Deploy
-	addr, tx, _, err := ERC721MinterBurnerPauser.DeployERC721MinterBurnerPauser(client, "", "", "")
+	addr, tx, _, err := ERC721MinterBurnerPauser.DeployERC721MinterBurnerPauser(client.Opts, client.Client, "", "", "")
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -34,7 +33,7 @@ func DeployErc721(client *Client) (common.Address, error) {
 }
 
 func Erc721Mint(client *Client, erc721Contract common.Address, id *big.Int, metadata []byte) error {
-	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(erc721Contract, client)
+	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(erc721Contract, client.Client)
 	if err != nil {
 		return err
 	}
@@ -63,7 +62,7 @@ func ApproveErc721(client *Client, contractAddress, recipient common.Address, to
 		return err
 	}
 
-	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(contractAddress, client)
+	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(contractAddress, client.Client)
 	if err != nil {
 		return err
 	}
@@ -87,7 +86,7 @@ func FundErc721Handler(client *Client, handlerAddress, erc721Address common.Addr
 		return err
 	}
 
-	instance, err := ERC721Handler.NewERC721Handler(handlerAddress, client)
+	instance, err := ERC721Handler.NewERC721Handler(handlerAddress, client.Client)
 	if err != nil {
 		return err
 	}
@@ -110,25 +109,25 @@ func FundErc721Handler(client *Client, handlerAddress, erc721Address common.Addr
 	return nil
 }
 
-func OwnerOf(client *ethclient.Client, erc721Contract common.Address, tokenId *big.Int) (common.Address, error) {
-	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(erc721Contract, client)
+func OwnerOf(client *Client, erc721Contract common.Address, tokenId *big.Int) (common.Address, error) {
+	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(erc721Contract, client.Client)
 	if err != nil {
 		return ZeroAddress, err
 	}
-	return instance.OwnerOf(client.CallOpts{From: opts.From}, tokenId)
+	return instance.OwnerOf(client.CallOpts, tokenId)
 }
 
 func Erc721GetTokenURI(client *Client, erc721Contract common.Address, tokenId *big.Int) (string, error) {
-	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(erc721Contract, client)
+	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(erc721Contract, client.Client)
 	if err != nil {
 		return "", err
 	}
 
-	return instance.TokenURI(client.CallOpts{From: opts.From}, tokenId)
+	return instance.TokenURI(client.CallOpts, tokenId)
 }
 
 func Erc721AddMinter(client *Client, erc721Contract common.Address, minter common.Address) error {
-	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(erc721Contract, client)
+	instance, err := ERC721MinterBurnerPauser.NewERC721MinterBurnerPauser(erc721Contract, client.Client)
 	if err != nil {
 		return err
 	}
@@ -138,7 +137,7 @@ func Erc721AddMinter(client *Client, erc721Contract common.Address, minter commo
 		return err
 	}
 
-	role, err := instance.MINTERROLE(client.CallOpts{})
+	role, err := instance.MINTERROLE(client.CallOpts)
 	if err != nil {
 		return err
 	}

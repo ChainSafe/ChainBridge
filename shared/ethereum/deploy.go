@@ -9,6 +9,7 @@ import (
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
@@ -74,12 +75,12 @@ func DeployContracts(deployPK string, chainID uint8, url string, initialRelayerT
 }
 
 func UpdateNonce(client *Client) error {
-	newNonce, err := client.PendingNonceAt(context.Background(), client.CallOpts.From)
+	newNonce, err := client.Client.PendingNonceAt(context.Background(), client.CallOpts.From)
 	if err != nil {
 		return err
 	}
 
-	client.CallOpts.Nonce = big.NewInt(int64(newNonce))
+	client.Opts.Nonce = big.NewInt(int64(newNonce))
 
 	return nil
 }
@@ -88,34 +89,34 @@ func accountSetUp(url string, deployPK string) (*Client, error) {
 
 	newKeyPair, err := secp256k1.NewKeypairFromString(deployPK)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	client, err := NewClient(url, newKeyPair)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	privateKey, err := crypto.HexToECDSA(deployPK)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	publicKey := privateKey.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
 	if !ok {
-		return nil, nil, err
+		return nil, err
 	}
 
 	deployAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
-	nonce, err := client.PendingNonceAt(context.Background(), deployAddress)
+	nonce, err := client.Client.PendingNonceAt(context.Background(), deployAddress)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	gasPrice, err := client.SuggestGasPrice(context.Background())
+	gasPrice, err := client.Client.SuggestGasPrice(context.Background())
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	auth := bind.NewKeyedTransactor(privateKey)
@@ -124,7 +125,9 @@ func accountSetUp(url string, deployPK string) (*Client, error) {
 	auth.GasLimit = uint64(6721975)
 	auth.GasPrice = gasPrice
 
-	return client, auth, nil
+	client.Opts = auth
+
+	return client, nil
 
 }
 
@@ -134,7 +137,7 @@ func deployBridge(client *Client, chainID uint8, relayerAddrs []common.Address, 
 		return ZeroAddress, err
 	}
 
-	bridgeAddr, tx, _, err := bridge.DeployBridge(client, chainID, relayerAddrs, initialRelayerThreshold, big.NewInt(0))
+	bridgeAddr, tx, _, err := bridge.DeployBridge(client.Opts, client.Client, chainID, relayerAddrs, initialRelayerThreshold, big.NewInt(0))
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -154,7 +157,7 @@ func deployERC20Handler(client *Client, bridgeAddress common.Address) (common.Ad
 		return ZeroAddress, err
 	}
 
-	erc20HandlerAddr, tx, _, err := erc20Handler.DeployERC20Handler(client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{})
+	erc20HandlerAddr, tx, _, err := erc20Handler.DeployERC20Handler(client.Opts, client.Client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{})
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -173,7 +176,7 @@ func deployERC721Handler(client *Client, bridgeAddress common.Address) (common.A
 		return ZeroAddress, err
 	}
 
-	erc721HandlerAddr, tx, _, err := erc721Handler.DeployERC721Handler(client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{})
+	erc721HandlerAddr, tx, _, err := erc721Handler.DeployERC721Handler(client.Opts, client.Client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{})
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -191,7 +194,7 @@ func deployGenericHandler(client *Client, bridgeAddress common.Address) (common.
 		return ZeroAddress, err
 	}
 
-	addr, tx, _, err := GenericHandler.DeployGenericHandler(client, bridgeAddress, [][32]byte{}, []common.Address{}, [][4]byte{}, [][4]byte{})
+	addr, tx, _, err := GenericHandler.DeployGenericHandler(client.Opts, client.Client, bridgeAddress, [][32]byte{}, []common.Address{}, [][4]byte{}, [][4]byte{})
 	if err != nil {
 		return ZeroAddress, err
 	}

@@ -12,7 +12,7 @@ import (
 )
 
 func DeployAssetStore(t *testing.T, client *utils.Client) common.Address {
-	addr, err := utils.DeployAssetStore(client, opts)
+	addr, err := utils.DeployAssetStore(client)
 	if err != nil {
 		t.Fatal(err)
 	}

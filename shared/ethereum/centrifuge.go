@@ -14,7 +14,7 @@ func DeployAssetStore(client *Client) (common.Address, error) {
 		return ZeroAddress, err
 	}
 
-	addr, _, _, err := CentrifugeAsset.DeployCentrifugeAsset(client.Opts, client)
+	addr, _, _, err := CentrifugeAsset.DeployCentrifugeAsset(client.Opts, client.Client)
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -23,7 +23,7 @@ func DeployAssetStore(client *Client) (common.Address, error) {
 }
 
 func HashExists(client *Client, hash [32]byte, contract common.Address) (bool, error) {
-	instance, err := CentrifugeAsset.NewCentrifugeAsset(contract, client)
+	instance, err := CentrifugeAsset.NewCentrifugeAsset(contract, client.Client)
 	if err != nil {
 		return false, err
 	}

@@ -73,7 +73,7 @@ func (c *Client) UnlockNonce() {
 func WaitForTx(client *Client, tx *ethtypes.Transaction) error {
 	retry := 10
 	for retry > 0 {
-		receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
+		receipt, err := client.Client.TransactionReceipt(context.Background(), tx.Hash())
 		if err != nil {
 			retry--
 			time.Sleep(ExpectedBlockTime)

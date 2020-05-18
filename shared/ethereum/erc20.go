@@ -10,7 +10,6 @@ import (
 	ERC20 "github.com/ChainSafe/ChainBridge/bindings/ERC20PresetMinterPauser"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 // DeployMintAndApprove deploys a new erc20 contract, mints to the deployer, and approves the erc20 handler to transfer those token.
@@ -21,7 +20,7 @@ func DeployMintApproveErc20(client *Client, erc20Handler common.Address, amount 
 	}
 
 	// Deploy
-	erc20Addr, tx, erc20Instance, err := ERC20.DeployERC20PresetMinterPauser(client, "", "")
+	erc20Addr, tx, erc20Instance, err := ERC20.DeployERC20PresetMinterPauser(client.Opts, client.Client, "", "")
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -53,14 +52,14 @@ func DeployMintApproveErc20(client *Client, erc20Handler common.Address, amount 
 	return erc20Addr, nil
 }
 
-func DeployAndMintErc20(client *ethclient.Client, amount *big.Int) (common.Address, error) {
+func DeployAndMintErc20(client *Client, amount *big.Int) (common.Address, error) {
 	err := UpdateNonce(client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
 	// Deploy
-	erc20Addr, tx, erc20Instance, err := ERC20.DeployERC20PresetMinterPauser(client, "", "")
+	erc20Addr, tx, erc20Instance, err := ERC20.DeployERC20PresetMinterPauser(client.Opts, client.Client, "", "")
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -85,13 +84,13 @@ func DeployAndMintErc20(client *ethclient.Client, amount *big.Int) (common.Addre
 	return erc20Addr, nil
 }
 
-func Erc20Approve(client *ethclient.Client, erc20Contract, recipient common.Address, amount *big.Int) error {
+func Erc20Approve(client *Client, erc20Contract, recipient common.Address, amount *big.Int) error {
 	err := UpdateNonce(client)
 	if err != nil {
 		return err
 	}
 
-	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Contract, client)
+	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Contract, client.Client)
 	if err != nil {
 		return err
 	}
@@ -110,12 +109,12 @@ func Erc20Approve(client *ethclient.Client, erc20Contract, recipient common.Addr
 }
 
 func Erc20GetBalance(client *Client, erc20Contract, account common.Address) (*big.Int, error) { //nolint:unused,deadcode
-	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Contract, client)
+	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Contract, client.Client)
 	if err != nil {
 		return nil, err
 	}
 
-	bal, err := instance.BalanceOf(client.CallOpts{}, account)
+	bal, err := instance.BalanceOf(client.CallOpts, account)
 	if err != nil {
 		return nil, err
 
@@ -124,19 +123,19 @@ func Erc20GetBalance(client *Client, erc20Contract, account common.Address) (*bi
 
 }
 
-func FundErc20Handler(client *ethclient.Client, handlerAddress, erc20Address common.Address, amount *big.Int) error {
+func FundErc20Handler(client *Client, handlerAddress, erc20Address common.Address, amount *big.Int) error {
 	err := Erc20Approve(client, erc20Address, handlerAddress, amount)
 	if err != nil {
 		return err
 	}
 
-	instance, err := ERC20Handler.NewERC20Handler(handlerAddress, client)
+	instance, err := ERC20Handler.NewERC20Handler(handlerAddress, client.Client)
 	if err != nil {
 		return err
 	}
 
 	client.Opts.Nonce = client.Opts.Nonce.Add(client.Opts.Nonce, big.NewInt(1))
-	tx, err := instance.FundERC20(client.Opts, erc20Address, opts.From, amount)
+	tx, err := instance.FundERC20(client.Opts, erc20Address, client.Opts.From, amount)
 	if err != nil {
 		return err
 	}
@@ -155,17 +154,17 @@ func Erc20AddMinter(client *Client, erc20Contract, handler common.Address) error
 		return err
 	}
 
-	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Contract, client)
+	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Contract, client.Client)
 	if err != nil {
 		return err
 	}
 
-	role, err := instance.MINTERROLE(client.CallOpts{})
+	role, err := instance.MINTERROLE(client.CallOpts)
 	if err != nil {
 		return err
 	}
 
-	tx, err := instance.GrantRole(role, handler)
+	tx, err := instance.GrantRole(client.Opts, role, handler)
 	if err != nil {
 		return err
 	}
@@ -178,13 +177,13 @@ func Erc20AddMinter(client *Client, erc20Contract, handler common.Address) error
 	return nil
 }
 
-func Erc20GetAllowance(client *ethclient.Client, erc20Contract, owner, spender common.Address) (*big.Int, error) {
-	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Contract, client)
+func Erc20GetAllowance(client *Client, erc20Contract, owner, spender common.Address) (*big.Int, error) {
+	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Contract, client.Client)
 	if err != nil {
 		return nil, err
 	}
 
-	amount, err := instance.Allowance(client.CallOpts{}, owner, spender)
+	amount, err := instance.Allowance(client.CallOpts, owner, spender)
 	if err != nil {
 		return nil, err
 	}
@@ -193,12 +192,12 @@ func Erc20GetAllowance(client *ethclient.Client, erc20Contract, owner, spender c
 }
 
 func Erc20GetResourceId(client *Client, handler common.Address, rId msg.ResourceId) (common.Address, error) {
-	instance, err := ERC20Handler.NewERC20Handler(handler, client)
+	instance, err := ERC20Handler.NewERC20Handler(handler, client.Client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
-	addr, err := instance.ResourceIDToTokenContractAddress(client.CallOpts{}, rId)
+	addr, err := instance.ResourceIDToTokenContractAddress(client.CallOpts, rId)
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -206,18 +205,18 @@ func Erc20GetResourceId(client *Client, handler common.Address, rId msg.Resource
 	return addr, nil
 }
 
-func Erc20Mint(client *ethclient.Client, erc20Address, recipient common.Address, amount *big.Int) error {
+func Erc20Mint(client *Client, erc20Address, recipient common.Address, amount *big.Int) error {
 	err := UpdateNonce(client)
 	if err != nil {
 		return err
 	}
 
-	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Address, client)
+	instance, err := ERC20.NewERC20PresetMinterPauser(erc20Address, client.Client)
 	if err != nil {
 		return err
 	}
 
-	tx, err := instance.Mint(recipient, amount)
+	tx, err := instance.Mint(client.Opts, recipient, amount)
 	if err != nil {
 		return err
 	}

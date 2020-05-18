@@ -10,7 +10,6 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 func NewClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) *utils.Client {
@@ -22,7 +21,7 @@ func NewClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) *utils.Clie
 }
 
 func GetLatestBlock(t *testing.T, client *utils.Client) *big.Int {
-	block, err := client.BlockByNumber(context.Background(), nil)
+	block, err := client.Client.BlockByNumber(context.Background(), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
