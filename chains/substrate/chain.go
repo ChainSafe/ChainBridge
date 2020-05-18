@@ -1,6 +1,26 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
+/*
+The substrate package contains the logic for interacting with substrate chains.
+The current supported transfer types are Fungible, Nonfungible, and generic.
+
+There are 3 major components: the connection, the listener, and the writer.
+
+Connection
+
+The Connection handles connecting to the substrate client, and submitting transactions to the client.
+It also handles state queries. The connection is shared by the writer and listener.
+
+Listener
+
+The substrate listener polls blocks and parses the associated events for the three transfer types. It then forwards these into the router.
+
+Writer
+
+As the writer recieves messages from the router, it constructs proposals. If a proposal is still active, the writer will attempt to vote on it. Resource IDs are resolved to method name on-chain, which are then used in the proposals when constructing the resulting Call struct.
+
+*/
 package substrate
 
 import (

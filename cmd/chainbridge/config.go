@@ -10,7 +10,6 @@ import (
 	"reflect"
 	"unicode"
 
-	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/naoina/toml"
 	"github.com/urfave/cli"
@@ -28,7 +27,7 @@ type Config struct {
 type RawChainConfig struct {
 	Name     string            `toml:"name"`
 	Type     string            `toml:"type"`
-	Id       msg.ChainId       `toml:"id"`       // ChainID
+	Id       string            `toml:"id"`       // ChainID
 	Endpoint string            `toml:"endpoint"` // url for rpc endpoint
 	From     string            `toml:"from"`     // address of key to use
 	Opts     map[string]string `toml:"opts"`
@@ -71,15 +70,19 @@ func (c *Config) ToTOML(file string) *os.File {
 func (c *Config) validate() error {
 	for _, chain := range c.Chains {
 		if chain.Type == "" {
-			return fmt.Errorf("required field chain.Type empty for chain %d", chain.Id)
+			return fmt.Errorf("required field chain.Type empty for chain %s", chain.Id)
 		}
-
 		if chain.Endpoint == "" {
-			return fmt.Errorf("required field chain.Endpoint empty for chain %d", chain.Id)
+			return fmt.Errorf("required field chain.Endpoint empty for chain %s", chain.Id)
 		}
-
 		if chain.Name == "" {
-			return fmt.Errorf("required field chain.Name empty for chain %d", chain.Id)
+			return fmt.Errorf("required field chain.Name empty for chain %s", chain.Id)
+		}
+		if chain.Id == "" {
+			return fmt.Errorf("required field chain.Id empty for chain %s", chain.Id)
+		}
+		if chain.From == "" {
+			return fmt.Errorf("required field chain.From empty for chain %s", chain.Id)
 		}
 	}
 	return nil
