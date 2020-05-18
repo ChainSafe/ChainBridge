@@ -105,7 +105,9 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	erc20Contract := ethtest.DeployMintApproveErc20(t, l.conn.conn, opts, contracts.ERC20HandlerAddress, big.NewInt(100))
+	client := &utils.Client{Client:l.conn.conn,Opts:opts}
+
+	erc20Contract := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
 
 	amount := big.NewInt(10)
 	src := msg.ChainId(0)
@@ -113,7 +115,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Contract.Bytes(), 31), uint8(src)))
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
 
-	ethtest.RegisterResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
+	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
 
 	expectedMessage := msg.NewFungibleTransfer(
 		src,
@@ -194,17 +196,19 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	}
 
 	tokenId := big.NewInt(99)
-	erc721Contract := ethtest.Erc721Deploy(t, l.conn.conn, opts)
-	ethtest.Erc721Mint(t, l.conn.conn, opts, erc721Contract, tokenId, []byte{})
-	ethtest.Erc721Approve(t, l.conn.conn, opts, erc721Contract, contracts.ERC721HandlerAddress, tokenId)
+	client := &utils.Client{Client:l.conn.conn, Opts: opts}
+	
+	erc721Contract := ethtest.Erc721Deploy(t, client)
+	ethtest.Erc721Mint(t, client, erc721Contract, tokenId, []byte{})
+	ethtest.Erc721Approve(t, client, erc721Contract, contracts.ERC721HandlerAddress, tokenId)
 	log15.Info("Deployed erc721, minted and approved handler", "handler", contracts.ERC721HandlerAddress, "contract", erc721Contract, "tokenId", tokenId.Bytes())
-	ethtest.Erc721AssertOwner(t, l.conn.conn, opts, erc721Contract, tokenId, opts.From)
+	ethtest.Erc721AssertOwner(t, client, erc721Contract, tokenId, opts.From)
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Contract.Bytes(), 31), uint8(src)))
 	recipient := BobKp.CommonAddress()
 
-	ethtest.RegisterResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
+	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 
 	expectedMessage := msg.NewNonFungibleTransfer(
 		src,
@@ -255,13 +259,14 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	client := &utils.Client{Opts:opts, Client:l.conn.conn}
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
 	hash := utils.Hash(common.LeftPadBytes([]byte{1}, 32))
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes([]byte{1}, 31), uint8(src)))
 	depositSig := utils.CreateFunctionSignature("")
 	executeSig := utils.CreateFunctionSignature("store()")
-	ethtest.RegisterGenericResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.GenericHandlerAddress, resourceId, utils.ZeroAddress, depositSig, executeSig)
+	ethtest.RegisterGenericResource(t, client, contracts.BridgeAddress, contracts.GenericHandlerAddress, resourceId, utils.ZeroAddress, depositSig, executeSig)
 
 	expectedMessage := msg.NewGenericTransfer(
 		src,

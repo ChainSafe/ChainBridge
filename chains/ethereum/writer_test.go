@@ -139,15 +139,15 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()
 
-	erc20Address := ethtest.DeployMintApproveErc20(t, client.Client, client.Opts, contracts.ERC20HandlerAddress, big.NewInt(100))
-	ethtest.FundErc20Handler(t, client.Client, client.Opts, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
+	erc20Address := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
+	ethtest.FundErc20Handler(t, client, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
 
 	// Create initial transfer message
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0))
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
 	amount := big.NewInt(10)
 	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient.Bytes())
-	ethtest.RegisterResource(t, client.Client, client.Opts, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Address)
+	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Address)
 	// Helpful for debugging
 	go watchEvent(writerA.conn, utils.ProposalCreated)
 	go watchEvent(writerA.conn, utils.ProposalVote)
@@ -156,7 +156,7 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 
 	routeMessageAndWait(t, writerA, writerB, m)
 
-	ethtest.Erc20AssertBalance(t, client.Client, amount, erc20Address, recipient)
+	ethtest.Erc20AssertBalance(t, client, amount, erc20Address, recipient)
 }
 
 func TestCreateAndExecuteErc721Proposal(t *testing.T) {
@@ -167,15 +167,15 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 
 	// We'll use alice to setup the erc721
 	tokenId := big.NewInt(1)
-	erc721Contract := ethtest.Erc721Deploy(t, client.Client, client.Opts)
-	ethtest.Erc721Mint(t, client.Client, client.Opts, erc721Contract, tokenId, []byte{})
-	ethtest.Erc721FundHandler(t, client.Client, client.Opts, contracts.ERC721HandlerAddress, erc721Contract, tokenId)
+	erc721Contract := ethtest.Erc721Deploy(t, client)
+	ethtest.Erc721Mint(t, client, erc721Contract, tokenId, []byte{})
+	ethtest.Erc721FundHandler(t, client, contracts.ERC721HandlerAddress, erc721Contract, tokenId)
 
 	// Create initial transfer message
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Contract.Bytes(), 31), 0))
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
 	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId, recipient.Bytes(), []byte{})
-	ethtest.RegisterResource(t, client.Client, client.Opts, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
+	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 	// Helpful for debugging
 	go watchEvent(writerA.conn, utils.ProposalCreated)
 	go watchEvent(writerA.conn, utils.ProposalVote)
@@ -184,7 +184,7 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 
 	routeMessageAndWait(t, writerA, writerB, m)
 
-	ethtest.Erc721AssertOwner(t, client.Client, client.Opts, erc721Contract, tokenId, recipient)
+	ethtest.Erc721AssertOwner(t, client, erc721Contract, tokenId, recipient)
 }
 
 func TestCreateAndExecuteGenericProposal(t *testing.T) {
@@ -193,7 +193,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()
 
-	assetStoreAddr, err := utils.DeployAssetStore(client.Client, client.Opts)
+	assetStoreAddr, err := utils.DeployAssetStore(client)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -202,7 +202,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	depositSig := utils.CreateFunctionSignature("")
 	executeSig := utils.CreateFunctionSignature("store(bytes32)")
 
-	ethtest.RegisterGenericResource(t, client.Client, client.Opts, contracts.BridgeAddress, contracts.GenericHandlerAddress, rId, assetStoreAddr, depositSig, executeSig)
+	ethtest.RegisterGenericResource(t, client, contracts.BridgeAddress, contracts.GenericHandlerAddress, rId, assetStoreAddr, depositSig, executeSig)
 	// Create initial transfer message
 	hash := common.HexToHash("0xf0a8748d2b102eb4e0e116047753b9beff0396d81b830693b19a1376ac4b14e8")
 	m := msg.Message{
@@ -224,5 +224,5 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 
 	routeMessageAndWait(t, writerA, writerB, m)
 
-	ethtest.AssertHashExistence(t, client.Client, hash, assetStoreAddr)
+	ethtest.AssertHashExistence(t, client, hash, assetStoreAddr)
 }
