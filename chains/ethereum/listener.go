@@ -152,6 +152,7 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 			m, err = l.handleGenericDepositedEvent(destId, nonce)
 		} else {
 			l.log.Error("Event has unrecognized handler", "handler", addr)
+			return nil
 		}
 
 		if err != nil {
