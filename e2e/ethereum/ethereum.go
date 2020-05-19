@@ -140,21 +140,21 @@ func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.Trans
 	}
 }
 
-func CreateErc721Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, recipient []byte, tokenId *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+func CreateErc721Deposit(t *testing.T, client *Client, destId msg.ChainId, recipient []byte, tokenId *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
 	data := utils.ConstructErc721DepositData(rId, tokenId, recipient)
 
-	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
+	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = utils.UpdateNonce(opts, client)
+	err = utils.UpdateNonce(client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if _, err := bridgeInstance.Deposit(
-		opts,
+		client.Opts,
 		uint8(destId),
 		contracts.ERC721HandlerAddress,
 		data,
@@ -163,21 +163,21 @@ func CreateErc721Deposit(t *testing.T, client *ethclient.Client, opts *bind.Tran
 	}
 }
 
-func CreateGenericDeposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, metadata []byte, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+func CreateGenericDeposit(t *testing.T, client *Client, destId msg.ChainId, metadata []byte, contracts *utils.DeployedContracts, rId msg.ResourceId) {
 	data := utils.ConstructGenericDepositData(rId, metadata)
 
-	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
+	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = utils.UpdateNonce(opts, client)
+	err = utils.UpdateNonce(client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if _, err := bridgeInstance.Deposit(
-		opts,
+		client.Opts,
 		uint8(destId),
 		contracts.GenericHandlerAddress,
 		data,
