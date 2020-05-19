@@ -52,7 +52,8 @@ type testContext struct {
 	writerBob      *writer
 	latestOutNonce msg.Nonce
 	latestInNonce  msg.Nonce
-	sysErr         chan error
+	lSysErr        chan error
+	wSysErr        chan error
 }
 
 var context testContext
@@ -84,16 +85,16 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	aliceConn, bobConn, sysErr, err := createAliceAndBobConnections()
+	aliceConn, bobConn, wSysErr, err := createAliceAndBobConnections()
 	if err != nil {
 		panic(err)
 	}
-	l, sysErr, r, err := newTestListener(client, aliceConn)
+	l, lSysErr, r, err := newTestListener(client, aliceConn)
 	if err != nil {
 		panic(err)
 	}
-	alice := NewWriter(aliceConn, AliceTestLogger, sysErr)
-	bob := NewWriter(bobConn, BobTestLogger, sysErr)
+	alice := NewWriter(aliceConn, AliceTestLogger, wSysErr)
+	bob := NewWriter(bobConn, BobTestLogger, wSysErr)
 	context = testContext{
 		client:         client,
 		listener:       l,
@@ -102,7 +103,8 @@ func TestMain(m *testing.M) {
 		writerBob:      bob,
 		latestInNonce:  0,
 		latestOutNonce: 0,
-		sysErr:         sysErr,
+		lSysErr:        lSysErr,
+		wSysErr:        wSysErr,
 	}
 
 	os.Exit(m.Run())

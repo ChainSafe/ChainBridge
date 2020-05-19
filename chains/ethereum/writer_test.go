@@ -121,7 +121,7 @@ func routeMessageAndWait(t *testing.T, alice, bob *writer, m msg.Message, aliceE
 				return
 			}
 
-		case err := <-eventSubscription.sub.Err():
+		case err = <-eventSubscription.sub.Err():
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -203,7 +203,7 @@ func WaitForProposalCreatedEvent(t *testing.T, client *ethclient.Client, bridge 
 		t.Fatal(err)
 	}
 	defer sub.Unsubscribe()
-
+	timeout := time.After(TestTimeout)
 	for {
 		select {
 		case evt := <-ch:
@@ -220,7 +220,7 @@ func WaitForProposalCreatedEvent(t *testing.T, client *ethclient.Client, bridge 
 			if err != nil {
 				t.Fatal(err)
 			}
-		case <-time.After(TestTimeout):
+		case <-timeout:
 			t.Fatalf("Test timed out waiting for ProposalCreated event")
 		}
 	}
@@ -244,6 +244,7 @@ func WaitForProposalExecutedEvent(t *testing.T, client *ethclient.Client, bridge
 	}
 	defer sub.Unsubscribe()
 
+	timeout := time.After(TestTimeout)
 	for {
 		select {
 		case evt := <-ch:
@@ -260,7 +261,7 @@ func WaitForProposalExecutedEvent(t *testing.T, client *ethclient.Client, bridge
 			if err != nil {
 				t.Fatal(err)
 			}
-		case <-time.After(TestTimeout):
+		case <-timeout:
 			t.Fatalf("Test timed out waiting for ProposalExecuted event")
 		}
 	}

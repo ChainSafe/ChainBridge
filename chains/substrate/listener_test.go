@@ -88,7 +88,7 @@ func Test_FungibleTransferEvent(t *testing.T) {
 
 	subtest.InitiateNativeTransfer(t, context.client, types.NewU128(*amount), recipient, ForeignChain)
 
-	verifyResultingMessage(t, context.router, context.sysErr, expected)
+	verifyResultingMessage(t, context.router, context.lSysErr, expected)
 }
 
 func Test_NonFungibleTransferEvent(t *testing.T) {
@@ -106,7 +106,7 @@ func Test_NonFungibleTransferEvent(t *testing.T) {
 
 	subtest.InitiateNonFungibleTransfer(t, context.client, types.NewU256(*tokenId), recipient, ForeignChain)
 
-	verifyResultingMessage(t, context.router, context.sysErr, expected)
+	verifyResultingMessage(t, context.router, context.lSysErr, expected)
 }
 
 func Test_GenericTransferEvent(t *testing.T) {
@@ -120,7 +120,7 @@ func Test_GenericTransferEvent(t *testing.T) {
 
 	subtest.InitiateHashTransfer(t, context.client, hash, ForeignChain)
 
-	verifyResultingMessage(t, context.router, context.sysErr, expected)
+	verifyResultingMessage(t, context.router, context.lSysErr, expected)
 
 	// Repeat the process to assert nonce and hash change
 
@@ -132,5 +132,5 @@ func Test_GenericTransferEvent(t *testing.T) {
 
 	subtest.InitiateHashTransfer(t, context.client, hash, ForeignChain)
 
-	verifyResultingMessage(t, context.router, context.sysErr, expected)
+	verifyResultingMessage(t, context.router, context.lSysErr, expected)
 }
