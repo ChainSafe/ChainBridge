@@ -140,7 +140,7 @@ func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.Trans
 	}
 }
 
-func CreateErc721Deposit(t *testing.T, client *Client, destId msg.ChainId, recipient []byte, tokenId *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+func CreateErc721Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, recipient []byte, tokenId *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
 	data := utils.ConstructErc721DepositData(rId, tokenId, recipient)
 
 	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
@@ -163,7 +163,7 @@ func CreateErc721Deposit(t *testing.T, client *Client, destId msg.ChainId, recip
 	}
 }
 
-func CreateGenericDeposit(t *testing.T, client *Client, destId msg.ChainId, metadata []byte, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+func CreateGenericDeposit(t *testing.T, client *utils.Client, destId msg.ChainId, metadata []byte, contracts *utils.DeployedContracts, rId msg.ResourceId) {
 	data := utils.ConstructGenericDepositData(rId, metadata)
 
 	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
@@ -186,7 +186,7 @@ func CreateGenericDeposit(t *testing.T, client *Client, destId msg.ChainId, meta
 	}
 }
 
-func WaitForDepositCreatedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
+func WaitForDepositCreatedEvent(t *testing.T, client *utils.Client, bridge common.Address, nonce uint64) {
 	startBlock := ethtest.GetLatestBlock(t, client)
 
 	query := eth.FilterQuery{
@@ -226,7 +226,7 @@ func WaitForDepositCreatedEvent(t *testing.T, client *ethclient.Client, bridge c
 	}
 }
 
-func WaitForDepositExecutedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
+func WaitForDepositExecutedEvent(t *testing.T, client *utils.Client, bridge common.Address, nonce uint64) {
 	startBlock := ethtest.GetLatestBlock(t, client)
 
 	query := eth.FilterQuery{
