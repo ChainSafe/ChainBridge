@@ -105,6 +105,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	newClient := ethtest.NewClient
 	client := &utils.Client{Client:l.conn.conn,Opts:opts}
 
 	erc20Contract := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
