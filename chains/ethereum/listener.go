@@ -25,6 +25,7 @@ import (
 
 var BlockRetryInterval = time.Second * 5
 var BlockRetryLimit = 5
+var ErrFatalPolling = errors.New("listener block polling failed")
 
 type ActiveSubscription struct {
 	ch  <-chan ethtypes.Log
@@ -98,7 +99,8 @@ func (l *listener) pollBlocks() error {
 		default:
 			// No more retries, goto next block
 			if retry == 0 {
-				l.sysErr <- fmt.Errorf("fatal error: retries exceeded (chain=%d)", l.cfg.id)
+				l.log.Error("Polling failed, retries exceeded")
+				l.sysErr <- ErrFatalPolling
 				return nil
 			}
 

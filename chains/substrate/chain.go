@@ -18,7 +18,7 @@ The substrate listener polls blocks and parses the associated events for the thr
 
 Writer
 
-As the writer recieves messages from the router, it constructs proposals. If a proposal is still active, the writer will attempt to vote on it. Resource IDs are resolved to method name on-chain, which are then used in the proposals when constructing the resulting Call struct.
+As the writer receives messages from the router, it constructs proposals. If a proposal is still active, the writer will attempt to vote on it. Resource IDs are resolved to method name on-chain, which are then used in the proposals when constructing the resulting Call struct.
 
 */
 package substrate

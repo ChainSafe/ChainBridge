@@ -22,6 +22,8 @@ var ExecuteBlockWatchLimit = 50
 var ErrNonceTooLow = errors.New("nonce too low")
 var ErrTxUnderpriced = errors.New("replacement transaction underpriced")
 var NonceRetryInterval = time.Second * 2
+var ErrFatalTx = errors.New("submission of transaction failed")
+var ErrFatalQuery = errors.New("query of chain state failed")
 
 const TxRetryLimit = 10
 
@@ -181,11 +183,20 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 		case <-w.stop:
 			return
 		default:
-			// watch for the lastest block
-			err := w.conn.waitForBlock(latestBlock)
-			if err != nil {
-				w.log.Error("Waiting for block failed", "err", err)
-				return
+			// watch for the lastest block, retry up to BlockRetryLimit times
+			for waitRetrys := 0; waitRetrys < BlockRetryLimit; waitRetrys++ {
+				err := w.conn.waitForBlock(latestBlock)
+				if err != nil {
+					w.log.Error("Waiting for block failed", "err", err)
+					// Exit if retries exceeded
+					if waitRetrys+1 == BlockRetryLimit {
+						w.log.Error("Waiting for block retries exceeded, shutting down")
+						w.sysErr <- ErrFatalQuery
+						return
+					}
+				} else {
+					break
+				}
 			}
 
 			// query for logs
@@ -258,7 +269,8 @@ func (w *writer) voteProposal(m msg.Message, hash [32]byte) {
 			}
 		}
 	}
-	w.sysErr <- fmt.Errorf("submission of transaction failed (chain=%d)", w.cfg.id)
+	w.log.Error("Submission of Vote transaction failed, shutting down", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
+	w.sysErr <- ErrFatalTx
 }
 
 // executeProposal executes the proposal
@@ -303,5 +315,6 @@ func (w *writer) executeProposal(m msg.Message, handler common.Address, data []b
 			}
 		}
 	}
-	w.sysErr <- fmt.Errorf("submission of transaction failed (chain=%d)", w.cfg.id)
+	w.log.Error("Submission of Execute transaction failed, shutting down", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
+	w.sysErr <- ErrFatalTx
 }
