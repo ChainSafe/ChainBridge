@@ -101,8 +101,11 @@ func (l *listener) pollBlocks() error {
 			continue
 		}
 
-		// Sleep if the current block > latest
-		if currBlock.Cmp(latestBlock) == -1 {
+		// Sleep if the current block is not at least 10 behind the latest block
+		// This is to prevent events that are part of a block reorg
+		var diff = *big.NewInt(0)
+		diff.Sub(currBlock, latestBlock)
+		if diff.Int64() < 10 {
 			time.Sleep(BlockRetryInterval)
 			continue
 		}
