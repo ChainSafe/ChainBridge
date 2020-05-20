@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 	"time"
@@ -22,12 +23,13 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-var BlockRetryInterval = time.Second * 2
-var BlockRetryLimit = 3
+var BlockRetryInterval = time.Second * 5
+var BlockRetryLimit = 5
+var ErrFatalPolling = errors.New("listener block polling failed")
 
 type ActiveSubscription struct {
 	ch  <-chan ethtypes.Log
-	sub eth.Subscription
+	sub eth.Subscription // subscribe to specific events
 }
 
 type listener struct {
@@ -40,17 +42,23 @@ type listener struct {
 	genericHandlerContract *GenericHandler.GenericHandler
 	log                    log15.Logger
 	blockstore             blockstore.Blockstorer
+	stop                   <-chan int
+	sysErr                 chan<- error // Reports fatal error to core
 }
 
-func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *listener {
+// NewListener creates and returns a listener
+func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
 	return &listener{
 		cfg:        *cfg,
 		conn:       conn,
 		log:        log,
 		blockstore: bs,
+		stop:       stop,
+		sysErr:     sysErr,
 	}
 }
 
+// setContracts sets the listener with the appropriate contracts
 func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handler.ERC20Handler, erc721Handler *ERC721Handler.ERC721Handler, genericHandler *GenericHandler.GenericHandler) {
 	l.bridgeContract = bridge
 	l.erc20HandlerContract = erc20Handler
@@ -58,11 +66,12 @@ func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handle
 	l.genericHandlerContract = genericHandler
 }
 
+// sets the router
 func (l *listener) setRouter(r chains.Router) {
 	l.router = r
 }
 
-// Start registers all subscriptions provided by the config
+// start registers all subscriptions provided by the config
 func (l *listener) start() error {
 	l.log.Debug("Starting listener...")
 
@@ -84,54 +93,63 @@ func (l *listener) pollBlocks() error {
 	var latestBlock = l.cfg.startBlock
 	var retry = BlockRetryLimit
 	for {
-		// No more retries, goto next block
-		if retry == 0 {
+		select {
+		case <-l.stop:
+			return errors.New("polling terminated")
+		default:
+			// No more retries, goto next block
+			if retry == 0 {
+				l.log.Error("Polling failed, retries exceeded")
+				l.sysErr <- ErrFatalPolling
+				return nil
+			}
+
+			currBlock, err := l.conn.latestBlock()
+			if err != nil {
+				l.log.Error("Unable to get latest block", "block", latestBlock, "err", err)
+				retry--
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
+			// Sleep if the current block > latest
+			if currBlock.Cmp(latestBlock) == -1 {
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
+			// Parse out events
+			err = l.getDepositEventsForBlock(latestBlock)
+			if err != nil {
+				l.log.Error("Failed to get events for block", "block", latestBlock, "err", err)
+				retry--
+				continue
+			}
+
+			// Write to block store. Not a critical operation, no need to retry
+			err = l.blockstore.StoreBlock(latestBlock)
+			if err != nil {
+				l.log.Error("Failed to write latest block to blockstore", "block", latestBlock, "err", err)
+			}
+
+			// Goto next block and reset retry counter
 			latestBlock.Add(latestBlock, big.NewInt(1))
 			retry = BlockRetryLimit
 		}
-
-		currBlock, err := l.conn.latestBlock()
-		if err != nil {
-			l.log.Error("Unable to get latest block", "block", latestBlock, "err", err)
-			retry--
-			time.Sleep(BlockRetryInterval)
-			continue
-		}
-
-		// Sleep if the current block > latest
-		if currBlock.Cmp(latestBlock) == -1 {
-			time.Sleep(BlockRetryInterval)
-			continue
-		}
-
-		// Parse out events
-		err = l.getDepositEventsForBlock(latestBlock)
-		if err != nil {
-			l.log.Error("Failed to get events for block", "block", latestBlock, "err", err)
-			retry--
-			continue
-		}
-
-		// Write to block store. Not a critical operation, no need to retry
-		err = l.blockstore.StoreBlock(latestBlock)
-		if err != nil {
-			l.log.Error("Failed to write latest block to blockstore", "block", latestBlock, "err", err)
-		}
-
-		// Goto next block and reset retry counter
-		latestBlock.Add(latestBlock, big.NewInt(1))
-		retry = BlockRetryLimit
 	}
 }
 
+// getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
 
+	// querying for logs
 	logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
 	if err != nil {
 		return fmt.Errorf("unable to Filter Logs: %s", err)
 	}
 
+	// read through the log events and handle their deposit event if handler is recognized
 	for _, log := range logs {
 		var m msg.Message
 		addr := ethcommon.BytesToAddress(log.Topics[2].Bytes())
@@ -172,8 +190,4 @@ func buildQuery(contract ethcommon.Address, sig utils.EventSig, startBlock *big.
 		},
 	}
 	return query
-}
-
-func (l *listener) stop() error {
-	return nil
 }

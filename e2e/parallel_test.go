@@ -51,14 +51,14 @@ var txInterval = time.Millisecond * 200
 func testThreeChainsParallel(t *testing.T, ctx *testContext) {
 	// Creat some additional clients for thread safety
 	subClient := ctx.subClient
-	ethAClientA := ethtest.NewClient(t, eth.EthAEndpoint, eth.DaveKp)
+	ethAClientA := ethtest.NewClient(t, eth.EthAEndpoint, eth.AliceKp)
 	ethAClientB := ethtest.NewClient(t, eth.EthAEndpoint, eth.EveKp)
-	ethBClientA := ethtest.NewClient(t, eth.EthBEndpoint, eth.DaveKp)
+	ethBClientA := ethtest.NewClient(t, eth.EthBEndpoint, eth.AliceKp)
 
 	// Mint tokens to eve and dave, approve handlers
-	ethtest.Erc20Mint(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.TestContracts.Erc20Sub, eth.DaveKp.CommonAddress(), balanceDelta)
+	ethtest.Erc20Mint(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.TestContracts.Erc20Sub, eth.AliceKp.CommonAddress(), balanceDelta)
 	ethtest.Erc20Mint(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.TestContracts.Erc20Eth, eth.EveKp.CommonAddress(), balanceDelta)
-	ethtest.Erc20Mint(t, ctx.ethB.Client, ctx.ethB.Opts, ctx.ethB.TestContracts.Erc20Eth, eth.DaveKp.CommonAddress(), balanceDelta)
+	ethtest.Erc20Mint(t, ctx.ethB.Client, ctx.ethB.Opts, ctx.ethB.TestContracts.Erc20Eth, eth.AliceKp.CommonAddress(), balanceDelta)
 	ethtest.Erc20Approve(t, ethAClientA.Client, ethAClientA.Opts, ctx.ethA.TestContracts.Erc20Sub, ctx.ethA.BaseContracts.ERC20HandlerAddress, balanceDelta)
 	ethtest.Erc20Approve(t, ethAClientB.Client, ethAClientB.Opts, ctx.ethA.TestContracts.Erc20Eth, ctx.ethA.BaseContracts.ERC20HandlerAddress, balanceDelta)
 	ethtest.Erc20Approve(t, ethBClientA.Client, ethBClientA.Opts, ctx.ethB.TestContracts.Erc20Eth, ctx.ethB.BaseContracts.ERC20HandlerAddress, balanceDelta)
@@ -97,7 +97,7 @@ func testThreeChainsParallel(t *testing.T, ctx *testContext) {
 	})
 
 	// Must wait long enough for processing to complete
-	time.Sleep(blockTime * 10)
+	time.Sleep(blockTime * 3)
 
 	// Calculate and verify expected results
 	t.Run("Assert Sub balance", func(t *testing.T) {
@@ -121,8 +121,9 @@ func submitEthDeposit(name string, t *testing.T, ethCtx *eth.TestContext, client
 		t.Run(fmt.Sprintf("%s Transfer %d", name, i), func(t *testing.T) {
 			// Initiate transfer
 			log.Info("Submitting transaction", "number", i, "recipient", recipient, "amount", amount, "rId", rId.Hex())
+			ethtest.LockNonceAndUpdate(t, client)
 			eth.CreateErc20Deposit(t, client.Client, client.Opts, destId, recipient, amount, ethCtx.BaseContracts, rId)
-
+			client.UnlockNonce()
 			time.Sleep(txInterval)
 		})
 	}

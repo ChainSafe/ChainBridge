@@ -26,6 +26,9 @@ func Decrypt(data, password []byte) ([]byte, error) {
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
+		if err.Error() == "cipher: message authentication failed" {
+			err = errors.New(err.Error() + ". Incorrect Password.")
+		}
 		return nil, err
 	}
 
@@ -67,7 +70,7 @@ func DecryptKeypair(expectedPubK string, data, password []byte, keytype string) 
 }
 
 // ReadFromFileAndDecrypt reads ciphertext from a file and decrypts it using the password into a `crypto.PrivateKey`
-func ReadFromFileAndDecrypt(filename string, password []byte) (crypto.Keypair, error) {
+func ReadFromFileAndDecrypt(filename string, password []byte, keytype string) (crypto.Keypair, error) {
 	fp, err := filepath.Abs(filename)
 	if err != nil {
 		return nil, err
@@ -82,6 +85,10 @@ func ReadFromFileAndDecrypt(filename string, password []byte) (crypto.Keypair, e
 	err = json.Unmarshal(data, keydata)
 	if err != nil {
 		return nil, err
+	}
+
+	if keytype != keydata.Type {
+		return nil, fmt.Errorf("Keystore type and Chain type mismatched. Expected Keystore file of type %s, got type %s", keytype, keydata.Type)
 	}
 
 	return DecryptKeypair(keydata.PublicKey, keydata.Ciphertext, password, keydata.Type)

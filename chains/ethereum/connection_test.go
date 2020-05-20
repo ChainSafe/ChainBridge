@@ -12,15 +12,15 @@ import (
 )
 
 func TestConnect(t *testing.T) {
-	_ = deployTestContracts(t, aliceTestConfig.id)
+	_ = deployTestContracts(t, aliceTestConfig.id, AliceKp)
 	conn := newLocalConnection(t, aliceTestConfig)
 	conn.Close()
 }
 
 func TestSubscribe(t *testing.T) {
-	_ = deployTestContracts(t, aliceTestConfig.id)
+	_ = deployTestContracts(t, aliceTestConfig.id, AliceKp)
 	conn := newLocalConnection(t, aliceTestConfig)
-	l := NewListener(conn, aliceTestConfig, TestLogger, &blockstore.EmptyStore{})
+	l := NewListener(conn, aliceTestConfig, TestLogger, &blockstore.EmptyStore{}, make(chan int), make(chan error))
 	defer conn.Close()
 
 	q := eth.FilterQuery{}
@@ -34,7 +34,7 @@ func TestSubscribe(t *testing.T) {
 // TestContractCode is used to make sure the contracts are deployed correctly.
 // This is probably the least intrusive way to check if the contracts exists
 func TestContractCode(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id)
+	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
 	conn := newLocalConnection(t, aliceTestConfig)
 	defer conn.Close()
 

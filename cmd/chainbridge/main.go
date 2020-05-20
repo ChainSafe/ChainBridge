@@ -1,6 +1,10 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
+/*
+Provides the command-line interface for the chainbridge application.
 
+For configuration and CLI commands see the README: https://github.com/ChainSafe/ChainBridge.
+*/
 package main
 
 import (
@@ -11,6 +15,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
 	"github.com/ChainSafe/ChainBridge/core"
+	msg "github.com/ChainSafe/ChainBridge/message"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli"
 )
@@ -146,12 +151,18 @@ func run(ctx *cli.Context) error {
 		ks = cfg.keystorePath
 	}
 
-	c := core.NewCore()
+	// Used to signal core shutdown due to fatal error
+	sysErr := make(chan error)
+	c := core.NewCore(sysErr)
 
 	for _, chain := range cfg.Chains {
+		chainId, err := strconv.Atoi(chain.Id)
+		if err != nil {
+			return err
+		}
 		chainConfig := &core.ChainConfig{
 			Name:           chain.Name,
-			Id:             chain.Id,
+			Id:             msg.ChainId(chainId),
 			Endpoint:       chain.Endpoint,
 			From:           chain.From,
 			KeystorePath:   ks,
@@ -163,9 +174,9 @@ func run(ctx *cli.Context) error {
 		var newChain core.Chain
 		logger := log.Root().New("chain", chainConfig.Name)
 		if chain.Type == "ethereum" {
-			newChain, err = ethereum.InitializeChain(chainConfig, logger, c.Context())
+			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr)
 		} else if chain.Type == "substrate" {
-			newChain, err = substrate.InitializeChain(chainConfig, logger)
+			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr)
 		} else {
 			return errors.New("unrecognized Chain Type")
 		}

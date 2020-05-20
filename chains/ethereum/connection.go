@@ -5,6 +5,7 @@ package ethereum
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"sync"
@@ -22,15 +23,6 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-// Nonce is a struct that wraps the Nonce with a mutex lock
-// this struct was implemented to prevent race conditions where
-// two transactions try to transact at the same time and recieve
-// the same nonce, causing one to be rejected.
-type Nonce struct {
-	nonce uint64
-	lock  *sync.Mutex
-}
-
 type Connection struct {
 	cfg       Config
 	ctx       context.Context
@@ -39,15 +31,17 @@ type Connection struct {
 	kp        *secp256k1.Keypair
 	nonceLock sync.Mutex
 	log       log15.Logger
+	stop      <-chan int // All routines should exit when this channel is closed
 }
 
-func NewConnection(cfg *Config, kp *secp256k1.Keypair, log log15.Logger, ctx context.Context) *Connection {
+func NewConnection(cfg *Config, kp *secp256k1.Keypair, log log15.Logger, stop <-chan int) *Connection {
 	return &Connection{
-		ctx:       ctx,
+		ctx:       context.Background(),
 		cfg:       *cfg,
 		kp:        kp,
 		nonceLock: sync.Mutex{},
 		log:       log,
+		stop:      stop,
 	}
 }
 
@@ -98,21 +92,6 @@ func (c *Connection) subscribeToEvent(query eth.FilterQuery) (*ActiveSubscriptio
 	}, nil
 }
 
-// pendingNonceAt returns the pending nonce of the given account and the given block
-func (c *Connection) pendingNonceAt(account [20]byte) (*Nonce, error) {
-	c.nonceLock.Lock()
-	nonce, err := c.conn.PendingNonceAt(c.ctx, ethcommon.Address(account))
-	if err != nil {
-		c.nonceLock.Unlock()
-		return nil, err
-	}
-
-	return &Nonce{
-		nonce,
-		&c.nonceLock,
-	}, nil
-}
-
 // latestBlock returns the latest block from the current chain
 func (c *Connection) latestBlock() (*big.Int, error) {
 	header, err := c.conn.HeaderByNumber(c.ctx, nil)
@@ -123,19 +102,19 @@ func (c *Connection) latestBlock() (*big.Int, error) {
 }
 
 // newTransactOpts builds the TransactOpts for the connection's keypair.
-func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, *Nonce, error) {
+func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, uint64, error) {
 	privateKey := c.kp.PrivateKey()
 	address := ethcrypto.PubkeyToAddress(privateKey.PublicKey)
 
-	nonce, err := c.pendingNonceAt(address)
+	nonce, err := c.conn.PendingNonceAt(c.ctx, address)
 	if err != nil {
-		return nil, nil, err
+		return nil, 0, err
 	}
 
 	auth := bind.NewKeyedTransactor(privateKey)
-	auth.Nonce = big.NewInt(int64(nonce.nonce))
-	auth.Value = big.NewInt(0)               // in wei
-	auth.GasLimit = uint64(gasLimit.Int64()) // in units
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = value
+	auth.GasLimit = uint64(gasLimit.Int64())
 	auth.GasPrice = gasPrice
 	auth.Context = c.ctx
 
@@ -158,17 +137,22 @@ func (c *Connection) ensureHasBytecode(addr ethcommon.Address) error {
 // waitForBlock will poll for the block number until the current block is equal or greater than
 func (c *Connection) waitForBlock(block *big.Int) error {
 	for {
-		currBlock, err := c.latestBlock()
-		if err != nil {
-			return err
-		}
+		select {
+		case <-c.stop:
+			return errors.New("connection terminated")
+		default:
+			currBlock, err := c.latestBlock()
+			if err != nil {
+				return err
+			}
 
-		// Equal or greater than target
-		if currBlock.Cmp(block) >= 0 {
-			return nil
-		}
+			// Equal or greater than target
+			if currBlock.Cmp(block) >= 0 {
+				return nil
+			}
 
-		time.Sleep(BlockRetryInterval)
-		continue
+			time.Sleep(BlockRetryInterval)
+			continue
+		}
 	}
 }

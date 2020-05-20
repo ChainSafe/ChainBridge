@@ -22,40 +22,49 @@ install:
     - sudo apt-get install ethereum
     - wget -P $HOME/bin/ https://storage.googleapis.com/centrifuge-dev-public/subkey  && chmod +x $HOME/bin/subkey
 
+
 jobs:
   include:
-    - language: go
+    - stage: "Test"
+      language: go
       go: 1.13.x
-      name: "Golang-ci Linter"
+      name: "Linter"
       script:
         - make lint
         - rm -rf bindings/ # Avoid adding license to bindings
         - make license-check
     
-    - language: go
+    - stage: "Test"
+      language: go
       go: 1.13.x
-      name: "Check solidity bindings"
-      script:
-        - set -e
-        - make rebuild-contracts && make clean
-        - go fmt ./...
-        - ./scripts/check_diff.sh
-
-    - language: go
-      go: 1.13.x
-      name: "Run Go tests"
+      name: "Go tests"
       script:
         - set -e
         - npm install --global ganache-cli && SILENT=true ./scripts/start_ganache.sh
         - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test
 
-    - language: go
+    - stage: "Test"
+      language: go
       go: 1.13.x
-      name: "Run Go e2e tests"
+      name: "E2E tests (Ganache)"
       script:
         - set -e
         - npm install --global ganache-cli && SILENT=true ./scripts/start_ganache.sh
         - PORT=8546 SILENT=true ./scripts/start_ganache.sh
         - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
+
+    - stage: "Test"
+      language: go
+      go: 1.13.x
+      name: "E2E tests (Geth)"
+      script:
+        - set -e
+        - docker-compose -f ./docker-compose-e2e.yml up -d
+        - docker ps
+        - make test-e2e
+
+    - stage: "Docker Deploy (chainsafe/chainbridge)"
+      if: (NOT type IN (pull_request)) AND (branch = master)
+      script: ./scripts/ci_docker.sh
