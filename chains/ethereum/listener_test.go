@@ -99,14 +99,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
 
-	// Get transaction ready
-	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	newClient := ethtest.NewClient
-	client := &utils.Client{Client:l.conn.conn,Opts:opts}
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
 
 	erc20Contract := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
 
@@ -130,7 +123,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	createErc20Deposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client.Opts,
 		resourceId,
 		l.cfg.erc20HandlerContract,
 
@@ -142,7 +135,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	// Verify message
 	select {
 	case m := <-router.msgs:
-		err = compareMessage(expectedMessage, m)
+		err := compareMessage(expectedMessage, m)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -162,7 +155,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	createErc20Deposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client.Opts,
 		resourceId,
 		l.cfg.erc20HandlerContract,
 
@@ -174,7 +167,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	// Verify message
 	select {
 	case m := <-router.msgs:
-		err = compareMessage(expectedMessage2, m)
+		err := compareMessage(expectedMessage2, m)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -190,20 +183,15 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
 
-	// Get transaction ready
-	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	tokenId := big.NewInt(99)
-	client := &utils.Client{Client:l.conn.conn, Opts: opts}
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	
 	
 	erc721Contract := ethtest.Erc721Deploy(t, client)
 	ethtest.Erc721Mint(t, client, erc721Contract, tokenId, []byte{})
 	ethtest.Erc721Approve(t, client, erc721Contract, contracts.ERC721HandlerAddress, tokenId)
 	log15.Info("Deployed erc721, minted and approved handler", "handler", contracts.ERC721HandlerAddress, "contract", erc721Contract, "tokenId", tokenId.Bytes())
-	ethtest.Erc721AssertOwner(t, client, erc721Contract, tokenId, opts.From)
+	ethtest.Erc721AssertOwner(t, client, erc721Contract, tokenId, client.Opts.From)
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Contract.Bytes(), 31), uint8(src)))
@@ -225,7 +213,7 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	createErc721Deposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client.Opts,
 		resourceId,
 		l.cfg.erc721HandlerContract,
 
@@ -238,7 +226,7 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	// Verify message
 	select {
 	case m := <-router.msgs:
-		err = compareMessage(expectedMessage, m)
+		err := compareMessage(expectedMessage, m)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -254,13 +242,7 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
 
-	// Get transaction ready
-	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	client := &utils.Client{Opts:opts, Client:l.conn.conn}
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
 	hash := utils.Hash(common.LeftPadBytes([]byte{1}, 32))
@@ -281,7 +263,7 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 	createGenericDeposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client.Opts,
 		resourceId,
 		l.cfg.genericHandlerContract,
 
@@ -292,7 +274,7 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 	// Verify message
 	select {
 	case m := <-router.msgs:
-		err = compareMessage(expectedMessage, m)
+		err := compareMessage(expectedMessage, m)
 		if err != nil {
 			t.Fatal(err)
 		}

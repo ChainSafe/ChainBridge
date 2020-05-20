@@ -44,8 +44,7 @@ var EveKp = keystore.TestKeyRing.EthereumKeys[keystore.EveKey]
 type TestContext struct {
 	BaseContracts *utils.DeployedContracts // All the contracts required for the bridge
 	TestContracts TestContracts            // Additional contracts for tests (eg. erc contracts)
-	Client        *ethclient.Client
-	Opts          *bind.TransactOpts
+	Client        *utils.Client
 }
 
 type TestContracts struct {
@@ -198,7 +197,7 @@ func WaitForDepositCreatedEvent(t *testing.T, client *utils.Client, bridge commo
 	}
 
 	ch := make(chan ethtypes.Log)
-	sub, err := client.SubscribeFilterLogs(context.Background(), query, ch)
+	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -238,7 +237,7 @@ func WaitForDepositExecutedEvent(t *testing.T, client *utils.Client, bridge comm
 	}
 
 	ch := make(chan ethtypes.Log)
-	sub, err := client.SubscribeFilterLogs(context.Background(), query, ch)
+	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
 	if err != nil {
 		t.Fatal(err)
 	}
