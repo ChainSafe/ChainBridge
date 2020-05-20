@@ -25,8 +25,8 @@ func testSubstrateHashToGenericHandler(t *testing.T, ctx *testContext) {
 			subtest.InitiateHashTransfer(t, ctx.subClient, hash, EthAChainId)
 
 			// Wait for event
-			eth.WaitForDepositCreatedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
-			eth.WaitForDepositExecutedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalCreatedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalExecutedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
 			nonce++
 
 			// Verify hash is available
@@ -51,8 +51,8 @@ func testEthereumHashToGenericHandler(t *testing.T, ctx *testContext) {
 			eth.CreateGenericDeposit(t, ctx.ethA.Client, ctx.ethA.Opts, EthBChainId, hash[:], ctx.ethB.BaseContracts, ctx.EthGenericResourceId)
 
 			// Wait for event
-			eth.WaitForDepositCreatedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
-			eth.WaitForDepositExecutedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalCreatedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalExecutedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
 			nonce++
 
 			// Verify hash is available

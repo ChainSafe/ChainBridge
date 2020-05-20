@@ -32,7 +32,7 @@ func (r *MockRouter) Send(message msg.Message) error {
 	return nil
 }
 
-func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedContracts) (*listener, *MockRouter) {
+func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedContracts, stop <-chan int, sysErr chan<- error) (*listener, *MockRouter) {
 	// Create copy and add deployed contract addresses
 	newConfig := *config
 	newConfig.bridgeContract = contracts.BridgeAddress
@@ -65,7 +65,7 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	}
 
 	router := &MockRouter{msgs: make(chan msg.Message)}
-	listener := NewListener(conn, &newConfig, TestLogger, &blockstore.EmptyStore{})
+	listener := NewListener(conn, &newConfig, TestLogger, &blockstore.EmptyStore{}, stop, sysErr)
 	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 	listener.setRouter(router)
 	// Start the listener
@@ -77,24 +77,39 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	return listener, router
 }
 
+func verifyMessage(t *testing.T, r *MockRouter, expected msg.Message, errs chan error) {
+	// Verify message
+	select {
+	case m := <-r.msgs:
+		err := compareMessage(expected, m)
+		if err != nil {
+			t.Fatal(err)
+		}
+	case err := <-errs:
+		t.Fatalf("Fatal error: %s", err)
+	case <-time.After(TestTimeout):
+		t.Fatalf("test timed out")
+	}
+}
+
 func TestListener_start_stop(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
-	l, _ := createTestListener(t, aliceTestConfig, contracts)
+	stop := make(chan int)
+	l, _ := createTestListener(t, aliceTestConfig, contracts, stop, nil)
 
 	err := l.start()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = l.stop()
-	if err != nil {
-		t.Fatal(err)
-	}
+	// Initiate shutdown
+	close(stop)
 }
 
 func TestListener_Erc20DepositedEvent(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
-	l, router := createTestListener(t, aliceTestConfig, contracts)
+	errs := make(chan error)
+	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
@@ -136,19 +151,10 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 		amount,
 	)
 
-	// Verify message
-	select {
-	case m := <-router.msgs:
-		err = compareMessage(expectedMessage, m)
-		if err != nil {
-			t.Fatal(err)
-		}
-	case <-time.After(TestTimeout):
-		t.Fatalf("test timed out")
-	}
+	verifyMessage(t, router, expectedMessage, errs)
 
 	// Create second deposit, verify nonce change
-	expectedMessage2 := msg.NewFungibleTransfer(
+	expectedMessage = msg.NewFungibleTransfer(
 		src,
 		dst,
 		2,
@@ -168,21 +174,13 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 		amount,
 	)
 
-	// Verify message
-	select {
-	case m := <-router.msgs:
-		err = compareMessage(expectedMessage2, m)
-		if err != nil {
-			t.Fatal(err)
-		}
-	case <-time.After(TestTimeout):
-		t.Fatalf("test timed out")
-	}
+	verifyMessage(t, router, expectedMessage, errs)
 }
 
 func TestListener_Erc721DepositedEvent(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
-	l, router := createTestListener(t, aliceTestConfig, contracts)
+	errs := make(chan error)
+	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
@@ -231,20 +229,13 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	)
 
 	// Verify message
-	select {
-	case m := <-router.msgs:
-		err = compareMessage(expectedMessage, m)
-		if err != nil {
-			t.Fatal(err)
-		}
-	case <-time.After(TestTimeout):
-		t.Fatalf("test timed out")
-	}
+	verifyMessage(t, router, expectedMessage, errs)
 }
 
 func TestListener_GenericDepositedEvent(t *testing.T) {
 	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
-	l, router := createTestListener(t, aliceTestConfig, contracts)
+	errs := make(chan error)
+	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
@@ -283,16 +274,7 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 		hash[:],
 	)
 
-	// Verify message
-	select {
-	case m := <-router.msgs:
-		err = compareMessage(expectedMessage, m)
-		if err != nil {
-			t.Fatal(err)
-		}
-	case <-time.After(TestTimeout):
-		t.Fatalf("test timed out")
-	}
+	verifyMessage(t, router, expectedMessage, errs)
 }
 
 func compareMessage(expected, actual msg.Message) error {

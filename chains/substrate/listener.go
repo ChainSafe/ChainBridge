@@ -25,13 +25,15 @@ type listener struct {
 	subscriptions map[eventName]eventHandler // Handlers for specific events
 	router        chains.Router
 	log           log15.Logger
+	stop          <-chan int
+	sysErr        chan<- error
 }
 
 // Frequency of polling for a new block
-var BlockRetryInterval = time.Second * 2
-var BlockRetryLimit = 3
+var BlockRetryInterval = time.Second * 5
+var BlockRetryLimit = 5
 
-func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer) *listener {
+func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
 	return &listener{
 		name:          name,
 		chainId:       id,
@@ -40,6 +42,8 @@ func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint6
 		conn:          conn,
 		subscriptions: make(map[eventName]eventHandler),
 		log:           log,
+		stop:          stop,
+		sysErr:        sysErr,
 	}
 }
 
@@ -49,7 +53,7 @@ func (l *listener) setRouter(r chains.Router) {
 
 // start creates the initial subscription for all events
 func (l *listener) start() error {
-	// Check that whether latest is less than starting block
+	// Check whether latest is less than starting block
 	header, err := l.conn.api.RPC.Chain.GetHeaderLatest()
 	if err != nil {
 		return err
@@ -88,43 +92,49 @@ var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
 
 // pollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
 // Polling begins at the block defined in `l.startBlock`. Failed attempts to fetch the latest block or parse
-// a block will be retried up to BlockRetryLimit times before continuing to the next block.
+// a block will be retried up to BlockRetryLimit times before exiting with a .
 func (l *listener) pollBlocks() error {
 	var latestBlock = l.startBlock
 	var retry = BlockRetryLimit
 	for {
-		// No more retries, goto next block
-		if retry == 0 {
+		select {
+		case <-l.stop:
+			return errors.New("terminated")
+		default:
+			// No more retries, goto next block
+			if retry == 0 {
+				l.sysErr <- fmt.Errorf("event polling retries exceeded (chain=%d, name=%s)", l.chainId, l.name)
+				return nil
+			}
+
+			// Get hash for latest block, sleep and retry if not ready
+			hash, err := l.conn.api.RPC.Chain.GetBlockHash(latestBlock)
+			if err != nil && err.Error() == ErrBlockNotReady.Error() {
+				time.Sleep(BlockRetryInterval)
+				continue
+			} else if err != nil {
+				l.log.Error("Failed to query latest block", "block", latestBlock, "err", err)
+				retry--
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
+			err = l.processEvents(hash)
+			if err != nil {
+				l.log.Error("Failed to process events in block", "block", latestBlock, "err", err)
+				retry--
+				continue
+			}
+
+			// Write to blockstore
+			err = l.blockstore.StoreBlock(big.NewInt(0).SetUint64(latestBlock))
+			if err != nil {
+				l.log.Error("Failed to write to blockstore", "err", err)
+			}
+
 			latestBlock++
 			retry = BlockRetryLimit
 		}
-
-		// Get hash for latest block, sleep and retry if not ready
-		hash, err := l.conn.api.RPC.Chain.GetBlockHash(latestBlock)
-		if err != nil && err.Error() == ErrBlockNotReady.Error() {
-			time.Sleep(BlockRetryInterval)
-			continue
-		} else if err != nil {
-			l.log.Error("Failed to query latest block", "block", latestBlock, "err", err)
-			retry--
-			time.Sleep(BlockRetryInterval)
-			continue
-		}
-
-		err = l.processEvents(hash)
-		if err != nil {
-			l.log.Error("Failed to process events in block", "block", latestBlock, "err", err)
-			retry--
-			continue
-		}
-
-		// Write to blockstore
-		err = l.blockstore.StoreBlock(big.NewInt(0).SetUint64(latestBlock))
-		if err != nil {
-			l.log.Error("Failed to write to blockstore", "err", err)
-		}
-		latestBlock++
-		retry = BlockRetryLimit
 	}
 }
 
@@ -196,8 +206,4 @@ func (l *listener) submitMessage(m msg.Message, err error) {
 	if err != nil {
 		log15.Error("failed to process event", "err", err)
 	}
-}
-
-func (l *listener) Stop() error {
-	return nil
 }

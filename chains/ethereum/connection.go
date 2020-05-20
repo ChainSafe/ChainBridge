@@ -5,6 +5,7 @@ package ethereum
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"sync"
@@ -30,15 +31,17 @@ type Connection struct {
 	kp        *secp256k1.Keypair
 	nonceLock sync.Mutex
 	log       log15.Logger
+	stop      <-chan int // All routines should exit when this channel is closed
 }
 
-func NewConnection(cfg *Config, kp *secp256k1.Keypair, log log15.Logger, ctx context.Context) *Connection {
+func NewConnection(cfg *Config, kp *secp256k1.Keypair, log log15.Logger, stop <-chan int) *Connection {
 	return &Connection{
-		ctx:       ctx,
+		ctx:       context.Background(),
 		cfg:       *cfg,
 		kp:        kp,
 		nonceLock: sync.Mutex{},
 		log:       log,
+		stop:      stop,
 	}
 }
 
@@ -134,17 +137,22 @@ func (c *Connection) ensureHasBytecode(addr ethcommon.Address) error {
 // waitForBlock will poll for the block number until the current block is equal or greater than
 func (c *Connection) waitForBlock(block *big.Int) error {
 	for {
-		currBlock, err := c.latestBlock()
-		if err != nil {
-			return err
-		}
+		select {
+		case <-c.stop:
+			return errors.New("connection terminated")
+		default:
+			currBlock, err := c.latestBlock()
+			if err != nil {
+				return err
+			}
 
-		// Equal or greater than target
-		if currBlock.Cmp(block) >= 0 {
-			return nil
-		}
+			// Equal or greater than target
+			if currBlock.Cmp(block) >= 0 {
+				return nil
+			}
 
-		time.Sleep(BlockRetryInterval)
-		continue
+			time.Sleep(BlockRetryInterval)
+			continue
+		}
 	}
 }
