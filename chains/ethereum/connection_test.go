@@ -20,7 +20,7 @@ func TestConnect(t *testing.T) {
 func TestSubscribe(t *testing.T) {
 	_ = deployTestContracts(t, aliceTestConfig.id, AliceKp)
 	conn := newLocalConnection(t, aliceTestConfig)
-	l := NewListener(conn, aliceTestConfig, TestLogger, &blockstore.EmptyStore{})
+	l := NewListener(conn, aliceTestConfig, TestLogger, &blockstore.EmptyStore{}, make(chan int), make(chan error))
 	defer conn.Close()
 
 	q := eth.FilterQuery{}

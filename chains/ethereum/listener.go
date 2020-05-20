@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 	"time"
@@ -22,8 +23,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-var BlockRetryInterval = time.Second * 2
-var BlockRetryLimit = 3
+var BlockRetryInterval = time.Second * 5
+var BlockRetryLimit = 5
+var ErrFatalPolling = errors.New("listener block polling failed")
 
 type ActiveSubscription struct {
 	ch  <-chan ethtypes.Log
@@ -40,15 +42,19 @@ type listener struct {
 	genericHandlerContract *GenericHandler.GenericHandler
 	log                    log15.Logger
 	blockstore             blockstore.Blockstorer
+	stop                   <-chan int
+	sysErr                 chan<- error // Reports fatal error to core
 }
 
 // NewListener creates and returns a listener
-func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer) *listener {
+func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
 	return &listener{
 		cfg:        *cfg,
 		conn:       conn,
 		log:        log,
 		blockstore: bs,
+		stop:       stop,
+		sysErr:     sysErr,
 	}
 }
 
@@ -87,43 +93,49 @@ func (l *listener) pollBlocks() error {
 	var latestBlock = l.cfg.startBlock
 	var retry = BlockRetryLimit
 	for {
-		// No more retries, goto next block
-		if retry == 0 {
+		select {
+		case <-l.stop:
+			return errors.New("polling terminated")
+		default:
+			// No more retries, goto next block
+			if retry == 0 {
+				l.log.Error("Polling failed, retries exceeded")
+				l.sysErr <- ErrFatalPolling
+				return nil
+			}
+
+			currBlock, err := l.conn.latestBlock()
+			if err != nil {
+				l.log.Error("Unable to get latest block", "block", latestBlock, "err", err)
+				retry--
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
+			// Sleep if the current block > latest
+			if currBlock.Cmp(latestBlock) == -1 {
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
+			// Parse out events
+			err = l.getDepositEventsForBlock(latestBlock)
+			if err != nil {
+				l.log.Error("Failed to get events for block", "block", latestBlock, "err", err)
+				retry--
+				continue
+			}
+
+			// Write to block store. Not a critical operation, no need to retry
+			err = l.blockstore.StoreBlock(latestBlock)
+			if err != nil {
+				l.log.Error("Failed to write latest block to blockstore", "block", latestBlock, "err", err)
+			}
+
+			// Goto next block and reset retry counter
 			latestBlock.Add(latestBlock, big.NewInt(1))
 			retry = BlockRetryLimit
 		}
-
-		currBlock, err := l.conn.latestBlock()
-		if err != nil {
-			l.log.Error("Unable to get latest block", "block", latestBlock, "err", err)
-			retry--
-			time.Sleep(BlockRetryInterval)
-			continue
-		}
-
-		// Sleep if the current block > latest
-		if currBlock.Cmp(latestBlock) == -1 {
-			time.Sleep(BlockRetryInterval)
-			continue
-		}
-
-		// Parse out events
-		err = l.getDepositEventsForBlock(latestBlock)
-		if err != nil {
-			l.log.Error("Failed to get events for block", "block", latestBlock, "err", err)
-			retry--
-			continue
-		}
-
-		// Write to block store. Not a critical operation, no need to retry
-		err = l.blockstore.StoreBlock(latestBlock)
-		if err != nil {
-			l.log.Error("Failed to write latest block to blockstore", "block", latestBlock, "err", err)
-		}
-
-		// Goto next block and reset retry counter
-		latestBlock.Add(latestBlock, big.NewInt(1))
-		retry = BlockRetryLimit
 	}
 }
 
@@ -178,9 +190,4 @@ func buildQuery(contract ethcommon.Address, sig utils.EventSig, startBlock *big.
 		},
 	}
 	return query
-}
-
-// stop stops the writer
-func (l *listener) stop() error {
-	return nil
 }

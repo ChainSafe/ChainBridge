@@ -4,7 +4,6 @@
 package core
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -17,23 +16,19 @@ import (
 )
 
 type Core struct {
-	ctx      context.Context
 	registry map[msg.ChainId]Chain
 	route    *router.Router
 	log      log15.Logger
+	sysErr   <-chan error
 }
 
-func NewCore() *Core {
+func NewCore(sysErr <-chan error) *Core {
 	return &Core{
-		ctx:      context.Background(),
 		registry: make(map[msg.ChainId]Chain),
 		route:    router.NewRouter(log15.New("system", "router")),
 		log:      log15.New("system", "core"),
+		sysErr:   sysErr,
 	}
-}
-
-func (c *Core) Context() context.Context {
-	return c.ctx
 }
 
 // AddChain registers the chain in the registry and calls Chain.SetRouter()
@@ -63,20 +58,18 @@ func (c *Core) Start() {
 
 	// Block here and wait for a signal
 	select {
+	case err := <-c.sysErr:
+		c.log.Error("FATAL ERROR. Shutting down.", "err", err)
 	case <-sigc:
 		c.log.Warn("Interrupt received, shutting down now.")
-	case <-c.ctx.Done():
-		c.log.Warn("Context cancelled, shutting down now.")
 	}
 
-	for _, ch := range c.registry {
-		err := ch.Stop()
-		if err != nil {
-			c.log.Error(
-				"failed to shutdown chain",
-				"chain", ch.Id(),
-				"err", err,
-			)
-		}
+	// Signal chains to shutdown
+	for _, chain := range c.registry {
+		chain.Stop()
 	}
+}
+
+func (c *Core) Errors() <-chan error {
+	return c.sysErr
 }

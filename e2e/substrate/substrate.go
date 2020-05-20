@@ -60,6 +60,7 @@ func WaitForProposalSuccessOrFail(t *testing.T, client *utils.Client, nonce type
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer sub.Unsubscribe()
 
 	timeout := time.After(TestTimeout)
 	for {

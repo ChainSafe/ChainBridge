@@ -21,8 +21,6 @@ The writer recieves the message and creates a proposals on-chain. Once a proposa
 package ethereum
 
 import (
-	"context"
-
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
@@ -36,11 +34,14 @@ import (
 	"github.com/ChainSafe/log15"
 )
 
+var _ core.Chain = &Chain{}
+
 type Chain struct {
 	cfg      *core.ChainConfig // The config of the chain
 	conn     *Connection       // THe chains connection
 	listener *listener         // The listener of this chain
 	writer   *writer           // The writer of the chain
+	stop     chan<- int
 }
 
 // checkBlockstore queries the blockstore for the latest known block. If the latest block is
@@ -65,7 +66,7 @@ func setupBlockstore(cfg *Config, kp *secp256k1.Keypair) (*blockstore.Blockstore
 	return bs, nil
 }
 
-func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, ctx context.Context) (*Chain, error) {
+func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr chan<- error) (*Chain, error) {
 	cfg, err := parseChainConfig(chainCfg)
 	if err != nil {
 		return nil, err
@@ -82,7 +83,8 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, ctx contex
 		return nil, err
 	}
 
-	conn := NewConnection(cfg, kp, logger, ctx)
+	stop := make(chan int)
+	conn := NewConnection(cfg, kp, logger, stop)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
@@ -121,10 +123,10 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, ctx contex
 		return nil, err
 	}
 
-	listener := NewListener(conn, cfg, logger, bs)
+	listener := NewListener(conn, cfg, logger, bs, stop, sysErr)
 	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 
-	writer := NewWriter(conn, cfg, logger)
+	writer := NewWriter(conn, cfg, logger, stop, sysErr)
 	writer.setContract(bridgeContract)
 
 	return &Chain{
@@ -132,6 +134,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, ctx contex
 		conn:     conn,
 		writer:   writer,
 		listener: listener,
+		stop:     stop,
 	}, nil
 }
 
@@ -163,18 +166,7 @@ func (c *Chain) Name() string {
 	return c.cfg.Name
 }
 
-func (c *Chain) Stop() error {
-	err := c.listener.stop()
-	if err != nil {
-		return err
-	}
-
-	err = c.writer.stop()
-	if err != nil {
-		return err
-	}
-
-	c.conn.Close()
-
-	return nil
+// Stop signals to any running routines to exit
+func (c *Chain) Stop() {
+	close(c.stop)
 }

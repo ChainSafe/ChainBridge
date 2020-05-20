@@ -97,6 +97,12 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 	} else {
 		t.Logf("Bob's new balance: %s (amount: %s)", bBal.String(), big.NewInt(0).Sub(bBal.Int, startingBalance.Int).String())
 	}
+
+	select {
+	case err = <-context.wSysErr:
+		t.Fatal(err)
+	default:
+	}
 }
 
 func TestWriter_ResolveMessage_NonFungibleProposal(t *testing.T) {
@@ -147,6 +153,12 @@ func TestWriter_ResolveMessage_NonFungibleProposal(t *testing.T) {
 
 	// Assert token exists
 	subtest.AssertOwnerOf(t, context.client, tokenId, types.NewAccountID(BobKey.PublicKey))
+
+	select {
+	case err = <-context.wSysErr:
+		t.Fatal(err)
+	default:
+	}
 }
 
 func TestWriter_ResolveMessage_GenericProposal(t *testing.T) {
@@ -199,4 +211,10 @@ func TestWriter_ResolveMessage_GenericProposal(t *testing.T) {
 
 	// Assert remark event exists
 	subtest.WaitForRemarkEvent(t, context.client, hash)
+
+	select {
+	case err = <-context.wSysErr:
+		t.Fatal(err)
+	default:
+	}
 }
