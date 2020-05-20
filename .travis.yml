@@ -33,7 +33,7 @@ jobs:
         - make lint
         - rm -rf bindings/ # Avoid adding license to bindings
         - make license-check
-    
+
     - stage: "Test"
       language: go
       go: 1.13.x
