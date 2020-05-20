@@ -113,7 +113,9 @@ func (l *listener) pollBlocks() error {
 			}
 
 			// Sleep if the current block > latest
-			if currBlock.Cmp(latestBlock) == -1 {
+			var diff *big.Int
+			diff.Sub(latestBlock, currBlock)
+			if diff.Cmp(big.NewInt(10)) == -1 {
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
