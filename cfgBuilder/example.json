@@ -16,7 +16,7 @@
     },
     {
       "name": "kotti",
-      "chainId": "1",
+      "chainId": "2",
       "endpoint": "http://localhost:8546",
       "gasLimit": "1000000",
       "gasPrice": "20000000"
