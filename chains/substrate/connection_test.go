@@ -11,7 +11,8 @@ import (
 
 func TestConnect_QueryStorage(t *testing.T) {
 	// Create connection with Alice key
-	conn := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger)
+	errs := make(chan error)
+	conn := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger, make(chan int), errs)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -24,11 +25,20 @@ func TestConnect_QueryStorage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// Ensure no errors were propagated
+	select {
+	case err := <-errs:
+		t.Fatal(err)
+	default:
+		return
+	}
 }
 
 func TestConnect_CheckChainId(t *testing.T) {
 	// Create connection with Alice key
-	conn := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger)
+	errs := make(chan error)
+	conn := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger, make(chan int), errs)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -39,11 +49,20 @@ func TestConnect_CheckChainId(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// Ensure no errors were propagated
+	select {
+	case err := <-errs:
+		t.Fatal(err)
+	default:
+		return
+	}
 }
 
 func TestConnect_SubmitTx(t *testing.T) {
 	// Create connection with Alice key
-	conn := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger)
+	errs := make(chan error)
+	conn := NewConnection(TestEndpoint, "Alice", AliceKey, AliceTestLogger, make(chan int), errs)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -58,5 +77,13 @@ func TestConnect_SubmitTx(t *testing.T) {
 	err = conn.SubmitTx("Balances.transfer", bob.AsAccountID, types.UCompact(10))
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	// Ensure no errors were propagated
+	select {
+	case err := <-errs:
+		t.Fatal(err)
+	default:
+		return
 	}
 }

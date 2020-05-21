@@ -4,7 +4,6 @@
 package e2e
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"math/big"
@@ -70,28 +69,28 @@ type testContext struct {
 func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *ethutils.DeployedContracts) (*core.Core, log.Logger) {
 	// Create logger to write to a file, and store the log file name in global var
 	logger := log.Root().New()
-
+	sysErr := make(chan error)
 	ethACfg := eth.CreateConfig(name, EthAChainId, contractsA, eth.EthAEndpoint)
-	ethA, err := ethChain.InitializeChain(ethACfg, logger.New("relayer", name, "chain", "ethA"), context.Background())
+	ethA, err := ethChain.InitializeChain(ethACfg, logger.New("relayer", name, "chain", "ethA"), sysErr)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	subCfg := sub.CreateConfig(name, SubChainId)
-	sub, err := subChain.InitializeChain(subCfg, logger.New("relayer", name, "chain", "sub"))
+	subA, err := subChain.InitializeChain(subCfg, logger.New("relayer", name, "chain", "sub"), sysErr)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	ethBCfg := eth.CreateConfig(name, EthBChainId, contractsB, eth.EthBEndpoint)
-	ethB, err := ethChain.InitializeChain(ethBCfg, logger.New("relayer", name, "chain", "ethB"), context.Background())
+	ethB, err := ethChain.InitializeChain(ethBCfg, logger.New("relayer", name, "chain", "ethB"), sysErr)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	bridge := core.NewCore()
+	bridge := core.NewCore(sysErr)
 	bridge.AddChain(ethA)
-	bridge.AddChain(sub)
+	bridge.AddChain(subA)
 	bridge.AddChain(ethB)
 
 	err = ethA.Start()
@@ -99,7 +98,7 @@ func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *eth
 		t.Fatal(err)
 	}
 
-	err = sub.Start()
+	err = subA.Start()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,6 +121,17 @@ func attemptToPrintLogs() {
 		fmt.Printf("\n\tOutput from %s:\n\n", name)
 		fmt.Print(string(dat))
 		os.Remove(fileName)
+	}
+}
+
+func assertChanError(t *testing.T, errs <-chan error) {
+	select {
+	case err := <-errs:
+		t.Fatalf("BridgeA Fatal Error: %s", err)
+	default:
+		// Do nothing
+		fmt.Println("No errors here!")
+		return
 	}
 }
 
@@ -269,9 +279,9 @@ func Test_ThreeRelayers(t *testing.T) {
 	subtest.EnsureInitializedChain(t, subClient, sub.RelayerSet, []msg.ChainId{EthAChainId}, resources, uint32(threshold))
 
 	// Create and start three bridges with both chains
-	_, bobLog := createAndStartBridge(t, "bob", contractsA, contractsB)
-	_, charlieLog := createAndStartBridge(t, "charlie", contractsA, contractsB)
-	_, aliceLog := createAndStartBridge(t, "dave", contractsA, contractsB)
+	bridgeA, bobLog := createAndStartBridge(t, "bob", contractsA, contractsB)
+	bridgeB, charlieLog := createAndStartBridge(t, "charlie", contractsA, contractsB)
+	bridgeC, aliceLog := createAndStartBridge(t, "dave", contractsA, contractsB)
 
 	for _, tt := range tests {
 		tt := tt
@@ -293,8 +303,11 @@ func Test_ThreeRelayers(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			tt.fn(t, ctx)
-		})
 
+			assertChanError(t, bridgeA.Errors())
+			assertChanError(t, bridgeB.Errors())
+			assertChanError(t, bridgeC.Errors())
+		})
 		// Flush logs
 		attemptToPrintLogs()
 	}

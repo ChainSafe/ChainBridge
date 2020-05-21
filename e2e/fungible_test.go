@@ -58,8 +58,8 @@ func testSubstrateToErc20(t *testing.T, ctx *testContext) {
 			subtest.InitiateNativeTransfer(t, ctx.subClient, amount, recipient.Bytes(), EthAChainId)
 
 			// Wait for event
-			eth.WaitForDepositCreatedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
-			eth.WaitForDepositExecutedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalCreatedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalExecutedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
 			nonce++
 
 			// Verify balance change
@@ -91,8 +91,8 @@ func testErc20ToErc20(t *testing.T, ctx *testContext) {
 
 			eth.CreateErc20Deposit(t, ctx.ethA.Client, ctx.ethA.Opts, EthBChainId, recipient.Bytes(), amount, ctx.ethA.BaseContracts, ctx.EthEthErc20ResourceId)
 
-			eth.WaitForDepositCreatedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
-			eth.WaitForDepositExecutedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalCreatedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalExecutedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
 			nonce++
 
 			// Verify balance change
@@ -164,8 +164,8 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			subtest.InitiateNativeTransfer(t, ctx.subClient, amount, ethRecipient.Bytes(), EthAChainId)
 
 			// Wait for event
-			eth.WaitForDepositCreatedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
-			eth.WaitForDepositExecutedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalCreatedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalExecutedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
 			nonce++
 
 			// Verify balance change
