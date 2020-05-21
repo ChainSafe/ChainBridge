@@ -121,16 +121,16 @@ func CreateEthClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) (*eth
 	return client, opts
 }
 
-func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, recipient []byte, amount *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+func CreateErc20Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, recipient []byte, amount *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
 	data := utils.ConstructErc20DepositData(rId, recipient, amount)
 
-	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
+	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if _, err := bridgeInstance.Deposit(
-		opts,
+		client.Opts,
 		uint8(destId),
 		contracts.ERC20HandlerAddress,
 		data,

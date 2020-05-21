@@ -57,7 +57,7 @@ var tests = []test{
 type testContext struct {
 	ethA      *eth.TestContext
 	ethB      *eth.TestContext
-	subClient *ethutils.Client
+	subClient *subutils.Client
 
 	EthSubErc20ResourceId  msg.ResourceId
 	EthEthErc20ResourceId  msg.ResourceId
@@ -220,7 +220,7 @@ func Test_ThreeRelayers(t *testing.T) {
 	// Setup test client connections for each chain
 	ethClientA := ethtest.NewClient(t, eth.EthAEndpoint, eth.AliceKp)
 	ethClientB := ethtest.NewClient(t, eth.EthBEndpoint, eth.AliceKp)
-	subClient := ethtest.NewClient(t, sub.TestSubEndpoint, sub.AliceKp.AsKeyringPair())
+	subClient := subtest.CreateClient(t, sub.AliceKp.AsKeyringPair(), sub.TestSubEndpoint)
 
 	// First lookup the substrate resource IDs
 	var rawRId types.Bytes32
