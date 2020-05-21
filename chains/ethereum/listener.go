@@ -26,7 +26,7 @@ import (
 var BlockRetryInterval = time.Second * 5
 var BlockRetryLimit = 5
 var ErrFatalPolling = errors.New("listener block polling failed")
-var BlockDelay = big.NewInt(10)
+var BlockDelay = big.NewInt(0)
 
 type ActiveSubscription struct {
 	ch  <-chan ethtypes.Log
@@ -114,8 +114,8 @@ func (l *listener) pollBlocks() error {
 			}
 
 			// Sleep if the current block is less than 10 blocks behind the latest block
-			// This is done to prevent reading in blocks that can be reorged later.
-			diff := big.NewInt(0)
+			// This is done to prevent reading in blocks that can be reorged
+			diff := big.NewInt(5)
 			diff.Sub(currBlock, latestBlock)
 			if diff.Cmp(BlockDelay) == -1 {
 				time.Sleep(BlockRetryInterval)
