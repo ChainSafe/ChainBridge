@@ -78,7 +78,7 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 }
 
 func TestListener_start_stop(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
+	contracts := deployTestContracts(t, aliceClient, aliceTestConfig.id, AliceKp)
 	l, _ := createTestListener(t, aliceTestConfig, contracts)
 
 	err := l.start()
@@ -93,7 +93,7 @@ func TestListener_start_stop(t *testing.T) {
 }
 
 func TestListener_Erc20DepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
+	contracts := deployTestContracts(t, aliceClient, aliceTestConfig.id, AliceKp)
 	l, router := createTestListener(t, aliceTestConfig, contracts)
 
 	// For debugging
@@ -123,7 +123,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	createErc20Deposit(
 		t,
 		l.bridgeContract,
-		client.Opts,
+		client,
 		resourceId,
 		l.cfg.erc20HandlerContract,
 
@@ -155,7 +155,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	createErc20Deposit(
 		t,
 		l.bridgeContract,
-		client.Opts,
+		client,
 		resourceId,
 		l.cfg.erc20HandlerContract,
 
@@ -177,7 +177,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 }
 
 func TestListener_Erc721DepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
+	contracts := deployTestContracts(t, aliceClient, aliceTestConfig.id, AliceKp)
 	l, router := createTestListener(t, aliceTestConfig, contracts)
 
 	// For debugging
