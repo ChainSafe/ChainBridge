@@ -200,8 +200,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Check for output path
+	var outPath string
+	if len(os.Args) == 3 {
+		outPath = os.Args[2]
+	}
+
 	// Write all the configs to files
 	for i, cfg := range relayerCfgs {
-		cfg.ToTOML(fmt.Sprintf("config%d.toml", i))
+		cfg.ToTOML(filepath.Join(outPath, fmt.Sprintf("config%d.toml", i)))
 	}
 }
