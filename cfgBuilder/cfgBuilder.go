@@ -9,13 +9,10 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
-	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	log "github.com/ChainSafe/log15"
 	"github.com/naoina/toml"
-	"github.com/status-im/keycard-go/hexutils"
 )
 
 type RawConfig struct {
@@ -54,15 +51,20 @@ type EthOpts struct {
 	GenericHandler string `toml:"genericHandler"`
 	GasLimit       string `toml:"gasLimit"`
 	GasPrice       string `toml:"gasPrice"`
+	StartBlock     string `toml:"startBlock"`
 }
 
 type EthChainConfig struct {
-	Name      string `json:"name"`
-	ChainId   string `json:"chainId"`
-	Endpoint  string `json:"endpoint"`
-	contracts *utils.DeployedContracts
-	GasLimit  string `json:"gasLimit"`
-	GasPrice  string `json:"gasPrice"`
+	Name           string `json:"name"`
+	ChainId        string `json:"chainId"`
+	Endpoint       string `json:"endpoint"`
+	BridgeAddress  string `json:"bridge"`
+	Erc20Handler   string `json:"erc20Handler"`
+	Erc721Handler  string `json:"erc721Handler"`
+	GenericHandler string `json:"genericHandler"`
+	GasLimit       string `json:"gasLimit"`
+	GasPrice       string `json:"gasPrice"`
+	StartBlock     string `json:"startBlock"`
 }
 
 // ToToml writes the config to a file
@@ -93,27 +95,6 @@ func (c *RootConfig) ToTOML(file string) *os.File {
 	return newFile
 }
 
-// DeployContracts deploys the default set of contracts to each chain and adds the addresses
-// to the config.
-func DeployContracts(cfg *Config) error {
-	for i, chain := range cfg.Chains {
-		log.Info("Deploying contracts", "endpoint", chain.Endpoint)
-		// TODO: Replace when utils.Client updates land
-		// TODO: Pass in gaslimit and price
-		pk := hexutils.BytesToHex(cfg.Deployer.Encode())
-		chainId, err := strconv.Atoi(chain.ChainId)
-		if err != nil {
-			return err
-		}
-		c, err := utils.DeployContracts(pk, uint8(chainId), chain.Endpoint, cfg.RelayerThreshold)
-		if err != nil {
-			return err
-		}
-		cfg.Chains[i].contracts = c
-	}
-	return nil
-}
-
 func construcEthChainConfig(cfg EthChainConfig, relayer string) RawChainConfig {
 	return RawChainConfig{
 		Name:     cfg.Name,
@@ -122,13 +103,13 @@ func construcEthChainConfig(cfg EthChainConfig, relayer string) RawChainConfig {
 		Id:       cfg.ChainId,
 		Endpoint: cfg.Endpoint,
 		Opts: EthOpts{
-			BridgeAddress:  cfg.contracts.BridgeAddress.Hex(),
-			Erc20Handler:   cfg.contracts.ERC20HandlerAddress.Hex(),
-			Erc721Handler:  cfg.contracts.ERC721HandlerAddress.Hex(),
-			GenericHandler: cfg.contracts.GenericHandlerAddress.Hex(),
+			BridgeAddress:  cfg.BridgeAddress,
+			Erc20Handler:   cfg.Erc20Handler,
+			Erc721Handler:  cfg.Erc721Handler,
+			GenericHandler: cfg.GenericHandler,
 			GasLimit:       cfg.GasLimit,
 			GasPrice:       cfg.GasPrice,
-			// TODO: Add start block
+			StartBlock:     cfg.StartBlock,
 		},
 	}
 }
@@ -157,9 +138,7 @@ func parseRawConfig(raw *RawConfig) (*Config, error) {
 		return nil, fmt.Errorf("failed to parse relayer threshold")
 	}
 	res.RelayerThreshold = threshold
-
 	res.Relayers = raw.Relayers
-
 	res.Chains = raw.Chains
 
 	return &res, nil
@@ -211,13 +190,6 @@ func main() {
 	cfg, err := parseDeployConfig(path)
 	if err != nil {
 		log.Error("failed to parse config", "err", err)
-		os.Exit(1)
-	}
-
-	// Deploy the contracts
-	err = DeployContracts(cfg)
-	if err != nil {
-		log.Error("failed to deploy contracts", "err", err)
 		os.Exit(1)
 	}
 

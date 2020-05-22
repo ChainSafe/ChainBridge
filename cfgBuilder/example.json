@@ -11,15 +11,25 @@
       "name": "goerli",
       "chainId": "1",
       "endpoint": "http://localhost:8545",
+      "bridge": "0x35542aC472082524e5D815763b2531dFf98Ac548",
+      "erc20Handler": "0xF8eD8035856241900B23F230b5589f72678Aedfa",
+      "erc721Handler": "0xAf65aEa42847bcb4897d3CF566Cd89248A196B17",
+      "genericHandler": "0x30663188630403e7df0288B5Bd18c119A9Ef75ED",
       "gasLimit": "1000000",
-      "gasPrice": "20000000"
+      "gasPrice": "20000000",
+      "startBlock": "0"
     },
     {
       "name": "kotti",
       "chainId": "2",
       "endpoint": "http://localhost:8546",
+      "bridge": "0x35542aC472082524e5D815763b2531dFf98Ac548",
+      "erc20Handler": "0xF8eD8035856241900B23F230b5589f72678Aedfa",
+      "erc721Handler": "0xAf65aEa42847bcb4897d3CF566Cd89248A196B17",
+      "genericHandler": "0x30663188630403e7df0288B5Bd18c119A9Ef75ED",
       "gasLimit": "1000000",
-      "gasPrice": "20000000"
+      "gasPrice": "20000000",
+      "startBlock": "0"
     }
   ]
 }

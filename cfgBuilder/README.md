@@ -13,23 +13,29 @@ An input JSON config looks like this:
     "0x8e0a907331554AF72563Bd8D43051C2E64Be5d35",
     "0x24962717f8fA5BA3b931bACaF9ac03924EB475a0"
   ],
+  "bridge": "0x35542aC472082524e5D815763b2531dFf98Ac548",
+  "erc20handler": "0xF8eD8035856241900B23F230b5589f72678Aedfa",
+  "erc721Handler": "0xAf65aEa42847bcb4897d3CF566Cd89248A196B17",
+  "genericHandler": "0x30663188630403e7df0288B5Bd18c119A9Ef75ED",
   "chains": [
     {
       "name": "goerli",
       "chainId": "1",
       "endpoint": "http://localhost:8545",
       "gasLimit": "1000000",
-      "gasPrice": "20000000"
+      "gasPrice": "20000000",
+      "startBlock": "0"
     },
     {
       "name": "kotti",
-      "chainId": "1",
+      "chainId": "2",
       "endpoint": "http://localhost:8546",
       "gasLimit": "1000000",
-      "gasPrice": "20000000"
+      "gasPrice": "20000000",
+      "startBlock": "0"
     }
   ]
 }
 ```
 
-Running `go run main.go <json-path>` will produce config files for ChainBridge. For each relayer in `relayers` a corresponding config will be generated. In order to populate the configs it will attemp to deploy a new set of default contracts using the provided `deployerKey`.
+Running `go run main.go <json-path>` will produce config files for ChainBridge. For each relayer in `relayers` a corresponding config will be generated.

@@ -22,6 +22,7 @@ const kottiEndpoint = "http://kotti.com"
 
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var deployerKey = "0x" + hexutils.BytesToHex(AliceKp.Encode())
+
 var exampleContracts = &utils.DeployedContracts{
 	BridgeAddress:         common.HexToAddress("0x76F5c0Da89421dC43fA000bFC3a9a7841aA3a5F3"),
 	ERC20HandlerAddress:   common.HexToAddress("0x9202584Ac2A5081C6d1F27d637d1DD1Fb2AEc6B7"),
@@ -36,6 +37,7 @@ var exampleOptsStruct = EthOpts{
 	GenericHandler: exampleContracts.GenericHandlerAddress.Hex(),
 	GasLimit:       "100",
 	GasPrice:       "1000",
+	StartBlock:     "10",
 }
 
 var exampleRawConfig = &RawConfig{
@@ -44,56 +46,66 @@ var exampleRawConfig = &RawConfig{
 	Relayers:           []string{AliceKp.Address(), AliceKp.Address(), AliceKp.Address()},
 	Chains: []EthChainConfig{
 		{
-			Name:     "goerli",
-			ChainId:  "1",
-			Endpoint: goerliEndpoint,
-			GasLimit: "100",
-			GasPrice: "1000",
+			Name:       "goerli",
+			ChainId:    "1",
+			Endpoint:   goerliEndpoint,
+			BridgeAddress:      exampleContracts.BridgeAddress.Hex(),
+			Erc20Handler:       exampleContracts.ERC20HandlerAddress.Hex(),
+			Erc721Handler:      exampleContracts.ERC721HandlerAddress.Hex(),
+			GenericHandler:     exampleContracts.GenericHandlerAddress.Hex(),
+			GasLimit:   "100",
+			GasPrice:   "1000",
+			StartBlock: "10",
 		},
 		{
-			Name:     "kotti",
-			ChainId:  "2",
-			Endpoint: kottiEndpoint,
-			GasLimit: "100",
-			GasPrice: "1000",
+			Name:       "kotti",
+			ChainId:    "2",
+			Endpoint:   kottiEndpoint,
+			BridgeAddress:      exampleContracts.BridgeAddress.Hex(),
+			Erc20Handler:       exampleContracts.ERC20HandlerAddress.Hex(),
+			Erc721Handler:      exampleContracts.ERC721HandlerAddress.Hex(),
+			GenericHandler:     exampleContracts.GenericHandlerAddress.Hex(),
+			GasLimit:   "100",
+			GasPrice:   "1000",
+			StartBlock: "10",
 		},
 	},
 }
 
-func createTestConfig(contracts *utils.DeployedContracts) *Config {
-	return &Config{
-		Deployer:         AliceKp,
-		RelayerThreshold: big.NewInt(3),
-		Relayers:         []string{AliceKp.Address(), AliceKp.Address(), AliceKp.Address()},
-		Chains: []EthChainConfig{
-			{
-				Name:      "goerli",
-				ChainId:   "1",
-				Endpoint:  goerliEndpoint,
-				GasLimit:  "100",
-				GasPrice:  "1000",
-				contracts: contracts,
-			},
-			{
-				Name:      "kotti",
-				ChainId:   "2",
-				Endpoint:  kottiEndpoint,
-				GasLimit:  "100",
-				GasPrice:  "1000",
-				contracts: contracts,
-			},
+var exampleConfig = &Config{
+	Deployer:         AliceKp,
+	RelayerThreshold: big.NewInt(3),
+	Relayers:         []string{AliceKp.Address(), AliceKp.Address(), AliceKp.Address()},
+	Chains: []EthChainConfig{
+		{
+			Name:       "goerli",
+			ChainId:    "1",
+			Endpoint:   goerliEndpoint,
+			BridgeAddress:      exampleContracts.BridgeAddress.Hex(),
+			Erc20Handler:       exampleContracts.ERC20HandlerAddress.Hex(),
+			Erc721Handler:      exampleContracts.ERC721HandlerAddress.Hex(),
+			GenericHandler:     exampleContracts.GenericHandlerAddress.Hex(),
+			GasLimit:   "100",
+			GasPrice:   "1000",
+			StartBlock: "10",
 		},
-	}
+		{
+			Name:       "kotti",
+			ChainId:    "2",
+			Endpoint:   kottiEndpoint,
+			BridgeAddress:      exampleContracts.BridgeAddress.Hex(),
+			Erc20Handler:       exampleContracts.ERC20HandlerAddress.Hex(),
+			Erc721Handler:      exampleContracts.ERC721HandlerAddress.Hex(),
+			GenericHandler:     exampleContracts.GenericHandlerAddress.Hex(),
+			GasLimit:   "100",
+			GasPrice:   "1000",
+			StartBlock: "10",
+		},
+	},
 }
 
 func TestCreateEthRelayerConfig(t *testing.T) {
-	input := &Config{
-		Deployer:         AliceKp,
-		RelayerThreshold: big.NewInt(3),
-		Chains: []EthChainConfig{
-			{Name: "goerli", ChainId: "1", Endpoint: goerliEndpoint, contracts: exampleContracts, GasLimit: "100", GasPrice: "1000"},
-		},
-	}
+	input := exampleConfig
 
 	expected := RootConfig{Chains: []RawChainConfig{
 		{
@@ -102,6 +114,14 @@ func TestCreateEthRelayerConfig(t *testing.T) {
 			Id:       "1",
 			From:     AliceKp.CommonAddress().Hex(),
 			Endpoint: goerliEndpoint,
+			Opts:     exampleOptsStruct,
+		},
+		{
+			Name:     "kotti",
+			Type:     "ethereum",
+			Id:       "2",
+			From:     AliceKp.CommonAddress().Hex(),
+			Endpoint: kottiEndpoint,
 			Opts:     exampleOptsStruct,
 		},
 	}}
@@ -132,7 +152,7 @@ func TestParseConfig(t *testing.T) {
 	}
 
 	// Verify
-	expected := createTestConfig(nil)
+	expected := exampleConfig
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("Mismatch.\n\tExpected: %#v\n\tGot:%#v", expected, result)
 	}
@@ -202,7 +222,7 @@ func TestCreateRelayerConfigs(t *testing.T) {
 		},
 	}
 
-	actual, err := CreateRelayerConfigs(createTestConfig(exampleContracts))
+	actual, err := CreateRelayerConfigs(exampleConfig)
 	if err != nil {
 		t.Fatal(err)
 	}
