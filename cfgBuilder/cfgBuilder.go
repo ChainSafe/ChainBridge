@@ -52,6 +52,7 @@ type EthOpts struct {
 	GasLimit       string `toml:"gasLimit"`
 	GasPrice       string `toml:"gasPrice"`
 	StartBlock     string `toml:"startBlock"`
+	Http           string `toml:"http"`
 }
 
 type EthChainConfig struct {
@@ -65,6 +66,7 @@ type EthChainConfig struct {
 	GasLimit       string `json:"gasLimit"`
 	GasPrice       string `json:"gasPrice"`
 	StartBlock     string `json:"startBlock"`
+	Http           string `json:"http"`
 }
 
 // ToToml writes the config to a file
@@ -110,6 +112,7 @@ func construcEthChainConfig(cfg EthChainConfig, relayer string) RawChainConfig {
 			GasLimit:       cfg.GasLimit,
 			GasPrice:       cfg.GasPrice,
 			StartBlock:     cfg.StartBlock,
+			Http:           cfg.Http,
 		},
 	}
 }

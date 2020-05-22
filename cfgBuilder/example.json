@@ -17,7 +17,8 @@
       "genericHandler": "0x30663188630403e7df0288B5Bd18c119A9Ef75ED",
       "gasLimit": "1000000",
       "gasPrice": "20000000",
-      "startBlock": "0"
+      "startBlock": "0",
+      "http": "false"
     },
     {
       "name": "kotti",
@@ -29,7 +30,8 @@
       "genericHandler": "0x30663188630403e7df0288B5Bd18c119A9Ef75ED",
       "gasLimit": "1000000",
       "gasPrice": "20000000",
-      "startBlock": "0"
+      "startBlock": "0",
+      "http": "true"
     }
   ]
 }
