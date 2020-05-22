@@ -16,7 +16,12 @@ func DeployAssetStore(client *ethclient.Client, opts *bind.TransactOpts) (common
 		return ZeroAddress, err
 	}
 
-	addr, _, _, err := CentrifugeAsset.DeployCentrifugeAsset(opts, client)
+	addr, tx, _, err := CentrifugeAsset.DeployCentrifugeAsset(opts, client)
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	err = WaitForTx(client, tx)
 	if err != nil {
 		return ZeroAddress, err
 	}

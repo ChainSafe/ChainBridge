@@ -38,10 +38,17 @@ func RegisterGenericResource(client *ethclient.Client, opts *bind.TransactOpts, 
 	if err != nil {
 		return err
 	}
-	_, err = instance.AdminSetGenericResource(opts, handler, rId, addr, depositSig, executeSig)
+
+	tx, err := instance.AdminSetGenericResource(opts, handler, rId, addr, depositSig, executeSig)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
