@@ -97,7 +97,7 @@ func testThreeChainsParallel(t *testing.T, ctx *testContext) {
 	})
 
 	// Must wait long enough for processing to complete
-	time.Sleep(blockTime * 3)
+	time.Sleep(blockTime * 10)
 
 	// Calculate and verify expected results
 	t.Run("Assert Sub balance", func(t *testing.T) {
