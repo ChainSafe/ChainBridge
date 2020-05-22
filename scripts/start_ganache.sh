@@ -4,7 +4,7 @@
 
 
 # Exit on failure
-set -eux
+set -ex
 
 PORT=${PORT:-8545}
 

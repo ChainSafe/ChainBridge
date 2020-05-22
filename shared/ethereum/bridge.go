@@ -21,10 +21,17 @@ func RegisterResource(client *ethclient.Client, opts *bind.TransactOpts, bridge,
 	if err != nil {
 		return err
 	}
-	_, err = instance.AdminSetResource(opts, handler, rId, addr)
+
+	tx, err := instance.AdminSetResource(opts, handler, rId, addr)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -63,10 +70,16 @@ func SetBurnable(client *ethclient.Client, opts *bind.TransactOpts, bridge, hand
 		return err
 	}
 
-	_, err = instance.AdminSetBurnable(opts, handler, contract)
+	tx, err := instance.AdminSetBurnable(opts, handler, contract)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
