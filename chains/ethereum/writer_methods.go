@@ -86,7 +86,7 @@ func (w *writer) proposalIsFinalized(srcId msg.ChainId, nonce msg.Nonce) bool {
 }
 
 // createErc20Proposal creates an Erc20 proposal.
-// Returns true if the proposal is succesfully created or is complete
+// Returns true if the proposal is successfully created or is complete
 func (w *writer) createErc20Proposal(m msg.Message) bool {
 	w.log.Info("Creating erc20 proposal")
 
