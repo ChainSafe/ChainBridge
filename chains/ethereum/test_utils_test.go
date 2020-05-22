@@ -113,7 +113,7 @@ func createErc20Deposit(
 	if _, err := contract.Deposit(
 		txOpts,
 		uint8(destId),
-		handler,
+		rId,
 		data,
 	); err != nil {
 		t.Fatal(err)
@@ -139,7 +139,7 @@ func createErc721Deposit(
 	if _, err := bridge.Deposit(
 		txOpts,
 		uint8(destId),
-		handler,
+		rId,
 		data,
 	); err != nil {
 		t.Fatal(err)
@@ -163,7 +163,7 @@ func createGenericDeposit(
 	if _, err := bridge.Deposit(
 		txOpts,
 		uint8(destId),
-		handler,
+		rId,
 		data,
 	); err != nil {
 		t.Fatal(err)

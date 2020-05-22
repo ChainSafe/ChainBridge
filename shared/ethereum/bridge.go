@@ -74,5 +74,5 @@ func GetDepositNonce(client *ethclient.Client, bridge common.Address, chain msg.
 		return 0, err
 	}
 
-	return count.Uint64(), nil
+	return count, nil
 }

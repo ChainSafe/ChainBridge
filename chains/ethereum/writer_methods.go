@@ -67,7 +67,7 @@ func constructGenericProposalData(resourceId msg.ResourceId, metadata []byte) []
 
 // proposalIsComplete returns true if the proposal state is either Passed(2) or Transferred(3)
 func (w *writer) proposalIsComplete(srcId msg.ChainId, nonce msg.Nonce) bool {
-	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(srcId), nonce.Big())
+	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(srcId), uint64(nonce))
 	if err != nil {
 		w.log.Error("Failed to check proposal existence", "err", err)
 		return false
@@ -77,7 +77,7 @@ func (w *writer) proposalIsComplete(srcId msg.ChainId, nonce msg.Nonce) bool {
 
 // proposalIsComplete returns true if the proposal state is Transferred(3)
 func (w *writer) proposalIsFinalized(srcId msg.ChainId, nonce msg.Nonce) bool {
-	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(srcId), nonce.Big())
+	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(srcId), uint64(nonce))
 	if err != nil {
 		w.log.Error("Failed to check proposal existence", "err", err)
 		return false
