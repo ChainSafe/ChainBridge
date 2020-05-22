@@ -23,7 +23,6 @@ import (
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -75,9 +74,9 @@ func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContra
 	}
 }
 
-func DeployTestContracts(t *testing.T, endpoint string, id msg.ChainId, threshold *big.Int) *utils.DeployedContracts {
+func DeployTestContracts(t *testing.T, client *utils.Client, endpoint string, id msg.ChainId, threshold *big.Int) *utils.DeployedContracts {
 	contracts, err := utils.DeployContracts(
-		hexutil.Encode(AliceKp.Encode())[2:],
+		client,
 		uint8(id),
 		endpoint,
 		threshold,

@@ -18,7 +18,8 @@ import (
 )
 
 func TestChain_ListenerShutdownOnFailure(t *testing.T) {
-	contracts := deployTestContracts(t, msg.ChainId(1), AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, msg.ChainId(1), AliceKp)
 	cfg := &core.ChainConfig{
 		Id:             msg.ChainId(0),
 		Name:           "alice",
@@ -68,14 +69,14 @@ func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 func TestChain_WriterShutdownOnFailure(t *testing.T) {
 	// Setup contracts and params for erc20 transfer
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, msg.ChainId(1), AliceKp)
-	erc20Contract := ethtest.DeployMintApproveErc20(t, client.Client, client.Opts, contracts.ERC20HandlerAddress, big.NewInt(100))
+	contracts := deployTestContracts(t, client, msg.ChainId(1), AliceKp)
+	erc20Contract := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
 	src := msg.ChainId(5) // Not yet used, nonce should be 0
 	dst := msg.ChainId(1)
 	amount := big.NewInt(10)
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Contract.Bytes(), 31), uint8(src)))
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
-	ethtest.RegisterResource(t, client.Client, client.Opts, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
+	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
 
 	// Start a chain
 	cfg := &core.ChainConfig{

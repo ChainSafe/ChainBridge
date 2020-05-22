@@ -136,8 +136,8 @@ func routeMessageAndWait(t *testing.T, alice, bob *writer, m msg.Message, aliceE
 }
 
 func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
 
 	defer writerA.conn.Close()
@@ -164,8 +164,8 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 }
 
 func TestCreateAndExecuteErc721Proposal(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()
@@ -193,8 +193,8 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 }
 
 func TestCreateAndExecuteGenericProposal(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()

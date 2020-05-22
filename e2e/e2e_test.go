@@ -242,9 +242,9 @@ func Test_ThreeRelayers(t *testing.T) {
 	genericHashResourceId := msg.ResourceIdFromSlice(rawRId[:])
 
 	// Base setup for ethA
-	contractsA := eth.DeployTestContracts(t, eth.EthAEndpoint, EthAChainId, big.NewInt(int64(threshold)))
+	contractsA := eth.DeployTestContracts(t, ethClientA, eth.EthAEndpoint, EthAChainId, big.NewInt(int64(threshold)))
 	// Base setup for ethB ERC20 - handler can mint
-	contractsB := eth.DeployTestContracts(t, eth.EthBEndpoint, EthBChainId, big.NewInt(int64(threshold)))
+	contractsB := eth.DeployTestContracts(t, ethClientB, eth.EthBEndpoint, EthBChainId, big.NewInt(int64(threshold)))
 
 	// Create the initial context, added to in setup functions
 	ctx := &testContext{

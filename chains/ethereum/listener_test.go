@@ -93,7 +93,9 @@ func verifyMessage(t *testing.T, r *MockRouter, expected msg.Message, errs chan 
 }
 
 func TestListener_start_stop(t *testing.T) {
-	contracts := deployTestContracts(t, aliceClient, aliceTestConfig.id, AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
+	stop := make(chan int)
 	l, _ := createTestListener(t, aliceTestConfig, contracts, stop, nil)
 
 
@@ -107,14 +109,13 @@ func TestListener_start_stop(t *testing.T) {
 }
 
 func TestListener_Erc20DepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceClient, aliceTestConfig.id, AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	errs := make(chan error)
 	l, router := createTestListener(t, aliceTestConfig, contracts,  make(chan int), errs)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
-
-	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
 
 	erc20Contract := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
 
@@ -175,7 +176,8 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 }
 
 func TestListener_Erc721DepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceClient, aliceTestConfig.id, AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	errs := make(chan error)
 	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
@@ -183,8 +185,6 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	go watchEvent(l.conn, utils.Deposit)
 
 	tokenId := big.NewInt(99)
-	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	
 	
 	erc721Contract := ethtest.Erc721Deploy(t, client)
 	ethtest.Erc721Mint(t, client, erc721Contract, tokenId, []byte{})
@@ -212,7 +212,7 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	createErc721Deposit(
 		t,
 		l.bridgeContract,
-		client.Opts,
+		client,
 		resourceId,
 		l.cfg.erc721HandlerContract,
 
@@ -226,14 +226,14 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 }
 
 func TestListener_GenericDepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	errs := make(chan error)
 	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
 
-	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
 	hash := utils.Hash(common.LeftPadBytes([]byte{1}, 32))
@@ -254,7 +254,7 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 	createGenericDeposit(
 		t,
 		l.bridgeContract,
-		client.Opts,
+		client,
 		resourceId,
 		l.cfg.genericHandlerContract,
 
