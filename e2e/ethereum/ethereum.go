@@ -78,7 +78,6 @@ func DeployTestContracts(t *testing.T, client *utils.Client, endpoint string, id
 	contracts, err := utils.DeployContracts(
 		client,
 		uint8(id),
-		endpoint,
 		threshold,
 	)
 	if err != nil {

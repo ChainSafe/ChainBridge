@@ -76,7 +76,6 @@ func deployTestContracts(t *testing.T, client *utils.Client, id msg.ChainId, kp 
 	contracts, err := utils.DeployContracts(
 		client,
 		uint8(id),
-		TestEndpoint,
 		TestRelayerThreshold,
 	)
 	if err != nil {
