@@ -5,14 +5,10 @@ package utils
 
 import (
 	"context"
-	"crypto/ecdsa"
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
-	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
