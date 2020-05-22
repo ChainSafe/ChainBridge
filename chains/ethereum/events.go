@@ -36,15 +36,13 @@ func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonc
 		return msg.Message{}, err
 	}
 
-	recipient := record.DestinationRecipientAddress[:record.LenDestinationRecipientAddress.Int64()]
-
 	return msg.NewNonFungibleTransfer(
 		l.cfg.id,
 		destId,
 		nonce,
 		record.ResourceID,
 		record.TokenID,
-		recipient,
+		record.DestinationRecipientAddress,
 		record.MetaData,
 	), nil
 }

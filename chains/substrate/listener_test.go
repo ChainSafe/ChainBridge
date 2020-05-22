@@ -28,27 +28,30 @@ func (r *mockRouter) Send(message msg.Message) error {
 	return nil
 }
 
-func newTestListener(client *utils.Client, conn *Connection) (*listener, *mockRouter, error) {
+func newTestListener(client *utils.Client, conn *Connection) (*listener, chan error, *mockRouter, error) {
 	r := &mockRouter{msgs: make(chan msg.Message)}
 
 	startBlock, err := client.LatestBlock()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	l := NewListener(conn, "Alice", 1, startBlock, AliceTestLogger, &blockstore.EmptyStore{})
+	errs := make(chan error)
+	l := NewListener(conn, "Alice", 1, startBlock, AliceTestLogger, &blockstore.EmptyStore{}, make(chan int), errs)
 	l.setRouter(r)
 	err = l.start()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	return l, r, nil
+	return l, errs, r, nil
 }
 
-func verifyResultingMessage(t *testing.T, r *mockRouter, expected msg.Message) {
+func verifyResultingMessage(t *testing.T, r *mockRouter, sysErr chan error, expected msg.Message) {
 	// Verify message
 	select {
+	case err := <-sysErr:
+		t.Fatalf("System Error: %s", err)
 	case m := <-r.msgs:
 		if err := compareMessage(expected, m); err != nil {
 			t.Fatal(err)
@@ -85,7 +88,7 @@ func Test_FungibleTransferEvent(t *testing.T) {
 
 	subtest.InitiateNativeTransfer(t, context.client, types.NewU128(*amount), recipient, ForeignChain)
 
-	verifyResultingMessage(t, context.router, expected)
+	verifyResultingMessage(t, context.router, context.lSysErr, expected)
 }
 
 func Test_NonFungibleTransferEvent(t *testing.T) {
@@ -103,7 +106,7 @@ func Test_NonFungibleTransferEvent(t *testing.T) {
 
 	subtest.InitiateNonFungibleTransfer(t, context.client, types.NewU256(*tokenId), recipient, ForeignChain)
 
-	verifyResultingMessage(t, context.router, expected)
+	verifyResultingMessage(t, context.router, context.lSysErr, expected)
 }
 
 func Test_GenericTransferEvent(t *testing.T) {
@@ -117,7 +120,7 @@ func Test_GenericTransferEvent(t *testing.T) {
 
 	subtest.InitiateHashTransfer(t, context.client, hash, ForeignChain)
 
-	verifyResultingMessage(t, context.router, expected)
+	verifyResultingMessage(t, context.router, context.lSysErr, expected)
 
 	// Repeat the process to assert nonce and hash change
 
@@ -129,5 +132,5 @@ func Test_GenericTransferEvent(t *testing.T) {
 
 	subtest.InitiateHashTransfer(t, context.client, hash, ForeignChain)
 
-	verifyResultingMessage(t, context.router, expected)
+	verifyResultingMessage(t, context.router, context.lSysErr, expected)
 }
