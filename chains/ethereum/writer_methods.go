@@ -247,7 +247,8 @@ func (w *writer) voteProposal(m msg.Message, hash [32]byte) {
 			_, err = w.bridgeContract.VoteProposal(
 				w.opts,
 				uint8(m.Source),
-				m.DepositNonce.Big(),
+				uint64(m.DepositNonce),
+				m.ResourceId,
 				hash,
 			)
 			w.unlockNonce()
@@ -290,8 +291,7 @@ func (w *writer) executeProposal(m msg.Message, handler common.Address, data []b
 			_, err = w.bridgeContract.ExecuteProposal(
 				w.opts,
 				uint8(m.Source),
-				m.DepositNonce.Big(),
-				handler,
+				uint64(m.DepositNonce),
 				data,
 			)
 			w.unlockNonce()
