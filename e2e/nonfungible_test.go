@@ -104,7 +104,7 @@ func testErc721EthToEthRoundTrip(t *testing.T, ctx *testContext) {
 
 			// Initiate transfer
 			log.Info("Submitting transaction", "number", i, "recipient", ethBRecipient, "resourcId", ctx.EthEthErc721ResourceId.Hex(), "tokenId", tok.Id.String(), "from", ctx.ethA.Client.Opts.From, "handler", ctx.ethA.BaseContracts.ERC721HandlerAddress)
-			eth.CreateErc721Deposit(t, ctx.ethA.Client,  EthBChainId, ethBRecipient.Bytes(), tok.Id, ctx.ethA.BaseContracts, ctx.EthEthErc721ResourceId)
+			eth.CreateErc721Deposit(t, ctx.ethA.Client, EthBChainId, ethBRecipient.Bytes(), tok.Id, ctx.ethA.BaseContracts, ctx.EthEthErc721ResourceId)
 
 			// Wait for proposal events
 			eth.WaitForProposalCreatedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)

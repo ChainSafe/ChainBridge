@@ -9,16 +9,15 @@ import (
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
+	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/keystore"
-
 )
 
 var (
@@ -78,52 +77,6 @@ func UpdateNonce(client *Client) error {
 	client.Opts.Nonce = big.NewInt(int64(newNonce))
 
 	return nil
-}
-
-func accountSetUp(url string, deployPK string) (*Client, error) {
-
-	newKeyPair, err := secp256k1.NewKeypairFromString(deployPK)
-	if err != nil {
-		return nil, err
-	}
-
-	client, err := NewClient(url, newKeyPair)
-	if err != nil {
-		return nil, err
-	}
-
-	privateKey, err := crypto.HexToECDSA(deployPK)
-	if err != nil {
-		return nil, err
-	}
-
-	publicKey := privateKey.Public()
-	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
-	if !ok {
-		return nil, err
-	}
-
-	deployAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
-	nonce, err := client.Client.PendingNonceAt(context.Background(), deployAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	gasPrice, err := client.Client.SuggestGasPrice(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	auth := bind.NewKeyedTransactor(privateKey)
-	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0)
-	auth.GasLimit = uint64(6721975)
-	auth.GasPrice = gasPrice
-
-	client.Opts = auth
-
-	return client, nil
-
 }
 
 func deployBridge(client *Client, chainID uint8, relayerAddrs []common.Address, initialRelayerThreshold *big.Int) (common.Address, error) {

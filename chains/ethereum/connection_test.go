@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/blockstore"
+	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
-	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 )
 
 func TestConnect(t *testing.T) {

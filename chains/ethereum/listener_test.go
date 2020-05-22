@@ -98,7 +98,6 @@ func TestListener_start_stop(t *testing.T) {
 	stop := make(chan int)
 	l, _ := createTestListener(t, aliceTestConfig, contracts, stop, nil)
 
-
 	err := l.start()
 	if err != nil {
 		t.Fatal(err)
@@ -112,7 +111,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
 	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	errs := make(chan error)
-	l, router := createTestListener(t, aliceTestConfig, contracts,  make(chan int), errs)
+	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
@@ -150,7 +149,6 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 
 	verifyMessage(t, router, expectedMessage, errs)
 
-
 	// Create second deposit, verify nonce change
 	expectedMessage = msg.NewFungibleTransfer(
 		src,
@@ -185,7 +183,7 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	go watchEvent(l.conn, utils.Deposit)
 
 	tokenId := big.NewInt(99)
-	
+
 	erc721Contract := ethtest.Erc721Deploy(t, client)
 	ethtest.Erc721Mint(t, client, erc721Contract, tokenId, []byte{})
 	ethtest.Erc721Approve(t, client, erc721Contract, contracts.ERC721HandlerAddress, tokenId)
