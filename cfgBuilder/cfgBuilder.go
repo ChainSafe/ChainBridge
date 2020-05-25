@@ -97,7 +97,7 @@ func (c *RootConfig) ToTOML(file string) *os.File {
 	return newFile
 }
 
-func construcEthChainConfig(cfg EthChainConfig, relayer string) RawChainConfig {
+func constructEthChainConfig(cfg EthChainConfig, relayer string) RawChainConfig {
 	return RawChainConfig{
 		Name:     cfg.Name,
 		Type:     "ethereum",
@@ -121,7 +121,7 @@ func constructRelayerConfig(cfg *Config, relayer string) RootConfig {
 	// Create RawConfig structs from the provided Chains
 	var rawCfgs []RawChainConfig
 	for _, chain := range cfg.Chains {
-		raw := construcEthChainConfig(chain, relayer)
+		raw := constructEthChainConfig(chain, relayer)
 		rawCfgs = append(rawCfgs, raw)
 	}
 
