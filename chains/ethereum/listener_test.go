@@ -93,7 +93,8 @@ func verifyMessage(t *testing.T, r *MockRouter, expected msg.Message, errs chan 
 }
 
 func TestListener_start_stop(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	stop := make(chan int)
 	l, _ := createTestListener(t, aliceTestConfig, contracts, stop, nil)
 
@@ -107,20 +108,15 @@ func TestListener_start_stop(t *testing.T) {
 }
 
 func TestListener_Erc20DepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	errs := make(chan error)
 	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
 
-	// Get transaction ready
-	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	erc20Contract := ethtest.DeployMintApproveErc20(t, l.conn.conn, opts, contracts.ERC20HandlerAddress, big.NewInt(100))
+	erc20Contract := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
 
 	amount := big.NewInt(10)
 	src := msg.ChainId(0)
@@ -128,7 +124,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Contract.Bytes(), 31), uint8(src)))
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
 
-	ethtest.RegisterResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
+	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
 
 	expectedMessage := msg.NewFungibleTransfer(
 		src,
@@ -142,7 +138,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	createErc20Deposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client,
 		resourceId,
 		l.cfg.erc20HandlerContract,
 
@@ -165,7 +161,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	createErc20Deposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client,
 		resourceId,
 		l.cfg.erc20HandlerContract,
 
@@ -178,31 +174,27 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 }
 
 func TestListener_Erc721DepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	errs := make(chan error)
 	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
 
-	// Get transaction ready
-	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	tokenId := big.NewInt(99)
-	erc721Contract := ethtest.Erc721Deploy(t, l.conn.conn, opts)
-	ethtest.Erc721Mint(t, l.conn.conn, opts, erc721Contract, tokenId, []byte{})
-	ethtest.Erc721Approve(t, l.conn.conn, opts, erc721Contract, contracts.ERC721HandlerAddress, tokenId)
+
+	erc721Contract := ethtest.Erc721Deploy(t, client)
+	ethtest.Erc721Mint(t, client, erc721Contract, tokenId, []byte{})
+	ethtest.Erc721Approve(t, client, erc721Contract, contracts.ERC721HandlerAddress, tokenId)
 	log15.Info("Deployed erc721, minted and approved handler", "handler", contracts.ERC721HandlerAddress, "contract", erc721Contract, "tokenId", tokenId.Bytes())
-	ethtest.Erc721AssertOwner(t, l.conn.conn, opts, erc721Contract, tokenId, opts.From)
+	ethtest.Erc721AssertOwner(t, client, erc721Contract, tokenId, client.Opts.From)
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Contract.Bytes(), 31), uint8(src)))
 	recipient := BobKp.CommonAddress()
 
-	ethtest.RegisterResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
+	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 
 	expectedMessage := msg.NewNonFungibleTransfer(
 		src,
@@ -218,7 +210,7 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	createErc721Deposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client,
 		resourceId,
 		l.cfg.erc721HandlerContract,
 
@@ -228,23 +220,17 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 		[]byte{}, // Empty metadata
 	)
 
-	// Verify message
 	verifyMessage(t, router, expectedMessage, errs)
 }
 
 func TestListener_GenericDepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	errs := make(chan error)
 	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
 	go watchEvent(l.conn, utils.Deposit)
-
-	// Get transaction ready
-	opts, _, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
@@ -252,7 +238,7 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes([]byte{1}, 31), uint8(src)))
 	depositSig := utils.CreateFunctionSignature("")
 	executeSig := utils.CreateFunctionSignature("store()")
-	ethtest.RegisterGenericResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.GenericHandlerAddress, resourceId, utils.ZeroAddress, depositSig, executeSig)
+	ethtest.RegisterGenericResource(t, client, contracts.BridgeAddress, contracts.GenericHandlerAddress, resourceId, utils.ZeroAddress, depositSig, executeSig)
 
 	expectedMessage := msg.NewGenericTransfer(
 		src,
@@ -266,7 +252,7 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 	createGenericDeposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client,
 		resourceId,
 		l.cfg.genericHandlerContract,
 

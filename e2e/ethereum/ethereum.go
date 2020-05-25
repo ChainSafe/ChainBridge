@@ -23,7 +23,6 @@ import (
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -44,8 +43,7 @@ var EveKp = keystore.TestKeyRing.EthereumKeys[keystore.EveKey]
 type TestContext struct {
 	BaseContracts *utils.DeployedContracts // All the contracts required for the bridge
 	TestContracts TestContracts            // Additional contracts for tests (eg. erc contracts)
-	Client        *ethclient.Client
-	Opts          *bind.TransactOpts
+	Client        *utils.Client
 }
 
 type TestContracts struct {
@@ -76,11 +74,10 @@ func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContra
 	}
 }
 
-func DeployTestContracts(t *testing.T, endpoint string, id msg.ChainId, threshold *big.Int) *utils.DeployedContracts {
+func DeployTestContracts(t *testing.T, client *utils.Client, endpoint string, id msg.ChainId, threshold *big.Int) *utils.DeployedContracts {
 	contracts, err := utils.DeployContracts(
-		hexutil.Encode(AliceKp.Encode())[2:],
+		client,
 		uint8(id),
-		endpoint,
 		threshold,
 	)
 	if err != nil {
@@ -122,16 +119,16 @@ func CreateEthClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) (*eth
 	return client, opts
 }
 
-func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, recipient []byte, amount *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+func CreateErc20Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, recipient []byte, amount *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
 	data := utils.ConstructErc20DepositData(rId, recipient, amount)
 
-	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
+	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if _, err := bridgeInstance.Deposit(
-		opts,
+		client.Opts,
 		uint8(destId),
 		contracts.ERC20HandlerAddress,
 		data,
@@ -140,21 +137,21 @@ func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.Trans
 	}
 }
 
-func CreateErc721Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, recipient []byte, tokenId *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+func CreateErc721Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, recipient []byte, tokenId *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
 	data := utils.ConstructErc721DepositData(rId, tokenId, recipient)
 
-	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
+	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = utils.UpdateNonce(opts, client)
+	err = utils.UpdateNonce(client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if _, err := bridgeInstance.Deposit(
-		opts,
+		client.Opts,
 		uint8(destId),
 		contracts.ERC721HandlerAddress,
 		data,
@@ -163,21 +160,21 @@ func CreateErc721Deposit(t *testing.T, client *ethclient.Client, opts *bind.Tran
 	}
 }
 
-func CreateGenericDeposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, metadata []byte, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+func CreateGenericDeposit(t *testing.T, client *utils.Client, destId msg.ChainId, metadata []byte, contracts *utils.DeployedContracts, rId msg.ResourceId) {
 	data := utils.ConstructGenericDepositData(rId, metadata)
 
-	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
+	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = utils.UpdateNonce(opts, client)
+	err = utils.UpdateNonce(client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if _, err := bridgeInstance.Deposit(
-		opts,
+		client.Opts,
 		uint8(destId),
 		contracts.GenericHandlerAddress,
 		data,
@@ -186,7 +183,7 @@ func CreateGenericDeposit(t *testing.T, client *ethclient.Client, opts *bind.Tra
 	}
 }
 
-func WaitForProposalCreatedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
+func WaitForProposalCreatedEvent(t *testing.T, client *utils.Client, bridge common.Address, nonce uint64) {
 	startBlock := ethtest.GetLatestBlock(t, client)
 
 	query := eth.FilterQuery{
@@ -198,7 +195,7 @@ func WaitForProposalCreatedEvent(t *testing.T, client *ethclient.Client, bridge 
 	}
 
 	ch := make(chan ethtypes.Log)
-	sub, err := client.SubscribeFilterLogs(context.Background(), query, ch)
+	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -226,7 +223,7 @@ func WaitForProposalCreatedEvent(t *testing.T, client *ethclient.Client, bridge 
 	}
 }
 
-func WaitForProposalExecutedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
+func WaitForProposalExecutedEvent(t *testing.T, client *utils.Client, bridge common.Address, nonce uint64) {
 	startBlock := ethtest.GetLatestBlock(t, client)
 
 	query := eth.FilterQuery{
@@ -238,7 +235,7 @@ func WaitForProposalExecutedEvent(t *testing.T, client *ethclient.Client, bridge
 	}
 
 	ch := make(chan ethtypes.Log)
-	sub, err := client.SubscribeFilterLogs(context.Background(), query, ch)
+	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
 	if err != nil {
 		t.Fatal(err)
 	}

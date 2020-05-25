@@ -15,9 +15,7 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 const TestEndpoint = "ws://localhost:8545"
@@ -74,11 +72,10 @@ func newLocalConnection(t *testing.T, cfg *Config) *Connection {
 	return conn
 }
 
-func deployTestContracts(t *testing.T, id msg.ChainId, kp *secp256k1.Keypair) *utils.DeployedContracts {
+func deployTestContracts(t *testing.T, client *utils.Client, id msg.ChainId, kp *secp256k1.Keypair) *utils.DeployedContracts {
 	contracts, err := utils.DeployContracts(
-		hexutil.Encode(kp.Encode())[2:],
+		client,
 		uint8(id),
-		TestEndpoint,
 		TestRelayerThreshold,
 	)
 	if err != nil {
@@ -98,7 +95,7 @@ func deployTestContracts(t *testing.T, id msg.ChainId, kp *secp256k1.Keypair) *u
 func createErc20Deposit(
 	t *testing.T,
 	contract *Bridge.Bridge,
-	txOpts *bind.TransactOpts,
+	client *utils.Client,
 	rId msg.ResourceId,
 	handler,
 	destRecipient common.Address,
@@ -109,9 +106,9 @@ func createErc20Deposit(
 	data := utils.ConstructErc20DepositData(rId, destRecipient.Bytes(), amount)
 
 	// Incrememnt Nonce by one
-	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
+	client.Opts.Nonce = client.Opts.Nonce.Add(client.Opts.Nonce, big.NewInt(1))
 	if _, err := contract.Deposit(
-		txOpts,
+		client.Opts,
 		uint8(destId),
 		handler,
 		data,
@@ -123,7 +120,7 @@ func createErc20Deposit(
 func createErc721Deposit(
 	t *testing.T,
 	bridge *Bridge.Bridge,
-	txOpts *bind.TransactOpts,
+	client *utils.Client,
 	rId msg.ResourceId,
 	handler,
 	destRecipient common.Address,
@@ -135,9 +132,9 @@ func createErc721Deposit(
 	data := utils.ConstructErc721DepositData(rId, tokenId, destRecipient.Bytes())
 
 	// Incrememnt Nonce by one
-	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
+	client.Opts.Nonce = client.Opts.Nonce.Add(client.Opts.Nonce, big.NewInt(1))
 	if _, err := bridge.Deposit(
-		txOpts,
+		client.Opts,
 		uint8(destId),
 		handler,
 		data,
@@ -149,7 +146,7 @@ func createErc721Deposit(
 func createGenericDeposit(
 	t *testing.T,
 	bridge *Bridge.Bridge,
-	txOpts *bind.TransactOpts,
+	client *utils.Client,
 	rId msg.ResourceId,
 	handler common.Address,
 
@@ -159,9 +156,9 @@ func createGenericDeposit(
 	data := utils.ConstructGenericDepositData(rId, hash)
 
 	// Incrememnt Nonce by one
-	txOpts.Nonce = txOpts.Nonce.Add(txOpts.Nonce, big.NewInt(1))
+	client.Opts.Nonce = client.Opts.Nonce.Add(client.Opts.Nonce, big.NewInt(1))
 	if _, err := bridge.Deposit(
-		txOpts,
+		client.Opts,
 		uint8(destId),
 		handler,
 		data,

@@ -24,14 +24,14 @@ func testErc20ToSubstrate(t *testing.T, ctx *testContext) {
 		i := i // for scope
 		ok := t.Run(fmt.Sprintf("Transfer %d", i), func(t *testing.T) {
 			amount := big.NewInt(0).Mul(big.NewInt(int64(i)), big.NewInt(5))
-			log.Info("Submitting transaction", "number", i, "from", ctx.ethA.Opts.From, "handler", ctx.ethA.BaseContracts.ERC20HandlerAddress.String(), "amount", amount.String())
+			log.Info("Submitting transaction", "number", i, "from", ctx.ethA.Client.Opts.From, "handler", ctx.ethA.BaseContracts.ERC20HandlerAddress.String(), "amount", amount.String())
 
-			err := utils.UpdateNonce(ctx.ethA.Opts, ctx.ethA.Client)
+			err := utils.UpdateNonce(ctx.ethA.Client)
 			if err != nil {
 				t.Fatal(err)
 			}
 			// Initiate transfer
-			eth.CreateErc20Deposit(t, ctx.ethA.Client, ctx.ethA.Opts, SubChainId, sub.BobKp.AsKeyringPair().PublicKey, amount, ctx.ethA.BaseContracts, ctx.EthSubErc20ResourceId)
+			eth.CreateErc20Deposit(t, ctx.ethA.Client, SubChainId, sub.BobKp.AsKeyringPair().PublicKey, amount, ctx.ethA.BaseContracts, ctx.EthSubErc20ResourceId)
 
 			// Check for success event
 			sub.WaitForProposalSuccessOrFail(t, ctx.subClient, types.NewU64(nonce), types.U8(EthAChainId))
@@ -82,14 +82,14 @@ func testErc20ToErc20(t *testing.T, ctx *testContext) {
 		i := i // for scope
 		ok := t.Run(fmt.Sprintf("Transfer %d", i), func(t *testing.T) {
 			amount := big.NewInt(0).Mul(big.NewInt(int64(i)), big.NewInt(5))
-			log.Info("Submitting transaction", "number", i, "recipient", recipient, "resourcId", ctx.EthEthErc20ResourceId.Hex(), "amount", amount.String(), "from", ctx.ethA.Opts.From, "handler", ctx.ethA.BaseContracts.ERC20HandlerAddress)
+			log.Info("Submitting transaction", "number", i, "recipient", recipient, "resourcId", ctx.EthEthErc20ResourceId.Hex(), "amount", amount.String(), "from", ctx.ethA.Client.Opts.From, "handler", ctx.ethA.BaseContracts.ERC20HandlerAddress)
 
-			err := utils.UpdateNonce(ctx.ethA.Opts, ctx.ethA.Client)
+			err := utils.UpdateNonce(ctx.ethA.Client)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			eth.CreateErc20Deposit(t, ctx.ethA.Client, ctx.ethA.Opts, EthBChainId, recipient.Bytes(), amount, ctx.ethA.BaseContracts, ctx.EthEthErc20ResourceId)
+			eth.CreateErc20Deposit(t, ctx.ethA.Client, EthBChainId, recipient.Bytes(), amount, ctx.ethA.BaseContracts, ctx.EthEthErc20ResourceId)
 
 			eth.WaitForProposalCreatedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
 			eth.WaitForProposalExecutedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
@@ -124,12 +124,12 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			amount := big.NewInt(0).Mul(big.NewInt(int64(i)), big.NewInt(5))
 			log.Info("Submitting transaction", "number", i, "amount", amount.String())
 
-			err := utils.UpdateNonce(ctx.ethA.Opts, ctx.ethA.Client)
+			err := utils.UpdateNonce(ctx.ethA.Client)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			eth.CreateErc20Deposit(t, ctx.ethA.Client, ctx.ethA.Opts, SubChainId, subRecipient, amount, ctx.ethA.BaseContracts, ctx.EthSubErc20ResourceId)
+			eth.CreateErc20Deposit(t, ctx.ethA.Client, SubChainId, subRecipient, amount, ctx.ethA.BaseContracts, ctx.EthSubErc20ResourceId)
 
 			// Check for success event
 			sub.WaitForProposalSuccessOrFail(t, ctx.subClient, types.U64(nonce), types.U8(EthAChainId))
@@ -182,5 +182,5 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 		}
 	}
 
-	ethtest.Erc20AssertBalance(t, ctx.ethA.Client, initialEthBalance, ctx.ethA.TestContracts.Erc20Sub, ctx.ethA.Opts.From)
+	ethtest.Erc20AssertBalance(t, ctx.ethA.Client, initialEthBalance, ctx.ethA.TestContracts.Erc20Sub, ctx.ethA.Client.Opts.From)
 }

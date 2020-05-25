@@ -7,18 +7,23 @@ import (
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/blockstore"
+	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 )
 
 func TestConnect(t *testing.T) {
-	_ = deployTestContracts(t, aliceTestConfig.id, AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+
+	_ = deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	conn := newLocalConnection(t, aliceTestConfig)
 	conn.Close()
 }
 
 func TestSubscribe(t *testing.T) {
-	_ = deployTestContracts(t, aliceTestConfig.id, AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+
+	_ = deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	conn := newLocalConnection(t, aliceTestConfig)
 	l := NewListener(conn, aliceTestConfig, TestLogger, &blockstore.EmptyStore{}, make(chan int), make(chan error))
 	defer conn.Close()
@@ -34,7 +39,9 @@ func TestSubscribe(t *testing.T) {
 // TestContractCode is used to make sure the contracts are deployed correctly.
 // This is probably the least intrusive way to check if the contracts exists
 func TestContractCode(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id, AliceKp)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+
+	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	conn := newLocalConnection(t, aliceTestConfig)
 	defer conn.Close()
 
