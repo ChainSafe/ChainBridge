@@ -40,9 +40,9 @@ jobs:
       name: "Go tests"
       script:
         - set -e
-        - make clean && make rebuild-contracts
-        - cd solidity && SILENT=true make start-ganache
-        - cd .. && RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
+        - npm install --global ganache-cli
+        - SILENT=true ./scripts/start_ganache.sh
+        - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test
 
     - stage: "Test"
@@ -51,10 +51,10 @@ jobs:
       name: "E2E tests (Ganache)"
       script:
         - set -e
-        - make clean && make rebuild-contracts
-        - cd solidity && SILENT=true make start-ganache
-        - SILENT=true PORT=8546 make start-ganache
-        - cd .. && RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
+        - npm install --global ganache-cli
+        - SILENT=true ./scripts/start_ganache.sh
+        - PORT=8546 SILENT=true ./scripts/start_ganache.sh
+        - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
         - make test-e2e
 
     - stage: "Test"

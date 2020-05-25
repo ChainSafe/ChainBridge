@@ -8,20 +8,18 @@ import (
 
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func DeployAssetStore(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts) common.Address {
-	addr, err := utils.DeployAssetStore(client, opts)
+func DeployAssetStore(t *testing.T, client *utils.Client) common.Address {
+	addr, err := utils.DeployAssetStore(client)
 	if err != nil {
 		t.Fatal(err)
 	}
 	return addr
 }
 
-func AssertHashExistence(t *testing.T, client *ethclient.Client, hash [32]byte, contract common.Address) {
+func AssertHashExistence(t *testing.T, client *utils.Client, hash [32]byte, contract common.Address) {
 	exists, err := utils.HashExists(client, hash, contract)
 	if err != nil {
 		t.Fatal(err)
