@@ -185,7 +185,7 @@ func main() {
 	}
 	path := os.Args[1]
 	if path == "" {
-		log.Error("failed to parse path argument")
+		log.Error("must provide path")
 		os.Exit(1)
 	}
 
