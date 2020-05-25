@@ -6,9 +6,7 @@ package utils
 import (
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	msg "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 var StoreFunctionSig = CreateFunctionSignature("store(bytes32)")
@@ -21,13 +19,13 @@ func CreateFunctionSignature(sig string) [4]byte {
 	return res
 }
 
-func GetGenericResourceAddress(client *ethclient.Client, handler common.Address, rId msg.ResourceId) (common.Address, error) {
-	instance, err := GenericHandler.NewGenericHandler(handler, client)
+func GetGenericResourceAddress(client *Client, handler common.Address, rId msg.ResourceId) (common.Address, error) {
+	instance, err := GenericHandler.NewGenericHandler(handler, client.Client)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
-	addr, err := instance.ResourceIDToContractAddress(&bind.CallOpts{}, rId)
+	addr, err := instance.ResourceIDToContractAddress(client.CallOpts, rId)
 	if err != nil {
 		return ZeroAddress, err
 	}
