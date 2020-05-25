@@ -17,11 +17,11 @@ import (
 )
 
 // Number of blocks to wait for an finalization event
-var ExecuteBlockWatchLimit = 50
+var ExecuteBlockWatchLimit = 200
 
+var NonceRetryInterval = time.Second * 2
 var ErrNonceTooLow = errors.New("nonce too low")
 var ErrTxUnderpriced = errors.New("replacement transaction underpriced")
-var NonceRetryInterval = time.Second * 2
 var ErrFatalTx = errors.New("submission of transaction failed")
 var ErrFatalQuery = errors.New("query of chain state failed")
 
@@ -269,7 +269,7 @@ func (w *writer) voteProposal(m msg.Message, hash [32]byte) {
 			}
 		}
 	}
-	w.log.Error("Submission of Vote transaction failed, shutting down", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
+	w.log.Error("Submission of Vote transaction failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
 	w.sysErr <- ErrFatalTx
 }
 
@@ -315,6 +315,6 @@ func (w *writer) executeProposal(m msg.Message, handler common.Address, data []b
 			}
 		}
 	}
-	w.log.Error("Submission of Execute transaction failed, shutting down", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
+	w.log.Error("Submission of Execute transaction failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
 	w.sysErr <- ErrFatalTx
 }
