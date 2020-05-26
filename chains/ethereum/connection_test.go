@@ -4,9 +4,10 @@
 package ethereum
 
 import (
+	"context"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridge/blockstore"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
@@ -20,20 +21,19 @@ func TestConnect(t *testing.T) {
 	conn.Close()
 }
 
+//  TestSubscribe makes sure we can subscribe to filter logs properly
 func TestSubscribe(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-
 	_ = deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
-	conn := newLocalConnection(t, aliceTestConfig)
-	l := NewListener(conn, aliceTestConfig, TestLogger, &blockstore.EmptyStore{}, make(chan int), make(chan error))
-	defer conn.Close()
 
 	q := eth.FilterQuery{}
 
-	_, err := l.conn.subscribeToEvent(q)
+	ch := make(chan ethtypes.Log)
+	sub, err := client.Client.SubscribeFilterLogs(context.Background(), q, ch)
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer sub.Unsubscribe()
 }
 
 // TestContractCode is used to make sure the contracts are deployed correctly.

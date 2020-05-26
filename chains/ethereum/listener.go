@@ -20,17 +20,11 @@ import (
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 var BlockRetryInterval = time.Second * 5
 var BlockRetryLimit = 5
 var ErrFatalPolling = errors.New("listener block polling failed")
-
-type ActiveSubscription struct {
-	ch  <-chan ethtypes.Log
-	sub eth.Subscription // subscribe to specific events
-}
 
 type listener struct {
 	cfg                    Config
