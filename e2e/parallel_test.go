@@ -56,18 +56,18 @@ func testThreeChainsParallel(t *testing.T, ctx *testContext) {
 	ethBClientA := ethtest.NewClient(t, eth.EthBEndpoint, eth.AliceKp)
 
 	// Mint tokens to eve and dave, approve handlers
-	ethtest.Erc20Mint(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.TestContracts.Erc20Sub, eth.AliceKp.CommonAddress(), balanceDelta)
-	ethtest.Erc20Mint(t, ctx.ethA.Client, ctx.ethA.Opts, ctx.ethA.TestContracts.Erc20Eth, eth.EveKp.CommonAddress(), balanceDelta)
-	ethtest.Erc20Mint(t, ctx.ethB.Client, ctx.ethB.Opts, ctx.ethB.TestContracts.Erc20Eth, eth.AliceKp.CommonAddress(), balanceDelta)
-	ethtest.Erc20Approve(t, ethAClientA.Client, ethAClientA.Opts, ctx.ethA.TestContracts.Erc20Sub, ctx.ethA.BaseContracts.ERC20HandlerAddress, balanceDelta)
-	ethtest.Erc20Approve(t, ethAClientB.Client, ethAClientB.Opts, ctx.ethA.TestContracts.Erc20Eth, ctx.ethA.BaseContracts.ERC20HandlerAddress, balanceDelta)
-	ethtest.Erc20Approve(t, ethBClientA.Client, ethBClientA.Opts, ctx.ethB.TestContracts.Erc20Eth, ctx.ethB.BaseContracts.ERC20HandlerAddress, balanceDelta)
+	ethtest.Erc20Mint(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc20Sub, eth.AliceKp.CommonAddress(), balanceDelta)
+	ethtest.Erc20Mint(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc20Eth, eth.EveKp.CommonAddress(), balanceDelta)
+	ethtest.Erc20Mint(t, ctx.ethB.Client, ctx.ethB.TestContracts.Erc20Eth, eth.AliceKp.CommonAddress(), balanceDelta)
+	ethtest.Erc20Approve(t, ethAClientA, ctx.ethA.TestContracts.Erc20Sub, ctx.ethA.BaseContracts.ERC20HandlerAddress, balanceDelta)
+	ethtest.Erc20Approve(t, ethAClientB, ctx.ethA.TestContracts.Erc20Eth, ctx.ethA.BaseContracts.ERC20HandlerAddress, balanceDelta)
+	ethtest.Erc20Approve(t, ethBClientA, ctx.ethB.TestContracts.Erc20Eth, ctx.ethB.BaseContracts.ERC20HandlerAddress, balanceDelta)
 
 	// Get current balances
 	subRecipientBalance := subtest.BalanceOf(t, subClient, subRecipient)
-	ethASubRecipientBalance := ethtest.Erc20BalanceOf(t, ethAClientA.Client, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
-	ethAEthRecipientBalance := ethtest.Erc20BalanceOf(t, ethAClientA.Client, ctx.ethA.TestContracts.Erc20Eth, ethRecipient)
-	ethBRecipientBalance := ethtest.Erc20BalanceOf(t, ethBClientA.Client, ctx.ethB.TestContracts.Erc20Eth, ethRecipient)
+	ethASubRecipientBalance := ethtest.Erc20BalanceOf(t, ethAClientA, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
+	ethAEthRecipientBalance := ethtest.Erc20BalanceOf(t, ethAClientA, ctx.ethA.TestContracts.Erc20Eth, ethRecipient)
+	ethBRecipientBalance := ethtest.Erc20BalanceOf(t, ethBClientA, ctx.ethB.TestContracts.Erc20Eth, ethRecipient)
 
 	// Execute several sub-tests that call t.Paralell
 	t.Run("Parallel tx submission", func(t *testing.T) {
@@ -104,13 +104,13 @@ func testThreeChainsParallel(t *testing.T, ctx *testContext) {
 		subtest.AssertBalanceOf(t, subClient, subRecipient, subRecipientBalance.Add(subRecipientBalance, balanceDelta))
 	})
 	t.Run("Assert EthA Sub balance", func(t *testing.T) {
-		ethtest.Erc20AssertBalance(t, ethAClientA.Client, ethASubRecipientBalance.Add(ethASubRecipientBalance, balanceDelta), ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
+		ethtest.Erc20AssertBalance(t, ethAClientA, ethASubRecipientBalance.Add(ethASubRecipientBalance, balanceDelta), ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
 	})
 	t.Run("Assert EthB balance", func(t *testing.T) {
-		ethtest.Erc20AssertBalance(t, ethBClientA.Client, ethBRecipientBalance.Add(ethBRecipientBalance, balanceDelta), ctx.ethB.TestContracts.Erc20Eth, ethRecipient)
+		ethtest.Erc20AssertBalance(t, ethBClientA, ethBRecipientBalance.Add(ethBRecipientBalance, balanceDelta), ctx.ethB.TestContracts.Erc20Eth, ethRecipient)
 	})
 	t.Run("Assert EthA Eth balance", func(t *testing.T) {
-		ethtest.Erc20AssertBalance(t, ethAClientA.Client, ethAEthRecipientBalance.Add(ethAEthRecipientBalance, balanceDelta), ctx.ethA.TestContracts.Erc20Eth, ethRecipient)
+		ethtest.Erc20AssertBalance(t, ethAClientA, ethAEthRecipientBalance.Add(ethAEthRecipientBalance, balanceDelta), ctx.ethA.TestContracts.Erc20Eth, ethRecipient)
 	})
 
 }
@@ -122,7 +122,7 @@ func submitEthDeposit(name string, t *testing.T, ethCtx *eth.TestContext, client
 			// Initiate transfer
 			log.Info("Submitting transaction", "number", i, "recipient", recipient, "amount", amount, "rId", rId.Hex())
 			ethtest.LockNonceAndUpdate(t, client)
-			eth.CreateErc20Deposit(t, client.Client, client.Opts, destId, recipient, amount, ethCtx.BaseContracts, rId)
+			eth.CreateErc20Deposit(t, client, destId, recipient, amount, ethCtx.BaseContracts, rId)
 			client.UnlockNonce()
 			time.Sleep(txInterval)
 		})
