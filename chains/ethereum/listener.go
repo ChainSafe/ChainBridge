@@ -115,6 +115,7 @@ func (l *listener) pollBlocks() error {
 
 			// Sleep if the difference is less than BlockDelay; (latest - current) < BlockDelay
 			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(BlockDelay) == -1 {
+				l.log.Info("Block not ready, will retry", "target", currentBlock, "latest", latestBlock)
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
@@ -142,6 +143,7 @@ func (l *listener) pollBlocks() error {
 
 // getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
+	l.log.Info("Querying block for deposit events", "block", latestBlock)
 	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
 
 	// querying for logs
