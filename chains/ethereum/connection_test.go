@@ -25,8 +25,10 @@ func TestSubscribe(t *testing.T) {
 
 	_ = deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	conn := newLocalConnection(t, aliceTestConfig)
-	l := NewListener(conn, aliceTestConfig, TestLogger, &blockstore.EmptyStore{}, make(chan int), make(chan error))
+	stop := make(chan int)
+	l := NewListener(conn, aliceTestConfig, TestLogger, &blockstore.EmptyStore{}, stop, make(chan error))
 	defer conn.Close()
+	defer close(stop)
 
 	q := eth.FilterQuery{}
 

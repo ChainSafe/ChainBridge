@@ -42,8 +42,8 @@ func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipi
 // constructErc721ProposalData returns the bytes to construct a proposal suitable for Erc721
 func constructErc721ProposalData(tokenId []byte, resourceId msg.ResourceId, recipient []byte, metadata []byte) []byte {
 	var data []byte
-	data = append(data, common.LeftPadBytes(tokenId, 32)...) // tokenId ([]byte)
 	data = append(data, resourceId[:]...)                    // resourceId (bytes32)
+	data = append(data, common.LeftPadBytes(tokenId, 32)...) // tokenId ([]byte)
 
 	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
 	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // length of recipient

@@ -19,6 +19,7 @@ import (
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
@@ -154,9 +155,14 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	// read through the log events and handle their deposit event if handler is recognized
 	for _, log := range logs {
 		var m msg.Message
-		addr := ethcommon.BytesToAddress(log.Topics[2].Bytes())
 		destId := msg.ChainId(log.Topics[1].Big().Uint64())
+		rId := msg.ResourceIdFromSlice(log.Topics[2].Bytes())
 		nonce := msg.Nonce(log.Topics[3].Big().Uint64())
+
+		addr, err := l.bridgeContract.ResourceIDToHandlerAddress(&bind.CallOpts{From: l.conn.kp.CommonAddress()}, rId)
+		if err != nil {
+			return fmt.Errorf("failed to get handler from resource ID %x", rId)
+		}
 
 		if addr == l.cfg.erc20HandlerContract {
 			m, err = l.handleErc20DepositedEvent(destId, nonce)
@@ -165,7 +171,7 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		} else if addr == l.cfg.genericHandlerContract {
 			m, err = l.handleGenericDepositedEvent(destId, nonce)
 		} else {
-			return fmt.Errorf("Event has unrecognized handler, handler %s", addr.Hex())
+			return fmt.Errorf("event has unrecognized handler, handler %s", addr.Hex())
 		}
 
 		if err != nil {
