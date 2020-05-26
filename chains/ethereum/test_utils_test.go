@@ -21,7 +21,7 @@ import (
 const TestEndpoint = "ws://localhost:8545"
 
 var TestLogger = newTestLogger("test")
-var TestTimeout = time.Second * 10
+var TestTimeout = time.Second * 30
 
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var BobKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]

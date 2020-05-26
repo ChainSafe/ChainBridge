@@ -17,11 +17,11 @@ import (
 )
 
 // Number of blocks to wait for an finalization event
-var ExecuteBlockWatchLimit = 50
+var ExecuteBlockWatchLimit = 100
 
+var NonceRetryInterval = time.Second * 2
 var ErrNonceTooLow = errors.New("nonce too low")
 var ErrTxUnderpriced = errors.New("replacement transaction underpriced")
-var NonceRetryInterval = time.Second * 2
 var ErrFatalTx = errors.New("submission of transaction failed")
 var ErrFatalQuery = errors.New("query of chain state failed")
 
@@ -86,7 +86,7 @@ func (w *writer) proposalIsFinalized(srcId msg.ChainId, nonce msg.Nonce) bool {
 }
 
 // createErc20Proposal creates an Erc20 proposal.
-// Returns true if the proposal is succesfully created or is complete
+// Returns true if the proposal is successfully created or is complete
 func (w *writer) createErc20Proposal(m msg.Message) bool {
 	w.log.Info("Creating erc20 proposal")
 
@@ -269,7 +269,7 @@ func (w *writer) voteProposal(m msg.Message, hash [32]byte) {
 			}
 		}
 	}
-	w.log.Error("Submission of Vote transaction failed, shutting down", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
+	w.log.Error("Submission of Vote transaction failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
 	w.sysErr <- ErrFatalTx
 }
 
@@ -315,6 +315,6 @@ func (w *writer) executeProposal(m msg.Message, handler common.Address, data []b
 			}
 		}
 	}
-	w.log.Error("Submission of Execute transaction failed, shutting down", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
+	w.log.Error("Submission of Execute transaction failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
 	w.sysErr <- ErrFatalTx
 }

@@ -127,14 +127,22 @@ func CreateErc20Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, 
 		t.Fatal(err)
 	}
 
-	if _, err := bridgeInstance.Deposit(
+	tx, err := bridgeInstance.Deposit(
 		client.Opts,
 		uint8(destId),
 		contracts.ERC20HandlerAddress,
 		data,
-	); err != nil {
+	)
+
+	if err != nil {
 		t.Fatal(err)
 	}
+
+	err = utils.WaitForTx(client, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 }
 
 func CreateErc721Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, recipient []byte, tokenId *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
@@ -150,12 +158,19 @@ func CreateErc721Deposit(t *testing.T, client *utils.Client, destId msg.ChainId,
 		t.Fatal(err)
 	}
 
-	if _, err := bridgeInstance.Deposit(
+	tx, err := bridgeInstance.Deposit(
 		client.Opts,
 		uint8(destId),
 		contracts.ERC721HandlerAddress,
 		data,
-	); err != nil {
+	)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = utils.WaitForTx(client, tx)
+	if err != nil {
 		t.Fatal(err)
 	}
 }
@@ -173,12 +188,19 @@ func CreateGenericDeposit(t *testing.T, client *utils.Client, destId msg.ChainId
 		t.Fatal(err)
 	}
 
-	if _, err := bridgeInstance.Deposit(
+	tx, err := bridgeInstance.Deposit(
 		client.Opts,
 		uint8(destId),
 		contracts.GenericHandlerAddress,
 		data,
-	); err != nil {
+	)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = utils.WaitForTx(client, tx)
+	if err != nil {
 		t.Fatal(err)
 	}
 }
