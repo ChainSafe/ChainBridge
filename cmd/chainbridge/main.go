@@ -14,6 +14,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
+	"github.com/ChainSafe/ChainBridge/config"
 	"github.com/ChainSafe/ChainBridge/core"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	log "github.com/ChainSafe/log15"
@@ -23,29 +24,29 @@ import (
 var app = cli.NewApp()
 
 var cliFlags = []cli.Flag{
-	ConfigFileFlag,
-	VerbosityFlag,
-	KeystorePathFlag,
-	BlockstorePathFlag,
-	FreshStartFlag,
+	config.ConfigFileFlag,
+	config.VerbosityFlag,
+	config.KeystorePathFlag,
+	config.BlockstorePathFlag,
+	config.FreshStartFlag,
 }
 
 var generateFlags = []cli.Flag{
-	PasswordFlag,
-	Sr25519Flag,
-	Secp256k1Flag,
+	config.PasswordFlag,
+	config.Sr25519Flag,
+	config.Secp256k1Flag,
 }
 
 var devFlags = []cli.Flag{
-	TestKeyFlag,
+	config.TestKeyFlag,
 }
 
 var importFlags = []cli.Flag{
-	EthereumImportFlag,
-	PrivateKeyFlag,
-	Sr25519Flag,
-	Secp256k1Flag,
-	PasswordFlag,
+	config.EthereumImportFlag,
+	config.PrivateKeyFlag,
+	config.Sr25519Flag,
+	config.Secp256k1Flag,
+	config.PasswordFlag,
 }
 
 var accountCommand = cli.Command{
@@ -118,9 +119,9 @@ func startLogger(ctx *cli.Context) error {
 	handler := logger.GetHandler()
 	var lvl log.Lvl
 
-	if lvlToInt, err := strconv.Atoi(ctx.GlobalString(VerbosityFlag.Name)); err == nil {
+	if lvlToInt, err := strconv.Atoi(ctx.GlobalString(config.VerbosityFlag.Name)); err == nil {
 		lvl = log.Lvl(lvlToInt)
-	} else if lvl, err = log.LvlFromString(ctx.GlobalString(VerbosityFlag.Name)); err != nil {
+	} else if lvl, err = log.LvlFromString(ctx.GlobalString(config.VerbosityFlag.Name)); err != nil {
 		return err
 	}
 	log.Root().SetHandler(log.LvlFilterHandler(lvl, handler))
@@ -136,7 +137,7 @@ func run(ctx *cli.Context) error {
 
 	log.Info("Starting ChainBridge...")
 
-	cfg, err := getConfig(ctx)
+	cfg, err := config.GetConfig(ctx)
 	if err != nil {
 		return err
 	}
@@ -144,11 +145,11 @@ func run(ctx *cli.Context) error {
 	// Check for test key flag
 	var ks string
 	var insecure bool
-	if key := ctx.GlobalString(TestKeyFlag.Name); key != "" {
+	if key := ctx.GlobalString(config.TestKeyFlag.Name); key != "" {
 		ks = key
 		insecure = true
 	} else {
-		ks = cfg.keystorePath
+		ks = cfg.KeystorePath
 	}
 
 	// Used to signal core shutdown due to fatal error
@@ -167,8 +168,8 @@ func run(ctx *cli.Context) error {
 			From:           chain.From,
 			KeystorePath:   ks,
 			Insecure:       insecure,
-			BlockstorePath: ctx.GlobalString(BlockstorePathFlag.Name),
-			FreshStart:     ctx.GlobalBool(FreshStartFlag.Name),
+			BlockstorePath: ctx.GlobalString(config.BlockstorePathFlag.Name),
+			FreshStart:     ctx.GlobalBool(config.FreshStartFlag.Name),
 			Opts:           chain.Opts,
 		}
 		var newChain core.Chain

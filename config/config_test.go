@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package main
+package config
 
 import (
 	"flag"
@@ -61,7 +61,7 @@ func TestLoadConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := getConfig(ctx)
+	res, err := GetConfig(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,7 +110,7 @@ func TestValdiateConfig(t *testing.T) {
 
 	cfg := Config{
 		Chains:       []RawChainConfig{valid},
-		keystorePath: "",
+		KeystorePath: "",
 	}
 
 	err := cfg.validate()
@@ -120,7 +120,7 @@ func TestValdiateConfig(t *testing.T) {
 
 	cfg = Config{
 		Chains:       []RawChainConfig{missingType},
-		keystorePath: "",
+		KeystorePath: "",
 	}
 
 	err = cfg.validate()
@@ -130,7 +130,7 @@ func TestValdiateConfig(t *testing.T) {
 
 	cfg = Config{
 		Chains:       []RawChainConfig{missingEndpoint},
-		keystorePath: "",
+		KeystorePath: "",
 	}
 
 	err = cfg.validate()
@@ -140,7 +140,7 @@ func TestValdiateConfig(t *testing.T) {
 
 	cfg = Config{
 		Chains:       []RawChainConfig{missingName},
-		keystorePath: "",
+		KeystorePath: "",
 	}
 
 	err = cfg.validate()
