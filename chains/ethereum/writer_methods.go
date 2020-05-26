@@ -17,7 +17,7 @@ import (
 )
 
 // Number of blocks to wait for an finalization event
-var ExecuteBlockWatchLimit = 200
+var ExecuteBlockWatchLimit = 100
 
 var NonceRetryInterval = time.Second * 2
 var ErrNonceTooLow = errors.New("nonce too low")
