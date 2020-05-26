@@ -19,10 +19,16 @@ func RegisterResource(client *Client, bridge, handler common.Address, rId msg.Re
 	if err != nil {
 		return err
 	}
-	_, err = instance.AdminSetResource(client.Opts, handler, rId, addr)
+	tx, err := instance.AdminSetResource(client.Opts, handler, rId, addr)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -36,10 +42,16 @@ func RegisterGenericResource(client *Client, bridge, handler common.Address, rId
 	if err != nil {
 		return err
 	}
-	_, err = instance.AdminSetGenericResource(client.Opts, handler, rId, addr, depositSig, executeSig)
+	tx, err := instance.AdminSetGenericResource(client.Opts, handler, rId, addr, depositSig, executeSig)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -54,10 +66,16 @@ func SetBurnable(client *Client, bridge, handler, contract common.Address) error
 		return err
 	}
 
-	_, err = instance.AdminSetBurnable(client.Opts, handler, contract)
+	tx, err := instance.AdminSetBurnable(client.Opts, handler, contract)
 	if err != nil {
 		return err
 	}
+
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
