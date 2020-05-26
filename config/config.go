@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package main
+package config
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ const DefaultKeystorePath = "./keys"
 
 type Config struct {
 	Chains       []RawChainConfig `toml:"chains"`
-	keystorePath string
+	KeystorePath string           `toml:"keystore_path,omitempty"`
 }
 
 // RawChainConfig is parsed directly from the config file and should be using to construct the core.ChainConfig
@@ -88,7 +88,7 @@ func (c *Config) validate() error {
 	return nil
 }
 
-func getConfig(ctx *cli.Context) (*Config, error) {
+func GetConfig(ctx *cli.Context) (*Config, error) {
 	var fig Config
 	path := DefaultConfigPath
 	if file := ctx.GlobalString(ConfigFileFlag.Name); file != "" {
@@ -100,7 +100,7 @@ func getConfig(ctx *cli.Context) (*Config, error) {
 		return &fig, err
 	}
 	if ksPath := ctx.GlobalString(KeystorePathFlag.Name); ksPath != "" {
-		fig.keystorePath = ksPath
+		fig.KeystorePath = ksPath
 	}
 	log.Debug("Loaded config", "path", path)
 	err = fig.validate()

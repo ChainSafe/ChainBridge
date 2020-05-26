@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ChainSafe/ChainBridge/config"
 	"github.com/ChainSafe/ChainBridge/crypto"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
@@ -50,15 +51,15 @@ func handleGenerateCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 	// check if --ed25519 or --sr25519 is set
 	keytype := crypto.Secp256k1Type
-	if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
+	if flagtype := ctx.Bool(config.Sr25519Flag.Name); flagtype {
 		keytype = crypto.Sr25519Type
-	} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
+	} else if flagtype := ctx.Bool(config.Secp256k1Flag.Name); flagtype {
 		keytype = crypto.Secp256k1Type
 	}
 
 	// check if --password is set
 	var password []byte = nil
-	if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
+	if pwdflag := ctx.String(config.PasswordFlag.Name); pwdflag != "" {
 		password = []byte(pwdflag)
 	}
 
@@ -80,27 +81,27 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 	// check if --ed25519 or --sr25519 is set
 	keytype := crypto.Secp256k1Type
-	if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
+	if flagtype := ctx.Bool(config.Sr25519Flag.Name); flagtype {
 		keytype = crypto.Sr25519Type
-	} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
+	} else if flagtype := ctx.Bool(config.Secp256k1Flag.Name); flagtype {
 		keytype = crypto.Secp256k1Type
 	}
 
-	if ctx.Bool(EthereumImportFlag.Name) {
+	if ctx.Bool(config.EthereumImportFlag.Name) {
 		if keyimport := ctx.Args().First(); keyimport != "" {
 			// check if --password is set
 			var password []byte = nil
-			if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
+			if pwdflag := ctx.String(config.PasswordFlag.Name); pwdflag != "" {
 				password = []byte(pwdflag)
 			}
 			_, err = importEthKey(keyimport, dHandler.datadir, password, nil)
 		} else {
 			return fmt.Errorf("Must provide a key to import.")
 		}
-	} else if privkeyflag := ctx.String(PrivateKeyFlag.Name); privkeyflag != "" {
+	} else if privkeyflag := ctx.String(config.PrivateKeyFlag.Name); privkeyflag != "" {
 		// check if --password is set
 		var password []byte = nil
-		if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
+		if pwdflag := ctx.String(config.PasswordFlag.Name); pwdflag != "" {
 			password = []byte(pwdflag)
 		}
 
@@ -134,7 +135,7 @@ func handleListCmd(ctx *cli.Context, dHandler *dataHandler) error {
 // getDataDir obtains the path to the keystore and returns it as a string
 func getDataDir(ctx *cli.Context) (string, error) {
 	// key directory is datadir/keystore/
-	if dir := ctx.GlobalString(KeystorePathFlag.Name); dir != "" {
+	if dir := ctx.GlobalString(config.KeystorePathFlag.Name); dir != "" {
 		datadir, err := filepath.Abs(dir)
 		if err != nil {
 			return "", err
@@ -409,7 +410,7 @@ func keystoreDir(keyPath string) (keystorepath string, err error) {
 		}
 	} else {
 		// datadir not specified, use default
-		keyPath = DefaultKeystorePath
+		keyPath = config.DefaultKeystorePath
 
 		keystorepath, err = filepath.Abs(keyPath)
 		if err != nil {

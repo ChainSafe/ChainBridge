@@ -35,3 +35,4 @@ gethdata2/
 centrifuge-chain/
 # Solidity
 /solidity
+/cfgBuilder/*.toml

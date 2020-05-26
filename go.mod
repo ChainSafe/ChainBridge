@@ -9,7 +9,7 @@ require (
 	github.com/ethereum/go-ethereum v1.9.13
 	github.com/naoina/toml v0.1.2-0.20170918210437-9fafd6967416
 	github.com/pierrec/xxHash v0.1.5 // indirect
-	github.com/robertkrimen/otto v0.0.0-20170205013659-6a77b7cbc37d // indirect
+	github.com/status-im/keycard-go v0.0.0-20190316090335-8537d3370df4
 	github.com/stretchr/testify v1.4.0
 	github.com/urfave/cli v1.22.2
 	golang.org/x/crypto v0.0.0-20200427165652-729f1e841bcc

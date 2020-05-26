@@ -110,6 +110,9 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	if HTTP, ok := chainCfg.Opts["http"]; ok && HTTP == "true" {
 		config.http = true
 		delete(chainCfg.Opts, "http")
+	} else if HTTP, ok := chainCfg.Opts["http"]; ok && HTTP == "false" {
+		config.http = false
+		delete(chainCfg.Opts, "http")
 	}
 
 	if startBlock, ok := chainCfg.Opts["startBlock"]; ok && startBlock != "" {
