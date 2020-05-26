@@ -29,33 +29,6 @@ var BobKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 var TestRelayerThreshold = big.NewInt(2)
 var TestChainId = msg.ChainId(0)
 
-//var aliceTestConfig = &Config{
-//	id:       msg.ChainId(0),
-//	name:     "alice",
-//	endpoint: TestEndpoint,
-//	from:     keystore.AliceKey,
-//	gasLimit: big.NewInt(DefaultGasLimit),
-//	gasPrice: big.NewInt(DefaultGasPrice),
-//}
-//
-//var bobTestConfig = &Config{
-//	id:       msg.ChainId(0),
-//	name:     "bob",
-//	endpoint: TestEndpoint,
-//	from:     keystore.BobKey,
-//	gasLimit: big.NewInt(DefaultGasLimit),
-//	gasPrice: big.NewInt(DefaultGasPrice),
-//}
-//
-//var charlieTestConfig = &Config{
-//	id:       msg.ChainId(0),
-//	name:     "charlie",
-//	endpoint: TestEndpoint,
-//	from:     keystore.CharlieKey,
-//	gasLimit: big.NewInt(DefaultGasLimit),
-//	gasPrice: big.NewInt(DefaultGasPrice),
-//}
-
 var aliceTestConfig = createConfig("alice", nil, nil)
 
 func createConfig(name string, startBlock *big.Int, contracts *utils.DeployedContracts) *Config {
