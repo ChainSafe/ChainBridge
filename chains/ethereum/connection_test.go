@@ -5,12 +5,12 @@ package ethereum
 
 import (
 	"context"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"testing"
 
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 func TestConnect(t *testing.T) {
@@ -21,7 +21,7 @@ func TestConnect(t *testing.T) {
 	conn.Close()
 }
 
-//  TestSubscribe makes sure we can subscribe to filter logs properly
+//  TestSubscribe makes sure we can subscribe to the results of a streaming filter query
 func TestSubscribe(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
 	_ = deployTestContracts(t, client, aliceTestConfig.id, AliceKp)

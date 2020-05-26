@@ -6,8 +6,6 @@ package ethereum
 import (
 	"context"
 	"fmt"
-	eth "github.com/ethereum/go-ethereum"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"math/big"
 	"testing"
 	"time"
@@ -17,7 +15,9 @@ import (
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ChainSafe/log15"
+	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
