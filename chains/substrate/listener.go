@@ -92,7 +92,7 @@ var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
 
 // pollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
 // Polling begins at the block defined in `l.startBlock`. Failed attempts to fetch the latest block or parse
-// a block will be retried up to BlockRetryLimit times before exiting with a .
+// a block will be retried up to BlockRetryLimit times before returning with an error.
 func (l *listener) pollBlocks() error {
 	var currentBlock = l.startBlock
 	var retry = BlockRetryLimit
