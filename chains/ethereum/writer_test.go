@@ -84,7 +84,7 @@ func watchEvent(t *testing.T, client *utils.Client, bridge common.Address, subSt
 	ch := make(chan ethtypes.Log)
 	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
 	if err != nil {
-		t.Fatal(err)
+		log15.Error("Failed to subscribe to the streaming filter query", "err", err)
 	}
 	defer sub.Unsubscribe()
 
