@@ -3,7 +3,7 @@ module github.com/ChainSafe/ChainBridge
 go 1.13
 
 require (
-	github.com/ChainSafe/chainbridge-substrate-events v0.0.0-20200429190850-6930d483c5c6
+	github.com/ChainSafe/chainbridge-substrate-events v0.0.0-20200527185312-f0db52b1c793
 	github.com/ChainSafe/log15 v1.0.0
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/centrifuge/go-substrate-rpc-client v1.1.1-0.20200428140716-e238735648d6
