@@ -9,11 +9,11 @@ import (
 	"testing"
 	"time"
 
-	subChain "github.com/ChainSafe/ChainBridge/chains/substrate"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	events "github.com/ChainSafe/chainbridge-substrate-events"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -75,7 +75,7 @@ func WaitForProposalSuccessOrFail(t *testing.T, client *utils.Client, nonce type
 				}
 
 				// Decode the event records
-				events := subChain.Events{}
+				events := events.Events{}
 				err = types.EventRecordsRaw(chng.StorageData).DecodeEventRecords(client.Meta, &events)
 				if err != nil {
 					t.Fatal(err)
