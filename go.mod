@@ -2,8 +2,6 @@ module github.com/ChainSafe/ChainBridge
 
 go 1.13
 
-replace github.com/ChainSafe/chainbridge-substrate-events => ../chainbridge-substrate-events
-
 require (
 	github.com/ChainSafe/chainbridge-substrate-events v0.0.0-20200429190850-6930d483c5c6
 	github.com/ChainSafe/log15 v1.0.0
