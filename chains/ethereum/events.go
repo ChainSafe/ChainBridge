@@ -9,7 +9,7 @@ import (
 )
 
 func (l *listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce) (msg.Message, error) {
-	l.log.Debug("Handling deposited event", "dest", destId, "nonce", nonce)
+	l.log.Info("Handling fungible event", "dest", destId, "nonce", nonce)
 
 	record, err := l.erc20HandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.kp.CommonAddress()}, uint64(nonce), uint8(destId))
 	if err != nil {
@@ -28,7 +28,7 @@ func (l *listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce
 }
 
 func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonce) (msg.Message, error) {
-	l.log.Debug("Handling deposited event")
+	l.log.Info("Handling nonfungible event")
 
 	record, err := l.erc721HandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.kp.CommonAddress()}, uint64(nonce), uint8(destId))
 	if err != nil {
@@ -48,7 +48,7 @@ func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonc
 }
 
 func (l *listener) handleGenericDepositedEvent(destId msg.ChainId, nonce msg.Nonce) (msg.Message, error) {
-	l.log.Debug("Handling deposited event")
+	l.log.Info("Handling generic event")
 
 	record, err := l.genericHandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.kp.CommonAddress()}, uint64(nonce), uint8(destId))
 	if err != nil {

@@ -137,7 +137,7 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 	if err != nil {
 		return fmt.Errorf("submission of extrinsic failed: %s", err.Error())
 	}
-	c.log.Debug("Extrinsic submission succeeded")
+	c.log.Trace("Extrinsic submission succeeded")
 	defer sub.Unsubscribe()
 
 	return c.watchSubmission(sub)

@@ -91,7 +91,7 @@ func (l *listener) start() error {
 // Polling begins at the block defined in `l.cfg.startBlock`. Failed attempts to fetch the latest block or parse
 // a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *listener) pollBlocks() error {
-	l.log.Debug("Polling Blocks...")
+	l.log.Info("Polling Blocks...")
 	var currentBlock = l.cfg.startBlock
 	var retry = BlockRetryLimit
 	for {
@@ -116,7 +116,7 @@ func (l *listener) pollBlocks() error {
 
 			// Sleep if the difference is less than BlockDelay; (latest - current) < BlockDelay
 			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(BlockDelay) == -1 {
-				l.log.Info("Block not ready, will retry", "target", currentBlock, "latest", latestBlock)
+				l.log.Debug("Block not ready, will retry", "target", currentBlock, "latest", latestBlock)
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
@@ -144,7 +144,7 @@ func (l *listener) pollBlocks() error {
 
 // getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
-	l.log.Info("Querying block for deposit events", "block", latestBlock)
+	l.log.Debug("Querying block for deposit events", "block", latestBlock)
 	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
 
 	// querying for logs
