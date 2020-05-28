@@ -92,9 +92,9 @@ var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
 
 // pollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
 // Polling begins at the block defined in `l.startBlock`. Failed attempts to fetch the latest block or parse
-// a block will be retried up to BlockRetryLimit times before exiting with a .
+// a block will be retried up to BlockRetryLimit times before returning with an error.
 func (l *listener) pollBlocks() error {
-	var latestBlock = l.startBlock
+	var currentBlock = l.startBlock
 	var retry = BlockRetryLimit
 	for {
 		select {
@@ -107,13 +107,38 @@ func (l *listener) pollBlocks() error {
 				return nil
 			}
 
+			// Get finalized block hash
+			finalizedHash, err := l.conn.api.RPC.Chain.GetFinalizedHead()
+			if err != nil {
+				l.log.Error("Failed to fetch finalized hash", "err", err)
+				retry--
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
+			// Get finalized block header
+			finalizedHeader, err := l.conn.api.RPC.Chain.GetHeader(finalizedHash)
+			if err != nil {
+				l.log.Error("Failed to fetch finalized header", "err", err)
+				retry--
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
+			// Sleep if the block we want comes after the most recently finalized block
+			if currentBlock > uint64(finalizedHeader.Number) {
+				l.log.Trace("Block not yet finalized", "target", currentBlock, "latest", finalizedHeader.Number)
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
 			// Get hash for latest block, sleep and retry if not ready
-			hash, err := l.conn.api.RPC.Chain.GetBlockHash(latestBlock)
+			hash, err := l.conn.api.RPC.Chain.GetBlockHash(currentBlock)
 			if err != nil && err.Error() == ErrBlockNotReady.Error() {
 				time.Sleep(BlockRetryInterval)
 				continue
 			} else if err != nil {
-				l.log.Error("Failed to query latest block", "block", latestBlock, "err", err)
+				l.log.Error("Failed to query latest block", "block", currentBlock, "err", err)
 				retry--
 				time.Sleep(BlockRetryInterval)
 				continue
@@ -121,18 +146,18 @@ func (l *listener) pollBlocks() error {
 
 			err = l.processEvents(hash)
 			if err != nil {
-				l.log.Error("Failed to process events in block", "block", latestBlock, "err", err)
+				l.log.Error("Failed to process events in block", "block", currentBlock, "err", err)
 				retry--
 				continue
 			}
 
 			// Write to blockstore
-			err = l.blockstore.StoreBlock(big.NewInt(0).SetUint64(latestBlock))
+			err = l.blockstore.StoreBlock(big.NewInt(0).SetUint64(currentBlock))
 			if err != nil {
 				l.log.Error("Failed to write to blockstore", "err", err)
 			}
 
-			latestBlock++
+			currentBlock++
 			retry = BlockRetryLimit
 		}
 	}

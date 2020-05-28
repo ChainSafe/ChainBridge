@@ -281,6 +281,10 @@ func Test_ThreeRelayers(t *testing.T) {
 	bridgeB, charlieLog := createAndStartBridge(t, "charlie", contractsA, contractsB)
 	bridgeC, aliceLog := createAndStartBridge(t, "dave", contractsA, contractsB)
 
+	assertChanError(t, bridgeA.Errors())
+	assertChanError(t, bridgeB.Errors())
+	assertChanError(t, bridgeC.Errors())
+
 	for _, tt := range tests {
 		tt := tt
 

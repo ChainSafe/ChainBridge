@@ -14,7 +14,12 @@ func DeployAssetStore(client *Client) (common.Address, error) {
 		return ZeroAddress, err
 	}
 
-	addr, _, _, err := CentrifugeAsset.DeployCentrifugeAsset(client.Opts, client.Client)
+	addr, tx, _, err := CentrifugeAsset.DeployCentrifugeAsset(client.Opts, client.Client)
+	if err != nil {
+		return ZeroAddress, err
+	}
+
+	err = WaitForTx(client, tx)
 	if err != nil {
 		return ZeroAddress, err
 	}
