@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"context"
 	"fmt"
 	"math/big"
 	"testing"
@@ -14,7 +15,9 @@ import (
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ChainSafe/log15"
+	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -68,20 +71,29 @@ func TestWriter_start_stop(t *testing.T) {
 	close(stop)
 }
 
-func watchEvent(conn *Connection, subStr utils.EventSig) {
+func watchEvent(t *testing.T, client *utils.Client, bridge common.Address, subStr utils.EventSig) {
 	fmt.Printf("Watching for event: %s\n", subStr)
-	query := buildQuery(conn.cfg.bridgeContract, subStr, big.NewInt(0), nil)
-	eventSubscription, err := conn.subscribeToEvent(query)
-	if err != nil {
-		log15.Error("Failed to subscribe to finalization event", "err", err)
+	query := eth.FilterQuery{
+		FromBlock: big.NewInt(0),
+		Addresses: []common.Address{bridge},
+		Topics: [][]common.Hash{
+			{subStr.GetTopic()},
+		},
 	}
+
+	ch := make(chan ethtypes.Log)
+	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
+	if err != nil {
+		log15.Error("Failed to subscribe to the streaming filter query", "err", err)
+	}
+	defer sub.Unsubscribe()
 
 	for {
 		select {
-		case evt := <-eventSubscription.ch:
+		case evt := <-ch:
 			fmt.Printf("%s: %#v\n", subStr, evt.Topics)
 
-		case err := <-eventSubscription.sub.Err():
+		case err := <-sub.Err():
 			if err != nil {
 				fmt.Println(err)
 				return
@@ -90,10 +102,23 @@ func watchEvent(conn *Connection, subStr utils.EventSig) {
 	}
 }
 
-func routeMessageAndWait(t *testing.T, alice, bob *writer, m msg.Message, aliceErr, bobErr chan error) {
+func routeMessageAndWait(t *testing.T, client *utils.Client, alice, bob *writer, m msg.Message, aliceErr, bobErr chan error) {
 	// Watch for executed event
-	query := buildQuery(alice.cfg.bridgeContract, utils.ProposalExecuted, big.NewInt(0), nil)
-	eventSubscription, err := alice.conn.subscribeToEvent(query)
+	query := eth.FilterQuery{
+		FromBlock: big.NewInt(0),
+		Addresses: []common.Address{alice.cfg.bridgeContract},
+		Topics: [][]common.Hash{
+			{utils.ProposalExecuted.GetTopic()},
+		},
+	}
+
+	ch := make(chan ethtypes.Log)
+	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer sub.Unsubscribe()
+
 	if err != nil {
 		log15.Error("Failed to subscribe to finalization event", "err", err)
 	}
@@ -110,7 +135,7 @@ func routeMessageAndWait(t *testing.T, alice, bob *writer, m msg.Message, aliceE
 
 	for {
 		select {
-		case evt := <-eventSubscription.ch:
+		case evt := <-ch:
 			sourceId := evt.Topics[1].Big().Uint64()
 			destId := evt.Topics[2].Big().Uint64()
 			depositNonce := evt.Topics[3].Big().Uint64()
@@ -121,7 +146,7 @@ func routeMessageAndWait(t *testing.T, alice, bob *writer, m msg.Message, aliceE
 				return
 			}
 
-		case err = <-eventSubscription.sub.Err():
+		case err = <-sub.Err():
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -153,12 +178,12 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient.Bytes())
 	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Address)
 	// Helpful for debugging
-	go watchEvent(writerA.conn, utils.ProposalCreated)
-	go watchEvent(writerA.conn, utils.ProposalVote)
-	go watchEvent(writerA.conn, utils.ProposalFinalized)
-	go watchEvent(writerA.conn, utils.ProposalExecuted)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalExecuted)
 
-	routeMessageAndWait(t, writerA, writerB, m, errA, errB)
+	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
 	ethtest.Erc20AssertBalance(t, client, amount, erc20Address, recipient)
 }
@@ -182,12 +207,12 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId, recipient.Bytes(), []byte{})
 	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 	// Helpful for debugging
-	go watchEvent(writerA.conn, utils.ProposalCreated)
-	go watchEvent(writerA.conn, utils.ProposalVote)
-	go watchEvent(writerA.conn, utils.ProposalFinalized)
-	go watchEvent(writerA.conn, utils.ProposalExecuted)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalExecuted)
 
-	routeMessageAndWait(t, writerA, writerB, m, errA, errB)
+	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
 	ethtest.Erc721AssertOwner(t, client, erc721Contract, tokenId, recipient)
 }
@@ -223,12 +248,12 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	}
 
 	// Helpful for debugging
-	go watchEvent(writerA.conn, utils.ProposalCreated)
-	go watchEvent(writerA.conn, utils.ProposalVote)
-	go watchEvent(writerA.conn, utils.ProposalFinalized)
-	go watchEvent(writerA.conn, utils.ProposalExecuted)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalExecuted)
 
-	routeMessageAndWait(t, writerA, writerB, m, errA, errB)
+	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
 	ethtest.AssertHashExistence(t, client, hash, assetStoreAddr)
 }
