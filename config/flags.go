@@ -72,3 +72,15 @@ var (
 		Usage: "Applies a predetermined test keystore to the chains.",
 	}
 )
+
+// Generate subcommand flags
+var (
+	pathFlag = cli.StringFlag{
+		Name:  "path",
+		Usage: "Path to config directory",
+	}
+	outPutFlag = cli.StringFlag{
+		Name:  "output",
+		Usage: "path to output config file",
+	}
+)

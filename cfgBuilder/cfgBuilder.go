@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package main
+package cfgBuilder
 
 import (
 	"encoding/json"
@@ -147,7 +147,7 @@ func parseRawConfig(raw *RawConfig) (*Config, error) {
 	return &res, nil
 }
 
-func parseDeployConfig(path string) (*Config, error) {
+func ParseDeployConfig(path string) (*Config, error) {
 	fp, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
@@ -175,42 +175,4 @@ func CreateRelayerConfigs(cfg *Config) ([]RootConfig, error) {
 	}
 
 	return configs, nil
-}
-
-func main() {
-	// Pares first argument for path
-	if len(os.Args) < 2 {
-		log.Error("Please specify path to config json")
-		os.Exit(1)
-	}
-	path := os.Args[1]
-	if path == "" {
-		log.Error("must provide path")
-		os.Exit(1)
-	}
-
-	// Read in the config
-	cfg, err := parseDeployConfig(path)
-	if err != nil {
-		log.Error("failed to parse config", "err", err)
-		os.Exit(1)
-	}
-
-	// Construct the individual relayer configs
-	relayerCfgs, err := CreateRelayerConfigs(cfg)
-	if err != nil {
-		log.Error("failed to construct relayer configs", "err", err)
-		os.Exit(1)
-	}
-
-	// Check for output path
-	var outPath string
-	if len(os.Args) == 3 {
-		outPath = os.Args[2]
-	}
-
-	// Write all the configs to files
-	for i, cfg := range relayerCfgs {
-		cfg.ToTOML(filepath.Join(outPath, fmt.Sprintf("config%d.toml", i)))
-	}
 }
