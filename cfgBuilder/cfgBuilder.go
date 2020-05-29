@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	log "github.com/ChainSafe/log15"
 	"github.com/naoina/toml"
 )
@@ -22,7 +21,6 @@ type RawConfig struct {
 }
 
 type Config struct {
-	Deployer         *secp256k1.Keypair
 	RelayerThreshold *big.Int
 	Relayers         []string
 	Chains           []EthChainConfig
@@ -129,9 +127,6 @@ func constructRelayerConfig(cfg *Config, relayer string) RootConfig {
 
 func parseRawConfig(raw *RawConfig) (*Config, error) {
 	var res Config
-	if err != nil {
-		return nil, err
-	}
 
 	threshold, ok := big.NewInt(0).SetString(raw.RelayerThreshold, 10)
 	if !ok {

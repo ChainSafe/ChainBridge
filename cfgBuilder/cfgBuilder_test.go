@@ -73,7 +73,6 @@ var exampleRawConfig = &RawConfig{
 }
 
 var exampleConfig = &Config{
-	Deployer:         AliceKp,
 	RelayerThreshold: big.NewInt(3),
 	Relayers:         []string{AliceKp.Address(), AliceKp.Address(), AliceKp.Address()},
 	Chains: []EthChainConfig{
@@ -148,7 +147,7 @@ func TestParseConfig(t *testing.T) {
 	}
 
 	// Parse
-	result, err := parseDeployConfig(f.Name())
+	result, err := ParseDeployConfig(f.Name())
 	if err != nil {
 		t.Fatal(err)
 	}
