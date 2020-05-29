@@ -5,42 +5,20 @@ Provides the command-line interface for the chainbridge application.
 
 For configuration and CLI commands see the README: https://github.com/ChainSafe/ChainBridge.
 */
-package main
+package cfgBuilder
 
 import (
+	"errors"
 	"fmt"
-	cfg "github.com/ChainSafe/ChainBridge/cfgBuilder"
-	"github.com/ChainSafe/ChainBridge/config"
-	log "github.com/ChainSafe/log15"
-	"github.com/urfave/cli"
 	"os"
 	"path/filepath"
+
+	"github.com/ChainSafe/ChainBridge/cfgBuilder"
+	log "github.com/ChainSafe/log15"
+	"github.com/urfave/cli"
 )
 
 var app = cli.NewApp()
-
-var cliFlags = []cli.Flag{
-	config.pathFlag,
-	config.outPutFlag,
-}
-
-var cfgBuilderCommands = cli.Command{
-	Name:        "cfgBuilder",
-	Usage:       "build configs",
-	Category:    "CONFIG",
-	Description: "",
-	Subcommands: []cli.Command{
-		{
-			Action:   cfg.ParseDeployConfig,
-			Name:     "generate",
-			Usage:    "generate bridge keystore, key type determined by flag",
-			Flags:    cliFlags,
-			Category: "CONFIG",
-			Description: "The generate subcommand is used to generate the bridge keystore.\n" +
-				"\tIf no options are specified, a secp256k1 key will be made.",
-		},
-	},
-}
 
 func init() {
 	app.Action = run
@@ -50,11 +28,41 @@ func init() {
 	app.Author = "ChainSafe Systems 2019"
 	app.Version = "0.0.1"
 	app.EnableBashCompletion = true
-	app.Commands = []cli.Command{
-		cfgBuilderCommand,
+}
+
+func run(ctx *cli.Context) error {
+	// Pares first argument for path
+	if ctx.NArg() < 1 {
+		log.Error("Please specify path to config json")
+		os.Exit(1)
+	}
+	path := ctx.Args().Get(0)
+	if path == "" {
+		return errors.New("must provide path")
 	}
 
-	app.Flags = append(app.Flags, cliFlags...)
+	// Read in the config
+	cfg, err := cfgBuilder.ParseDeployConfig(path)
+	if err != nil {
+		return fmt.Errorf("failed to parse config, err %s", err)
+	}
+
+	// Construct the individual relayer configs
+	relayerCfgs, err := cfgBuilder.CreateRelayerConfigs(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to construct relayer configs, err %s", err)
+	}
+
+	// Check for output path
+	var outPath string
+	if ctx.NArg() == 2 {
+		outPath = ctx.Args().Get(1)
+	}
+
+	// Write all the configs to files
+	for i, cfg := range relayerCfgs {
+		cfg.ToTOML(filepath.Join(outPath, fmt.Sprintf("config%d.toml", i)))
+	}
 }
 
 func main() {
@@ -63,39 +71,5 @@ func main() {
 		log.Error(err.Error())
 		os.Exit(1)
 	}
-	// Pares first argument for path
-	if len(os.Args) < 2 {
-		log.Error("Please specify path to config json")
-		os.Exit(1)
-	}
-	path := os.Args[1]
-	if path == "" {
-		log.Error("must provide path")
-		os.Exit(1)
-	}
 
-	// Read in the config
-	cfg, err := parseDeployConfig(path)
-	if err != nil {
-		log.Error("failed to parse config", "err", err)
-		os.Exit(1)
-	}
-
-	// Construct the individual relayer configs
-	relayerCfgs, err := CreateRelayerConfigs(cfg)
-	if err != nil {
-		log.Error("failed to construct relayer configs", "err", err)
-		os.Exit(1)
-	}
-
-	// Check for output path
-	var outPath string
-	if len(os.Args) == 3 {
-		outPath = os.Args[2]
-	}
-
-	// Write all the configs to files
-	for i, cfg := range relayerCfgs {
-		cfg.ToTOML(filepath.Join(outPath, fmt.Sprintf("config%d.toml", i)))
-	}
 }
