@@ -8,10 +8,8 @@ import (
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
-	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	events "github.com/ChainSafe/chainbridge-substrate-events"
 	"github.com/ChainSafe/log15"
-
-	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
 type eventName string
@@ -30,45 +28,8 @@ var Subscriptions = []struct {
 	{GenericTransfer, genericTransferHandler},
 }
 
-type EventFungibleTransfer struct {
-	Phase        types.Phase
-	Destination  types.U8
-	DepositNonce types.U64
-	ResourceId   types.Bytes32
-	Amount       types.U256
-	Recipient    types.Bytes
-	Topics       []types.Hash
-}
-
-type EventNonFungibleTransfer struct {
-	Phase        types.Phase
-	Destination  types.U8
-	DepositNonce types.U64
-	ResourceId   types.Bytes32
-	TokenId      types.Bytes
-	Recipient    types.Bytes
-	Metadata     types.Bytes
-	Topics       []types.Hash
-}
-
-type EventGenericTransfer struct {
-	Phase        types.Phase
-	Destination  types.U8
-	DepositNonce types.U64
-	ResourceId   types.Bytes32
-	Metadata     types.Bytes
-	Topics       []types.Hash
-}
-
-type Events struct {
-	utils.Events
-	ChainBridge_FungibleTransfer    []EventFungibleTransfer    //nolint:stylecheck,golint
-	ChainBridge_NonFungibleTransfer []EventNonFungibleTransfer //nolint:stylecheck,golint
-	ChainBridge_GenericTransfer     []EventGenericTransfer     //nolint:stylecheck,golint
-}
-
 func fungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, error) {
-	evt, ok := evtI.(EventFungibleTransfer)
+	evt, ok := evtI.(events.EventFungibleTransfer)
 	if !ok {
 		return msg.Message{}, fmt.Errorf("failed to cast EventFungibleTransfer type")
 	}
@@ -87,7 +48,7 @@ func fungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, e
 }
 
 func nonFungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, error) {
-	evt, ok := evtI.(EventNonFungibleTransfer)
+	evt, ok := evtI.(events.EventNonFungibleTransfer)
 	if !ok {
 		return msg.Message{}, fmt.Errorf("failed to cast EventNonFungibleTransfer type")
 	}
@@ -106,7 +67,7 @@ func nonFungibleTransferHandler(evtI interface{}, log log15.Logger) (msg.Message
 }
 
 func genericTransferHandler(evtI interface{}, log log15.Logger) (msg.Message, error) {
-	evt, ok := evtI.(EventGenericTransfer)
+	evt, ok := evtI.(events.EventGenericTransfer)
 	if !ok {
 		return msg.Message{}, fmt.Errorf("failed to cast EventGenericTransfer type")
 	}
