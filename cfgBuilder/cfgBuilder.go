@@ -16,10 +16,9 @@ import (
 )
 
 type RawConfig struct {
-	DeployerPrivateKey string           `json:"deployerKey"`
-	RelayerThreshold   string           `json:"relayerThreshold"`
-	Relayers           []string         `json:"relayers"`
-	Chains             []EthChainConfig `json:"chains"`
+	RelayerThreshold string           `json:"relayerThreshold"`
+	Relayers         []string         `json:"relayers"`
+	Chains           []EthChainConfig `json:"chains"`
 }
 
 type Config struct {
@@ -130,11 +129,9 @@ func constructRelayerConfig(cfg *Config, relayer string) RootConfig {
 
 func parseRawConfig(raw *RawConfig) (*Config, error) {
 	var res Config
-	deployer, err := secp256k1.NewKeypairFromString(raw.DeployerPrivateKey[2:])
 	if err != nil {
 		return nil, err
 	}
-	res.Deployer = deployer
 
 	threshold, ok := big.NewInt(0).SetString(raw.RelayerThreshold, 10)
 	if !ok {
