@@ -6,9 +6,7 @@ package ethereum
 import (
 	"testing"
 
-	"github.com/ChainSafe/ChainBridge/blockstore"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
-	eth "github.com/ethereum/go-ethereum"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 )
 
@@ -18,24 +16,6 @@ func TestConnect(t *testing.T) {
 	_ = deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
 	conn := newLocalConnection(t, aliceTestConfig)
 	conn.Close()
-}
-
-func TestSubscribe(t *testing.T) {
-	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-
-	_ = deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
-	conn := newLocalConnection(t, aliceTestConfig)
-	stop := make(chan int)
-	l := NewListener(conn, aliceTestConfig, TestLogger, &blockstore.EmptyStore{}, stop, make(chan error))
-	defer conn.Close()
-	defer close(stop)
-
-	q := eth.FilterQuery{}
-
-	_, err := l.conn.subscribeToEvent(q)
-	if err != nil {
-		t.Fatal(err)
-	}
 }
 
 // TestContractCode is used to make sure the contracts are deployed correctly.
