@@ -5,7 +5,7 @@ Provides the command-line interface for the chainbridge application.
 
 For configuration and CLI commands see the README: https://github.com/ChainSafe/ChainBridge.
 */
-package cfgBuilder
+package main
 
 import (
 	"errors"
@@ -63,6 +63,7 @@ func run(ctx *cli.Context) error {
 	for i, cfg := range relayerCfgs {
 		cfg.ToTOML(filepath.Join(outPath, fmt.Sprintf("config%d.toml", i)))
 	}
+	return nil
 }
 
 func main() {
