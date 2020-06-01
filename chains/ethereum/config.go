@@ -64,6 +64,15 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		return nil, fmt.Errorf("must provide opts.bridge field for ethereum config")
 	}
 
+	config.erc20HandlerContract = common.HexToAddress(chainCfg.Opts["erc20Handler"])
+	delete(chainCfg.Opts, "erc20Handler")
+
+	config.erc721HandlerContract = common.HexToAddress(chainCfg.Opts["erc721Handler"])
+	delete(chainCfg.Opts, "erc721Handler")
+
+	config.genericHandlerContract = common.HexToAddress(chainCfg.Opts["genericHandler"])
+	delete(chainCfg.Opts, "genericHandler")
+
 	if gasPrice, ok := chainCfg.Opts["gasPrice"]; ok {
 		price := big.NewInt(0)
 		_, pass := price.SetString(gasPrice, 10)
