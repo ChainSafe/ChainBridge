@@ -12,6 +12,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -178,7 +179,7 @@ func (l *listener) processEvents(hash types.Hash) error {
 		return err
 	}
 
-	e := Events{}
+	e := utils.Events{}
 	err = records.DecodeEventRecords(&meta, &e)
 	if err != nil {
 		return err
@@ -191,7 +192,7 @@ func (l *listener) processEvents(hash types.Hash) error {
 }
 
 // handleEvents calls the associated handler for all registered event types
-func (l *listener) handleEvents(evts Events) {
+func (l *listener) handleEvents(evts utils.Events) {
 	if l.subscriptions[FungibleTransfer] != nil {
 		for _, evt := range evts.ChainBridge_FungibleTransfer {
 			l.log.Trace("Handling FungibleTransfer event")

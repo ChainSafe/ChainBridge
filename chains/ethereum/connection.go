@@ -14,7 +14,6 @@ import (
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
 
-	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -76,20 +75,6 @@ func (c *Connection) Close() {
 
 func (c *Connection) NetworkId() (*big.Int, error) {
 	return c.conn.NetworkID(c.ctx)
-}
-
-// subscribeToEvent registers an rpc subscription for the event with the signature sig for contract at address
-func (c *Connection) subscribeToEvent(query eth.FilterQuery) (*ActiveSubscription, error) {
-	ch := make(chan ethtypes.Log)
-	sub, err := c.conn.SubscribeFilterLogs(c.ctx, query, ch)
-	if err != nil {
-		close(ch)
-		return nil, err
-	}
-	return &ActiveSubscription{
-		ch:  ch,
-		sub: sub,
-	}, nil
 }
 
 // latestBlock returns the latest block from the current chain
