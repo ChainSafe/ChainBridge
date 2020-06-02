@@ -12,8 +12,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-func TestParseChainConfig(t *testing.T) {
-	input := core.ChainConfig{
+//createChainConfig helps create a chain config
+func createChainConfig(t *testing.T, bridge string, erc20Handler string, erc721Handler string, genericHandler string) core.ChainConfig {
+	return core.ChainConfig{
 		Name:         "chain",
 		Id:           1,
 		Endpoint:     "endpoint",
@@ -21,16 +22,21 @@ func TestParseChainConfig(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"bridge":         "0x1234",
-			"erc20Handler":   "0x1234",
-			"erc721Handler":  "0x1234",
-			"genericHandler": "0x1234",
+			"bridge":         bridge,
+			"erc20Handler":   erc20Handler,
+			"erc721Handler":  erc721Handler,
+			"genericHandler": genericHandler,
 			"gasLimit":       "10",
 			"gasPrice":       "20",
 			"http":           "true",
 			"startBlock":     "10",
 		},
 	}
+}
+
+//TestParseChainConfig tests parseChainConfig with all handlerContracts provided
+func TestParseChainConfig(t *testing.T) {
+	input := createChainConfig(t, "0x1234", "0x1234", "0x1234", "0x1234")
 
 	out, err := parseChainConfig(&input)
 
@@ -59,23 +65,10 @@ func TestParseChainConfig(t *testing.T) {
 	}
 }
 
-func TestNoChainConfig(t *testing.T) {
-	input := core.ChainConfig{
-		Name:         "chain",
-		Id:           1,
-		Endpoint:     "endpoint",
-		From:         "0x0",
-		KeystorePath: "./keys",
-		Insecure:     false,
-		Opts: map[string]string{
-			"bridge":       "0x1234",
-			"erc20Handler": "0x1234",
-			"gasLimit":     "10",
-			"gasPrice":     "20",
-			"http":         "true",
-			"startBlock":   "10",
-		},
-	}
+//TestChainConfigOneContract Tests chain config providing only one contract
+func TestChainConfigOneContract(t *testing.T) {
+
+	input := createChainConfig(t, "0x1234", "0x1234", "", "")
 
 	out, err := parseChainConfig(&input)
 
