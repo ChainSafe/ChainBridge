@@ -6,7 +6,6 @@ An input JSON config looks like this:
 
 ```json
 {
-  "deployerKey": "0x000000000000000000000000000000000000000000000000000000616c696365",
   "relayerThreshold": "3",
   "relayers": [
     "0xff93B45308FD417dF303D6515aB04D9e89a750Ca",
