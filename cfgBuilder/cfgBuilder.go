@@ -18,14 +18,14 @@ type RawConfig struct {
 	RelayerThreshold string           `json:"relayerThreshold"`
 	Relayers         []string         `json:"relayers"`
 	EthChains        []EthChainConfig `json:"ethChains"`
-	SubChains        []subChainConfig `json:"subChains"`
+	SubChains        []SubChainConfig `json:"subChains"`
 }
 
 type Config struct {
 	RelayerThreshold *big.Int
 	Relayers         []string
 	EthChains        []EthChainConfig
-	SubChains        []subChainConfig
+	SubChains        []SubChainConfig
 }
 
 // Identical to config.RawChainConfig, but uses struct for opts to get desired output formatting
@@ -68,7 +68,7 @@ type EthChainConfig struct {
 	Http           string `json:"http"`
 }
 
-type subChainConfig struct {
+type SubChainConfig struct {
 	Name       string `json:"name"`
 	ChainId    string `json:"type"`
 	Endpoint   string `json:"endpoint"`
@@ -119,6 +119,19 @@ func constructEthChainConfig(cfg EthChainConfig, relayer string) RawChainConfig 
 			GasPrice:       cfg.GasPrice,
 			StartBlock:     cfg.StartBlock,
 			Http:           cfg.Http,
+		},
+	}
+}
+
+func constructSubChainConfig(cfg SubChainConfig, relayer string) RawChainConfig {
+	return RawChainConfig{
+		Name:     cfg.Name,
+		Type:     "substrate",
+		From:     relayer,
+		Id:       cfg.ChainId,
+		Endpoint: cfg.Endpoint,
+		Opts: EthOpts{
+			StartBlock: cfg.StartBlock,
 		},
 	}
 }

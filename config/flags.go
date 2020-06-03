@@ -72,3 +72,11 @@ var (
 		Usage: "Applies a predetermined test keystore to the chains.",
 	}
 )
+
+// cfgBuilder Substrate Flag
+var (
+	SubstrateFlag = cli.BoolFlag{
+		Name:  "substrate",
+		Usage: "Will generate configs for substrate",
+	}
+)

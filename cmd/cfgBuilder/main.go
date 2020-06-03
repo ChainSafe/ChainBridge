@@ -8,6 +8,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/ChainSafe/ChainBridge/config"
 	"os"
 	"path/filepath"
 
@@ -18,6 +19,10 @@ import (
 
 var app = cli.NewApp()
 
+var cliFlags = []cli.Flag{
+	config.SubstrateFlag,
+}
+
 func init() {
 	app.Action = run
 	app.Copyright = "Copyright 2019 ChainSafe Systems Authors"
@@ -26,6 +31,9 @@ func init() {
 	app.Author = "ChainSafe Systems 2019"
 	app.Version = "0.0.1"
 	app.EnableBashCompletion = true
+
+	app.Flags = append(app.Flags, cliFlags...)
+
 }
 
 func run(ctx *cli.Context) error {
