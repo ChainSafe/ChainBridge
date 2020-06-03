@@ -9,6 +9,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/chains"
+	"github.com/ChainSafe/ChainBridge/connections/evm"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -21,8 +22,8 @@ var PassedStatus uint8 = 2
 var TransferredStatus uint8 = 3
 
 type writer struct {
-	cfg            Config
-	conn           *Connection
+	cfg            evm.Config
+	conn           *evm.Connection
 	bridgeContract *Bridge.Bridge // instance of bound receiver bridgeContract
 	callOpts       *bind.CallOpts
 	opts           *bind.TransactOpts
@@ -34,7 +35,7 @@ type writer struct {
 }
 
 // NewWriter creates and returns writer
-func NewWriter(conn *Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error) *writer {
+func NewWriter(conn *evm.Connection, cfg *evm.Config, log log15.Logger, stop <-chan int, sysErr chan<- error) *writer {
 	return &writer{
 		cfg:    *cfg,
 		conn:   conn,
@@ -48,14 +49,14 @@ func NewWriter(conn *Connection, cfg *Config, log log15.Logger, stop <-chan int,
 func (w *writer) start() error {
 	w.log.Debug("Starting ethereum writer...")
 
-	opts, _, err := w.conn.newTransactOpts(big.NewInt(0), w.cfg.gasLimit, w.cfg.gasPrice)
+	opts, _, err := w.conn.NewTransactOpts(big.NewInt(0), w.cfg.GasLimit, w.cfg.GasPrice)
 	if err != nil {
 		return err
 	}
 
 	w.opts = opts
 	w.nonce = 0
-	w.callOpts = &bind.CallOpts{From: w.conn.kp.CommonAddress()}
+	w.callOpts = &bind.CallOpts{From: w.conn.Kp.CommonAddress()}
 	return nil
 }
 
@@ -66,7 +67,7 @@ func (w *writer) setContract(bridge *Bridge.Bridge) {
 
 func (w *writer) lockAndUpdateNonce() error {
 	w.nonceLock.Lock()
-	nonce, err := w.conn.conn.PendingNonceAt(w.conn.ctx, w.opts.From)
+	nonce, err := w.conn.Conn.PendingNonceAt(w.conn.Ctx, w.opts.From)
 	if err != nil {
 		w.nonceLock.Unlock()
 		return err

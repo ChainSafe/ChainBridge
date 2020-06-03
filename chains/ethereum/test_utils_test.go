@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	"github.com/ChainSafe/ChainBridge/connections/evm"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -28,31 +29,31 @@ var BobKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 
 var TestRelayerThreshold = big.NewInt(2)
 
-var aliceTestConfig = &Config{
-	id:       msg.ChainId(0),
-	name:     "alice",
-	endpoint: TestEndpoint,
-	from:     keystore.AliceKey,
-	gasLimit: big.NewInt(DefaultGasLimit),
-	gasPrice: big.NewInt(DefaultGasPrice),
+var aliceTestConfig = &evm.Config{
+	Id:       msg.ChainId(0),
+	Name:     "alice",
+	Endpoint: TestEndpoint,
+	From:     keystore.AliceKey,
+	GasLimit: big.NewInt(evm.DefaultGasLimit),
+	GasPrice: big.NewInt(evm.DefaultGasPrice),
 }
 
-var bobTestConfig = &Config{
-	id:       msg.ChainId(0),
-	name:     "bob",
-	endpoint: TestEndpoint,
-	from:     keystore.BobKey,
-	gasLimit: big.NewInt(DefaultGasLimit),
-	gasPrice: big.NewInt(DefaultGasPrice),
+var bobTestConfig = &evm.Config{
+	Id:       msg.ChainId(0),
+	Name:     "bob",
+	Endpoint: TestEndpoint,
+	From:     keystore.BobKey,
+	GasLimit: big.NewInt(evm.DefaultGasLimit),
+	GasPrice: big.NewInt(evm.DefaultGasPrice),
 }
 
-var charlieTestConfig = &Config{
-	id:       msg.ChainId(0),
-	name:     "charlie",
-	endpoint: TestEndpoint,
-	from:     keystore.CharlieKey,
-	gasLimit: big.NewInt(DefaultGasLimit),
-	gasPrice: big.NewInt(DefaultGasPrice),
+var charlieTestConfig = &evm.Config{
+	Id:       msg.ChainId(0),
+	Name:     "charlie",
+	Endpoint: TestEndpoint,
+	From:     keystore.CharlieKey,
+	GasLimit: big.NewInt(evm.DefaultGasLimit),
+	GasPrice: big.NewInt(evm.DefaultGasPrice),
 }
 
 func newTestLogger(name string) log15.Logger {
@@ -61,9 +62,9 @@ func newTestLogger(name string) log15.Logger {
 	return tLog
 }
 
-func newLocalConnection(t *testing.T, cfg *Config) *Connection {
-	kp := keystore.TestKeyRing.EthereumKeys[cfg.from]
-	conn := NewConnection(cfg, kp, TestLogger, make(chan int))
+func newLocalConnection(t *testing.T, cfg *evm.Config) *evm.Connection {
+	kp := keystore.TestKeyRing.EthereumKeys[cfg.From]
+	conn := evm.NewConnection(cfg, kp, TestLogger, make(chan int))
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)

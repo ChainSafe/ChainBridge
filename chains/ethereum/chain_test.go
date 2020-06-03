@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ChainSafe/ChainBridge/connections/evm"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -34,8 +35,8 @@ func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 			"erc20Handler":   contracts.ERC20HandlerAddress.Hex(),
 			"erc721Handler":  contracts.ERC721HandlerAddress.Hex(),
 			"genericHandler": contracts.GenericHandlerAddress.Hex(),
-			"gasLimit":       big.NewInt(DefaultGasLimit).String(),
-			"gasPrice":       big.NewInt(DefaultGasPrice).String(),
+			"gasLimit":       big.NewInt(evm.DefaultGasLimit).String(),
+			"gasPrice":       big.NewInt(evm.DefaultGasPrice).String(),
 		},
 	}
 	sysErr := make(chan error)
@@ -50,7 +51,7 @@ func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 	}
 
 	// Cause critical failure to polling mechanism
-	chain.conn.conn.Close()
+	chain.conn.Conn.Close()
 
 	// Pull expected error
 	select {
@@ -93,8 +94,8 @@ func TestChain_WriterShutdownOnFailure(t *testing.T) {
 			"erc20Handler":   contracts.ERC20HandlerAddress.Hex(),
 			"erc721Handler":  contracts.ERC721HandlerAddress.Hex(),
 			"genericHandler": contracts.GenericHandlerAddress.Hex(),
-			"gasLimit":       big.NewInt(DefaultGasLimit).String(),
-			"gasPrice":       big.NewInt(DefaultGasPrice).String(),
+			"gasLimit":       big.NewInt(evm.DefaultGasLimit).String(),
+			"gasPrice":       big.NewInt(evm.DefaultGasPrice).String(),
 		},
 	}
 	sysErr := make(chan error)
@@ -125,7 +126,7 @@ func TestChain_WriterShutdownOnFailure(t *testing.T) {
 
 	time.Sleep(time.Second)
 	// Cause critical failure for submitting txs
-	chain.conn.conn.Close()
+	chain.conn.Conn.Close()
 
 	// Pull expected error
 	select {

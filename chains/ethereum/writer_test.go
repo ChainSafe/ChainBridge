@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	"github.com/ChainSafe/ChainBridge/connections/evm"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
@@ -29,23 +30,23 @@ func createWritersAndClient(t *testing.T, contracts *utils.DeployedContracts) (*
 	return bob, charlie, errA, errB
 }
 
-func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContracts, errs chan<- error) *writer {
+func createTestWriter(t *testing.T, cfg *evm.Config, contracts *utils.DeployedContracts, errs chan<- error) *writer {
 	conn := newLocalConnection(t, cfg)
-	writer := NewWriter(conn, cfg, newTestLogger(cfg.name), make(chan int), errs)
+	writer := NewWriter(conn, cfg, newTestLogger(cfg.Name), make(chan int), errs)
 
-	bridge, err := Bridge.NewBridge(contracts.BridgeAddress, conn.conn)
+	bridge, err := Bridge.NewBridge(contracts.BridgeAddress, conn.Conn)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	writer.conn.cfg.bridgeContract = contracts.BridgeAddress
-	writer.conn.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
-	writer.conn.cfg.erc721HandlerContract = contracts.ERC721HandlerAddress
-	writer.conn.cfg.genericHandlerContract = contracts.GenericHandlerAddress
-	writer.cfg.bridgeContract = contracts.BridgeAddress
-	writer.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
-	writer.cfg.erc721HandlerContract = contracts.ERC721HandlerAddress
-	writer.cfg.genericHandlerContract = contracts.GenericHandlerAddress
+	writer.conn.Cfg.BridgeContract = contracts.BridgeAddress
+	writer.conn.Cfg.Erc20HandlerContract = contracts.ERC20HandlerAddress
+	writer.conn.Cfg.Erc721HandlerContract = contracts.ERC721HandlerAddress
+	writer.conn.Cfg.GenericHandlerContract = contracts.GenericHandlerAddress
+	writer.cfg.BridgeContract = contracts.BridgeAddress
+	writer.cfg.Erc20HandlerContract = contracts.ERC20HandlerAddress
+	writer.cfg.Erc721HandlerContract = contracts.ERC721HandlerAddress
+	writer.cfg.GenericHandlerContract = contracts.GenericHandlerAddress
 	writer.setContract(bridge)
 
 	err = writer.start()
@@ -106,7 +107,7 @@ func routeMessageAndWait(t *testing.T, client *utils.Client, alice, bob *writer,
 	// Watch for executed event
 	query := eth.FilterQuery{
 		FromBlock: big.NewInt(0),
-		Addresses: []common.Address{alice.cfg.bridgeContract},
+		Addresses: []common.Address{alice.cfg.BridgeContract},
 		Topics: [][]common.Hash{
 			{utils.ProposalExecuted.GetTopic()},
 		},
@@ -162,7 +163,7 @@ func routeMessageAndWait(t *testing.T, client *utils.Client, alice, bob *writer,
 
 func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.Id, AliceKp)
 	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
 
 	defer writerA.conn.Close()
@@ -190,7 +191,7 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 
 func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.Id, AliceKp)
 	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()
@@ -219,7 +220,7 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 
 func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.Id, AliceKp)
 	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()

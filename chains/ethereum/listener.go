@@ -15,6 +15,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
+	"github.com/ChainSafe/ChainBridge/connections/evm"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
@@ -28,8 +29,8 @@ var BlockRetryLimit = 5
 var ErrFatalPolling = errors.New("listener block polling failed")
 
 type listener struct {
-	cfg                    Config
-	conn                   *Connection
+	cfg                    evm.Config
+	conn                   *evm.Connection
 	router                 chains.Router
 	bridgeContract         *Bridge.Bridge // instance of bound bridge contract
 	erc20HandlerContract   *ERC20Handler.ERC20Handler
@@ -42,7 +43,7 @@ type listener struct {
 }
 
 // NewListener creates and returns a listener
-func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
+func NewListener(conn *evm.Connection, cfg *evm.Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
 	return &listener{
 		cfg:        *cfg,
 		conn:       conn,
@@ -85,7 +86,7 @@ func (l *listener) start() error {
 // a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *listener) pollBlocks() error {
 	l.log.Debug("Polling Blocks...")
-	var currentBlock = l.cfg.startBlock
+	var currentBlock = l.cfg.StartBlock
 	var retry = BlockRetryLimit
 	for {
 		select {
@@ -99,7 +100,7 @@ func (l *listener) pollBlocks() error {
 				return nil
 			}
 
-			latestBlock, err := l.conn.latestBlock()
+			latestBlock, err := l.conn.LatestBlock()
 			if err != nil {
 				l.log.Error("Unable to get latest block", "block", currentBlock, "err", err)
 				retry--
@@ -138,10 +139,10 @@ func (l *listener) pollBlocks() error {
 // getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	l.log.Info("Querying block for deposit events", "block", latestBlock)
-	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
+	query := buildQuery(l.cfg.BridgeContract, utils.Deposit, latestBlock, latestBlock)
 
 	// querying for logs
-	logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
+	logs, err := l.conn.Conn.FilterLogs(l.conn.Ctx, query)
 	if err != nil {
 		return fmt.Errorf("unable to Filter Logs: %s", err)
 	}
@@ -153,11 +154,11 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		destId := msg.ChainId(log.Topics[1].Big().Uint64())
 		nonce := msg.Nonce(log.Topics[3].Big().Uint64())
 
-		if addr == l.cfg.erc20HandlerContract {
+		if addr == l.cfg.Erc20HandlerContract {
 			m, err = l.handleErc20DepositedEvent(destId, nonce)
-		} else if addr == l.cfg.erc721HandlerContract {
+		} else if addr == l.cfg.Erc721HandlerContract {
 			m, err = l.handleErc721DepositedEvent(destId, nonce)
-		} else if addr == l.cfg.genericHandlerContract {
+		} else if addr == l.cfg.GenericHandlerContract {
 			m, err = l.handleGenericDepositedEvent(destId, nonce)
 		} else {
 			return fmt.Errorf("Event has unrecognized handler, handler %s", addr.Hex())

@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package ethereum
+package evm
 
 import (
 	"context"
@@ -23,63 +23,63 @@ import (
 )
 
 type Connection struct {
-	cfg       Config
-	ctx       context.Context
-	conn      *ethclient.Client
-	signer    ethtypes.Signer
-	kp        *secp256k1.Keypair
-	nonceLock sync.Mutex
+	Cfg       Config
+	Ctx       context.Context
+	Conn      *ethclient.Client
+	Signer    ethtypes.Signer
+	Kp        *secp256k1.Keypair
+	NonceLock sync.Mutex
 	log       log15.Logger
-	stop      <-chan int // All routines should exit when this channel is closed
+	Stop      <-chan int // All routines should exit when this channel is closed
 }
 
 func NewConnection(cfg *Config, kp *secp256k1.Keypair, log log15.Logger, stop <-chan int) *Connection {
 	return &Connection{
-		ctx:       context.Background(),
-		cfg:       *cfg,
-		kp:        kp,
-		nonceLock: sync.Mutex{},
+		Ctx:       context.Background(),
+		Cfg:       *cfg,
+		Kp:        kp,
+		NonceLock: sync.Mutex{},
 		log:       log,
-		stop:      stop,
+		Stop:      stop,
 	}
 }
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	c.log.Info("Connecting to ethereum chain...", "url", c.cfg.endpoint, "startBlock", c.cfg.startBlock.String())
+	c.log.Info("Connecting to ethereum chain...", "url", c.Cfg.Endpoint, "startBlock", c.Cfg.StartBlock.String())
 	var rpcClient *rpc.Client
 	var err error
-	if c.cfg.http {
-		rpcClient, err = rpc.DialHTTP(c.cfg.endpoint)
+	if c.Cfg.http {
+		rpcClient, err = rpc.DialHTTP(c.Cfg.Endpoint)
 	} else {
-		rpcClient, err = rpc.DialWebsocket(c.ctx, c.cfg.endpoint, "/ws")
+		rpcClient, err = rpc.DialWebsocket(c.Ctx, c.Cfg.Endpoint, "/ws")
 	}
 	if err != nil {
 		return err
 	}
 
-	c.conn = ethclient.NewClient(rpcClient)
+	c.Conn = ethclient.NewClient(rpcClient)
 
-	chainId, err := c.conn.ChainID(c.ctx)
+	chainId, err := c.Conn.ChainID(c.Ctx)
 	if err != nil {
 		return err
 	}
-	c.signer = ethtypes.NewEIP155Signer(chainId)
+	c.Signer = ethtypes.NewEIP155Signer(chainId)
 	return nil
 }
 
 // Close stops the WS connection
 func (c *Connection) Close() {
-	c.conn.Close()
+	c.Conn.Close()
 }
 
 func (c *Connection) NetworkId() (*big.Int, error) {
-	return c.conn.NetworkID(c.ctx)
+	return c.Conn.NetworkID(c.Ctx)
 }
 
 // latestBlock returns the latest block from the current chain
-func (c *Connection) latestBlock() (*big.Int, error) {
-	header, err := c.conn.HeaderByNumber(c.ctx, nil)
+func (c *Connection) LatestBlock() (*big.Int, error) {
+	header, err := c.Conn.HeaderByNumber(c.Ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -87,11 +87,11 @@ func (c *Connection) latestBlock() (*big.Int, error) {
 }
 
 // newTransactOpts builds the TransactOpts for the connection's keypair.
-func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, uint64, error) {
-	privateKey := c.kp.PrivateKey()
+func (c *Connection) NewTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, uint64, error) {
+	privateKey := c.Kp.PrivateKey()
 	address := ethcrypto.PubkeyToAddress(privateKey.PublicKey)
 
-	nonce, err := c.conn.PendingNonceAt(c.ctx, address)
+	nonce, err := c.Conn.PendingNonceAt(c.Ctx, address)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -101,14 +101,14 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 	auth.Value = value
 	auth.GasLimit = uint64(gasLimit.Int64())
 	auth.GasPrice = gasPrice
-	auth.Context = c.ctx
+	auth.Context = c.Ctx
 
 	return auth, nonce, nil
 }
 
 //getByteCode grabs the bytecode of the contract, to help determine if a contract is deployed
-func (c *Connection) ensureHasBytecode(addr ethcommon.Address) error {
-	code, err := c.conn.CodeAt(c.ctx, addr, nil)
+func (c *Connection) EnsureHasBytecode(addr ethcommon.Address) error {
+	code, err := c.Conn.CodeAt(c.Ctx, addr, nil)
 	if err != nil {
 		return err
 	}
@@ -120,13 +120,13 @@ func (c *Connection) ensureHasBytecode(addr ethcommon.Address) error {
 }
 
 // waitForBlock will poll for the block number until the current block is equal or greater than
-func (c *Connection) waitForBlock(block *big.Int) error {
+func (c *Connection) WaitForBlock(block *big.Int) error {
 	for {
 		select {
-		case <-c.stop:
+		case <-c.Stop:
 			return errors.New("connection terminated")
 		default:
-			currBlock, err := c.latestBlock()
+			currBlock, err := c.LatestBlock()
 			if err != nil {
 				return err
 			}

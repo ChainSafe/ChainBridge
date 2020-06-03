@@ -12,7 +12,7 @@ import (
 	"time"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	"github.com/ChainSafe/ChainBridge/chains/ethereum"
+	"github.com/ChainSafe/ChainBridge/connections/evm"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridge/keystore"
@@ -110,10 +110,10 @@ func CreateEthClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) (*eth
 		t.Fatal(err)
 	}
 	opts := bind.NewKeyedTransactor(kp.PrivateKey())
-	opts.Nonce = big.NewInt(int64(nonce - 1))        // -1 since we always increment before calling
-	opts.Value = big.NewInt(0)                       // in wei
-	opts.GasLimit = uint64(ethereum.DefaultGasLimit) // in units
-	opts.GasPrice = big.NewInt(ethereum.DefaultGasPrice)
+	opts.Nonce = big.NewInt(int64(nonce - 1))   // -1 since we always increment before calling
+	opts.Value = big.NewInt(0)                  // in wei
+	opts.GasLimit = uint64(evm.DefaultGasLimit) // in units
+	opts.GasPrice = big.NewInt(evm.DefaultGasPrice)
 	opts.Context = ctx
 
 	return client, opts

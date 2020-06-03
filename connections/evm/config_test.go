@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package ethereum
+package evm
 
 import (
 	"math/big"
@@ -32,26 +32,26 @@ func TestParseChainConfig(t *testing.T) {
 		},
 	}
 
-	out, err := parseChainConfig(&input)
+	out, err := ParseChainConfig(&input)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	expected := Config{
-		name:                   "chain",
-		id:                     1,
-		endpoint:               "endpoint",
-		from:                   "0x0",
-		keystorePath:           "./keys",
-		bridgeContract:         common.HexToAddress("0x1234"),
-		erc20HandlerContract:   common.HexToAddress("0x1234"),
-		erc721HandlerContract:  common.HexToAddress("0x1234"),
-		genericHandlerContract: common.HexToAddress("0x1234"),
-		gasLimit:               big.NewInt(10),
-		gasPrice:               big.NewInt(20),
+		Name:                   "chain",
+		Id:                     1,
+		Endpoint:               "endpoint",
+		From:                   "0x0",
+		KeystorePath:           "./keys",
+		BridgeContract:         common.HexToAddress("0x1234"),
+		Erc20HandlerContract:   common.HexToAddress("0x1234"),
+		Erc721HandlerContract:  common.HexToAddress("0x1234"),
+		GenericHandlerContract: common.HexToAddress("0x1234"),
+		GasLimit:               big.NewInt(10),
+		GasPrice:               big.NewInt(20),
 		http:                   true,
-		startBlock:             big.NewInt(10),
+		StartBlock:             big.NewInt(10),
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -70,7 +70,7 @@ func TestRequiredOpts(t *testing.T) {
 		Opts:         map[string]string{},
 	}
 
-	_, err := parseChainConfig(&input)
+	_, err := ParseChainConfig(&input)
 
 	if err == nil {
 		t.Error("config missing chainId field but no error reported")
@@ -86,7 +86,7 @@ func TestRequiredOpts(t *testing.T) {
 		Opts:         map[string]string{"bridge": ""},
 	}
 
-	_, err2 := parseChainConfig(&input)
+	_, err2 := ParseChainConfig(&input)
 
 	if err2 == nil {
 		t.Error("config missing chainId field but no error reported")
@@ -111,7 +111,7 @@ func TestExtraOpts(t *testing.T) {
 		},
 	}
 
-	_, err := parseChainConfig(&input)
+	_, err := ParseChainConfig(&input)
 
 	if err == nil {
 		t.Error("Config should not accept incorrect opts.")

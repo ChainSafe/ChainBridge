@@ -11,14 +11,14 @@ import (
 func (l *listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce) (msg.Message, error) {
 	l.log.Debug("Handling deposited event", "dest", destId, "nonce", nonce)
 
-	record, err := l.erc20HandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.kp.CommonAddress()}, nonce.Big(), uint8(destId))
+	record, err := l.erc20HandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.Kp.CommonAddress()}, nonce.Big(), uint8(destId))
 	if err != nil {
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 		return msg.Message{}, err
 	}
 
 	return msg.NewFungibleTransfer(
-		l.cfg.id,
+		l.cfg.Id,
 		destId,
 		nonce,
 		record.Amount,
@@ -30,14 +30,14 @@ func (l *listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce
 func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonce) (msg.Message, error) {
 	l.log.Debug("Handling deposited event")
 
-	record, err := l.erc721HandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.kp.CommonAddress()}, nonce.Big(), uint8(destId))
+	record, err := l.erc721HandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.Kp.CommonAddress()}, nonce.Big(), uint8(destId))
 	if err != nil {
 		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
 		return msg.Message{}, err
 	}
 
 	return msg.NewNonFungibleTransfer(
-		l.cfg.id,
+		l.cfg.Id,
 		destId,
 		nonce,
 		record.ResourceID,
@@ -50,14 +50,14 @@ func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonc
 func (l *listener) handleGenericDepositedEvent(destId msg.ChainId, nonce msg.Nonce) (msg.Message, error) {
 	l.log.Debug("Handling deposited event")
 
-	record, err := l.genericHandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.kp.CommonAddress()}, nonce.Big(), uint8(destId))
+	record, err := l.genericHandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.Kp.CommonAddress()}, nonce.Big(), uint8(destId))
 	if err != nil {
 		l.log.Error("Error Unpacking Generic Deposit Record", "err", err)
 		return msg.Message{}, nil
 	}
 
 	return msg.NewGenericTransfer(
-		l.cfg.id,
+		l.cfg.Id,
 		destId,
 		nonce,
 		record.ResourceID,

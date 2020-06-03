@@ -26,6 +26,7 @@ import (
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
+	"github.com/ChainSafe/ChainBridge/connections/evm"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridge/keystore"
@@ -38,7 +39,7 @@ var _ core.Chain = &Chain{}
 
 type Chain struct {
 	cfg      *core.ChainConfig // The config of the chain
-	conn     *Connection       // THe chains connection
+	conn     *evm.Connection   // THe chains connection
 	listener *listener         // The listener of this chain
 	writer   *writer           // The writer of the chain
 	stop     chan<- int
@@ -46,20 +47,20 @@ type Chain struct {
 
 // checkBlockstore queries the blockstore for the latest known block. If the latest block is
 // greater than cfg.startBlock, then cfg.startBlock is replaced with the latest known block.
-func setupBlockstore(cfg *Config, kp *secp256k1.Keypair) (*blockstore.Blockstore, error) {
-	bs, err := blockstore.NewBlockstore(cfg.blockstorePath, cfg.id, kp.Address())
+func setupBlockstore(cfg *evm.Config, kp *secp256k1.Keypair) (*blockstore.Blockstore, error) {
+	bs, err := blockstore.NewBlockstore(cfg.BlockstorePath, cfg.Id, kp.Address())
 	if err != nil {
 		return nil, err
 	}
 
-	if !cfg.freshStart {
+	if !cfg.FreshStart {
 		latestBlock, err := bs.TryLoadLatestBlock()
 		if err != nil {
 			return nil, err
 		}
 
-		if latestBlock.Cmp(cfg.startBlock) == 1 {
-			cfg.startBlock = latestBlock
+		if latestBlock.Cmp(cfg.StartBlock) == 1 {
+			cfg.StartBlock = latestBlock
 		}
 	}
 
@@ -67,12 +68,12 @@ func setupBlockstore(cfg *Config, kp *secp256k1.Keypair) (*blockstore.Blockstore
 }
 
 func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr chan<- error) (*Chain, error) {
-	cfg, err := parseChainConfig(chainCfg)
+	cfg, err := evm.ParseChainConfig(chainCfg)
 	if err != nil {
 		return nil, err
 	}
 
-	kpI, err := keystore.KeypairFromAddress(cfg.from, keystore.EthChain, cfg.keystorePath, chainCfg.Insecure)
+	kpI, err := keystore.KeypairFromAddress(cfg.From, keystore.EthChain, cfg.KeystorePath, chainCfg.Insecure)
 	if err != nil {
 		return nil, err
 	}
@@ -84,41 +85,41 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	}
 
 	stop := make(chan int)
-	conn := NewConnection(cfg, kp, logger, stop)
+	conn := evm.NewConnection(cfg, kp, logger, stop)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
 	}
 
-	err = conn.ensureHasBytecode(cfg.bridgeContract)
+	err = conn.EnsureHasBytecode(cfg.BridgeContract)
 	if err != nil {
 		return nil, err
 	}
-	err = conn.ensureHasBytecode(cfg.erc20HandlerContract)
+	err = conn.EnsureHasBytecode(cfg.Erc20HandlerContract)
 	if err != nil {
 		return nil, err
 	}
-	err = conn.ensureHasBytecode(cfg.genericHandlerContract)
-	if err != nil {
-		return nil, err
-	}
-
-	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.conn)
+	err = conn.EnsureHasBytecode(cfg.GenericHandlerContract)
 	if err != nil {
 		return nil, err
 	}
 
-	erc20HandlerContract, err := erc20Handler.NewERC20Handler(cfg.erc20HandlerContract, conn.conn)
+	bridgeContract, err := bridge.NewBridge(cfg.BridgeContract, conn.Conn)
 	if err != nil {
 		return nil, err
 	}
 
-	erc721HandlerContract, err := erc721Handler.NewERC721Handler(cfg.erc721HandlerContract, conn.conn)
+	erc20HandlerContract, err := erc20Handler.NewERC20Handler(cfg.Erc20HandlerContract, conn.Conn)
 	if err != nil {
 		return nil, err
 	}
 
-	genericHandlerContract, err := GenericHandler.NewGenericHandler(cfg.genericHandlerContract, conn.conn)
+	erc721HandlerContract, err := erc721Handler.NewERC721Handler(cfg.Erc721HandlerContract, conn.Conn)
+	if err != nil {
+		return nil, err
+	}
+
+	genericHandlerContract, err := GenericHandler.NewGenericHandler(cfg.GenericHandlerContract, conn.Conn)
 	if err != nil {
 		return nil, err
 	}

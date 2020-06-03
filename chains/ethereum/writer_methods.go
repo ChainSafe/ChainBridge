@@ -91,7 +91,7 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 	w.log.Info("Creating erc20 proposal")
 
 	data := constructErc20ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte))
-	hash := utils.Hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
+	hash := utils.Hash(append(w.cfg.Erc20HandlerContract.Bytes(), data...))
 
 	// Check if proposal has passed and skip if Passed or Transferred
 	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
@@ -100,14 +100,14 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 	}
 
 	// Capture latest block so when know where to watch from
-	latestBlock, err := w.conn.latestBlock()
+	latestBlock, err := w.conn.LatestBlock()
 	if err != nil {
 		w.log.Error("Unable to fetch latest block", "err", err)
 		return false
 	}
 
 	// watch for execution event
-	go w.watchThenExecute(m, w.cfg.erc20HandlerContract, data, latestBlock)
+	go w.watchThenExecute(m, w.cfg.Erc20HandlerContract, data, latestBlock)
 
 	w.voteProposal(m, hash)
 
@@ -120,7 +120,7 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 	w.log.Info("Creating erc721 proposal")
 
 	data := constructErc721ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte), m.Payload[2].([]byte))
-	hash := utils.Hash(append(w.cfg.erc721HandlerContract.Bytes(), data...))
+	hash := utils.Hash(append(w.cfg.Erc721HandlerContract.Bytes(), data...))
 
 	// Check if proposal has passed and skip if Passed or Transferred
 	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
@@ -129,14 +129,14 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 	}
 
 	// Capture latest block so when know where to watch from
-	latestBlock, err := w.conn.latestBlock()
+	latestBlock, err := w.conn.LatestBlock()
 	if err != nil {
 		w.log.Error("Unable to fetch latest block", "err", err)
 		return false
 	}
 
 	// watch for execution event
-	go w.watchThenExecute(m, w.cfg.erc721HandlerContract, data, latestBlock)
+	go w.watchThenExecute(m, w.cfg.Erc721HandlerContract, data, latestBlock)
 
 	w.voteProposal(m, hash)
 
@@ -146,11 +146,11 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 // createGenericDepositProposal creates a generic proposal
 // returns true if the proposal is complete or is succesfully created
 func (w *writer) createGenericDepositProposal(m msg.Message) bool {
-	w.log.Info("Creating generic proposal", "handler", w.cfg.genericHandlerContract)
+	w.log.Info("Creating generic proposal", "handler", w.cfg.GenericHandlerContract)
 
 	metadata := m.Payload[0].([]byte)
 	data := constructGenericProposalData(m.ResourceId, metadata)
-	toHash := append(w.cfg.genericHandlerContract.Bytes(), data...)
+	toHash := append(w.cfg.GenericHandlerContract.Bytes(), data...)
 	dataHash := utils.Hash(toHash)
 
 	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
@@ -159,14 +159,14 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	}
 
 	// Capture latest block so when know where to watch from
-	latestBlock, err := w.conn.latestBlock()
+	latestBlock, err := w.conn.LatestBlock()
 	if err != nil {
 		w.log.Error("Unable to fetch latest block", "err", err)
 		return false
 	}
 
 	// watch for execution event
-	go w.watchThenExecute(m, w.cfg.genericHandlerContract, data, latestBlock)
+	go w.watchThenExecute(m, w.cfg.GenericHandlerContract, data, latestBlock)
 
 	w.voteProposal(m, dataHash)
 
@@ -185,7 +185,7 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 		default:
 			// watch for the lastest block, retry up to BlockRetryLimit times
 			for waitRetrys := 0; waitRetrys < BlockRetryLimit; waitRetrys++ {
-				err := w.conn.waitForBlock(latestBlock)
+				err := w.conn.WaitForBlock(latestBlock)
 				if err != nil {
 					w.log.Error("Waiting for block failed", "err", err)
 					// Exit if retries exceeded
@@ -200,8 +200,8 @@ func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []
 			}
 
 			// query for logs
-			query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, latestBlock, latestBlock)
-			evts, err := w.conn.conn.FilterLogs(w.conn.ctx, query)
+			query := buildQuery(w.cfg.BridgeContract, utils.ProposalFinalized, latestBlock, latestBlock)
+			evts, err := w.conn.Conn.FilterLogs(w.conn.Ctx, query)
 			if err != nil {
 				log.Error("Failed to fetch logs", "err", err)
 				return
