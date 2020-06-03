@@ -17,13 +17,15 @@ import (
 type RawConfig struct {
 	RelayerThreshold string           `json:"relayerThreshold"`
 	Relayers         []string         `json:"relayers"`
-	Chains           []EthChainConfig `json:"chains"`
+	EthChains        []EthChainConfig `json:"ethChains"`
+	SubChains        []subChainConfig `json:"subChains"`
 }
 
 type Config struct {
 	RelayerThreshold *big.Int
 	Relayers         []string
-	Chains           []EthChainConfig
+	EthChains        []EthChainConfig
+	SubChains        []subChainConfig
 }
 
 // Identical to config.RawChainConfig, but uses struct for opts to get desired output formatting
@@ -64,6 +66,13 @@ type EthChainConfig struct {
 	GasPrice       string `json:"gasPrice"`
 	StartBlock     string `json:"startBlock"`
 	Http           string `json:"http"`
+}
+
+type subChainConfig struct {
+	Name       string `json:"name"`
+	ChainId    string `json:"type"`
+	Endpoint   string `json:"endpoint"`
+	StartBlock string `json:"startBlock"`
 }
 
 // ToToml writes the config to a file
@@ -117,7 +126,7 @@ func constructEthChainConfig(cfg EthChainConfig, relayer string) RawChainConfig 
 func constructRelayerConfig(cfg *Config, relayer string) RootConfig {
 	// Create RawConfig structs from the provided Chains
 	var rawCfgs []RawChainConfig
-	for _, chain := range cfg.Chains {
+	for _, chain := range cfg.EthChains {
 		raw := constructEthChainConfig(chain, relayer)
 		rawCfgs = append(rawCfgs, raw)
 	}
@@ -134,7 +143,7 @@ func parseRawConfig(raw *RawConfig) (*Config, error) {
 	}
 	res.RelayerThreshold = threshold
 	res.Relayers = raw.Relayers
-	res.Chains = raw.Chains
+	res.EthChains = raw.EthChains
 
 	return &res, nil
 }
