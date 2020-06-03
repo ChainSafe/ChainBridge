@@ -1,3 +1,6 @@
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
 package evm
 
 import (
@@ -44,4 +47,16 @@ func TestNewConnection(t *testing.T) {
 	if !reflect.DeepEqual(expected, connect) {
 		t.Fatalf("Mismatch.\n\tExpected: %#v\n\tGot:%#v", expected, connect)
 	}
+}
+
+//TODO: Make this test more generic when we have more ethereum connections
+func TestConnect(t *testing.T) {
+
+	connect := NewConnection(TestConfig, keystore.TestKeyRing.EthereumKeys[TestConfig.From], testLog, make(chan int))
+	err := connect.Connect()
+	if err != nil {
+		t.Fatalf("Unable to connect to connection: %s", err)
+	}
+
+	connect.Close()
 }
