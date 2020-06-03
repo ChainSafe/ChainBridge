@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package main
+package cfgBuilder
 
 import (
 	"encoding/json"
@@ -10,20 +10,17 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	log "github.com/ChainSafe/log15"
 	"github.com/naoina/toml"
 )
 
 type RawConfig struct {
-	DeployerPrivateKey string           `json:"deployerKey"`
-	RelayerThreshold   string           `json:"relayerThreshold"`
-	Relayers           []string         `json:"relayers"`
-	Chains             []EthChainConfig `json:"chains"`
+	RelayerThreshold string           `json:"relayerThreshold"`
+	Relayers         []string         `json:"relayers"`
+	Chains           []EthChainConfig `json:"chains"`
 }
 
 type Config struct {
-	Deployer         *secp256k1.Keypair
 	RelayerThreshold *big.Int
 	Relayers         []string
 	Chains           []EthChainConfig
@@ -130,11 +127,6 @@ func constructRelayerConfig(cfg *Config, relayer string) RootConfig {
 
 func parseRawConfig(raw *RawConfig) (*Config, error) {
 	var res Config
-	deployer, err := secp256k1.NewKeypairFromString(raw.DeployerPrivateKey[2:])
-	if err != nil {
-		return nil, err
-	}
-	res.Deployer = deployer
 
 	threshold, ok := big.NewInt(0).SetString(raw.RelayerThreshold, 10)
 	if !ok {
@@ -147,7 +139,7 @@ func parseRawConfig(raw *RawConfig) (*Config, error) {
 	return &res, nil
 }
 
-func parseDeployConfig(path string) (*Config, error) {
+func ParseDeployConfig(path string) (*Config, error) {
 	fp, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
@@ -175,42 +167,4 @@ func CreateRelayerConfigs(cfg *Config) ([]RootConfig, error) {
 	}
 
 	return configs, nil
-}
-
-func main() {
-	// Pares first argument for path
-	if len(os.Args) < 2 {
-		log.Error("Please specify path to config json")
-		os.Exit(1)
-	}
-	path := os.Args[1]
-	if path == "" {
-		log.Error("must provide path")
-		os.Exit(1)
-	}
-
-	// Read in the config
-	cfg, err := parseDeployConfig(path)
-	if err != nil {
-		log.Error("failed to parse config", "err", err)
-		os.Exit(1)
-	}
-
-	// Construct the individual relayer configs
-	relayerCfgs, err := CreateRelayerConfigs(cfg)
-	if err != nil {
-		log.Error("failed to construct relayer configs", "err", err)
-		os.Exit(1)
-	}
-
-	// Check for output path
-	var outPath string
-	if len(os.Args) == 3 {
-		outPath = os.Args[2]
-	}
-
-	// Write all the configs to files
-	for i, cfg := range relayerCfgs {
-		cfg.ToTOML(filepath.Join(outPath, fmt.Sprintf("config%d.toml", i)))
-	}
 }

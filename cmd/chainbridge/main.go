@@ -95,7 +95,7 @@ func init() {
 	app.Action = run
 	app.Copyright = "Copyright 2019 ChainSafe Systems Authors"
 	app.Name = "chainbridge"
-	app.Usage = "ChainBridge V2"
+	app.Usage = "ChainBridge"
 	app.Author = "ChainSafe Systems 2019"
 	app.Version = "0.0.1"
 	app.EnableBashCompletion = true
