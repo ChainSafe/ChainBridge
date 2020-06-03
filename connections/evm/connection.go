@@ -22,7 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-type connection interface { //nolint:deadcode
+type connection interface { //nolint:golint
 	Connect() error
 	Close()
 	NetworkId() (*big.Int, error)
