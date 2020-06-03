@@ -72,11 +72,6 @@ install-subkey:
 	curl https://getsubstrate.io -sSf | bash -s -- --fast
 	cargo install --force --git https://github.com/paritytech/substrate subkey
 
-## practice
-practice:
-	@echo $(A)
-
-
 ## Runs the output file cfgBuilder in the build folder and produces config files for ChainBridge
 run-cfgBuilder:
 	@echo "  >  \033[32mRunning cfgBuilder...\033[0m "
