@@ -22,6 +22,16 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
+type connection interface {
+	Connect() error
+	Close()
+	NetworkId() (*big.Int, error)
+	LatestBlock() (*big.Int, error)
+	EnsureHasBytecode(addr ethcommon.Address) error
+	NewTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, uint64, error)
+	WaitForBlock(block *big.Int) error
+}
+
 type Connection struct {
 	Cfg       Config
 	Ctx       context.Context
