@@ -43,4 +43,4 @@ An input JSON config looks like this:
 }
 ```
 
-Running `go run main.go <json-path> <output-path>` will produce config files for ChainBridge, and (optional) place them in the specified path. For each relayer in `relayers` a corresponding config will be generated.
+Running `make run-cfgBuilder <json-path> <output-path>` will produce config files for ChainBridge, and (optional) place them in the specified path. For each relayer in `relayers` a corresponding config will be generated.
