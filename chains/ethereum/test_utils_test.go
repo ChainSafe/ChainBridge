@@ -27,32 +27,37 @@ var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var BobKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 
 var TestRelayerThreshold = big.NewInt(2)
+var TestChainId = msg.ChainId(0)
 
-var aliceTestConfig = &Config{
-	id:       msg.ChainId(0),
-	name:     "alice",
-	endpoint: TestEndpoint,
-	from:     keystore.AliceKey,
-	gasLimit: big.NewInt(DefaultGasLimit),
-	gasPrice: big.NewInt(DefaultGasPrice),
-}
+var aliceTestConfig = createConfig("alice", nil, nil)
 
-var bobTestConfig = &Config{
-	id:       msg.ChainId(0),
-	name:     "bob",
-	endpoint: TestEndpoint,
-	from:     keystore.BobKey,
-	gasLimit: big.NewInt(DefaultGasLimit),
-	gasPrice: big.NewInt(DefaultGasPrice),
-}
+func createConfig(name string, startBlock *big.Int, contracts *utils.DeployedContracts) *Config {
+	cfg := &Config{
+		name:                   name,
+		id:                     0,
+		endpoint:               TestEndpoint,
+		from:                   name,
+		keystorePath:           "",
+		blockstorePath:         "",
+		freshStart:             true,
+		bridgeContract:         common.Address{},
+		erc20HandlerContract:   common.Address{},
+		erc721HandlerContract:  common.Address{},
+		genericHandlerContract: common.Address{},
+		gasLimit:               big.NewInt(DefaultGasLimit),
+		gasPrice:               big.NewInt(DefaultGasPrice),
+		http:                   false,
+		startBlock:             startBlock,
+	}
 
-var charlieTestConfig = &Config{
-	id:       msg.ChainId(0),
-	name:     "charlie",
-	endpoint: TestEndpoint,
-	from:     keystore.CharlieKey,
-	gasLimit: big.NewInt(DefaultGasLimit),
-	gasPrice: big.NewInt(DefaultGasPrice),
+	if contracts != nil {
+		cfg.bridgeContract = contracts.BridgeAddress
+		cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
+		cfg.erc721HandlerContract = contracts.ERC721HandlerAddress
+		cfg.genericHandlerContract = contracts.GenericHandlerAddress
+	}
+
+	return cfg
 }
 
 func newTestLogger(name string) log15.Logger {
@@ -110,7 +115,7 @@ func createErc20Deposit(
 	if _, err := contract.Deposit(
 		client.Opts,
 		uint8(destId),
-		handler,
+		rId,
 		data,
 	); err != nil {
 		t.Fatal(err)
@@ -136,7 +141,7 @@ func createErc721Deposit(
 	if _, err := bridge.Deposit(
 		client.Opts,
 		uint8(destId),
-		handler,
+		rId,
 		data,
 	); err != nil {
 		t.Fatal(err)
@@ -160,7 +165,7 @@ func createGenericDeposit(
 	if _, err := bridge.Deposit(
 		client.Opts,
 		uint8(destId),
-		handler,
+		rId,
 		data,
 	); err != nil {
 		t.Fatal(err)
