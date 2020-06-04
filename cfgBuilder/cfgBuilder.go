@@ -151,7 +151,7 @@ func constructRelayerConfig(cfg *Config, relayer string) RootConfig {
 	return RootConfig{Chains: rawCfgs}
 }
 
-func parseRawConfig(raw *RawConfig, substrateFlag bool) (*Config, error) {
+func parseRawConfig(raw *RawConfig) (*Config, error) {
 	var res Config
 
 	threshold, ok := big.NewInt(0).SetString(raw.RelayerThreshold, 10)
@@ -168,7 +168,7 @@ func parseRawConfig(raw *RawConfig, substrateFlag bool) (*Config, error) {
 	return &res, nil
 }
 
-func ParseDeployConfig(path string, substrateFlag bool) (*Config, error) {
+func ParseDeployConfig(path string) (*Config, error) {
 	fp, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
@@ -184,7 +184,7 @@ func ParseDeployConfig(path string, substrateFlag bool) (*Config, error) {
 		return nil, err
 	}
 
-	return parseRawConfig(&rawCfg, substrateFlag)
+	return parseRawConfig(&rawCfg)
 }
 
 // CreateRelayerConfigs takes a prepared config and constructs the configs for each relayer
