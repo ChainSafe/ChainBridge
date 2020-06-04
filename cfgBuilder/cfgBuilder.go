@@ -143,11 +143,15 @@ func constructRelayerConfig(cfg *Config, relayer string) RootConfig {
 		raw := constructEthChainConfig(chain, relayer)
 		rawCfgs = append(rawCfgs, raw)
 	}
+	for _, chain := range cfg.SubChains {
+		raw := constructSubChainConfig(chain, relayer)
+		rawCfgs = append(rawCfgs, raw)
+	}
 
 	return RootConfig{Chains: rawCfgs}
 }
 
-func parseRawConfig(raw *RawConfig) (*Config, error) {
+func parseRawConfig(raw *RawConfig, subFlag bool) (*Config, error) {
 	var res Config
 
 	threshold, ok := big.NewInt(0).SetString(raw.RelayerThreshold, 10)
@@ -156,12 +160,15 @@ func parseRawConfig(raw *RawConfig) (*Config, error) {
 	}
 	res.RelayerThreshold = threshold
 	res.Relayers = raw.Relayers
-	res.EthChains = raw.EthChains
-
+	if subFlag {
+		res.SubChains = raw.SubChains
+	} else {
+		res.EthChains = raw.EthChains
+	}
 	return &res, nil
 }
 
-func ParseDeployConfig(path string) (*Config, error) {
+func ParseDeployConfig(path string, substrateFlag bool) (*Config, error) {
 	fp, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
@@ -177,7 +184,7 @@ func ParseDeployConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
-	return parseRawConfig(&rawCfg)
+	return parseRawConfig(&rawCfg, substrateFlag)
 }
 
 // CreateRelayerConfigs takes a prepared config and constructs the configs for each relayer

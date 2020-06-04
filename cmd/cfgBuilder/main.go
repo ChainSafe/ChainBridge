@@ -48,7 +48,7 @@ func run(ctx *cli.Context) error {
 	}
 
 	// Read in the config
-	cfg, err := cfgBuilder.ParseDeployConfig(path)
+	cfg, err := cfgBuilder.ParseDeployConfig(path, ctx.GlobalBool(config.SubstrateFlag.Name))
 	if err != nil {
 		return fmt.Errorf("failed to parse config, err %s", err)
 	}
