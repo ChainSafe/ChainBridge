@@ -43,4 +43,4 @@ An input JSON config looks like this:
 }
 ```
 Compile an executable to run `cfgBuilder` with `make install-cfgBuilder ` or `make build-cfgBuilder` 
-Running `./build cfgBuilder <json-path> <output-path>` will produce config files for ChainBridge, and (optional) place them in the specified path. For each relayer in `relayers` a corresponding config will be generated.
+Running `./build/cfgBuilder <json-path> <output-path>` will produce config files for ChainBridge, and (optional) place them in the specified path. For each relayer in `relayers` a corresponding config will be generated.
