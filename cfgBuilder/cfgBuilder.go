@@ -151,7 +151,7 @@ func constructRelayerConfig(cfg *Config, relayer string) RootConfig {
 	return RootConfig{Chains: rawCfgs}
 }
 
-func parseRawConfig(raw *RawConfig, subFlag bool) (*Config, error) {
+func parseRawConfig(raw *RawConfig, substrateFlag bool) (*Config, error) {
 	var res Config
 
 	threshold, ok := big.NewInt(0).SetString(raw.RelayerThreshold, 10)
@@ -160,7 +160,7 @@ func parseRawConfig(raw *RawConfig, subFlag bool) (*Config, error) {
 	}
 	res.RelayerThreshold = threshold
 	res.Relayers = raw.Relayers
-	if subFlag {
+	if substrateFlag {
 		res.SubChains = raw.SubChains
 	} else {
 		res.EthChains = raw.EthChains

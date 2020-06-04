@@ -73,7 +73,7 @@ var (
 	}
 )
 
-// cfgBuilder Substrate Flag
+// cfgBuilder Flags
 var (
 	SubstrateFlag = cli.BoolFlag{
 		Name:  "substrate",
