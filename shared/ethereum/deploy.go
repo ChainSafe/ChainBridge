@@ -81,7 +81,7 @@ func deployBridge(client *Client, chainID uint8, relayerAddrs []common.Address, 
 		return ZeroAddress, err
 	}
 
-	bridgeAddr, tx, _, err := bridge.DeployBridge(client.Opts, client.Client, chainID, relayerAddrs, initialRelayerThreshold, big.NewInt(0))
+	bridgeAddr, tx, _, err := bridge.DeployBridge(client.Opts, client.Client, chainID, relayerAddrs, initialRelayerThreshold, big.NewInt(0), big.NewInt(100))
 	if err != nil {
 		return ZeroAddress, err
 	}

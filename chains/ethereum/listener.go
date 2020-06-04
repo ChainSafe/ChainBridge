@@ -19,6 +19,7 @@ import (
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 )
 
@@ -84,7 +85,7 @@ func (l *listener) start() error {
 // Polling begins at the block defined in `l.cfg.startBlock`. Failed attempts to fetch the latest block or parse
 // a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *listener) pollBlocks() error {
-	l.log.Debug("Polling Blocks...")
+	l.log.Info("Polling Blocks...")
 	var currentBlock = l.cfg.startBlock
 	var retry = BlockRetryLimit
 	for {
@@ -109,7 +110,7 @@ func (l *listener) pollBlocks() error {
 
 			// Sleep if the difference is less than BlockDelay; (latest - current) < BlockDelay
 			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(BlockDelay) == -1 {
-				l.log.Info("Block not ready, will retry", "target", currentBlock, "latest", latestBlock)
+				l.log.Debug("Block not ready, will retry", "target", currentBlock, "latest", latestBlock)
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
@@ -137,7 +138,7 @@ func (l *listener) pollBlocks() error {
 
 // getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
-	l.log.Info("Querying block for deposit events", "block", latestBlock)
+	l.log.Debug("Querying block for deposit events", "block", latestBlock)
 	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
 
 	// querying for logs
@@ -149,9 +150,14 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	// read through the log events and handle their deposit event if handler is recognized
 	for _, log := range logs {
 		var m msg.Message
-		addr := ethcommon.BytesToAddress(log.Topics[2].Bytes())
 		destId := msg.ChainId(log.Topics[1].Big().Uint64())
+		rId := msg.ResourceIdFromSlice(log.Topics[2].Bytes())
 		nonce := msg.Nonce(log.Topics[3].Big().Uint64())
+
+		addr, err := l.bridgeContract.ResourceIDToHandlerAddress(&bind.CallOpts{From: l.conn.kp.CommonAddress()}, rId)
+		if err != nil {
+			return fmt.Errorf("failed to get handler from resource ID %x", rId)
+		}
 
 		if addr == l.cfg.erc20HandlerContract {
 			m, err = l.handleErc20DepositedEvent(destId, nonce)
@@ -160,7 +166,7 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		} else if addr == l.cfg.genericHandlerContract {
 			m, err = l.handleGenericDepositedEvent(destId, nonce)
 		} else {
-			return fmt.Errorf("Event has unrecognized handler, handler %s", addr.Hex())
+			return fmt.Errorf("event has unrecognized handler, handler %s", addr.Hex())
 		}
 
 		if err != nil {

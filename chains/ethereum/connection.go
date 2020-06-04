@@ -135,7 +135,7 @@ func (c *Connection) waitForBlock(block *big.Int) error {
 			if currBlock.Cmp(block) >= 0 {
 				return nil
 			}
-
+			c.log.Trace("Block not ready, waiting", "target", block, "current", currBlock)
 			time.Sleep(BlockRetryInterval)
 			continue
 		}

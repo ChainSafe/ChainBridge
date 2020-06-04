@@ -90,5 +90,5 @@ func GetDepositNonce(client *Client, bridge common.Address, chain msg.ChainId) (
 		return 0, err
 	}
 
-	return count.Uint64(), nil
+	return count, nil
 }

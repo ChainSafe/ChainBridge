@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package main
+package cfgBuilder
 
 import (
 	"encoding/json"
@@ -14,14 +14,12 @@ import (
 	"github.com/ChainSafe/ChainBridge/keystore"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/status-im/keycard-go/hexutils"
 )
 
 const goerliEndpoint = "http://goerli.com"
 const kottiEndpoint = "http://kotti.com"
 
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
-var deployerKey = "0x" + hexutils.BytesToHex(AliceKp.Encode())
 
 var exampleContracts = &utils.DeployedContracts{
 	BridgeAddress:         common.HexToAddress("0x76F5c0Da89421dC43fA000bFC3a9a7841aA3a5F3"),
@@ -42,9 +40,8 @@ var exampleOptsStruct = EthOpts{
 }
 
 var exampleRawConfig = &RawConfig{
-	DeployerPrivateKey: deployerKey,
-	RelayerThreshold:   "3",
-	Relayers:           []string{AliceKp.Address(), AliceKp.Address(), AliceKp.Address()},
+	RelayerThreshold: "3",
+	Relayers:         []string{AliceKp.Address(), AliceKp.Address(), AliceKp.Address()},
 	Chains: []EthChainConfig{
 		{
 			Name:           "goerli",
@@ -76,7 +73,6 @@ var exampleRawConfig = &RawConfig{
 }
 
 var exampleConfig = &Config{
-	Deployer:         AliceKp,
 	RelayerThreshold: big.NewInt(3),
 	Relayers:         []string{AliceKp.Address(), AliceKp.Address(), AliceKp.Address()},
 	Chains: []EthChainConfig{
@@ -151,7 +147,7 @@ func TestParseConfig(t *testing.T) {
 	}
 
 	// Parse
-	result, err := parseDeployConfig(f.Name())
+	result, err := ParseDeployConfig(f.Name())
 	if err != nil {
 		t.Fatal(err)
 	}
