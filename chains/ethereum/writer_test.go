@@ -50,22 +50,6 @@ func createTestWriter(t *testing.T, cfg *Config, errs chan<- error) (*writer, fu
 	return writer, func() { close(stop) }
 }
 
-func TestWriter_start_stop(t *testing.T) {
-	conn := newLocalConnection(t, aliceTestConfig)
-	defer conn.Close()
-
-	stop := make(chan int)
-	writer := NewWriter(conn, aliceTestConfig, TestLogger, stop, nil)
-
-	err := writer.start()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Initiate shutdown
-	close(stop)
-}
-
 func watchEvent(t *testing.T, client *utils.Client, bridge common.Address, subStr utils.EventSig) {
 	fmt.Printf("Watching for event: %s\n", subStr)
 	query := eth.FilterQuery{
@@ -152,6 +136,34 @@ func routeMessageAndWait(t *testing.T, client *utils.Client, alice, bob *writer,
 			t.Fatal("test timed out")
 		}
 	}
+}
+
+func Test_ContainsVote(t *testing.T) {
+	votes := []common.Address{AliceKp.CommonAddress()}
+
+	if !containsVote(votes, AliceKp.CommonAddress()) {
+		t.Fatal("Voter has voted")
+	}
+
+	if containsVote(votes, BobKp.CommonAddress()) {
+		t.Fatal("Voter has not voted")
+	}
+}
+
+func TestWriter_start_stop(t *testing.T) {
+	conn := newLocalConnection(t, aliceTestConfig)
+	defer conn.Close()
+
+	stop := make(chan int)
+	writer := NewWriter(conn, aliceTestConfig, TestLogger, stop, nil)
+
+	err := writer.start()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Initiate shutdown
+	close(stop)
 }
 
 func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
@@ -308,7 +320,13 @@ func TestDuplicateMessage(t *testing.T) {
 		t.Fatal("Bob failed to resolve the message")
 	}
 
-	time.Sleep(time.Second)
+	// Ensure the votes are recorded
+	if !writerA.hasVoted(m.Source, m.DepositNonce) {
+		t.Fatal("Relayer vote not found on chain")
+	}
+	if !writerB.hasVoted(m.Source, m.DepositNonce) {
+		t.Fatal("Relayer vote not found on chain")
+	}
 
 	// Capture new nonces
 	nonceAPost, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerA.conn.kp.CommonAddress())
@@ -324,7 +342,6 @@ func TestDuplicateMessage(t *testing.T) {
 	if nonceAPost != nonceAPre {
 		t.Error("Writer A nonce has changed.")
 	}
-
 	if nonceBPost != nonceBPre {
 		t.Error("Writer B nonce has changed.")
 	}

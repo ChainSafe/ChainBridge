@@ -5,7 +5,6 @@ package ethereum
 
 import (
 	"errors"
-	"fmt"
 	"math/big"
 	"time"
 
@@ -29,6 +28,16 @@ var ErrNonceTooLow = errors.New("nonce too low")
 var ErrTxUnderpriced = errors.New("replacement transaction underpriced")
 var ErrFatalTx = errors.New("submission of transaction failed")
 var ErrFatalQuery = errors.New("query of chain state failed")
+
+// containsVote is used to search the vote lists of a proposal
+func containsVote(votes []common.Address, voter common.Address) bool {
+	for _, v := range votes {
+		if v == voter {
+			return true
+		}
+	}
+	return false
+}
 
 // constructErc20ProposalData returns the bytes to construct a proposal suitable for Erc20
 func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipient []byte) []byte {
@@ -75,7 +84,6 @@ func (w *writer) proposalIsComplete(srcId msg.ChainId, nonce msg.Nonce) bool {
 		w.log.Error("Failed to check proposal existence", "err", err)
 		return false
 	}
-	fmt.Printf("Prop status: %d\n", prop.Status)
 	return prop.Status == PassedStatus || prop.Status == TransferredStatus || prop.Status == CancelledStatus
 }
 
@@ -89,6 +97,17 @@ func (w *writer) proposalIsFinalized(srcId msg.ChainId, nonce msg.Nonce) bool {
 	return prop.Status == TransferredStatus || prop.Status == CancelledStatus // Transferred (3)
 }
 
+// hasVoted checks if this relayer has already voted
+func (w *writer) hasVoted(srcId msg.ChainId, nonce msg.Nonce) bool {
+	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(srcId), uint64(nonce))
+	if err != nil {
+		w.log.Error("Failed to check proposal existence", "err", err)
+		return false
+	}
+
+	return containsVote(prop.YesVotes, w.conn.kp.CommonAddress()) || containsVote(prop.NoVotes, w.conn.kp.CommonAddress())
+}
+
 // createErc20Proposal creates an Erc20 proposal.
 // Returns true if the proposal is successfully created or is complete
 func (w *writer) createErc20Proposal(m msg.Message) bool {
@@ -96,12 +115,6 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 
 	data := constructErc20ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte))
 	hash := utils.Hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
-
-	// Check if proposal has passed and skip if Passed or Transferred
-	if w.proposalIsComplete(m.Source, m.DepositNonce) {
-		w.log.Info("Proposal complete, not voting", "src", m.Source, "nonce", m.DepositNonce)
-		return true
-	}
 
 	// Capture latest block so when know where to watch from
 	latestBlock, err := w.conn.latestBlock()
@@ -125,12 +138,6 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 
 	data := constructErc721ProposalData(m.Payload[0].([]byte), m.ResourceId, m.Payload[1].([]byte), m.Payload[2].([]byte))
 	hash := utils.Hash(append(w.cfg.erc721HandlerContract.Bytes(), data...))
-
-	// Check if proposal has passed and skip if Passed or Transferred
-	if w.proposalIsComplete(m.Source, m.DepositNonce) {
-		w.log.Info("Proposal complete, not voting", "src", m.Source, "nonce", m.DepositNonce)
-		return true
-	}
 
 	// Capture latest block so we know where to watch from
 	latestBlock, err := w.conn.latestBlock()
@@ -156,11 +163,6 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	data := constructGenericProposalData(m.ResourceId, metadata)
 	toHash := append(w.cfg.genericHandlerContract.Bytes(), data...)
 	dataHash := utils.Hash(toHash)
-
-	if w.proposalIsComplete(m.Source, m.DepositNonce) {
-		w.log.Info("Proposal complete, not voting", "src", m.Source, "nonce", m.DepositNonce)
-		return true
-	}
 
 	// Capture latest block so when know where to watch from
 	latestBlock, err := w.conn.latestBlock()
