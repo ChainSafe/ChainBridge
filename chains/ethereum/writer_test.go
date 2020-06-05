@@ -50,7 +50,7 @@ func createTestWriter(t *testing.T, cfg *Config, errs chan<- error) (*writer, fu
 	return writer, func() { close(stop) }
 }
 
-func watchEvent(t *testing.T, client *utils.Client, bridge common.Address, subStr utils.EventSig) {
+func watchEvent(client *utils.Client, bridge common.Address, subStr utils.EventSig) {
 	fmt.Printf("Watching for event: %s\n", subStr)
 	query := eth.FilterQuery{
 		FromBlock: big.NewInt(0),
@@ -63,7 +63,8 @@ func watchEvent(t *testing.T, client *utils.Client, bridge common.Address, subSt
 	ch := make(chan ethtypes.Log)
 	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
 	if err != nil {
-		t.Fatal(err)
+		log15.Error("Failed to subscribe to event", "event", subStr)
+		return
 	}
 	defer sub.Unsubscribe()
 
@@ -74,7 +75,8 @@ func watchEvent(t *testing.T, client *utils.Client, bridge common.Address, subSt
 
 		case err := <-sub.Err():
 			if err != nil {
-				t.Fatal(err)
+				log15.Error("Subscription error", "event", subStr, "err", err)
+				return
 			}
 		}
 	}
@@ -142,11 +144,11 @@ func Test_ContainsVote(t *testing.T) {
 	votes := []common.Address{AliceKp.CommonAddress()}
 
 	if !containsVote(votes, AliceKp.CommonAddress()) {
-		t.Fatal("Voter has voted")
+		t.Error("Voter has voted")
 	}
 
 	if containsVote(votes, BobKp.CommonAddress()) {
-		t.Fatal("Voter has not voted")
+		t.Error("Voter has not voted")
 	}
 }
 
@@ -186,10 +188,10 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient.Bytes())
 	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Address)
 	// Helpful for debugging
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalCreated)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalVote)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalFinalized)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalExecuted)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
 
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
@@ -218,10 +220,10 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId, recipient.Bytes(), []byte{})
 	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 	// Helpful for debugging
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalCreated)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalVote)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalFinalized)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalExecuted)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
 
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
@@ -262,10 +264,10 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	}
 
 	// Helpful for debugging
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalCreated)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalVote)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalFinalized)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalExecuted)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
 
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
@@ -292,10 +294,10 @@ func TestDuplicateMessage(t *testing.T) {
 	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient.Bytes())
 	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Address)
 	// Helpful for debugging
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalCreated)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalVote)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalFinalized)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalExecuted)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
 
 	// Process initial message
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
