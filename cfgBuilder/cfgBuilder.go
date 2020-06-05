@@ -70,7 +70,7 @@ type EthChainConfig struct {
 
 type SubChainConfig struct {
 	Name       string `json:"name"`
-	ChainId    string `json:"type"`
+	ChainId    string `json:"chainId"`
 	Endpoint   string `json:"endpoint"`
 	StartBlock string `json:"startBlock"`
 }
@@ -163,6 +163,7 @@ func parseRawConfig(raw *RawConfig) (*Config, error) {
 	res.SubChains = raw.SubChains
 	res.EthChains = raw.EthChains
 	return &res, nil
+
 }
 
 func ParseDeployConfig(path string) (*Config, error) {
