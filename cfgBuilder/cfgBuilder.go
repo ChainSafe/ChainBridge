@@ -30,12 +30,12 @@ type Config struct {
 
 // Identical to config.RawChainConfig, but uses struct for opts to get desired output formatting
 type RawChainConfig struct {
-	Name     string  `toml:"name"`
-	Type     string  `toml:"type"`
-	Id       string  `toml:"id"`       // ChainID
-	Endpoint string  `toml:"endpoint"` // url for rpc endpoint
-	From     string  `toml:"from"`     // address of key to use
-	Opts     EthOpts `toml:"opts"`
+	Name     string `toml:"name"`
+	Type     string `toml:"type"`
+	Id       string `toml:"id"`       // ChainID
+	Endpoint string `toml:"endpoint"` // url for rpc endpoint
+	From     string `toml:"from"`     // address of key to use
+	Opts     Opts   `toml:"opts"`
 }
 
 // Replicates config.Config
@@ -43,7 +43,7 @@ type RootConfig struct {
 	Chains []RawChainConfig
 }
 
-type EthOpts struct {
+type Opts struct {
 	BridgeAddress  string `toml:"bridge"`
 	Erc20Handler   string `toml:"erc20Handler"`
 	Erc721Handler  string `toml:"erc721Handler"`
@@ -110,7 +110,7 @@ func constructEthChainConfig(cfg EthChainConfig, relayer string) RawChainConfig 
 		From:     relayer,
 		Id:       cfg.ChainId,
 		Endpoint: cfg.Endpoint,
-		Opts: EthOpts{
+		Opts: Opts{
 			BridgeAddress:  cfg.BridgeAddress,
 			Erc20Handler:   cfg.Erc20Handler,
 			Erc721Handler:  cfg.Erc721Handler,
@@ -130,7 +130,7 @@ func constructSubChainConfig(cfg SubChainConfig, relayer string) RawChainConfig 
 		From:     relayer,
 		Id:       cfg.ChainId,
 		Endpoint: cfg.Endpoint,
-		Opts: EthOpts{
+		Opts: Opts{
 			StartBlock: cfg.StartBlock,
 		},
 	}
