@@ -19,6 +19,7 @@ var _ chains.Writer = &writer{}
 // https://github.com/ChainSafe/chainbridge-solidity/blob/b5ed13d9798feb7c340e737a726dd415b8815366/contracts/Bridge.sol#L20
 var PassedStatus uint8 = 2
 var TransferredStatus uint8 = 3
+var CancelledStatus uint8 = 4
 
 type writer struct {
 	cfg            Config

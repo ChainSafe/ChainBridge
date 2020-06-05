@@ -5,6 +5,7 @@ package ethereum
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 	"time"
 
@@ -16,15 +17,18 @@ import (
 )
 
 // Number of blocks to wait for an finalization event
-var ExecuteBlockWatchLimit = 100
+const ExecuteBlockWatchLimit = 100
 
-var NonceRetryInterval = time.Second * 2
+// Time between retrying a failed tx
+const TxRetryInterval = time.Second * 2
+
+// Maximum number of tx retries before exiting
+const TxRetryLimit = 10
+
 var ErrNonceTooLow = errors.New("nonce too low")
 var ErrTxUnderpriced = errors.New("replacement transaction underpriced")
 var ErrFatalTx = errors.New("submission of transaction failed")
 var ErrFatalQuery = errors.New("query of chain state failed")
-
-const TxRetryLimit = 10
 
 // constructErc20ProposalData returns the bytes to construct a proposal suitable for Erc20
 func constructErc20ProposalData(amount []byte, resourceId msg.ResourceId, recipient []byte) []byte {
@@ -64,24 +68,25 @@ func constructGenericProposalData(resourceId msg.ResourceId, metadata []byte) []
 	return data
 }
 
-// proposalIsComplete returns true if the proposal state is either Passed(2) or Transferred(3)
+// proposalIsComplete returns true if the proposal state is either Passed, Transferred or Cancelled
 func (w *writer) proposalIsComplete(srcId msg.ChainId, nonce msg.Nonce) bool {
 	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(srcId), uint64(nonce))
 	if err != nil {
 		w.log.Error("Failed to check proposal existence", "err", err)
 		return false
 	}
-	return prop.Status >= PassedStatus // Passed (2) or Transferred (3)
+	fmt.Printf("Prop status: %d\n", prop.Status)
+	return prop.Status == PassedStatus || prop.Status == TransferredStatus || prop.Status == CancelledStatus
 }
 
-// proposalIsComplete returns true if the proposal state is Transferred(3)
+// proposalIsComplete returns true if the proposal state is Transferred or Cancelled
 func (w *writer) proposalIsFinalized(srcId msg.ChainId, nonce msg.Nonce) bool {
 	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(srcId), uint64(nonce))
 	if err != nil {
 		w.log.Error("Failed to check proposal existence", "err", err)
 		return false
 	}
-	return prop.Status >= TransferredStatus // Transferred (3)
+	return prop.Status == TransferredStatus || prop.Status == CancelledStatus // Transferred (3)
 }
 
 // createErc20Proposal creates an Erc20 proposal.
@@ -93,7 +98,7 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 	hash := utils.Hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 
 	// Check if proposal has passed and skip if Passed or Transferred
-	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
+	if w.proposalIsComplete(m.Source, m.DepositNonce) {
 		w.log.Info("Proposal complete, not voting", "src", m.Source, "nonce", m.DepositNonce)
 		return true
 	}
@@ -106,7 +111,7 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 	}
 
 	// watch for execution event
-	go w.watchThenExecute(m, w.cfg.erc20HandlerContract, data, latestBlock)
+	go w.watchThenExecute(m, data, latestBlock)
 
 	w.voteProposal(m, hash)
 
@@ -122,7 +127,7 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 	hash := utils.Hash(append(w.cfg.erc721HandlerContract.Bytes(), data...))
 
 	// Check if proposal has passed and skip if Passed or Transferred
-	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
+	if w.proposalIsComplete(m.Source, m.DepositNonce) {
 		w.log.Info("Proposal complete, not voting", "src", m.Source, "nonce", m.DepositNonce)
 		return true
 	}
@@ -135,7 +140,7 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 	}
 
 	// watch for execution event
-	go w.watchThenExecute(m, w.cfg.erc721HandlerContract, data, latestBlock)
+	go w.watchThenExecute(m, data, latestBlock)
 
 	w.voteProposal(m, hash)
 
@@ -152,7 +157,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	toHash := append(w.cfg.genericHandlerContract.Bytes(), data...)
 	dataHash := utils.Hash(toHash)
 
-	if w.proposalIsComplete(m.Destination, m.DepositNonce) {
+	if w.proposalIsComplete(m.Source, m.DepositNonce) {
 		w.log.Info("Proposal complete, not voting", "src", m.Source, "nonce", m.DepositNonce)
 		return true
 	}
@@ -165,7 +170,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	}
 
 	// watch for execution event
-	go w.watchThenExecute(m, w.cfg.genericHandlerContract, data, latestBlock)
+	go w.watchThenExecute(m, data, latestBlock)
 
 	w.voteProposal(m, dataHash)
 
@@ -173,7 +178,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 }
 
 // watchThenExecute watches for the latest block and executes once the matching finalized event is found
-func (w *writer) watchThenExecute(m msg.Message, handler common.Address, data []byte, latestBlock *big.Int) {
+func (w *writer) watchThenExecute(m msg.Message, data []byte, latestBlock *big.Int) {
 	w.log.Info("Watching for finalization event", "src", m.Source, "nonce", m.DepositNonce)
 
 	// watching for the latest block, querying and matching the finalized event will be retried up to ExecuteBlockWatchLimit times
@@ -256,10 +261,10 @@ func (w *writer) voteProposal(m msg.Message, hash [32]byte) {
 				return
 			} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
 				w.log.Debug("Nonce too low, will retry")
-				time.Sleep(NonceRetryInterval)
+				time.Sleep(TxRetryInterval)
 			} else {
 				w.log.Warn("Voting failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce, "err", err)
-				time.Sleep(NonceRetryInterval)
+				time.Sleep(TxRetryInterval)
 			}
 
 			// Verify proposal is still open for voting, otherwise no need to retry
@@ -299,10 +304,10 @@ func (w *writer) executeProposal(m msg.Message, data []byte) {
 				return
 			} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
 				w.log.Error("Nonce too low, will retry")
-				time.Sleep(NonceRetryInterval)
+				time.Sleep(TxRetryInterval)
 			} else {
 				w.log.Warn("Execution failed, proposal may already be complete", "err", err)
-				time.Sleep(NonceRetryInterval)
+				time.Sleep(TxRetryInterval)
 			}
 
 			// Verify proposal is still open for execution, tx will fail if we aren't the first to execute,

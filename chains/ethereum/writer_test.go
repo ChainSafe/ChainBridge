@@ -79,7 +79,7 @@ func watchEvent(t *testing.T, client *utils.Client, bridge common.Address, subSt
 	ch := make(chan ethtypes.Log)
 	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
 	if err != nil {
-		log15.Error("Failed to subscribe to the streaming filter query", "err", err)
+		t.Fatal(err)
 	}
 	defer sub.Unsubscribe()
 
@@ -90,8 +90,7 @@ func watchEvent(t *testing.T, client *utils.Client, bridge common.Address, subSt
 
 		case err := <-sub.Err():
 			if err != nil {
-				fmt.Println(err)
-				return
+				t.Fatal(err)
 			}
 		}
 	}
@@ -259,4 +258,75 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
 	ethtest.AssertHashExistence(t, client, hash, assetStoreAddr)
+}
+
+func TestDuplicateMessage(t *testing.T) {
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
+
+	defer stopA()
+	defer stopB()
+	defer writerA.conn.Close()
+	defer writerB.conn.Close()
+
+	erc20Address := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
+	ethtest.FundErc20Handler(t, client, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
+
+	// Create initial transfer message
+	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0))
+	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
+	amount := big.NewInt(10)
+	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient.Bytes())
+	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Address)
+	// Helpful for debugging
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalExecuted)
+
+	// Process initial message
+	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
+
+	ethtest.Erc20AssertBalance(t, client, amount, erc20Address, recipient)
+
+	// Capture nonces
+	nonceAPre, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerA.conn.kp.CommonAddress())
+	if err != nil {
+		t.Fatal(err)
+	}
+	nonceBPre, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerB.conn.kp.CommonAddress())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Try processing the same message again
+	if ok := writerA.ResolveMessage(m); !ok {
+		t.Fatal("Alice failed to resolve the message")
+	}
+	if ok := writerB.ResolveMessage(m); !ok {
+		t.Fatal("Bob failed to resolve the message")
+	}
+
+	time.Sleep(time.Second)
+
+	// Capture new nonces
+	nonceAPost, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerA.conn.kp.CommonAddress())
+	if err != nil {
+		t.Fatal(err)
+	}
+	nonceBPost, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerB.conn.kp.CommonAddress())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Enssure neither relayer has submitted a tx
+	if nonceAPost != nonceAPre {
+		t.Error("Writer A nonce has changed.")
+	}
+
+	if nonceBPost != nonceBPre {
+		t.Error("Writer B nonce has changed.")
+	}
+
 }
