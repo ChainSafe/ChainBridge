@@ -160,11 +160,8 @@ func parseRawConfig(raw *RawConfig) (*Config, error) {
 	}
 	res.RelayerThreshold = threshold
 	res.Relayers = raw.Relayers
-	if substrateFlag {
-		res.SubChains = raw.SubChains
-	} else {
-		res.EthChains = raw.EthChains
-	}
+	res.SubChains = raw.SubChains
+	res.EthChains = raw.EthChains
 	return &res, nil
 }
 
