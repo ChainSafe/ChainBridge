@@ -20,18 +20,18 @@ const DefaultConfigPath = "./config.toml"
 const DefaultKeystorePath = "./keys"
 
 type Config struct {
-	Chains       []RawChainConfig `toml:"chains",json:"chains"`
-	KeystorePath string           `toml:"keystore_path,omitempty",json:"keystorePath,omitempty"`
+	Chains       []RawChainConfig `toml:"chains" json:"chains"`
+	KeystorePath string           `toml:"keystore_path,omitempty" json:"keystorePath,omitempty"`
 }
 
 // RawChainConfig is parsed directly from the config file and should be using to construct the core.ChainConfig
 type RawChainConfig struct {
-	Name     string            `toml:"name",json:"name"`
-	Type     string            `toml:"type",json:"type"`
-	Id       string            `toml:"id",json:"id"`             // ChainID
-	Endpoint string            `toml:"endpoint",json:"endpoint"` // url for rpc endpoint
-	From     string            `toml:"from",json:"from"`         // address of key to use
-	Opts     map[string]string `toml:"opts",json:"opts"`
+	Name     string            `toml:"name" json:"name"`
+	Type     string            `toml:"type" json:"type"`
+	Id       string            `toml:"id" json:"id"`             // ChainID
+	Endpoint string            `toml:"endpoint" json:"endpoint"` // url for rpc endpoint
+	From     string            `toml:"from" json:"from"`         // address of key to use
+	Opts     map[string]string `toml:"opts" json:"opts"`
 }
 
 func NewConfig() *Config {
