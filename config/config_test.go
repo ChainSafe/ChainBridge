@@ -22,10 +22,32 @@ func createTempConfigFile() (*os.File, *Config) {
 		Id:       "1",
 		Endpoint: "endpoint",
 		From:     "0x0",
-		Opts:     nil,
+		Opts:     map[string]string{"key": "value"},
 	}
 	testConfig.Chains = []RawChainConfig{ethCfg}
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "prefix-")
+	tmpFile, err := ioutil.TempFile(os.TempDir(), "*.json")
+	if err != nil {
+		fmt.Println("Cannot create temporary file", "err", err)
+		os.Exit(1)
+	}
+
+	f := testConfig.ToJSON(tmpFile.Name())
+	return f, testConfig
+}
+
+// Deprecated
+func createTempTOMLConfigFile() (*os.File, *Config) {
+	testConfig := NewConfig()
+	ethCfg := RawChainConfig{
+		Name:     "chain",
+		Type:     "ethereum",
+		Id:       "1",
+		Endpoint: "endpoint",
+		From:     "0x0",
+		Opts:     map[string]string{"key": "value"},
+	}
+	testConfig.Chains = []RawChainConfig{ethCfg}
+	tmpFile, err := ioutil.TempFile(os.TempDir(), "*.toml")
 	if err != nil {
 		fmt.Println("Cannot create temporary file", "err", err)
 		os.Exit(1)
@@ -54,7 +76,25 @@ func createCliContext(description string, flags []string, values []interface{}) 
 	return context, nil
 }
 
-func TestLoadConfig(t *testing.T) {
+// Deprecated
+func TestLoadTOMLConfig(t *testing.T) {
+	file, cfg := createTempTOMLConfigFile()
+	ctx, err := createCliContext("", []string{"config"}, []interface{}{file.Name()})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := GetConfig(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !reflect.DeepEqual(res, cfg) {
+		t.Errorf("did not match\ngot: %+v\nexpected: %+v", res.Chains[0], cfg.Chains[0])
+	}
+}
+
+func TestLoadJSONConfig(t *testing.T) {
 	file, cfg := createTempConfigFile()
 	ctx, err := createCliContext("", []string{"config"}, []interface{}{file.Name()})
 	if err != nil {
@@ -66,7 +106,7 @@ func TestLoadConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !reflect.DeepEqual(res.Chains[0], cfg.Chains[0]) {
+	if !reflect.DeepEqual(res, cfg) {
 		t.Errorf("did not match\ngot: %+v\nexpected: %+v", res.Chains[0], cfg.Chains[0])
 	}
 }
