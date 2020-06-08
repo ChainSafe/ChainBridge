@@ -33,32 +33,38 @@ Used for substrate key management. Only required if connecting to a substrate ch
 
 # Configuration
 
+> Note: TOML configs have been deprecated in favour of JSON
+
 A chain configurations take this form:
-```toml
-[[chains]]
-name = "ethereum" # Human-readable name
-type = "ethereum" # Either "ethereum" or "substrate"
-id = 0            # Chain Id
-endpoint = "ws://host:port" # API endpoint
-from = "029b67ec8aba36421137e22d874a897f8aa2a47e2d479d772d96ca8c5744b5a95c" # Public key of desired key, not required for test keys
-opts = {}         # Chain-specific configuration options (see below)
+
+```json
+{
+    "name": "eth",      // Human-readable name
+    "type": "ethereum", // Chain type (eg. "ethereum" or "substrate")
+    "id": "0",          // Chain ID
+    "endpoint": "ws://<host>:<port>",                     // Node endpoint
+    "from": "0xff93B45308FD417dF303D6515aB04D9e89a750Ca", // On-chain address of relayer
+    "opts": {},         // Chain-specific configuration options (see below)
+}
 ```
 
-See `config.toml.example` for an example configuration. 
+See `config.json.example` for an example configuration. 
 
 ### Ethereum Options
 
 Ethereum chains support the following additional options:
 
 ```
-bridge = "0x12345..." // Address of the bridge contract (required)
-erc20Handler = "0x1234..." // Address of erc20 handler (required)
-erc721Handler = "0x1234..." // Address of erc721 handler (required)
-genericHandler = "0x1234..." // Address of generic handler (required)
-gasPrice = "0x1234"      // Gas price for transactions (default: 20000000000)
-gasLimit = "0x1234"      // Gas limit for transactions (default: 6721975)
-http = "true"            // Whether the chain connection is ws or http (default: false)
-startBlock = "1234" // The block to start processing events from (default: 0)
+{
+    "bridge": "0x12345..." // Address of the bridge contract (required)
+    "erc20Handler": "0x1234..." // Address of erc20 handler (required)
+    "erc721Handler": "0x1234..." // Address of erc721 handler (required)
+    "genericHandler": "0x1234..." // Address of generic handler (required)
+    "gasPrice": "0x1234"      // Gas price for transactions (default: 20000000000)
+    "gasLimit": "0x1234"      // Gas limit for transactions (default: 6721975)
+    "http": "true"            // Whether the chain connection is ws or http (default: false)
+    "startBlock": "1234" // The block to start processing events from (default: 0)
+}
 ```
 
 ### Substrate Options
@@ -66,7 +72,9 @@ startBlock = "1234" // The block to start processing events from (default: 0)
 Substrate supports the following additonal options:
 
 ```
-startBlock = "1234" // The block to start processing events from (default: 0)
+{
+    "startBlock": "1234" // The block to start processing events from (default: 0)
+}
 ```
 
 ## Blockstore
