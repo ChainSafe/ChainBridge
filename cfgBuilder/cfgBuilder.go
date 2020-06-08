@@ -30,12 +30,12 @@ type Config struct {
 
 // Identical to config.RawChainConfig, but uses struct for opts to get desired output formatting
 type RawChainConfig struct {
-	Name     string `toml:"name"`
-	Type     string `toml:"type"`
-	Id       string `toml:"id"`       // ChainID
-	Endpoint string `toml:"endpoint"` // url for rpc endpoint
-	From     string `toml:"from"`     // address of key to use
-	Opts     Opts   `toml:"opts"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	Id       string `json:"id"`       // ChainID
+	Endpoint string `json:"endpoint"` // url for rpc endpoint
+	From     string `json:"from"`     // address of key to use
+	Opts     Opts   `json:"opts"`
 }
 
 // Replicates config.Config
@@ -44,14 +44,14 @@ type RootConfig struct {
 }
 
 type Opts struct {
-	BridgeAddress  string `toml:"bridge"`
-	Erc20Handler   string `toml:"erc20Handler"`
-	Erc721Handler  string `toml:"erc721Handler"`
-	GenericHandler string `toml:"genericHandler"`
-	GasLimit       string `toml:"gasLimit"`
-	GasPrice       string `toml:"gasPrice"`
-	StartBlock     string `toml:"startBlock"`
-	Http           string `toml:"http"`
+	BridgeAddress  string `json:"bridge,omitempty"`
+	Erc20Handler   string `json:"erc20Handler,omitempty"`
+	Erc721Handler  string `json:"erc721Handler,omitempty"`
+	GenericHandler string `json:"genericHandler,omitempty"`
+	GasLimit       string `json:"gasLimit,omitempty"`
+	GasPrice       string `json:"gasPrice,omitempty"`
+	StartBlock     string `json:"startBlock"`
+	Http           string `json:"http,omitempty"`
 }
 
 type EthChainConfig struct {
