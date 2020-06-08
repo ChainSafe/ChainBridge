@@ -4,6 +4,7 @@
 package substrate
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"time"
@@ -62,7 +63,7 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 
 	for i := 0; i < BlockRetryLimit; i++ {
 		// Ensure we only submit a vote if the proposal hasn't completed
-		active, err := w.proposalNotCompleted(prop)
+		valid, reason, err := w.proposalValid(prop)
 		if err != nil {
 			w.log.Error("Failed to assert proposal state", "err", err)
 			time.Sleep(BlockRetryInterval)
@@ -70,7 +71,7 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 		}
 
 		// If active submit call, otherwise skip it. Retry on failure.
-		if active {
+		if valid {
 			w.log.Trace("Acknowledging proposal on chain", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", fmt.Sprintf("%x", prop.resourceId), "method", prop.method)
 			err = w.conn.SubmitTx(AcknowledgeProposal, prop.depositNonce, prop.sourceId, prop.resourceId, prop.call)
 			if err != nil && err.Error() == TerminatedError.Error() {
@@ -82,7 +83,7 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 			}
 			return true
 		} else {
-			w.log.Debug("Ignoring previously completed proposal", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)
+			w.log.Debug("Ignoring proposal", "reason", reason, "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)
 			return true
 		}
 	}
@@ -102,24 +103,42 @@ func (w *writer) resolveResourceId(id [32]byte) (string, error) {
 	return string(res), nil
 }
 
-func (w *writer) proposalNotCompleted(prop *proposal) (bool, error) {
+// proposalValid asserts the state of a proposal. If the proposal is active and this relayer
+// has not voted, it will return true. Otherwise, it will return false with a reason string.
+func (w *writer) proposalValid(prop *proposal) (bool, string, error) {
 	var voteRes voteState
 	srcId, err := types.EncodeToBytes(prop.sourceId)
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 	propBz, err := prop.encode()
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 	exists, err := w.conn.queryStorage(utils.BridgeStoragePrefix, "Votes", srcId, propBz, &voteRes)
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 
-	// Ensure proposal either doesn't yet exist or is still active
-	if !exists || voteRes.Status.IsActive {
-		return true, nil
+	if !exists {
+		return true, "", nil
+	} else if voteRes.Status.IsActive {
+		if containsVote(voteRes.VotesFor, types.NewAccountID(w.conn.key.PublicKey)) ||
+			containsVote(voteRes.VotesAgainst, types.NewAccountID(w.conn.key.PublicKey)) {
+			return false, "already voted", nil
+		} else {
+			return true, "", nil
+		}
+	} else {
+		return false, "proposal complete", nil
 	}
-	return false, nil
+}
+
+func containsVote(votes []types.AccountID, voter types.AccountID) bool {
+	for _, v := range votes {
+		if bytes.Equal(v[:], voter[:]) {
+			return true
+		}
+	}
+	return false
 }
