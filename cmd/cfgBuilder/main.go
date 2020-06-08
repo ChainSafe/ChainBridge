@@ -60,7 +60,7 @@ func run(ctx *cli.Context) error {
 
 	// Write all the configs to files
 	for i, cfg := range relayerCfgs {
-		cfg.ToTOML(filepath.Join(outPath, fmt.Sprintf("config%d.toml", i)))
+		cfg.ToJSON(filepath.Join(outPath, fmt.Sprintf("config%d.json", i)))
 	}
 	return nil
 }

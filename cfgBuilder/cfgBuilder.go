@@ -103,6 +103,33 @@ func (c *RootConfig) ToTOML(file string) *os.File {
 	return newFile
 }
 
+func (c *RootConfig) ToJSON(file string) *os.File {
+	var (
+		newFile *os.File
+		err     error
+	)
+
+	var raw []byte
+	if raw, err = json.Marshal(*c); err != nil {
+		log.Warn("error marshalling json", "err", err)
+		os.Exit(1)
+	}
+
+	newFile, err = os.Create(file)
+	if err != nil {
+		log.Warn("error creating config file", "err", err)
+	}
+	_, err = newFile.Write(raw)
+	if err != nil {
+		log.Warn("error writing to config file", "err", err)
+	}
+
+	if err := newFile.Close(); err != nil {
+		log.Warn("error closing file", "err", err)
+	}
+	return newFile
+}
+
 func constructEthChainConfig(cfg EthChainConfig, relayer string) RawChainConfig {
 	return RawChainConfig{
 		Name:     cfg.Name,
