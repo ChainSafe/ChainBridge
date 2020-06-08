@@ -130,7 +130,7 @@ func CreateErc20Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, 
 	tx, err := bridgeInstance.Deposit(
 		client.Opts,
 		uint8(destId),
-		contracts.ERC20HandlerAddress,
+		rId,
 		data,
 	)
 
@@ -161,7 +161,7 @@ func CreateErc721Deposit(t *testing.T, client *utils.Client, destId msg.ChainId,
 	tx, err := bridgeInstance.Deposit(
 		client.Opts,
 		uint8(destId),
-		contracts.ERC721HandlerAddress,
+		rId,
 		data,
 	)
 
@@ -191,7 +191,7 @@ func CreateGenericDeposit(t *testing.T, client *utils.Client, destId msg.ChainId
 	tx, err := bridgeInstance.Deposit(
 		client.Opts,
 		uint8(destId),
-		contracts.GenericHandlerAddress,
+		rId,
 		data,
 	)
 
