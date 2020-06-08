@@ -19,6 +19,7 @@ var _ chains.Writer = &writer{}
 // https://github.com/ChainSafe/chainbridge-solidity/blob/b5ed13d9798feb7c340e737a726dd415b8815366/contracts/Bridge.sol#L20
 var PassedStatus uint8 = 2
 var TransferredStatus uint8 = 3
+var CancelledStatus uint8 = 4
 
 type writer struct {
 	cfg            Config
@@ -83,6 +84,18 @@ func (w *writer) unlockNonce() {
 // A bool is returned to indicate failure/success, this should be ignored except for within tests.
 func (w *writer) ResolveMessage(m msg.Message) bool {
 	w.log.Info("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce, "rId", m.ResourceId.Hex())
+
+	// Check if proposal has passed and skip if Passed or Transferred
+	if w.proposalIsComplete(m.Source, m.DepositNonce) {
+		w.log.Info("Proposal complete, not voting", "src", m.Source, "nonce", m.DepositNonce)
+		return true
+	}
+
+	// Check if relayer has previously voted
+	if w.hasVoted(m.Source, m.DepositNonce) {
+		w.log.Info("Relayer has already voted, not voting", "src", m.Source, "nonce", m.DepositNonce)
+		return true
+	}
 
 	switch m.Type {
 	case msg.FungibleTransfer:
