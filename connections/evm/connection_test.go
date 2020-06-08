@@ -1,20 +1,28 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package ethereum
+package evm
 
 import (
+	"math/big"
 	"testing"
 
+	"github.com/ChainSafe/ChainBridge/keystore"
+	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
+	"github.com/ChainSafe/log15"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 )
 
-func TestConnect(t *testing.T) {
-	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+var TestEndpoint = "ws://localhost:8545"
+var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 
-	_ = deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
-	conn := newLocalConnection(t, aliceTestConfig)
+func TestConnect(t *testing.T) {
+	conn := NewConnection(TestEndpoint, AliceKp, false, log15.Root())
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
 	conn.Close()
 }
 
@@ -23,12 +31,19 @@ func TestConnect(t *testing.T) {
 func TestContractCode(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
 
-	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
-	conn := newLocalConnection(t, aliceTestConfig)
+	contracts, err := ethutils.DeployContracts(client, 0, big.NewInt(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	conn := NewConnection(TestEndpoint, AliceKp, false, log15.Root())
+	err = conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer conn.Close()
 
 	// The following section checks if the byteCode exists on the chain at the specificed Addresses
-	err := conn.ensureHasBytecode(contracts.BridgeAddress)
+	err = conn.ensureHasBytecode(contracts.BridgeAddress)
 	if err != nil {
 		t.Fatal(err)
 	}

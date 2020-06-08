@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package ethereum
+package evm
 
 import (
 	"context"
@@ -22,37 +22,42 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
+var BlockRetryInterval = time.Second * 5
+
 type Connection struct {
-	cfg       Config
 	ctx       context.Context
 	conn      *ethclient.Client
+	endpoint  string
+	http      bool
 	signer    ethtypes.Signer
 	kp        *secp256k1.Keypair
 	nonceLock sync.Mutex
 	log       log15.Logger
-	stop      <-chan int // All routines should exit when this channel is closed
+	stop      chan int // All routines should exit when this channel is closed
 }
 
-func NewConnection(cfg *Config, kp *secp256k1.Keypair, log log15.Logger, stop <-chan int) *Connection {
+// NewConnection returns an uninitialized connection, must call Connection.Connect() before using.
+func NewConnection(endpoint string, kp *secp256k1.Keypair, http bool, log log15.Logger) *Connection {
 	return &Connection{
 		ctx:       context.Background(),
-		cfg:       *cfg,
+		endpoint:  endpoint,
+		http:      http,
 		kp:        kp,
 		nonceLock: sync.Mutex{},
 		log:       log,
-		stop:      stop,
+		stop:      make(chan int),
 	}
 }
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	c.log.Info("Connecting to ethereum chain...", "url", c.cfg.endpoint, "startBlock", c.cfg.startBlock.String())
+	c.log.Info("Connecting to ethereum chain...", "url", c.endpoint)
 	var rpcClient *rpc.Client
 	var err error
-	if c.cfg.http {
-		rpcClient, err = rpc.DialHTTP(c.cfg.endpoint)
+	if c.http {
+		rpcClient, err = rpc.DialHTTP(c.endpoint)
 	} else {
-		rpcClient, err = rpc.DialWebsocket(c.ctx, c.cfg.endpoint, "/ws")
+		rpcClient, err = rpc.DialWebsocket(c.ctx, c.endpoint, "/ws")
 	}
 	if err != nil {
 		return err
@@ -68,17 +73,12 @@ func (c *Connection) Connect() error {
 	return nil
 }
 
-// Close stops the WS connection
-func (c *Connection) Close() {
-	c.conn.Close()
-}
-
 func (c *Connection) NetworkId() (*big.Int, error) {
 	return c.conn.NetworkID(c.ctx)
 }
 
-// latestBlock returns the latest block from the current chain
-func (c *Connection) latestBlock() (*big.Int, error) {
+// LatestBlock returns the latest block from the current chain
+func (c *Connection) LatestBlock() (*big.Int, error) {
 	header, err := c.conn.HeaderByNumber(c.ctx, nil)
 	if err != nil {
 		return nil, err
@@ -106,8 +106,8 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 	return auth, nonce, nil
 }
 
-//getByteCode grabs the bytecode of the contract, to help determine if a contract is deployed
-func (c *Connection) ensureHasBytecode(addr ethcommon.Address) error {
+// EnsureHasBytecode asserts if contract code exists at the specified address
+func (c *Connection) EnsureHasBytecode(addr ethcommon.Address) error {
 	code, err := c.conn.CodeAt(c.ctx, addr, nil)
 	if err != nil {
 		return err
@@ -119,14 +119,14 @@ func (c *Connection) ensureHasBytecode(addr ethcommon.Address) error {
 	return nil
 }
 
-// waitForBlock will poll for the block number until the current block is equal or greater than
-func (c *Connection) waitForBlock(block *big.Int) error {
+// WaitForBlock will poll for the block number until the current block is equal or greater than
+func (c *Connection) WaitForBlock(block *big.Int) error {
 	for {
 		select {
 		case <-c.stop:
 			return errors.New("connection terminated")
 		default:
-			currBlock, err := c.latestBlock()
+			currBlock, err := c.LatestBlock()
 			if err != nil {
 				return err
 			}
@@ -140,4 +140,12 @@ func (c *Connection) waitForBlock(block *big.Int) error {
 			continue
 		}
 	}
+}
+
+// Close terminates the client connection and stops any running routines
+func (c *Connection) Close() {
+	if c.conn != nil {
+		c.conn.Close()
+	}
+	close(c.stop)
 }
