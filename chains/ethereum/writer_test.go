@@ -21,38 +21,33 @@ import (
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
-func createWritersAndClient(t *testing.T, contracts *utils.DeployedContracts) (*writer, *writer, chan error, chan error) {
+func createWriters(t *testing.T, client *utils.Client, contracts *utils.DeployedContracts) (*writer, *writer, func(), func(), chan error, chan error) {
+	latestBlock := ethtest.GetLatestBlock(t, client)
 	errA := make(chan error)
-	bob := createTestWriter(t, bobTestConfig, contracts, errA)
+	writerA, stopA := createTestWriter(t, createConfig("bob", latestBlock, contracts), errA)
 	errB := make(chan error)
-	charlie := createTestWriter(t, charlieTestConfig, contracts, errB)
-	return bob, charlie, errA, errB
+	writerB, stopB := createTestWriter(t, createConfig("charlie", latestBlock, contracts), errB)
+	return writerA, writerB, stopA, stopB, errA, errB
 }
 
-func createTestWriter(t *testing.T, cfg *Config, contracts *utils.DeployedContracts, errs chan<- error) *writer {
-	conn := newLocalConnection(t, cfg)
-	writer := NewWriter(conn, cfg, newTestLogger(cfg.name), make(chan int), errs)
+func createTestWriter(t *testing.T, cfg *Config, errs chan<- error) (*writer, func()) {
 
-	bridge, err := Bridge.NewBridge(contracts.BridgeAddress, conn.conn)
+	conn := newLocalConnection(t, cfg)
+	stop := make(chan int)
+	writer := NewWriter(conn, cfg, newTestLogger(cfg.name), stop, errs)
+
+	bridge, err := Bridge.NewBridge(cfg.bridgeContract, conn.conn)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	writer.conn.cfg.bridgeContract = contracts.BridgeAddress
-	writer.conn.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
-	writer.conn.cfg.erc721HandlerContract = contracts.ERC721HandlerAddress
-	writer.conn.cfg.genericHandlerContract = contracts.GenericHandlerAddress
-	writer.cfg.bridgeContract = contracts.BridgeAddress
-	writer.cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
-	writer.cfg.erc721HandlerContract = contracts.ERC721HandlerAddress
-	writer.cfg.genericHandlerContract = contracts.GenericHandlerAddress
 	writer.setContract(bridge)
 
 	err = writer.start()
 	if err != nil {
 		t.Fatal(err)
 	}
-	return writer
+	return writer, func() { close(stop) }
 }
 
 func TestWriter_start_stop(t *testing.T) {
@@ -162,9 +157,11 @@ func routeMessageAndWait(t *testing.T, client *utils.Client, alice, bob *writer,
 
 func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
-	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
+	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
 
+	defer stopA()
+	defer stopB()
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()
 
@@ -190,8 +187,11 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 
 func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
-	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
+	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
+
+	defer stopA()
+	defer stopB()
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()
 
@@ -219,8 +219,11 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 
 func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
-	writerA, writerB, errA, errB := createWritersAndClient(t, contracts)
+	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
+
+	defer stopA()
+	defer stopB()
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()
 
