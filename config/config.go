@@ -4,6 +4,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,18 +20,18 @@ const DefaultConfigPath = "./config.toml"
 const DefaultKeystorePath = "./keys"
 
 type Config struct {
-	Chains       []RawChainConfig `toml:"chains"`
-	KeystorePath string           `toml:"keystore_path,omitempty"`
+	Chains       []RawChainConfig `toml:"chains" json:"chains"`
+	KeystorePath string           `toml:"keystore_path,omitempty" json:"keystorePath,omitempty"`
 }
 
 // RawChainConfig is parsed directly from the config file and should be using to construct the core.ChainConfig
 type RawChainConfig struct {
-	Name     string            `toml:"name"`
-	Type     string            `toml:"type"`
-	Id       string            `toml:"id"`       // ChainID
-	Endpoint string            `toml:"endpoint"` // url for rpc endpoint
-	From     string            `toml:"from"`     // address of key to use
-	Opts     map[string]string `toml:"opts"`
+	Name     string            `toml:"name" json:"name"`
+	Type     string            `toml:"type" json:"type"`
+	Id       string            `toml:"id" json:"id"`             // ChainID
+	Endpoint string            `toml:"endpoint" json:"endpoint"` // url for rpc endpoint
+	From     string            `toml:"from" json:"from"`         // address of key to use
+	Opts     map[string]string `toml:"opts" json:"opts"`
 }
 
 func NewConfig() *Config {
@@ -40,6 +41,7 @@ func NewConfig() *Config {
 }
 
 // ToTOML writes config to file
+// Deprecated: Limitations of the parsing library makes JSON a better format to support
 func (c *Config) ToTOML(file string) *os.File {
 	var (
 		newFile *os.File
@@ -49,6 +51,33 @@ func (c *Config) ToTOML(file string) *os.File {
 	var raw []byte
 	if raw, err = toml.Marshal(*c); err != nil {
 		log.Warn("error marshalling toml", "err", err)
+		os.Exit(1)
+	}
+
+	newFile, err = os.Create(file)
+	if err != nil {
+		log.Warn("error creating config file", "err", err)
+	}
+	_, err = newFile.Write(raw)
+	if err != nil {
+		log.Warn("error writing to config file", "err", err)
+	}
+
+	if err := newFile.Close(); err != nil {
+		log.Warn("error closing file", "err", err)
+	}
+	return newFile
+}
+
+func (c *Config) ToJSON(file string) *os.File {
+	var (
+		newFile *os.File
+		err     error
+	)
+
+	var raw []byte
+	if raw, err = json.Marshal(*c); err != nil {
+		log.Warn("error marshalling json", "err", err)
 		os.Exit(1)
 	}
 
@@ -111,18 +140,31 @@ func GetConfig(ctx *cli.Context) (*Config, error) {
 }
 
 func loadConfig(file string, config *Config) error {
+	ext := filepath.Ext(file)
 	fp, err := filepath.Abs(file)
 	if err != nil {
 		return err
 	}
+
 	log.Debug("Loading configuration", "path", filepath.Clean(fp))
+
 	f, err := os.Open(filepath.Clean(fp))
 	if err != nil {
 		return err
 	}
-	if err = tomlSettings.NewDecoder(f).Decode(&config); err != nil {
-		return err
+
+	if ext == ".json" {
+		if err = json.NewDecoder(f).Decode(&config); err != nil {
+			return err
+		}
+	} else if ext == ".toml" {
+		if err = tomlSettings.NewDecoder(f).Decode(&config); err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("unrecognized extention: %s", ext)
 	}
+
 	return nil
 }
 
