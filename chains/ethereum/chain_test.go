@@ -19,7 +19,7 @@ import (
 
 func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, msg.ChainId(1), AliceKp)
+	contracts := deployTestContracts(t, client, msg.ChainId(1))
 	cfg := &core.ChainConfig{
 		Id:             msg.ChainId(0),
 		Name:           "alice",
@@ -50,7 +50,7 @@ func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 	}
 
 	// Cause critical failure to polling mechanism
-	chain.conn.conn.Close()
+	chain.conn.Client().Close()
 
 	// Pull expected error
 	select {
@@ -69,7 +69,7 @@ func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 func TestChain_WriterShutdownOnFailure(t *testing.T) {
 	// Setup contracts and params for erc20 transfer
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, msg.ChainId(1), AliceKp)
+	contracts := deployTestContracts(t, client, msg.ChainId(1))
 	erc20Contract := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
 	src := msg.ChainId(5) // Not yet used, nonce should be 0
 	dst := msg.ChainId(1)
@@ -125,7 +125,7 @@ func TestChain_WriterShutdownOnFailure(t *testing.T) {
 
 	time.Sleep(time.Second)
 	// Cause critical failure for submitting txs
-	chain.conn.conn.Close()
+	chain.conn.Client().Close()
 
 	// Pull expected error
 	select {

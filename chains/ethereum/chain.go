@@ -21,24 +21,46 @@ The writer recieves the message and creates a proposals on-chain. Once a proposa
 package ethereum
 
 import (
+	"math/big"
+
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
+	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/log15"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 var _ core.Chain = &Chain{}
 
+var _ Connection = &connection.Connection{}
+
+type Connection interface {
+	Connect() error
+	Keypair() *secp256k1.Keypair
+	Opts() *bind.TransactOpts
+	CallOpts() *bind.CallOpts
+	LockAndUpdateNonce() error
+	UnlockNonce()
+	Client() *ethclient.Client
+	EnsureHasBytecode(address common.Address) error
+	LatestBlock() (*big.Int, error)
+	WaitForBlock(block *big.Int) error
+	Close()
+}
+
 type Chain struct {
 	cfg      *core.ChainConfig // The config of the chain
-	conn     *Connection       // THe chains connection
+	conn     Connection        // THe chains connection
 	listener *listener         // The listener of this chain
 	writer   *writer           // The writer of the chain
 	stop     chan<- int
@@ -84,41 +106,41 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	}
 
 	stop := make(chan int)
-	conn := NewConnection(cfg, kp, logger, stop)
+	conn := connection.NewConnection(cfg.endpoint, cfg.http, kp, logger, cfg.gasLimit, cfg.gasPrice)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
 	}
 
-	err = conn.ensureHasBytecode(cfg.bridgeContract)
+	err = conn.EnsureHasBytecode(cfg.bridgeContract)
 	if err != nil {
 		return nil, err
 	}
-	err = conn.ensureHasBytecode(cfg.erc20HandlerContract)
+	err = conn.EnsureHasBytecode(cfg.erc20HandlerContract)
 	if err != nil {
 		return nil, err
 	}
-	err = conn.ensureHasBytecode(cfg.genericHandlerContract)
-	if err != nil {
-		return nil, err
-	}
-
-	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.conn)
+	err = conn.EnsureHasBytecode(cfg.genericHandlerContract)
 	if err != nil {
 		return nil, err
 	}
 
-	erc20HandlerContract, err := erc20Handler.NewERC20Handler(cfg.erc20HandlerContract, conn.conn)
+	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.Client())
 	if err != nil {
 		return nil, err
 	}
 
-	erc721HandlerContract, err := erc721Handler.NewERC721Handler(cfg.erc721HandlerContract, conn.conn)
+	erc20HandlerContract, err := erc20Handler.NewERC20Handler(cfg.erc20HandlerContract, conn.Client())
 	if err != nil {
 		return nil, err
 	}
 
-	genericHandlerContract, err := GenericHandler.NewGenericHandler(cfg.genericHandlerContract, conn.conn)
+	erc721HandlerContract, err := erc721Handler.NewERC721Handler(cfg.erc721HandlerContract, conn.Client())
+	if err != nil {
+		return nil, err
+	}
+
+	genericHandlerContract, err := GenericHandler.NewGenericHandler(cfg.genericHandlerContract, conn.Client())
 	if err != nil {
 		return nil, err
 	}
@@ -169,4 +191,7 @@ func (c *Chain) Name() string {
 // Stop signals to any running routines to exit
 func (c *Chain) Stop() {
 	close(c.stop)
+	if c.conn != nil {
+		c.conn.Close()
+	}
 }

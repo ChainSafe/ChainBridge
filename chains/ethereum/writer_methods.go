@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"context"
 	"errors"
 	"math/big"
 	"time"
@@ -79,7 +80,7 @@ func constructGenericProposalData(resourceId msg.ResourceId, metadata []byte) []
 
 // proposalIsComplete returns true if the proposal state is either Passed, Transferred or Cancelled
 func (w *writer) proposalIsComplete(srcId msg.ChainId, nonce msg.Nonce) bool {
-	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(srcId), uint64(nonce))
+	prop, err := w.bridgeContract.GetProposal(w.conn.CallOpts(), uint8(srcId), uint64(nonce))
 	if err != nil {
 		w.log.Error("Failed to check proposal existence", "err", err)
 		return false
@@ -89,7 +90,7 @@ func (w *writer) proposalIsComplete(srcId msg.ChainId, nonce msg.Nonce) bool {
 
 // proposalIsComplete returns true if the proposal state is Transferred or Cancelled
 func (w *writer) proposalIsFinalized(srcId msg.ChainId, nonce msg.Nonce) bool {
-	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(srcId), uint64(nonce))
+	prop, err := w.bridgeContract.GetProposal(w.conn.CallOpts(), uint8(srcId), uint64(nonce))
 	if err != nil {
 		w.log.Error("Failed to check proposal existence", "err", err)
 		return false
@@ -99,13 +100,13 @@ func (w *writer) proposalIsFinalized(srcId msg.ChainId, nonce msg.Nonce) bool {
 
 // hasVoted checks if this relayer has already voted
 func (w *writer) hasVoted(srcId msg.ChainId, nonce msg.Nonce) bool {
-	prop, err := w.bridgeContract.GetProposal(w.callOpts, uint8(srcId), uint64(nonce))
+	prop, err := w.bridgeContract.GetProposal(w.conn.CallOpts(), uint8(srcId), uint64(nonce))
 	if err != nil {
 		w.log.Error("Failed to check proposal existence", "err", err)
 		return false
 	}
 
-	return containsVote(prop.YesVotes, w.conn.kp.CommonAddress()) || containsVote(prop.NoVotes, w.conn.kp.CommonAddress())
+	return containsVote(prop.YesVotes, w.conn.Keypair().CommonAddress()) || containsVote(prop.NoVotes, w.conn.Keypair().CommonAddress())
 }
 
 // createErc20Proposal creates an Erc20 proposal.
@@ -117,7 +118,7 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 	hash := utils.Hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 
 	// Capture latest block so when know where to watch from
-	latestBlock, err := w.conn.latestBlock()
+	latestBlock, err := w.conn.LatestBlock()
 	if err != nil {
 		w.log.Error("Unable to fetch latest block", "err", err)
 		return false
@@ -140,7 +141,7 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 	hash := utils.Hash(append(w.cfg.erc721HandlerContract.Bytes(), data...))
 
 	// Capture latest block so we know where to watch from
-	latestBlock, err := w.conn.latestBlock()
+	latestBlock, err := w.conn.LatestBlock()
 	if err != nil {
 		w.log.Error("Unable to fetch latest block", "err", err)
 		return false
@@ -165,7 +166,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	dataHash := utils.Hash(toHash)
 
 	// Capture latest block so when know where to watch from
-	latestBlock, err := w.conn.latestBlock()
+	latestBlock, err := w.conn.LatestBlock()
 	if err != nil {
 		w.log.Error("Unable to fetch latest block", "err", err)
 		return false
@@ -191,7 +192,7 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, latestBlock *big.I
 		default:
 			// watch for the lastest block, retry up to BlockRetryLimit times
 			for waitRetrys := 0; waitRetrys < BlockRetryLimit; waitRetrys++ {
-				err := w.conn.waitForBlock(latestBlock)
+				err := w.conn.WaitForBlock(latestBlock)
 				if err != nil {
 					w.log.Error("Waiting for block failed", "err", err)
 					// Exit if retries exceeded
@@ -207,7 +208,7 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, latestBlock *big.I
 
 			// query for logs
 			query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, latestBlock, latestBlock)
-			evts, err := w.conn.conn.FilterLogs(w.conn.ctx, query)
+			evts, err := w.conn.Client().FilterLogs(context.Background(), query)
 			if err != nil {
 				w.log.Error("Failed to fetch logs", "err", err)
 				return
@@ -243,20 +244,20 @@ func (w *writer) voteProposal(m msg.Message, hash [32]byte) {
 		case <-w.stop:
 			return
 		default:
-			err := w.lockAndUpdateNonce()
+			err := w.conn.LockAndUpdateNonce()
 			if err != nil {
 				w.log.Error("Failed to update nonce", "err", err)
 				continue
 			}
 
 			tx, err := w.bridgeContract.VoteProposal(
-				w.opts,
+				w.conn.Opts(),
 				uint8(m.Source),
 				uint64(m.DepositNonce),
 				m.ResourceId,
 				hash,
 			)
-			w.unlockNonce()
+			w.conn.UnlockNonce()
 
 			if err == nil {
 				w.log.Info("Submitted proposal vote", "tx", tx.Hash(), "src", m.Source, "depositNonce", m.DepositNonce)
@@ -287,19 +288,19 @@ func (w *writer) executeProposal(m msg.Message, data []byte) {
 		case <-w.stop:
 			return
 		default:
-			err := w.lockAndUpdateNonce()
+			err := w.conn.LockAndUpdateNonce()
 			if err != nil {
 				w.log.Error("Failed to update nonce", "err", err)
 				return
 			}
 
 			tx, err := w.bridgeContract.ExecuteProposal(
-				w.opts,
+				w.conn.Opts(),
 				uint8(m.Source),
 				uint64(m.DepositNonce),
 				data,
 			)
-			w.unlockNonce()
+			w.conn.UnlockNonce()
 
 			if err == nil {
 				w.log.Info("Submitted proposal execution", "tx", tx.Hash(), "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)

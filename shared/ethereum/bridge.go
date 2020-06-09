@@ -15,10 +15,11 @@ func RegisterResource(client *Client, bridge, handler common.Address, rId msg.Re
 		return err
 	}
 
-	err = UpdateNonce(client)
+	err = client.LockNonceAndUpdate()
 	if err != nil {
 		return err
 	}
+
 	tx, err := instance.AdminSetResource(client.Opts, handler, rId, addr)
 	if err != nil {
 		return err
@@ -29,6 +30,8 @@ func RegisterResource(client *Client, bridge, handler common.Address, rId msg.Re
 		return err
 	}
 
+	client.UnlockNonce()
+
 	return nil
 }
 
@@ -38,10 +41,11 @@ func RegisterGenericResource(client *Client, bridge, handler common.Address, rId
 		return err
 	}
 
-	err = UpdateNonce(client)
+	err = client.LockNonceAndUpdate()
 	if err != nil {
 		return err
 	}
+
 	tx, err := instance.AdminSetGenericResource(client.Opts, handler, rId, addr, depositSig, executeSig)
 	if err != nil {
 		return err
@@ -52,6 +56,8 @@ func RegisterGenericResource(client *Client, bridge, handler common.Address, rId
 		return err
 	}
 
+	client.UnlockNonce()
+
 	return nil
 }
 
@@ -61,7 +67,7 @@ func SetBurnable(client *Client, bridge, handler, contract common.Address) error
 		return err
 	}
 
-	err = UpdateNonce(client)
+	err = client.LockNonceAndUpdate()
 	if err != nil {
 		return err
 	}
@@ -75,6 +81,8 @@ func SetBurnable(client *Client, bridge, handler, contract common.Address) error
 	if err != nil {
 		return err
 	}
+
+	client.UnlockNonce()
 
 	return nil
 }

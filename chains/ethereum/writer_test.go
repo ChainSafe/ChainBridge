@@ -36,7 +36,7 @@ func createTestWriter(t *testing.T, cfg *Config, errs chan<- error) (*writer, fu
 	stop := make(chan int)
 	writer := NewWriter(conn, cfg, newTestLogger(cfg.name), stop, errs)
 
-	bridge, err := Bridge.NewBridge(cfg.bridgeContract, conn.conn)
+	bridge, err := Bridge.NewBridge(cfg.bridgeContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,7 +71,7 @@ func watchEvent(client *utils.Client, bridge common.Address, subStr utils.EventS
 	for {
 		select {
 		case evt := <-ch:
-			fmt.Printf("%s: %#v\n", subStr, evt.Topics)
+			fmt.Printf("%s (block: %d): %#v\n", subStr, evt.BlockNumber, evt.Topics)
 
 		case err := <-sub.Err():
 			if err != nil {
@@ -170,7 +170,7 @@ func TestWriter_start_stop(t *testing.T) {
 
 func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	contracts := deployTestContracts(t, client, TestChainId)
 	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
 
 	defer stopA()
@@ -200,7 +200,7 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 
 func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	contracts := deployTestContracts(t, client, TestChainId)
 	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
 
 	defer stopA()
@@ -232,7 +232,7 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 
 func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	contracts := deployTestContracts(t, client, TestChainId)
 	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
 
 	defer stopA()
@@ -276,7 +276,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 
 func TestDuplicateMessage(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	contracts := deployTestContracts(t, client, TestChainId)
 	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
 
 	defer stopA()
@@ -305,11 +305,11 @@ func TestDuplicateMessage(t *testing.T) {
 	ethtest.Erc20AssertBalance(t, client, amount, erc20Address, recipient)
 
 	// Capture nonces
-	nonceAPre, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerA.conn.kp.CommonAddress())
+	nonceAPre, err := writerA.conn.Client().PendingNonceAt(context.Background(), writerA.conn.Keypair().CommonAddress())
 	if err != nil {
 		t.Fatal(err)
 	}
-	nonceBPre, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerB.conn.kp.CommonAddress())
+	nonceBPre, err := writerA.conn.Client().PendingNonceAt(context.Background(), writerB.conn.Keypair().CommonAddress())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -331,11 +331,11 @@ func TestDuplicateMessage(t *testing.T) {
 	}
 
 	// Capture new nonces
-	nonceAPost, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerA.conn.kp.CommonAddress())
+	nonceAPost, err := writerA.conn.Client().PendingNonceAt(context.Background(), writerA.conn.Keypair().CommonAddress())
 	if err != nil {
 		t.Fatal(err)
 	}
-	nonceBPost, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerB.conn.kp.CommonAddress())
+	nonceBPost, err := writerA.conn.Client().PendingNonceAt(context.Background(), writerB.conn.Keypair().CommonAddress())
 	if err != nil {
 		t.Fatal(err)
 	}

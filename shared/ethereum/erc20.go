@@ -14,7 +14,7 @@ import (
 
 // DeployMintAndApprove deploys a new erc20 contract, mints to the deployer, and approves the erc20 handler to transfer those token.
 func DeployMintApproveErc20(client *Client, erc20Handler common.Address, amount *big.Int) (common.Address, error) {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -30,15 +30,27 @@ func DeployMintApproveErc20(client *Client, erc20Handler common.Address, amount 
 		return ZeroAddress, err
 	}
 
+	client.UnlockNonce()
+
 	// Mint
-	client.Opts.Nonce = client.Opts.Nonce.Add(client.Opts.Nonce, big.NewInt(1))
+	err = client.LockNonceAndUpdate()
+	if err != nil {
+		return ZeroAddress, err
+	}
+
 	_, err = erc20Instance.Mint(client.Opts, client.Opts.From, amount)
 	if err != nil {
 		return ZeroAddress, err
 	}
 
+	client.UnlockNonce()
+
 	// Approve
-	client.Opts.Nonce = client.Opts.Nonce.Add(client.Opts.Nonce, big.NewInt(1))
+	err = client.LockNonceAndUpdate()
+	if err != nil {
+		return ZeroAddress, err
+	}
+
 	tx, err = erc20Instance.Approve(client.Opts, erc20Handler, amount)
 	if err != nil {
 		return ZeroAddress, err
@@ -49,11 +61,13 @@ func DeployMintApproveErc20(client *Client, erc20Handler common.Address, amount 
 		return ZeroAddress, err
 	}
 
+	client.UnlockNonce()
+
 	return erc20Addr, nil
 }
 
 func DeployAndMintErc20(client *Client, amount *big.Int) (common.Address, error) {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -68,9 +82,14 @@ func DeployAndMintErc20(client *Client, amount *big.Int) (common.Address, error)
 	if err != nil {
 		return ZeroAddress, err
 	}
+	client.UnlockNonce()
 
 	// Mint
-	client.Opts.Nonce = client.Opts.Nonce.Add(client.Opts.Nonce, big.NewInt(1))
+	err = client.LockNonceAndUpdate()
+	if err != nil {
+		return ZeroAddress, err
+	}
+
 	mintTx, err := erc20Instance.Mint(client.Opts, client.Opts.From, amount)
 	if err != nil {
 		return ZeroAddress, err
@@ -81,11 +100,13 @@ func DeployAndMintErc20(client *Client, amount *big.Int) (common.Address, error)
 		return ZeroAddress, err
 	}
 
+	client.UnlockNonce()
+
 	return erc20Addr, nil
 }
 
 func Erc20Approve(client *Client, erc20Contract, recipient common.Address, amount *big.Int) error {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return err
 	}
@@ -104,6 +125,8 @@ func Erc20Approve(client *Client, erc20Contract, recipient common.Address, amoun
 	if err != nil {
 		return err
 	}
+
+	client.UnlockNonce()
 
 	return nil
 }
@@ -149,7 +172,7 @@ func FundErc20Handler(client *Client, handlerAddress, erc20Address common.Addres
 }
 
 func Erc20AddMinter(client *Client, erc20Contract, handler common.Address) error {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return err
 	}
@@ -173,6 +196,8 @@ func Erc20AddMinter(client *Client, erc20Contract, handler common.Address) error
 	if err != nil {
 		return err
 	}
+
+	client.UnlockNonce()
 
 	return nil
 }
@@ -206,7 +231,7 @@ func Erc20GetResourceId(client *Client, handler common.Address, rId msg.Resource
 }
 
 func Erc20Mint(client *Client, erc20Address, recipient common.Address, amount *big.Int) error {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return err
 	}
@@ -225,6 +250,8 @@ func Erc20Mint(client *Client, erc20Address, recipient common.Address, amount *b
 	if err != nil {
 		return err
 	}
+
+	client.UnlockNonce()
 
 	return nil
 }

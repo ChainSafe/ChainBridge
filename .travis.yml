@@ -22,7 +22,6 @@ install:
     - sudo apt-get install ethereum
     - wget -P $HOME/bin/ https://storage.googleapis.com/centrifuge-dev-public/subkey  && chmod +x $HOME/bin/subkey
 
-
 jobs:
   include:
     - stage: "Test"
@@ -40,9 +39,8 @@ jobs:
       name: "Go tests"
       script:
         - set -e
-        - npm install --global ganache-cli
-        - SILENT=true ./scripts/start_ganache.sh
-        - RUST_LOG=warn ./scripts/substrate/run_chain_ci.sh
+        - docker-compose -f ./docker-compose-e2e.yml up -d
+        - docker ps
         - make test
 
     - stage: "Test"
