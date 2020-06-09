@@ -6,7 +6,6 @@ package ethereum
 import (
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/chains"
-	"github.com/ChainSafe/ChainBridge/connections/evm"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
 )
@@ -28,7 +27,7 @@ type writer struct {
 }
 
 // NewWriter creates and returns writer
-func NewWriter(conn *evm.Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error) *writer {
+func NewWriter(conn Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error) *writer {
 	return &writer{
 		cfg:    *cfg,
 		conn:   conn,

@@ -29,7 +29,7 @@ import (
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
-	"github.com/ChainSafe/ChainBridge/connections/evm"
+	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridge/keystore"
@@ -45,7 +45,7 @@ import (
 
 var _ core.Chain = &Chain{}
 
-var _ Connection = &evm.Connection{}
+var _ Connection = &connection.Connection{}
 
 type Connection interface {
 	Connect() error
@@ -110,7 +110,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	}
 
 	stop := make(chan int)
-	conn := evm.NewConnection(cfg.endpoint, cfg.http, kp, logger, cfg.gasLimit, cfg.gasPrice)
+	conn := connection.NewConnection(cfg.endpoint, cfg.http, kp, logger, cfg.gasLimit, cfg.gasPrice)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
