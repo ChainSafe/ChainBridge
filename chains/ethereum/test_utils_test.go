@@ -11,7 +11,6 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
-	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
@@ -78,7 +77,7 @@ func newLocalConnection(t *testing.T, cfg *Config) *connection.Connection {
 	return conn
 }
 
-func deployTestContracts(t *testing.T, client *utils.Client, id msg.ChainId, kp *secp256k1.Keypair) *utils.DeployedContracts {
+func deployTestContracts(t *testing.T, client *utils.Client, id msg.ChainId) *utils.DeployedContracts {
 	contracts, err := utils.DeployContracts(
 		client,
 		uint8(id),
@@ -103,7 +102,6 @@ func createErc20Deposit(
 	contract *Bridge.Bridge,
 	client *utils.Client,
 	rId msg.ResourceId,
-	handler,
 	destRecipient common.Address,
 	destId msg.ChainId,
 	amount *big.Int,
@@ -128,11 +126,9 @@ func createErc721Deposit(
 	bridge *Bridge.Bridge,
 	client *utils.Client,
 	rId msg.ResourceId,
-	handler,
 	destRecipient common.Address,
 	destId msg.ChainId,
 	tokenId *big.Int,
-	metadata []byte,
 ) {
 
 	data := utils.ConstructErc721DepositData(rId, tokenId, destRecipient.Bytes())
@@ -154,8 +150,6 @@ func createGenericDeposit(
 	bridge *Bridge.Bridge,
 	client *utils.Client,
 	rId msg.ResourceId,
-	handler common.Address,
-
 	destId msg.ChainId,
 	hash []byte) {
 

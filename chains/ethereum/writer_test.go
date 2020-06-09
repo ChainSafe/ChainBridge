@@ -170,7 +170,7 @@ func TestWriter_start_stop(t *testing.T) {
 
 func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	contracts := deployTestContracts(t, client, TestChainId)
 	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
 
 	defer stopA()
@@ -200,7 +200,7 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 
 func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	contracts := deployTestContracts(t, client, TestChainId)
 	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
 
 	defer stopA()
@@ -232,7 +232,7 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 
 func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	contracts := deployTestContracts(t, client, TestChainId)
 	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
 
 	defer stopA()
@@ -276,7 +276,7 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 
 func TestDuplicateMessage(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	contracts := deployTestContracts(t, client, TestChainId)
 	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
 
 	defer stopA()

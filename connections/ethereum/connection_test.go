@@ -32,12 +32,10 @@ func TestConnect(t *testing.T) {
 // This is probably the least intrusive way to check if the contracts exists
 func TestContractCode(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	ethtest.LockNonceAndUpdate(t, client)
 	contracts, err := ethutils.DeployContracts(client, 0, big.NewInt(0))
 	if err != nil {
 		t.Fatal(err)
 	}
-	client.UnlockNonce()
 
 	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, GasPrice)
 	err = conn.Connect()

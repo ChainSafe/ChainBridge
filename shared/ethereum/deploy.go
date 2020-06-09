@@ -37,7 +37,6 @@ type DeployedContracts struct {
 
 // DeployContracts deploys Bridge, Relayer, ERC20Handler, ERC721Handler and CentrifugeAssetHandler and returns the addresses
 func DeployContracts(client *Client, chainID uint8, initialRelayerThreshold *big.Int) (*DeployedContracts, error) {
-
 	bridgeAddr, err := deployBridge(client, chainID, RelayerAddresses, initialRelayerThreshold)
 	if err != nil {
 		return nil, err
@@ -76,7 +75,7 @@ func UpdateNonce(client *Client) error {
 }
 
 func deployBridge(client *Client, chainID uint8, relayerAddrs []common.Address, initialRelayerThreshold *big.Int) (common.Address, error) {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -91,12 +90,14 @@ func deployBridge(client *Client, chainID uint8, relayerAddrs []common.Address, 
 		return ZeroAddress, err
 	}
 
+	client.UnlockNonce()
+
 	return bridgeAddr, nil
 
 }
 
 func deployERC20Handler(client *Client, bridgeAddress common.Address) (common.Address, error) {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -111,11 +112,13 @@ func deployERC20Handler(client *Client, bridgeAddress common.Address) (common.Ad
 		return ZeroAddress, err
 	}
 
+	client.UnlockNonce()
+
 	return erc20HandlerAddr, nil
 }
 
 func deployERC721Handler(client *Client, bridgeAddress common.Address) (common.Address, error) {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -129,11 +132,13 @@ func deployERC721Handler(client *Client, bridgeAddress common.Address) (common.A
 		return ZeroAddress, err
 	}
 
+	client.UnlockNonce()
+
 	return erc721HandlerAddr, nil
 }
 
 func deployGenericHandler(client *Client, bridgeAddress common.Address) (common.Address, error) {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -147,6 +152,8 @@ func deployGenericHandler(client *Client, bridgeAddress common.Address) (common.
 	if err != nil {
 		return ZeroAddress, err
 	}
+
+	client.UnlockNonce()
 
 	return addr, nil
 }

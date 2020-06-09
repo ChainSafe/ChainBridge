@@ -13,7 +13,7 @@ import (
 
 // DeployMintAndApprove deploys a new erc721 contract, mints to the deployer, and approves the erc20 handler to transfer those token.
 func DeployErc721(client *Client) (common.Address, error) {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -29,6 +29,8 @@ func DeployErc721(client *Client) (common.Address, error) {
 		return ZeroAddress, err
 	}
 
+	client.UnlockNonce()
+
 	return addr, nil
 }
 
@@ -38,7 +40,7 @@ func Erc721Mint(client *Client, erc721Contract common.Address, id *big.Int, meta
 		return err
 	}
 
-	err = UpdateNonce(client)
+	err = client.LockNonceAndUpdate()
 	if err != nil {
 		return err
 	}
@@ -53,11 +55,14 @@ func Erc721Mint(client *Client, erc721Contract common.Address, id *big.Int, meta
 	if err != nil {
 		return err
 	}
+
+	client.UnlockNonce()
+
 	return nil
 }
 
 func ApproveErc721(client *Client, contractAddress, recipient common.Address, tokenId *big.Int) error {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return err
 	}
@@ -77,6 +82,8 @@ func ApproveErc721(client *Client, contractAddress, recipient common.Address, to
 		return err
 	}
 
+	client.UnlockNonce()
+
 	return nil
 }
 
@@ -91,7 +98,7 @@ func FundErc721Handler(client *Client, handlerAddress, erc721Address common.Addr
 		return err
 	}
 
-	err = UpdateNonce(client)
+	err = client.LockNonceAndUpdate()
 	if err != nil {
 		return err
 	}
@@ -105,6 +112,8 @@ func FundErc721Handler(client *Client, handlerAddress, erc721Address common.Addr
 	if err != nil {
 		return err
 	}
+
+	client.UnlockNonce()
 
 	return nil
 }
@@ -132,7 +141,7 @@ func Erc721AddMinter(client *Client, erc721Contract common.Address, minter commo
 		return err
 	}
 
-	err = UpdateNonce(client)
+	err = client.LockNonceAndUpdate()
 	if err != nil {
 		return err
 	}
@@ -151,6 +160,8 @@ func Erc721AddMinter(client *Client, erc721Contract common.Address, minter commo
 	if err != nil {
 		return err
 	}
+
+	client.UnlockNonce()
 
 	return nil
 }
