@@ -50,9 +50,8 @@ var importFlags = []cli.Flag{
 }
 
 var accountCommand = cli.Command{
-	Name:     "accounts",
-	Usage:    "manage bridge keystore",
-	Category: "KEYSTORE",
+	Name:  "accounts",
+	Usage: "manage bridge keystore",
 	Description: "The accounts command is used to manage the bridge keystore.\n" +
 		"\tTo generate a new account, key type generated is based on the flag passed: chainbridge accounts generate\n" +
 		"\tTo import a keystore file: chainbridge accounts import path/to/file\n" +
