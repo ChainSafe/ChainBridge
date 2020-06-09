@@ -50,23 +50,7 @@ func createTestWriter(t *testing.T, cfg *Config, errs chan<- error) (*writer, fu
 	return writer, func() { close(stop) }
 }
 
-func TestWriter_start_stop(t *testing.T) {
-	conn := newLocalConnection(t, aliceTestConfig)
-	defer conn.Close()
-
-	stop := make(chan int)
-	writer := NewWriter(conn, aliceTestConfig, TestLogger, stop, nil)
-
-	err := writer.start()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Initiate shutdown
-	close(stop)
-}
-
-func watchEvent(t *testing.T, client *utils.Client, bridge common.Address, subStr utils.EventSig) {
+func watchEvent(client *utils.Client, bridge common.Address, subStr utils.EventSig) {
 	fmt.Printf("Watching for event: %s\n", subStr)
 	query := eth.FilterQuery{
 		FromBlock: big.NewInt(0),
@@ -79,7 +63,8 @@ func watchEvent(t *testing.T, client *utils.Client, bridge common.Address, subSt
 	ch := make(chan ethtypes.Log)
 	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
 	if err != nil {
-		log15.Error("Failed to subscribe to the streaming filter query", "err", err)
+		log15.Error("Failed to subscribe to event", "event", subStr)
+		return
 	}
 	defer sub.Unsubscribe()
 
@@ -90,7 +75,7 @@ func watchEvent(t *testing.T, client *utils.Client, bridge common.Address, subSt
 
 		case err := <-sub.Err():
 			if err != nil {
-				fmt.Println(err)
+				log15.Error("Subscription error", "event", subStr, "err", err)
 				return
 			}
 		}
@@ -155,6 +140,34 @@ func routeMessageAndWait(t *testing.T, client *utils.Client, alice, bob *writer,
 	}
 }
 
+func Test_ContainsVote(t *testing.T) {
+	votes := []common.Address{AliceKp.CommonAddress()}
+
+	if !containsVote(votes, AliceKp.CommonAddress()) {
+		t.Error("Voter has voted")
+	}
+
+	if containsVote(votes, BobKp.CommonAddress()) {
+		t.Error("Voter has not voted")
+	}
+}
+
+func TestWriter_start_stop(t *testing.T) {
+	conn := newLocalConnection(t, aliceTestConfig)
+	defer conn.Close()
+
+	stop := make(chan int)
+	writer := NewWriter(conn, aliceTestConfig, TestLogger, stop, nil)
+
+	err := writer.start()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Initiate shutdown
+	close(stop)
+}
+
 func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
 	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
@@ -175,10 +188,10 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient.Bytes())
 	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Address)
 	// Helpful for debugging
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalCreated)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalVote)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalFinalized)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalExecuted)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
 
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
@@ -207,10 +220,10 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId, recipient.Bytes(), []byte{})
 	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 	// Helpful for debugging
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalCreated)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalVote)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalFinalized)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalExecuted)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
 
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
@@ -251,12 +264,88 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	}
 
 	// Helpful for debugging
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalCreated)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalVote)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalFinalized)
-	go watchEvent(t, client, contracts.BridgeAddress, utils.ProposalExecuted)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
 
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
 	ethtest.AssertHashExistence(t, client, hash, assetStoreAddr)
+}
+
+func TestDuplicateMessage(t *testing.T) {
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, TestChainId, AliceKp)
+	writerA, writerB, stopA, stopB, errA, errB := createWriters(t, client, contracts)
+
+	defer stopA()
+	defer stopB()
+	defer writerA.conn.Close()
+	defer writerB.conn.Close()
+
+	erc20Address := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
+	ethtest.FundErc20Handler(t, client, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
+
+	// Create initial transfer message
+	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0))
+	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
+	amount := big.NewInt(10)
+	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient.Bytes())
+	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Address)
+	// Helpful for debugging
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
+	go watchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
+
+	// Process initial message
+	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
+
+	ethtest.Erc20AssertBalance(t, client, amount, erc20Address, recipient)
+
+	// Capture nonces
+	nonceAPre, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerA.conn.kp.CommonAddress())
+	if err != nil {
+		t.Fatal(err)
+	}
+	nonceBPre, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerB.conn.kp.CommonAddress())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Try processing the same message again
+	if ok := writerA.ResolveMessage(m); !ok {
+		t.Fatal("Alice failed to resolve the message")
+	}
+	if ok := writerB.ResolveMessage(m); !ok {
+		t.Fatal("Bob failed to resolve the message")
+	}
+
+	// Ensure the votes are recorded
+	if !writerA.hasVoted(m.Source, m.DepositNonce) {
+		t.Fatal("Relayer vote not found on chain")
+	}
+	if !writerB.hasVoted(m.Source, m.DepositNonce) {
+		t.Fatal("Relayer vote not found on chain")
+	}
+
+	// Capture new nonces
+	nonceAPost, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerA.conn.kp.CommonAddress())
+	if err != nil {
+		t.Fatal(err)
+	}
+	nonceBPost, err := writerA.conn.conn.PendingNonceAt(context.Background(), writerB.conn.kp.CommonAddress())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Enssure neither relayer has submitted a tx
+	if nonceAPost != nonceAPre {
+		t.Error("Writer A nonce has changed.")
+	}
+	if nonceBPost != nonceBPre {
+		t.Error("Writer B nonce has changed.")
+	}
+
 }
