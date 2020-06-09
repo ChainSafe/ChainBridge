@@ -93,7 +93,7 @@ docker-start:
 	./scripts/docker/start-docker.sh
 
 docker-e2e:
-    docker-compose -f ./docker-compose-e2e.yml up
+	docker-compose -f ./docker-compose-e2e.yml up
 
 clean:
 	rm -rf build/ solidity/
