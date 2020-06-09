@@ -18,6 +18,7 @@ import (
 
 const goerliEndpoint = "http://goerli.com"
 const kottiEndpoint = "http://kotti.com"
+const golangEndpoint = "https://golang.org/"
 
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 
@@ -28,7 +29,7 @@ var exampleContracts = &utils.DeployedContracts{
 	GenericHandlerAddress: common.HexToAddress("0x59105441977ecD9d805A4f5b060E34676F50F806"),
 }
 
-var exampleOptsStruct = EthOpts{
+var exampleEthOptsStruct = Opts{
 	BridgeAddress:  exampleContracts.BridgeAddress.Hex(),
 	Erc20Handler:   exampleContracts.ERC20HandlerAddress.Hex(),
 	Erc721Handler:  exampleContracts.ERC721HandlerAddress.Hex(),
@@ -39,10 +40,14 @@ var exampleOptsStruct = EthOpts{
 	Http:           "false",
 }
 
+var exampleSubOptsStruct = Opts{
+	StartBlock: "11",
+}
+
 var exampleRawConfig = &RawConfig{
 	RelayerThreshold: "3",
 	Relayers:         []string{AliceKp.Address(), AliceKp.Address(), AliceKp.Address()},
-	Chains: []EthChainConfig{
+	EthChains: []EthChainConfig{
 		{
 			Name:           "goerli",
 			ChainId:        "1",
@@ -68,6 +73,14 @@ var exampleRawConfig = &RawConfig{
 			GasPrice:       "1000",
 			StartBlock:     "10",
 			Http:           "false",
+		},
+	},
+	SubChains: []SubChainConfig{
+		{
+			Name:       "gopher",
+			ChainId:    "3",
+			Endpoint:   golangEndpoint,
+			StartBlock: "11",
 		},
 	},
 }
@@ -75,7 +88,7 @@ var exampleRawConfig = &RawConfig{
 var exampleConfig = &Config{
 	RelayerThreshold: big.NewInt(3),
 	Relayers:         []string{AliceKp.Address(), AliceKp.Address(), AliceKp.Address()},
-	Chains: []EthChainConfig{
+	EthChains: []EthChainConfig{
 		{
 			Name:           "goerli",
 			ChainId:        "1",
@@ -103,9 +116,17 @@ var exampleConfig = &Config{
 			Http:           "false",
 		},
 	},
+	SubChains: []SubChainConfig{
+		{
+			Name:       "gopher",
+			ChainId:    "3",
+			Endpoint:   golangEndpoint,
+			StartBlock: "11",
+		},
+	},
 }
 
-func TestCreateEthRelayerConfig(t *testing.T) {
+func TestCreateRelayerConfig(t *testing.T) {
 	input := exampleConfig
 
 	expected := RootConfig{Chains: []RawChainConfig{
@@ -115,7 +136,7 @@ func TestCreateEthRelayerConfig(t *testing.T) {
 			Id:       "1",
 			From:     AliceKp.CommonAddress().Hex(),
 			Endpoint: goerliEndpoint,
-			Opts:     exampleOptsStruct,
+			Opts:     exampleEthOptsStruct,
 		},
 		{
 			Name:     "kotti",
@@ -123,7 +144,15 @@ func TestCreateEthRelayerConfig(t *testing.T) {
 			Id:       "2",
 			From:     AliceKp.CommonAddress().Hex(),
 			Endpoint: kottiEndpoint,
-			Opts:     exampleOptsStruct,
+			Opts:     exampleEthOptsStruct,
+		},
+		{
+			Name:     "gopher",
+			Type:     "substrate",
+			Id:       "3",
+			From:     AliceKp.CommonAddress().Hex(),
+			Endpoint: golangEndpoint,
+			Opts:     exampleSubOptsStruct,
 		},
 	}}
 
@@ -169,7 +198,7 @@ func TestCreateRelayerConfigs(t *testing.T) {
 					Id:       "1",
 					Endpoint: goerliEndpoint,
 					From:     AliceKp.Address(),
-					Opts:     exampleOptsStruct,
+					Opts:     exampleEthOptsStruct,
 				},
 				{
 					Name:     "kotti",
@@ -177,7 +206,15 @@ func TestCreateRelayerConfigs(t *testing.T) {
 					Id:       "2",
 					Endpoint: kottiEndpoint,
 					From:     AliceKp.Address(),
-					Opts:     exampleOptsStruct,
+					Opts:     exampleEthOptsStruct,
+				},
+				{
+					Name:     "gopher",
+					Type:     "substrate",
+					Id:       "3",
+					From:     AliceKp.CommonAddress().Hex(),
+					Endpoint: golangEndpoint,
+					Opts:     exampleSubOptsStruct,
 				},
 			},
 		},
@@ -189,7 +226,7 @@ func TestCreateRelayerConfigs(t *testing.T) {
 					Id:       "1",
 					Endpoint: goerliEndpoint,
 					From:     AliceKp.Address(),
-					Opts:     exampleOptsStruct,
+					Opts:     exampleEthOptsStruct,
 				},
 				{
 					Name:     "kotti",
@@ -197,7 +234,15 @@ func TestCreateRelayerConfigs(t *testing.T) {
 					Id:       "2",
 					Endpoint: kottiEndpoint,
 					From:     AliceKp.Address(),
-					Opts:     exampleOptsStruct,
+					Opts:     exampleEthOptsStruct,
+				},
+				{
+					Name:     "gopher",
+					Type:     "substrate",
+					Id:       "3",
+					From:     AliceKp.CommonAddress().Hex(),
+					Endpoint: golangEndpoint,
+					Opts:     exampleSubOptsStruct,
 				},
 			},
 		},
@@ -209,7 +254,7 @@ func TestCreateRelayerConfigs(t *testing.T) {
 					Id:       "1",
 					Endpoint: goerliEndpoint,
 					From:     AliceKp.Address(),
-					Opts:     exampleOptsStruct,
+					Opts:     exampleEthOptsStruct,
 				},
 				{
 					Name:     "kotti",
@@ -217,7 +262,15 @@ func TestCreateRelayerConfigs(t *testing.T) {
 					Id:       "2",
 					Endpoint: kottiEndpoint,
 					From:     AliceKp.Address(),
-					Opts:     exampleOptsStruct,
+					Opts:     exampleEthOptsStruct,
+				},
+				{
+					Name:     "gopher",
+					Type:     "substrate",
+					Id:       "3",
+					From:     AliceKp.CommonAddress().Hex(),
+					Endpoint: golangEndpoint,
+					Opts:     exampleSubOptsStruct,
 				},
 			},
 		},

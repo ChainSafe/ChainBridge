@@ -11,29 +11,30 @@ import (
 	"path/filepath"
 
 	log "github.com/ChainSafe/log15"
-	"github.com/naoina/toml"
 )
 
 type RawConfig struct {
 	RelayerThreshold string           `json:"relayerThreshold"`
 	Relayers         []string         `json:"relayers"`
-	Chains           []EthChainConfig `json:"chains"`
+	EthChains        []EthChainConfig `json:"ethChains"`
+	SubChains        []SubChainConfig `json:"subChains"`
 }
 
 type Config struct {
 	RelayerThreshold *big.Int
 	Relayers         []string
-	Chains           []EthChainConfig
+	EthChains        []EthChainConfig
+	SubChains        []SubChainConfig
 }
 
 // Identical to config.RawChainConfig, but uses struct for opts to get desired output formatting
 type RawChainConfig struct {
-	Name     string  `toml:"name"`
-	Type     string  `toml:"type"`
-	Id       string  `toml:"id"`       // ChainID
-	Endpoint string  `toml:"endpoint"` // url for rpc endpoint
-	From     string  `toml:"from"`     // address of key to use
-	Opts     EthOpts `toml:"opts"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	Id       string `json:"id"`       // ChainID
+	Endpoint string `json:"endpoint"` // url for rpc endpoint
+	From     string `json:"from"`     // address of key to use
+	Opts     Opts   `json:"opts"`
 }
 
 // Replicates config.Config
@@ -41,15 +42,15 @@ type RootConfig struct {
 	Chains []RawChainConfig
 }
 
-type EthOpts struct {
-	BridgeAddress  string `toml:"bridge"`
-	Erc20Handler   string `toml:"erc20Handler"`
-	Erc721Handler  string `toml:"erc721Handler"`
-	GenericHandler string `toml:"genericHandler"`
-	GasLimit       string `toml:"gasLimit"`
-	GasPrice       string `toml:"gasPrice"`
-	StartBlock     string `toml:"startBlock"`
-	Http           string `toml:"http"`
+type Opts struct {
+	BridgeAddress  string `json:"bridge,omitempty"`
+	Erc20Handler   string `json:"erc20Handler,omitempty"`
+	Erc721Handler  string `json:"erc721Handler,omitempty"`
+	GenericHandler string `json:"genericHandler,omitempty"`
+	GasLimit       string `json:"gasLimit,omitempty"`
+	GasPrice       string `json:"gasPrice,omitempty"`
+	StartBlock     string `json:"startBlock"`
+	Http           string `json:"http,omitempty"`
 }
 
 type EthChainConfig struct {
@@ -66,16 +67,22 @@ type EthChainConfig struct {
 	Http           string `json:"http"`
 }
 
-// ToToml writes the config to a file
-func (c *RootConfig) ToTOML(file string) *os.File {
+type SubChainConfig struct {
+	Name       string `json:"name"`
+	ChainId    string `json:"chainId"`
+	Endpoint   string `json:"endpoint"`
+	StartBlock string `json:"startBlock"`
+}
+
+func (c *RootConfig) ToJSON(file string) *os.File {
 	var (
 		newFile *os.File
 		err     error
 	)
 
 	var raw []byte
-	if raw, err = toml.Marshal(*c); err != nil {
-		log.Warn("error marshalling toml", "err", err)
+	if raw, err = json.Marshal(*c); err != nil {
+		log.Warn("error marshalling json", "err", err)
 		os.Exit(1)
 	}
 
@@ -101,7 +108,7 @@ func constructEthChainConfig(cfg EthChainConfig, relayer string) RawChainConfig 
 		From:     relayer,
 		Id:       cfg.ChainId,
 		Endpoint: cfg.Endpoint,
-		Opts: EthOpts{
+		Opts: Opts{
 			BridgeAddress:  cfg.BridgeAddress,
 			Erc20Handler:   cfg.Erc20Handler,
 			Erc721Handler:  cfg.Erc721Handler,
@@ -114,11 +121,28 @@ func constructEthChainConfig(cfg EthChainConfig, relayer string) RawChainConfig 
 	}
 }
 
+func constructSubChainConfig(cfg SubChainConfig, relayer string) RawChainConfig {
+	return RawChainConfig{
+		Name:     cfg.Name,
+		Type:     "substrate",
+		From:     relayer,
+		Id:       cfg.ChainId,
+		Endpoint: cfg.Endpoint,
+		Opts: Opts{
+			StartBlock: cfg.StartBlock,
+		},
+	}
+}
+
 func constructRelayerConfig(cfg *Config, relayer string) RootConfig {
 	// Create RawConfig structs from the provided Chains
 	var rawCfgs []RawChainConfig
-	for _, chain := range cfg.Chains {
+	for _, chain := range cfg.EthChains {
 		raw := constructEthChainConfig(chain, relayer)
+		rawCfgs = append(rawCfgs, raw)
+	}
+	for _, chain := range cfg.SubChains {
+		raw := constructSubChainConfig(chain, relayer)
 		rawCfgs = append(rawCfgs, raw)
 	}
 
@@ -134,9 +158,10 @@ func parseRawConfig(raw *RawConfig) (*Config, error) {
 	}
 	res.RelayerThreshold = threshold
 	res.Relayers = raw.Relayers
-	res.Chains = raw.Chains
-
+	res.SubChains = raw.SubChains
+	res.EthChains = raw.EthChains
 	return &res, nil
+
 }
 
 func ParseDeployConfig(path string) (*Config, error) {
