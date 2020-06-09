@@ -41,25 +41,25 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	newConfig.genericHandlerContract = contracts.GenericHandlerAddress
 
 	conn := newLocalConnection(t, &newConfig)
-	latestBlock, err := conn.latestBlock()
+	latestBlock, err := conn.LatestBlock()
 	if err != nil {
 		t.Fatal(err)
 	}
 	newConfig.startBlock = latestBlock
 
-	bridgeContract, err := Bridge.NewBridge(newConfig.bridgeContract, conn.conn)
+	bridgeContract, err := Bridge.NewBridge(newConfig.bridgeContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc20HandlerContract, err := ERC20Handler.NewERC20Handler(newConfig.erc20HandlerContract, conn.conn)
+	erc20HandlerContract, err := ERC20Handler.NewERC20Handler(newConfig.erc20HandlerContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc721HandlerContract, err := ERC721Handler.NewERC721Handler(newConfig.erc721HandlerContract, conn.conn)
+	erc721HandlerContract, err := ERC721Handler.NewERC721Handler(newConfig.erc721HandlerContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
-	genericHandlerContract, err := GenericHandler.NewGenericHandler(newConfig.genericHandlerContract, conn.conn)
+	genericHandlerContract, err := GenericHandler.NewGenericHandler(newConfig.genericHandlerContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}

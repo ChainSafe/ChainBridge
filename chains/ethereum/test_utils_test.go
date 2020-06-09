@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	"github.com/ChainSafe/ChainBridge/connections/evm"
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
@@ -66,9 +67,9 @@ func newTestLogger(name string) log15.Logger {
 	return tLog
 }
 
-func newLocalConnection(t *testing.T, cfg *Config) *Connection {
+func newLocalConnection(t *testing.T, cfg *Config) *evm.Connection {
 	kp := keystore.TestKeyRing.EthereumKeys[cfg.from]
-	conn := NewConnection(cfg, kp, TestLogger, make(chan int))
+	conn := evm.NewConnection(TestEndpoint, false, kp, TestLogger, big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)

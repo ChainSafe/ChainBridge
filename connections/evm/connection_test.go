@@ -16,9 +16,11 @@ import (
 
 var TestEndpoint = "ws://localhost:8545"
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
+var GasLimit = big.NewInt(ethutils.DefaultGasLimit)
+var GasPrice = big.NewInt(ethutils.DefaultGasPrice)
 
 func TestConnect(t *testing.T) {
-	conn := NewConnection(TestEndpoint, AliceKp, false, log15.Root())
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, GasPrice)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -35,7 +37,7 @@ func TestContractCode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	conn := NewConnection(TestEndpoint, AliceKp, false, log15.Root())
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, GasPrice)
 	err = conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -43,12 +45,12 @@ func TestContractCode(t *testing.T) {
 	defer conn.Close()
 
 	// The following section checks if the byteCode exists on the chain at the specificed Addresses
-	err = conn.ensureHasBytecode(contracts.BridgeAddress)
+	err = conn.EnsureHasBytecode(contracts.BridgeAddress)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = conn.ensureHasBytecode(ethcmn.HexToAddress("0x0"))
+	err = conn.EnsureHasBytecode(ethcmn.HexToAddress("0x0"))
 	if err == nil {
 		t.Fatal("should detect no bytecode")
 	}

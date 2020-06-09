@@ -50,7 +50,7 @@ func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 	}
 
 	// Cause critical failure to polling mechanism
-	chain.conn.conn.Close()
+	chain.conn.Client().Close()
 
 	// Pull expected error
 	select {
@@ -125,7 +125,7 @@ func TestChain_WriterShutdownOnFailure(t *testing.T) {
 
 	time.Sleep(time.Second)
 	// Cause critical failure for submitting txs
-	chain.conn.conn.Close()
+	chain.conn.Client().Close()
 
 	// Pull expected error
 	select {
