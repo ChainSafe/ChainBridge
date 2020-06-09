@@ -13,11 +13,8 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum"
-
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcommon "github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -139,10 +136,6 @@ func (c *Connection) LatestBlock() (*big.Int, error) {
 		return nil, err
 	}
 	return header.Number, nil
-}
-
-func (c *Connection) FilterLogs(ctx context.Context, query ethereum.FilterQuery) ([]ethtypes.Log, error) {
-	return c.conn.FilterLogs(ctx, query)
 }
 
 // EnsureHasBytecode asserts if contract code exists at the specified address

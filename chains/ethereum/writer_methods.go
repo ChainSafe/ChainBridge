@@ -208,7 +208,7 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, latestBlock *big.I
 
 			// query for logs
 			query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, latestBlock, latestBlock)
-			evts, err := w.conn.FilterLogs(context.Background(), query)
+			evts, err := w.conn.Client().FilterLogs(context.Background(), query)
 			if err != nil {
 				w.log.Error("Failed to fetch logs", "err", err)
 				return

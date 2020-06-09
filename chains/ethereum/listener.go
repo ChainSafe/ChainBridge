@@ -143,7 +143,7 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
 
 	// querying for logs
-	logs, err := l.conn.FilterLogs(context.Background(), query)
+	logs, err := l.conn.Client().FilterLogs(context.Background(), query)
 	if err != nil {
 		return fmt.Errorf("unable to Filter Logs: %s", err)
 	}

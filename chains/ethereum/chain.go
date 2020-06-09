@@ -21,7 +21,6 @@ The writer recieves the message and creates a proposals on-chain. Once a proposa
 package ethereum
 
 import (
-	"context"
 	"math/big"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
@@ -36,10 +35,8 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -57,7 +54,6 @@ type Connection interface {
 	Client() *ethclient.Client
 	EnsureHasBytecode(address common.Address) error
 	LatestBlock() (*big.Int, error)
-	FilterLogs(ctx context.Context, query ethereum.FilterQuery) ([]types.Log, error)
 	WaitForBlock(block *big.Int) error
 	Close()
 }
