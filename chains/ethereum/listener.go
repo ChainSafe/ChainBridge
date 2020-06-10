@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math/big"
@@ -30,7 +31,7 @@ var ErrFatalPolling = errors.New("listener block polling failed")
 
 type listener struct {
 	cfg                    Config
-	conn                   *Connection
+	conn                   Connection
 	router                 chains.Router
 	bridgeContract         *Bridge.Bridge // instance of bound bridge contract
 	erc20HandlerContract   *ERC20Handler.ERC20Handler
@@ -43,7 +44,7 @@ type listener struct {
 }
 
 // NewListener creates and returns a listener
-func NewListener(conn *Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
+func NewListener(conn Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
 	return &listener{
 		cfg:        *cfg,
 		conn:       conn,
@@ -100,7 +101,7 @@ func (l *listener) pollBlocks() error {
 				return nil
 			}
 
-			latestBlock, err := l.conn.latestBlock()
+			latestBlock, err := l.conn.LatestBlock()
 			if err != nil {
 				l.log.Error("Unable to get latest block", "block", currentBlock, "err", err)
 				retry--
@@ -142,7 +143,7 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
 
 	// querying for logs
-	logs, err := l.conn.conn.FilterLogs(l.conn.ctx, query)
+	logs, err := l.conn.Client().FilterLogs(context.Background(), query)
 	if err != nil {
 		return fmt.Errorf("unable to Filter Logs: %s", err)
 	}
@@ -154,7 +155,7 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		rId := msg.ResourceIdFromSlice(log.Topics[2].Bytes())
 		nonce := msg.Nonce(log.Topics[3].Big().Uint64())
 
-		addr, err := l.bridgeContract.ResourceIDToHandlerAddress(&bind.CallOpts{From: l.conn.kp.CommonAddress()}, rId)
+		addr, err := l.bridgeContract.ResourceIDToHandlerAddress(&bind.CallOpts{From: l.conn.Keypair().CommonAddress()}, rId)
 		if err != nil {
 			return fmt.Errorf("failed to get handler from resource ID %x", rId)
 		}

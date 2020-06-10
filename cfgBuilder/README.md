@@ -1,6 +1,6 @@
-# Eth Config Builder
+# Eth and Sub Config Builder
 
-This is a simple CLI tool to help automate new ETH deployments.
+This is a simple CLI tool to help automate new ETH and SUB deployments.
 
 An input JSON config looks like this:
 
@@ -12,7 +12,7 @@ An input JSON config looks like this:
     "0x8e0a907331554AF72563Bd8D43051C2E64Be5d35",
     "0x24962717f8fA5BA3b931bACaF9ac03924EB475a0"
   ],
-  "chains": [
+  "ethChains": [
     {
       "name": "goerli",
       "chainId": "1",
@@ -39,8 +39,16 @@ An input JSON config looks like this:
       "startBlock": "0",
       "http": "true"
     }
+  ],
+  "subChains": [
+    {
+      "name":       "gopher",
+      "chainId":    "3",
+      "endpoint":   "http://localhost:8546",
+      "startBlock": "11"
+    }
   ]
 }
 ```
-
-Running `go run main.go <json-path> <output-path>` will produce config files for ChainBridge, and (optional) place them in the specified path. For each relayer in `relayers` a corresponding config will be generated.
+Compile an executable to run `cfgBuilder` with `make install-cfgBuilder ` or `make build-cfgBuilder` 
+Running `./build/cfgBuilder <json-path> <output-path>` will produce config files for ChainBridge, and (optional) place them in the specified path. For each relayer in `relayers` a corresponding config will be generated.

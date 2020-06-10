@@ -9,7 +9,7 @@ import (
 )
 
 func DeployAssetStore(client *Client) (common.Address, error) {
-	err := UpdateNonce(client)
+	err := client.LockNonceAndUpdate()
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -23,6 +23,8 @@ func DeployAssetStore(client *Client) (common.Address, error) {
 	if err != nil {
 		return ZeroAddress, err
 	}
+
+	client.UnlockNonce()
 
 	return addr, nil
 }

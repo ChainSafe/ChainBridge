@@ -41,25 +41,25 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	newConfig.genericHandlerContract = contracts.GenericHandlerAddress
 
 	conn := newLocalConnection(t, &newConfig)
-	latestBlock, err := conn.latestBlock()
+	latestBlock, err := conn.LatestBlock()
 	if err != nil {
 		t.Fatal(err)
 	}
 	newConfig.startBlock = latestBlock
 
-	bridgeContract, err := Bridge.NewBridge(newConfig.bridgeContract, conn.conn)
+	bridgeContract, err := Bridge.NewBridge(newConfig.bridgeContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc20HandlerContract, err := ERC20Handler.NewERC20Handler(newConfig.erc20HandlerContract, conn.conn)
+	erc20HandlerContract, err := ERC20Handler.NewERC20Handler(newConfig.erc20HandlerContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc721HandlerContract, err := ERC721Handler.NewERC721Handler(newConfig.erc721HandlerContract, conn.conn)
+	erc721HandlerContract, err := ERC721Handler.NewERC721Handler(newConfig.erc721HandlerContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
-	genericHandlerContract, err := GenericHandler.NewGenericHandler(newConfig.genericHandlerContract, conn.conn)
+	genericHandlerContract, err := GenericHandler.NewGenericHandler(newConfig.genericHandlerContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,7 +94,7 @@ func verifyMessage(t *testing.T, r *MockRouter, expected msg.Message, errs chan 
 
 func TestListener_start_stop(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id)
 	stop := make(chan int)
 	l, _ := createTestListener(t, aliceTestConfig, contracts, stop, nil)
 
@@ -109,12 +109,12 @@ func TestListener_start_stop(t *testing.T) {
 
 func TestListener_Erc20DepositedEvent(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id)
 	errs := make(chan error)
 	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
-	go watchEvent(t, client, contracts.BridgeAddress, utils.Deposit)
+	go watchEvent(client, contracts.BridgeAddress, utils.Deposit)
 
 	erc20Contract := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
 
@@ -140,7 +140,6 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 		l.bridgeContract,
 		client,
 		resourceId,
-		l.cfg.erc20HandlerContract,
 
 		recipient,
 		dst,
@@ -163,7 +162,6 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 		l.bridgeContract,
 		client,
 		resourceId,
-		l.cfg.erc20HandlerContract,
 
 		recipient,
 		dst,
@@ -175,12 +173,12 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 
 func TestListener_Erc721DepositedEvent(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id)
 	errs := make(chan error)
 	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
-	go watchEvent(t, client, contracts.BridgeAddress, utils.Deposit)
+	go watchEvent(client, contracts.BridgeAddress, utils.Deposit)
 
 	tokenId := big.NewInt(99)
 
@@ -212,12 +210,10 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 		l.bridgeContract,
 		client,
 		resourceId,
-		l.cfg.erc721HandlerContract,
 
 		recipient,
 		dst,
 		tokenId,
-		[]byte{}, // Empty metadata
 	)
 
 	verifyMessage(t, router, expectedMessage, errs)
@@ -225,12 +221,12 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 
 func TestListener_GenericDepositedEvent(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
-	contracts := deployTestContracts(t, client, aliceTestConfig.id, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id)
 	errs := make(chan error)
 	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
-	go watchEvent(t, client, contracts.BridgeAddress, utils.Deposit)
+	go watchEvent(client, contracts.BridgeAddress, utils.Deposit)
 
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
@@ -254,7 +250,6 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 		l.bridgeContract,
 		client,
 		resourceId,
-		l.cfg.genericHandlerContract,
 
 		dst,
 		hash[:],

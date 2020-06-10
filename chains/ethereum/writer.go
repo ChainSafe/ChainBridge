@@ -4,14 +4,10 @@
 package ethereum
 
 import (
-	"math/big"
-	"sync"
-
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
 
 var _ chains.Writer = &writer{}
@@ -19,22 +15,19 @@ var _ chains.Writer = &writer{}
 // https://github.com/ChainSafe/chainbridge-solidity/blob/b5ed13d9798feb7c340e737a726dd415b8815366/contracts/Bridge.sol#L20
 var PassedStatus uint8 = 2
 var TransferredStatus uint8 = 3
+var CancelledStatus uint8 = 4
 
 type writer struct {
 	cfg            Config
-	conn           *Connection
+	conn           Connection
 	bridgeContract *Bridge.Bridge // instance of bound receiver bridgeContract
-	callOpts       *bind.CallOpts
-	opts           *bind.TransactOpts
-	nonce          uint64
-	nonceLock      sync.Mutex
 	log            log15.Logger
 	stop           <-chan int
 	sysErr         chan<- error // Reports fatal error to core
 }
 
 // NewWriter creates and returns writer
-func NewWriter(conn *Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error) *writer {
+func NewWriter(conn Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error) *writer {
 	return &writer{
 		cfg:    *cfg,
 		conn:   conn,
@@ -44,18 +37,8 @@ func NewWriter(conn *Connection, cfg *Config, log log15.Logger, stop <-chan int,
 	}
 }
 
-// start adds contract call options and transaction options to the writer
 func (w *writer) start() error {
 	w.log.Debug("Starting ethereum writer...")
-
-	opts, _, err := w.conn.newTransactOpts(big.NewInt(0), w.cfg.gasLimit, w.cfg.gasPrice)
-	if err != nil {
-		return err
-	}
-
-	w.opts = opts
-	w.nonce = 0
-	w.callOpts = &bind.CallOpts{From: w.conn.kp.CommonAddress()}
 	return nil
 }
 
@@ -64,25 +47,22 @@ func (w *writer) setContract(bridge *Bridge.Bridge) {
 	w.bridgeContract = bridge
 }
 
-func (w *writer) lockAndUpdateNonce() error {
-	w.nonceLock.Lock()
-	nonce, err := w.conn.conn.PendingNonceAt(w.conn.ctx, w.opts.From)
-	if err != nil {
-		w.nonceLock.Unlock()
-		return err
-	}
-	w.opts.Nonce.SetUint64(nonce)
-	return nil
-}
-
-func (w *writer) unlockNonce() {
-	w.nonceLock.Unlock()
-}
-
 // ResolveMessage handles any given message based on type
 // A bool is returned to indicate failure/success, this should be ignored except for within tests.
 func (w *writer) ResolveMessage(m msg.Message) bool {
 	w.log.Info("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce, "rId", m.ResourceId.Hex())
+
+	// Check if proposal has passed and skip if Passed or Transferred
+	if w.proposalIsComplete(m.Source, m.DepositNonce) {
+		w.log.Info("Proposal complete, not voting", "src", m.Source, "nonce", m.DepositNonce)
+		return true
+	}
+
+	// Check if relayer has previously voted
+	if w.hasVoted(m.Source, m.DepositNonce) {
+		w.log.Info("Relayer has already voted, not voting", "src", m.Source, "nonce", m.DepositNonce)
+		return true
+	}
 
 	switch m.Type {
 	case msg.FungibleTransfer:
