@@ -53,7 +53,7 @@ var accountCommand = cli.Command{
 	Name:  "accounts",
 	Usage: "manage bridge keystore",
 	Description: "The accounts command is used to manage the bridge keystore.\n" +
-		"\tTo generate a new account, key type generated is based on the flag passed: chainbridge accounts generate\n" +
+		"\tTo generate a new account (key type generated is determined on the flag passed in): chainbridge accounts generate\n" +
 		"\tTo import a keystore file: chainbridge accounts import path/to/file\n" +
 		"\tTo import a geth keystore file: chainbridge accounts import --ethereum path/to/file\n" +
 		"\tTo import a private key file: chainbridge accounts import --privateKey private_key\n" +
