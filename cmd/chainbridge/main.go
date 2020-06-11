@@ -50,31 +50,28 @@ var importFlags = []cli.Flag{
 }
 
 var accountCommand = cli.Command{
-	Name:     "accounts",
-	Usage:    "manage bridge keystore",
-	Category: "KEYSTORE",
-	Description: "The account command is used to manage the bridge keystore.\n" +
-		"\tTo generate a new account, key type generated is based on the flag passed: chainbridge account generate\n" +
-		"\tTo import a keystore file: chainbridge account import path/to/file\n" +
-		"\tTo import a geth keystore file: chainbridge account import --ethereum path/to/file\n" +
-		"\tTo import a keystore file: chainbridge account import --privateKey private_key\n" +
-		"\tTo list keys: chainbridge account list",
+	Name:  "accounts",
+	Usage: "manage bridge keystore",
+	Description: "The accounts command is used to manage the bridge keystore.\n" +
+		"\tTo generate a new account (key type generated is determined on the flag passed in): chainbridge accounts generate\n" +
+		"\tTo import a keystore file: chainbridge accounts import path/to/file\n" +
+		"\tTo import a geth keystore file: chainbridge accounts import --ethereum path/to/file\n" +
+		"\tTo import a private key file: chainbridge accounts import --privateKey private_key\n" +
+		"\tTo list keys: chainbridge accounts list",
 	Subcommands: []cli.Command{
 		{
-			Action:   wrapHandler(handleGenerateCmd),
-			Name:     "generate",
-			Usage:    "generate bridge keystore, key type determined by flag",
-			Flags:    generateFlags,
-			Category: "KEYSTORE",
+			Action: wrapHandler(handleGenerateCmd),
+			Name:   "generate",
+			Usage:  "generate bridge keystore, key type determined by flag",
+			Flags:  generateFlags,
 			Description: "The generate subcommand is used to generate the bridge keystore.\n" +
 				"\tIf no options are specified, a secp256k1 key will be made.",
 		},
 		{
-			Action:   wrapHandler(handleImportCmd),
-			Name:     "import",
-			Usage:    "import bridge keystore",
-			Flags:    importFlags,
-			Category: "KEYSTORE",
+			Action: wrapHandler(handleImportCmd),
+			Name:   "import",
+			Usage:  "import bridge keystore",
+			Flags:  importFlags,
 			Description: "The import subcommand is used to import a keystore for the bridge.\n" +
 				"\tA path to the keystore must be provided\n" +
 				"\tUse --ethereum to import an ethereum keystore from external sources such as geth\n" +
@@ -84,7 +81,6 @@ var accountCommand = cli.Command{
 			Action:      wrapHandler(handleListCmd),
 			Name:        "list",
 			Usage:       "list bridge keystore",
-			Category:    "KEYSTORE",
 			Description: "The list subcommand is used to list all of the bridge keystores.\n",
 		},
 	},
