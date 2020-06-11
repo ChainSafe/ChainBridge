@@ -16,7 +16,7 @@ services:
     - "8546:8545"
 
   sub-chain:
-    image: "chainsafe/chainbridge-substrate-chain"
+    image: "chainsafe/chainbridge-substrate-chain:20200609151638-8cbbc2a"
     container_name: sub-chain
     command: chainbridge-substrate-chain --dev --alice --ws-external --rpc-external
     ports:
