@@ -4,19 +4,19 @@
 version: '3'
 services:
   geth1:
-    image: "chainsafe/chainbridge-geth:latest"
+    image: "chainsafe/chainbridge-geth:20200505131100-5586a65"
     container_name: geth1
     ports:
     - "8545:8545"
 
   geth2:
-    image: "chainsafe/chainbridge-geth:latest"
+    image: "chainsafe/chainbridge-geth:20200505131100-5586a65"
     container_name: geth2
     ports:
     - "8546:8545"
 
   sub-chain:
-    image: "chainsafe/chainbridge-substrate-chain:20200609151638-8cbbc2a"
+    image: "chainsafe/chainbridge-substrate-chain:v0.0.1-alpha"
     container_name: sub-chain
     command: chainbridge-substrate-chain --dev --alice --ws-external --rpc-external
     ports:
