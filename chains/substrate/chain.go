@@ -100,6 +100,7 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, sysErr chan<- e
 		conn:     conn,
 		listener: l,
 		writer:   w,
+		stop:     stop,
 	}, nil
 }
 

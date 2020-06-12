@@ -35,17 +35,9 @@ build:
 	@echo "  >  \033[32mBuilding binary...\033[0m "
 	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge
 
-build-cfgBuilder:
-	@echo "  >  \033[32mBuilding cfgBuilder...\033[0m "
-	cd cmd/cfgBuilder && env GOARCH=amd64 go build -o  ../../build/cfgBuilder
-
 install:
 	@echo "  >  \033[32mInstalling bridge...\033[0m "
 	cd cmd/chainbridge && go install
-
-install-cfgBuilder:
-	@echo "  >  \033[32mInstalling cfgBuilder...\033[0m "
-	cd cmd/cfgBuilder && go install
 
 setup-sol-cli:
 	@echo " > \033[32mSetting up solidity cli... \033[0m "
