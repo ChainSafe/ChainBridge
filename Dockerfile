@@ -8,8 +8,11 @@ RUN go mod download
 RUN cd cmd/chainbridge && go build -o /bridge .
 
 # # final stage
-FROM alpine:latest
-# RUN apk --no-cache add ca-certificates curl
+FROM debian:stretch-slim
+RUN apt-get -y update && apt-get -y upgrade && apt-get install ca-certificates wget -y
+RUN wget -P /usr/local/bin/ https://storage.googleapis.com/centrifuge-dev-public/subkey  && chmod +x /usr/local/bin/subkey
+RUN subkey --version
+
 COPY --from=builder /bridge ./
 RUN chmod +x ./bridge
 
