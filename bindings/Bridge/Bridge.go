@@ -20,7 +20,6 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
-	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -557,7 +556,7 @@ func (_Bridge *BridgeCallerSession) TotalRelayers() (*big.Int, error) {
 
 // GetProposal is a free data retrieval call binding the contract method 0x83e70eb4.
 //
-// Solidity: function getProposal(uint8 originChainID, uint64 depositNonce) view returns(BridgeProposal)
+// Solidity: function getProposal(uint8 originChainID, uint64 depositNonce) view returns((bytes32,bytes32,address[],address[],uint8,uint256))
 func (_Bridge *BridgeCaller) GetProposal(opts *bind.CallOpts, originChainID uint8, depositNonce uint64) (BridgeProposal, error) {
 	var (
 		ret0 = new(BridgeProposal)
@@ -569,14 +568,14 @@ func (_Bridge *BridgeCaller) GetProposal(opts *bind.CallOpts, originChainID uint
 
 // GetProposal is a free data retrieval call binding the contract method 0x83e70eb4.
 //
-// Solidity: function getProposal(uint8 originChainID, uint64 depositNonce) view returns(BridgeProposal)
+// Solidity: function getProposal(uint8 originChainID, uint64 depositNonce) view returns((bytes32,bytes32,address[],address[],uint8,uint256))
 func (_Bridge *BridgeSession) GetProposal(originChainID uint8, depositNonce uint64) (BridgeProposal, error) {
 	return _Bridge.Contract.GetProposal(&_Bridge.CallOpts, originChainID, depositNonce)
 }
 
 // GetProposal is a free data retrieval call binding the contract method 0x83e70eb4.
 //
-// Solidity: function getProposal(uint8 originChainID, uint64 depositNonce) view returns(BridgeProposal)
+// Solidity: function getProposal(uint8 originChainID, uint64 depositNonce) view returns((bytes32,bytes32,address[],address[],uint8,uint256))
 func (_Bridge *BridgeCallerSession) GetProposal(originChainID uint8, depositNonce uint64) (BridgeProposal, error) {
 	return _Bridge.Contract.GetProposal(&_Bridge.CallOpts, originChainID, depositNonce)
 }

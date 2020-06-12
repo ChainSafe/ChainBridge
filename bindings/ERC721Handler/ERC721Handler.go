@@ -20,7 +20,6 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
-	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -445,7 +444,7 @@ func (_ERC721Handler *ERC721HandlerCallerSession) TokenContractAddressToResource
 
 // GetDepositRecord is a free data retrieval call binding the contract method 0xba484c09.
 //
-// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns(ERC721HandlerDepositRecord)
+// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns((address,uint8,uint8,bytes32,bytes,address,uint256,bytes))
 func (_ERC721Handler *ERC721HandlerCaller) GetDepositRecord(opts *bind.CallOpts, depositNonce uint64, destId uint8) (ERC721HandlerDepositRecord, error) {
 	var (
 		ret0 = new(ERC721HandlerDepositRecord)
@@ -457,14 +456,14 @@ func (_ERC721Handler *ERC721HandlerCaller) GetDepositRecord(opts *bind.CallOpts,
 
 // GetDepositRecord is a free data retrieval call binding the contract method 0xba484c09.
 //
-// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns(ERC721HandlerDepositRecord)
+// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns((address,uint8,uint8,bytes32,bytes,address,uint256,bytes))
 func (_ERC721Handler *ERC721HandlerSession) GetDepositRecord(depositNonce uint64, destId uint8) (ERC721HandlerDepositRecord, error) {
 	return _ERC721Handler.Contract.GetDepositRecord(&_ERC721Handler.CallOpts, depositNonce, destId)
 }
 
 // GetDepositRecord is a free data retrieval call binding the contract method 0xba484c09.
 //
-// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns(ERC721HandlerDepositRecord)
+// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns((address,uint8,uint8,bytes32,bytes,address,uint256,bytes))
 func (_ERC721Handler *ERC721HandlerCallerSession) GetDepositRecord(depositNonce uint64, destId uint8) (ERC721HandlerDepositRecord, error) {
 	return _ERC721Handler.Contract.GetDepositRecord(&_ERC721Handler.CallOpts, depositNonce, destId)
 }
