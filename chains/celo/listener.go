@@ -14,8 +14,12 @@ type listener struct {
 	conn Connection
 }
 
-func start(l *listener) {
-	l.conn.Connection()
+func start(l *listener) error {
+	err := l.conn.Connection()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func stop(l *listener) {

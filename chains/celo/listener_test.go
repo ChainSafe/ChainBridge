@@ -8,16 +8,16 @@ import (
 )
 
 func Test_Start(t *testing.T) {
-	l := listener{}
-	err := l.conn.Connection()
+	l := &listener{}
+	err := start(l)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func Test_Stop(t *testing.T) {
-	l := listener{}
-	err := l.conn.Connection()
+	l := &listener{}
+	err := start(l)
 	if err != nil {
 		t.Fatal(err)
 	}
