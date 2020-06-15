@@ -3,25 +3,33 @@
 
 package celo
 
-import ()
+import (
+	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
+)
+
+var _ Connection = &connection.Connection{}
 
 type Connection interface {
-	Connection() error
-	Stop()
+	Connect() error
+	Close()
 }
 
 type listener struct {
 	conn Connection
 }
 
-func start(l *listener) error {
-	err := l.conn.Connection()
+func NewListener(conn Connection) *listener {
+	return &listener{conn: conn}
+}
+
+func (l *listener) start() error {
+	err := l.conn.Connect()
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func stop(l *listener) {
-	l.conn.Stop()
+func (l *listener) close() {
+	l.conn.Close()
 }

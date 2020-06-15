@@ -4,23 +4,29 @@
 package celo
 
 import (
+	"math/big"
 	"testing"
+
+	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
+	"github.com/ChainSafe/ChainBridge/keystore"
+	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
+	"github.com/ChainSafe/log15"
 )
 
-func Test_Start(t *testing.T) {
-	l := &listener{}
-	err := start(l)
+var TestEndpoint = "ws://localhost:8545"
+var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
+var GasLimit = big.NewInt(ethutils.DefaultGasLimit)
+var GasPrice = big.NewInt(ethutils.DefaultGasPrice)
+
+func TestListener_start_stop(t *testing.T) {
+	conn := connection.NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, GasPrice)
+	l := NewListener(conn)
+
+	err := l.start()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-}
-
-func Test_Stop(t *testing.T) {
-	l := &listener{}
-	err := start(l)
-	if err != nil {
-		t.Fatal(err)
-	}
-	l.conn.Stop()
+	// Initiate shutdown
+	l.close()
 }
