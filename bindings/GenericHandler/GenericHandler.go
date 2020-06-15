@@ -20,7 +20,6 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
-	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -399,7 +398,7 @@ func (_GenericHandler *GenericHandlerCallerSession) ResourceIDToContractAddress(
 
 // GetDepositRecord is a free data retrieval call binding the contract method 0xba484c09.
 //
-// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns(GenericHandlerDepositRecord)
+// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns((uint8,address,bytes32,bytes))
 func (_GenericHandler *GenericHandlerCaller) GetDepositRecord(opts *bind.CallOpts, depositNonce uint64, destId uint8) (GenericHandlerDepositRecord, error) {
 	var (
 		ret0 = new(GenericHandlerDepositRecord)
@@ -411,14 +410,14 @@ func (_GenericHandler *GenericHandlerCaller) GetDepositRecord(opts *bind.CallOpt
 
 // GetDepositRecord is a free data retrieval call binding the contract method 0xba484c09.
 //
-// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns(GenericHandlerDepositRecord)
+// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns((uint8,address,bytes32,bytes))
 func (_GenericHandler *GenericHandlerSession) GetDepositRecord(depositNonce uint64, destId uint8) (GenericHandlerDepositRecord, error) {
 	return _GenericHandler.Contract.GetDepositRecord(&_GenericHandler.CallOpts, depositNonce, destId)
 }
 
 // GetDepositRecord is a free data retrieval call binding the contract method 0xba484c09.
 //
-// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns(GenericHandlerDepositRecord)
+// Solidity: function getDepositRecord(uint64 depositNonce, uint8 destId) view returns((uint8,address,bytes32,bytes))
 func (_GenericHandler *GenericHandlerCallerSession) GetDepositRecord(depositNonce uint64, destId uint8) (GenericHandlerDepositRecord, error) {
 	return _GenericHandler.Contract.GetDepositRecord(&_GenericHandler.CallOpts, depositNonce, destId)
 }
