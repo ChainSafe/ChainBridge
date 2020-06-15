@@ -54,6 +54,7 @@ jobs:
         - make test-e2e
 
     - stage: "Docker Deploy (chainsafe/chainbridge)"
+      script: echo "Deploy time!"
       deploy:
         - provider: script
           script: TARGET=default ./scripts/ci_docker.sh
