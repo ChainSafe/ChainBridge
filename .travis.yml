@@ -4,6 +4,7 @@
 branches:
   only:
     - master
+    - celo-dev
 
 env:
   global:
