@@ -8,7 +8,7 @@ import (
 )
 
 const BridgePalletName = "ChainBridge"
-const BridgeStoragePrefix = "Bridge"
+const BridgeStoragePrefix = "ChainBridge"
 
 type Erc721Token struct {
 	Id       types.U256
