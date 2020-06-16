@@ -2,7 +2,7 @@
 # Copyright 2020 ChainSafe Systems
 # SPDX-License-Identifier: LGPL-3.0-only
 
-set -ex
+set -eux
 
 GIT_SHORT_COMMIT=`git rev-parse --short HEAD`
 TIMESTAMP=`date -u +%Y%m%d%H%M%S`
