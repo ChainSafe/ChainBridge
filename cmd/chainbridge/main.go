@@ -167,7 +167,7 @@ func run(ctx *cli.Context) error {
 			Insecure:       insecure,
 			BlockstorePath: ctx.GlobalString(config.BlockstorePathFlag.Name),
 			FreshStart:     ctx.GlobalBool(config.FreshStartFlag.Name),
-			LatestBlock: ctx.GlobalBool(config.LatestBlockFlag.Name),
+			LatestBlock:    ctx.GlobalBool(config.LatestBlockFlag.Name),
 			Opts:           chain.Opts,
 		}
 		var newChain core.Chain

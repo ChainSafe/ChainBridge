@@ -38,8 +38,8 @@ var (
 	}
 
 	LatestBlockFlag = cli.BoolFlag{
-		Name:        "latest",
-		Usage:       "Overrides blockstore and start block, starts from latest block",
+		Name:  "latest",
+		Usage: "Overrides blockstore and start block, starts from latest block",
 	}
 )
 
