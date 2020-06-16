@@ -145,6 +145,14 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 		return nil, err
 	}
 
+	if chainCfg.LatestBlock {
+		curr, err := conn.LatestBlock()
+		if err != nil {
+			return nil, err
+		}
+		cfg.startBlock = curr
+	}
+
 	listener := NewListener(conn, cfg, logger, bs, stop, sysErr)
 	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 
