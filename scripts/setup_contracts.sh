@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
-CONTRACTS_BRANCH="master"
+CONTRACTS_BRANCH="v0.0.1-alpha"
 CONTRACTS_COMMIT="5382f0c889b4c4e61a1700568ef005af6a5b24e7"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 
-set -e
+set -eux
 
 case $TARGET in
 	"build")
@@ -31,6 +31,4 @@ case $TARGET in
     git checkout $CONTRACTS_COMMIT
 		;;
 
-
 esac
-

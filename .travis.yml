@@ -54,5 +54,13 @@ jobs:
         - make test-e2e
 
     - stage: "Docker Deploy (chainsafe/chainbridge)"
-      if: (NOT type IN (pull_request)) AND (branch = master)
-      script: ./scripts/ci_docker.sh
+      script: echo "Deploy time!"
+      deploy:
+        - provider: script
+          script: TARGET=default ./scripts/ci_docker.sh
+          on:
+            branch: master
+        - provider: script
+          script: TAG=$TRAVIS_TAG TARGET=release ./scripts/ci_docker.sh
+          on:
+            tags: true
