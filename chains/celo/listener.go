@@ -41,20 +41,18 @@ func (l *listener) close() {
 	l.conn.Close()
 }
 
-func (l *listener) getTransactionBlockHash(hash common.Hash) (tx *types.Transaction) {
-	client := l.conn.Client()
-	blockHash, _, err := client.TransactionByHash(context.Background(), hash)
+func (l *listener) getTransactionBlockHash(hash common.Hash) (blockHash common.Hash) {
+	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
-	return blockHash
+	return tx.Hash()
 }
 
-func (l *listener) getBlockTransactionsByHash(hash common.Hash) *types.Block {
-	client := l.conn.Client()
-	block, err := client.BlockByHash(context.Background(), hash)
+func (l *listener) getBlockTransactionsByHash(hash common.Hash) (tx types.Transactions, txRoot common.Hash) {
+	block, err := l.conn.Client().BlockByHash(context.Background(), hash)
 	if err != nil {
-		return block
+		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
-
+	return block.Transactions(), block.Root()
 }
