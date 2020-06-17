@@ -7,12 +7,12 @@ WORKDIR /src
 RUN go mod download
 RUN cd cmd/chainbridge && go build -o /bridge .
 
-# # final stage
-FROM alpine:latest
-# RUN apk --no-cache add ca-certificates curl
+## Final stage
+## Start with subkey build
+FROM parity/subkey:2.0.0-alpha.3
+USER root
+RUN subkey --version
 COPY --from=builder /bridge ./
 RUN chmod +x ./bridge
-
-ENV KEYSTORE_PASSWORD=chainsafe
 
 ENTRYPOINT ["./bridge"]
