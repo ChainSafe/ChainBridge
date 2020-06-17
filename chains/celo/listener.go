@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"time"
 
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -58,6 +59,7 @@ func (l *listener) getTransactionBlockHash(hash common.Hash) (blockHash common.H
 }
 
 func (l *listener) getBlockTransactionsByHash(hash common.Hash) (tx []common.Hash, txRoot common.Hash) {
+	time.Sleep(30 * time.Second)
 	block, err := l.conn.Client().BlockByHash(context.Background(), hash)
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)

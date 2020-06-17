@@ -67,7 +67,6 @@ func TestListener_start_stop(t *testing.T) {
 	// Initiate shutdown
 	l.close()
 }
-
 func TestListener_TransactionBlockHash(t *testing.T) {
 	l := createTestListener(t)
 
