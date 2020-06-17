@@ -44,9 +44,11 @@ func (l *listener) close() {
 
 func (l *listener) getTransactionBlockHash(hash common.Hash) (blockHash common.Hash) {
 	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
+	//utils.WaitForTx(l.conn.Client(), tx)
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
+
 	receipt, err := l.conn.Client().TransactionReceipt(context.Background(), tx.Hash())
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
@@ -60,7 +62,7 @@ func (l *listener) getBlockTransactionsByHash(hash common.Hash) (tx []common.Has
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
-	var transactionHashes = []common.Hash{}
+	var transactionHashes []common.Hash
 
 	transactions := block.Transactions()
 	for _, transaction := range transactions {

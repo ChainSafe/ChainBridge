@@ -7,7 +7,6 @@ import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	"math/big"
 	"testing"
 
@@ -31,7 +30,7 @@ func createTestListener(t *testing.T) *listener {
 }
 
 // creating and sending a new transaction
-func newTransaction(t *testing.T, l *listener) {
+func newTransaction(t *testing.T, l *listener) common.Hash {
 
 	// Creating a new transaction
 	nonce := l.conn.Opts().Nonce
@@ -50,8 +49,11 @@ func newTransaction(t *testing.T, l *listener) {
 	}
 
 	// Send the transaction for execution
-	l.conn.Client().SendTransaction(context.Background(), signedTx)
-
+	err = l.conn.Client().SendTransaction(context.Background(), signedTx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return signedTx.Hash()
 }
 
 func TestListener_start_stop(t *testing.T) {
@@ -73,22 +75,19 @@ func TestListener_TransactionBlockHash(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	newTransaction(t, l)
-
-	hash := crypto.Keccak256Hash(common.LeftPadBytes([]byte{1}, 32))
-
-	l.getBlockTransactionsByHash(hash)
+	hash := newTransaction(t, l)
+	l.getTransactionBlockHash(hash)
 
 }
 
-func TestListener_BlockTransactionsByHash(t *testing.T) {
-	l := createTestListener(t)
-
-	err := l.start()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	l.conn.Client().BlockByNumber(context.Background(), big.NewInt(0))
-
-}
+//func TestListener_BlockTransactionsByHash(t *testing.T) {
+//	l := createTestListener(t)
+//
+//	err := l.start()
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	l.conn.Client().BlockByNumber(context.Background(), big.NewInt(0))
+//
+//}
