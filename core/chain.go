@@ -25,5 +25,6 @@ type ChainConfig struct {
 	Insecure       bool              // Indicated whether the test keyring should be used
 	BlockstorePath string            // Location of blockstore
 	FreshStart     bool              // If true, blockstore is ignored at start.
+	LatestBlock    bool              // If true, overrides blockstore or latest block in config and starts from current block
 	Opts           map[string]string // Per chain options
 }

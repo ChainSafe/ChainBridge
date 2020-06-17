@@ -92,6 +92,14 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, sysErr chan<- e
 		return nil, err
 	}
 
+	if cfg.LatestBlock {
+		curr, err := conn.api.RPC.Chain.GetHeaderLatest()
+		if err != nil {
+			return nil, err
+		}
+		startBlock = uint64(curr.Number)
+	}
+
 	// Setup listener & writer
 	l := NewListener(conn, cfg.Name, cfg.Id, startBlock, logger, bs, stop, sysErr)
 	w := NewWriter(conn, logger, sysErr)

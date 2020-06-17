@@ -29,6 +29,7 @@ var cliFlags = []cli.Flag{
 	config.KeystorePathFlag,
 	config.BlockstorePathFlag,
 	config.FreshStartFlag,
+	config.LatestBlockFlag,
 }
 
 var generateFlags = []cli.Flag{
@@ -166,6 +167,7 @@ func run(ctx *cli.Context) error {
 			Insecure:       insecure,
 			BlockstorePath: ctx.GlobalString(config.BlockstorePathFlag.Name),
 			FreshStart:     ctx.GlobalBool(config.FreshStartFlag.Name),
+			LatestBlock:    ctx.GlobalBool(config.LatestBlockFlag.Name),
 			Opts:           chain.Opts,
 		}
 		var newChain core.Chain

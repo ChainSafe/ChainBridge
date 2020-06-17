@@ -36,6 +36,11 @@ var (
 		Name:  "fresh",
 		Usage: "Disables loading from blockstore at start. Opts will still be used if specified.",
 	}
+
+	LatestBlockFlag = cli.BoolFlag{
+		Name:  "latest",
+		Usage: "Overrides blockstore and start block, starts from latest block",
+	}
 )
 
 // Generate subcommand flags
