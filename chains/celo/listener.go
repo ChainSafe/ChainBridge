@@ -19,6 +19,7 @@ type Connection interface {
 	Connect() error
 	Close()
 	Client() *ethclient.Client
+	WaitForBlock() error
 }
 
 type listener struct {
@@ -46,13 +47,25 @@ func (l *listener) getTransactionBlockHash(hash common.Hash) (blockHash common.H
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
-	return tx.Hash()
+	receipt, err := l.conn.Client().TransactionReceipt(context.Background(), tx.Hash())
+	if err != nil {
+		fmt.Errorf("unable to get BlockHash: %s", err)
+	}
+
+	return receipt.BlockHash
 }
 
-func (l *listener) getBlockTransactionsByHash(hash common.Hash) (tx types.Transactions, txRoot common.Hash) {
+func (l *listener) getBlockTransactionsByHash(hash common.Hash) (tx []common.Hash, txRoot common.Hash) {
 	block, err := l.conn.Client().BlockByHash(context.Background(), hash)
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
-	return block.Transactions(), block.Root()
+	var transactionHashes = []common.Hash{}
+
+	transactions := block.Transactions()
+	for _, transaction := range transactions {
+		transactionHashes = append(transactionHashes, transaction.Hash())
+	}
+
+	return transactionHashes, block.Root() //should only return hash of transactions or all transactions
 }
