@@ -6,10 +6,10 @@ package celo
 import (
 	"context"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
-	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -19,7 +19,7 @@ type Connection interface {
 	Connect() error
 	Close()
 	Client() *ethclient.Client
-	WaitForBlock() error
+	Opts() *bind.TransactOpts
 }
 
 type listener struct {
