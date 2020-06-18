@@ -66,6 +66,8 @@ func TestListener_start_stop(t *testing.T) {
 	// Initiate shutdown
 	l.close()
 }
+
+// Testing transaction Block hash
 func TestListener_TransactionBlockHash(t *testing.T) {
 	l := createTestListener(t)
 
@@ -74,8 +76,20 @@ func TestListener_TransactionBlockHash(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Create a new transaction
 	hash := newTransaction(t, l)
-	l.getTransactionBlockHash(hash)
+	// Submit the transaction and get the blockhash of the transaction when it has finished executing
+	blockHash := l.getTransactionBlockHash(hash)
+	// Get the block from the chain using the hash
+	block, err := l.conn.Client().BlockByHash(context.Background(), blockHash)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Confirm that the tx hash we have and the tx hash on the block are the same
+	if block.Hash() != blockHash {
+		t.Fatalf("block hash are not equal, expected: %x, %x", hash, block.TxHash())
+	}
+	log15.Info("Transaction worked")
 
 }
 
