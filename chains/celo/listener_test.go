@@ -5,14 +5,18 @@ package celo
 
 import (
 	"context"
+	"fmt"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"math/big"
+	"testing"
+	"time"
+
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"math/big"
-	"testing"
 )
 
 var TestEndpoint = "ws://localhost:8545"
@@ -55,6 +59,26 @@ func newTransaction(t *testing.T, l *listener) common.Hash {
 	return signedTx.Hash()
 }
 
+// WaitForTx will query the chain at ExpectedBlockTime intervals, until a receipt is returned.
+// Returns an error if the tx failed.
+func waitForTx(client *ethclient.Client, tx *types.Transaction) (*types.Receipt, error) {
+	retry := 10
+	for retry > 0 {
+		receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
+		if err != nil {
+			retry--
+			time.Sleep(ExpectedBlockTime)
+			continue
+		}
+
+		if receipt.Status != 1 {
+			return nil, fmt.Errorf("transaction failed on chain")
+		}
+		return receipt, nil
+	}
+	return nil, fmt.Errorf("transaction after retries failed")
+}
+
 func TestListener_start_stop(t *testing.T) {
 	l := createTestListener(t)
 
@@ -78,19 +102,29 @@ func TestListener_TransactionBlockHash(t *testing.T) {
 
 	// Create and submit a new transaction and return the signed transaction hash
 	hash := newTransaction(t, l)
-	// get the block hash of the receipt
-	blockHash := l.getTransactionBlockHash(hash)
-	// using the receipt blockhash get the block
-	block, err := l.conn.Client().BlockByHash(context.Background(), blockHash)
+
+	// create transaction so we can get receipt
+	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Confirm that the receipt blockhash and the block's blockhash are the same
-	if block.Hash() != blockHash {
-		t.Fatalf("block hash are not equal, expected: %x, %x", hash, block.TxHash())
-	}
-	log15.Info("Transaction worked")
 
+	receipt, err := waitForTx(l.conn.Client(), tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// get the block hash of the receipt
+	blockHash := l.getTransactionBlockHash(hash)
+	retrievedBlock, err := l.conn.Client().BlockByHash(context.Background(), blockHash)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Confirm that the receipt blockhash and the block's blockhash are the same
+	if retrievedBlock.Hash() != receipt.BlockHash {
+		t.Fatalf("block hash are not equal, expected: %x, %x", retrievedBlock.Hash(), receipt.TxHash)
+	}
 }
 
 func TestListener_BlockTransactionsByHash(t *testing.T) {
@@ -103,9 +137,19 @@ func TestListener_BlockTransactionsByHash(t *testing.T) {
 	// Create and submit a new transaction
 	hash := newTransaction(t, l)
 	// Get blockhash from receipt
-	blockHash := l.getTransactionBlockHash(hash)
+	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
+	if err != nil {
+		t.Fatal(err)
+	}
+	receipt, err := waitForTx(l.conn.Client(), tx)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Get txHashes and txroot from blockHash
-	l.getBlockTransactionsByHash(blockHash)
+	txs, _ := l.getBlockTransactionsByHash(receipt.BlockHash)
 
+	if len(txs) != 1 || txs[0] != hash {
+		t.Fatalf("hash and transactions should be the same: hash, %x txs, %x", hash, txs)
+	}
 }

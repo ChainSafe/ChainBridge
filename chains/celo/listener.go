@@ -6,11 +6,10 @@ package celo
 import (
 	"context"
 	"fmt"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/core/types"
 	"time"
 
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
@@ -28,42 +27,6 @@ var ExpectedBlockTime = time.Second
 
 type listener struct {
 	conn Connection
-}
-
-// WaitForTx will query the chain at ExpectedBlockTime intervals, until a receipt is returned.
-// Returns an error if the tx failed.
-func WaitForTx(client *ethclient.Client, tx *types.Transaction) (*types.Receipt, error) {
-	retry := 10
-	for retry > 0 {
-		receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
-		if err != nil {
-			retry--
-			time.Sleep(ExpectedBlockTime)
-			continue
-		}
-
-		if receipt.Status != 1 {
-			return nil, fmt.Errorf("transaction failed on chain")
-		}
-		return receipt, nil
-	}
-	return nil, fmt.Errorf("transaction after retries failed")
-}
-
-func WaitForBlock(client *ethclient.Client, hash common.Hash) (*types.Block, error) {
-	retry := 10
-	for retry > 0 {
-		block, err := client.BlockByHash(context.Background(), hash)
-		fmt.Print(block)
-		if err != nil {
-			retry--
-			time.Sleep(ExpectedBlockTime)
-			continue
-		}
-
-		return block, nil
-	}
-	return nil, fmt.Errorf("failed after multiple retries to connect to block")
 }
 
 func NewListener(conn Connection) *listener {
@@ -85,10 +48,10 @@ func (l *listener) close() {
 func (l *listener) getTransactionBlockHash(hash common.Hash) (blockHash common.Hash) {
 	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
 	if err != nil {
-		fmt.Errorf("unable to get BlockHash: %s", err)
+		fmt.Errorf("unable to get transaction: %s", err)
 	}
 
-	receipt, err := WaitForTx(l.conn.Client(), tx)
+	receipt, err := l.conn.Client().TransactionReceipt(context.Background(), tx.Hash())
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
