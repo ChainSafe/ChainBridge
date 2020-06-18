@@ -50,6 +50,22 @@ func WaitForTx(client *ethclient.Client, tx *types.Transaction) (*types.Receipt,
 	return nil, fmt.Errorf("transaction after retries failed")
 }
 
+func WaitForBlock(client *ethclient.Client, hash common.Hash) (*types.Block, error) {
+	retry := 10
+	for retry > 0 {
+		block, err := client.BlockByHash(context.Background(), hash)
+		fmt.Print(block)
+		if err != nil {
+			retry--
+			time.Sleep(ExpectedBlockTime)
+			continue
+		}
+
+		return block, nil
+	}
+	return nil, fmt.Errorf("failed after multiple retries to connect to block")
+}
+
 func NewListener(conn Connection) *listener {
 	return &listener{conn: conn}
 }
@@ -68,7 +84,6 @@ func (l *listener) close() {
 
 func (l *listener) getTransactionBlockHash(hash common.Hash) (blockHash common.Hash) {
 	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
-
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
@@ -77,16 +92,15 @@ func (l *listener) getTransactionBlockHash(hash common.Hash) (blockHash common.H
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
-
 	return receipt.BlockHash
 }
 
-func (l *listener) getBlockTransactionsByHash(hash common.Hash) (tx []common.Hash, txRoot common.Hash) {
-	time.Sleep(30 * time.Second)
+func (l *listener) getBlockTransactionsByHash(hash common.Hash) (txHashes []common.Hash, txRoot common.Hash) {
 	block, err := l.conn.Client().BlockByHash(context.Background(), hash)
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
+
 	var transactionHashes []common.Hash
 
 	transactions := block.Transactions()
@@ -94,5 +108,5 @@ func (l *listener) getBlockTransactionsByHash(hash common.Hash) (tx []common.Has
 		transactionHashes = append(transactionHashes, transaction.Hash())
 	}
 
-	return transactionHashes, block.Root() //should only return hash of transactions or all transactions
+	return transactionHashes, block.Root()
 }

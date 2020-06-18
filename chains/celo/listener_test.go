@@ -69,23 +69,23 @@ func TestListener_start_stop(t *testing.T) {
 
 // Testing transaction Block hash
 func TestListener_TransactionBlockHash(t *testing.T) {
-	l := createTestListener(t)
 
+	l := createTestListener(t)
 	err := l.start()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Create a new transaction
+	// Create and submit a new transaction and return the signed transaction hash
 	hash := newTransaction(t, l)
-	// Submit the transaction and get the blockhash of the transaction when it has finished executing
+	// get the block hash of the receipt
 	blockHash := l.getTransactionBlockHash(hash)
-	// Get the block from the chain using the hash
+	// using the receipt blockhash get the block
 	block, err := l.conn.Client().BlockByHash(context.Background(), blockHash)
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Confirm that the tx hash we have and the tx hash on the block are the same
+	// Confirm that the receipt blockhash and the block's blockhash are the same
 	if block.Hash() != blockHash {
 		t.Fatalf("block hash are not equal, expected: %x, %x", hash, block.TxHash())
 	}
@@ -93,14 +93,19 @@ func TestListener_TransactionBlockHash(t *testing.T) {
 
 }
 
-//func TestListener_BlockTransactionsByHash(t *testing.T) {
-//	l := createTestListener(t)
-//
-//	err := l.start()
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//
-//	l.conn.Client().BlockByNumber(context.Background(), big.NewInt(0))
-//
-//}
+func TestListener_BlockTransactionsByHash(t *testing.T) {
+	l := createTestListener(t)
+	err := l.start()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Create and submit a new transaction
+	hash := newTransaction(t, l)
+	// Get blockhash from receipt
+	blockHash := l.getTransactionBlockHash(hash)
+
+	// Get txHashes and txroot from blockHash
+	l.getBlockTransactionsByHash(blockHash)
+
+}
