@@ -5,15 +5,14 @@ package celo
 
 import (
 	"context"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"math/big"
-	"testing"
-
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"math/big"
+	"testing"
 )
 
 var TestEndpoint = "ws://localhost:8545"
@@ -74,6 +73,7 @@ func TestListener_TransactionBlockHash(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	hash := newTransaction(t, l)
 	l.getTransactionBlockHash(hash)
 

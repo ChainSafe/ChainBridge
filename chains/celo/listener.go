@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/core/types"
 	"time"
 
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
@@ -23,8 +24,30 @@ type Connection interface {
 	Opts() *bind.TransactOpts
 }
 
+var ExpectedBlockTime = time.Second
+
 type listener struct {
 	conn Connection
+}
+
+// WaitForTx will query the chain at ExpectedBlockTime intervals, until a receipt is returned.
+// Returns an error if the tx failed.
+func WaitForTx(client *ethclient.Client, tx *types.Transaction) (*types.Receipt, error) {
+	retry := 10
+	for retry > 0 {
+		receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
+		if err != nil {
+			retry--
+			time.Sleep(ExpectedBlockTime)
+			continue
+		}
+
+		if receipt.Status != 1 {
+			return nil, fmt.Errorf("transaction failed on chain")
+		}
+		return receipt, nil
+	}
+	return nil, fmt.Errorf("transaction after retries failed")
 }
 
 func NewListener(conn Connection) *listener {
@@ -45,12 +68,12 @@ func (l *listener) close() {
 
 func (l *listener) getTransactionBlockHash(hash common.Hash) (blockHash common.Hash) {
 	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
-	//utils.WaitForTx(l.conn.Client(), tx)
+
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
 
-	receipt, err := l.conn.Client().TransactionReceipt(context.Background(), tx.Hash())
+	receipt, err := WaitForTx(l.conn.Client(), tx)
 	if err != nil {
 		fmt.Errorf("unable to get BlockHash: %s", err)
 	}
