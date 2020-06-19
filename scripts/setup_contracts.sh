@@ -3,8 +3,7 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
-CONTRACTS_BRANCH="v0.0.1-alpha"
-CONTRACTS_COMMIT="5382f0c889b4c4e61a1700568ef005af6a5b24e7"
+CONTRACTS_TAG="v0.0.2-alpha"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 
@@ -12,9 +11,9 @@ set -eux
 
 case $TARGET in
 	"build")
-		git clone -b $CONTRACTS_BRANCH $CONTRACTS_REPO $CONTRACTS_DIR
+		git clone $CONTRACTS_REPO $CONTRACTS_DIR
     pushd $CONTRACTS_DIR
-    git checkout $CONTRACTS_COMMIT
+    git checkout $CONTRACTS_TAG
 
     make install-deps
     make bindings
