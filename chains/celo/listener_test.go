@@ -6,7 +6,6 @@ package celo
 import (
 	"context"
 	"fmt"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"math/big"
 	"testing"
 	"time"
@@ -17,6 +16,7 @@ import (
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 var TestEndpoint = "ws://localhost:8545"
