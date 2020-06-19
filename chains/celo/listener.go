@@ -45,23 +45,23 @@ func (l *listener) close() {
 	l.conn.Close()
 }
 
-func (l *listener) getTransactionBlockHash(hash common.Hash) (blockHash common.Hash) {
+func (l *listener) getTransactionBlockHash(hash common.Hash) (blockHash common.Hash, err error) {
 	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
 	if err != nil {
-		fmt.Errorf("unable to get transaction: %s", err)
+		return hash, fmt.Errorf("unable to get transaction: %s", err)
 	}
 
 	receipt, err := l.conn.Client().TransactionReceipt(context.Background(), tx.Hash())
 	if err != nil {
-		fmt.Errorf("unable to get BlockHash: %s", err)
+		return hash, fmt.Errorf("unable to get BlockHash: %s", err)
 	}
-	return receipt.BlockHash
+	return receipt.BlockHash, nil
 }
 
-func (l *listener) getBlockTransactionsByHash(hash common.Hash) (txHashes []common.Hash, txRoot common.Hash) {
+func (l *listener) getBlockTransactionsByHash(hash common.Hash) (txHashes []common.Hash, txRoot common.Hash, err error) {
 	block, err := l.conn.Client().BlockByHash(context.Background(), hash)
 	if err != nil {
-		fmt.Errorf("unable to get BlockHash: %s", err)
+		return []common.Hash{}, common.Hash{}, fmt.Errorf("unable to get BlockHash: %s", err)
 	}
 
 	var transactionHashes []common.Hash
@@ -71,5 +71,5 @@ func (l *listener) getBlockTransactionsByHash(hash common.Hash) (txHashes []comm
 		transactionHashes = append(transactionHashes, transaction.Hash())
 	}
 
-	return transactionHashes, block.Root()
+	return transactionHashes, block.Root(), nil
 }

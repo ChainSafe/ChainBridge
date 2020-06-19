@@ -103,7 +103,7 @@ func TestListener_TransactionBlockHash(t *testing.T) {
 	// Create and submit a new transaction and return the signed transaction hash
 	hash := newTransaction(t, l)
 
-	// create transaction so we can get receipt
+	// Get the transaction
 	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
 	if err != nil {
 		t.Fatal(err)
@@ -114,8 +114,12 @@ func TestListener_TransactionBlockHash(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// get the block hash of the receipt
-	blockHash := l.getTransactionBlockHash(hash)
+	// Get the block hash of the receipt
+	blockHash, err := l.getTransactionBlockHash(hash)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	retrievedBlock, err := l.conn.Client().BlockByHash(context.Background(), blockHash)
 	if err != nil {
 		t.Fatal(err)
@@ -147,7 +151,10 @@ func TestListener_BlockTransactionsByHash(t *testing.T) {
 	}
 
 	// Get txHashes and txroot from blockHash
-	txs, _ := l.getBlockTransactionsByHash(receipt.BlockHash)
+	txs, _, err := l.getBlockTransactionsByHash(receipt.BlockHash)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if len(txs) != 1 || txs[0] != hash {
 		t.Fatalf("hash and transactions should be the same: hash, %x txs, %x", hash, txs)
