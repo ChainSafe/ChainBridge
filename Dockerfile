@@ -1,17 +1,18 @@
 # Copyright 2020 ChainSafe Systems
 # SPDX-License-Identifier: LGPL-3.0-only
-FROM  golang:1.13-alpine AS builder
-RUN apk --no-cache add gcc build-base git linux-headers
+
+FROM  golang:1.13-stretch AS builder
 ADD . /src
 WORKDIR /src
 RUN go mod download
 RUN cd cmd/chainbridge && go build -o /bridge .
 
-## Final stage
-## Start with subkey build
-FROM parity/subkey:2.0.0-alpha.3
-USER root
+# # final stage
+FROM debian:stretch-slim
+RUN apt-get -y update && apt-get -y upgrade && apt-get install ca-certificates wget -y
+RUN wget -P /usr/local/bin/ https://chainbridge.ams3.digitaloceanspaces.com/subkey  && chmod +x /usr/local/bin/subkey
 RUN subkey --version
+
 COPY --from=builder /bridge ./
 RUN chmod +x ./bridge
 
