@@ -92,7 +92,7 @@ func TestListener_start_stop(t *testing.T) {
 }
 
 // Testing transaction Block hash
-func TestListener_TransactionBlockHash(t *testing.T) {
+func TestListener_BlockHashFromTransactionHash(t *testing.T) {
 
 	l := createTestListener(t)
 	err := l.start()
@@ -101,31 +101,25 @@ func TestListener_TransactionBlockHash(t *testing.T) {
 	}
 
 	// Create and submit a new transaction and return the signed transaction hash
-	hash := newTransaction(t, l)
+	txHash := newTransaction(t, l)
 
-	receipt, err := waitForTx(l.conn.Client(), hash)
+	receipt, err := waitForTx(l.conn.Client(), txHash)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	blockHash, err := l.getTransactionBlockHash(hash)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Get the block
-	retrievedBlock, err := l.conn.Client().BlockByHash(context.Background(), blockHash)
+	blockHash, err := l.getBlockHashFromTransactionHash(txHash)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Confirm that the receipt blockhash and the block's blockhash are the same
 	if blockHash != receipt.BlockHash {
-		t.Fatalf("block hash are not equal, expected: %x, %x", retrievedBlock.Hash(), receipt.TxHash)
+		t.Fatalf("block hash are not equal, expected: %x, %x", receipt.BlockHash, blockHash)
 	}
 }
 
-func TestListener_BlockTransactionsByHash(t *testing.T) {
+func TestListener_TransactionsFromBlockHash(t *testing.T) {
 	l := createTestListener(t)
 	err := l.start()
 	if err != nil {
@@ -133,16 +127,16 @@ func TestListener_BlockTransactionsByHash(t *testing.T) {
 	}
 
 	// Create and submit a new transaction
-	hash := newTransaction(t, l)
+	txHash := newTransaction(t, l)
 
 	// Get receipt from hash
-	receipt, err := waitForTx(l.conn.Client(), hash)
+	receipt, err := waitForTx(l.conn.Client(), txHash)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Get txHashes and txroot from blockHash
-	txs, _, err := l.getBlockTransactionsByHash(receipt.BlockHash)
+	txs, _, err := l.getTransactionsFromBlockHash(receipt.BlockHash)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -151,7 +145,7 @@ func TestListener_BlockTransactionsByHash(t *testing.T) {
 		t.Fatalf("transaction hashes should have a length of one, %x", txs)
 	}
 
-	if txs[0] != hash {
-		t.Fatalf("hash and transactions should be the same: hash, %x txs, %x", hash, txs)
+	if txs[0] != txHash {
+		t.Fatalf("hash and transactions should be the same: hash, %x txs, %x", txHash, txs)
 	}
 }
