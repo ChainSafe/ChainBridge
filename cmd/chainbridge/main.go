@@ -93,7 +93,7 @@ func init() {
 	app.Copyright = "Copyright 2019 ChainSafe Systems Authors"
 	app.Name = "chainbridge"
 	app.Usage = "ChainBridge"
-	app.Author = "ChainSafe Systems 2019"
+	app.Authors = []*cli.Author{&cli.Author{Name: "ChainSafe Systems 2019"}}
 	app.Version = "0.0.1"
 	app.EnableBashCompletion = true
 	app.Commands = []*cli.Command{
@@ -116,9 +116,9 @@ func startLogger(ctx *cli.Context) error {
 	handler := logger.GetHandler()
 	var lvl log.Lvl
 
-	if lvlToInt, err := strconv.Atoi(ctx.GlobalString(config.VerbosityFlag.Name)); err == nil {
+	if lvlToInt, err := strconv.Atoi(ctx.String(config.VerbosityFlag.Name)); err == nil {
 		lvl = log.Lvl(lvlToInt)
-	} else if lvl, err = log.LvlFromString(ctx.GlobalString(config.VerbosityFlag.Name)); err != nil {
+	} else if lvl, err = log.LvlFromString(ctx.String(config.VerbosityFlag.Name)); err != nil {
 		return err
 	}
 	log.Root().SetHandler(log.LvlFilterHandler(lvl, handler))
@@ -142,7 +142,7 @@ func run(ctx *cli.Context) error {
 	// Check for test key flag
 	var ks string
 	var insecure bool
-	if key := ctx.GlobalString(config.TestKeyFlag.Name); key != "" {
+	if key := ctx.String(config.TestKeyFlag.Name); key != "" {
 		ks = key
 		insecure = true
 	} else {
@@ -165,9 +165,9 @@ func run(ctx *cli.Context) error {
 			From:           chain.From,
 			KeystorePath:   ks,
 			Insecure:       insecure,
-			BlockstorePath: ctx.GlobalString(config.BlockstorePathFlag.Name),
-			FreshStart:     ctx.GlobalBool(config.FreshStartFlag.Name),
-			LatestBlock:    ctx.GlobalBool(config.LatestBlockFlag.Name),
+			BlockstorePath: ctx.String(config.BlockstorePathFlag.Name),
+			FreshStart:     ctx.Bool(config.FreshStartFlag.Name),
+			LatestBlock:    ctx.Bool(config.LatestBlockFlag.Name),
 			Opts:           chain.Opts,
 		}
 		var newChain core.Chain
