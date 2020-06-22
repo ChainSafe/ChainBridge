@@ -17,7 +17,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/keystore"
 	log "github.com/ChainSafe/log15"
 	gokeystore "github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 //dataHandler is a struct which wraps any extra data our CMD functions need that cannot be passed through parameters

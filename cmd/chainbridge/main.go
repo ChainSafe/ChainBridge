@@ -18,36 +18,36 @@ import (
 	"github.com/ChainSafe/ChainBridge/core"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	log "github.com/ChainSafe/log15"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var app = cli.NewApp()
 
 var cliFlags = []cli.Flag{
-	config.ConfigFileFlag,
-	config.VerbosityFlag,
-	config.KeystorePathFlag,
-	config.BlockstorePathFlag,
-	config.FreshStartFlag,
-	config.LatestBlockFlag,
+	&config.ConfigFileFlag,
+	&config.VerbosityFlag,
+	&config.KeystorePathFlag,
+	&config.BlockstorePathFlag,
+	&config.FreshStartFlag,
+	&config.LatestBlockFlag,
 }
 
 var generateFlags = []cli.Flag{
-	config.PasswordFlag,
-	config.Sr25519Flag,
-	config.Secp256k1Flag,
+	&config.PasswordFlag,
+	&config.Sr25519Flag,
+	&config.Secp256k1Flag,
 }
 
 var devFlags = []cli.Flag{
-	config.TestKeyFlag,
+	&config.TestKeyFlag,
 }
 
 var importFlags = []cli.Flag{
-	config.EthereumImportFlag,
-	config.PrivateKeyFlag,
-	config.Sr25519Flag,
-	config.Secp256k1Flag,
-	config.PasswordFlag,
+	&config.EthereumImportFlag,
+	&config.PrivateKeyFlag,
+	&config.Sr25519Flag,
+	&config.Secp256k1Flag,
+	&config.PasswordFlag,
 }
 
 var accountCommand = cli.Command{
@@ -59,7 +59,7 @@ var accountCommand = cli.Command{
 		"\tTo import a geth keystore file: chainbridge accounts import --ethereum path/to/file\n" +
 		"\tTo import a private key file: chainbridge accounts import --privateKey private_key\n" +
 		"\tTo list keys: chainbridge accounts list",
-	Subcommands: []cli.Command{
+	Subcommands: []*cli.Command{
 		{
 			Action: wrapHandler(handleGenerateCmd),
 			Name:   "generate",
@@ -96,8 +96,8 @@ func init() {
 	app.Author = "ChainSafe Systems 2019"
 	app.Version = "0.0.1"
 	app.EnableBashCompletion = true
-	app.Commands = []cli.Command{
-		accountCommand,
+	app.Commands = []*cli.Command{
+		&accountCommand,
 	}
 
 	app.Flags = append(app.Flags, cliFlags...)

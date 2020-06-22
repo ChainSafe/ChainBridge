@@ -13,7 +13,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/naoina/toml"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 const DefaultConfigPath = "./config.toml"

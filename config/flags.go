@@ -5,7 +5,7 @@ package config
 
 import (
 	log "github.com/ChainSafe/log15"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var (

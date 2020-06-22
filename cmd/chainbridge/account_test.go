@@ -17,7 +17,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/crypto"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	"github.com/stretchr/testify/require"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var testKeystoreDir = "./test_datadir/"
@@ -121,8 +121,8 @@ func newTestContext(description string, flags []string, values []interface{}) (*
 func TestAccountCommands(t *testing.T) {
 	testApp := cli.NewApp()
 	testApp.Writer = ioutil.Discard
-	testApp.Commands = []cli.Command{
-		accountCommand,
+	testApp.Commands = []*cli.Command{
+		&accountCommand,
 	}
 
 	keypath := "."
