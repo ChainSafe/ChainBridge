@@ -61,10 +61,10 @@ func newTransaction(t *testing.T, l *listener) common.Hash {
 
 // WaitForTx will query the chain at ExpectedBlockTime intervals, until a receipt is returned.
 // Returns an error if the tx failed.
-func waitForTx(client *ethclient.Client, tx *types.Transaction) (*types.Receipt, error) {
+func waitForTx(client *ethclient.Client, hash common.Hash) (*types.Receipt, error) {
 	retry := 10
 	for retry > 0 {
-		receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
+		receipt, err := client.TransactionReceipt(context.Background(), hash)
 		if err != nil {
 			retry--
 			time.Sleep(ExpectedBlockTime)
@@ -103,30 +103,24 @@ func TestListener_TransactionBlockHash(t *testing.T) {
 	// Create and submit a new transaction and return the signed transaction hash
 	hash := newTransaction(t, l)
 
-	// Get the transaction
-	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
+	receipt, err := waitForTx(l.conn.Client(), hash)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	receipt, err := waitForTx(l.conn.Client(), tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Get the block hash of the receipt
 	blockHash, err := l.getTransactionBlockHash(hash)
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	// Get the block
 	retrievedBlock, err := l.conn.Client().BlockByHash(context.Background(), blockHash)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Confirm that the receipt blockhash and the block's blockhash are the same
-	if retrievedBlock.Hash() != receipt.BlockHash {
+	if blockHash != receipt.BlockHash {
 		t.Fatalf("block hash are not equal, expected: %x, %x", retrievedBlock.Hash(), receipt.TxHash)
 	}
 }
@@ -140,12 +134,9 @@ func TestListener_BlockTransactionsByHash(t *testing.T) {
 
 	// Create and submit a new transaction
 	hash := newTransaction(t, l)
-	// Get blockhash from receipt
-	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
-	if err != nil {
-		t.Fatal(err)
-	}
-	receipt, err := waitForTx(l.conn.Client(), tx)
+
+	// Get receipt from hash
+	receipt, err := waitForTx(l.conn.Client(), hash)
 	if err != nil {
 		t.Fatal(err)
 	}

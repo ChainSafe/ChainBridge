@@ -46,12 +46,8 @@ func (l *listener) close() {
 }
 
 func (l *listener) getTransactionBlockHash(hash common.Hash) (blockHash common.Hash, err error) {
-	tx, _, err := l.conn.Client().TransactionByHash(context.Background(), hash)
-	if err != nil {
-		return hash, fmt.Errorf("unable to get transaction: %s", err)
-	}
 
-	receipt, err := l.conn.Client().TransactionReceipt(context.Background(), tx.Hash())
+	receipt, err := l.conn.Client().TransactionReceipt(context.Background(), hash)
 	if err != nil {
 		return hash, fmt.Errorf("unable to get BlockHash: %s", err)
 	}
