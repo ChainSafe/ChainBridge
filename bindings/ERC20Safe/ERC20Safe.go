@@ -27,10 +27,10 @@ var (
 )
 
 // ERC20SafeABI is the input ABI used to generate the binding from.
-const ERC20SafeABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_balances\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_burnedTokens\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"fundERC20\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const ERC20SafeABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"fundERC20\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // ERC20SafeBin is the compiled bytecode used for deploying new contracts.
-var ERC20SafeBin = "0x608060405234801561001057600080fd5b506105c0806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c806345274738146100465780636ebcf6071461009e57806395601f09146100f6575b600080fd5b6100886004803603602081101561005c57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610164565b6040518082815260200191505060405180910390f35b6100e0600480360360208110156100b457600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061017c565b6040518082815260200191505060405180910390f35b6101626004803603606081101561010c57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610194565b005b60016020528060005260406000206000915090505481565b60006020528060005260406000206000915090505481565b60008390506101a58184308561023e565b6101f6826000808773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205461032b90919063ffffffff16565b6000808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208190555050505050565b610325846323b872dd60e01b858585604051602401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050604051602081830303815290604052907bffffffffffffffffffffffffffffffffffffffffffffffffffffffff19166020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff83818316178352505050506103b3565b50505050565b6000808284019050838110156103a9576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601b8152602001807f536166654d6174683a206164646974696f6e206f766572666c6f77000000000081525060200191505060405180910390fd5b8091505092915050565b600060608373ffffffffffffffffffffffffffffffffffffffff16836040518082805190602001908083835b6020831061040257805182526020820191506020810190506020830392506103df565b6001836020036101000a0380198251168184511680821785525050505050509050019150506000604051808303816000865af19150503d8060008114610464576040519150601f19603f3d011682016040523d82523d6000602084013e610469565b606091505b5091509150816104e1576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260128152602001807f45524332303a2063616c6c206661696c6564000000000000000000000000000081525060200191505060405180910390fd5b6000815111156105845780806020019051602081101561050057600080fd5b8101908080519060200190929190505050610583576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260208152602001807f45524332303a206f7065726174696f6e20646964206e6f74207375636365656481525060200191505060405180910390fd5b5b5050505056fea2646970667358221220c773524b7db6555038d9062c570edfe2eff076e8108b5a52761d7a71e6eeecd864736f6c63430006040033"
+var ERC20SafeBin = "0x608060405234801561001057600080fd5b506103af806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c806395601f0914610030575b600080fd5b61009c6004803603606081101561004657600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061009e565b005b60008390506100af818430856100b5565b50505050565b61019c846323b872dd60e01b858585604051602401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050604051602081830303815290604052907bffffffffffffffffffffffffffffffffffffffffffffffffffffffff19166020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff83818316178352505050506101a2565b50505050565b600060608373ffffffffffffffffffffffffffffffffffffffff16836040518082805190602001908083835b602083106101f157805182526020820191506020810190506020830392506101ce565b6001836020036101000a0380198251168184511680821785525050505050509050019150506000604051808303816000865af19150503d8060008114610253576040519150601f19603f3d011682016040523d82523d6000602084013e610258565b606091505b5091509150816102d0576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260128152602001807f45524332303a2063616c6c206661696c6564000000000000000000000000000081525060200191505060405180910390fd5b600081511115610373578080602001905160208110156102ef57600080fd5b8101908080519060200190929190505050610372576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260208152602001807f45524332303a206f7065726174696f6e20646964206e6f74207375636365656481525060200191505060405180910390fd5b5b5050505056fea264697066735822122083b63d594b57110ba0fae1c2772fe7ec2ad812d1eb0a49b633f1dee08d173eda64736f6c63430006040033"
 
 // DeployERC20Safe deploys a new Ethereum contract, binding an instance of ERC20Safe to it.
 func DeployERC20Safe(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *ERC20Safe, error) {
@@ -186,58 +186,6 @@ func (_ERC20Safe *ERC20SafeTransactorRaw) Transfer(opts *bind.TransactOpts) (*ty
 // Transact invokes the (paid) contract method with params as input values.
 func (_ERC20Safe *ERC20SafeTransactorRaw) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error) {
 	return _ERC20Safe.Contract.contract.Transact(opts, method, params...)
-}
-
-// Balances is a free data retrieval call binding the contract method 0x6ebcf607.
-//
-// Solidity: function _balances(address ) view returns(uint256)
-func (_ERC20Safe *ERC20SafeCaller) Balances(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _ERC20Safe.contract.Call(opts, out, "_balances", arg0)
-	return *ret0, err
-}
-
-// Balances is a free data retrieval call binding the contract method 0x6ebcf607.
-//
-// Solidity: function _balances(address ) view returns(uint256)
-func (_ERC20Safe *ERC20SafeSession) Balances(arg0 common.Address) (*big.Int, error) {
-	return _ERC20Safe.Contract.Balances(&_ERC20Safe.CallOpts, arg0)
-}
-
-// Balances is a free data retrieval call binding the contract method 0x6ebcf607.
-//
-// Solidity: function _balances(address ) view returns(uint256)
-func (_ERC20Safe *ERC20SafeCallerSession) Balances(arg0 common.Address) (*big.Int, error) {
-	return _ERC20Safe.Contract.Balances(&_ERC20Safe.CallOpts, arg0)
-}
-
-// BurnedTokens is a free data retrieval call binding the contract method 0x45274738.
-//
-// Solidity: function _burnedTokens(address ) view returns(uint256)
-func (_ERC20Safe *ERC20SafeCaller) BurnedTokens(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _ERC20Safe.contract.Call(opts, out, "_burnedTokens", arg0)
-	return *ret0, err
-}
-
-// BurnedTokens is a free data retrieval call binding the contract method 0x45274738.
-//
-// Solidity: function _burnedTokens(address ) view returns(uint256)
-func (_ERC20Safe *ERC20SafeSession) BurnedTokens(arg0 common.Address) (*big.Int, error) {
-	return _ERC20Safe.Contract.BurnedTokens(&_ERC20Safe.CallOpts, arg0)
-}
-
-// BurnedTokens is a free data retrieval call binding the contract method 0x45274738.
-//
-// Solidity: function _burnedTokens(address ) view returns(uint256)
-func (_ERC20Safe *ERC20SafeCallerSession) BurnedTokens(arg0 common.Address) (*big.Int, error) {
-	return _ERC20Safe.Contract.BurnedTokens(&_ERC20Safe.CallOpts, arg0)
 }
 
 // FundERC20 is a paid mutator transaction binding the contract method 0x95601f09.

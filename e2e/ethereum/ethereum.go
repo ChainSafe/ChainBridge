@@ -120,7 +120,7 @@ func CreateEthClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) (*eth
 }
 
 func CreateErc20Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, recipient []byte, amount *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
-	data := utils.ConstructErc20DepositData(rId, recipient, amount)
+	data := utils.ConstructErc20DepositData(recipient, amount)
 
 	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
 	if err != nil {
@@ -146,7 +146,7 @@ func CreateErc20Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, 
 }
 
 func CreateErc721Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, recipient []byte, tokenId *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
-	data := utils.ConstructErc721DepositData(rId, tokenId, recipient)
+	data := utils.ConstructErc721DepositData(tokenId, recipient)
 
 	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
 	if err != nil {
@@ -176,7 +176,7 @@ func CreateErc721Deposit(t *testing.T, client *utils.Client, destId msg.ChainId,
 }
 
 func CreateGenericDeposit(t *testing.T, client *utils.Client, destId msg.ChainId, metadata []byte, contracts *utils.DeployedContracts, rId msg.ResourceId) {
-	data := utils.ConstructGenericDepositData(rId, metadata)
+	data := utils.ConstructGenericDepositData(metadata)
 
 	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
 	if err != nil {

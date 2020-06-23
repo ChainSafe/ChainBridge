@@ -52,18 +52,6 @@ func (w *writer) setContract(bridge *Bridge.Bridge) {
 func (w *writer) ResolveMessage(m msg.Message) bool {
 	w.log.Info("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce, "rId", m.ResourceId.Hex())
 
-	// Check if proposal has passed and skip if Passed or Transferred
-	if w.proposalIsComplete(m.Source, m.DepositNonce) {
-		w.log.Info("Proposal complete, not voting", "src", m.Source, "nonce", m.DepositNonce)
-		return true
-	}
-
-	// Check if relayer has previously voted
-	if w.hasVoted(m.Source, m.DepositNonce) {
-		w.log.Info("Relayer has already voted, not voting", "src", m.Source, "nonce", m.DepositNonce)
-		return true
-	}
-
 	switch m.Type {
 	case msg.FungibleTransfer:
 		return w.createErc20Proposal(m)
