@@ -45,7 +45,7 @@ func createConfig(name string, startBlock *big.Int, contracts *utils.DeployedCon
 		erc721HandlerContract:  common.Address{},
 		genericHandlerContract: common.Address{},
 		gasLimit:               big.NewInt(DefaultGasLimit),
-		gasPrice:               big.NewInt(DefaultGasPrice),
+		maxGasPrice:            big.NewInt(DefaultGasPrice),
 		http:                   false,
 		startBlock:             startBlock,
 	}
