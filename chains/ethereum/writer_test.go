@@ -140,18 +140,6 @@ func routeMessageAndWait(t *testing.T, client *utils.Client, alice, bob *writer,
 	}
 }
 
-func Test_ContainsVote(t *testing.T) {
-	votes := []common.Address{AliceKp.CommonAddress()}
-
-	if !containsVote(votes, AliceKp.CommonAddress()) {
-		t.Error("Voter has voted")
-	}
-
-	if containsVote(votes, BobKp.CommonAddress()) {
-		t.Error("Voter has not voted")
-	}
-}
-
 func TestWriter_start_stop(t *testing.T) {
 	conn := newLocalConnection(t, aliceTestConfig)
 	defer conn.Close()
@@ -291,8 +279,12 @@ func TestDuplicateMessage(t *testing.T) {
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Address.Bytes(), 31), 0))
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
 	amount := big.NewInt(10)
-	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient.Bytes())
+	m := msg.NewFungibleTransfer(1, 0, 10, amount, resourceId, recipient.Bytes())
 	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Address)
+
+	data := constructErc20ProposalData(m.Payload[0].([]byte), m.Payload[1].([]byte))
+	dataHash := utils.Hash(append(contracts.ERC20HandlerAddress.Bytes(), data...))
+
 	// Helpful for debugging
 	go watchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
 	go watchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
@@ -315,18 +307,18 @@ func TestDuplicateMessage(t *testing.T) {
 	}
 
 	// Try processing the same message again
-	if ok := writerA.ResolveMessage(m); !ok {
-		t.Fatal("Alice failed to resolve the message")
+	if ok := writerA.ResolveMessage(m); ok {
+		t.Fatalf("%s should have not voted", writerA.cfg.name)
 	}
-	if ok := writerB.ResolveMessage(m); !ok {
-		t.Fatal("Bob failed to resolve the message")
+	if ok := writerB.ResolveMessage(m); ok {
+		t.Fatalf("%s should have not voted", writerB.cfg.name)
 	}
 
 	// Ensure the votes are recorded
-	if !writerA.hasVoted(m.Source, m.DepositNonce) {
+	if !writerA.hasVoted(m.Source, m.DepositNonce, dataHash) {
 		t.Fatal("Relayer vote not found on chain")
 	}
-	if !writerB.hasVoted(m.Source, m.DepositNonce) {
+	if !writerB.hasVoted(m.Source, m.DepositNonce, dataHash) {
 		t.Fatal("Relayer vote not found on chain")
 	}
 

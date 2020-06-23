@@ -107,7 +107,7 @@ func createErc20Deposit(
 	amount *big.Int,
 ) {
 
-	data := utils.ConstructErc20DepositData(rId, destRecipient.Bytes(), amount)
+	data := utils.ConstructErc20DepositData(destRecipient.Bytes(), amount)
 
 	// Incrememnt Nonce by one
 	client.Opts.Nonce = client.Opts.Nonce.Add(client.Opts.Nonce, big.NewInt(1))
@@ -131,7 +131,7 @@ func createErc721Deposit(
 	tokenId *big.Int,
 ) {
 
-	data := utils.ConstructErc721DepositData(rId, tokenId, destRecipient.Bytes())
+	data := utils.ConstructErc721DepositData(tokenId, destRecipient.Bytes())
 
 	// Incrememnt Nonce by one
 	client.Opts.Nonce = client.Opts.Nonce.Add(client.Opts.Nonce, big.NewInt(1))
@@ -153,7 +153,7 @@ func createGenericDeposit(
 	destId msg.ChainId,
 	hash []byte) {
 
-	data := utils.ConstructGenericDepositData(rId, hash)
+	data := utils.ConstructGenericDepositData(hash)
 
 	// Incrememnt Nonce by one
 	client.Opts.Nonce = client.Opts.Nonce.Add(client.Opts.Nonce, big.NewInt(1))
