@@ -13,7 +13,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/naoina/toml"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 const DefaultConfigPath = "./config.toml"
@@ -120,7 +120,7 @@ func (c *Config) validate() error {
 func GetConfig(ctx *cli.Context) (*Config, error) {
 	var fig Config
 	path := DefaultConfigPath
-	if file := ctx.GlobalString(ConfigFileFlag.Name); file != "" {
+	if file := ctx.String(ConfigFileFlag.Name); file != "" {
 		path = file
 	}
 	err := loadConfig(path, &fig)
@@ -128,7 +128,7 @@ func GetConfig(ctx *cli.Context) (*Config, error) {
 		log.Warn("err loading toml file", "err", err.Error())
 		return &fig, err
 	}
-	if ksPath := ctx.GlobalString(KeystorePathFlag.Name); ksPath != "" {
+	if ksPath := ctx.String(KeystorePathFlag.Name); ksPath != "" {
 		fig.KeystorePath = ksPath
 	}
 	log.Debug("Loaded config", "path", path)
