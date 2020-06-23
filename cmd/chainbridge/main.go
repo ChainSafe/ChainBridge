@@ -24,30 +24,30 @@ import (
 var app = cli.NewApp()
 
 var cliFlags = []cli.Flag{
-	&config.ConfigFileFlag,
-	&config.VerbosityFlag,
-	&config.KeystorePathFlag,
-	&config.BlockstorePathFlag,
-	&config.FreshStartFlag,
-	&config.LatestBlockFlag,
+	config.ConfigFileFlag,
+	config.VerbosityFlag,
+	config.KeystorePathFlag,
+	config.BlockstorePathFlag,
+	config.FreshStartFlag,
+	config.LatestBlockFlag,
 }
 
 var generateFlags = []cli.Flag{
-	&config.PasswordFlag,
-	&config.Sr25519Flag,
-	&config.Secp256k1Flag,
+	config.PasswordFlag,
+	config.Sr25519Flag,
+	config.Secp256k1Flag,
 }
 
 var devFlags = []cli.Flag{
-	&config.TestKeyFlag,
+	config.TestKeyFlag,
 }
 
 var importFlags = []cli.Flag{
-	&config.EthereumImportFlag,
-	&config.PrivateKeyFlag,
-	&config.Sr25519Flag,
-	&config.Secp256k1Flag,
-	&config.PasswordFlag,
+	config.EthereumImportFlag,
+	config.PrivateKeyFlag,
+	config.Sr25519Flag,
+	config.Secp256k1Flag,
+	config.PasswordFlag,
 }
 
 var accountCommand = cli.Command{
@@ -93,7 +93,7 @@ func init() {
 	app.Copyright = "Copyright 2019 ChainSafe Systems Authors"
 	app.Name = "chainbridge"
 	app.Usage = "ChainBridge"
-	app.Authors = []*cli.Author{&cli.Author{Name: "ChainSafe Systems 2019"}}
+	app.Authors = []*cli.Author{{Name: "ChainSafe Systems 2019"}}
 	app.Version = "0.0.1"
 	app.EnableBashCompletion = true
 	app.Commands = []*cli.Command{
