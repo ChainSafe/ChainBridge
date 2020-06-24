@@ -62,7 +62,7 @@ func createConfig(name string, startBlock *big.Int, contracts *utils.DeployedCon
 
 func newTestLogger(name string) log15.Logger {
 	tLog := log15.New("chain", name)
-	tLog.SetHandler(log15.LvlFilterHandler(log15.LvlTrace, tLog.GetHandler()))
+	tLog.SetHandler(log15.LvlFilterHandler(log15.LvlError, tLog.GetHandler()))
 	return tLog
 }
 
