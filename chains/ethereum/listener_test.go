@@ -114,7 +114,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
-	go watchEvent(client, contracts.BridgeAddress, utils.Deposit)
+	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.Deposit)
 
 	erc20Contract := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
 
@@ -178,7 +178,7 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
-	go watchEvent(client, contracts.BridgeAddress, utils.Deposit)
+	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.Deposit)
 
 	tokenId := big.NewInt(99)
 
@@ -226,7 +226,7 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
-	go watchEvent(client, contracts.BridgeAddress, utils.Deposit)
+	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.Deposit)
 
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
