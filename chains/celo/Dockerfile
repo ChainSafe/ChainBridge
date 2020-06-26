@@ -37,6 +37,7 @@ FROM us.gcr.io/celo-testnet/celo-node:1.0.0
 
 WORKDIR /root
 
+
 COPY ./genesis.json .
 COPY password.txt .
 COPY ./keystore /root/keystore
