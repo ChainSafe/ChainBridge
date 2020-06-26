@@ -37,7 +37,7 @@ jobs:
         - set -e
         - docker-compose -f ./docker-compose-e2e.yml up -d
         - docker ps
-        - make test
+        - travis_wait 30 make test
 
     - stage: "Test"
       language: go

@@ -23,31 +23,31 @@ import (
 var BlockRetryInterval = time.Second * 5
 
 type Connection struct {
-	endpoint string
-	http     bool
-	kp       *secp256k1.Keypair
-	gasLimit *big.Int
-	gasPrice *big.Int
-	conn     *ethclient.Client
+	endpoint    string
+	http        bool
+	kp          *secp256k1.Keypair
+	gasLimit    *big.Int
+	maxGasPrice *big.Int
+	conn        *ethclient.Client
 	// signer    ethtypes.Signer
-	opts      *bind.TransactOpts
-	callOpts  *bind.CallOpts
-	nonce     uint64
-	nonceLock sync.Mutex
-	log       log15.Logger
-	stop      chan int // All routines should exit when this channel is closed
+	opts     *bind.TransactOpts
+	callOpts *bind.CallOpts
+	nonce    uint64
+	optsLock sync.Mutex
+	log      log15.Logger
+	stop     chan int // All routines should exit when this channel is closed
 }
 
 // NewConnection returns an uninitialized connection, must call Connection.Connect() before using.
 func NewConnection(endpoint string, http bool, kp *secp256k1.Keypair, log log15.Logger, gasLimit, gasPrice *big.Int) *Connection {
 	return &Connection{
-		endpoint: endpoint,
-		http:     http,
-		kp:       kp,
-		gasLimit: gasLimit,
-		gasPrice: gasPrice,
-		log:      log,
-		stop:     make(chan int),
+		endpoint:    endpoint,
+		http:        http,
+		kp:          kp,
+		gasLimit:    gasLimit,
+		maxGasPrice: gasPrice,
+		log:         log,
+		stop:        make(chan int),
 	}
 }
 
@@ -68,7 +68,7 @@ func (c *Connection) Connect() error {
 	c.conn = ethclient.NewClient(rpcClient)
 
 	// Construct tx opts, call opts, and nonce mechanism
-	opts, _, err := c.newTransactOpts(big.NewInt(0), c.gasLimit, c.gasPrice)
+	opts, _, err := c.newTransactOpts(big.NewInt(0), c.gasLimit, c.maxGasPrice)
 	if err != nil {
 		return err
 	}
@@ -114,19 +114,42 @@ func (c *Connection) CallOpts() *bind.CallOpts {
 	return c.callOpts
 }
 
-func (c *Connection) LockAndUpdateNonce() error {
-	c.nonceLock.Lock()
+func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
+	gasPrice, err := c.conn.SuggestGasPrice(context.TODO())
+	if err != nil {
+		return nil, err
+	}
+
+	// Check we aren't exceeding our limit
+	if gasPrice.Cmp(c.maxGasPrice) == 1 {
+		return c.maxGasPrice, nil
+	} else {
+		return gasPrice, nil
+	}
+}
+
+// LockAndUpdateOpts acquires a lock on the opts before updating the nonce
+// and gas price.
+func (c *Connection) LockAndUpdateOpts() error {
+	c.optsLock.Lock()
+
+	gasPrice, err := c.SafeEstimateGas(context.TODO())
+	if err != nil {
+		return err
+	}
+	c.opts.GasPrice = gasPrice
+
 	nonce, err := c.conn.PendingNonceAt(context.Background(), c.opts.From)
 	if err != nil {
-		c.nonceLock.Unlock()
+		c.optsLock.Unlock()
 		return err
 	}
 	c.opts.Nonce.SetUint64(nonce)
 	return nil
 }
 
-func (c *Connection) UnlockNonce() {
-	c.nonceLock.Unlock()
+func (c *Connection) UnlockOpts() {
+	c.optsLock.Unlock()
 }
 
 // LatestBlock returns the latest block from the current chain
