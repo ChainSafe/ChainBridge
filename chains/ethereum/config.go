@@ -31,7 +31,7 @@ type Config struct {
 	erc721HandlerContract  common.Address
 	genericHandlerContract common.Address
 	gasLimit               *big.Int
-	gasPrice               *big.Int
+	maxGasPrice            *big.Int
 	http                   bool // Config for type of connection
 	startBlock             *big.Int
 }
@@ -52,7 +52,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		erc721HandlerContract:  utils.ZeroAddress,
 		genericHandlerContract: utils.ZeroAddress,
 		gasLimit:               big.NewInt(DefaultGasLimit),
-		gasPrice:               big.NewInt(DefaultGasPrice),
+		maxGasPrice:            big.NewInt(DefaultGasPrice),
 		http:                   false,
 		startBlock:             big.NewInt(0),
 	}
@@ -73,14 +73,14 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	config.genericHandlerContract = common.HexToAddress(chainCfg.Opts["genericHandler"])
 	delete(chainCfg.Opts, "genericHandler")
 
-	if gasPrice, ok := chainCfg.Opts["gasPrice"]; ok {
+	if gasPrice, ok := chainCfg.Opts["maxGasPrice"]; ok {
 		price := big.NewInt(0)
 		_, pass := price.SetString(gasPrice, 10)
 		if pass {
-			config.gasPrice = price
-			delete(chainCfg.Opts, "gasPrice")
+			config.maxGasPrice = price
+			delete(chainCfg.Opts, "maxGasPrice")
 		} else {
-			return nil, errors.New("unable to parse gas price")
+			return nil, errors.New("unable to parse max gas price")
 		}
 	}
 

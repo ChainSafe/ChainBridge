@@ -35,7 +35,7 @@ func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 			"erc721Handler":  contracts.ERC721HandlerAddress.Hex(),
 			"genericHandler": contracts.GenericHandlerAddress.Hex(),
 			"gasLimit":       big.NewInt(DefaultGasLimit).String(),
-			"gasPrice":       big.NewInt(DefaultGasPrice).String(),
+			"maxGasPrice":    big.NewInt(DefaultGasPrice).String(),
 		},
 	}
 	sysErr := make(chan error)
@@ -94,7 +94,7 @@ func TestChain_WriterShutdownOnFailure(t *testing.T) {
 			"erc721Handler":  contracts.ERC721HandlerAddress.Hex(),
 			"genericHandler": contracts.GenericHandlerAddress.Hex(),
 			"gasLimit":       big.NewInt(DefaultGasLimit).String(),
-			"gasPrice":       big.NewInt(DefaultGasPrice).String(),
+			"maxGasPrice":    big.NewInt(DefaultGasPrice).String(),
 		},
 	}
 	sysErr := make(chan error)

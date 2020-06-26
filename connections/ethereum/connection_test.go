@@ -4,6 +4,7 @@
 package ethereum
 
 import (
+	"context"
 	"math/big"
 	"testing"
 
@@ -17,10 +18,10 @@ import (
 var TestEndpoint = "ws://localhost:8545"
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var GasLimit = big.NewInt(ethutils.DefaultGasLimit)
-var GasPrice = big.NewInt(ethutils.DefaultGasPrice)
+var MaxGasPrice = big.NewInt(ethutils.DefaultMaxGasPrice)
 
 func TestConnect(t *testing.T) {
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, GasPrice)
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice)
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +38,7 @@ func TestContractCode(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, GasPrice)
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice)
 	err = conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -55,4 +56,42 @@ func TestContractCode(t *testing.T) {
 		t.Fatal("should detect no bytecode")
 	}
 
+}
+
+func TestConnection_SafeEstimateGas(t *testing.T) {
+	// MaxGasPrice is the constant price on the dev network, so we increase it here by 1 to ensure it adjusts
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice.Add(MaxGasPrice, big.NewInt(1)))
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	price, err := conn.SafeEstimateGas(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if price.Cmp(MaxGasPrice) == 0 {
+		t.Fatalf("Gas price should be less than max. Suggested: %s Max: %s", price.String(), MaxGasPrice.String())
+	}
+}
+
+func TestConnection_SafeEstimateGasMax(t *testing.T) {
+	maxPrice := big.NewInt(1)
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxPrice)
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	price, err := conn.SafeEstimateGas(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if price.Cmp(maxPrice) != 0 {
+		t.Fatalf("Gas price should equal max. Suggested: %s Max: %s", price.String(), maxPrice.String())
+	}
 }

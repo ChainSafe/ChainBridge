@@ -18,7 +18,7 @@ import (
 )
 
 const DefaultGasLimit = 6721975
-const DefaultGasPrice = 20000000000
+const DefaultMaxGasPrice = 20000000000
 
 var ExpectedBlockTime = time.Second
 
@@ -41,7 +41,7 @@ func NewClient(endpoint string, kp *secp256k1.Keypair) (*Client, error) {
 	opts.Nonce = big.NewInt(0)
 	opts.Value = big.NewInt(0)              // in wei
 	opts.GasLimit = uint64(DefaultGasLimit) // in units
-	opts.GasPrice = big.NewInt(DefaultGasPrice)
+	opts.GasPrice = big.NewInt(DefaultMaxGasPrice)
 	opts.Context = ctx
 
 	return &Client{

@@ -222,9 +222,9 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 		case <-w.stop:
 			return
 		default:
-			err := w.conn.LockAndUpdateNonce()
+			err := w.conn.LockAndUpdateOpts()
 			if err != nil {
-				w.log.Error("Failed to update nonce", "err", err)
+				w.log.Error("Failed to update tx opts", "err", err)
 				continue
 			}
 
@@ -235,7 +235,7 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				m.ResourceId,
 				dataHash,
 			)
-			w.conn.UnlockNonce()
+			w.conn.UnlockOpts()
 
 			if err == nil {
 				w.log.Info("Submitted proposal vote", "tx", tx.Hash(), "src", m.Source, "depositNonce", m.DepositNonce)
@@ -266,7 +266,7 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 		case <-w.stop:
 			return
 		default:
-			err := w.conn.LockAndUpdateNonce()
+			err := w.conn.LockAndUpdateOpts()
 			if err != nil {
 				w.log.Error("Failed to update nonce", "err", err)
 				return
@@ -279,7 +279,7 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 				data,
 				m.ResourceId,
 			)
-			w.conn.UnlockNonce()
+			w.conn.UnlockOpts()
 
 			if err == nil {
 				w.log.Info("Submitted proposal execution", "tx", tx.Hash(), "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
