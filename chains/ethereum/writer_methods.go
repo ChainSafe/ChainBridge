@@ -12,8 +12,6 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	log "github.com/ChainSafe/log15"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
 )
 
 // Number of blocks to wait for an finalization event
@@ -29,42 +27,6 @@ var ErrNonceTooLow = errors.New("nonce too low")
 var ErrTxUnderpriced = errors.New("replacement transaction underpriced")
 var ErrFatalTx = errors.New("submission of transaction failed")
 var ErrFatalQuery = errors.New("query of chain state failed")
-
-// constructErc20ProposalData returns the bytes to construct a proposal suitable for Erc20
-func constructErc20ProposalData(amount []byte, recipient []byte) []byte {
-	var data []byte
-	data = append(data, common.LeftPadBytes(amount, 32)...) // amount (uint256)
-
-	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
-	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // length of recipient (uint256)
-	data = append(data, recipient...)                             // recipient ([]byte)
-	return data
-}
-
-// constructErc721ProposalData returns the bytes to construct a proposal suitable for Erc721
-func constructErc721ProposalData(tokenId []byte, recipient []byte, metadata []byte) []byte {
-	var data []byte
-	data = append(data, common.LeftPadBytes(tokenId, 32)...) // tokenId ([]byte)
-
-	recipientLen := big.NewInt(int64(len(recipient))).Bytes()
-	data = append(data, common.LeftPadBytes(recipientLen, 32)...) // length of recipient
-	data = append(data, recipient...)                             // recipient ([]byte)
-
-	metadataLen := big.NewInt(int64(len(metadata))).Bytes()
-	data = append(data, common.LeftPadBytes(metadataLen, 32)...) // length of metadata (uint256)
-	data = append(data, metadata...)                             // metadata ([]byte)
-	return data
-}
-
-// constructGenericProposalData returns the bytes to construct a generic proposal
-func constructGenericProposalData(metadata []byte) []byte {
-	var data []byte
-
-	metadataLen := big.NewInt(int64(len(metadata)))
-	data = append(data, math.PaddedBigBytes(metadataLen, 32)...) // length of metadata (uint256)
-	data = append(data, metadata...)                             // metadata ([]byte)
-	return data
-}
 
 // proposalIsComplete returns true if the proposal state is either Passed, Transferred or Cancelled
 func (w *writer) proposalIsComplete(srcId msg.ChainId, nonce msg.Nonce, dataHash [32]byte) bool {
@@ -118,7 +80,7 @@ func (w *writer) shouldVote(m msg.Message, dataHash [32]byte) bool {
 func (w *writer) createErc20Proposal(m msg.Message) bool {
 	w.log.Info("Creating erc20 proposal", "src", m.Source, "nonce", m.DepositNonce)
 
-	data := constructErc20ProposalData(m.Payload[0].([]byte), m.Payload[1].([]byte))
+	data := ConstructErc20ProposalData(m.Payload[0].([]byte), m.Payload[1].([]byte))
 	dataHash := utils.Hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 
 	if !w.shouldVote(m, dataHash) {
@@ -145,7 +107,7 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 func (w *writer) createErc721Proposal(m msg.Message) bool {
 	w.log.Info("Creating erc721 proposal", "src", m.Source, "nonce", m.DepositNonce)
 
-	data := constructErc721ProposalData(m.Payload[0].([]byte), m.Payload[1].([]byte), m.Payload[2].([]byte))
+	data := ConstructErc721ProposalData(m.Payload[0].([]byte), m.Payload[1].([]byte), m.Payload[2].([]byte))
 	dataHash := utils.Hash(append(w.cfg.erc721HandlerContract.Bytes(), data...))
 
 	if !w.shouldVote(m, dataHash) {
@@ -173,7 +135,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	w.log.Info("Creating generic proposal", "src", m.Source, "nonce", m.DepositNonce)
 
 	metadata := m.Payload[0].([]byte)
-	data := constructGenericProposalData(metadata)
+	data := ConstructGenericProposalData(metadata)
 	toHash := append(w.cfg.genericHandlerContract.Bytes(), data...)
 	dataHash := utils.Hash(toHash)
 
