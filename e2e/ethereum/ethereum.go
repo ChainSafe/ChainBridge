@@ -231,7 +231,6 @@ func WaitForProposalActive(t *testing.T, client *utils.Client, bridge common.Add
 			// Check nonce matches
 			if utils.IsActive(status) && currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
 				log.Info("Got matching ProposalCreated event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
-				close(ch)
 				return
 			} else {
 				log.Info("Incorrect ProposalCreated event", "nonce", currentNonce, "expectedNonce", nonce, "topics", evt.Topics)
@@ -273,7 +272,6 @@ func WaitForProposalExecutedEvent(t *testing.T, client *utils.Client, bridge com
 			// Check nonce matches
 			if utils.IsExecuted(status) && currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
 				log.Info("Got matching ProposalExecuted event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
-				close(ch)
 				return
 			} else {
 				log.Info("Incorrect ProposalExecuted event", "nonce", currentNonce, "expectedNonce", nonce, "topics", evt.Topics)
