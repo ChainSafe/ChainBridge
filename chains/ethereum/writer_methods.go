@@ -185,7 +185,7 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte,
 			}
 
 			// query for logs
-			query := buildQuery(w.cfg.bridgeContract, utils.ProposalFinalized, latestBlock, latestBlock)
+			query := buildQuery(w.cfg.bridgeContract, utils.ProposalEvent, latestBlock, latestBlock)
 			evts, err := w.conn.Client().FilterLogs(context.Background(), query)
 			if err != nil {
 				w.log.Error("Failed to fetch logs", "err", err)
@@ -195,16 +195,16 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte,
 			// execute the proposal once we find the matching finalized event
 			for _, evt := range evts {
 				sourceId := evt.Topics[1].Big().Uint64()
-				destId := evt.Topics[2].Big().Uint64()
-				depositNonce := evt.Topics[3].Big().Uint64()
+				depositNonce := evt.Topics[2].Big().Uint64()
+				status := evt.Topics[3].Big().Uint64()
 
 				if m.Source == msg.ChainId(sourceId) &&
-					m.Destination == msg.ChainId(destId) &&
-					m.DepositNonce.Big().Uint64() == depositNonce {
+					m.DepositNonce.Big().Uint64() == depositNonce &&
+					utils.IsFinalized(uint8(status)) {
 					w.executeProposal(m, data, dataHash)
 					return
 				} else {
-					w.log.Trace("Ignoring finalization event", "src", sourceId, "dest", destId, "nonce", depositNonce)
+					w.log.Trace("Ignoring finalization event", "src", sourceId, "nonce", depositNonce)
 				}
 			}
 			w.log.Trace("No finalization event found in current block", "block", latestBlock, "src", m.Source, "nonce", m.DepositNonce)

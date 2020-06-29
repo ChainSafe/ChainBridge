@@ -205,14 +205,14 @@ func CreateGenericDeposit(t *testing.T, client *utils.Client, destId msg.ChainId
 	}
 }
 
-func WaitForProposalCreatedEvent(t *testing.T, client *utils.Client, bridge common.Address, nonce uint64) {
+func WaitForProposalActive(t *testing.T, client *utils.Client, bridge common.Address, nonce uint64) {
 	startBlock := ethtest.GetLatestBlock(t, client)
 
 	query := eth.FilterQuery{
 		FromBlock: startBlock,
 		Addresses: []common.Address{bridge},
 		Topics: [][]common.Hash{
-			{utils.ProposalCreated.GetTopic()},
+			{utils.ProposalEvent.GetTopic()},
 		},
 	}
 
@@ -226,11 +226,11 @@ func WaitForProposalCreatedEvent(t *testing.T, client *utils.Client, bridge comm
 	for {
 		select {
 		case evt := <-ch:
-			currentNonce := evt.Topics[3].Big()
+			currentNonce := evt.Topics[2].Big()
+			status := uint8(evt.Topics[3].Big().Uint64())
 			// Check nonce matches
-			if currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
+			if utils.IsActive(status) && currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
 				log.Info("Got matching ProposalCreated event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
-				close(ch)
 				return
 			} else {
 				log.Info("Incorrect ProposalCreated event", "nonce", currentNonce, "expectedNonce", nonce, "topics", evt.Topics)
@@ -252,7 +252,7 @@ func WaitForProposalExecutedEvent(t *testing.T, client *utils.Client, bridge com
 		FromBlock: startBlock,
 		Addresses: []common.Address{bridge},
 		Topics: [][]common.Hash{
-			{utils.ProposalExecuted.GetTopic()},
+			{utils.ProposalEvent.GetTopic()},
 		},
 	}
 
@@ -267,11 +267,11 @@ func WaitForProposalExecutedEvent(t *testing.T, client *utils.Client, bridge com
 	for {
 		select {
 		case evt := <-ch:
-			currentNonce := evt.Topics[3].Big()
+			currentNonce := evt.Topics[2].Big()
+			status := uint8(evt.Topics[3].Big().Uint64())
 			// Check nonce matches
-			if currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
+			if utils.IsExecuted(status) && currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
 				log.Info("Got matching ProposalExecuted event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
-				close(ch)
 				return
 			} else {
 				log.Info("Incorrect ProposalExecuted event", "nonce", currentNonce, "expectedNonce", nonce, "topics", evt.Topics)

@@ -63,7 +63,7 @@ func testErc721ToSubstrateRoundTrip(t *testing.T, ctx *testContext) {
 			subtest.InitiateNonFungibleTransfer(t, ctx.subClient, types.NewU256(*tok.Id), ethRecipient.Bytes(), EthAChainId)
 
 			// Wait for event
-			eth.WaitForProposalCreatedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalActive(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
 			eth.WaitForProposalExecutedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
 			nonce++
 
@@ -107,7 +107,7 @@ func testErc721EthToEthRoundTrip(t *testing.T, ctx *testContext) {
 			eth.CreateErc721Deposit(t, ctx.ethA.Client, EthBChainId, ethBRecipient.Bytes(), tok.Id, ctx.ethA.BaseContracts, ctx.EthEthErc721ResourceId)
 
 			// Wait for proposal events
-			eth.WaitForProposalCreatedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalActive(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
 			eth.WaitForProposalExecutedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
 			nonce++
 
@@ -137,7 +137,7 @@ func testErc721EthToEthRoundTrip(t *testing.T, ctx *testContext) {
 			eth.CreateErc721Deposit(t, ctx.ethB.Client, EthAChainId, ethARecipient.Bytes(), tok.Id, ctx.ethB.BaseContracts, ctx.EthEthErc721ResourceId)
 
 			// Wait for proposal events
-			eth.WaitForProposalCreatedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalActive(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
 			eth.WaitForProposalExecutedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
 			nonce++
 
