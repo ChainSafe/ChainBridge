@@ -55,7 +55,7 @@ func routeMessageAndWait(t *testing.T, client *utils.Client, alice, bob *writer,
 		FromBlock: big.NewInt(0),
 		Addresses: []common.Address{alice.cfg.bridgeContract},
 		Topics: [][]common.Hash{
-			{utils.ProposalExecuted.GetTopic()},
+			{utils.ProposalEvent.GetTopic()},
 		},
 	}
 
@@ -84,12 +84,12 @@ func routeMessageAndWait(t *testing.T, client *utils.Client, alice, bob *writer,
 		select {
 		case evt := <-ch:
 			sourceId := evt.Topics[1].Big().Uint64()
-			destId := evt.Topics[2].Big().Uint64()
-			depositNonce := evt.Topics[3].Big().Uint64()
+			depositNonce := evt.Topics[2].Big().Uint64()
+			status := uint8(evt.Topics[3].Big().Uint64())
 
 			if m.Source == msg.ChainId(sourceId) &&
-				m.Destination == msg.ChainId(destId) &&
-				uint64(m.DepositNonce) == depositNonce {
+				uint64(m.DepositNonce) == depositNonce &&
+				utils.IsExecuted(status) {
 				return
 			}
 
@@ -143,10 +143,8 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	m := msg.NewFungibleTransfer(1, 0, 0, amount, resourceId, recipient.Bytes())
 	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Address)
 	// Helpful for debugging
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalEvent)
 	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
 
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
@@ -175,10 +173,8 @@ func TestCreateAndExecuteErc721Proposal(t *testing.T) {
 	m := msg.NewNonFungibleTransfer(1, 0, 0, resourceId, tokenId, recipient.Bytes(), []byte{})
 	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 	// Helpful for debugging
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalEvent)
 	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
 
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
@@ -219,11 +215,8 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 	}
 
 	// Helpful for debugging
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalEvent)
 	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
-
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
 
 	ethtest.AssertHashExistence(t, client, hash, assetStoreAddr)
@@ -253,10 +246,8 @@ func TestDuplicateMessage(t *testing.T) {
 	dataHash := utils.Hash(append(contracts.ERC20HandlerAddress.Bytes(), data...))
 
 	// Helpful for debugging
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalCreated)
+	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalEvent)
 	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalVote)
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalFinalized)
-	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.ProposalExecuted)
 
 	// Process initial message
 	routeMessageAndWait(t, client, writerA, writerB, m, errA, errB)
