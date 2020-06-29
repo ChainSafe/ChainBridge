@@ -15,9 +15,9 @@ func (es EventSig) GetTopic() common.Hash {
 }
 
 const (
-	Deposit           EventSig = "Deposit(uint8,bytes32,uint64)"
-	ProposalEvent   EventSig = "ProposalEvent(uint8,uint64,uint8,bytes32,bytes32)"
-	ProposalVote      EventSig = "ProposalVote(uint8,uint64,uint8,bytes32)"
+	Deposit       EventSig = "Deposit(uint8,bytes32,uint64)"
+	ProposalEvent EventSig = "ProposalEvent(uint8,uint64,uint8,bytes32,bytes32)"
+	ProposalVote  EventSig = "ProposalVote(uint8,uint64,uint8,bytes32)"
 	//ProposalFinalized EventSig = "ProposalFinalized(uint8,uint8,uint64,bytes32)"
 	//ProposalExecuted  EventSig = "ProposalExecuted(uint8,uint8,uint64)"
 )
@@ -25,12 +25,16 @@ const (
 type ProposalStatus int
 
 const (
-	 Inactive ProposalStatus = iota
-	 Active
-	 Passed
-	 Executed
-	 Cancelled
+	Inactive ProposalStatus = iota
+	Active
+	Passed
+	Executed
+	Cancelled
 )
+
+func IsActive(status uint8) bool {
+	return ProposalStatus(status) == Active
+}
 
 func IsFinalized(status uint8) bool {
 	return ProposalStatus(status) == Passed

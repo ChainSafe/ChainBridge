@@ -200,7 +200,7 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte,
 
 				if m.Source == msg.ChainId(sourceId) &&
 					m.DepositNonce.Big().Uint64() == depositNonce &&
-					utils.IsFinalized(uint8(status)){
+					utils.IsFinalized(uint8(status)) {
 					w.executeProposal(m, data, dataHash)
 					return
 				} else {
