@@ -4,15 +4,15 @@
 package trie
 
 import (
-
 	"errors"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethdb/leveldb"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/trie"
 )
 
 type Trie struct {
-	t         *trie.Trie
+	trie      *trie.Trie
 	trieRoots []common.Hash
 }
 
@@ -20,7 +20,7 @@ var (
 	emptyRoot = common.HexToHash("56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421")
 )
 
-func NewTrie(root common.Hash, db *Database) (*Trie, error) {
+func NewTrie(root common.Hash, db *leveldb.Database) (*Trie, error) {
 
 	// TODO: look into cache values
 	// this creates a new trie database with our KVDB as the diskDB for node storage
@@ -31,7 +31,7 @@ func NewTrie(root common.Hash, db *Database) (*Trie, error) {
 	}
 
 	trie := &Trie{
-		t: newTrie,
+		trie: newTrie,
 	}
 
 	if root != (common.Hash{}) && root != emptyRoot {
@@ -48,22 +48,25 @@ func (t *Trie) UpdateTrie(transactions []common.Hash, transactionRoot common.Has
 			return err
 		}
 
-		t.t.Update(key, tx)
+		t.trie.Update(key, tx.Bytes())
 	}
 
-	if *Trie.t.root != transactionRoot{
+	// check if the root hash of the trie matches the transactionRoot
+	if t.trie.Hash() != transactionRoot {
 		return errors.New("transaction roots don't match")
 	}
 
-	*Trie.trieRoots = append(Trie.trieRoots, transactionRoot)
+	t.trieRoots = append(t.trieRoots, transactionRoot)
 	return nil
 }
 
 // retrieves a proof from a trie object, given the root of the trie it is contained in and the key
-func (t *Trie) RetrieveProof(root common.Hash, key []byte) *ProofDatabase {
-	var proof = *ProofDatabase
-	err := t.t.Prove(key, 0, &proof)
+func (t *Trie) RetrieveProof(root common.Hash, key []byte) (*ProofDatabase, error) {
+	var proof = NewProofDatabase()
+	err := t.trie.Prove(key, 0, proof)
 	if err != nil {
-		return proof
+		return nil, err
 	}
+
+	return proof, nil
 }
