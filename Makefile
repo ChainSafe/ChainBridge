@@ -89,3 +89,7 @@ docker-e2e:
 
 clean:
 	rm -rf build/ solidity/
+
+celo-ganache:
+	./scripts/start_celo_ganache.sh
+
