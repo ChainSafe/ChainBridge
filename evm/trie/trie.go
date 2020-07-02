@@ -4,7 +4,6 @@
 package trie
 
 import (
-	"container/list"
 	"errors"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -127,7 +126,7 @@ func (t *Trie) deleteTrie(root common.Hash, txStored int) error {
 
 }
 
-// retrieves a Proof for a value at key in trie with root root
+// RetrieveProof retrieves a Proof for a value at key in trie with root root
 func (t *TxTries) RetrieveProof(root common.Hash, key []byte) (*ProofDatabase, error) {
 	index := t.indexOfRoot(root)
 
@@ -147,4 +146,14 @@ func (t *Trie) retrieveProof(root common.Hash, key []byte) (*ProofDatabase, erro
 	}
 
 	return proof, nil
+}
+
+func verifyProof(root common.Hash, key []byte, proof *ProofDatabase) (bool, error) {
+	exists, err := trie.VerifyProof(root, key, proof)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
