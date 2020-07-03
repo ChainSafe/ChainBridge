@@ -6,7 +6,7 @@ package trie
 import (
 	"errors"
 	"sync"
-	
+
 	"github.com/ethereum/go-ethereum/common"
 )
 

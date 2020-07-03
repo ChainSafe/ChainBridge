@@ -146,7 +146,7 @@ func TestAddSingleTrieRetrieveProof(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	exists, err := verifyProof(expectedRoot, keyToRetrieve, proofDb)
+	exists, err := VerifyProof(expectedRoot, keyToRetrieve, proofDb)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -323,7 +323,7 @@ func TestAddMultipleTriesRetrieveProof(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	exists1, err := verifyProof(expectedRoot1, keyToRetrieve, proofDb1)
+	exists1, err := VerifyProof(expectedRoot1, keyToRetrieve, proofDb1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -337,7 +337,7 @@ func TestAddMultipleTriesRetrieveProof(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	exists2, err := verifyProof(expectedRoot2, keyToRetrieve, proofDb2)
+	exists2, err := VerifyProof(expectedRoot2, keyToRetrieve, proofDb2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -351,7 +351,7 @@ func TestAddMultipleTriesRetrieveProof(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	exists3, err := verifyProof(expectedRoot3, keyToRetrieve, proofDb3)
+	exists3, err := VerifyProof(expectedRoot3, keyToRetrieve, proofDb3)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -441,7 +441,7 @@ func TestRetrieveProofDeletedTrie_Fails(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	exists3, err := verifyProof(expectedRoot3, keyToRetrieve, proofDb3)
+	exists3, err := VerifyProof(expectedRoot3, keyToRetrieve, proofDb3)
 	if err != nil {
 		t.Fatal(err)
 	}

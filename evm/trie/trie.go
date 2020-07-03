@@ -157,7 +157,6 @@ func (t *TxTries) RetrieveProof(root common.Hash, key []byte) (*ProofDatabase, e
 	return t.txTries[index].retrieveProof(root, key)
 }
 
-// retrieves a proof from a trie object, given the root of the trie it is contained in and the key
 func (t *Trie) retrieveProof(root common.Hash, key []byte) (*ProofDatabase, error) {
 	var proof = NewProofDatabase()
 	err := t.trie.Prove(key, 0, proof)
@@ -168,7 +167,8 @@ func (t *Trie) retrieveProof(root common.Hash, key []byte) (*ProofDatabase, erro
 	return proof, nil
 }
 
-func verifyProof(root common.Hash, key []byte, proof *ProofDatabase) (bool, error) {
+// VerifyProof verifies merkle proof on path key against the provided root
+func VerifyProof(root common.Hash, key []byte, proof *ProofDatabase) (bool, error) {
 	exists, _, err := trie.VerifyProof(root, key, proof)
 
 	if err != nil {
