@@ -450,11 +450,6 @@ func TestRetrieveProofDeletedTrie_Fails(t *testing.T) {
 		t.Fatalf("not able to verify retrieved proof!")
 	}
 
-	
-
-
-
 	deleteTempDB()
 
 }
-
