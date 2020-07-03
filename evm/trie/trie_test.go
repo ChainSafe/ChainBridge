@@ -363,3 +363,98 @@ func TestAddMultipleTriesRetrieveProof(t *testing.T) {
 	deleteTempDB()
 
 }
+
+func TestRetrieveProofDeletedTrie_Fails(t *testing.T) {
+	txTries := createNewTxTries(1)
+	db := createTempDB()
+
+	vals1 := []common.Hash{common.HexToHash("123"), common.HexToHash("456")}
+	expectedRoot1 := common.HexToHash("8e4ba8a974b3dfa9dbfb76d61c633ba2a1250a4d79e3e912e841392fdb232c17")
+
+	err := addTrie(txTries, expectedRoot1, vals1, db)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if txTries.txRoots[0] != expectedRoot1 {
+		t.Fatalf("failed to set txRoot in txTries properly, expected: %x, got: %x", expectedRoot1, txTries.txRoots[0])
+	}
+
+	if txTries.txTries[0].trie.Hash() != expectedRoot1 {
+		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", expectedRoot1, txTries.txTries[0].trie.Hash())
+	}
+
+	vals2 := []common.Hash{common.HexToHash("abc"), common.HexToHash("def")}
+	expectedRoot2 := common.HexToHash("f004b10977aed387a552429aac0228822c5502d6cf2d7c27ab41729bded6de88")
+
+	err = addTrie(txTries, expectedRoot2, vals2, db)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if txTries.txRoots[0] != expectedRoot2 {
+		t.Fatalf("failed to set txRoot in txTries properly, expected: %x, got: %x", expectedRoot2, txTries.txRoots[0])
+	}
+
+	if txTries.txTries[0].trie.Hash() != expectedRoot2 {
+		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", expectedRoot2, txTries.txTries[0].trie.Hash())
+	}
+
+	vals3 := []common.Hash{common.HexToHash("qwe"), common.HexToHash("rty")}
+	expectedRoot3 := common.HexToHash("76cdfcecc7b62db5a03b511f2b50bc56c69e33a3a46bc42bcdb1a46d77245739")
+
+	err = addTrie(txTries, expectedRoot3, vals3, db)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if txTries.txRoots[0] != expectedRoot3 {
+		t.Fatalf("failed to set txRoot in txTries properly, expected: %x, got: %x", expectedRoot3, txTries.txRoots[2])
+	}
+
+	if txTries.txTries[0].trie.Hash() != expectedRoot3 {
+		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", expectedRoot3, txTries.txTries[0].trie.Hash())
+	}
+
+	bytesIndex, err := intToBytes(0)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	keyToRetrieve, err := rlp.EncodeToBytes(bytesIndex)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = txTries.RetrieveProof(expectedRoot1, keyToRetrieve)
+	if err == nil {
+		t.Fatalf("able to retrieve proof from deleted trie")
+	}
+
+	_, err = txTries.RetrieveProof(expectedRoot2, keyToRetrieve)
+	if err == nil {
+		t.Fatalf("able to retrieve proof from deleted trie")
+	}
+
+	proofDb3, err := txTries.RetrieveProof(expectedRoot3, keyToRetrieve)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	exists3, err := verifyProof(expectedRoot3, keyToRetrieve, proofDb3)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if exists3 != true {
+		t.Fatalf("not able to verify retrieved proof!")
+	}
+
+	
+
+
+
+	deleteTempDB()
+
+}
+
