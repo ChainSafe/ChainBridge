@@ -4,6 +4,8 @@
 package trie
 
 import (
+	"bytes"
+	"encoding/binary"
 	"errors"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -28,7 +30,7 @@ var (
 	emptyRoot = common.HexToHash("56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421")
 )
 
-func newTxTries(t int) *TxTries {
+func NewTxTries(t int) *TxTries {
 	txTrie := &TxTries{
 		triesToStore: t,
 	}
@@ -64,10 +66,11 @@ func (t *TxTries) indexOfRoot(root common.Hash) int {
 }
 
 // AddTrie creates a new instance of a trie object
-func (t *TxTries) AddTrie(root common.Hash, db *leveldb.Database, transactions []common.Hash, transactionsRoot common.Hash) (*Trie, error) {
+func (t *TxTries) AddTrie(root common.Hash, db *leveldb.Database, transactions []common.Hash) (*Trie, error) {
 	// TODO: look into cache values
 	// this creates a new trie database with our KVDB as the diskDB for node storage
-	newTrie, err := trie.New(root, trie.NewDatabaseWithCache(db, 0))
+
+	newTrie, err := trie.New(emptyRoot, trie.NewDatabaseWithCache(db, 0))
 
 	if err != nil {
 		return nil, err
@@ -77,10 +80,10 @@ func (t *TxTries) AddTrie(root common.Hash, db *leveldb.Database, transactions [
 		trie: newTrie,
 	}
 
-	err = trie.updateTrie(transactions, transactionsRoot)
+	err = trie.updateTrie(transactions, root)
 
 	if err != nil {
-		return nil, errors.New("could not update trie")
+		return nil, err
 	}
 
 	t.updateTriesAndRoots(trie, root)
@@ -88,10 +91,16 @@ func (t *TxTries) AddTrie(root common.Hash, db *leveldb.Database, transactions [
 	return trie, nil
 }
 
+// updateTrie updates the transaction trie with root transactionRoot with given transactions
+// note that this assumes the slice transactions is in the same order they are in the block
 func (t *Trie) updateTrie(transactions []common.Hash, transactionRoot common.Hash) error {
 
 	for i, tx := range transactions {
-		key, err := rlp.EncodeToBytes(i)
+		b, err := intToBytes(i)
+		if err != nil {
+			return err
+		}
+		key, err := rlp.EncodeToBytes(b)
 		if err != nil {
 			return err
 		}
@@ -104,8 +113,19 @@ func (t *Trie) updateTrie(transactions []common.Hash, transactionRoot common.Has
 		return errors.New("transaction roots don't match")
 	}
 
-	//update the root in the
 	return nil
+}
+
+func intToBytes(i int) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	var num uint16 = 1234
+	err := binary.Write(buf, binary.LittleEndian, num)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+
 }
 
 func (t *Trie) deleteTrie(root common.Hash, txStored int) error {
@@ -149,11 +169,11 @@ func (t *Trie) retrieveProof(root common.Hash, key []byte) (*ProofDatabase, erro
 }
 
 func verifyProof(root common.Hash, key []byte, proof *ProofDatabase) (bool, error) {
-	exists, err := trie.VerifyProof(root, key, proof)
+	exists, _, err := trie.VerifyProof(root, key, proof)
 
 	if err != nil {
 		return false, err
 	}
 
-	return true, nil
+	return exists != nil, nil
 }
