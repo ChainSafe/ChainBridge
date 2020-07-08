@@ -39,9 +39,10 @@ WORKDIR /root
 
 
 COPY ./genesis.json .
-COPY password.txt .
-COPY ./keystore /root/keystore
+COPY ./key.txt .
+#COPY ./keystore /root/keystore
 COPY entrypoint.sh .
+COPY ./password.txt .
 
 RUN chmod +x entrypoint.sh
 
