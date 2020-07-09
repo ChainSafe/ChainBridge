@@ -4,21 +4,41 @@
 
 # Exit on failure
 set -ex
-geth init --datadir /root/ /root/genesis.json
 
-geth --datadir /root/ --maxpeers 0 --light.maxpeers 0 account import /root/key.txt
-#rm -rf /root/.ethereum/keystore
+rm -rf /root/celo
+geth init --datadir /root /root/genesis.json
+
+geth --datadir /root --maxpeers 0 --light.maxpeers 0 --password /root/password.txt account import /root/key.txt
+#rm -rf /root/keystore
 #cp -r /root/keystore /root/.ethereum/
 
-echo groot
 
-exec geth --datadir \
-  /root/ \
+
+exec geth --datadir /root \
   --maxpeers 0 \
+  --nodiscover \
   --light.maxpeers 0 \
   --unlock 0 \
-  --mine console \
-  --password /root/password.txt
+  --password /root/password.txt \
+  --mine
+
+
+#exec geth --datadir /root/ \
+#  --nodiscover \
+#  --allow-insecure-unlock \
+#  --maxpeers 0 \
+#  --light.maxpeers 0 \
+#  --unlock 0 \
+#  --password /root/password.txt \
+#  --ws \
+#  --wsport 8545 \
+#  --wsorigins="*" \
+#  --wsaddr 0.0.0.0 \
+#  --rpc \
+#  --rpcport 8546 \
+#  --rpccorsdomain="*" \
+#  --rpcaddr 0.0.0.0 \
+#  --mine console \
 
 
 #exec geth \

@@ -1,0 +1,16 @@
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
+
+version: '3'
+services:
+  geth1:
+    image: f2700abb0fa1
+    container_name: celo-geth1
+    ports:
+      - "8545:8546"
+
+  geth2:
+    image: f2700abb0fa1
+    container_name: celo-geth2
+    ports:
+      - "8547:8549"
