@@ -27,6 +27,7 @@ type TxTries struct {
 }
 
 var (
+	// from https://github.com/ethereum/go-ethereum/blob/bcb308745010675671991522ad2a9e811938d7fb/trie/trie.go#L32
 	emptyRoot = common.HexToHash("56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421")
 )
 
@@ -118,8 +119,8 @@ func (t *Trie) updateTrie(transactions []common.Hash, transactionRoot common.Has
 
 func intToBytes(i int) ([]byte, error) {
 	buf := new(bytes.Buffer)
-	var num uint16 = 1234
-	err := binary.Write(buf, binary.LittleEndian, num)
+	int := uint32(i)
+	err := binary.Write(buf, binary.LittleEndian, int)
 	if err != nil {
 		return nil, err
 	}
