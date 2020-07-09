@@ -38,8 +38,8 @@ func (db *ProofDatabase) Has(key []byte) (bool, error) {
 	if db.db == nil {
 		return false, errors.New("database does not exist")
 	}
-	_, val := db.db[string(key)]
-	return val, nil
+	_, exists := db.db[string(key)]
+	return exists, nil
 }
 
 // Get retrieves value associated with key in ProofDatabase db, and checks for existance
