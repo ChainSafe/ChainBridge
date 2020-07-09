@@ -40,4 +40,4 @@ centrifuge-chain/
 /cfgBuilder/*.toml
 
 # Temporary testing database
-evm/trie/temp-database
+evm/trie/temp-database/
