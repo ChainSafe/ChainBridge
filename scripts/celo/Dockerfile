@@ -4,9 +4,9 @@ FROM us.gcr.io/celo-testnet/celo-node:1.0.0
 
 WORKDIR /root
 
-COPY ./genesis.json .
 COPY ./key.txt .
-#COPY ./keystore /root/keystore
+COPY ./genesis.json .
+COPY ./keystore /root/keystore
 COPY entrypoint.sh .
 COPY ./password.txt .
 

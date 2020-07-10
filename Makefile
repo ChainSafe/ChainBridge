@@ -87,7 +87,7 @@ docker-start:
 docker-e2e:
 	docker-compose -f ./docker-compose-e2e.yml up
 
-docker-compose-celo:
+docker-celo:
 	docker-compose -f ./docker-compose-celo.yml up
 
 clean:

@@ -6,7 +6,7 @@ FROM ethereum/client-go:stable
 WORKDIR /root
 
 COPY ./genesis.json .
-COPY password.txt .
+COPY ./password.txt .
 COPY ./keystore /root/keystore
 COPY entrypoint.sh .
 

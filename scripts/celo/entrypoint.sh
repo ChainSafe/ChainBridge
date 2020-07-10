@@ -5,56 +5,24 @@
 # Exit on failure
 set -ex
 
-rm -rf /root/celo
-geth init --datadir /root /root/genesis.json
+geth init /root/genesis.json
 
-geth --datadir /root --maxpeers 0 --light.maxpeers 0 --password /root/password.txt account import /root/key.txt
-#rm -rf /root/keystore
-#cp -r /root/keystore /root/.ethereum/
+rm -rf /root/.celo/keystore
+cp -r /root/keystore /root/.celo/
+geth account import /root/key.txt
 
-
-
-exec geth --datadir /root \
-  --maxpeers 0 \
+exec geth \
   --nodiscover \
-  --light.maxpeers 0 \
-  --unlock 0 \
+  --unlock "0xff93B45308FD417dF303D6515aB04D9e89a750Ca","0x8e0a907331554AF72563Bd8D43051C2E64Be5d35","0x24962717f8fA5BA3b931bACaF9ac03924EB475a0","0x148FfB2074A9e59eD58142822b3eB3fcBffb0cd7","0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485","0xf4314cb9046bece6aa54bb9533155434d0c76909" \
   --password /root/password.txt \
+  --ws \
+  --wsport 8545 \
+  --wsorigins="*" \
+  --wsaddr 0.0.0.0 \
+  --rpc \
+  --rpcport 8546 \
+  --rpccorsdomain="*" \
+  --networkid 5 \
+  --rpcaddr 0.0.0.0 \
+  --allow-insecure-unlock \
   --mine
-
-
-#exec geth --datadir /root/ \
-#  --nodiscover \
-#  --allow-insecure-unlock \
-#  --maxpeers 0 \
-#  --light.maxpeers 0 \
-#  --unlock 0 \
-#  --password /root/password.txt \
-#  --ws \
-#  --wsport 8545 \
-#  --wsorigins="*" \
-#  --wsaddr 0.0.0.0 \
-#  --rpc \
-#  --rpcport 8546 \
-#  --rpccorsdomain="*" \
-#  --rpcaddr 0.0.0.0 \
-#  --mine console \
-
-
-#exec geth \
-#    --nodiscover \
-#    --unlock "0xff93B45308FD417dF303D6515aB04D9e89a750Ca","0x8e0a907331554AF72563Bd8D43051C2E64Be5d35","0x24962717f8fA5BA3b931bACaF9ac03924EB475a0","0x148FfB2074A9e59eD58142822b3eB3fcBffb0cd7","0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485" \
-#    --password /root/password.txt \
-#    --ws \
-#    --wsport 8546 \
-#    --wsorigins="*" \
-#    --wsaddr 0.0.0.0 \
-#    --rpc \
-#    --rpcport 8545 \
-#    --rpccorsdomain="*" \
-#    --rpcaddr 0.0.0.0 \
-#    --networkid 5 \
-#    --targetgaslimit 8000000 \
-#    --allow-insecure-unlock \
-#    --mine \
-#    --keystore /root/keystore \
