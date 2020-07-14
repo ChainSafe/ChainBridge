@@ -74,7 +74,7 @@ func TestConnect_SubmitTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = conn.SubmitTx("Balances.transfer", bob.AsAccountID, types.UCompact(10))
+	err = conn.SubmitTx("Balances.transfer", bob.AsAccountID, types.NewUCompactFromUInt(10))
 	if err != nil {
 		t.Fatal(err)
 	}
