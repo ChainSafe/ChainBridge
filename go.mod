@@ -13,3 +13,5 @@ require (
 	github.com/urfave/cli/v2 v2.2.0
 	golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79
 )
+
+replace github.com/centrifuge/go-substrate-rpc-client v2.0.0-alpha.3+incompatible => github.com/mikiquantum/go-substrate-rpc-client v0.0.4-0.20200715223215-bc6f8d60cec0

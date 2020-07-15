@@ -135,6 +135,12 @@ github.com/mattn/go-runewidth v0.0.3/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzp
 github.com/mattn/go-runewidth v0.0.4 h1:2BvfKmzob6Bmd4YsL0zygOqfdFnK7GR4QL06Do4/p7Y=
 github.com/mattn/go-runewidth v0.0.4/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
+github.com/mikiquantum/go-substrate-rpc-client v0.0.4-0.20200715185205-5088736e9929 h1:3hQY3glLqC3aezlDJsTy6rpUb5krfiGxCdDRedRlQCg=
+github.com/mikiquantum/go-substrate-rpc-client v0.0.4-0.20200715185205-5088736e9929/go.mod h1:OaEn0ZysGC7YObv2cxD758Vu2e3FcWQDEN5o3ucQEko=
+github.com/mikiquantum/go-substrate-rpc-client v0.0.4-0.20200715190425-a985f091a8c6 h1:gK3EjDEBifhM+PczUDsxjm+3/ZYjZ4iXjC/9+YnKxUQ=
+github.com/mikiquantum/go-substrate-rpc-client v0.0.4-0.20200715190425-a985f091a8c6/go.mod h1:OaEn0ZysGC7YObv2cxD758Vu2e3FcWQDEN5o3ucQEko=
+github.com/mikiquantum/go-substrate-rpc-client v0.0.4-0.20200715223215-bc6f8d60cec0 h1:NvaX5ye3SUbP83Z9Jr5vp19LQKlezoRAr7K5Fdog9h0=
+github.com/mikiquantum/go-substrate-rpc-client v0.0.4-0.20200715223215-bc6f8d60cec0/go.mod h1:OaEn0ZysGC7YObv2cxD758Vu2e3FcWQDEN5o3ucQEko=
 github.com/naoina/go-stringutil v0.1.0 h1:rCUeRUHjBjGTSHl0VC00jUPLz8/F9dDzYI70Hzifhks=
 github.com/naoina/go-stringutil v0.1.0/go.mod h1:XJ2SJL9jCtBh+P9q5btrd/Ylo8XwT/h1USek5+NqSA0=
 github.com/naoina/toml v0.1.2-0.20170918210437-9fafd6967416 h1:shk/vn9oCoOTmwcouEdwIeOtOGA/ELRUw/GwvxwfT+0=
