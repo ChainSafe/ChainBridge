@@ -5,6 +5,7 @@ package utils
 
 import (
 	"fmt"
+	"math/big"
 	"sync"
 
 	"github.com/ChainSafe/log15"
@@ -40,9 +41,9 @@ func SubmitTx(client *Client, method Method, args ...interface{}) error {
 		BlockHash:   client.Genesis,
 		Era:         types.ExtrinsicEra{IsMortalEra: false},
 		GenesisHash: client.Genesis,
-		Nonce:       types.UCompact(acct.Nonce),
+		Nonce:       types.NewUCompactFromUInt(uint64(acct.Nonce)),
 		SpecVersion: rv.SpecVersion,
-		Tip:         0,
+		Tip:         types.NewUCompactFromUInt(0),
 	}
 	err = ext.Sign(*client.Key, o)
 	if err != nil {
@@ -98,9 +99,9 @@ func BatchSubmit(client *Client, calls []types.Call) error {
 		BlockHash:   client.Genesis,
 		Era:         types.ExtrinsicEra{IsMortalEra: false},
 		GenesisHash: client.Genesis,
-		Nonce:       types.UCompact(acct.Nonce),
+		Nonce:       types.NewUCompactFromUInt(uint64(acct.Nonce)),
 		SpecVersion: rv.SpecVersion,
-		Tip:         0,
+		Tip:         types.NewUCompactFromUInt(0),
 	}
 
 	wg := &sync.WaitGroup{}
@@ -137,7 +138,8 @@ func BatchSubmit(client *Client, calls []types.Call) error {
 			}
 		}()
 
-		o.Nonce = o.Nonce + 1
+		bigNonce := big.Int(o.Nonce)
+		o.Nonce = types.NewUCompactFromUInt(bigNonce.Uint64() + 1)
 	}
 
 	wg.Wait()

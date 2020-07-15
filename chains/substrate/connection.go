@@ -119,9 +119,9 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 		BlockHash:   c.genesisHash,
 		Era:         types.ExtrinsicEra{IsMortalEra: false},
 		GenesisHash: c.genesisHash,
-		Nonce:       types.UCompact(c.nonce),
+		Nonce:       types.NewUCompactFromUInt(uint64(c.nonce)),
 		SpecVersion: rv.SpecVersion,
-		Tip:         0,
+		Tip:         types.NewUCompactFromUInt(0),
 	}
 
 	err = ext.Sign(*c.key, o)
