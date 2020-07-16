@@ -82,7 +82,7 @@ type EventNewMultisig struct {
 
 // TimePoint contains height and index
 type TimePoint struct {
-	Height types.BlockNumber
+	Height types.U32
 	Index  types.U32
 }
 
@@ -126,7 +126,7 @@ type Events struct {
 	Example_Remark                   []EventExampleRemark                  //nolint:stylecheck,golint
 	Nfts_DepositAsset                []EventNFTDeposited                   //nolint:stylecheck,golint
 	Council_Proposed                 []types.EventCollectiveProposed       //nolint:stylecheck,golint
-	Council_Voted                    []types.EventCollectiveProposed       //nolint:stylecheck,golint
+	Council_Voted                    []types.EventCollectiveVoted          //nolint:stylecheck,golint
 	Council_Approved                 []types.EventCollectiveApproved       //nolint:stylecheck,golint
 	Council_Disapproved              []types.EventCollectiveDisapproved    //nolint:stylecheck,golint
 	Council_Executed                 []types.EventCollectiveExecuted       //nolint:stylecheck,golint
