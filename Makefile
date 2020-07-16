@@ -31,6 +31,12 @@ lint:
 	fi;
 	./bin/golangci-lint run ./... --timeout 5m0s
 
+lint-fix:
+	if [ ! -f ./bin/golangci-lint ]; then \
+		$(MAKE) get-lint; \
+	fi;
+	./bin/golangci-lint run ./... --timeout 5m0s --fix
+
 build:
 	@echo "  >  \033[32mBuilding binary...\033[0m "
 	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge

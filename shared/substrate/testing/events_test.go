@@ -36,8 +36,8 @@ func TestChain_Events(t *testing.T) {
 	latestNumber := uint32(1) // Set to uint32(latest.Block.Header.Number)
 
 	batchSize := uint32(1) // Set to higher value accordingly, like 1000
-	current := uint64(0) // Start block
-	numBatches := latestNumber-uint32(current)/batchSize
+	current := uint64(0)   // Start block
+	numBatches := latestNumber - uint32(current)/batchSize
 
 	// Not smart enough to adjust batch size to last batch
 	// Manually trigger the last one with minimum batch size
@@ -47,13 +47,16 @@ func TestChain_Events(t *testing.T) {
 			panic(err)
 		}
 
-		upperBlock :=  current+uint64(batchSize)
+		upperBlock := current + uint64(batchSize)
 		upper, err := api.RPC.Chain.GetBlockHash(upperBlock)
 		if err != nil {
 			panic(err)
 		}
 
 		raws, err := api.RPC.State.QueryStorage([]types.StorageKey{key}, lower, upper)
+		if err != nil {
+			panic(err)
+		}
 
 		for j := 0; j < len(raws); j++ {
 			events := utils.Events{}
