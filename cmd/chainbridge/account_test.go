@@ -126,16 +126,11 @@ func TestAccountCommands(t *testing.T) {
 	}
 
 	keypath := "."
-
-	srFile, err := generateKeypair("sr25519", keypath, testPassword)
+	srFile, err := generateKeypair("sr25519", keypath, testPassword, "substrate")
 	if err != nil {
 		t.Fatal(err)
 	}
-	secpFile, err := generateKeypair("secp256k1", keypath, testPassword)
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	secpFile, err := generateKeypair("secp256k1", keypath, testPassword, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -225,7 +220,7 @@ func TestGetDatadir(t *testing.T) {
 }
 
 func TestGenerateKey_NoType(t *testing.T) {
-	keyfile, err := generateKeypair("", testKeystoreDir, testPassword)
+	keyfile, err := generateKeypair("", testKeystoreDir, testPassword, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -258,7 +253,7 @@ func TestImportKey_ShouldFail(t *testing.T) {
 func TestImportKey(t *testing.T) {
 	keypath := "../../"
 
-	importkeyfile, err := generateKeypair("sr25519", keypath, testPassword)
+	importkeyfile, err := generateKeypair("sr25519", keypath, testPassword, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -318,7 +313,7 @@ func TestImportEthKey(t *testing.T) {
 }
 
 func TestImportKey_withPk(t *testing.T) {
-	keyfile, err := importPrivKey("", testKeystoreDir, "000000000000000000000000000000000000000000000000000000416c696365", testPassword)
+	keyfile, err := importPrivKey(cli.NewContext(app, nil, nil), "", testKeystoreDir, "000000000000000000000000000000000000000000000000000000416c696365", testPassword)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -347,12 +342,12 @@ func TestListKeys(t *testing.T) {
 		var err error
 		var keyfile string
 		if i%2 == 0 {
-			keyfile, err = generateKeypair(crypto.Sr25519Type, testKeystoreDir, testPassword)
+			keyfile, err = generateKeypair(crypto.Sr25519Type, testKeystoreDir, testPassword, "")
 			if err != nil {
 				t.Fatal(err)
 			}
 		} else {
-			keyfile, err = generateKeypair(crypto.Secp256k1Type, testKeystoreDir, testPassword)
+			keyfile, err = generateKeypair(crypto.Secp256k1Type, testKeystoreDir, testPassword, "")
 			if err != nil {
 				t.Fatal(err)
 			}

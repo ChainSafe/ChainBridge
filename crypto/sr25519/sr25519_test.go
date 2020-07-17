@@ -11,7 +11,7 @@ import (
 )
 
 func TestNewKeypairFromSeed(t *testing.T) {
-	kp, err := NewKeypairFromSeed("//Alice")
+	kp, err := NewKeypairFromSeed("//Alice", "substrate")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,7 +22,7 @@ func TestNewKeypairFromSeed(t *testing.T) {
 }
 
 func TestKeypair_AsKeyringPair(t *testing.T) {
-	kp, err := NewKeypairFromSeed("//Alice")
+	kp, err := NewKeypairFromSeed("//Alice", "substrate")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,7 +38,7 @@ func TestKeypair_AsKeyringPair(t *testing.T) {
 }
 
 func TestEncodeAndDecodeKeypair(t *testing.T) {
-	kp, err := NewKeypairFromSeed("//Alice")
+	kp, err := NewKeypairFromSeed("//Alice", "substrate")
 	if err != nil {
 		t.Fatal(err)
 	}
