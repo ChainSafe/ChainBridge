@@ -18,13 +18,13 @@ type Keypair struct {
 	keyringPair *signature.KeyringPair
 }
 
-func GenerateKeypair() (*Keypair, error) {
+func GenerateKeypair(network string) (*Keypair, error) {
 	data := make([]byte, 32)
 	_, err := rand.Read(data)
 	if err != nil {
 		return nil, err
 	}
-	return NewKeypairFromSeed("//" + hexutil.Encode(data), "")
+	return NewKeypairFromSeed("//"+hexutil.Encode(data), network)
 }
 
 func NewKeypairFromSeed(seed, network string) (*Keypair, error) {

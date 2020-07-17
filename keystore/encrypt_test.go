@@ -109,7 +109,7 @@ func TestEncryptAndDecryptFromFile_Sr25519(t *testing.T) {
 	file, fp := createTestFile(t)
 	defer os.Remove(fp)
 
-	kp, err := sr25519.NewKeypairFromSeed("//seed")
+	kp, err := sr25519.NewKeypairFromSeed("//seed", "substrate")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -134,7 +134,7 @@ func TestDecryptIncorrectType(t *testing.T) {
 	file, fp := createTestFile(t)
 	defer os.Remove(fp)
 
-	kp, err := sr25519.NewKeypairFromSeed("//seed")
+	kp, err := sr25519.NewKeypairFromSeed("//seed", "substrate")
 	if err != nil {
 		t.Fatal(err)
 	}
