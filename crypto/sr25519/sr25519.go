@@ -24,11 +24,11 @@ func GenerateKeypair() (*Keypair, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewKeypairFromSeed("//" + hexutil.Encode(data))
+	return NewKeypairFromSeed("//" + hexutil.Encode(data), "")
 }
 
-func NewKeypairFromSeed(seed string) (*Keypair, error) {
-	kp, err := signature.KeyringPairFromSecret(seed)
+func NewKeypairFromSeed(seed, network string) (*Keypair, error) {
+	kp, err := signature.KeyringPairFromSecret(seed, network)
 	return &Keypair{&kp}, err
 }
 
