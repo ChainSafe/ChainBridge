@@ -88,7 +88,7 @@ docker-e2e:
 	docker-compose -f ./docker-compose-e2e.yml up
 
 docker-celo:
-	docker-compose -f ./docker-compose-celo.yml up -V
+	docker-compose -f ./docker-compose-celo.yml up -V --build
 
 clean:
 	rm -rf build/ solidity/
