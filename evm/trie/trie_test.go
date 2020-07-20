@@ -16,7 +16,7 @@ import (
 
 var (
 	defaultTriesToStore = 3
-	emptyHash = common.HexToHash("")
+	emptyHash           = common.HexToHash("")
 )
 
 func createNewTxTries(numHistoricalTries int) *TxTries {
@@ -34,12 +34,13 @@ func createTempDB() *leveldb.Database {
 
 func deleteTempDB() error {
 	err := os.RemoveAll("./temp-database")
-	
+
 	if err != nil {
 		return err
 	}
 
-	return nil}
+	return nil
+}
 
 func createReferenceDB() *leveldb.Database {
 
@@ -52,7 +53,7 @@ func createReferenceDB() *leveldb.Database {
 
 func deleteReferenceDB() error {
 	err := os.RemoveAll("./reference-database")
-	
+
 	if err != nil {
 		return err
 	}
@@ -86,7 +87,7 @@ func computeEthReferenceTrieHash(transactions []common.Hash) (common.Hash, error
 	if err != nil {
 		return emptyHash, err
 	}
-	
+
 	for i, tx := range transactions {
 		b, err := intToBytes(i)
 		if err != nil {
@@ -102,7 +103,7 @@ func computeEthReferenceTrieHash(transactions []common.Hash) (common.Hash, error
 	}
 
 	return newTrie.Hash(), nil
-	
+
 }
 
 func TestEmptyTxTries(t *testing.T) {
@@ -126,7 +127,7 @@ func TestAddEmptyTrie(t *testing.T) {
 	}
 
 	if deleteTempDB() != nil {
-		t.Fatalf("unable to clear testing database")	
+		t.Fatalf("unable to clear testing database")
 	}
 
 }
@@ -144,8 +145,9 @@ func TestAddEmptyTrieRetrieveProof_Fails(t *testing.T) {
 	}
 
 	if deleteTempDB() != nil {
-		t.Fatalf("unable to clear testing database")	
-	}}
+		t.Fatalf("unable to clear testing database")
+	}
+}
 
 func TestAddSingleTrieUpdate(t *testing.T) {
 	vals := []common.Hash{common.HexToHash("123"), common.HexToHash("456")}
@@ -169,11 +171,11 @@ func TestAddSingleTrieUpdate(t *testing.T) {
 	}
 
 	if deleteTempDB() != nil {
-		t.Fatalf("unable to clear testing database")	
+		t.Fatalf("unable to clear testing database")
 	}
 
 	if deleteReferenceDB() != nil {
-		t.Fatalf("unable to clear reference database")	
+		t.Fatalf("unable to clear reference database")
 	}
 }
 
@@ -222,11 +224,11 @@ func TestAddSingleTrieRetrieveProof(t *testing.T) {
 	}
 
 	if deleteTempDB() != nil {
-		t.Fatalf("unable to clear testing database")	
+		t.Fatalf("unable to clear testing database")
 	}
 
 	if deleteReferenceDB() != nil {
-		t.Fatalf("unable to clear reference database")	
+		t.Fatalf("unable to clear reference database")
 	}
 }
 
@@ -254,7 +256,7 @@ func TestAddMultipleTries(t *testing.T) {
 	}
 
 	if deleteReferenceDB() != nil {
-		t.Fatalf("unable to clear reference database")	
+		t.Fatalf("unable to clear reference database")
 	}
 
 	vals2 := []common.Hash{common.HexToHash("abc"), common.HexToHash("def")}
@@ -277,7 +279,7 @@ func TestAddMultipleTries(t *testing.T) {
 	}
 
 	if deleteReferenceDB() != nil {
-		t.Fatalf("unable to clear reference database")	
+		t.Fatalf("unable to clear reference database")
 	}
 
 	vals3 := []common.Hash{common.HexToHash("qwe"), common.HexToHash("rty")}
@@ -321,11 +323,11 @@ func TestAddMultipleTries(t *testing.T) {
 	}
 
 	if deleteTempDB() != nil {
-		t.Fatalf("unable to clear testing database")	
+		t.Fatalf("unable to clear testing database")
 	}
 
 	if deleteReferenceDB() != nil {
-		t.Fatalf("unable to clear reference database")	
+		t.Fatalf("unable to clear reference database")
 	}
 }
 
@@ -353,7 +355,7 @@ func TestAddMultipleTriesRetrieveProof(t *testing.T) {
 	}
 
 	if deleteReferenceDB() != nil {
-		t.Fatalf("unable to clear reference database")	
+		t.Fatalf("unable to clear reference database")
 	}
 
 	vals2 := []common.Hash{common.HexToHash("abc"), common.HexToHash("def")}
@@ -376,7 +378,7 @@ func TestAddMultipleTriesRetrieveProof(t *testing.T) {
 	}
 
 	if deleteReferenceDB() != nil {
-		t.Fatalf("unable to clear reference database")	
+		t.Fatalf("unable to clear reference database")
 	}
 
 	vals3 := []common.Hash{common.HexToHash("qwe"), common.HexToHash("rty")}
@@ -471,11 +473,11 @@ func TestAddMultipleTriesRetrieveProof(t *testing.T) {
 	}
 
 	if deleteTempDB() != nil {
-		t.Fatalf("unable to clear testing database")	
+		t.Fatalf("unable to clear testing database")
 	}
 
 	if deleteReferenceDB() != nil {
-		t.Fatalf("unable to clear reference database")	
+		t.Fatalf("unable to clear reference database")
 	}
 }
 
@@ -502,7 +504,7 @@ func TestRetrieveProofDeletedTrie_Fails(t *testing.T) {
 	}
 
 	if deleteReferenceDB() != nil {
-		t.Fatalf("unable to clear reference database")	
+		t.Fatalf("unable to clear reference database")
 	}
 
 	vals2 := []common.Hash{common.HexToHash("abc"), common.HexToHash("def")}
@@ -524,7 +526,7 @@ func TestRetrieveProofDeletedTrie_Fails(t *testing.T) {
 	}
 
 	if deleteReferenceDB() != nil {
-		t.Fatalf("unable to clear reference database")	
+		t.Fatalf("unable to clear reference database")
 	}
 
 	vals3 := []common.Hash{common.HexToHash("qwe"), common.HexToHash("rty")}
@@ -580,10 +582,10 @@ func TestRetrieveProofDeletedTrie_Fails(t *testing.T) {
 	}
 
 	if deleteTempDB() != nil {
-		t.Fatalf("unable to clear testing database")	
+		t.Fatalf("unable to clear testing database")
 	}
 
 	if deleteReferenceDB() != nil {
-		t.Fatalf("unable to clear reference database")	
+		t.Fatalf("unable to clear reference database")
 	}
 }

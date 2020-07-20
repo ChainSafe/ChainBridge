@@ -33,7 +33,6 @@ var (
 	emptyRoot = common.HexToHash("56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421")
 )
 
-
 // NewTxTries creates a new instance of a TxTries object
 func NewTxTries(t int) *TxTries {
 	txTrie := &TxTries{
