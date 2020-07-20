@@ -14,11 +14,13 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 )
 
+// Trie is a wrapped ethereum Trie object
 type Trie struct {
 	trie     *trie.Trie
 	txStored int
 }
 
+// TxTries stores all the instances of tries we have on disk
 type TxTries struct {
 	// TODO: the memory allocated for these is hard to get back, look for better way to have a queue
 	txTries      []*Trie
@@ -31,6 +33,8 @@ var (
 	emptyRoot = common.HexToHash("56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421")
 )
 
+
+// NewTxTries creates a new instance of a TxTries object
 func NewTxTries(t int) *TxTries {
 	txTrie := &TxTries{
 		triesToStore: t,
@@ -70,7 +74,6 @@ func (t *TxTries) indexOfRoot(root common.Hash) int {
 func (t *TxTries) AddTrie(root common.Hash, db *leveldb.Database, transactions []common.Hash) (*Trie, error) {
 	// TODO: look into cache values
 	// this creates a new trie database with our KVDB as the diskDB for node storage
-
 	newTrie, err := trie.New(emptyRoot, trie.NewDatabaseWithCache(db, 0))
 
 	if err != nil {
@@ -95,12 +98,12 @@ func (t *TxTries) AddTrie(root common.Hash, db *leveldb.Database, transactions [
 // updateTrie updates the transaction trie with root transactionRoot with given transactions
 // note that this assumes the slice transactions is in the same order they are in the block
 func (t *Trie) updateTrie(transactions []common.Hash, transactionRoot common.Hash) error {
-
 	for i, tx := range transactions {
 		b, err := intToBytes(i)
 		if err != nil {
 			return err
 		}
+
 		key, err := rlp.EncodeToBytes(b)
 		if err != nil {
 			return err

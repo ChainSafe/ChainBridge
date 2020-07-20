@@ -11,10 +11,12 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethdb/leveldb"
 	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/ethereum/go-ethereum/trie"
 )
 
 var (
 	defaultTriesToStore = 3
+	emptyHash = common.HexToHash("")
 )
 
 func createNewTxTries(numHistoricalTries int) *TxTries {
@@ -30,8 +32,32 @@ func createTempDB() *leveldb.Database {
 	return diskdb
 }
 
-func deleteTempDB() {
-	os.RemoveAll("./temp-database")
+func deleteTempDB() error {
+	err := os.RemoveAll("./temp-database")
+	
+	if err != nil {
+		return err
+	}
+
+	return nil}
+
+func createReferenceDB() *leveldb.Database {
+
+	diskdb, err := leveldb.New("./reference-database", 256, 0, "")
+	if err != nil {
+		panic(fmt.Sprintf("unable to create reference database: %v", err))
+	}
+	return diskdb
+}
+
+func deleteReferenceDB() error {
+	err := os.RemoveAll("./reference-database")
+	
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func addTrie(txTries *TxTries, root common.Hash, transactions []common.Hash, db *leveldb.Database) error {
@@ -54,6 +80,31 @@ func addTrie(txTries *TxTries, root common.Hash, transactions []common.Hash, db 
 
 }
 
+func computeEthReferenceTrieHash(transactions []common.Hash) (common.Hash, error) {
+	db := createReferenceDB()
+	newTrie, err := trie.New(emptyRoot, trie.NewDatabaseWithCache(db, 0))
+	if err != nil {
+		return emptyHash, err
+	}
+	
+	for i, tx := range transactions {
+		b, err := intToBytes(i)
+		if err != nil {
+			return emptyHash, err
+		}
+
+		key, err := rlp.EncodeToBytes(b)
+		if err != nil {
+			return emptyHash, err
+		}
+
+		newTrie.Update(key, tx.Bytes())
+	}
+
+	return newTrie.Hash(), nil
+	
+}
+
 func TestEmptyTxTries(t *testing.T) {
 	txTries := createNewTxTries(defaultTriesToStore)
 
@@ -74,7 +125,10 @@ func TestAddEmptyTrie(t *testing.T) {
 		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", emptyRoot, txTries.txTries[0].trie.Hash())
 	}
 
-	deleteTempDB()
+	if deleteTempDB() != nil {
+		t.Fatalf("unable to clear testing database")	
+	}
+
 }
 
 func TestAddEmptyTrieRetrieveProof_Fails(t *testing.T) {
@@ -89,15 +143,19 @@ func TestAddEmptyTrieRetrieveProof_Fails(t *testing.T) {
 		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", emptyRoot, txTries.txTries[0].trie.Hash())
 	}
 
-	deleteTempDB()
-}
+	if deleteTempDB() != nil {
+		t.Fatalf("unable to clear testing database")	
+	}}
 
 func TestAddSingleTrieUpdate(t *testing.T) {
 	vals := []common.Hash{common.HexToHash("123"), common.HexToHash("456")}
-	expectedRoot := common.HexToHash("8e4ba8a974b3dfa9dbfb76d61c633ba2a1250a4d79e3e912e841392fdb232c17")
+	expectedRoot, err := computeEthReferenceTrieHash(vals)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	txTries := createNewTxTries(defaultTriesToStore)
-	err := addTrie(txTries, expectedRoot, vals, nil)
+	err = addTrie(txTries, expectedRoot, vals, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,16 +168,24 @@ func TestAddSingleTrieUpdate(t *testing.T) {
 		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", expectedRoot, txTries.txTries[0].trie.Hash())
 	}
 
-	deleteTempDB()
+	if deleteTempDB() != nil {
+		t.Fatalf("unable to clear testing database")	
+	}
 
+	if deleteReferenceDB() != nil {
+		t.Fatalf("unable to clear reference database")	
+	}
 }
 
 func TestAddSingleTrieRetrieveProof(t *testing.T) {
 	vals := []common.Hash{common.HexToHash("123"), common.HexToHash("456")}
-	expectedRoot := common.HexToHash("8e4ba8a974b3dfa9dbfb76d61c633ba2a1250a4d79e3e912e841392fdb232c17")
+	expectedRoot, err := computeEthReferenceTrieHash(vals)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	txTries := createNewTxTries(defaultTriesToStore)
-	err := addTrie(txTries, expectedRoot, vals, nil)
+	err = addTrie(txTries, expectedRoot, vals, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,8 +221,13 @@ func TestAddSingleTrieRetrieveProof(t *testing.T) {
 		t.Fatalf("not able to verify retrieved proof!")
 	}
 
-	deleteTempDB()
+	if deleteTempDB() != nil {
+		t.Fatalf("unable to clear testing database")	
+	}
 
+	if deleteReferenceDB() != nil {
+		t.Fatalf("unable to clear reference database")	
+	}
 }
 
 func TestAddMultipleTries(t *testing.T) {
@@ -164,9 +235,12 @@ func TestAddMultipleTries(t *testing.T) {
 	db := createTempDB()
 
 	vals1 := []common.Hash{common.HexToHash("123"), common.HexToHash("456")}
-	expectedRoot1 := common.HexToHash("8e4ba8a974b3dfa9dbfb76d61c633ba2a1250a4d79e3e912e841392fdb232c17")
+	expectedRoot1, err := computeEthReferenceTrieHash(vals1)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	err := addTrie(txTries, expectedRoot1, vals1, db)
+	err = addTrie(txTries, expectedRoot1, vals1, db)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -179,8 +253,15 @@ func TestAddMultipleTries(t *testing.T) {
 		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", expectedRoot1, txTries.txTries[0].trie.Hash())
 	}
 
+	if deleteReferenceDB() != nil {
+		t.Fatalf("unable to clear reference database")	
+	}
+
 	vals2 := []common.Hash{common.HexToHash("abc"), common.HexToHash("def")}
-	expectedRoot2 := common.HexToHash("f004b10977aed387a552429aac0228822c5502d6cf2d7c27ab41729bded6de88")
+	expectedRoot2, err := computeEthReferenceTrieHash(vals2)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	err = addTrie(txTries, expectedRoot2, vals2, db)
 	if err != nil {
@@ -195,8 +276,15 @@ func TestAddMultipleTries(t *testing.T) {
 		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", expectedRoot2, txTries.txTries[1].trie.Hash())
 	}
 
+	if deleteReferenceDB() != nil {
+		t.Fatalf("unable to clear reference database")	
+	}
+
 	vals3 := []common.Hash{common.HexToHash("qwe"), common.HexToHash("rty")}
-	expectedRoot3 := common.HexToHash("76cdfcecc7b62db5a03b511f2b50bc56c69e33a3a46bc42bcdb1a46d77245739")
+	expectedRoot3, err := computeEthReferenceTrieHash(vals3)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	err = addTrie(txTries, expectedRoot3, vals3, db)
 	if err != nil {
@@ -232,8 +320,13 @@ func TestAddMultipleTries(t *testing.T) {
 		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", expectedRoot2, txTries.txTries[0].trie.Hash())
 	}
 
-	deleteTempDB()
+	if deleteTempDB() != nil {
+		t.Fatalf("unable to clear testing database")	
+	}
 
+	if deleteReferenceDB() != nil {
+		t.Fatalf("unable to clear reference database")	
+	}
 }
 
 func TestAddMultipleTriesRetrieveProof(t *testing.T) {
@@ -241,9 +334,12 @@ func TestAddMultipleTriesRetrieveProof(t *testing.T) {
 	db := createTempDB()
 
 	vals1 := []common.Hash{common.HexToHash("123"), common.HexToHash("456")}
-	expectedRoot1 := common.HexToHash("8e4ba8a974b3dfa9dbfb76d61c633ba2a1250a4d79e3e912e841392fdb232c17")
+	expectedRoot1, err := computeEthReferenceTrieHash(vals1)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	err := addTrie(txTries, expectedRoot1, vals1, db)
+	err = addTrie(txTries, expectedRoot1, vals1, db)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -256,8 +352,15 @@ func TestAddMultipleTriesRetrieveProof(t *testing.T) {
 		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", expectedRoot1, txTries.txTries[0].trie.Hash())
 	}
 
+	if deleteReferenceDB() != nil {
+		t.Fatalf("unable to clear reference database")	
+	}
+
 	vals2 := []common.Hash{common.HexToHash("abc"), common.HexToHash("def")}
-	expectedRoot2 := common.HexToHash("f004b10977aed387a552429aac0228822c5502d6cf2d7c27ab41729bded6de88")
+	expectedRoot2, err := computeEthReferenceTrieHash(vals2)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	err = addTrie(txTries, expectedRoot2, vals2, db)
 	if err != nil {
@@ -272,8 +375,15 @@ func TestAddMultipleTriesRetrieveProof(t *testing.T) {
 		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", expectedRoot2, txTries.txTries[1].trie.Hash())
 	}
 
+	if deleteReferenceDB() != nil {
+		t.Fatalf("unable to clear reference database")	
+	}
+
 	vals3 := []common.Hash{common.HexToHash("qwe"), common.HexToHash("rty")}
-	expectedRoot3 := common.HexToHash("76cdfcecc7b62db5a03b511f2b50bc56c69e33a3a46bc42bcdb1a46d77245739")
+	expectedRoot3, err := computeEthReferenceTrieHash(vals3)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	err = addTrie(txTries, expectedRoot3, vals3, db)
 	if err != nil {
@@ -360,8 +470,13 @@ func TestAddMultipleTriesRetrieveProof(t *testing.T) {
 		t.Fatalf("not able to verify retrieved proof!")
 	}
 
-	deleteTempDB()
+	if deleteTempDB() != nil {
+		t.Fatalf("unable to clear testing database")	
+	}
 
+	if deleteReferenceDB() != nil {
+		t.Fatalf("unable to clear reference database")	
+	}
 }
 
 func TestRetrieveProofDeletedTrie_Fails(t *testing.T) {
@@ -369,9 +484,11 @@ func TestRetrieveProofDeletedTrie_Fails(t *testing.T) {
 	db := createTempDB()
 
 	vals1 := []common.Hash{common.HexToHash("123"), common.HexToHash("456")}
-	expectedRoot1 := common.HexToHash("8e4ba8a974b3dfa9dbfb76d61c633ba2a1250a4d79e3e912e841392fdb232c17")
-
-	err := addTrie(txTries, expectedRoot1, vals1, db)
+	expectedRoot1, err := computeEthReferenceTrieHash(vals1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = addTrie(txTries, expectedRoot1, vals1, db)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -384,9 +501,15 @@ func TestRetrieveProofDeletedTrie_Fails(t *testing.T) {
 		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", expectedRoot1, txTries.txTries[0].trie.Hash())
 	}
 
-	vals2 := []common.Hash{common.HexToHash("abc"), common.HexToHash("def")}
-	expectedRoot2 := common.HexToHash("f004b10977aed387a552429aac0228822c5502d6cf2d7c27ab41729bded6de88")
+	if deleteReferenceDB() != nil {
+		t.Fatalf("unable to clear reference database")	
+	}
 
+	vals2 := []common.Hash{common.HexToHash("abc"), common.HexToHash("def")}
+	expectedRoot2, err := computeEthReferenceTrieHash(vals2)
+	if err != nil {
+		t.Fatal(err)
+	}
 	err = addTrie(txTries, expectedRoot2, vals2, db)
 	if err != nil {
 		t.Fatal(err)
@@ -400,9 +523,15 @@ func TestRetrieveProofDeletedTrie_Fails(t *testing.T) {
 		t.Fatalf("trie does not have empty hash as root, expected: %x, got: %x", expectedRoot2, txTries.txTries[0].trie.Hash())
 	}
 
-	vals3 := []common.Hash{common.HexToHash("qwe"), common.HexToHash("rty")}
-	expectedRoot3 := common.HexToHash("76cdfcecc7b62db5a03b511f2b50bc56c69e33a3a46bc42bcdb1a46d77245739")
+	if deleteReferenceDB() != nil {
+		t.Fatalf("unable to clear reference database")	
+	}
 
+	vals3 := []common.Hash{common.HexToHash("qwe"), common.HexToHash("rty")}
+	expectedRoot3, err := computeEthReferenceTrieHash(vals3)
+	if err != nil {
+		t.Fatal(err)
+	}
 	err = addTrie(txTries, expectedRoot3, vals3, db)
 	if err != nil {
 		t.Fatal(err)
@@ -450,6 +579,11 @@ func TestRetrieveProofDeletedTrie_Fails(t *testing.T) {
 		t.Fatalf("not able to verify retrieved proof!")
 	}
 
-	deleteTempDB()
+	if deleteTempDB() != nil {
+		t.Fatalf("unable to clear testing database")	
+	}
 
+	if deleteReferenceDB() != nil {
+		t.Fatalf("unable to clear reference database")	
+	}
 }
