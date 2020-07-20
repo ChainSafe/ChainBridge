@@ -7,10 +7,10 @@ services:
     image: f2700abb0fa1
     container_name: celo-geth1
     ports:
-      - "8545:8546"
+      - "8545:8545"
 
   geth2:
     image: f2700abb0fa1
     container_name: celo-geth2
     ports:
-      - "8547:8549"
+      - "8546:8545"
