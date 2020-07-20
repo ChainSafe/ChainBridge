@@ -6,7 +6,7 @@ set -ex
 
 GIT_SHORT_COMMIT=`git rev-parse --short HEAD`
 TIMESTAMP=`date -u +%Y%m%d%H%M%S`
-IMAGE_NAME="chainsafe/chainbridge-celo-geth"
+IMAGE_NAME="chainsafe/chainbridge-celo-blockchain"
 TAG="${TIMESTAMP}-${GIT_SHORT_COMMIT}"
 
 docker build $BUILD_ARGS -t ${IMAGE_NAME}:${TAG} .
