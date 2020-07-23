@@ -4,7 +4,7 @@ site_description: Modular Multi-Directional Blockchain Bridge to interact with M
 repo_name: chainsafe/chainbridge
 repo_url: https://github.com/ChainSafe/chainbridge
 
-# COnfiguration
+# Configuration
 markdown_extensions:
   - meta
   - admonition
@@ -16,14 +16,15 @@ theme:
   name: material
   palette:
     primary: black
+  favicon: img/favicon.ico
 nav:
   - Getting started: index.md
-  - Installation : installation.md
+  - Installation: installation.md
+  - Configuration: configuration.md
   - Chains:
       - Ethereum: chains/ethereum.md
       - Substrate: chains/substrate.md
-      - Celo: chains/celo.md
-  - Contributing: ../README.md
+  - Testing: test.md
 
 extra:
   social:
