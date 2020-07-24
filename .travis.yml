@@ -62,3 +62,9 @@ jobs:
           script: TAG=$TRAVIS_TAG TARGET=release ./scripts/ci_docker.sh
           on:
             tags: true
+        - provider: pages
+          skip_cleanup: true
+          github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+          keep_history: true
+          on:
+            branch: master
