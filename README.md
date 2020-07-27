@@ -115,7 +115,7 @@ MKdocs will generate static HTML files for Chainsafe markdown files located in `
 
 `make install-mkdocs`: Pull the docker image MkDocs
 
-`docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material`: Run MkDoc's docker image, building and hosting the html files on `localhost:8000`  
+`make mkdocs`: Run MkDoc's docker image, building and hosting the html files on `localhost:8000`  
 
 # Testing
 
