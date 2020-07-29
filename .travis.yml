@@ -53,6 +53,7 @@ jobs:
       script:
         - docker build -t chainsafe/chainbridge .
         - docker run chainsafe/chainbridge:latest --help
+        - make build-mkdocs
       deploy:
         - provider: script
           script: TARGET=default ./scripts/ci_docker.sh
@@ -63,8 +64,6 @@ jobs:
           on:
             tags: true
         - provider: pages
-          script:
-            - make build-mkdocs
           skip_cleanup: true
           github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
           keep_history: true
