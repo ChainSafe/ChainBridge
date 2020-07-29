@@ -109,6 +109,14 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
     A substrate pallet that can be integrated into a chain, as well as an example pallet to demonstrate chain integration.
 
+# MKdocs
+
+MKdocs will generate static HTML files for Chainsafe markdown files located in `Chainbridge/docs/`
+
+`make install-mkdocs`: Pull the docker image MkDocs
+
+`make mkdocs`: Run MkDoc's docker image, building and hosting the html files on `localhost:8000`  
+
 # Testing
 
 Unit tests require an ethereum node running on `localhost:8545` and a substrate node running on `localhost:9944`. E2E tests require an additional ethereum node on `localhost:8546`. 
