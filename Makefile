@@ -45,9 +45,8 @@ install:
 	@echo "  >  \033[32mInstalling bridge...\033[0m "
 	cd cmd/chainbridge && go install
 
-install-mkdocs:
-	@echo "  >  \033[32mGetting mkdocs image ...\033[0m "
-	docker pull squidfunk/mkdocs-material
+build-mkdocs:
+	docker run --rm -it -v ${PWD}:/docs squidfunk/mkdocs-material build
 
 setup-sol-cli:
 	@echo " > \033[32mSetting up solidity cli... \033[0m "
