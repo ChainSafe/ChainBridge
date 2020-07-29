@@ -68,3 +68,4 @@ jobs:
           keep_history: true
           on:
             branch: alex/documentation-branch-test
+          local_dir: "./site"
