@@ -183,7 +183,7 @@ func importPrivKey(ctx *cli.Context, keytype, datadir, key string, password []by
 		return "", fmt.Errorf("invalid filepath: %s", err)
 	}
 
-	file, err := os.OpenFile(fp, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(filepath.Clean(fp), os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return "", fmt.Errorf("Unable to Open File: %s", err)
 	}
@@ -233,7 +233,7 @@ func importEthKey(filename, datadir string, password, newPassword []byte) (strin
 		return "", fmt.Errorf("invalid filepath: %s", err)
 	}
 
-	file, err := os.OpenFile(fp, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(filepath.Clean(fp), os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return "", err
 	}
@@ -374,7 +374,7 @@ func generateKeypair(keytype, datadir string, password []byte, subNetwork string
 		return "", fmt.Errorf("invalid filepath: %s", err)
 	}
 
-	file, err := os.OpenFile(fp, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(filepath.Clean(fp), os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return "", err
 	}
