@@ -204,7 +204,7 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte,
 					w.executeProposal(m, data, dataHash)
 					return
 				} else {
-					w.log.Trace("Ignoring finalization event", "src", sourceId, "nonce", depositNonce)
+					w.log.Trace("Ignoring event", "src", sourceId, "nonce", depositNonce)
 				}
 			}
 			w.log.Trace("No finalization event found in current block", "block", latestBlock, "src", m.Source, "nonce", m.DepositNonce)

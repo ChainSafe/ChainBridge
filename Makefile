@@ -45,6 +45,9 @@ install:
 	@echo "  >  \033[32mInstalling bridge...\033[0m "
 	cd cmd/chainbridge && go install
 
+build-mkdocs:
+	docker run --rm -it -v ${PWD}:/docs squidfunk/mkdocs-material build
+
 setup-sol-cli:
 	@echo " > \033[32mSetting up solidity cli... \033[0m "
 	TARGET=cli-only ./scripts/setup_contracts.sh
@@ -92,6 +95,9 @@ docker-start:
 
 docker-e2e:
 	docker-compose -f ./docker-compose-e2e.yml up -V
+
+mkdocs:
+	docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material
 
 clean:
 	rm -rf build/ solidity/
