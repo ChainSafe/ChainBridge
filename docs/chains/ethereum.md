@@ -1,11 +1,4 @@
-# Chain Implementations
- Ethereum (Solidity): [chainbridge-solidity](https://github.com/ChainSafe/chainbridge-solidity) 
-
-The Solidity contracts required for chainbridge. Includes deployment and interaction CLI.
-
-The bindings for the contracts live in `bindings/`. To update the bindings modify `scripts/setup-contracts.sh` and then run `make clean && make setup-contracts`
-
-#Introduction
+#Ethereum Chain
 
 The ethereum package contains the logic for interacting with ethereum chains.
 
@@ -23,3 +16,11 @@ The listener polls for each new block and looks for deposit events in the bridge
 ## Writer
 
 The writer recieves the message and creates a proposals on-chain. Once a proposal is made, the writer then watches for a finalization event and will attempt to execute the proposal if a matching event occurs. The writer skips over any proposals it has already seen.
+
+
+# Chain Implementations
+ Ethereum (Solidity): [chainbridge-solidity](https://github.com/ChainSafe/chainbridge-solidity) 
+
+The Solidity contracts required for chainbridge. Includes deployment and interaction CLI.
+
+The bindings for the contracts live in `bindings/`. To update the bindings modify `scripts/setup-contracts.sh` and then run `make clean && make setup-contracts`
