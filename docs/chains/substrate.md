@@ -1,10 +1,5 @@
 # Substrate Implementation Specification
 
-- [Events](#events)
-- [Inter-Pallet Communication](#inter-pallet-communication)
-- [Bridge Account ID & Origin Check](#bridge-account-id--origin-check)
-- [Executing Calls](#executing-calls)
-
 The ChainBridge Substrate implementation will consist of a Substrate pallet that can be integrated into a runtime to enable bridging of additional pallet functionality. 
 
 Due to the complexities of the Substrate API we must define some limitations to the supported calls, however the pallet should define a `Proposal` type equivalent to a dispatchable call to theoretically allow for any call to be made.
@@ -15,7 +10,7 @@ pub trait Trait: system::Trait {
 }
 ```
 
-# Events
+## Events
 
 To easily distinguish different transfer types we should define three event types:
 
@@ -32,7 +27,7 @@ GenericTransfer(ChainId, DepositNonce, ResourceId, Vec<u8>)
 
 These can be observed by relayers and should provide enough context to construct transfer messages. 
 
-# Inter-Pallet Communication
+## Inter-Pallet Communication
 
 The ChainBridge pallet is intended to be combined with other pallets to define what is being bridged. To allow for this we must define some methods that other pallets can call to initiate transfers:
 
@@ -46,13 +41,13 @@ pub fn transfer_generic(dest_id: ChainId, resource_id: ResourceId, metadata: Vec
 
 These should result in the associated event being emitted with the correct parameters.
 
-# Bridge Account ID & Origin Check
+## Bridge Account ID & Origin Check
 
 To allow the bridge pallet to take ownership of tokens a `ModuleId` should be used to derive an `AccountId`.
 
 A bridge origin check (implementing `EnsureOrigin`) should also be provided. Other pallets should be able to use this to check the origin of call is the bridge pallet, indicating the execution of a proposal.
 
-# Executing Calls
+## Executing Calls
 
 The pallet should support dispatching of arbitrary calls as the result of successful proposal. Resource IDs should be mapped to specific calls to define their behaviour. Relayers will need to resolve resource IDs to calls in order to submit a proposal. The pallet should provide a mapping of resource IDs to method names that can be updated by the admin.
 

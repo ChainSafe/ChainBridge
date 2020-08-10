@@ -1,21 +1,10 @@
 # Ethereum Implementation Specification
 
-- [Transfer Flow](#transfer-flow)
-  * [As Source Chain](#as-source-chain)
-  * [As Destination Chain](#as-destination-chain)
-- [Bridge Contract](#bridge-contract)
-- [Handler Contracts](#handler-contracts)
-  * [ERC20 & ERC721 Handlers](#erc20--erc721-handlers)
-  * [ERC20 Handler](#erc20-handler)
-  * [ERC721 Handler](#erc721-handler)
-  * [Generic Handler](#generic-handler)
-- [Administration](#administration)
-
 The solidity implementation of ChainBridge should consist of a central Bridge contract, and will delegate specific functionality to [handlers](#handler-contracts). Fungible and non-fungible compatibility should be focused on ERC20 and ERC721 tokens.
 
-# Transfer Flow 
+## Transfer Flow 
 
-## As Source Chain
+### As Source Chain
 1.  Some user calls the `deposit` function on the bridge contract. A `depositRecord` is created on the bridge and a call is delgated to a handler contract specified by the provided `resourceID`.
 
 2. The specified handler's `deposit` function validates the parameters provided by the user. If successful, a `depositRecord` is created on the handler. 
@@ -25,7 +14,7 @@ The solidity implementation of ChainBridge should consist of a central Bridge co
 4. Relayers parse the `Deposit` event and retrieve the associated `DepositRecord` from the handler to construct a message.
 
 
-## As Destination Chain
+### As Destination Chain
 1. A Relayer calls `voteProposal` on the bridge contract. If a `proposal` corresponding with the parameters passed in does not exist, it is created and the Relayer's vote is recorded. If the proposal already exists, the Relayer's vote is simply recorded.
 
 3. Once we have met some vote threshold for a `proposal`, the bridge emits a `ProposalFinalized` event.
@@ -35,7 +24,7 @@ The solidity implementation of ChainBridge should consist of a central Bridge co
 5. The specified handler's `executeDeposit` function validates the paramters provided and makes a call to some contract to complete the transfer.
 
 
-# Bridge Contract
+## Bridge Contract
 
 Users and relayers will interact with the `Bridge` contract. This delegates calls to the handler contracts for deposits and executing proposals. 
 
@@ -43,7 +32,7 @@ Users and relayers will interact with the `Bridge` contract. This delegates call
 function deposit (uint8 destinationChainID, bytes32 resourceID, bytes calldata data)
 ```
 
-# Handler Contracts
+## Handler Contracts
 
 To provide modularity and break out the necessary contract logic, the implementation uses a notion of handlers. A handler is defined for ERC20, ERC721 and generic transfers. These map directly to the Fungible, Non-Fungible, and generic transfer types.
 
@@ -61,7 +50,7 @@ function executeDeposit(bytes calldata data)
 
 The `calldata` field is the parameters required for the handler. The exact serialization is defined for each handler.
 
-## ERC20 & ERC721 Handlers
+### ERC20 & ERC721 Handlers
 
 These handlers share a lot of similarities.
 
@@ -73,9 +62,9 @@ Different configurations may require different interface interactions. For examp
 - `mint()`/`burn()` - The user approves the handler to move the tokens prior to initiating the transfer. The handler will call `burnFrom()` as part of the transfer initiation. For the inverse, the handler will call `mint()` to release tokens to the recipient (and must have privileges to do so).
 
 
-## ERC20 Handler
+### ERC20 Handler
 
-### Calldata for `deposit()`
+#### Calldata for `deposit()`
 | Data | Type | Location |
 | - | - | - |
 | Amount | uint256 | 0 - 31 |
@@ -83,28 +72,28 @@ Different configurations may require different interface interactions. For examp
 | Recipient Address | bytes | 63 - END |
 
 
-### Calldata for `executeDeposit()`
+#### Calldata for `executeDeposit()`
 | Data | Type | Location |
 | - | - | - |
 | Amount | uint256 | 0 - 31 |
 | Recipient Address Length | uint256 | 32 - 63 |
 | Recipient Address | bytes | 64 - END |
 
-## ERC721 Handler
+### ERC721 Handler
 
-### Metadata
+#### Metadata
 
 The `tokenURI` should be used as the `metadata` field if the contract supports the Metadata extension (interface ID `0x5b5e139f`).
 
 
-### Calldata for `deposit()`
+#### Calldata for `deposit()`
 | Data | Type | Location |
 | - | - | - |
 | TokenID | uint256 | 0 - 31 |
 | Recipient Address Length | uint256 | 32 - 63 |
 | Recipient Address | bytes | 63 - END |
 
-### Calldata for `executeDeposit()`
+#### Calldata for `executeDeposit()`
 | Data | Type | Location |
 | - | - | - |
 | TokenID | uint256 | 0 - 31 |
@@ -114,39 +103,39 @@ The `tokenURI` should be used as the `metadata` field if the contract supports t
 | Metadata | bytes | 128 - END |
 
 
-## Generic Handler 
+### Generic Handler 
 
 As well as associating a resource ID to a contract address, the generic handler should allow specific functions on those contracts to be used. To allow for this we must:
 
 1. Use [function selectors](https://solidity.readthedocs.io/en/v0.6.4/abi-spec.html#function-selector) to identify functions.
 2. Require functions that accept `bytes` as a the only parameter **OR** require the data already be ABI encoded for the function
 
-### Deposit
+#### Deposit
 
 In a generic context, a deposit is simply the initiation of a transfer of a piece of data. To (optionally) allow this data to be validated for transfer the deposit mechanism should pass the data to a specified function and proceed with the transfer if the call succeeds (ie. does not revert). A function selector of `0x00` should skip the deposit function call.
 
-### Execute
+#### Execute
 
 An execution function must be specified. When `executeDeposit()` is called on the handler it should pass the `metadata` field to the specified function.
 
 
-### Calldata for `deposit()`
+#### Calldata for `deposit()`
 | Data | Type | Location |
 | - | - | - |
 | Metadata Length | uint256 | 0 - 31 |
 | Metadata | bytes | 32 - END |
 
-### Calldata for `execute()`
+#### Calldata for `execute()`
 | Data | Type | Location |
 | - | - | - |
 | Metadata Length | uint256 | 0 - 31 |
 | Metadata | bytes | 32 - END |
 
-# Administration
+## Administration
 
 The contracts should be controlled by an admin account. This should control the relayer set, manage the resource IDs, and specify the handlers. It should also be able to pause and unpause transfers at any times.
 
-# Substrate Implementation Specification
+## Substrate Implementation Specification
 
 - [Events](#events)
 - [Inter-Pallet Communication](#inter-pallet-communication)
@@ -163,7 +152,7 @@ pub trait Trait: system::Trait {
 }
 ```
 
-# Events
+## Events
 
 To easily distinguish different transfer types we should define three event types:
 
@@ -180,7 +169,7 @@ GenericTransfer(ChainId, DepositNonce, ResourceId, Vec<u8>)
 
 These can be observed by relayers and should provide enough context to construct transfer messages. 
 
-# Inter-Pallet Communication
+## Inter-Pallet Communication
 
 The ChainBridge pallet is intended to be combined with other pallets to define what is being bridged. To allow for this we must define some methods that other pallets can call to initiate transfers:
 
@@ -194,13 +183,13 @@ pub fn transfer_generic(dest_id: ChainId, resource_id: ResourceId, metadata: Vec
 
 These should result in the associated event being emitted with the correct parameters.
 
-# Bridge Account ID & Origin Check
+## Bridge Account ID & Origin Check
 
 To allow the bridge pallet to take ownership of tokens a `ModuleId` should be used to derive an `AccountId`.
 
 A bridge origin check (implementing `EnsureOrigin`) should also be provided. Other pallets should be able to use this to check the origin of call is the bridge pallet, indicating the execution of a proposal.
 
-# Executing Calls
+## Executing Calls
 
 The pallet should support dispatching of arbitrary calls as the result of successful proposal. Resource IDs should be mapped to specific calls to define their behaviour. Relayers will need to resolve resource IDs to calls in order to submit a proposal. The pallet should provide a mapping of resource IDs to method names that can be updated by the admin.
 
