@@ -59,6 +59,10 @@ jobs:
           script: TARGET=default ./scripts/ci_docker.sh
           on:
             branch: master
+        - provider: script
+          script: TAG=$TRAVIS_TAG TARGET=release ./scripts/ci_docker.sh
+          on:
+            tags: true
 
     - stage: "Github Pages"
       script:
