@@ -49,7 +49,7 @@ jobs:
         - docker ps
         - make test-e2e
 
-    - stage: "Docker Deploy (chainsafe/chainbridge)"
+    - stage: "Deploy"
       script:
         - docker build -t chainsafe/chainbridge .
         - docker run chainsafe/chainbridge:latest --help
@@ -63,7 +63,7 @@ jobs:
           on:
             tags: true
 
-    - stage: "Docker Deploy (chainsafe/chainbridge)"
+    - stage: "Deploy"
       script:
         - make build-mkdocs
       name: "Github Pages"
