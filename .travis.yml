@@ -49,11 +49,10 @@ jobs:
         - docker ps
         - make test-e2e
 
-    - stage: "Docker Deploy (chainsafe/chainbridge)"
+    - stage: "Deploy"
       script:
         - docker build -t chainsafe/chainbridge .
         - docker run chainsafe/chainbridge:latest --help
-        - make build-mkdocs
       deploy:
         - provider: script
           script: TARGET=default ./scripts/ci_docker.sh
@@ -63,10 +62,17 @@ jobs:
           script: TAG=$TRAVIS_TAG TARGET=release ./scripts/ci_docker.sh
           on:
             tags: true
+
+    - stage: "Deploy"
+      script:
+        - make build-mkdocs
+      name: "Github Pages"
+      deploy:
         - provider: pages
           skip_cleanup: true
-          github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+          github_token: $GITHUB_TOKEN
           keep_history: true
           on:
             branch: master
-          local_dir: "./site"
+            local_dir: "./site"
+
