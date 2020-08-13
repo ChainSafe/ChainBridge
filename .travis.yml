@@ -74,5 +74,5 @@ jobs:
           keep_history: true
           on:
             branch: master
-            local_dir: "./site"
+      local_dir: "./site"
 

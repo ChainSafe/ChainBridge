@@ -1,7 +1,7 @@
 # Copyright 2020 ChainSafe Systems
 # SPDX-License-Identifier: LGPL-3.0-only
 
-site_name: ChainBridge documentation
+site_name: ChainBridge Docs
 site_description: Modular Multi-Directional Blockchain Bridge to interact with Multiple Networks; Ethereum, Ethereum Classic, Substrate, Cosmos-SDK based chains.
 
 repo_name: chainsafe/chainbridge
@@ -21,12 +21,13 @@ theme:
     primary: black
   favicon: img/favicon.ico
 nav:
-  - Getting started: index.md
+  - Overview: index.md
   - Installation: installation.md
   - Configuration: configuration.md
   - Chains:
       - Ethereum: chains/ethereum.md
       - Substrate: chains/substrate.md
+  - Running Locally: local.md
   - Testing: test.md
 
 extra:
