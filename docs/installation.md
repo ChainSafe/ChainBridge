@@ -1,5 +1,13 @@
 # Installation
 
+## Docker
+
+The official [ChainBridge Docker image](https://hub.docker.com/r/chainsafe/chainbridge)
+
+To start the Docker image use 
+`make start-docker`
+
+
 ## Dependencies
 
 - [Subkey](https://github.com/paritytech/substrate): 
@@ -8,7 +16,7 @@ Used for substrate key management. Only required if connecting to a substrate ch
   `make install-subkey`
 
 
-## Building
+## Building from Source
 
 `make build`: Builds `chainbridge` in `./build`.
 
