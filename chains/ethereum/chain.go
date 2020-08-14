@@ -131,8 +131,13 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	}
 
 	chainId, err := bridgeContract.ChainID(conn.CallOpts())
+
+	if err != nil {
+		return nil, err
+	}
+
 	if chainId != uint8(chainCfg.Id) {
-		return nil, fmt.Errorf("chainId and configuration chainId do not match")
+		return nil, fmt.Errorf("chainId (%d) and configuration chainId (%d) do not match", chainId, chainCfg.Id)
 	}
 
 	erc20HandlerContract, err := erc20Handler.NewERC20Handler(cfg.erc20HandlerContract, conn.Client())
