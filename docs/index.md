@@ -9,25 +9,20 @@
 [chainbridge](https://github.com/ChainSafe/ChainBridge)
 
 A Modular Multi-Directional Blockchain Bridge to interact with Multiple Networks; Ethereum, Ethereum Classic, Substrate, Cosmos-SDK based chains.
-
-
-<<<<<<< HEAD
-## Relevant repos
-
-=======
->>>>>>> master
 ### Ethereum (Solidity) 
 
 [chainbridge-solidity](https://github.com/ChainSafe/chainbridge-solidity) 
 
  The Solidity contracts required for chainbridge. Includes deployment and interaction CLI.
     
-<<<<<<< HEAD
+
  The bindings for the contracts live in `bindings/`. To update the bindings modify `scripts/setup-contracts.sh` and then run `make clean && make setup-contracts`
 
-=======
->>>>>>> master
 ### Substrate
 [chainbridge-substrate](https://github.com/ChainSafe/chainbridge-substrate)
 
 A substrate pallet that can be integrated into a chain, as well as an example pallet to demonstrate chain integration.
+
+## Notion
+
+To learn more about ChainBridge check out the [Notion](https://www.notion.so/chainsafe/ChainBridge-Public-Documentation-be78788285f54270b481cfdc811d3eae) page.
