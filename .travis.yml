@@ -74,5 +74,5 @@ jobs:
           local_dir: "./site"
           keep_history: true
           on:
-            branch: master
+            branch: alex/docs
 
