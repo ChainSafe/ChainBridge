@@ -16,7 +16,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
-	msg "github.com/ChainSafe/ChainBridge/message"
+	msg "github.com/ChainSafe/chainbridge-utils/msg"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"

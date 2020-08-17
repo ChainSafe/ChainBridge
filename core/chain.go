@@ -4,7 +4,7 @@
 package core
 
 import (
-	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/ChainBridge/router"
 )
 

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	eth "github.com/ChainSafe/ChainBridge/e2e/ethereum"
-	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	subutils "github.com/ChainSafe/ChainBridge/shared/substrate"

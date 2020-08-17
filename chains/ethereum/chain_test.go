@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/core"
-	"github.com/ChainSafe/ChainBridge/keystore"
-	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/chainbridge-utils/keystore"
+	msg "github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/ChainBridge/router"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ethereum/go-ethereum/common"

@@ -15,6 +15,8 @@ github.com/Azure/go-autorest/tracing v0.5.0/go.mod h1:r/s2XiOKccPW3HrqB+W0TQzfbt
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/ChainSafe/chainbridge-substrate-events v0.0.0-20200715141113-87198532025e h1:c7NSjEfp13ua566bC2KSNmyx0Cvj1cciO2klsFIQv2I=
 github.com/ChainSafe/chainbridge-substrate-events v0.0.0-20200715141113-87198532025e/go.mod h1:H5fNH57wn/j1oLifOnWEqYbfJZcOWzr7jZjKKrUckSQ=
+github.com/ChainSafe/chainbridge-utils v1.0.1 h1:qxg0So8/XsiixiHCeZ2tn69IM7aGevhwRNby+xAfWGs=
+github.com/ChainSafe/chainbridge-utils v1.0.1/go.mod h1:jX+LT1patbRwukvjQl/4oJsKZvx3ujZubdXz8ZWlMXo=
 github.com/ChainSafe/log15 v1.0.0 h1:vRDVtWtVwIH5uSCBvgTTZh6FA58UBJ6+QiiypaZfBf8=
 github.com/ChainSafe/log15 v1.0.0/go.mod h1:5v1+ALHtdW0NfAeeoYyKmzCAMcAeqkdhIg4uxXWIgOg=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
@@ -96,8 +98,8 @@ github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/ethereum/go-ethereum v1.9.13 h1:rOPqjSngvs1VSYH2H+PMPiWt4VEulvNRbFgqiGqJM3E=
 github.com/ethereum/go-ethereum v1.9.13/go.mod h1:qwN9d1GLyDh0N7Ab8bMGd0H9knaji2jOBm2RrMGjXls=
-github.com/ethereum/go-ethereum v1.9.16 h1:WQTmbO9RelgTouA5UlRfd4KnXqSarphmvn7XNXUmvhk=
-github.com/ethereum/go-ethereum v1.9.16/go.mod h1:kihoiSg74VC4dZAXMkmoWp70oQabz48BJg1tuzricFc=
+github.com/ethereum/go-ethereum v1.9.17 h1:2D02O8KcoyQHxfizvMi0vGXXzFIkQTMeKXwt0+4SYEA=
+github.com/ethereum/go-ethereum v1.9.17/go.mod h1:kihoiSg74VC4dZAXMkmoWp70oQabz48BJg1tuzricFc=
 github.com/fatih/color v1.3.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fjl/memsize v0.0.0-20180418122429-ca190fb6ffbc h1:jtW8jbpkO4YirRSyepBOH8E+2HEw6/hKkBvFPwhUN8c=
 github.com/fjl/memsize v0.0.0-20180418122429-ca190fb6ffbc/go.mod h1:VvhXpOYNQvB+uIk2RvXzuaQtkQJzzIx6lSBe1xv7hi0=

@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/ChainSafe/ChainBridge/chains"
-	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	log "github.com/ChainSafe/log15"
 )
 

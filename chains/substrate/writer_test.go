@@ -10,7 +10,7 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 
-	message "github.com/ChainSafe/ChainBridge/message"
+	message "github.com/ChainSafe/chainbridge-utils/msg"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
 )

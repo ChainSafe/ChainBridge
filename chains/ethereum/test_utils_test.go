@@ -11,8 +11,8 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
-	"github.com/ChainSafe/ChainBridge/keystore"
-	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/chainbridge-utils/keystore"
+	msg "github.com/ChainSafe/chainbridge-utils/msg"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/common"

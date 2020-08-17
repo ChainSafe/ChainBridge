@@ -5,7 +5,7 @@ package utils
 
 import (
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
-	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ethereum/go-ethereum/common"
 )
 

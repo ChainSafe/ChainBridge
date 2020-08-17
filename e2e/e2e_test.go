@@ -16,7 +16,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/core"
 	eth "github.com/ChainSafe/ChainBridge/e2e/ethereum"
 	sub "github.com/ChainSafe/ChainBridge/e2e/substrate"
-	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/ChainBridge/shared"
 	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"

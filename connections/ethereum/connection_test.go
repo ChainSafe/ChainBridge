@@ -8,7 +8,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridge/keystore"
+	"github.com/ChainSafe/chainbridge-utils/keystore"
 	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ChainSafe/log15"
