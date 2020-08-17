@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"sync"
 
-	msg "github.com/ChainSafe/chainbridge-utils/msg"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	msg "github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/author"

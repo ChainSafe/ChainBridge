@@ -9,8 +9,8 @@ import (
 	"math/big"
 	"time"
 
-	msg "github.com/ChainSafe/chainbridge-utils/msg"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
+	msg "github.com/ChainSafe/chainbridge-utils/msg"
 	log "github.com/ChainSafe/log15"
 )
 

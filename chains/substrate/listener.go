@@ -11,8 +11,8 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
-	msg "github.com/ChainSafe/chainbridge-utils/msg"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	msg "github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )

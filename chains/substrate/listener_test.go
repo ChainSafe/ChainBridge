@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/blockstore"
-	msg "github.com/ChainSafe/chainbridge-utils/msg"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
+	msg "github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
