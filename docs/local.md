@@ -21,13 +21,13 @@ docker-compose -f ./docker-compose-geth-substrate.yml up -V
 
 ### Deploy Contracts
 
-You can deploy the contracts to the geth chain like this:
+To deploy the contracts on to the Ethereum chain, run the following:
 
 ```bash
 cb-sol-cli deploy --all --relayerThreshold 1
 ```
 
-You should see an output such as this:
+After running, the expected output looks like this:
 
 ```bash
 ================================================================
@@ -78,7 +78,7 @@ cb-sol-cli bridge register-generic-resource --resourceId "0x00000000000000000000
 
 ### Specify Token Semantics
 
-To allow for a variety of use cases, the ethereum contracts support both the `transfer` and the `mint/burn` ERC methods.
+To allow for a variety of use cases, the Ethereum contracts support both the `transfer` and the `mint/burn` ERC methods.
 
 To simplify these examples we should use `mint/burn`:
 
@@ -98,9 +98,9 @@ cb-sol-cli erc721 add-minter --minter "0x3f709398808af36ADBA86ACC617FeB7F5B7B193
 
 ## On-Chain Setup (Substrate)
 
-### Add Relayer
+### Registering Relayers
 
-We need to register the account of the relayer on substrate (cb-sol-cli deploys contracts with the 5 test keys preloaded). 
+First we need to register the account of the relayer on substrate (cb-sol-cli deploys contracts with the 5 test keys preloaded). 
 
 Select the `Sudo` tab in the PolkadotJS UI. Choose the `addRelayer` method of `chainBridge`, and select Alice as the relayer.
 
@@ -132,7 +132,7 @@ Using the `Sudo` tab, call `chainBridge.whitelistChain`, specifying `0` for out 
 
 ## Running A Relayer
 
-Here is an example config file for a single relayer using the contracts we deployed.
+Here is an example config file for a single relayer ("Alice") using the contracts we've deployed.
 
 ```json
 {
@@ -210,7 +210,7 @@ cb-sol-cli erc20 deposit --amount 1000 --dest 1 --recipient "0xd43593c715fdd31c6
 
 ### Substrate NFT ⇒ ERC721
 
-First, you'll probably need to mint a token. Select the `Sudo` tab and call `erc721.mint` with parameters such as these:
+First, you'll need to mint a token. Select the `Sudo` tab and call `erc721.mint` with parameters such as these:
 
 - Owner: `Alice`
 - TokenId: `1`
