@@ -6,7 +6,9 @@ The official [ChainBridge Docker image](https://hub.docker.com/r/chainsafe/chain
 
 To build the Docker image use 
 `docker build -t chainsafe/chainbridge .`
-`docker run chainsafe/chainbridge --config config.toml`
+
+To start ChainBridge
+`docker run -v ./config.toml:/config.toml chainsafe/chainbridge`
 
 ## Dependencies
 
