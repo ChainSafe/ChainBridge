@@ -19,3 +19,6 @@ $ make test-eth
 $ make test-sub
 $ make test-e2e
 ```
+## Substrate
+
+ The bindings for the contracts live in `bindings/`. To update the bindings modify `scripts/setup-contracts.sh` and then run `make clean && make setup-contracts`
