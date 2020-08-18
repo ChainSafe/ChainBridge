@@ -80,7 +80,7 @@ cb-sol-cli bridge register-generic-resource --resourceId "0x00000000000000000000
 
 To allow for a variety of use cases, the Ethereum contracts support both the `transfer` and the `mint/burn` ERC methods.
 
-To simplify these examples we should use `mint/burn`:
+For simplicity's sake the following examples only make use of the  `mint/burn` method:
 
 ```bash
 # Register the erc20 contract as mintable/burnable
