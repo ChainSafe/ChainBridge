@@ -10,6 +10,7 @@ import (
 	"os"
 	"testing"
 	"time"
+	"encoding/json"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
@@ -55,8 +56,8 @@ type TestContracts struct {
 	AssetStoreEth common.Address // Contract configured for eth to eth generic transfer
 }
 
-func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *core.ChainConfig {
-	return &core.ChainConfig{
+func CreateConfig(t *testing.T,key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *core.ChainConfig {
+	c := &core.ChainConfig{
 		Name:           fmt.Sprintf("ethereum(%s,%d)", key, chain),
 		Id:             chain,
 		Endpoint:       endpoint,
@@ -72,6 +73,19 @@ func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContra
 			"genericHandler": contracts.GenericHandlerAddress.String(),
 		},
 	}
+
+	json, err := json.Marshal(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println("======================== Ethereum Chain Config ========================")
+	fmt.Println(string(json))
+	fmt.Println("=======================================================================")
+
+	return c
+
+
 }
 
 func DeployTestContracts(t *testing.T, client *utils.Client, endpoint string, id msg.ChainId, threshold *big.Int) *utils.DeployedContracts {

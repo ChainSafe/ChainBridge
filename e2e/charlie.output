@@ -1,0 +1,188 @@
+[34mTRCE[0m[08-19|08:49:36] Block not yet finalized                  [34mrelayer[0m=charlie [34mchain[0m=sub [34mtarget[0m=61 [34mlatest[0m=60
+[36mDBUG[0m[08-19|08:49:36] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=362
+[36mDBUG[0m[08-19|08:49:36] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=363
+[36mDBUG[0m[08-19|08:49:36] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=364
+[36mDBUG[0m[08-19|08:49:36] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=361
+[36mDBUG[0m[08-19|08:49:36] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=365
+[36mDBUG[0m[08-19|08:49:36] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=362
+[36mDBUG[0m[08-19|08:49:36] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=366
+[36mDBUG[0m[08-19|08:49:36] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=363
+[36mDBUG[0m[08-19|08:49:36] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethB [36mtarget[0m=367 [36mlatest[0m=376
+[36mDBUG[0m[08-19|08:49:36] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=364
+[36mDBUG[0m[08-19|08:49:36] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=365
+[36mDBUG[0m[08-19|08:49:36] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethA [36mtarget[0m=366 [36mlatest[0m=375
+[34mTRCE[0m[08-19|08:49:41] Fetching block for events                [34mrelayer[0m=charlie [34mchain[0m=sub [34mhash[0m=0x4d6cea04a9dcbcc96d871b460257b5758e1689e34a735da8ebbda9500f03620a
+[34mTRCE[0m[08-19|08:49:41] Finished processing events               [34mrelayer[0m=charlie [34mchain[0m=sub [34mblock[0m=0x4d6cea04a9dcbcc96d871b460257b5758e1689e34a735da8ebbda9500f03620a
+[34mTRCE[0m[08-19|08:49:41] Block not yet finalized                  [34mrelayer[0m=charlie [34mchain[0m=sub [34mtarget[0m=62 [34mlatest[0m=61
+[36mDBUG[0m[08-19|08:49:41] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=367
+[36mDBUG[0m[08-19|08:49:41] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=366
+[36mDBUG[0m[08-19|08:49:41] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=368
+[36mDBUG[0m[08-19|08:49:41] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=367
+[36mDBUG[0m[08-19|08:49:41] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=369
+[36mDBUG[0m[08-19|08:49:41] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=368
+[36mDBUG[0m[08-19|08:49:41] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=370
+[36mDBUG[0m[08-19|08:49:41] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=369
+[36mDBUG[0m[08-19|08:49:41] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=371
+[36mDBUG[0m[08-19|08:49:41] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=370
+[36mDBUG[0m[08-19|08:49:41] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethB [36mtarget[0m=372 [36mlatest[0m=381
+[36mDBUG[0m[08-19|08:49:41] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethA [36mtarget[0m=371 [36mlatest[0m=380
+[34mTRCE[0m[08-19|08:49:46] Fetching block for events                [34mrelayer[0m=charlie [34mchain[0m=sub [34mhash[0m=0x54cbeab561cddf7c4c2991992bf6554605ccb7cdc2c54f61eb897fd8ccdef10a
+[34mTRCE[0m[08-19|08:49:46] Finished processing events               [34mrelayer[0m=charlie [34mchain[0m=sub [34mblock[0m=0x54cbeab561cddf7c4c2991992bf6554605ccb7cdc2c54f61eb897fd8ccdef10a
+[34mTRCE[0m[08-19|08:49:46] Block not yet finalized                  [34mrelayer[0m=charlie [34mchain[0m=sub [34mtarget[0m=63 [34mlatest[0m=62
+[36mDBUG[0m[08-19|08:49:46] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=372
+[36mDBUG[0m[08-19|08:49:46] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=371
+[36mDBUG[0m[08-19|08:49:46] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=373
+[36mDBUG[0m[08-19|08:49:46] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=372
+[36mDBUG[0m[08-19|08:49:46] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=374
+[36mDBUG[0m[08-19|08:49:46] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=373
+[36mDBUG[0m[08-19|08:49:46] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=375
+[36mDBUG[0m[08-19|08:49:46] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=374
+[36mDBUG[0m[08-19|08:49:46] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=376
+[36mDBUG[0m[08-19|08:49:46] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethB [36mtarget[0m=377 [36mlatest[0m=386
+[32mINFO[0m[08-19|08:49:46] Handling fungible deposit event          [32mrelayer[0m=charlie [32mchain[0m=ethA [32mdest[0m=2 [32mnonce[0m=1
+[32mINFO[0m[08-19|08:49:46] Attempting to resolve message            [32mrelayer[0m=charlie [32mchain[0m=ethB [32mtype[0m=FungibleTransfer [32msrc[0m=0 [32mdst[0m=2 [32mnonce[0m=1 [32mrId[0m=0000000000000000000000a130e29df0be6f465cdbb8d6b4ea3e862633bb8000
+[32mINFO[0m[08-19|08:49:46] Creating erc20 proposal                  [32mrelayer[0m=charlie [32mchain[0m=ethB [32msrc[0m=0 [32mnonce[0m=1
+[36mDBUG[0m[08-19|08:49:46] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=375
+[36mDBUG[0m[08-19|08:49:46] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethA [36mtarget[0m=376 [36mlatest[0m=385
+[32mINFO[0m[08-19|08:49:46] Watching for finalization event          [32mrelayer[0m=charlie [32mchain[0m=ethB [32msrc[0m=0 [32mnonce[0m=1
+[34mTRCE[0m[08-19|08:49:46] No finalization event found in current block [34mrelayer[0m=charlie [34mchain[0m=ethB [34mblock[0m=386 [34msrc[0m=0 [34mnonce[0m=1
+[32mINFO[0m[08-19|08:49:46] Submitted proposal vote                  [32mrelayer[0m=charlie [32mchain[0m=ethB [32mtx[0m=0xc10e601a731318ab0220fe2427b89c9b0f08cd6d84cdd399192fc374a880d580 [32msrc[0m=0 [32mdepositNonce[0m=1
+[34mTRCE[0m[08-19|08:49:46] Block not ready, waiting                 [34mrelayer[0m=charlie [34mchain[0m=ethB [34mtarget[0m=387 [34mcurrent[0m=386
+[34mTRCE[0m[08-19|08:49:51] Fetching block for events                [34mrelayer[0m=charlie [34mchain[0m=sub [34mhash[0m=0x0bc48daca90da8a0381da815c220db3afd35b82e6290827b279a2cabfaad778c
+[34mTRCE[0m[08-19|08:49:51] Finished processing events               [34mrelayer[0m=charlie [34mchain[0m=sub [34mblock[0m=0x0bc48daca90da8a0381da815c220db3afd35b82e6290827b279a2cabfaad778c
+[34mTRCE[0m[08-19|08:49:51] Block not yet finalized                  [34mrelayer[0m=charlie [34mchain[0m=sub [34mtarget[0m=64 [34mlatest[0m=63
+[36mDBUG[0m[08-19|08:49:51] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=377
+[36mDBUG[0m[08-19|08:49:51] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=378
+[36mDBUG[0m[08-19|08:49:51] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=379
+[36mDBUG[0m[08-19|08:49:51] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=380
+[36mDBUG[0m[08-19|08:49:51] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=381
+[36mDBUG[0m[08-19|08:49:51] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=376
+[36mDBUG[0m[08-19|08:49:51] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=377
+[36mDBUG[0m[08-19|08:49:51] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethB [36mtarget[0m=382 [36mlatest[0m=391
+[34mTRCE[0m[08-19|08:49:51] No finalization event found in current block [34mrelayer[0m=charlie [34mchain[0m=ethB [34mblock[0m=387 [34msrc[0m=0 [34mnonce[0m=1
+[36mDBUG[0m[08-19|08:49:51] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=378
+[36mDBUG[0m[08-19|08:49:51] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=379
+[34mTRCE[0m[08-19|08:49:51] Ignoring event                           [34mrelayer[0m=charlie [34mchain[0m=ethB [34msrc[0m=0 [34mnonce[0m=1
+[36mDBUG[0m[08-19|08:49:51] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=380
+[36mDBUG[0m[08-19|08:49:51] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethA [36mtarget[0m=381 [36mlatest[0m=390
+[32mINFO[0m[08-19|08:49:51] Submitted proposal execution             [32mrelayer[0m=charlie [32mchain[0m=ethB [32mtx[0m=0x85261e0ec53c17478bb4f3b2ad240067a1f488eee0782fee1abcce0ff45a0961 [32msrc[0m=0 [32mdst[0m=2 [32mnonce[0m=1
+[34mTRCE[0m[08-19|08:49:56] Fetching block for events                [34mrelayer[0m=charlie [34mchain[0m=sub [34mhash[0m=0xde0696e98423703d2f48d316ec93d0910cccbe945535f8842d33070c2f5a7df7
+[34mTRCE[0m[08-19|08:49:56] Finished processing events               [34mrelayer[0m=charlie [34mchain[0m=sub [34mblock[0m=0xde0696e98423703d2f48d316ec93d0910cccbe945535f8842d33070c2f5a7df7
+[34mTRCE[0m[08-19|08:49:56] Block not yet finalized                  [34mrelayer[0m=charlie [34mchain[0m=sub [34mtarget[0m=65 [34mlatest[0m=64
+[36mDBUG[0m[08-19|08:49:56] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=382
+[36mDBUG[0m[08-19|08:49:56] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=383
+[36mDBUG[0m[08-19|08:49:56] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=384
+[36mDBUG[0m[08-19|08:49:56] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=381
+[36mDBUG[0m[08-19|08:49:56] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=385
+[36mDBUG[0m[08-19|08:49:56] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=386
+[36mDBUG[0m[08-19|08:49:56] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=382
+[36mDBUG[0m[08-19|08:49:56] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethB [36mtarget[0m=387 [36mlatest[0m=396
+[36mDBUG[0m[08-19|08:49:56] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=383
+[36mDBUG[0m[08-19|08:49:56] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=384
+[36mDBUG[0m[08-19|08:49:56] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=385
+[36mDBUG[0m[08-19|08:49:56] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethA [36mtarget[0m=386 [36mlatest[0m=395
+[34mTRCE[0m[08-19|08:50:01] Block not yet finalized                  [34mrelayer[0m=charlie [34mchain[0m=sub [34mtarget[0m=65 [34mlatest[0m=64
+[36mDBUG[0m[08-19|08:50:01] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=387
+[36mDBUG[0m[08-19|08:50:01] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=388
+[36mDBUG[0m[08-19|08:50:01] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=386
+[36mDBUG[0m[08-19|08:50:01] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=389
+[36mDBUG[0m[08-19|08:50:01] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=390
+[36mDBUG[0m[08-19|08:50:01] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=387
+[36mDBUG[0m[08-19|08:50:01] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=388
+[36mDBUG[0m[08-19|08:50:01] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=391
+[36mDBUG[0m[08-19|08:50:01] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethB [36mtarget[0m=392 [36mlatest[0m=401
+[36mDBUG[0m[08-19|08:50:01] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=389
+[36mDBUG[0m[08-19|08:50:01] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=390
+[36mDBUG[0m[08-19|08:50:01] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethA [36mtarget[0m=391 [36mlatest[0m=400
+[34mTRCE[0m[08-19|08:50:06] Fetching block for events                [34mrelayer[0m=charlie [34mchain[0m=sub [34mhash[0m=0x9c08c1bd1a08574a5493a544c047f88638697e601c0e3b115b8ef64adde7a2e4
+[34mTRCE[0m[08-19|08:50:06] Finished processing events               [34mrelayer[0m=charlie [34mchain[0m=sub [34mblock[0m=0x9c08c1bd1a08574a5493a544c047f88638697e601c0e3b115b8ef64adde7a2e4
+[34mTRCE[0m[08-19|08:50:06] Block not yet finalized                  [34mrelayer[0m=charlie [34mchain[0m=sub [34mtarget[0m=66 [34mlatest[0m=65
+[36mDBUG[0m[08-19|08:50:06] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=392
+[36mDBUG[0m[08-19|08:50:06] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=393
+[36mDBUG[0m[08-19|08:50:06] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=394
+[36mDBUG[0m[08-19|08:50:06] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=395
+[36mDBUG[0m[08-19|08:50:06] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=396
+[36mDBUG[0m[08-19|08:50:06] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=391
+[36mDBUG[0m[08-19|08:50:06] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethB [36mtarget[0m=397 [36mlatest[0m=406
+[36mDBUG[0m[08-19|08:50:06] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=392
+[36mDBUG[0m[08-19|08:50:06] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=393
+[36mDBUG[0m[08-19|08:50:06] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=394
+[32mINFO[0m[08-19|08:50:06] Handling fungible deposit event          [32mrelayer[0m=charlie [32mchain[0m=ethA [32mdest[0m=2 [32mnonce[0m=2
+[32mINFO[0m[08-19|08:50:06] Attempting to resolve message            [32mrelayer[0m=charlie [32mchain[0m=ethB [32mtype[0m=FungibleTransfer [32msrc[0m=0 [32mdst[0m=2 [32mnonce[0m=2 [32mrId[0m=0000000000000000000000a130e29df0be6f465cdbb8d6b4ea3e862633bb8000
+[32mINFO[0m[08-19|08:50:06] Creating erc20 proposal                  [32mrelayer[0m=charlie [32mchain[0m=ethB [32msrc[0m=0 [32mnonce[0m=2
+[36mDBUG[0m[08-19|08:50:06] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=395
+[32mINFO[0m[08-19|08:50:06] Watching for finalization event          [32mrelayer[0m=charlie [32mchain[0m=ethB [32msrc[0m=0 [32mnonce[0m=2
+[36mDBUG[0m[08-19|08:50:06] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethA [36mtarget[0m=396 [36mlatest[0m=405
+[34mTRCE[0m[08-19|08:50:06] No finalization event found in current block [34mrelayer[0m=charlie [34mchain[0m=ethB [34mblock[0m=406 [34msrc[0m=0 [34mnonce[0m=2
+[34mTRCE[0m[08-19|08:50:06] Block not ready, waiting                 [34mrelayer[0m=charlie [34mchain[0m=ethB [34mtarget[0m=407 [34mcurrent[0m=406
+[32mINFO[0m[08-19|08:50:06] Submitted proposal vote                  [32mrelayer[0m=charlie [32mchain[0m=ethB [32mtx[0m=0xa9973c8126ab622b02df4cb757cf9b943b79f63dc4cc2f8ae554ff6e82d4792f [32msrc[0m=0 [32mdepositNonce[0m=2
+[34mTRCE[0m[08-19|08:50:11] Fetching block for events                [34mrelayer[0m=charlie [34mchain[0m=sub [34mhash[0m=0x80230994dd7f7a5b7b23700b5ef70588ddcb2876f19d2d69dcf288d3ff429370
+[34mTRCE[0m[08-19|08:50:11] Finished processing events               [34mrelayer[0m=charlie [34mchain[0m=sub [34mblock[0m=0x80230994dd7f7a5b7b23700b5ef70588ddcb2876f19d2d69dcf288d3ff429370
+[34mTRCE[0m[08-19|08:50:11] Block not yet finalized                  [34mrelayer[0m=charlie [34mchain[0m=sub [34mtarget[0m=67 [34mlatest[0m=66
+[36mDBUG[0m[08-19|08:50:11] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=397
+[36mDBUG[0m[08-19|08:50:11] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=398
+[36mDBUG[0m[08-19|08:50:11] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=399
+[36mDBUG[0m[08-19|08:50:11] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=400
+[36mDBUG[0m[08-19|08:50:11] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=401
+[36mDBUG[0m[08-19|08:50:11] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=396
+[36mDBUG[0m[08-19|08:50:11] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethB [36mtarget[0m=402 [36mlatest[0m=411
+[36mDBUG[0m[08-19|08:50:11] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=397
+[34mTRCE[0m[08-19|08:50:11] No finalization event found in current block [34mrelayer[0m=charlie [34mchain[0m=ethB [34mblock[0m=407 [34msrc[0m=0 [34mnonce[0m=2
+[36mDBUG[0m[08-19|08:50:11] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=398
+[34mTRCE[0m[08-19|08:50:11] Ignoring event                           [34mrelayer[0m=charlie [34mchain[0m=ethB [34msrc[0m=0 [34mnonce[0m=2
+[36mDBUG[0m[08-19|08:50:11] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=399
+[36mDBUG[0m[08-19|08:50:11] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=400
+[36mDBUG[0m[08-19|08:50:11] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethA [36mtarget[0m=401 [36mlatest[0m=410
+[32mINFO[0m[08-19|08:50:11] Submitted proposal execution             [32mrelayer[0m=charlie [32mchain[0m=ethB [32mtx[0m=0x33594f6e3d9983eb2712a9235f60dd7446a695bd8ff4e367b58ee0fc95cd9491 [32msrc[0m=0 [32mdst[0m=2 [32mnonce[0m=2
+[34mTRCE[0m[08-19|08:50:16] Fetching block for events                [34mrelayer[0m=charlie [34mchain[0m=sub [34mhash[0m=0x0cf3baa15ca359e481c9f6970feb588bb7e818e2a70317529285e1cc1d771e6b
+[34mTRCE[0m[08-19|08:50:16] Finished processing events               [34mrelayer[0m=charlie [34mchain[0m=sub [34mblock[0m=0x0cf3baa15ca359e481c9f6970feb588bb7e818e2a70317529285e1cc1d771e6b
+[34mTRCE[0m[08-19|08:50:16] Block not yet finalized                  [34mrelayer[0m=charlie [34mchain[0m=sub [34mtarget[0m=68 [34mlatest[0m=67
+[36mDBUG[0m[08-19|08:50:16] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=402
+[36mDBUG[0m[08-19|08:50:16] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=403
+[36mDBUG[0m[08-19|08:50:16] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=404
+[36mDBUG[0m[08-19|08:50:16] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=401
+[36mDBUG[0m[08-19|08:50:16] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=405
+[36mDBUG[0m[08-19|08:50:16] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=402
+[36mDBUG[0m[08-19|08:50:16] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=406
+[36mDBUG[0m[08-19|08:50:16] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=403
+[36mDBUG[0m[08-19|08:50:16] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethB [36mtarget[0m=407 [36mlatest[0m=416
+[36mDBUG[0m[08-19|08:50:16] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=404
+[36mDBUG[0m[08-19|08:50:16] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=405
+[36mDBUG[0m[08-19|08:50:16] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethA [36mtarget[0m=406 [36mlatest[0m=415
+[34mTRCE[0m[08-19|08:50:21] Fetching block for events                [34mrelayer[0m=charlie [34mchain[0m=sub [34mhash[0m=0xdcf50efa9458784ba6edd91db2ef5a5d1dc7fd07cdd880e5cee9502902661e85
+[34mTRCE[0m[08-19|08:50:21] Finished processing events               [34mrelayer[0m=charlie [34mchain[0m=sub [34mblock[0m=0xdcf50efa9458784ba6edd91db2ef5a5d1dc7fd07cdd880e5cee9502902661e85
+[34mTRCE[0m[08-19|08:50:21] Block not yet finalized                  [34mrelayer[0m=charlie [34mchain[0m=sub [34mtarget[0m=69 [34mlatest[0m=68
+[36mDBUG[0m[08-19|08:50:21] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=407
+[36mDBUG[0m[08-19|08:50:21] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=406
+[36mDBUG[0m[08-19|08:50:21] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=408
+[36mDBUG[0m[08-19|08:50:21] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=407
+[36mDBUG[0m[08-19|08:50:21] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=409
+[36mDBUG[0m[08-19|08:50:21] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=408
+[36mDBUG[0m[08-19|08:50:21] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=410
+[36mDBUG[0m[08-19|08:50:21] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=409
+[36mDBUG[0m[08-19|08:50:21] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=411
+[36mDBUG[0m[08-19|08:50:21] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=410
+[36mDBUG[0m[08-19|08:50:21] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethB [36mtarget[0m=412 [36mlatest[0m=421
+[36mDBUG[0m[08-19|08:50:21] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethA [36mtarget[0m=411 [36mlatest[0m=420
+[34mTRCE[0m[08-19|08:50:26] Fetching block for events                [34mrelayer[0m=charlie [34mchain[0m=sub [34mhash[0m=0x23b7bc4bb888a72cf37bc05d321d9af094e29e059d823d62398340985b70cde3
+[34mTRCE[0m[08-19|08:50:26] Finished processing events               [34mrelayer[0m=charlie [34mchain[0m=sub [34mblock[0m=0x23b7bc4bb888a72cf37bc05d321d9af094e29e059d823d62398340985b70cde3
+[34mTRCE[0m[08-19|08:50:26] Block not yet finalized                  [34mrelayer[0m=charlie [34mchain[0m=sub [34mtarget[0m=70 [34mlatest[0m=69
+[36mDBUG[0m[08-19|08:50:26] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=411
+[36mDBUG[0m[08-19|08:50:26] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=412
+[36mDBUG[0m[08-19|08:50:26] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=412
+[36mDBUG[0m[08-19|08:50:26] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=413
+[36mDBUG[0m[08-19|08:50:26] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=413
+[36mDBUG[0m[08-19|08:50:26] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=414
+[36mDBUG[0m[08-19|08:50:26] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=414
+[36mDBUG[0m[08-19|08:50:26] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=415
+[32mINFO[0m[08-19|08:50:26] Handling fungible deposit event          [32mrelayer[0m=charlie [32mchain[0m=ethA [32mdest[0m=2 [32mnonce[0m=3
+[36mDBUG[0m[08-19|08:50:26] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethB [36mblock[0m=416
+[32mINFO[0m[08-19|08:50:26] Attempting to resolve message            [32mrelayer[0m=charlie [32mchain[0m=ethB [32mtype[0m=FungibleTransfer [32msrc[0m=0 [32mdst[0m=2 [32mnonce[0m=3 [32mrId[0m=0000000000000000000000a130e29df0be6f465cdbb8d6b4ea3e862633bb8000
+[32mINFO[0m[08-19|08:50:26] Creating erc20 proposal                  [32mrelayer[0m=charlie [32mchain[0m=ethB [32msrc[0m=0 [32mnonce[0m=3
+[36mDBUG[0m[08-19|08:50:26] Querying block for deposit events        [36mrelayer[0m=charlie [36mchain[0m=ethA [36mblock[0m=415
+[36mDBUG[0m[08-19|08:50:26] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethB [36mtarget[0m=417 [36mlatest[0m=426
+[32mINFO[0m[08-19|08:50:26] Watching for finalization event          [32mrelayer[0m=charlie [32mchain[0m=ethB [32msrc[0m=0 [32mnonce[0m=3
+[36mDBUG[0m[08-19|08:50:26] Block not ready, will retry              [36mrelayer[0m=charlie [36mchain[0m=ethA [36mtarget[0m=416 [36mlatest[0m=425
+[34mTRCE[0m[08-19|08:50:26] No finalization event found in current block [34mrelayer[0m=charlie [34mchain[0m=ethB [34mblock[0m=426 [34msrc[0m=0 [34mnonce[0m=3
+[34mTRCE[0m[08-19|08:50:26] Block not ready, waiting                 [34mrelayer[0m=charlie [34mchain[0m=ethB [34mtarget[0m=427 [34mcurrent[0m=426
+[32mINFO[0m[08-19|08:50:26] Submitted proposal vote                  [32mrelayer[0m=charlie [32mchain[0m=ethB [32mtx[0m=0x08d59a2d4e0349494b6126a33202a0f4ca71bb8d1e7534dd7e01b32c3a349ef9 [32msrc[0m=0 [32mdepositNonce[0m=3
