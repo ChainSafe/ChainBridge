@@ -4,12 +4,11 @@
 package substrate
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
 	"time"
-	"encoding/json"
-
 
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/keystore"

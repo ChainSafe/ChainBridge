@@ -5,12 +5,12 @@ package ethereum
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"os"
 	"testing"
 	"time"
-	"encoding/json"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
@@ -56,7 +56,7 @@ type TestContracts struct {
 	AssetStoreEth common.Address // Contract configured for eth to eth generic transfer
 }
 
-func CreateConfig(t *testing.T,key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *core.ChainConfig {
+func CreateConfig(t *testing.T, key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *core.ChainConfig {
 	c := &core.ChainConfig{
 		Name:           fmt.Sprintf("ethereum(%s,%d)", key, chain),
 		Id:             chain,
@@ -84,7 +84,6 @@ func CreateConfig(t *testing.T,key string, chain msg.ChainId, contracts *utils.D
 	fmt.Println("=======================================================================")
 
 	return c
-
 
 }
 
