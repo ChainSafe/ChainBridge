@@ -78,7 +78,7 @@ func (s HttpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 			// Note The listener performing the polling should already be accounting for the block delay
 			// TODO Account for timestamps
 			timeDiff := requestTime.Sub(prevHeight.lastUpdated)
-			if prevHeight.height.Cmp(latestHeight) >= 0 && timeDiff < 120 {
+			if latestHeight.Cmp(prevHeight.height) >= 0 && timeDiff < 120 {
 				s.blockheights[chain.Id()] = BlockHeightInfo{
 					height:      latestHeight,
 					lastUpdated: requestTime,
