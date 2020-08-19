@@ -38,7 +38,6 @@ type test struct {
 	fn   func(*testing.T, *testContext)
 }
 
-
 type testContext struct {
 	ethA      *eth.TestContext
 	ethB      *eth.TestContext
