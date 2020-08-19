@@ -31,13 +31,6 @@ const EthAChainId = msg.ChainId(0)
 const SubChainId = msg.ChainId(1)
 const EthBChainId = msg.ChainId(2)
 
-var logFiles = []string{}
-
-type test struct {
-	name string
-	fn   func(*testing.T, *testContext)
-}
-
 type testContext struct {
 	ethA      *eth.TestContext
 	ethB      *eth.TestContext
@@ -94,19 +87,6 @@ func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *eth
 	}
 
 	return bridge, logger
-}
-
-func attemptToPrintLogs() {
-	for _, fileName := range logFiles {
-		dat, err := ioutil.ReadFile(fileName)
-		if err != nil {
-			continue
-		}
-		name := strings.Split(fileName, ".")[0]
-		fmt.Printf("\n\tOutput from %s:\n\n", name)
-		fmt.Print(string(dat))
-		os.Remove(fileName)
-	}
 }
 
 func assertChanError(t *testing.T, errs <-chan error) {
