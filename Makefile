@@ -79,6 +79,10 @@ test-e2e:
 	@echo "  >  \033[32mRunning e2e tests...\033[0m "
 	go test -v -timeout 0 ./e2e
 
+test-e2e-bootstrap:
+	@echo "  >  \033[32mRunning e2e bootstrap tests...\033[0m "
+	go test -v -timeout 0 ./e2e/bootstrap
+
 test-eth:
 	@echo "  >  \033[32mRunning ethereum tests...\033[0m "
 	go test ./chains/ethereum
