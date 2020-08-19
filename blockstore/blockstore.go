@@ -17,6 +17,7 @@ const PathPostfix = ".chainbridge/blockstore"
 
 type Blockstorer interface {
 	StoreBlock(*big.Int) error
+	TryLoadLatestBlock() (*big.Int, error)
 }
 
 var _ Blockstorer = &EmptyStore{}
@@ -25,7 +26,8 @@ var _ Blockstorer = &Blockstore{}
 // Dummy store for testing only
 type EmptyStore struct{}
 
-func (s *EmptyStore) StoreBlock(_ *big.Int) error { return nil }
+func (s *EmptyStore) StoreBlock(_ *big.Int) error           { return nil }
+func (s *EmptyStore) TryLoadLatestBlock() (*big.Int, error) { return nil, nil }
 
 // Blockstore implements Blockstorer.
 type Blockstore struct {

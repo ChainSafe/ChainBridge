@@ -4,6 +4,8 @@
 package core
 
 import (
+	"math/big"
+
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"
 )
@@ -13,6 +15,7 @@ type Chain interface {
 	SetRouter(*router.Router)
 	Id() msg.ChainId
 	Name() string
+	GetLatestBlock() (*big.Int, error)
 	Stop()
 }
 
