@@ -31,6 +31,7 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/log15"
+	"math/big"
 )
 
 var _ core.Chain = &Chain{}
@@ -41,6 +42,10 @@ type Chain struct {
 	listener *listener         // The listener of this chain
 	writer   *writer           // The writer of the chain
 	stop     chan<- int
+}
+
+func (c *Chain) GetLatestBlock() (*big.Int, error) {
+	panic("implement me")
 }
 
 // checkBlockstore queries the blockstore for the latest known block. If the latest block is
