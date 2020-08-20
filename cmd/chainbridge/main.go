@@ -17,7 +17,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/config"
 	"github.com/ChainSafe/ChainBridge/core"
 	msg "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ChainSafe/ChainBridge/metrics"
+	"github.com/ChainSafe/ChainBridge/monitor/health"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli/v2"
 )
@@ -189,7 +189,7 @@ func run(ctx *cli.Context) error {
 		c.AddChain(newChain)
 	}
 
-	metrics.Start()
+	health.Start()
 
 	c.Start()
 

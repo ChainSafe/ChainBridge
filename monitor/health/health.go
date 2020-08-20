@@ -1,4 +1,4 @@
-package metrics
+package health
 
 // Start spins up the metrics server
 func Start() {
