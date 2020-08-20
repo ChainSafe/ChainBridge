@@ -31,28 +31,6 @@ const EthAChainId = msg.ChainId(0)
 const SubChainId = msg.ChainId(1)
 const EthBChainId = msg.ChainId(2)
 
-var logFiles = []string{}
-
-type test struct {
-	name string
-	fn   func(*testing.T, *testContext)
-}
-
-var tests = []test{
-	{"Erc20ToSubstrate", testErc20ToSubstrate},
-	{"SubstrateToErc20", testSubstrateToErc20},
-	{"Erc20toErc20", testErc20ToErc20},
-	{"Erc20 to Substrate Round Trip", testErc20SubstrateRoundTrip},
-
-	{"Erc721 to Substrate Round Trip", testErc721ToSubstrateRoundTrip},
-	{"Erc721 to Erc721 Round Trip", testErc721EthToEthRoundTrip},
-
-	{"SubstrateHashToGenericHandler", testSubstrateHashToGenericHandler},
-	{"Eth to Eth HashToGenericHandler", testEthereumHashToGenericHandler},
-
-	{"Three chain with parallel submission", testThreeChainsParallel},
-}
-
 type testContext struct {
 	ethA      *eth.TestContext
 	ethB      *eth.TestContext
@@ -109,19 +87,6 @@ func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *eth
 	}
 
 	return bridge, logger
-}
-
-func attemptToPrintLogs() {
-	for _, fileName := range logFiles {
-		dat, err := ioutil.ReadFile(fileName)
-		if err != nil {
-			continue
-		}
-		name := strings.Split(fileName, ".")[0]
-		fmt.Printf("\n\tOutput from %s:\n\n", name)
-		fmt.Print(string(dat))
-		os.Remove(fileName)
-	}
 }
 
 func assertChanError(t *testing.T, errs <-chan error) {
@@ -277,40 +242,11 @@ func Test_ThreeRelayers(t *testing.T) {
 	subtest.EnsureInitializedChain(t, subClient, sub.RelayerSet, []msg.ChainId{EthAChainId}, resources, uint32(threshold))
 
 	// Create and start three bridges with both chains
-	bridgeA, bobLog := createAndStartBridge(t, "bob", contractsA, contractsB)
-	bridgeB, charlieLog := createAndStartBridge(t, "charlie", contractsA, contractsB)
-	bridgeC, aliceLog := createAndStartBridge(t, "dave", contractsA, contractsB)
+	bridgeA, _ := createAndStartBridge(t, "bob", contractsA, contractsB)
+	bridgeB, _ := createAndStartBridge(t, "charlie", contractsA, contractsB)
+	bridgeC, _ := createAndStartBridge(t, "dave", contractsA, contractsB)
 
 	assertChanError(t, bridgeA.Errors())
 	assertChanError(t, bridgeB.Errors())
 	assertChanError(t, bridgeC.Errors())
-
-	for _, tt := range tests {
-		tt := tt
-
-		// Swap handler
-		fileName := "bob" + ".output"
-		logFiles = append(logFiles, fileName)
-		bobLog.SetHandler(log.Must.FileHandler(fileName, log.TerminalFormat()))
-
-		// Swap handler
-		fileName = "charlie" + ".output"
-		logFiles = append(logFiles, fileName)
-		charlieLog.SetHandler(log.Must.FileHandler(fileName, log.TerminalFormat()))
-
-		// Swap handler
-		fileName = "dave" + ".output"
-		logFiles = append(logFiles, fileName)
-		aliceLog.SetHandler(log.Must.FileHandler(fileName, log.TerminalFormat()))
-
-		t.Run(tt.name, func(t *testing.T) {
-			tt.fn(t, ctx)
-
-			assertChanError(t, bridgeA.Errors())
-			assertChanError(t, bridgeB.Errors())
-			assertChanError(t, bridgeC.Errors())
-		})
-		// Flush logs
-		attemptToPrintLogs()
-	}
 }

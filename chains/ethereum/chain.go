@@ -205,6 +205,10 @@ func (c *Chain) Name() string {
 	return c.cfg.Name
 }
 
+func (c *Chain) GetLatestBlock() (*big.Int, error) {
+	return c.listener.blockstore.TryLoadLatestBlock()
+}
+
 // Stop signals to any running routines to exit
 func (c *Chain) Stop() {
 	close(c.stop)

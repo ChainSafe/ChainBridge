@@ -73,3 +73,12 @@ func (c *Core) Start() {
 func (c *Core) Errors() <-chan error {
 	return c.sysErr
 }
+
+// GetChains returns all the chains found in the registry
+func (c *Core) GetChains() []Chain {
+	chains := make([]Chain, 0, len(c.registry))
+	for k := range c.registry {
+		chains = append(chains, c.registry[k])
+	}
+	return chains
+}
