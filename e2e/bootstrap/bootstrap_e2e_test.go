@@ -5,10 +5,7 @@ package e2e
 
 import (
 	"fmt"
-	"io/ioutil"
 	"math/big"
-	"os"
-	"strings"
 	"testing"
 
 	ethChain "github.com/ChainSafe/ChainBridge/chains/ethereum"
