@@ -33,7 +33,6 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/log15"
-	"math/big"
 )
 
 var _ core.Chain = &Chain{}
