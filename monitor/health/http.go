@@ -53,7 +53,7 @@ func (s HttpMetricServer) Start() {
 	// Start http server
 	// TODO Push strconv to cli parser
 	err := http.ListenAndServe(":"+strconv.Itoa(s.port), nil)
-	if err !=  nil{
+	if err != nil {
 		log.Error("Server failed to start", err)
 	}
 }
@@ -76,7 +76,7 @@ func (s HttpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 			// TODO better error messaging
 			errorMsg := fmt.Sprintf("%s%d%s%s", "Failed to receive latest head for: ", chain.Id(), "Error:", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			_, err := w.Write([]byte(errorMsg))
+			_, err = w.Write([]byte(errorMsg))
 			if err != nil {
 				log.Error("Failed to write, failed to get latest height and writing error", err)
 			}
@@ -95,7 +95,7 @@ func (s HttpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 			} else {
 				if timeDiff.Seconds() > 120 {
 					// Error if we exceeded the time limit
-					errorMsg := fmt.Sprintf("%s%s%s%s%s", "Chain height hasn't changed in: ", timeDiff, "Current height", latestHeight)
+					errorMsg := fmt.Sprintf("%s%s%s%s", "Chain height hasn't changed in: ", timeDiff, "Current height", latestHeight)
 					w.WriteHeader(http.StatusInternalServerError)
 					_, err = w.Write([]byte(errorMsg))
 					if err != nil {
@@ -105,7 +105,7 @@ func (s HttpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 					// Error for having a smaller blockheight than previous
 					errorMsg := fmt.Sprintf("%s%s%s%s%s", "latestHeight is <= previousHeight", "previousHeight", prevHeight.height, "latestHeight", latestHeight)
 					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(errorMsg))
+					_, err := w.Write([]byte(errorMsg))
 					if err != nil {
 						log.Error("Failed to write, latest height less than previous height, latest height: %d, previous height: %d", latestHeight, prevHeight.height, err)
 					}
