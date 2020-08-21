@@ -44,10 +44,6 @@ type Chain struct {
 	stop     chan<- int
 }
 
-func (c *Chain) GetLatestBlock() (*big.Int, error) {
-	panic("implement me")
-}
-
 // checkBlockstore queries the blockstore for the latest known block. If the latest block is
 // greater than startBlock, then the latest block is returned, otherwise startBlock is.
 func checkBlockstore(bs *blockstore.Blockstore, startBlock uint64) (uint64, error) {
@@ -135,6 +131,10 @@ func (c *Chain) Start() error {
 func (c *Chain) SetRouter(r *router.Router) {
 	r.Listen(c.cfg.Id, c.writer)
 	c.listener.setRouter(r)
+}
+
+func (c *Chain) GetLatestBlock() (*big.Int, error) {
+	return c.listener.blockstore.TryLoadLatestBlock()
 }
 
 func (c *Chain) Id() msg.ChainId {
