@@ -53,8 +53,11 @@ func (s HttpMetricServer) Start() {
 	// Start http server
 	// TODO Push strconv to cli parser
 	err := http.ListenAndServe(":"+strconv.Itoa(s.port), nil)
-	if err != nil {
-		log.Error("Server failed to start", err)
+
+	if err == http.ErrServerClosed {
+		log.Info("Server is shutting down", err)
+	} else {
+		log.Error("Shutting down, server error: ", err)
 	}
 }
 
