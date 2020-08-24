@@ -15,7 +15,7 @@ type Chain interface {
 	SetRouter(*router.Router)
 	Id() msg.ChainId
 	Name() string
-	GetLatestBlock() (*big.Int, error)
+	GetLatestBlock() *big.Int
 	Stop()
 }
 

@@ -35,8 +35,8 @@ type httpMetricOptions struct {
 }
 
 type httpResponse struct {
-	msg   string
-	error string
+	Data  string
+	Error string
 }
 
 func newhttpMetricServer(opts httpMetricOptions) *httpMetricServer {
@@ -77,19 +77,7 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 
 	// Iterate through their block heads and update the cache accordingly
 	for _, chain := range chains {
-		latestHeight, err := chain.GetLatestBlock()
-		if err != nil {
-			// TODO better error messaging
-			response := &httpResponse{
-				msg:   "",
-				error: fmt.Sprintf("%s%d%s%s", "Failed to receive latest head for: ", chain.Id(), "Error:", err),
-			}
-			w.WriteHeader(http.StatusInternalServerError)
-			err := json.NewEncoder(w).Encode(response)
-			if err != nil {
-				log.Error("Failed to write, failed to get latest height and writing error", err)
-			}
-		}
+		latestHeight := chain.GetLatestBlock()
 
 		// Get old blockheight
 		if prevHeight, ok := s.blockheights[chain.Id()]; ok {
@@ -101,29 +89,32 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 					height:      latestHeight,
 					lastUpdated: requestTime,
 				}
+				return
 			} else {
 				if int(timeDiff.Seconds()) > s.timeDelay {
 					// Error if we exceeded the time limit
 					response := &httpResponse{
-						msg:   "",
-						error: fmt.Sprintf("%s%s%s%s", "Chain height hasn't changed in: ", timeDiff, " Current height", latestHeight),
+						Data:  "",
+						Error: fmt.Sprintf("%s%s%s%s", "Chain height hasn't changed in: ", timeDiff, " Current height: ", latestHeight),
 					}
 					w.WriteHeader(http.StatusInternalServerError)
 					err := json.NewEncoder(w).Encode(response)
 					if err != nil {
 						log.Error("Failed to write, chain height hasn't changed in: %d seconds, Current height: %d", timeDiff.Seconds(), latestHeight, err)
 					}
+					return
 				} else {
 					// Error for having a smaller blockheight than previous
 					response := &httpResponse{
-						msg:   "",
-						error: fmt.Sprintf("%s%s%s%s%s", "latestHeight is <= previousHeight", "previousHeight", prevHeight.height, "latestHeight", latestHeight),
+						Data:  "",
+						Error: fmt.Sprintf("%s%s%s%s%s", "latestHeight is <= previousHeight ", "previousHeight: ", prevHeight.height, "latestHeight: ", latestHeight),
 					}
-					w.Header.Set(http.StatusInternalServerError)
+					w.WriteHeader(http.StatusInternalServerError)
 					err := json.NewEncoder(w).Encode(response)
 					if err != nil {
 						log.Error("Failed to write, latest height less than previous height, latest height: %d, previous height: %d", latestHeight, prevHeight.height, err)
 					}
+					return
 				}
 			}
 		} else {
@@ -134,14 +125,14 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 				lastUpdated: requestTime,
 			}
 		}
-		response := &httpResponse{
-			msg:   "200 - operational",
-			error: "",
-		}
-		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(response)
-		if err != nil {
-			log.Error("Failed to write, 200 - Operational")
-		}
+	}
+	response := &httpResponse{
+		Data:  "200 - operational",
+		Error: "",
+	}
+	w.WriteHeader(http.StatusOK)
+	err := json.NewEncoder(w).Encode(response)
+	if err != nil {
+		log.Error("Failed to write: 200 - Operational")
 	}
 }

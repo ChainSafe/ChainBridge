@@ -134,8 +134,8 @@ func (c *Chain) SetRouter(r *router.Router) {
 	c.listener.setRouter(r)
 }
 
-func (c *Chain) GetLatestBlock() (*big.Int, error) {
-	return c.listener.blockstore.TryLoadLatestBlock()
+func (c *Chain) GetLatestBlock() *big.Int {
+	return c.listener.latestBlock
 }
 
 func (c *Chain) Id() msg.ChainId {

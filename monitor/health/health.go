@@ -9,7 +9,7 @@ import "github.com/ChainSafe/ChainBridge/core"
 func Start(core *core.Core) {
 	// TODO add to config file
 	httpPort := 8000
-	blockTimeDelay := 10
+	blockTimeDelay := 120
 	httpEnabled := true
 
 	if httpEnabled {

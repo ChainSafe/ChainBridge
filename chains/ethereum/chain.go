@@ -196,7 +196,7 @@ func (c *Chain) Name() string {
 	return c.cfg.Name
 }
 
-func (c *Chain) GetLatestBlock() (*big.Int, error) {
+func (c *Chain) GetLatestBlock() *big.Int {
 	return c.listener.latestBlock
 }
 
