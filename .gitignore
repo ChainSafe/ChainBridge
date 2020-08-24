@@ -21,6 +21,7 @@ coverage.txt
 # Builds
 build/
 bin/
+site/
 
 # golang
 .env

@@ -21,7 +21,7 @@ func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
 	contracts := deployTestContracts(t, client, msg.ChainId(1))
 	cfg := &core.ChainConfig{
-		Id:             msg.ChainId(0),
+		Id:             msg.ChainId(1),
 		Name:           "alice",
 		Endpoint:       TestEndpoint,
 		From:           keystore.AliceKey,
