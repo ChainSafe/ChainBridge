@@ -20,6 +20,4 @@ $ make test-sub
 $ make test-e2e
 ```
 
-The Solidity contracts required for chainbridge. Includes deployment and interaction CLI.
-
-The bindings for the contracts live in `bindings/`. To update the bindings modify `scripts/setup-contracts.sh` and then run `make clean && make setup-contracts`
+The bindings for the solidity contracts live in `bindings/`. To update the bindings modify `scripts/setup-contracts.sh` and then run `make clean && make setup-contracts`
