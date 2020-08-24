@@ -1,4 +1,7 @@
-package metrics
+// Copyright 2020 ChainSafe Systems
+// SPDX-License-Identifier: LGPL-3.0-only
+
+package health
 
 import (
 	"fmt"
@@ -28,9 +31,9 @@ type httpMetricOptions struct {
 	core *core.Core
 }
 
-type chain struct {
-	id int
-}
+//type chain struct {
+//	id int
+//}
 
 func newhttpMetricServer(opts httpMetricOptions) *httpMetricServer {
 	return &httpMetricServer{
@@ -49,7 +52,13 @@ func (s httpMetricServer) Start() {
 
 	// Start http server
 	// TODO Push strconv to cli parser
-	http.ListenAndServe(":"+strconv.Itoa(s.port), nil)
+	err := http.ListenAndServe(":"+strconv.Itoa(s.port), nil)
+
+	if err == http.ErrServerClosed {
+		log.Info("Server is shutting down", err)
+	} else {
+		log.Error("Shutting down, server error: ", err)
+	}
 }
 
 // healthStatus is a catch-all update that grabs the latest updates on the running chains
@@ -70,7 +79,10 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 			// TODO better error messaging
 			errorMsg := fmt.Sprintf("%s%d%s%s", "Failed to receive latest head for: ", chain.Id(), "Error:", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMsg))
+			_, err = w.Write([]byte(errorMsg))
+			if err != nil {
+				log.Error("Failed to write, failed to get latest height and writing error", err)
+			}
 		}
 
 		// Get old blockheight
@@ -86,14 +98,20 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 			} else {
 				if timeDiff.Seconds() > 120 {
 					// Error if we exceeded the time limit
-					errorMsg := fmt.Sprintf("%s%s%s%s%s", "Chain height hasn't changed in: ", timeDiff, "Current height", latestHeight)
+					errorMsg := fmt.Sprintf("%s%s%s%s", "Chain height hasn't changed in: ", timeDiff, "Current height", latestHeight)
 					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(errorMsg))
+					_, err = w.Write([]byte(errorMsg))
+					if err != nil {
+						log.Error("Failed to write, chain height hasn't changed in: %d seconds, Current height: %d", timeDiff.Seconds(), latestHeight, err)
+					}
 				} else {
 					// Error for having a smaller blockheight than previous
 					errorMsg := fmt.Sprintf("%s%s%s%s%s", "latestHeight is <= previousHeight", "previousHeight", prevHeight.height, "latestHeight", latestHeight)
 					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(errorMsg))
+					_, err := w.Write([]byte(errorMsg))
+					if err != nil {
+						log.Error("Failed to write, latest height less than previous height, latest height: %d, previous height: %d", latestHeight, prevHeight.height, err)
+					}
 				}
 			}
 		} else {
@@ -106,5 +124,8 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("200 - Operational"))
+	_, err := w.Write([]byte("200 - Operational"))
+	if err != nil {
+		log.Error("Failed to write, 200 - Operational")
+	}
 }

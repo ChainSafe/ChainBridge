@@ -24,6 +24,8 @@ As the writer receives messages from the router, it constructs proposals. If a p
 package substrate
 
 import (
+	"math/big"
+
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
@@ -130,6 +132,10 @@ func (c *Chain) Start() error {
 func (c *Chain) SetRouter(r *router.Router) {
 	r.Listen(c.cfg.Id, c.writer)
 	c.listener.setRouter(r)
+}
+
+func (c *Chain) GetLatestBlock() (*big.Int, error) {
+	return c.listener.blockstore.TryLoadLatestBlock()
 }
 
 func (c *Chain) Id() msg.ChainId {
