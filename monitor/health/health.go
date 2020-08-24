@@ -5,7 +5,7 @@ package health
 
 // Start spins up the metrics server
 func Start() {
-	// TODO add to config
+	// TODO add to config file
 	httpPort := 8000
 	httpEnabled := true
 
@@ -13,9 +13,7 @@ func Start() {
 		opts := &httpMetricOptions{
 			port: httpPort,
 		}
-		httpServer := newHTTPMetricServer(*opts)
+		httpServer := newhttpMetricServer(*opts)
 		httpServer.Start()
 	}
-
-	// TODO add prometheus
 }

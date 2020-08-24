@@ -31,10 +31,6 @@ type httpMetricOptions struct {
 	core *core.Core
 }
 
-//type chain struct {
-//	id int
-//}
-
 func newhttpMetricServer(opts httpMetricOptions) *httpMetricServer {
 	return &httpMetricServer{
 		port:         opts.port,
@@ -51,7 +47,6 @@ func (s httpMetricServer) Start() {
 	http.HandleFunc("/health", s.healthStatus)
 
 	// Start http server
-	// TODO Push strconv to cli parser
 	err := http.ListenAndServe(":"+strconv.Itoa(s.port), nil)
 
 	if err == http.ErrServerClosed {
@@ -74,8 +69,6 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 	for _, chain := range chains {
 		latestHeight, err := chain.GetLatestBlock()
 		if err != nil {
-			// NOTE this may error if the chain hasn't been polled yet.
-			// TODO handle re-try
 			// TODO better error messaging
 			errorMsg := fmt.Sprintf("%s%d%s%s", "Failed to receive latest head for: ", chain.Id(), "Error:", err)
 			w.WriteHeader(http.StatusInternalServerError)
