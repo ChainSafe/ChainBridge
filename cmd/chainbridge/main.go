@@ -189,7 +189,9 @@ func run(ctx *cli.Context) error {
 		c.AddChain(newChain)
 	}
 
-	health.Start()
+	go func() {
+		health.Start(c)
+	}()
 
 	c.Start()
 

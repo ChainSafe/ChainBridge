@@ -3,15 +3,20 @@
 
 package health
 
+import "github.com/ChainSafe/ChainBridge/core"
+
 // Start spins up the metrics server
-func Start() {
+func Start(core *core.Core) {
 	// TODO add to config file
 	httpPort := 8000
+	blockTimeDelay := 10
 	httpEnabled := true
 
 	if httpEnabled {
 		opts := &httpMetricOptions{
-			port: httpPort,
+			port:      httpPort,
+			timeDelay: blockTimeDelay,
+			core:      core,
 		}
 		httpServer := newhttpMetricServer(*opts)
 		httpServer.Start()

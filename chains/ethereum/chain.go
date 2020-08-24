@@ -197,7 +197,7 @@ func (c *Chain) Name() string {
 }
 
 func (c *Chain) GetLatestBlock() (*big.Int, error) {
-	return c.listener.blockstore.TryLoadLatestBlock()
+	return c.listener.latestBlock
 }
 
 // Stop signals to any running routines to exit

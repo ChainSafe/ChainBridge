@@ -1,0 +1,38 @@
+{
+	"Chains": [
+		{
+			"name": "goerli",
+			"type": "ethereum",
+			"id": "1",
+			"endpoint": "http://localhost:8545",
+			"from": "0x24962717f8fA5BA3b931bACaF9ac03924EB475a0",
+			"opts": {
+				"bridge": "0x62877dDCd49aD22f5eDfc6ac108e9a4b5D2bD88B",
+				"erc20Handler": "0x3167776db165D8eA0f51790CA2bbf44Db5105ADF",
+				"erc721Handler": "0x3f709398808af36ADBA86ACC617FeB7F5B7B193E",
+				"genericHandler": "0x2B6Ab4b880A45a07d83Cf4d664Df4Ab85705Bc07",
+				"gasLimit": "1000000",
+				"gasPrice": "20000000",
+				"startBlock": "0",
+				"http": "false"
+			}
+		},
+		{
+			"name": "kotti",
+			"type": "ethereum",
+			"id": "2",
+			"endpoint": "http://localhost:8546",
+			"from": "0x24962717f8fA5BA3b931bACaF9ac03924EB475a0",
+			"opts": {
+				"bridge": "0x62877dDCd49aD22f5eDfc6ac108e9a4b5D2bD88B",
+				"erc20Handler": "0x3167776db165D8eA0f51790CA2bbf44Db5105ADF",
+				"erc721Handler": "0x3f709398808af36ADBA86ACC617FeB7F5B7B193E",
+				"genericHandler": "0x2B6Ab4b880A45a07d83Cf4d664Df4Ab85705Bc07",
+				"gasLimit": "1000000",
+				"gasPrice": "20000000",
+				"startBlock": "0",
+				"http": "true"
+			}
+		}
+	]
+}

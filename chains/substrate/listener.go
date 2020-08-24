@@ -28,6 +28,7 @@ type listener struct {
 	log           log15.Logger
 	stop          <-chan int
 	sysErr        chan<- error
+	latestBlock   *big.Int
 }
 
 // Frequency of polling for a new block
@@ -159,6 +160,7 @@ func (l *listener) pollBlocks() error {
 			}
 
 			currentBlock++
+			l.latestBlock = big.NewInt(0).SetUint64(currentBlock)
 			retry = BlockRetryLimit
 		}
 	}

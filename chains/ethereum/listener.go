@@ -41,6 +41,7 @@ type listener struct {
 	blockstore             blockstore.Blockstorer
 	stop                   <-chan int
 	sysErr                 chan<- error // Reports fatal error to core
+	latestBlock            *big.Int
 }
 
 // NewListener creates and returns a listener
@@ -132,6 +133,7 @@ func (l *listener) pollBlocks() error {
 
 			// Goto next block and reset retry counter
 			currentBlock.Add(currentBlock, big.NewInt(1))
+			l.latestBlock = currentBlock
 			retry = BlockRetryLimit
 		}
 	}

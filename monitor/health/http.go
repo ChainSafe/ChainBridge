@@ -4,6 +4,7 @@
 package health
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 
 type httpMetricServer struct {
 	port         int
+	timeDelay    int
 	core         *core.Core
 	blockheights map[msg.ChainId]blockHeightInfo
 }
@@ -27,14 +29,21 @@ type blockHeightInfo struct {
 }
 
 type httpMetricOptions struct {
-	port int
-	core *core.Core
+	port      int
+	timeDelay int
+	core      *core.Core
+}
+
+type httpResponse struct {
+	msg   string
+	error string
 }
 
 func newhttpMetricServer(opts httpMetricOptions) *httpMetricServer {
 	return &httpMetricServer{
 		port:         opts.port,
 		core:         opts.core,
+		timeDelay:    opts.timeDelay,
 		blockheights: make(map[msg.ChainId]blockHeightInfo),
 	}
 }
@@ -60,6 +69,7 @@ func (s httpMetricServer) Start() {
 // It assumes that the configuration was set correctly, therefore the relevant chains are
 // only those that are in the core.Core registry.
 func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
 	// Grab all chains
 	chains := s.core.GetChains()
@@ -70,9 +80,12 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 		latestHeight, err := chain.GetLatestBlock()
 		if err != nil {
 			// TODO better error messaging
-			errorMsg := fmt.Sprintf("%s%d%s%s", "Failed to receive latest head for: ", chain.Id(), "Error:", err)
+			response := &httpResponse{
+				msg:   "",
+				error: fmt.Sprintf("%s%d%s%s", "Failed to receive latest head for: ", chain.Id(), "Error:", err),
+			}
 			w.WriteHeader(http.StatusInternalServerError)
-			_, err = w.Write([]byte(errorMsg))
+			err := json.NewEncoder(w).Encode(response)
 			if err != nil {
 				log.Error("Failed to write, failed to get latest height and writing error", err)
 			}
@@ -83,25 +96,31 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 			// Note The listener performing the polling should already be accounting for the block delay
 			// TODO Account for timestamps
 			timeDiff := requestTime.Sub(prevHeight.lastUpdated)
-			if latestHeight.Cmp(prevHeight.height) >= 0 && timeDiff < 120 {
+			if latestHeight.Cmp(prevHeight.height) >= 0 && int(timeDiff.Seconds()) < s.timeDelay {
 				s.blockheights[chain.Id()] = blockHeightInfo{
 					height:      latestHeight,
 					lastUpdated: requestTime,
 				}
 			} else {
-				if timeDiff.Seconds() > 120 {
+				if int(timeDiff.Seconds()) > s.timeDelay {
 					// Error if we exceeded the time limit
-					errorMsg := fmt.Sprintf("%s%s%s%s", "Chain height hasn't changed in: ", timeDiff, "Current height", latestHeight)
+					response := &httpResponse{
+						msg:   "",
+						error: fmt.Sprintf("%s%s%s%s", "Chain height hasn't changed in: ", timeDiff, " Current height", latestHeight),
+					}
 					w.WriteHeader(http.StatusInternalServerError)
-					_, err = w.Write([]byte(errorMsg))
+					err := json.NewEncoder(w).Encode(response)
 					if err != nil {
 						log.Error("Failed to write, chain height hasn't changed in: %d seconds, Current height: %d", timeDiff.Seconds(), latestHeight, err)
 					}
 				} else {
 					// Error for having a smaller blockheight than previous
-					errorMsg := fmt.Sprintf("%s%s%s%s%s", "latestHeight is <= previousHeight", "previousHeight", prevHeight.height, "latestHeight", latestHeight)
-					w.WriteHeader(http.StatusInternalServerError)
-					_, err := w.Write([]byte(errorMsg))
+					response := &httpResponse{
+						msg:   "",
+						error: fmt.Sprintf("%s%s%s%s%s", "latestHeight is <= previousHeight", "previousHeight", prevHeight.height, "latestHeight", latestHeight),
+					}
+					w.Header.Set(http.StatusInternalServerError)
+					err := json.NewEncoder(w).Encode(response)
 					if err != nil {
 						log.Error("Failed to write, latest height less than previous height, latest height: %d, previous height: %d", latestHeight, prevHeight.height, err)
 					}
@@ -115,10 +134,14 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 				lastUpdated: requestTime,
 			}
 		}
-	}
-	w.WriteHeader(http.StatusOK)
-	_, err := w.Write([]byte("200 - Operational"))
-	if err != nil {
-		log.Error("Failed to write, 200 - Operational")
+		response := &httpResponse{
+			msg:   "200 - operational",
+			error: "",
+		}
+		w.WriteHeader(http.StatusOK)
+		err = json.NewEncoder(w).Encode(response)
+		if err != nil {
+			log.Error("Failed to write, 200 - Operational")
+		}
 	}
 }
