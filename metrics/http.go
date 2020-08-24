@@ -12,13 +12,13 @@ import (
 	log "github.com/ChainSafe/log15"
 )
 
-type HttpMetricServer struct {
+type httpMetricServer struct {
 	port         int
 	core         *core.Core
-	blockheights map[msg.ChainId]BlockHeightInfo
+	blockheights map[msg.ChainId]blockHeightInfo
 }
 
-type BlockHeightInfo struct {
+type blockHeightInfo struct {
 	height      *big.Int
 	lastUpdated time.Time
 }
@@ -32,16 +32,16 @@ type chain struct {
 	id int
 }
 
-func newHTTPMetricServer(opts httpMetricOptions) *HttpMetricServer {
-	return &HttpMetricServer{
+func newhttpMetricServer(opts httpMetricOptions) *httpMetricServer {
+	return &httpMetricServer{
 		port:         opts.port,
 		core:         opts.core,
-		blockheights: make(map[msg.ChainId]BlockHeightInfo),
+		blockheights: make(map[msg.ChainId]blockHeightInfo),
 	}
 }
 
 // Start starts the http metrics server
-func (s HttpMetricServer) Start() {
+func (s httpMetricServer) Start() {
 	log.Info("Metrics server started", "port", s.port)
 
 	// Setup routes
@@ -55,7 +55,7 @@ func (s HttpMetricServer) Start() {
 // healthStatus is a catch-all update that grabs the latest updates on the running chains
 // It assumes that the configuration was set correctly, therefore the relevant chains are
 // only those that are in the core.Core registry.
-func (s HttpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
+func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 
 	// Grab all chains
 	chains := s.core.GetChains()
@@ -79,7 +79,7 @@ func (s HttpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 			// TODO Account for timestamps
 			timeDiff := requestTime.Sub(prevHeight.lastUpdated)
 			if latestHeight.Cmp(prevHeight.height) >= 0 && timeDiff < 120 {
-				s.blockheights[chain.Id()] = BlockHeightInfo{
+				s.blockheights[chain.Id()] = blockHeightInfo{
 					height:      latestHeight,
 					lastUpdated: requestTime,
 				}
@@ -99,7 +99,7 @@ func (s HttpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 		} else {
 			// Note: Could be edge case where chain never started, perhaps push initialization to different step
 			// First time we've received a block for this chain
-			s.blockheights[chain.Id()] = BlockHeightInfo{
+			s.blockheights[chain.Id()] = blockHeightInfo{
 				height:      latestHeight,
 				lastUpdated: requestTime,
 			}
