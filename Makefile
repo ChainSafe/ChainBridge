@@ -100,6 +100,12 @@ docker-start:
 docker-e2e:
 	docker-compose -f ./docker-compose-e2e.yml up -V
 
+docker-prom:
+	docker run \
+	    -p 9090:9090 \
+	    -v /config/prometheus.yml:/config/prometheus/prometheus.yml \
+	    prom/prometheus
+
 mkdocs:
 	docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material
 

@@ -17,7 +17,8 @@ import (
 	"github.com/ChainSafe/ChainBridge/config"
 	"github.com/ChainSafe/ChainBridge/core"
 	msg "github.com/ChainSafe/ChainBridge/message"
-	"github.com/ChainSafe/ChainBridge/monitor/health"
+	"github.com/ChainSafe/ChainBridge/metrics/health"
+		"github.com/ChainSafe/ChainBridge/metrics/prometheus"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli/v2"
 )
@@ -189,7 +190,13 @@ func run(ctx *cli.Context) error {
 		c.AddChain(newChain)
 	}
 
-	health.Start()
+	go func() {
+			health.Start()
+	}()
+
+	go func() {
+			prometheus.Start()
+	}()
 
 	c.Start()
 
