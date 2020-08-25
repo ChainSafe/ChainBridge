@@ -4,7 +4,6 @@
 package substrate
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
@@ -37,7 +36,7 @@ var RelayerSet = []types.AccountID{
 }
 
 func CreateConfig(t *testing.T, key string, chain msg.ChainId) *core.ChainConfig {
-	c := &core.ChainConfig{
+	return &core.ChainConfig{
 		Name:           fmt.Sprintf("substrate(%s)", key),
 		Id:             chain,
 		Endpoint:       TestSubEndpoint,
@@ -48,17 +47,6 @@ func CreateConfig(t *testing.T, key string, chain msg.ChainId) *core.ChainConfig
 		BlockstorePath: os.TempDir(),
 		Opts:           map[string]string{},
 	}
-
-	json, err := json.Marshal(c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	fmt.Println("======================== Substrate Chain Config ========================")
-	fmt.Println(string(json))
-	fmt.Println("========================================================================")
-
-	return c
 }
 
 func WaitForProposalSuccessOrFail(t *testing.T, client *utils.Client, nonce types.U64, chain types.U8) {
