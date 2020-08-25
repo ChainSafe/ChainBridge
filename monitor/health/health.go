@@ -13,12 +13,12 @@ func Start(core *core.Core) {
 	httpEnabled := true
 
 	if httpEnabled {
-		opts := &httpMetricOptions{
+		opts := httpMetricOptions{
 			port:      httpPort,
 			timeDelay: blockTimeDelay,
 			core:      core,
 		}
-		httpServer := newhttpMetricServer(*opts)
+		httpServer := newhttpMetricServer(opts)
 		httpServer.Start()
 	}
 }
