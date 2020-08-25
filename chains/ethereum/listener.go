@@ -16,6 +16,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
+	"github.com/ChainSafe/ChainBridge/core"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
@@ -41,7 +42,7 @@ type listener struct {
 	blockstore             blockstore.Blockstorer
 	stop                   <-chan int
 	sysErr                 chan<- error // Reports fatal error to core
-	latestBlock            *big.Int
+	latestBlock            core.LatestBlock
 }
 
 // NewListener creates and returns a listener
@@ -133,7 +134,10 @@ func (l *listener) pollBlocks() error {
 
 			// Goto next block and reset retry counter
 			currentBlock.Add(currentBlock, big.NewInt(1))
-			l.latestBlock = currentBlock
+			l.latestBlock = core.LatestBlock{
+				Height:    latestBlock,
+				Timestamp: time.Now(),
+			}
 			retry = BlockRetryLimit
 		}
 	}

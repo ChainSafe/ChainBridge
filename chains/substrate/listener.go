@@ -11,6 +11,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
+	"github.com/ChainSafe/ChainBridge/core"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
@@ -28,7 +29,7 @@ type listener struct {
 	log           log15.Logger
 	stop          <-chan int
 	sysErr        chan<- error
-	latestBlock   *big.Int
+	latestBlock   core.LatestBlock
 }
 
 // Frequency of polling for a new block
@@ -160,7 +161,10 @@ func (l *listener) pollBlocks() error {
 			}
 
 			currentBlock++
-			l.latestBlock = big.NewInt(0).SetUint64(currentBlock)
+			l.latestBlock = core.LatestBlock{
+				Height:    big.NewInt(0).SetUint64(currentBlock),
+				Timestamp: time.Now(),
+			}
 			retry = BlockRetryLimit
 		}
 	}
