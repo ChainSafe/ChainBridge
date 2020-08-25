@@ -72,7 +72,7 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Grab all chains
-	chains := s.core.GetChains()
+	chains := s.core.Registry
 	requestTime := time.Now()
 
 	// Iterate through their block heads and update the cache accordingly
@@ -89,7 +89,6 @@ func (s httpMetricServer) healthStatus(w http.ResponseWriter, r *http.Request) {
 					height:      latestHeight,
 					lastUpdated: requestTime,
 				}
-				return
 			} else {
 				if int(timeDiff.Seconds()) > s.timeDelay {
 					// Error if we exceeded the time limit
