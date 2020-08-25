@@ -6,6 +6,7 @@ package core
 import (
 	"math/big"
 	"time"
+	"sync"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"

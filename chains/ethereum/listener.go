@@ -48,12 +48,13 @@ type listener struct {
 // NewListener creates and returns a listener
 func NewListener(conn Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
 	return &listener{
-		cfg:        *cfg,
-		conn:       conn,
-		log:        log,
-		blockstore: bs,
-		stop:       stop,
-		sysErr:     sysErr,
+		cfg:         *cfg,
+		conn:        conn,
+		log:         log,
+		blockstore:  bs,
+		stop:        stop,
+		sysErr:      sysErr,
+		latestBlock: core.LatestBlock{},
 	}
 }
 
@@ -134,10 +135,8 @@ func (l *listener) pollBlocks() error {
 
 			// Goto next block and reset retry counter
 			currentBlock.Add(currentBlock, big.NewInt(1))
-			l.latestBlock = core.LatestBlock{
-				Height:    latestBlock,
-				Timestamp: time.Now(),
-			}
+			l.latestBlock.Height = latestBlock
+			l.latestBlock.Timestamp = time.Now()
 			retry = BlockRetryLimit
 		}
 	}

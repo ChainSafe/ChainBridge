@@ -1,0 +1,21 @@
+{	
+	"Chains": [	
+		{	
+			"name": "goerli",	
+			"type": "ethereum",	
+			"id": "0",	
+			"endpoint": "ws://localhost:8545",	
+			"from": "0x02642514dbebb135043cdbae4599a04a2ea84c9bcd701575d77d1a4c7cb2b977e0",	
+			"opts": {	
+				"bridge": "0x62877dDCd49aD22f5eDfc6ac108e9a4b5D2bD88B",	
+				"erc20Handler": "0x3167776db165D8eA0f51790CA2bbf44Db5105ADF",	
+				"erc721Handler": "0x3f709398808af36ADBA86ACC617FeB7F5B7B193E",	
+				"genericHandler": "0x2B6Ab4b880A45a07d83Cf4d664Df4Ab85705Bc07",	
+				"gasLimit": "1000000",	
+				"maxGasPrice": "20000000",	
+				"startBlock": "0",	
+				"http": "false"	
+			}	
+		}	
+	]	
+} 

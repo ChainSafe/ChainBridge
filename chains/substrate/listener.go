@@ -47,6 +47,7 @@ func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint6
 		log:           log,
 		stop:          stop,
 		sysErr:        sysErr,
+		latestBlock:   core.LatestBlock{},
 	}
 }
 
@@ -161,10 +162,8 @@ func (l *listener) pollBlocks() error {
 			}
 
 			currentBlock++
-			l.latestBlock = core.LatestBlock{
-				Height:    big.NewInt(0).SetUint64(currentBlock),
-				Timestamp: time.Now(),
-			}
+			l.latestBlock.Height = big.NewInt(0).SetUint64(currentBlock)
+			l.latestBlock.Timestamp = time.Now()
 			retry = BlockRetryLimit
 		}
 	}
