@@ -35,7 +35,7 @@ var RelayerSet = []types.AccountID{
 	types.NewAccountID(DaveKp.AsKeyringPair().PublicKey),
 }
 
-func CreateConfig(t *testing.T, key string, chain msg.ChainId) *core.ChainConfig {
+func CreateConfig(key string, chain msg.ChainId) *core.ChainConfig {
 	return &core.ChainConfig{
 		Name:           fmt.Sprintf("substrate(%s)", key),
 		Id:             chain,

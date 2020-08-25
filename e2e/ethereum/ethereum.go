@@ -55,7 +55,7 @@ type TestContracts struct {
 	AssetStoreEth common.Address // Contract configured for eth to eth generic transfer
 }
 
-func CreateConfig(t *testing.T, key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *core.ChainConfig {
+func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *core.ChainConfig {
 	return &core.ChainConfig{
 		Name:           fmt.Sprintf("ethereum(%s,%d)", key, chain),
 		Id:             chain,
