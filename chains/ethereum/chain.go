@@ -21,6 +21,7 @@ The writer recieves the message and creates a proposals on-chain. Once a proposa
 package ethereum
 
 import (
+	"fmt"
 	"math/big"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
@@ -111,7 +112,6 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	if err != nil {
 		return nil, err
 	}
-
 	err = conn.EnsureHasBytecode(cfg.bridgeContract)
 	if err != nil {
 		return nil, err
@@ -128,6 +128,15 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.Client())
 	if err != nil {
 		return nil, err
+	}
+
+	chainId, err := bridgeContract.ChainID(conn.CallOpts())
+	if err != nil {
+		return nil, err
+	}
+
+	if chainId != uint8(chainCfg.Id) {
+		return nil, fmt.Errorf("chainId (%d) and configuration chainId (%d) do not match", chainId, chainCfg.Id)
 	}
 
 	erc20HandlerContract, err := erc20Handler.NewERC20Handler(cfg.erc20HandlerContract, conn.Client())
