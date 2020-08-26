@@ -66,7 +66,7 @@ license:
 license-check:
 	@echo "  >  \033[Checking for license headers...\033[0m "
 	GO111MODULE=off go get -u github.com/google/addlicense
-	addlicense -check -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .
+	addlicense -check -c "ChainSafe Systems" -f ./scripts/header.txt -y 2020 .
 
 ## Install dependency subkey
 install-subkey:
