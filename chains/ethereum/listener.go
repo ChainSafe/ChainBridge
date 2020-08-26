@@ -135,7 +135,7 @@ func (l *listener) pollBlocks() error {
 
 			// Goto next block and reset retry counter
 			currentBlock.Add(currentBlock, big.NewInt(1))
-			l.latestBlock.Height = latestBlock
+			l.latestBlock.Height = big.NewInt(0).Set(latestBlock)
 			l.latestBlock.LastUpdated = time.Now()
 			retry = BlockRetryLimit
 		}
