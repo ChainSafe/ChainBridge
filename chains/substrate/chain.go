@@ -29,6 +29,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/log15"
 )
@@ -132,7 +133,7 @@ func (c *Chain) SetRouter(r *router.Router) {
 	c.listener.setRouter(r)
 }
 
-func (c *Chain) GetLatestBlock() core.LatestBlock {
+func (c *Chain) LatestBlock() metrics.LatestBlock {
 	return c.listener.latestBlock
 }
 

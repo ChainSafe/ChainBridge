@@ -4,11 +4,8 @@
 package core
 
 import (
-	"math/big"
-	"time"
-	"sync"
-
 	msg "github.com/ChainSafe/ChainBridge/message"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	"github.com/ChainSafe/ChainBridge/router"
 )
 
@@ -17,13 +14,8 @@ type Chain interface {
 	SetRouter(*router.Router)
 	Id() msg.ChainId
 	Name() string
-	GetLatestBlock() LatestBlock
+	LatestBlock() metrics.LatestBlock
 	Stop()
-}
-
-type LatestBlock struct {
-	Height    *big.Int
-	Timestamp time.Time
 }
 
 type ChainConfig struct {

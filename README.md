@@ -8,7 +8,6 @@
 
 - [Installation](#installation)
 - [Configuration](#configuration)
-- [Running](#running)
 - [Chain Implementations](#chain-implementations)
 - [Testing](#testing)
 - [Simulations](#simulations)
@@ -97,6 +96,12 @@ To import private keys as keystores, use `chainbridge account import --privateKe
 
 For testing purposes, chainbridge provides 5 test keys. The can be used with `--testkey <name>`, where `name` is one of `Alice`, `Bob`, `Charlie`, `Dave`, or `Eve`. 
 
+## Metrics
+
+A basic health status check can be enabled with the `--metrics` flag (default port `8001`, use `--metricsPort` to specify).
+
+The endpoint `/health` will return the current block height and a timestamp of when it was processed. If the timestamp is at least 120 seconds old an error will be returned.
+
 # Chain Implementations
 
 - Ethereum (Solidity): [chainbridge-solidity](https://github.com/ChainSafe/chainbridge-solidity) 
@@ -109,7 +114,7 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
     A substrate pallet that can be integrated into a chain, as well as an example pallet to demonstrate chain integration.
 
-# MKdocs
+# Docs
 
 MKdocs will generate static HTML files for Chainsafe markdown files located in `Chainbridge/docs/`
 
