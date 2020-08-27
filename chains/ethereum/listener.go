@@ -17,6 +17,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
@@ -41,17 +42,19 @@ type listener struct {
 	blockstore             blockstore.Blockstorer
 	stop                   <-chan int
 	sysErr                 chan<- error // Reports fatal error to core
+	latestBlock            metrics.LatestBlock
 }
 
 // NewListener creates and returns a listener
 func NewListener(conn Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
 	return &listener{
-		cfg:        *cfg,
-		conn:       conn,
-		log:        log,
-		blockstore: bs,
-		stop:       stop,
-		sysErr:     sysErr,
+		cfg:         *cfg,
+		conn:        conn,
+		log:         log,
+		blockstore:  bs,
+		stop:        stop,
+		sysErr:      sysErr,
+		latestBlock: metrics.LatestBlock{LastUpdated: time.Now()},
 	}
 }
 
@@ -132,6 +135,8 @@ func (l *listener) pollBlocks() error {
 
 			// Goto next block and reset retry counter
 			currentBlock.Add(currentBlock, big.NewInt(1))
+			l.latestBlock.Height = big.NewInt(0).Set(latestBlock)
+			l.latestBlock.LastUpdated = time.Now()
 			retry = BlockRetryLimit
 		}
 	}
