@@ -13,6 +13,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const DefaultConfigPath = "./config.json"
 const DefaultKeystorePath = "./keys"
 
 type Config struct {
@@ -86,7 +87,7 @@ func (c *Config) validate() error {
 
 func GetConfig(ctx *cli.Context) (*Config, error) {
 	var fig Config
-	path := ""
+	path := DefaultConfigPath
 	if file := ctx.String(ConfigFileFlag.Name); file != "" {
 		path = file
 	}
