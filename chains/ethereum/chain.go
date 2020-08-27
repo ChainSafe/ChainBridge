@@ -34,7 +34,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
-	msg "github.com/ChainSafe/chainbridge-utils/msg"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"

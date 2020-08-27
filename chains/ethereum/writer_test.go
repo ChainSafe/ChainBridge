@@ -12,7 +12,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
-	msg "github.com/ChainSafe/chainbridge-utils/msg"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"

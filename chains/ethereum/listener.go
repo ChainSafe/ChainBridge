@@ -17,7 +17,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	msg "github.com/ChainSafe/chainbridge-utils/msg"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"

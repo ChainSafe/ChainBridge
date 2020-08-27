@@ -10,7 +10,7 @@ import (
 	"time"
 
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	msg "github.com/ChainSafe/chainbridge-utils/msg"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	log "github.com/ChainSafe/log15"
 )
 

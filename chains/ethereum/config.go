@@ -10,7 +10,7 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/core"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	msg "github.com/ChainSafe/chainbridge-utils/msg"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ethereum/go-ethereum/common"
 )
 

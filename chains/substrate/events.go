@@ -8,7 +8,7 @@ import (
 	"math/big"
 
 	events "github.com/ChainSafe/chainbridge-substrate-events"
-	msg "github.com/ChainSafe/chainbridge-utils/msg"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 )
 

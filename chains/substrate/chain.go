@@ -29,7 +29,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/chainbridge-utils/crypto/sr25519"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
-	msg "github.com/ChainSafe/chainbridge-utils/msg"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 )
 
