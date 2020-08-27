@@ -34,6 +34,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -203,6 +204,10 @@ func (c *Chain) Id() msg.ChainId {
 
 func (c *Chain) Name() string {
 	return c.cfg.Name
+}
+
+func (c *Chain) LatestBlock() metrics.LatestBlock {
+	return c.listener.latestBlock
 }
 
 // Stop signals to any running routines to exit
