@@ -12,6 +12,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
@@ -28,6 +29,7 @@ type listener struct {
 	log           log15.Logger
 	stop          <-chan int
 	sysErr        chan<- error
+	latestBlock   metrics.LatestBlock
 }
 
 // Frequency of polling for a new block
@@ -45,6 +47,7 @@ func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint6
 		log:           log,
 		stop:          stop,
 		sysErr:        sysErr,
+		latestBlock:   metrics.LatestBlock{LastUpdated: time.Now()},
 	}
 }
 
@@ -159,6 +162,8 @@ func (l *listener) pollBlocks() error {
 			}
 
 			currentBlock++
+			l.latestBlock.Height = big.NewInt(0).SetUint64(currentBlock)
+			l.latestBlock.LastUpdated = time.Now()
 			retry = BlockRetryLimit
 		}
 	}
