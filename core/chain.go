@@ -7,6 +7,7 @@ import (
 	"math/big"
 
 	msg "github.com/ChainSafe/ChainBridge/message"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	"github.com/ChainSafe/ChainBridge/router"
 )
 
@@ -15,7 +16,11 @@ type Chain interface {
 	SetRouter(*router.Router)
 	Id() msg.ChainId
 	Name() string
+<<<<<<< HEAD
 	GetLatestBlock() (*big.Int, error)
+=======
+	LatestBlock() metrics.LatestBlock
+>>>>>>> origin/master
 	Stop()
 }
 

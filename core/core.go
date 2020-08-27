@@ -9,14 +9,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/router"
 
 	"github.com/ChainSafe/log15"
 )
 
 type Core struct {
-	registry map[msg.ChainId]Chain
+	Registry []Chain
 	route    *router.Router
 	log      log15.Logger
 	sysErr   <-chan error
@@ -24,22 +23,22 @@ type Core struct {
 
 func NewCore(sysErr <-chan error) *Core {
 	return &Core{
-		registry: make(map[msg.ChainId]Chain),
+		Registry: make([]Chain, 0),
 		route:    router.NewRouter(log15.New("system", "router")),
 		log:      log15.New("system", "core"),
 		sysErr:   sysErr,
 	}
 }
 
-// AddChain registers the chain in the registry and calls Chain.SetRouter()
+// AddChain registers the chain in the Registry and calls Chain.SetRouter()
 func (c *Core) AddChain(chain Chain) {
-	c.registry[chain.Id()] = chain
+	c.Registry = append(c.Registry, chain)
 	chain.SetRouter(c.route)
 }
 
 // Start will call all registered chains' Start methods and block forever (or until signal is received)
 func (c *Core) Start() {
-	for _, chain := range c.registry {
+	for _, chain := range c.Registry {
 		err := chain.Start()
 		if err != nil {
 			c.log.Error(
@@ -65,7 +64,7 @@ func (c *Core) Start() {
 	}
 
 	// Signal chains to shutdown
-	for _, chain := range c.registry {
+	for _, chain := range c.Registry {
 		chain.Stop()
 	}
 }

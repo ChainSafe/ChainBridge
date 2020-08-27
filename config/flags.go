@@ -43,6 +43,20 @@ var (
 	}
 )
 
+// Metrics flags
+var (
+	MetricsFlag = &cli.BoolFlag{
+		Name:  "metrics",
+		Usage: "Enables metric server",
+	}
+
+	MetricsPort = &cli.IntFlag{
+		Name:  "metricsPort",
+		Usage: "Port to serve metrics on",
+		Value: 8001,
+	}
+)
+
 // Generate subcommand flags
 var (
 	PasswordFlag = &cli.StringFlag{

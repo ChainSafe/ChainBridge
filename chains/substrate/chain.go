@@ -29,9 +29,9 @@ import (
 	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
 	"github.com/ChainSafe/ChainBridge/keystore"
 	msg "github.com/ChainSafe/ChainBridge/message"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/log15"
-	"math/big"
 )
 
 var _ core.Chain = &Chain{}
@@ -133,8 +133,8 @@ func (c *Chain) SetRouter(r *router.Router) {
 	c.listener.setRouter(r)
 }
 
-func (c *Chain) GetLatestBlock() (*big.Int, error) {
-	return c.listener.blockstore.TryLoadLatestBlock()
+func (c *Chain) LatestBlock() metrics.LatestBlock {
+	return c.listener.latestBlock
 }
 
 func (c *Chain) Id() msg.ChainId {
