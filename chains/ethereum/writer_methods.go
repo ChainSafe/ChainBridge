@@ -12,6 +12,7 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	log "github.com/ChainSafe/log15"
+
 )
 
 // Number of blocks to wait for an finalization event
@@ -238,6 +239,7 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 			w.conn.UnlockOpts()
 
 			if err == nil {
+				w.totalTimesVoted.Inc()
 				w.log.Info("Submitted proposal vote", "tx", tx.Hash(), "src", m.Source, "depositNonce", m.DepositNonce)
 				return
 			} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {

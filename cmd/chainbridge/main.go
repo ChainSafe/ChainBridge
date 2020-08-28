@@ -9,6 +9,7 @@ package main
 
 import (
 	"errors"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -18,8 +19,10 @@ import (
 	"github.com/ChainSafe/ChainBridge/core"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/ChainBridge/metrics/health"
-	"github.com/ChainSafe/ChainBridge/metrics/prometheus"
 	log "github.com/ChainSafe/log15"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"github.com/urfave/cli/v2"
 )
 
@@ -93,6 +96,10 @@ var accountCommand = cli.Command{
 	},
 }
 
+var totalTimesVoted = prometheus.NewCounter(prometheus.CounterOpts{
+	Name: "times_voted_total",
+	Help: "Number of times voted"})
+
 // init initializes CLI
 func init() {
 	app.Action = run
@@ -108,6 +115,9 @@ func init() {
 
 	app.Flags = append(app.Flags, cliFlags...)
 	app.Flags = append(app.Flags, devFlags...)
+
+	// Metrics have to be registered to be exposed:
+	prometheus.MustRegister(totalTimesVoted)
 }
 
 func main() {
@@ -179,9 +189,9 @@ func run(ctx *cli.Context) error {
 		var newChain core.Chain
 		logger := log.Root().New("chain", chainConfig.Name)
 		if chain.Type == "ethereum" {
-			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr)
+			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr, totalTimesVoted)
 		} else if chain.Type == "substrate" {
-			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr)
+			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, totalTimesVoted)
 		} else {
 			return errors.New("unrecognized Chain Type")
 		}
@@ -195,11 +205,12 @@ func run(ctx *cli.Context) error {
 	if ctx.Bool(config.MetricsFlag.Name) {
 		port := ctx.Int(config.MetricsPort.Name)
 		go health.Start(port, c.Registry)
+		go func() {
+			http.Handle("/metrics", promhttp.Handler())
+			log.Info("Prometheus metrics server started listening on", "port", strconv.Itoa(port+1))
+			http.ListenAndServe(":"+strconv.Itoa(port+1), nil)
+		}()
 	}
-
-	go func() {
-		prometheus.Start()
-	}()
 
 	c.Start()
 

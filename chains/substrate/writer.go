@@ -14,6 +14,8 @@ import (
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var _ chains.Writer = &writer{}
@@ -22,16 +24,18 @@ var AcknowledgeProposal utils.Method = utils.BridgePalletName + ".acknowledge_pr
 var TerminatedError = errors.New("terminated")
 
 type writer struct {
-	conn   *Connection
-	log    log15.Logger
-	sysErr chan<- error
+	conn            *Connection
+	log             log15.Logger
+	sysErr          chan<- error
+	totalTimesVoted prometheus.Counter
 }
 
-func NewWriter(conn *Connection, log log15.Logger, sysErr chan<- error) *writer {
+func NewWriter(conn *Connection, log log15.Logger, sysErr chan<- error, totalTimesVoted prometheus.Counter) *writer {
 	return &writer{
-		conn:   conn,
-		log:    log,
-		sysErr: sysErr,
+		conn:            conn,
+		log:             log,
+		sysErr:          sysErr,
+		totalTimesVoted: totalTimesVoted,
 	}
 }
 
@@ -81,6 +85,7 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
+			w.totalTimesVoted.Inc()
 			return true
 		} else {
 			w.log.Debug("Ignoring proposal", "reason", reason, "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)

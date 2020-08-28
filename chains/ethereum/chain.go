@@ -40,6 +40,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var _ core.Chain = &Chain{}
@@ -90,7 +91,7 @@ func setupBlockstore(cfg *Config, kp *secp256k1.Keypair) (*blockstore.Blockstore
 	return bs, nil
 }
 
-func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr chan<- error) (*Chain, error) {
+func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr chan<- error, totalTimesVoted prometheus.Counter) (*Chain, error) {
 	cfg, err := parseChainConfig(chainCfg)
 	if err != nil {
 		return nil, err
@@ -166,7 +167,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	listener := NewListener(conn, cfg, logger, bs, stop, sysErr)
 	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 
-	writer := NewWriter(conn, cfg, logger, stop, sysErr)
+	writer := NewWriter(conn, cfg, logger, stop, sysErr, totalTimesVoted)
 	writer.setContract(bridgeContract)
 
 	return &Chain{

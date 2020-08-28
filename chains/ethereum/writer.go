@@ -8,6 +8,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/chains"
 	msg "github.com/ChainSafe/ChainBridge/message"
 	"github.com/ChainSafe/log15"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var _ chains.Writer = &writer{}
@@ -18,22 +19,24 @@ var TransferredStatus uint8 = 3
 var CancelledStatus uint8 = 4
 
 type writer struct {
-	cfg            Config
-	conn           Connection
-	bridgeContract *Bridge.Bridge // instance of bound receiver bridgeContract
-	log            log15.Logger
-	stop           <-chan int
-	sysErr         chan<- error // Reports fatal error to core
+	cfg             Config
+	conn            Connection
+	bridgeContract  *Bridge.Bridge // instance of bound receiver bridgeContract
+	log             log15.Logger
+	stop            <-chan int
+	sysErr          chan<- error // Reports fatal error to core
+	totalTimesVoted prometheus.Counter
 }
 
 // NewWriter creates and returns writer
-func NewWriter(conn Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error) *writer {
+func NewWriter(conn Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error, totalTimesVoted prometheus.Counter) *writer {
 	return &writer{
-		cfg:    *cfg,
-		conn:   conn,
-		log:    log,
-		stop:   stop,
-		sysErr: sysErr,
+		cfg:             *cfg,
+		conn:            conn,
+		log:             log,
+		stop:            stop,
+		sysErr:          sysErr,
+		totalTimesVoted: totalTimesVoted,
 	}
 }
 

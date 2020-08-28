@@ -75,9 +75,9 @@ func (c *Core) Errors() <-chan error {
 
 // GetChains returns all the chains found in the registry
 func (c *Core) GetChains() []Chain {
-	chains := make([]Chain, 0, len(c.registry))
-	for k := range c.registry {
-		chains = append(chains, c.registry[k])
+	chains := make([]Chain, 0, len(c.Registry))
+	for k := range c.Registry {
+		chains = append(chains, c.Registry[k])
 	}
 	return chains
 }

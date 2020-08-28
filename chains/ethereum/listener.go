@@ -105,6 +105,7 @@ func (l *listener) pollBlocks() error {
 			}
 
 			latestBlock, err := l.conn.LatestBlock()
+			// increase counter in promethrus aka number of blocks
 			if err != nil {
 				l.log.Error("Unable to get latest block", "block", currentBlock, "err", err)
 				retry--

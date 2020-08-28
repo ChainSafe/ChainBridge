@@ -31,6 +31,8 @@ import (
 	msg "github.com/ChainSafe/ChainBridge/message"
 	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	"github.com/ChainSafe/ChainBridge/router"
+		"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/ChainSafe/log15"
 )
 
@@ -59,7 +61,7 @@ func checkBlockstore(bs *blockstore.Blockstore, startBlock uint64) (uint64, erro
 	}
 }
 
-func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, sysErr chan<- error) (*Chain, error) {
+func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, sysErr chan<- error, totalTimesVoted prometheus.Counter) (*Chain, error) {
 	kp, err := keystore.KeypairFromAddress(cfg.From, keystore.SubChain, cfg.KeystorePath, cfg.Insecure)
 	if err != nil {
 		return nil, err
@@ -103,7 +105,7 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, sysErr chan<- e
 
 	// Setup listener & writer
 	l := NewListener(conn, cfg.Name, cfg.Id, startBlock, logger, bs, stop, sysErr)
-	w := NewWriter(conn, logger, sysErr)
+	w := NewWriter(conn, logger, sysErr, totalTimesVoted)
 	return &Chain{
 		cfg:      cfg,
 		conn:     conn,
