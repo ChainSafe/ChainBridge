@@ -23,6 +23,8 @@ import (
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcommon "github.com/ethereum/go-ethereum/common"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var BlockDelay = big.NewInt(10)
@@ -43,18 +45,20 @@ type listener struct {
 	stop                   <-chan int
 	sysErr                 chan<- error // Reports fatal error to core
 	latestBlock            metrics.LatestBlock
+	totalNumberOfBlocks    prometheus.Gauge
 }
 
 // NewListener creates and returns a listener
-func NewListener(conn Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
+func NewListener(conn Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error, totalNumberOfBlocks prometheus.Gauge) *listener {
 	return &listener{
-		cfg:         *cfg,
-		conn:        conn,
-		log:         log,
-		blockstore:  bs,
-		stop:        stop,
-		sysErr:      sysErr,
-		latestBlock: metrics.LatestBlock{LastUpdated: time.Now()},
+		cfg:                 *cfg,
+		conn:                conn,
+		log:                 log,
+		blockstore:          bs,
+		stop:                stop,
+		sysErr:              sysErr,
+		latestBlock:         metrics.LatestBlock{LastUpdated: time.Now()},
+		totalNumberOfBlocks: totalNumberOfBlocks,
 	}
 }
 
@@ -105,7 +109,6 @@ func (l *listener) pollBlocks() error {
 			}
 
 			latestBlock, err := l.conn.LatestBlock()
-			// increase counter in promethrus aka number of blocks
 			if err != nil {
 				l.log.Error("Unable to get latest block", "block", currentBlock, "err", err)
 				retry--
@@ -139,6 +142,8 @@ func (l *listener) pollBlocks() error {
 			l.latestBlock.Height = big.NewInt(0).Set(latestBlock)
 			l.latestBlock.LastUpdated = time.Now()
 			retry = BlockRetryLimit
+			height, _ := new(big.Float).SetInt(l.latestBlock.Height).Float64()
+			l.totalNumberOfBlocks.Set(height)
 		}
 	}
 }

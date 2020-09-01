@@ -16,38 +16,42 @@ import (
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type listener struct {
-	name          string
-	chainId       msg.ChainId
-	startBlock    uint64
-	blockstore    blockstore.Blockstorer
-	conn          *Connection
-	subscriptions map[eventName]eventHandler // Handlers for specific events
-	router        chains.Router
-	log           log15.Logger
-	stop          <-chan int
-	sysErr        chan<- error
-	latestBlock   metrics.LatestBlock
+	name                string
+	chainId             msg.ChainId
+	startBlock          uint64
+	blockstore          blockstore.Blockstorer
+	conn                *Connection
+	subscriptions       map[eventName]eventHandler // Handlers for specific events
+	router              chains.Router
+	log                 log15.Logger
+	stop                <-chan int
+	sysErr              chan<- error
+	latestBlock         metrics.LatestBlock
+	totalNumberOfBlocks prometheus.Gauge
 }
 
 // Frequency of polling for a new block
 var BlockRetryInterval = time.Second * 5
 var BlockRetryLimit = 5
 
-func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
+func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error, totalNumberOfBlocks prometheus.Gauge) *listener {
 	return &listener{
-		name:          name,
-		chainId:       id,
-		startBlock:    startBlock,
-		blockstore:    bs,
-		conn:          conn,
-		subscriptions: make(map[eventName]eventHandler),
-		log:           log,
-		stop:          stop,
-		sysErr:        sysErr,
-		latestBlock:   metrics.LatestBlock{LastUpdated: time.Now()},
+		name:                name,
+		chainId:             id,
+		startBlock:          startBlock,
+		blockstore:          bs,
+		conn:                conn,
+		subscriptions:       make(map[eventName]eventHandler),
+		log:                 log,
+		stop:                stop,
+		sysErr:              sysErr,
+		latestBlock:         metrics.LatestBlock{LastUpdated: time.Now()},
+		totalNumberOfBlocks: totalNumberOfBlocks,
 	}
 }
 
@@ -165,6 +169,8 @@ func (l *listener) pollBlocks() error {
 			l.latestBlock.Height = big.NewInt(0).SetUint64(currentBlock)
 			l.latestBlock.LastUpdated = time.Now()
 			retry = BlockRetryLimit
+			height, _ := new(big.Float).SetInt(l.latestBlock.Height).Float64()
+			l.totalNumberOfBlocks.Set(height)
 		}
 	}
 }

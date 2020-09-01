@@ -100,6 +100,12 @@ var totalTimesVoted = prometheus.NewCounter(prometheus.CounterOpts{
 	Name: "times_voted_total",
 	Help: "Number of times voted"})
 
+var totalNumberOfBlocks = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "total_number_of_blocks",
+	Help: "Total number of blocks"})
+
+
+
 // init initializes CLI
 func init() {
 	app.Action = run
@@ -118,6 +124,7 @@ func init() {
 
 	// Metrics have to be registered to be exposed:
 	prometheus.MustRegister(totalTimesVoted)
+	prometheus.MustRegister(totalNumberOfBlocks)
 }
 
 func main() {
@@ -189,9 +196,9 @@ func run(ctx *cli.Context) error {
 		var newChain core.Chain
 		logger := log.Root().New("chain", chainConfig.Name)
 		if chain.Type == "ethereum" {
-			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr, totalTimesVoted)
+			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr, totalTimesVoted, totalNumberOfBlocks)
 		} else if chain.Type == "substrate" {
-			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, totalTimesVoted)
+			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, totalTimesVoted, totalNumberOfBlocks)
 		} else {
 			return errors.New("unrecognized Chain Type")
 		}

@@ -25,6 +25,7 @@ import (
 	log "github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const EthAChainId = msg.ChainId(0)
@@ -32,6 +33,21 @@ const SubChainId = msg.ChainId(1)
 const EthBChainId = msg.ChainId(2)
 
 var logFiles = []string{}
+
+var totalTimesVoted = prometheus.NewCounter(prometheus.CounterOpts{
+	Name: "times_voted_total",
+	Help: "Number of times voted"})
+
+var totalNumberOfBlocks = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "total_number_of_blocks",
+	Help: "Total number of blocks"})
+
+func init() {
+
+	// Metrics have to be registered to be exposed:
+	prometheus.MustRegister(totalTimesVoted)
+	prometheus.MustRegister(totalNumberOfBlocks)
+}
 
 type test struct {
 	name string
@@ -71,19 +87,19 @@ func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *eth
 	logger := log.Root().New()
 	sysErr := make(chan error)
 	ethACfg := eth.CreateConfig(t, name, EthAChainId, contractsA, eth.EthAEndpoint)
-	ethA, err := ethChain.InitializeChain(ethACfg, logger.New("relayer", name, "chain", "ethA"), sysErr)
+	ethA, err := ethChain.InitializeChain(ethACfg, logger.New("relayer", name, "chain", "ethA"), sysErr, totalTimesVoted, totalNumberOfBlocks)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	subCfg := sub.CreateConfig(t, name, SubChainId)
-	subA, err := subChain.InitializeChain(subCfg, logger.New("relayer", name, "chain", "sub"), sysErr)
+	subA, err := subChain.InitializeChain(subCfg, logger.New("relayer", name, "chain", "sub"), sysErr, totalTimesVoted, totalNumberOfBlocks)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	ethBCfg := eth.CreateConfig(t, name, EthBChainId, contractsB, eth.EthBEndpoint)
-	ethB, err := ethChain.InitializeChain(ethBCfg, logger.New("relayer", name, "chain", "ethB"), sysErr)
+	ethB, err := ethChain.InitializeChain(ethBCfg, logger.New("relayer", name, "chain", "ethB"), sysErr, totalTimesVoted, totalNumberOfBlocks)
 	if err != nil {
 		t.Fatal(err)
 	}
