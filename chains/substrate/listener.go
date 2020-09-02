@@ -166,11 +166,10 @@ func (l *listener) pollBlocks() error {
 			}
 
 			currentBlock++
+			l.totalNumberOfBlocks.Set(float64(currentBlock))
 			l.latestBlock.Height = big.NewInt(0).SetUint64(currentBlock)
 			l.latestBlock.LastUpdated = time.Now()
 			retry = BlockRetryLimit
-			height, _ := new(big.Float).SetInt(l.latestBlock.Height).Float64()
-			l.totalNumberOfBlocks.Set(height)
 		}
 	}
 }

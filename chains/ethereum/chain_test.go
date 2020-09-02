@@ -15,7 +15,23 @@ import (
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
+	"github.com/prometheus/client_golang/prometheus"
 )
+
+var totalTimesVoted = prometheus.NewCounter(prometheus.CounterOpts{
+	Name: "times_voted_total",
+	Help: "Number of times voted"})
+
+var totalNumberOfBlocks = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "total_number_of_blocks",
+	Help: "Total number of blocks"})
+
+func init() {
+
+	// Metrics have to be registered to be exposed:
+	prometheus.MustRegister(totalTimesVoted)
+	prometheus.MustRegister(totalNumberOfBlocks)
+}
 
 func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
@@ -39,7 +55,7 @@ func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 		},
 	}
 	sysErr := make(chan error)
-	chain, err := InitializeChain(cfg, TestLogger, sysErr)
+	chain, err := InitializeChain(cfg, TestLogger, sysErr, totalTimesVoted, totalNumberOfBlocks)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,7 +114,7 @@ func TestChain_WriterShutdownOnFailure(t *testing.T) {
 		},
 	}
 	sysErr := make(chan error)
-	chain, err := InitializeChain(cfg, TestLogger, sysErr)
+	chain, err := InitializeChain(cfg, TestLogger, sysErr, totalTimesVoted, totalNumberOfBlocks)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -115,6 +115,7 @@ func (l *listener) pollBlocks() error {
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
+			l.totalNumberOfBlocks.Set(float64(latestBlock))
 
 			// Sleep if the difference is less than BlockDelay; (latest - current) < BlockDelay
 			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(BlockDelay) == -1 {
@@ -142,8 +143,6 @@ func (l *listener) pollBlocks() error {
 			l.latestBlock.Height = big.NewInt(0).Set(latestBlock)
 			l.latestBlock.LastUpdated = time.Now()
 			retry = BlockRetryLimit
-			height, _ := new(big.Float).SetInt(l.latestBlock.Height).Float64()
-			l.totalNumberOfBlocks.Set(height)
 		}
 	}
 }
