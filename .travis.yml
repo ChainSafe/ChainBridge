@@ -71,8 +71,8 @@ jobs:
         - provider: pages
           skip_cleanup: true
           github_token: $GITHUB_TOKEN
+          local_dir: "./site"
           keep_history: true
           on:
             branch: master
-      local_dir: "./site"
 

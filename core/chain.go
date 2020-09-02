@@ -6,6 +6,7 @@ package core
 import (
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/chainbridge-utils/msg"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 )
 
 type Chain interface {
@@ -13,6 +14,7 @@ type Chain interface {
 	SetRouter(*router.Router)
 	Id() msg.ChainId
 	Name() string
+	LatestBlock() metrics.LatestBlock
 	Stop()
 }
 

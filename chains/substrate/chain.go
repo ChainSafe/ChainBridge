@@ -30,6 +30,7 @@ import (
 	"github.com/ChainSafe/chainbridge-utils/crypto/sr25519"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
 	"github.com/ChainSafe/chainbridge-utils/msg"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	"github.com/ChainSafe/log15"
 )
 
@@ -130,6 +131,10 @@ func (c *Chain) Start() error {
 func (c *Chain) SetRouter(r *router.Router) {
 	r.Listen(c.cfg.Id, c.writer)
 	c.listener.setRouter(r)
+}
+
+func (c *Chain) LatestBlock() metrics.LatestBlock {
+	return c.listener.latestBlock
 }
 
 func (c *Chain) Id() msg.ChainId {
