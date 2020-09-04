@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/core"
-	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	log "github.com/ChainSafe/log15"
 )
 
