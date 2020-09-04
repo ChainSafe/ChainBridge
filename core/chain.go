@@ -4,9 +4,9 @@
 package core
 
 import (
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	"github.com/ChainSafe/ChainBridge/router"
 	"github.com/ChainSafe/chainbridge-utils/msg"
-	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 )
 
 type Chain interface {
