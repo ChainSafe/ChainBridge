@@ -7,7 +7,7 @@ import (
 	"math/big"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ethereum/go-ethereum/common"
 )
 

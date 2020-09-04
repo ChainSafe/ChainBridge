@@ -10,7 +10,6 @@ import (
 	"syscall"
 
 	"github.com/ChainSafe/ChainBridge/router"
-
 	"github.com/ChainSafe/log15"
 )
 
