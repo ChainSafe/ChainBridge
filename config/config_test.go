@@ -35,28 +35,6 @@ func createTempConfigFile() (*os.File, *Config) {
 	return f, testConfig
 }
 
-// Deprecated
-func createTempTOMLConfigFile() (*os.File, *Config) {
-	testConfig := NewConfig()
-	ethCfg := RawChainConfig{
-		Name:     "chain",
-		Type:     "ethereum",
-		Id:       "1",
-		Endpoint: "endpoint",
-		From:     "0x0",
-		Opts:     map[string]string{"key": "value"},
-	}
-	testConfig.Chains = []RawChainConfig{ethCfg}
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "*.toml")
-	if err != nil {
-		fmt.Println("Cannot create temporary file", "err", err)
-		os.Exit(1)
-	}
-
-	f := testConfig.ToTOML(tmpFile.Name())
-	return f, testConfig
-}
-
 // Creates a cli context for a test given a set of flags and values
 func createCliContext(description string, flags []string, values []interface{}) (*cli.Context, error) {
 	set := flag.NewFlagSet(description, 0)
@@ -74,24 +52,6 @@ func createCliContext(description string, flags []string, values []interface{}) 
 	}
 	context := cli.NewContext(nil, set, nil)
 	return context, nil
-}
-
-// Deprecated
-func TestLoadTOMLConfig(t *testing.T) {
-	file, cfg := createTempTOMLConfigFile()
-	ctx, err := createCliContext("", []string{"config"}, []interface{}{file.Name()})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	res, err := GetConfig(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if !reflect.DeepEqual(res, cfg) {
-		t.Errorf("did not match\ngot: %+v\nexpected: %+v", res.Chains[0], cfg.Chains[0])
-	}
 }
 
 func TestLoadJSONConfig(t *testing.T) {
