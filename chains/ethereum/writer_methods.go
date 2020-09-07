@@ -239,6 +239,9 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 
 			if err == nil {
 				w.log.Info("Submitted proposal vote", "tx", tx.Hash(), "src", m.Source, "depositNonce", m.DepositNonce)
+				if w.metrics != nil {
+					w.metrics.VotesSubmitted.Inc()
+				}
 				return
 			} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
 				w.log.Debug("Nonce too low, will retry")

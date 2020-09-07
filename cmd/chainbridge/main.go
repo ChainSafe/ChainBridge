@@ -17,6 +17,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/config"
 	"github.com/ChainSafe/ChainBridge/core"
 	"github.com/ChainSafe/ChainBridge/metrics/health"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	log "github.com/ChainSafe/log15"
 	"github.com/urfave/cli/v2"
@@ -176,11 +177,18 @@ func run(ctx *cli.Context) error {
 			Opts:           chain.Opts,
 		}
 		var newChain core.Chain
+		var m *metrics.ChainMetrics
+
 		logger := log.Root().New("chain", chainConfig.Name)
+
+		if ctx.Bool(config.MetricsFlag.Name) {
+			m = metrics.NewChainMetrics(chain.Name)
+		}
+
 		if chain.Type == "ethereum" {
-			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr)
+			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr, m)
 		} else if chain.Type == "substrate" {
-			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr)
+			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, m)
 		} else {
 			return errors.New("unrecognized Chain Type")
 		}
@@ -189,6 +197,7 @@ func run(ctx *cli.Context) error {
 			return err
 		}
 		c.AddChain(newChain)
+
 	}
 
 	// Start metrics server

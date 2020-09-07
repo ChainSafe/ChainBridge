@@ -33,7 +33,7 @@ func createTestWriter(t *testing.T, cfg *Config, errs chan<- error) (*writer, fu
 
 	conn := newLocalConnection(t, cfg)
 	stop := make(chan int)
-	writer := NewWriter(conn, cfg, newTestLogger(cfg.name), stop, errs)
+	writer := NewWriter(conn, cfg, newTestLogger(cfg.name), stop, errs, nil)
 
 	bridge, err := Bridge.NewBridge(cfg.bridgeContract, conn.Client())
 	if err != nil {
@@ -112,7 +112,7 @@ func TestWriter_start_stop(t *testing.T) {
 	defer conn.Close()
 
 	stop := make(chan int)
-	writer := NewWriter(conn, aliceTestConfig, TestLogger, stop, nil)
+	writer := NewWriter(conn, aliceTestConfig, TestLogger, stop, nil, nil)
 
 	err := writer.start()
 	if err != nil {

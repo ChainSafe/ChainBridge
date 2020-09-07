@@ -6,6 +6,7 @@ package ethereum
 import (
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/chains"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 )
@@ -24,16 +25,18 @@ type writer struct {
 	log            log15.Logger
 	stop           <-chan int
 	sysErr         chan<- error // Reports fatal error to core
+	metrics        *metrics.ChainMetrics
 }
 
 // NewWriter creates and returns writer
-func NewWriter(conn Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error) *writer {
+func NewWriter(conn Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error, m *metrics.ChainMetrics) *writer {
 	return &writer{
-		cfg:    *cfg,
-		conn:   conn,
-		log:    log,
-		stop:   stop,
-		sysErr: sysErr,
+		cfg:     *cfg,
+		conn:    conn,
+		log:     log,
+		stop:    stop,
+		sysErr:  sysErr,
+		metrics: m,
 	}
 }
 

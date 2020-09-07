@@ -65,7 +65,7 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	}
 
 	router := &MockRouter{msgs: make(chan msg.Message)}
-	listener := NewListener(conn, &newConfig, TestLogger, &blockstore.EmptyStore{}, stop, sysErr)
+	listener := NewListener(conn, &newConfig, TestLogger, &blockstore.EmptyStore{}, stop, sysErr, nil)
 	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 	listener.setRouter(router)
 	// Start the listener

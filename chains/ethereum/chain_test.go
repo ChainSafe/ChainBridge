@@ -39,7 +39,7 @@ func TestChain_ListenerShutdownOnFailure(t *testing.T) {
 		},
 	}
 	sysErr := make(chan error)
-	chain, err := InitializeChain(cfg, TestLogger, sysErr)
+	chain, err := InitializeChain(cfg, TestLogger, sysErr, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,7 +98,7 @@ func TestChain_WriterShutdownOnFailure(t *testing.T) {
 		},
 	}
 	sysErr := make(chan error)
-	chain, err := InitializeChain(cfg, TestLogger, sysErr)
+	chain, err := InitializeChain(cfg, TestLogger, sysErr, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -71,19 +71,19 @@ func createAndStartBridge(t *testing.T, name string, contractsA, contractsB *eth
 	logger := log.Root().New()
 	sysErr := make(chan error)
 	ethACfg := eth.CreateConfig(name, EthAChainId, contractsA, eth.EthAEndpoint)
-	ethA, err := ethChain.InitializeChain(ethACfg, logger.New("relayer", name, "chain", "ethA"), sysErr)
+	ethA, err := ethChain.InitializeChain(ethACfg, logger.New("relayer", name, "chain", "ethA"), sysErr, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	subCfg := sub.CreateConfig(name, SubChainId)
-	subA, err := subChain.InitializeChain(subCfg, logger.New("relayer", name, "chain", "sub"), sysErr)
+	subA, err := subChain.InitializeChain(subCfg, logger.New("relayer", name, "chain", "sub"), sysErr, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	ethBCfg := eth.CreateConfig(name, EthBChainId, contractsB, eth.EthBEndpoint)
-	ethB, err := ethChain.InitializeChain(ethBCfg, logger.New("relayer", name, "chain", "ethB"), sysErr)
+	ethB, err := ethChain.InitializeChain(ethBCfg, logger.New("relayer", name, "chain", "ethB"), sysErr, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
