@@ -9,6 +9,8 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -20,6 +22,7 @@ import (
 	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	log "github.com/ChainSafe/log15"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/cli/v2"
 )
 
@@ -200,10 +203,21 @@ func run(ctx *cli.Context) error {
 
 	}
 
-	// Start metrics server
+	// Start prometheus and health server
 	if ctx.Bool(config.MetricsFlag.Name) {
 		port := ctx.Int(config.MetricsPort.Name)
-		go health.Start(port, c.Registry)
+		h := health.NewHealthServer(port, c.Registry)
+
+		go func() {
+			http.Handle("/metrics", promhttp.Handler())
+			http.HandleFunc("/health", h.HealthStatus)
+			err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+			if err == http.ErrServerClosed {
+				log.Info("Health status server is shutting down", err)
+			} else {
+				log.Error("Error serving metrics", "err", err)
+			}
+		}()
 	}
 
 	c.Start()
