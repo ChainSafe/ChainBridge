@@ -24,10 +24,10 @@ nav:
   - Overview: index.md
   - Installation: installation.md
   - Configuration: configuration.md
+  - Specification: spec.md
   - Chains:
       - Ethereum: chains/ethereum.md
       - Substrate: chains/substrate.md
-      - ChainBridge: chains/chainbridge.md
   - Running Locally: local.md
   - Testing: test.md
 
