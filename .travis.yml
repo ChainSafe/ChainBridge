@@ -50,6 +50,7 @@ jobs:
         - make test-e2e
 
     - stage: "Deploy"
+      name: "Docker"
       script:
         - docker build -t chainsafe/chainbridge .
         - docker run chainsafe/chainbridge:latest --help
@@ -64,9 +65,9 @@ jobs:
             tags: true
 
     - stage: "Deploy"
+      name: "Github Pages"
       script:
         - make build-mkdocs
-      name: "Github Pages"
       deploy:
         - provider: pages
           skip_cleanup: true
