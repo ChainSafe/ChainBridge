@@ -18,7 +18,7 @@ func NewChainMetrics(chain string) *ChainMetrics {
 	metrics := &ChainMetrics{
 		BlocksProcessed: prometheus.NewCounter(prometheus.CounterOpts{
 			Name: fmt.Sprintf("%s_latest_block", chain),
-			Help: "Number of blocks processed by the chains listener",
+			Help: "Number of blocks processed by the chain's listener",
 		}),
 		VotesSubmitted: prometheus.NewCounter(prometheus.CounterOpts{
 			Name: fmt.Sprintf("%s_votes_submitted", chain),
