@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/chains"
+	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
@@ -22,16 +23,18 @@ var AcknowledgeProposal utils.Method = utils.BridgePalletName + ".acknowledge_pr
 var TerminatedError = errors.New("terminated")
 
 type writer struct {
-	conn   *Connection
-	log    log15.Logger
-	sysErr chan<- error
+	conn    *Connection
+	log     log15.Logger
+	sysErr  chan<- error
+	metrics *metrics.ChainMetrics
 }
 
-func NewWriter(conn *Connection, log log15.Logger, sysErr chan<- error) *writer {
+func NewWriter(conn *Connection, log log15.Logger, sysErr chan<- error, m *metrics.ChainMetrics) *writer {
 	return &writer{
-		conn:   conn,
-		log:    log,
-		sysErr: sysErr,
+		conn:    conn,
+		log:     log,
+		sysErr:  sysErr,
+		metrics: m,
 	}
 }
 
@@ -80,6 +83,9 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 				w.log.Error("Failed to execute extrinsic", "err", err)
 				time.Sleep(BlockRetryInterval)
 				continue
+			}
+			if w.metrics != nil {
+				w.metrics.VotesSubmitted.Inc()
 			}
 			return true
 		} else {

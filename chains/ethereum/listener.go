@@ -43,10 +43,11 @@ type listener struct {
 	stop                   <-chan int
 	sysErr                 chan<- error // Reports fatal error to core
 	latestBlock            metrics.LatestBlock
+	metrics                *metrics.ChainMetrics
 }
 
 // NewListener creates and returns a listener
-func NewListener(conn Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
+func NewListener(conn Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error, m *metrics.ChainMetrics) *listener {
 	return &listener{
 		cfg:         *cfg,
 		conn:        conn,
@@ -55,6 +56,7 @@ func NewListener(conn Connection, cfg *Config, log log15.Logger, bs blockstore.B
 		stop:        stop,
 		sysErr:      sysErr,
 		latestBlock: metrics.LatestBlock{LastUpdated: time.Now()},
+		metrics:     m,
 	}
 }
 
@@ -138,6 +140,9 @@ func (l *listener) pollBlocks() error {
 			l.latestBlock.Height = big.NewInt(0).Set(latestBlock)
 			l.latestBlock.LastUpdated = time.Now()
 			retry = BlockRetryLimit
+			if l.metrics != nil {
+				l.metrics.BlocksProcessed.Inc()
+			}
 		}
 	}
 }

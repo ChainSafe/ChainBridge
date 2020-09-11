@@ -60,7 +60,7 @@ rebuild-contracts:
 license:
 	@echo "  >  \033[32mAdding license headers...\033[0m "
 	GO111MODULE=off go get -u github.com/google/addlicense
-	addlicense -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .
+	addlicense -c "ChainSafe Systems" -f ./scripts/header.txt -y 2020 .
 
 ## license-check: Checks for missing license headers
 license-check:

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/core"
@@ -26,12 +25,6 @@ type httpMetricServer struct {
 	stats     []ChainInfo
 }
 
-type httpMetricOptions struct {
-	port      int
-	timeDelay int
-	chains    []core.Chain
-}
-
 type httpResponse struct {
 	Chains []ChainInfo `json:"chains,omitempty"`
 	Error  string      `json:"error,omitempty"`
@@ -43,54 +36,26 @@ type ChainInfo struct {
 	LastUpdated time.Time   `json:"lastUpdated"`
 }
 
-// Start spins up the metrics server
-func Start(port int, chains []core.Chain) {
-	opts := httpMetricOptions{
-		port:      port,
-		timeDelay: BlockTimeout,
-		chains:    chains,
-	}
-	httpServer := newhttpMetricServer(opts)
-	httpServer.Start()
-}
-
-func newhttpMetricServer(opts httpMetricOptions) *httpMetricServer {
+func NewHealthServer(port int, chains []core.Chain) *httpMetricServer {
 	return &httpMetricServer{
-		port:      opts.port,
-		chains:    opts.chains,
-		timeDelay: opts.timeDelay,
-		stats:     make([]ChainInfo, len(opts.chains)),
-	}
-}
-
-// Start starts the http metrics server
-func (s httpMetricServer) Start() {
-	log.Info("Health status server started listening on", "port", s.port)
-
-	// Setup routes
-	http.HandleFunc("/health", s.healthStatus)
-
-	// Start http server
-	err := http.ListenAndServe(":"+strconv.Itoa(s.port), nil)
-
-	if err == http.ErrServerClosed {
-		log.Info("Health status server is shutting down", err)
-	} else {
-		log.Error("Health status server shutting down, server error: ", err)
+		port:      port,
+		chains:    chains,
+		timeDelay: BlockTimeout,
+		stats:     make([]ChainInfo, len(chains)),
 	}
 }
 
 // healthStatus is a catch-all update that grabs the latest updates on the running chains
 // It assumes that the configuration was set correctly, therefore the relevant chains are
 // only those that are in the core.Core registry.
-func (s httpMetricServer) healthStatus(w http.ResponseWriter, _ *http.Request) {
+func (s httpMetricServer) HealthStatus(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Iterate through their block heads and update the cache accordingly
 	for i, chain := range s.chains {
 		current := chain.LatestBlock()
 		prev := s.stats[i]
-		if s.stats[i].LastUpdated.IsZero() {
+		if s.stats[i].Height == nil {
 			// First time we've received a block for this chain
 			s.stats[chain.Id()] = ChainInfo{
 				ChainId:     chain.Id(),

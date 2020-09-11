@@ -30,13 +30,14 @@ type listener struct {
 	stop          <-chan int
 	sysErr        chan<- error
 	latestBlock   metrics.LatestBlock
+	metrics       *metrics.ChainMetrics
 }
 
 // Frequency of polling for a new block
 var BlockRetryInterval = time.Second * 5
 var BlockRetryLimit = 5
 
-func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error) *listener {
+func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error, m *metrics.ChainMetrics) *listener {
 	return &listener{
 		name:          name,
 		chainId:       id,
@@ -48,6 +49,7 @@ func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint6
 		stop:          stop,
 		sysErr:        sysErr,
 		latestBlock:   metrics.LatestBlock{LastUpdated: time.Now()},
+		metrics:       m,
 	}
 }
 
@@ -165,6 +167,9 @@ func (l *listener) pollBlocks() error {
 			l.latestBlock.Height = big.NewInt(0).SetUint64(currentBlock)
 			l.latestBlock.LastUpdated = time.Now()
 			retry = BlockRetryLimit
+			if l.metrics != nil {
+				l.metrics.BlocksProcessed.Inc()
+			}
 		}
 	}
 }

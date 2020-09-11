@@ -37,7 +37,7 @@ func newTestListener(client *utils.Client, conn *Connection) (*listener, chan er
 	}
 
 	errs := make(chan error)
-	l := NewListener(conn, "Alice", 1, startBlock, AliceTestLogger, &blockstore.EmptyStore{}, make(chan int), errs)
+	l := NewListener(conn, "Alice", 1, startBlock, AliceTestLogger, &blockstore.EmptyStore{}, make(chan int), errs, nil)
 	l.setRouter(r)
 	err = l.start()
 	if err != nil {
