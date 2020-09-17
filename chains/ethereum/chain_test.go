@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridge/router"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
@@ -103,7 +102,7 @@ func TestChain_WriterShutdownOnFailure(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	r := router.NewRouter(TestLogger)
+	r := core.NewRouter(TestLogger)
 	chain.SetRouter(r)
 
 	err = chain.Start()

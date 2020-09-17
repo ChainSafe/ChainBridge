@@ -7,8 +7,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/ChainSafe/chainbridge-utils/core"
 	"time"
+
+	"github.com/ChainSafe/chainbridge-utils/core"
 
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
