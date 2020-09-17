@@ -24,12 +24,11 @@ As the writer receives messages from the router, it constructs proposals. If a p
 package substrate
 
 import (
-	"github.com/ChainSafe/ChainBridge/blockstore"
-	"github.com/ChainSafe/ChainBridge/core"
-	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
-	"github.com/ChainSafe/ChainBridge/router"
+	"github.com/ChainSafe/chainbridge-utils/blockstore"
+	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/crypto/sr25519"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
+	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 )
@@ -128,7 +127,7 @@ func (c *Chain) Start() error {
 	return nil
 }
 
-func (c *Chain) SetRouter(r *router.Router) {
+func (c *Chain) SetRouter(r *core.Router) {
 	r.Listen(c.cfg.Id, c.writer)
 	c.listener.setRouter(r)
 }

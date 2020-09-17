@@ -9,15 +9,16 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ChainSafe/ChainBridge/chains"
-	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
+	"github.com/ChainSafe/chainbridge-utils/core"
+
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
-var _ chains.Writer = &writer{}
+var _ core.Writer = &writer{}
 
 var AcknowledgeProposal utils.Method = utils.BridgePalletName + ".acknowledge_proposal"
 var TerminatedError = errors.New("terminated")

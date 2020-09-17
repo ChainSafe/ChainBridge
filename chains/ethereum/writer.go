@@ -5,13 +5,13 @@ package ethereum
 
 import (
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	"github.com/ChainSafe/ChainBridge/chains"
-	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
+	"github.com/ChainSafe/chainbridge-utils/core"
+	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 )
 
-var _ chains.Writer = &writer{}
+var _ core.Writer = &writer{}
 
 // https://github.com/ChainSafe/chainbridge-solidity/blob/b5ed13d9798feb7c340e737a726dd415b8815366/contracts/Bridge.sol#L20
 var PassedStatus uint8 = 2
