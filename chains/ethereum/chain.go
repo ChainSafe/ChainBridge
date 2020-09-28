@@ -28,13 +28,12 @@ import (
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
-	"github.com/ChainSafe/ChainBridge/blockstore"
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
-	"github.com/ChainSafe/ChainBridge/core"
-	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
-	"github.com/ChainSafe/ChainBridge/router"
+	"github.com/ChainSafe/chainbridge-utils/blockstore"
+	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
+	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -178,7 +177,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	}, nil
 }
 
-func (c *Chain) SetRouter(r *router.Router) {
+func (c *Chain) SetRouter(r *core.Router) {
 	r.Listen(c.cfg.Id, c.writer)
 	c.listener.setRouter(r)
 }

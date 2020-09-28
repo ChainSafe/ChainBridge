@@ -9,10 +9,10 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
-	metrics "github.com/ChainSafe/ChainBridge/metrics/types"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	"github.com/ChainSafe/chainbridge-utils/blockstore"
+	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
