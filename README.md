@@ -97,11 +97,7 @@ For testing purposes, chainbridge provides 5 test keys. The can be used with `--
 
 ## Metrics
 
-Basic metrics and a health status check can be enabled with the `--metrics` flag (default port `8001`, use `--metricsPort` to specify).
-
-The endpoint `/health` will return the current block height and a timestamp of when it was processed. If the timestamp is at least 120 seconds old an error will be returned.
-
-Prometheus metrics are served on `/metrics`.
+See [metrics.md](/docs/metrics.md).
 
 # Chain Implementations
 

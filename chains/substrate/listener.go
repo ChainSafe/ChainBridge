@@ -131,6 +131,10 @@ func (l *listener) pollBlocks() error {
 				continue
 			}
 
+			if l.metrics != nil {
+				l.metrics.LatestKnownBlock.Set(float64(finalizedHeader.Number))
+			}
+
 			// Sleep if the block we want comes after the most recently finalized block
 			if currentBlock > uint64(finalizedHeader.Number) {
 				l.log.Trace("Block not yet finalized", "target", currentBlock, "latest", finalizedHeader.Number)
@@ -163,13 +167,15 @@ func (l *listener) pollBlocks() error {
 				l.log.Error("Failed to write to blockstore", "err", err)
 			}
 
+			if l.metrics != nil {
+				l.metrics.BlocksProcessed.Inc()
+				l.metrics.LatestProcessedBlock.Set(float64(currentBlock))
+			}
+
 			currentBlock++
 			l.latestBlock.Height = big.NewInt(0).SetUint64(currentBlock)
 			l.latestBlock.LastUpdated = time.Now()
 			retry = BlockRetryLimit
-			if l.metrics != nil {
-				l.metrics.BlocksProcessed.Inc()
-			}
 		}
 	}
 }

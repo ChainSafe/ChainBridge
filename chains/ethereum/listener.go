@@ -114,6 +114,10 @@ func (l *listener) pollBlocks() error {
 				continue
 			}
 
+			if l.metrics != nil {
+				l.metrics.LatestKnownBlock.Set(float64(latestBlock.Int64()))
+			}
+
 			// Sleep if the difference is less than BlockDelay; (latest - current) < BlockDelay
 			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(BlockDelay) == -1 {
 				l.log.Debug("Block not ready, will retry", "target", currentBlock, "latest", latestBlock)
@@ -135,14 +139,17 @@ func (l *listener) pollBlocks() error {
 				l.log.Error("Failed to write latest block to blockstore", "block", currentBlock, "err", err)
 			}
 
-			// Goto next block and reset retry counter
-			currentBlock.Add(currentBlock, big.NewInt(1))
-			l.latestBlock.Height = big.NewInt(0).Set(latestBlock)
-			l.latestBlock.LastUpdated = time.Now()
-			retry = BlockRetryLimit
 			if l.metrics != nil {
 				l.metrics.BlocksProcessed.Inc()
+				l.metrics.LatestProcessedBlock.Set(float64(latestBlock.Int64()))
 			}
+
+			l.latestBlock.Height = big.NewInt(0).Set(latestBlock)
+			l.latestBlock.LastUpdated = time.Now()
+
+			// Goto next block and reset retry counter
+			currentBlock.Add(currentBlock, big.NewInt(1))
+			retry = BlockRetryLimit
 		}
 	}
 }
