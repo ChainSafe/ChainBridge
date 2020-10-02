@@ -140,7 +140,7 @@ Here is an example config file for a single relayer ("Alice") using the contract
     {
       "name": "eth",
       "type": "ethereum",
-      "id": 0,
+      "id": "0",
       "endpoint": "ws://localhost:8545",
       "from": "0xff93B45308FD417dF303D6515aB04D9e89a750Ca",
       "opts": {
@@ -155,7 +155,7 @@ Here is an example config file for a single relayer ("Alice") using the contract
     {
       "name": "sub",
       "type": "substrate",
-      "id": 1,
+      "id": "1",
       "endpoint": "ws://localhost:9944",
       "from": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
       "opts": {}

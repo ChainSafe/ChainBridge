@@ -38,4 +38,4 @@ docker build -t chainsafe/chainbridge .
 To start ChainBridge:
 
 ```
-docker run -v ./config.toml:/config.toml chainsafe/chainbridge
+docker run -v ./config.json:/config.json chainsafe/chainbridge
