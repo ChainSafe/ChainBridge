@@ -8,7 +8,7 @@ A chain configurations take this form:
 {
     "name": "eth",                      // Human-readable name
     "type": "ethereum",                 // Chain type (eg. "ethereum" or "substrate")
-    "id": "0",                          // Chain ID
+    "id": 0,                          // Chain ID
     "endpoint": "ws://<host>:<port>",   // Node endpoint
     "from": "0xff93...",                // On-chain address of relayer
     "opts": {},                         // Chain-specific configuration options (see below)
