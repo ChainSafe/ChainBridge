@@ -116,12 +116,13 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 
 	// Sign the extrinsic
 	o := types.SignatureOptions{
-		BlockHash:   c.genesisHash,
-		Era:         types.ExtrinsicEra{IsMortalEra: false},
-		GenesisHash: c.genesisHash,
-		Nonce:       types.NewUCompactFromUInt(uint64(c.nonce)),
-		SpecVersion: rv.SpecVersion,
-		Tip:         types.NewUCompactFromUInt(0),
+		BlockHash:          c.genesisHash,
+		Era:                types.ExtrinsicEra{IsMortalEra: false},
+		GenesisHash:        c.genesisHash,
+		Nonce:              types.NewUCompactFromUInt(uint64(c.nonce)),
+		SpecVersion:        rv.SpecVersion,
+		Tip:                types.NewUCompactFromUInt(0),
+		TransactionVersion: 1,
 	}
 
 	err = ext.Sign(*c.key, o)

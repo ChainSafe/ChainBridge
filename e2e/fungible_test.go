@@ -151,7 +151,7 @@ func testErc20SubstrateRoundTrip(t *testing.T, ctx *testContext) {
 	// Repeat the process in the opposite direction
 	expectedEthBalance = ethtest.Erc20BalanceOf(t, ctx.ethA.Client, ctx.ethA.TestContracts.Erc20Sub, ethRecipient)
 	expectedSubBalance = subtest.BalanceOf(t, ctx.subClient, subRecipient)
-	feePerTx := big.NewInt(10143)
+	feePerTx := big.NewInt(125000143)
 	nonce = subtest.GetDepositNonce(t, ctx.subClient, EthAChainId) + 1
 
 	log.Info("Asserted resulting balance", "owner", ethRecipient, "balance", expectedEthBalance.String())
