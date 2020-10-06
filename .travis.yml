@@ -16,7 +16,7 @@ install:
     - sudo add-apt-repository -y ppa:ethereum/ethereum
     - sudo apt-get update
     - sudo apt-get install ethereum
-    - wget -P $HOME/bin/ https://chainbridge.ams3.digitaloceanspaces.com/subkey && chmod +x $HOME/bin/subkey && subkey --version
+    - wget -P $HOME/bin/ https://chainbridge.ams3.digitaloceanspaces.com/subkey-rc6 && mv $HOME/bin/subkey-rc6 $HOME/bin/subkey && chmod +x $HOME/bin/subkey && subkey --version
 
 jobs:
   include:
