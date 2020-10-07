@@ -8,7 +8,7 @@
 
 [chainbridge](https://github.com/ChainSafe/ChainBridge)
 
-A Modular Multi-Directional Blockchain Bridge to interact with Multiple Networks; Ethereum, Ethereum Classic, Substrate, Cosmos-SDK based chains.
+A Modular Multi-Directional Blockchain Bridge to interact with Multiple Networks.
 ### Ethereum (Solidity) 
 
 [chainbridge-solidity](https://github.com/ChainSafe/chainbridge-solidity) 

@@ -11,7 +11,7 @@ import (
 var (
 	ConfigFileFlag = &cli.StringFlag{
 		Name:  "config",
-		Usage: "TOML configuration file",
+		Usage: "JSON configuration file",
 	}
 
 	VerbosityFlag = &cli.StringFlag{

@@ -1,20 +1,4 @@
-# Installation
-
-## Docker
-
-The official [ChainBridge Docker image](https://hub.docker.com/r/chainsafe/chainbridge)
-
-To build the Docker image use 
-
-```
-docker build -t chainsafe/chainbridge .
-```
-
-To start ChainBridge
-
-```
-docker run -v ./config.toml:/config.toml chainsafe/chainbridge
-```
+# Installation```
 
 ## Dependencies
 
@@ -40,3 +24,18 @@ Use`go install` to add `chainbridge` to your GOBIN.
 ```
 make install
 ```
+
+## Docker
+
+The official ChainBridge Docker image can be found [here](https://hub.docker.com/r/chainsafe/chainbridge).
+
+To build the Docker image locally run: 
+
+```
+docker build -t chainsafe/chainbridge .
+```
+
+To start ChainBridge:
+
+```
+docker run -v ./config.json:/config.json chainsafe/chainbridge

@@ -9,7 +9,7 @@ services:
     container_name: bridge
     environment:
       - KEYSTORE_PASSWORD=password
-    command: --config /config/config.toml
+    command: --config /config/config.json
     volumes:
       - ./config:/config
       - ./keys:/keys/
