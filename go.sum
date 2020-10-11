@@ -17,6 +17,7 @@ github.com/ChainSafe/chainbridge-substrate-events v0.0.0-20200715141113-87198532
 github.com/ChainSafe/chainbridge-substrate-events v0.0.0-20200715141113-87198532025e/go.mod h1:H5fNH57wn/j1oLifOnWEqYbfJZcOWzr7jZjKKrUckSQ=
 github.com/ChainSafe/chainbridge-utils v1.0.3 h1:a8pa5N11uo2wzgzNV9QkSocFrbkO+HiWCiihKDnkuAg=
 github.com/ChainSafe/chainbridge-utils v1.0.3/go.mod h1:T5cOZhxdY4x0DrE0EqOnMwAPE8d4bNGqiPfN16o1rzc=
+github.com/ChainSafe/chainbridge-utils v1.0.4/go.mod h1:T5cOZhxdY4x0DrE0EqOnMwAPE8d4bNGqiPfN16o1rzc=
 github.com/ChainSafe/log15 v1.0.0 h1:vRDVtWtVwIH5uSCBvgTTZh6FA58UBJ6+QiiypaZfBf8=
 github.com/ChainSafe/log15 v1.0.0/go.mod h1:5v1+ALHtdW0NfAeeoYyKmzCAMcAeqkdhIg4uxXWIgOg=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
