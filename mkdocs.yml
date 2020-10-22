@@ -24,8 +24,8 @@ nav:
   - Overview: index.md
   - Installation: installation.md
   - Configuration: configuration.md
-  - Specification: spec.md
-  - Chains:
+  - Specification:
+      - ChainBridge: spec.md
       - Ethereum: chains/ethereum.md
       - Substrate: chains/substrate.md
   - Running Locally: local.md
