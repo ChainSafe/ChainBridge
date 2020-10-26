@@ -39,3 +39,4 @@ To start ChainBridge:
 
 ```
 docker run -v ./config.json:/config.json chainsafe/chainbridge
+```
