@@ -15,9 +15,7 @@ github.com/Azure/go-autorest/tracing v0.5.0/go.mod h1:r/s2XiOKccPW3HrqB+W0TQzfbt
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/ChainSafe/chainbridge-substrate-events v0.0.0-20200715141113-87198532025e h1:c7NSjEfp13ua566bC2KSNmyx0Cvj1cciO2klsFIQv2I=
 github.com/ChainSafe/chainbridge-substrate-events v0.0.0-20200715141113-87198532025e/go.mod h1:H5fNH57wn/j1oLifOnWEqYbfJZcOWzr7jZjKKrUckSQ=
-github.com/ChainSafe/chainbridge-utils v1.0.3 h1:a8pa5N11uo2wzgzNV9QkSocFrbkO+HiWCiihKDnkuAg=
-github.com/ChainSafe/chainbridge-utils v1.0.3/go.mod h1:T5cOZhxdY4x0DrE0EqOnMwAPE8d4bNGqiPfN16o1rzc=
-github.com/ChainSafe/chainbridge-utils v1.0.4/go.mod h1:T5cOZhxdY4x0DrE0EqOnMwAPE8d4bNGqiPfN16o1rzc=
+github.com/ChainSafe/chainbridge-utils v1.0.5 h1:PiJyz8+Ed6/Jlq1nsQ1shY5btT1ERdaiPU8+Fg+BvZE=
 github.com/ChainSafe/chainbridge-utils v1.0.5/go.mod h1:T5cOZhxdY4x0DrE0EqOnMwAPE8d4bNGqiPfN16o1rzc=
 github.com/ChainSafe/log15 v1.0.0 h1:vRDVtWtVwIH5uSCBvgTTZh6FA58UBJ6+QiiypaZfBf8=
 github.com/ChainSafe/log15 v1.0.0/go.mod h1:5v1+ALHtdW0NfAeeoYyKmzCAMcAeqkdhIg4uxXWIgOg=

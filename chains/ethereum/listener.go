@@ -162,7 +162,7 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	// querying for logs
 	logs, err := l.conn.Client().FilterLogs(context.Background(), query)
 	if err != nil {
-		return fmt.Errorf("unable to Filter Logs: %s", err)
+		return fmt.Errorf("unable to Filter Logs: %w", err)
 	}
 
 	// read through the log events and handle their deposit event if handler is recognized
