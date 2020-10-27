@@ -146,5 +146,5 @@ type Events struct {
 	MultiAccount_MultisigApproval    []EventMultisigApproval               //nolint:stylecheck,golint
 	MultiAccount_MultisigExecuted    []EventMultisigExecuted               //nolint:stylecheck,golint
 	MultiAccount_MultisigCancelled   []EventMultisigCancelled              //nolint:stylecheck,golint
-	TreasuryReward_TreasuryMinting 	 []EventTreasuryMinting 			   //nolint:stylecheck,gol
+	TreasuryReward_TreasuryMinting 	 []EventTreasuryMinting		       //nolint:stylecheck,gol
 }
