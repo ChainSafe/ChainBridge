@@ -164,10 +164,23 @@ Here is an example config file for a single relayer ("Alice") using the contract
 }
 ```
 
-You can then start a relayer using the default "Alice" key:
 
+Run ``` make install ``` in ChanBridge directory to build chainbridge and put it to PATH path, 
+
+You can then start a relayer as binary using the default "Alice" key.
 ```bash
 chainbridge --config config.json --testkey alice --latest
+```
+
+OR 
+
+By building image first
+```bash
+docker build -t chainsafe/chainbridge .
+```
+You can start relayer as docker container 
+```bash
+docker run -v ./config.json:/config.json --network host chainsafe/chainbridge --testkey alice --latest
 ```
 
 ## Fungible Transfers
