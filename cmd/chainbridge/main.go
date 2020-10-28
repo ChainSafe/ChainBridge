@@ -212,7 +212,7 @@ func run(ctx *cli.Context) error {
 			http.Handle("/metrics", promhttp.Handler())
 			http.HandleFunc("/health", h.HealthStatus)
 			err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
-			if err == http.ErrServerClosed {
+			if errors.Is(err, http.ErrServerClosed) {
 				log.Info("Health status server is shutting down", err)
 			} else {
 				log.Error("Error serving metrics", "err", err)
