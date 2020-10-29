@@ -176,7 +176,8 @@ chainbridge --config config.json --testkey alice --latest
 
 OR 
 
-By building image first
+By building an image first
+
 ```bash
 docker build -t chainsafe/chainbridge .
 ```
