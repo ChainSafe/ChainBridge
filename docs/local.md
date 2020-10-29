@@ -165,7 +165,8 @@ Here is an example config file for a single relayer ("Alice") using the contract
 ```
 
 
-Run ``` make install ``` in ChanBridge directory to build chainbridge and put it to PATH path, 
+Run ``` make install ``` in ChanBridge directory to build chainbridge and put it in GOBIN path, 
+
 
 You can then start a relayer as a binary using the default "Alice" key.
 
