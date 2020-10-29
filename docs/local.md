@@ -180,7 +180,8 @@ By building image first
 ```bash
 docker build -t chainsafe/chainbridge .
 ```
-You can start relayer as docker container 
+You can start the relayer as a docker container 
+
 ```bash
 docker run -v ./config.json:/config.json --network host chainsafe/chainbridge --testkey alice --latest
 ```
