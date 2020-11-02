@@ -61,7 +61,7 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 	}
 
 	if err != nil {
-		w.sysErr <- fmt.Errorf("failed to construct proposal (chain=%d, name=%s) Error: %s", m.Destination, w.conn.name, err)
+		w.sysErr <- fmt.Errorf("failed to construct proposal (chain=%d, name=%s) Error: %w", m.Destination, w.conn.name, err)
 		return false
 	}
 
