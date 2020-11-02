@@ -118,9 +118,9 @@ type EventMultisigCancelled struct {
 }
 
 type EventTreasuryMinting struct {
-	Phase     	types.Phase
-	Who	        types.AccountID
-	Topics    	[]types.Hash
+	Phase  types.Phase
+	Who    types.AccountID
+	Topics []types.Hash
 }
 
 type Events struct {
@@ -146,5 +146,5 @@ type Events struct {
 	MultiAccount_MultisigApproval    []EventMultisigApproval               //nolint:stylecheck,golint
 	MultiAccount_MultisigExecuted    []EventMultisigExecuted               //nolint:stylecheck,golint
 	MultiAccount_MultisigCancelled   []EventMultisigCancelled              //nolint:stylecheck,golint
-	TreasuryReward_TreasuryMinting 	 []EventTreasuryMinting		       //nolint:stylecheck,gol
+	TreasuryReward_TreasuryMinting   []EventTreasuryMinting                //nolint:stylecheck,gol
 }
