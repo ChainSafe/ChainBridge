@@ -65,16 +65,6 @@ func (db *ProofDatabase) Put(key []byte, value []byte) error {
 	return nil
 }
 
-// // Encodes a proof Database to a format parsable by the on chain contract
-// func (db *ProofDatabase) Encode() error {
-
-// 	if db.db == nil {
-// 		return errors.New("database does not exist")
-// 	}
-// 	db.db[string(key)] = common.CopyBytes(value)
-// 	return nil
-// }
-
 // Delete removes the key and associated value from the database
 func (db *ProofDatabase) Delete(key []byte) error {
 	db.lock.Lock()
