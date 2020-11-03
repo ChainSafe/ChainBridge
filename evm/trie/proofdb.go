@@ -6,6 +6,7 @@ package trie
 import (
 	"errors"
 	"sync"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -64,6 +65,16 @@ func (db *ProofDatabase) Put(key []byte, value []byte) error {
 	return nil
 }
 
+// // Encodes a proof Database to a format parsable by the on chain contract
+// func (db *ProofDatabase) Encode() error {
+
+// 	if db.db == nil {
+// 		return errors.New("database does not exist")
+// 	}
+// 	db.db[string(key)] = common.CopyBytes(value)
+// 	return nil
+// }
+
 // Delete removes the key and associated value from the database
 func (db *ProofDatabase) Delete(key []byte) error {
 	db.lock.Lock()
@@ -74,4 +85,31 @@ func (db *ProofDatabase) Delete(key []byte) error {
 	}
 	delete(db.db, string(key))
 	return nil
+}
+
+// Encodes a proof Database to a format parsable by the on chain contract
+func encodeProofDB(rootHash common.Hash, key []byte, proofDb ProofDatabase) (value []byte, err error) {
+	key = keybytesToHex(key)
+	wantHash := rootHash
+	for i := 0; ; i++ {
+		buf, _ := proofDb.Get(wantHash[:])
+		if buf == nil {
+			return nil, fmt.Errorf("proof node %d (hash %064x) missing", i, wantHash)
+		}
+		n, err := decodeNode(wantHash[:], buf)
+		if err != nil {
+			return nil, fmt.Errorf("bad proof node %d: %v", i, err)
+		}
+		keyrest, cld := get(n, key, true)
+		switch cld := cld.(type) {
+		case nil:
+			// The trie doesn't contain the key.
+			return nil, nil
+		case hashNode:
+			key = keyrest
+			copy(wantHash[:], cld)
+		case valueNode:
+			return cld, nil
+		}
+	}
 }

@@ -172,7 +172,7 @@ func (t *Trie) retrieveProof(root common.Hash, key []byte) (*ProofDatabase, erro
 
 // VerifyProof verifies merkle proof on path key against the provided root
 func VerifyProof(root common.Hash, key []byte, proof *ProofDatabase) (bool, error) {
-	exists, _, err := trie.VerifyProof(root, key, proof)
+	exists, err := trie.VerifyProof(root, key, proof)
 
 	if err != nil {
 		return false, err
