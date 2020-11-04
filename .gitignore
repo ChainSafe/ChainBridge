@@ -27,6 +27,7 @@ site/
 .env
 bridge
 keys/
+*.key
 
 # Chainbridge
 config.toml

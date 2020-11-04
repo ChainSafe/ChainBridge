@@ -20,7 +20,7 @@ func QueryStorage(client *Client, prefix, method string, arg1, arg2 []byte, resu
 
 // TODO: Add to GSRPC
 func getConst(meta *types.Metadata, prefix, name string, res interface{}) error {
-	for _, mod := range meta.AsMetadataV11.Modules {
+	for _, mod := range meta.AsMetadataV12.Modules {
 		if string(mod.Name) == prefix {
 			for _, cons := range mod.Constants {
 				if string(cons.Name) == name {

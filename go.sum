@@ -66,6 +66,8 @@ github.com/centrifuge/go-substrate-rpc-client v2.0.0-alpha.5+incompatible h1:QzF
 github.com/centrifuge/go-substrate-rpc-client v2.0.0-alpha.5+incompatible/go.mod h1:GBMLH8MQs5g4FcrytcMm9uRgBnTL1LIkNTue6lUPhZU=
 github.com/centrifuge/go-substrate-rpc-client v2.0.0-rc6-0+incompatible h1:+H/LOoOMiAlww9xayOEAxa4mF6Tp+AgzzJDE9pQ37D8=
 github.com/centrifuge/go-substrate-rpc-client v2.0.0-rc6-0+incompatible/go.mod h1:GBMLH8MQs5g4FcrytcMm9uRgBnTL1LIkNTue6lUPhZU=
+github.com/centrifuge/go-substrate-rpc-client v2.0.0+incompatible h1:FvPewruOgelqA/DVBdX7/Q6znUGGQ+g0ciG5tA2Fk98=
+github.com/centrifuge/go-substrate-rpc-client v2.0.0+incompatible/go.mod h1:GBMLH8MQs5g4FcrytcMm9uRgBnTL1LIkNTue6lUPhZU=
 github.com/cespare/cp v0.1.0 h1:SE+dxFebS7Iik5LK0tsi1k9ZCxEaFX4AjQmoyA+1dJk=
 github.com/cespare/cp v0.1.0/go.mod h1:SOGHArjBr4JWaSDEVpWpo/hNg6RoKrls6Oh40hiwW+s=
 github.com/cespare/xxhash v1.1.0 h1:a6HrQnmkObjyL+Gs60czilIUGqrzKutQD6XZog3p+ko=
