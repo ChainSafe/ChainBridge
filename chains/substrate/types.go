@@ -4,7 +4,6 @@
 package substrate
 
 import (
-	"fmt"
 	"math/big"
 
 	"github.com/ChainSafe/chainbridge-utils/msg"
@@ -70,17 +69,24 @@ func (w *writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	w.log.Info(fmt.Sprintf("ResourceID on fungible porposal %v %s", m.ResourceId, m.ResourceId.Hex()))
 	call, err := types.NewCall(
 		&meta,
 		method,
 		recipient,
 		amount,
-		types.NewBytes32(m.ResourceId),
 	)
 	if err != nil {
 		return nil, err
+	}
+	if w.extendCall {
+		w.log.Info("Extending CALL with ResourceID!!!")
+
+		eRID, err := types.EncodeToBytes(m.ResourceId)
+		if err != nil {
+			return nil, err
+		}
+
+		call.Args = append(call.Args, eRID...)
 	}
 
 	return &proposal{
@@ -110,9 +116,19 @@ func (w *writer) createNonFungibleProposal(m msg.Message) (*proposal, error) {
 		recipient,
 		tokenId,
 		metadata,
+		types.NewBytes32(m.ResourceId),
 	)
 	if err != nil {
 		return nil, err
+	}
+	if w.extendCall {
+
+		eRID, err := types.EncodeToBytes(m.ResourceId)
+		if err != nil {
+			return nil, err
+		}
+
+		call.Args = append(call.Args, eRID...)
 	}
 
 	return &proposal{
@@ -135,10 +151,18 @@ func (w *writer) createGenericProposal(m msg.Message) (*proposal, error) {
 		&meta,
 		method,
 		types.NewHash(m.Payload[0].([]byte)),
+		types.NewBytes32(m.ResourceId),
 	)
-
 	if err != nil {
 		return nil, err
+	}
+	if w.extendCall {
+		eRID, err := types.EncodeToBytes(m.ResourceId)
+		if err != nil {
+			return nil, err
+		}
+
+		call.Args = append(call.Args, eRID...)
 	}
 	return &proposal{
 		depositNonce: types.U64(m.DepositNonce),

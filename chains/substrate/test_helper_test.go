@@ -93,8 +93,8 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	alice := NewWriter(aliceConn, AliceTestLogger, wSysErr, nil)
-	bob := NewWriter(bobConn, BobTestLogger, wSysErr, nil)
+	alice := NewWriter(aliceConn, AliceTestLogger, wSysErr, nil, false)
+	bob := NewWriter(bobConn, BobTestLogger, wSysErr, nil, false)
 	context = testContext{
 		client:         client,
 		listener:       l,
