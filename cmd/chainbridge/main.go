@@ -12,7 +12,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/exec"
+
 	"strconv"
+	"strings"
 
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
@@ -96,6 +99,10 @@ var accountCommand = cli.Command{
 	},
 }
 
+var (
+	defaultVersion = "1.1.0"
+)
+
 // init initializes CLI
 func init() {
 	app.Action = run
@@ -103,7 +110,7 @@ func init() {
 	app.Name = "chainbridge"
 	app.Usage = "ChainBridge"
 	app.Authors = []*cli.Author{{Name: "ChainSafe Systems 2019"}}
-	app.Version = "0.0.1"
+	app.Version = getCurrentTag()
 	app.EnableBashCompletion = true
 	app.Commands = []*cli.Command{
 		&accountCommand,
@@ -223,4 +230,20 @@ func run(ctx *cli.Context) error {
 	c.Start()
 
 	return nil
+}
+
+func getCurrentTag() string {
+
+	out, err := exec.Command("/bin/sh", "scripts/get-current-tag.sh").Output()
+
+	if err != nil {
+		log.Error("error fetching current branch tag ", err)
+		return defaultVersion
+	}
+
+	version := strings.TrimSpace(string(out))
+
+	versionNumber := strings.Replace(version, "v", "", 1)
+
+	return versionNumber
 }
