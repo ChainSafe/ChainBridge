@@ -125,7 +125,6 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 		TransactionVersion: 1,
 	}
 
-	//TODO: check this key source
 	err = ext.Sign(*c.key, o)
 	if err != nil {
 		c.nonceLock.Unlock()

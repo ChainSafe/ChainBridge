@@ -79,8 +79,6 @@ func (w *writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 		return nil, err
 	}
 	if w.extendCall {
-		w.log.Info("Extending CALL with ResourceID!!!")
-
 		eRID, err := types.EncodeToBytes(m.ResourceId)
 		if err != nil {
 			return nil, err
