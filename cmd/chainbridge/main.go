@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"os/exec"
 
 	"strconv"
 	"strings"
@@ -100,7 +99,7 @@ var accountCommand = cli.Command{
 }
 
 var (
-	defaultVersion = "1.1.0"
+	Version = "0.0.1"
 )
 
 // init initializes CLI
@@ -234,14 +233,7 @@ func run(ctx *cli.Context) error {
 
 func getCurrentTag() string {
 
-	out, err := exec.Command("/bin/sh", "scripts/get-current-tag.sh").Output()
-
-	if err != nil {
-		log.Error("error fetching current branch tag ", err)
-		return defaultVersion
-	}
-
-	version := strings.TrimSpace(string(out))
+	version := strings.TrimSpace(string(Version))
 
 	versionNumber := strings.Replace(version, "v", "", 1)
 
