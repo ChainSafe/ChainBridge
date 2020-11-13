@@ -81,7 +81,7 @@ func (db *ProofDatabase) Delete(key []byte) error {
 func encodeProofDB(rootHash common.Hash, key []byte, proofDb ProofDatabase) (encodedProof [][]byte, err error) {
 	key = keybytesToHex(key)
 	wantHash := rootHash
-	var proof []node
+	var proof proof
 
 	// we want to repeat until we have reached the desired value node
 	for i := 0; ; i++ {
@@ -107,7 +107,7 @@ func encodeProofDB(rootHash common.Hash, key []byte, proofDb ProofDatabase) (enc
 		// where encodedPath contains a shortcut to skip ahead in the key
 		// where key is the hash of the next node we want to retrieve.
 		proof[i] = n
-		
+
 		// we want to retrieve the next node on the key path
 		keyrest, cld := get(n, key, true)
 		switch cld := cld.(type) {
@@ -120,7 +120,10 @@ func encodeProofDB(rootHash common.Hash, key []byte, proofDb ProofDatabase) (enc
 			copy(wantHash[:], cld)
 		case valueNode:
 			// We have reached the desired value node
+			encodedProof := proof.EncodeRLP()
 			return encodedProof, nil
 		}
 	}
 }
+
+func encode

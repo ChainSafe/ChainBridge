@@ -29,6 +29,7 @@ type (
 	}
 	hashNode  []byte
 	valueNode []byte
+	proof	  []node
 )
 
 // nilValueNode is used when collapsing internal trie nodes for hashing, since
@@ -47,6 +48,39 @@ func (n *fullNode) EncodeRLP(w io.Writer) error {
 		}
 	}
 	return rlp.Encode(w, nodes)
+}
+
+// EncodeRLP encodes a proof into the proper RLP format
+// If the total payload of a list is more than 55 bytes long, 
+// the RLP encoding consists of a single byte with value 0xf7 
+// plus the length in bytes of the length of the payload in binary form, 
+// followed by the length of the payload, followed by the concatenation of the RLP encodings of the items. The range of the first byte is thus [0xf8, 0xff].
+
+// we need to replace all instances of full nodes with [17]node
+func (p proof) EncodeRLP(w io.Writer) error {
+	var proofNodes [][]node
+
+	for i, node := range p {
+		// if the node is a full node we want to expand it to make sure it's rlp encoded properly
+		if node.(type) == *fullNode {
+			expandedFullNode := make([]node, 17)
+			for i, child := range &n.Children {
+				if child != nil {
+					expandedFullNode[i] = child
+				} else {
+					expandedFullNode[i] = nilValueNode
+				}
+			}
+			proofNodes[i] = expandedFullNode
+		} else {
+			proofnode[i] = node
+		}
+	}
+
+	return rlp.Encode(w, proofNodes)
+
+
+
 }
 
 func (n *fullNode) copy() *fullNode   { copy := *n; return &copy }
