@@ -3,15 +3,16 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 
 CONTRACTS_REPO="https://github.com/ChainSafe/chainbridge-solidity"
-CONTRACTS_TAG="v1.0.0"
+CONTRACTS_TAG="75ff30b93d2888b499de62698ed51204ac4b9943"
 CONTRACTS_DIR="./solidity"
+CONTRACTS_BRANCH="oleksii/bridge-optimization"
 DEST_DIR="./bindings"
 
 set -eux
 
 case $TARGET in
 	"build")
-		git clone $CONTRACTS_REPO $CONTRACTS_DIR
+		git clone -b $CONTRACTS_BRANCH $CONTRACTS_REPO $CONTRACTS_DIR
     pushd $CONTRACTS_DIR
     git checkout $CONTRACTS_TAG
 
