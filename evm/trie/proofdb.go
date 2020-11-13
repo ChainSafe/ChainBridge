@@ -16,6 +16,17 @@ type ProofDatabase struct {
 	lock sync.RWMutex
 }
 
+type proofBuffer []byte
+
+func (b *proofBuffer) Write(p []byte) (n int, err error) {
+	*b = append(*b, p...)
+	return len(p), nil
+}
+
+func (b *proofBuffer) Reset() {
+	*b = (*b)[:0]
+}
+
 // NewProofDatabase returns a wrapped map
 func NewProofDatabase() *ProofDatabase {
 	db := &ProofDatabase{
@@ -78,10 +89,11 @@ func (db *ProofDatabase) Delete(key []byte) error {
 }
 
 // Encodes a proof Database to a format parsable by the on chain contract
-func encodeProofDB(rootHash common.Hash, key []byte, proofDb ProofDatabase) (encodedProof [][]byte, err error) {
+func encodeProofDB(rootHash common.Hash, key []byte, proofDb *ProofDatabase) (encodedProof []byte, err error) {
+	var proofNodes proof
+	var proof *proofBuffer
 	key = keybytesToHex(key)
 	wantHash := rootHash
-	var proof proof
 
 	// we want to repeat until we have reached the desired value node
 	for i := 0; ; i++ {
@@ -96,7 +108,7 @@ func encodeProofDB(rootHash common.Hash, key []byte, proofDb ProofDatabase) (enc
 			return nil, fmt.Errorf("bad proof node %d: %v", i, err)
 		}
 
-		proof[i] = n
+		proofNodes[i] = n
 
 		// we want to retrieve the next node on the key path
 		keyrest, cld := get(n, key, true)
@@ -110,7 +122,10 @@ func encodeProofDB(rootHash common.Hash, key []byte, proofDb ProofDatabase) (enc
 			copy(wantHash[:], cld)
 		case valueNode:
 			// We have reached the desired value node
-			encodedProof := proof.EncodeRLP()
+			err := proofNodes.EncodeRLP(proof)
+			if err != nil {
+				return nil, err
+			}
 			return encodedProof, nil
 		}
 	}

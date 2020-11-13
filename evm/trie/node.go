@@ -57,7 +57,6 @@ func (p proof) EncodeRLP(w io.Writer) error {
 	proofArray := p.toGenericArray()
 
 	return rlp.Encode(w, proofArray)
-
 }
 
 func (p proof) toGenericArray() []interface{} {

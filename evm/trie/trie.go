@@ -149,6 +149,20 @@ func (t *Trie) deleteTrie(root common.Hash, txStored int) error {
 
 }
 
+// RetrieveEncodedProof retrieves an encoded Proof for a value at key in trie with root root
+func (t *TxTries) RetrieveEncodedProof(root common.Hash, key []byte) ([]byte, error) {
+	index := t.indexOfRoot(root)
+
+	if index == -1 {
+		return nil, errors.New("transaction trie for this transaction root does not exist")
+	}
+	proofDB, err := t.txTries[index].retrieveProof(root, key)
+	if err != nil {
+		return nil, err
+	}
+	return encodeProofDB(root, key, proofDB)
+}
+
 // RetrieveProof retrieves a Proof for a value at key in trie with root root
 func (t *TxTries) RetrieveProof(root common.Hash, key []byte) (*ProofDatabase, error) {
 	index := t.indexOfRoot(root)
