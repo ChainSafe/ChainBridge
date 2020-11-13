@@ -5,15 +5,15 @@ package trie
 
 import (
 	"errors"
-	"sync"
 	"fmt"
+	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
 )
 
 type ProofDatabase struct {
-	db   			map[string][]byte
-	lock 			sync.RWMutex
+	db   map[string][]byte
+	lock sync.RWMutex
 }
 
 // NewProofDatabase returns a wrapped map
@@ -96,16 +96,6 @@ func encodeProofDB(rootHash common.Hash, key []byte, proofDb ProofDatabase) (enc
 			return nil, fmt.Errorf("bad proof node %d: %v", i, err)
 		}
 
-		// we know that the RLP encoded node of the root element should be the next element of our encoded proof
-		// there are two cases: Either this node is a full node or a short node.
-
-		// if the node is a full node it is a 17 element array of format [v0 ... v15, value] 
-		// where v0 ... v15 represent each possible value by next nibble in the key
-		// where value holds the element we are constructing the proof for if we have reached the end of the path.
-
-		// if the node is a short node it is a 2 element array of format [encodedPath, key]
-		// where encodedPath contains a shortcut to skip ahead in the key
-		// where key is the hash of the next node we want to retrieve.
 		proof[i] = n
 
 		// we want to retrieve the next node on the key path
@@ -125,5 +115,3 @@ func encodeProofDB(rootHash common.Hash, key []byte, proofDb ProofDatabase) (enc
 		}
 	}
 }
-
-func encode

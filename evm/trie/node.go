@@ -1,10 +1,11 @@
 package trie
-// taken from 
+
+// taken from
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
-	"bytes"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rlp"
@@ -29,7 +30,7 @@ type (
 	}
 	hashNode  []byte
 	valueNode []byte
-	proof	  []node
+	proof     []node
 )
 
 // nilValueNode is used when collapsing internal trie nodes for hashing, since
@@ -51,20 +52,23 @@ func (n *fullNode) EncodeRLP(w io.Writer) error {
 }
 
 // EncodeRLP encodes a proof into the proper RLP format
-// If the total payload of a list is more than 55 bytes long, 
-// the RLP encoding consists of a single byte with value 0xf7 
-// plus the length in bytes of the length of the payload in binary form, 
-// followed by the length of the payload, followed by the concatenation of the RLP encodings of the items. The range of the first byte is thus [0xf8, 0xff].
-
 // we need to replace all instances of full nodes with [17]node
 func (p proof) EncodeRLP(w io.Writer) error {
-	var proofNodes [][]node
+	proofArray := p.toGenericArray()
 
-	for i, node := range p {
+	return rlp.Encode(w, proofArray)
+
+}
+
+func (p proof) toGenericArray() []interface{} {
+	var proofNodes []interface{}
+
+	for i, n := range p {
 		// if the node is a full node we want to expand it to make sure it's rlp encoded properly
-		if node.(type) == *fullNode {
+		switch tn := n.(type) {
+		case *fullNode:
 			expandedFullNode := make([]node, 17)
-			for i, child := range &n.Children {
+			for i, child := range &tn.Children {
 				if child != nil {
 					expandedFullNode[i] = child
 				} else {
@@ -72,15 +76,12 @@ func (p proof) EncodeRLP(w io.Writer) error {
 				}
 			}
 			proofNodes[i] = expandedFullNode
-		} else {
-			proofnode[i] = node
+
+		default:
+			proofNodes[i] = n
 		}
 	}
-
-	return rlp.Encode(w, proofNodes)
-
-
-
+	return proofNodes
 }
 
 func (n *fullNode) copy() *fullNode   { copy := *n; return &copy }
@@ -251,7 +252,6 @@ func compactToHex(compact []byte) []byte {
 	return base[chop:]
 }
 
-
 func keybytesToHex(str []byte) []byte {
 	l := len(str)*2 + 1
 	var nibbles = make([]byte, l)
@@ -296,4 +296,3 @@ func get(tn node, key []byte, skipResolved bool) ([]byte, node) {
 		}
 	}
 }
-
