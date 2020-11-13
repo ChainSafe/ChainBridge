@@ -83,9 +83,6 @@ func (p proof) toGenericArray() []interface{} {
 	return proofNodes
 }
 
-func (n *fullNode) copy() *fullNode   { copy := *n; return &copy }
-func (n *shortNode) copy() *shortNode { copy := *n; return &copy }
-
 // nodeFlag contains caching-related metadata about a node.
 type nodeFlag struct {
 	hash  hashNode // cached hash of the node (may be nil)
@@ -116,14 +113,6 @@ func (n hashNode) fstring(ind string) string {
 }
 func (n valueNode) fstring(ind string) string {
 	return fmt.Sprintf("%x ", []byte(n))
-}
-
-func mustDecodeNode(hash, buf []byte) node {
-	n, err := decodeNode(hash, buf)
-	if err != nil {
-		panic(fmt.Sprintf("node %x: %v", hash, err))
-	}
-	return n
 }
 
 // decodeNode parses the RLP encoding of a trie node.

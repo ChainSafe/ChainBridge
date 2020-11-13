@@ -42,11 +42,14 @@ func NewTxTries(t int) *TxTries {
 
 }
 
-func (t *TxTries) updateTriesAndRoots(trie *Trie, root common.Hash) {
+func (t *TxTries) updateTriesAndRoots(trie *Trie, root common.Hash) error {
 	if len(t.txTries) >= t.triesToStore {
 		t.txTries = append(t.txTries, trie)
 		// delete contents of trie from database
-		t.txTries[0].deleteTrie(t.txRoots[0], t.txTries[0].txStored)
+		err := t.txTries[0].deleteTrie(t.txRoots[0], t.txTries[0].txStored)
+		if err != nil {
+			return err
+		}
 		t.txTries = t.txTries[1:]
 
 		t.txRoots = append(t.txRoots, root)
@@ -55,7 +58,10 @@ func (t *TxTries) updateTriesAndRoots(trie *Trie, root common.Hash) {
 	} else {
 		t.txTries = append(t.txTries, trie)
 		t.txRoots = append(t.txRoots, root)
+
 	}
+
+	return nil
 
 }
 
@@ -89,7 +95,11 @@ func (t *TxTries) AddTrie(root common.Hash, db *leveldb.Database, transactions [
 		return nil, err
 	}
 
-	t.updateTriesAndRoots(trie, root)
+	err = t.updateTriesAndRoots(trie, root)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return trie, nil
 }
