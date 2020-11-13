@@ -15,7 +15,6 @@ var indices = []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b
 type node interface {
 	fstring(string) string
 	cache() (hashNode, bool)
-	toArray() [][]byte
 }
 
 type (
@@ -48,35 +47,6 @@ func (n *fullNode) EncodeRLP(w io.Writer) error {
 		}
 	}
 	return rlp.Encode(w, nodes)
-}
-
-func (n *fullNode) toArray() [][]byte {
-	var fn [][]byte
-	for i, node := range &n.Children {
-		if node == nil {
-			fn[i] = nilValueNode
-		} else {
-			fn[i] = node.toArray()
-		}
-	}
-
-	return fn
-}
-
-func (n *valueNode) toArray() []byte {
-	return *n
-}
-
-func (n *hashNode) toArray() []byte {
-	return *n
-}
-
-func (n *shortNode) toArray() [][]byte {
-	var sn [][]byte
-	sn[0] = n.Key
-	sn[1] = n.Val.toArray()
-
-	return sn
 }
 
 func (n *fullNode) copy() *fullNode   { copy := *n; return &copy }
