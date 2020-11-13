@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/rlp"
 )
 
 type ProofDatabase struct {
@@ -106,10 +105,7 @@ func encodeProofDB(rootHash common.Hash, key []byte, proofDb ProofDatabase) (enc
 		// if the node is a short node it is a 2 element array of format [encodedPath, key]
 		// where encodedPath contains a shortcut to skip ahead in the key
 		// where key is the hash of the next node we want to retrieve.
-		switch n := n.(type)
-		encodedProof = 
-
-
+		encodedProof = append(encodedProof, n.toArray())
 
 		// we want to retrieve the next node on the key path
 		keyrest, cld := get(n, key, true)
@@ -123,7 +119,7 @@ func encodeProofDB(rootHash common.Hash, key []byte, proofDb ProofDatabase) (enc
 			copy(wantHash[:], cld)
 		case valueNode:
 			// We have reached the desired value node
-			return cld, nil
+			return encodedProof, nil
 		}
 	}
 }
