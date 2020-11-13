@@ -1,5 +1,5 @@
 package trie
-
+// taken from 
 import (
 	"fmt"
 	"io"
@@ -47,6 +47,35 @@ func (n *fullNode) EncodeRLP(w io.Writer) error {
 		}
 	}
 	return rlp.Encode(w, nodes)
+}
+
+func (n *fullNode) toArray() [17][]byte {
+	var fn [17][]byte
+	for _, node := range &n.Children {
+		if node == nil {
+			fn[i] = nilValueNode
+		} else {
+			fn[i] = node.toArray()
+		}
+	}
+	
+	return fn
+}
+
+func (n *valueNode) toArray() []byte {
+	return valueNode
+}
+
+func (n *hashNode) toArray() []byte {
+	return hashNode
+}
+
+func (n *shortNode) toArray() [2][]byte {
+	var sn [2][]byte
+	sn[0] = n.key
+	sn[1] = n.toArray()
+
+	return sn
 }
 
 func (n *fullNode) copy() *fullNode   { copy := *n; return &copy }
