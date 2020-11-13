@@ -4,7 +4,9 @@
 - Docker, docker-compose
 - chainbridge `v1.0.0` binary (see [README](https://github.com/chainsafe/chainbridge/#building))
 - Polkadot JS Portal ([https://portal.chain.centrifuge.io](https://portal.chain.centrifuge.io/))
-    - Type definitions can be found here: [https://gist.github.com/ansermino/0280b30594a9bc653ae288ccca46dc55](https://gist.github.com/ansermino/0280b30594a9bc653ae288ccca46dc55)
+    - Connect to your local node (below) by clicking in the top-left corner and using `ws://localhost:9944`
+    - You will need to setup the type definitions for the chain by selecting `Settings` -> `Developer`
+    - Type definitions can be found here: [PolkadotJS Apps](https://github.com/ChainSafe/chainbridge-substrate-chain#polkadot-js-apps)
 - cb-sol-cli (see [README](https://github.com/ChainSafe/chainbridge-deploy/tree/master/cb-sol-cli#cb-sol-cli-documentation))
 
 ## Starting Local Chains
