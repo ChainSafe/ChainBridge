@@ -2,23 +2,26 @@
 
 [![Build Status](https://travis-ci.com/ChainSafe/ChainBridge.svg?branch=master)](https://travis-ci.com/ChainSafe/ChainBridge)
 
-
 # Contents
 
+- [Getting Started](#getting-started)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Chain Implementations](#chain-implementations)
 - [Testing](#testing)
 - [Simulations](#simulations)
 
+# Getting Started
+- Check out our [documentation](https://chainsafe.github.io/ChainBridge/).
+- Try [running ChainBridge locally](https://chainsafe.github.io/ChainBridge/local/).
+- Chat with us on [discord](https://discord.gg/GPH6Sp).
+
 # Installation
 
 ## Dependencies
 
-- [Subkey](https://github.com/paritytech/substrate): 
+- [Subkey](https://substrate.dev/docs/en/knowledgebase/integrate/subkey): 
 Used for substrate key management. Only required if connecting to a substrate chain.
-
-  `make install-subkey`
 
 
 ## Building
@@ -28,6 +31,21 @@ Used for substrate key management. Only required if connecting to a substrate ch
 **or**
 
 `make install`: Uses `go install` to add `chainbridge` to your GOBIN.
+
+## Docker 
+The official ChainBridge Docker image can be found here.
+
+To build the Docker image locally run:
+
+```
+docker build -t chainsafe/chainbridge .
+```
+
+To start ChainBridge:
+
+``` 
+docker run -v ./config.json:/config.json chainsafe/chainbridge
+```
 
 # Configuration
 
@@ -140,3 +158,14 @@ $ make test-eth
 $ make test-sub
 $ make test-e2e
 ```
+
+# ChainSafe Security Policy
+
+## Reporting a Security Bug
+
+We take all security issues seriously, if you believe you have found a security issue within a ChainSafe
+project please notify us immediately. If an issue is confirmed, we will take all necessary precautions 
+to ensure a statement and patch release is made in a timely manner.
+
+Please email us a description of the flaw and any related information (e.g. reproduction steps, version) to
+[security at chainsafe dot io](mailto:security@chainsafe.io).
