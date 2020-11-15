@@ -64,7 +64,7 @@ A chain configurations take this form:
 }
 ```
 
-See `config.json.example` for an example configuration. 
+See `config.json.example` for an example configuration. [docs](https://chainsafe.github.io/ChainBridge/local/). 
 
 ### Ethereum Options
 
