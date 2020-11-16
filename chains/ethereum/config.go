@@ -126,7 +126,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 			config.startBlock = block
 			delete(chainCfg.Opts, StartBlockOpt)
 		} else {
-			return nil, errors.New(fmt.Sprintf("unable to parse %s", StartBlockOpt))
+			return nil, fmt.Errorf("unable to parse %s", StartBlockOpt)
 		}
 	}
 
@@ -137,7 +137,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 			config.blockConfirmations = val
 			delete(chainCfg.Opts, BlockConfirmationsOpt)
 		} else {
-			return nil, errors.New(fmt.Sprintf("unable to parse %s", BlockConfirmationsOpt))
+			return nil, fmt.Errorf("unable to parse %s", BlockConfirmationsOpt)
 		}
 	}
 
