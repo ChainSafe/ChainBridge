@@ -83,9 +83,13 @@ func routeMessageAndWait(t *testing.T, client *utils.Client, alice, bob *writer,
 	for {
 		select {
 		case evt := <-ch:
-			sourceId := evt.Topics[1].Big().Uint64()
-			depositNonce := evt.Topics[2].Big().Uint64()
-			status := uint8(evt.Topics[3].Big().Uint64())
+			parsedEvent, err := bob.bridgeContract.BridgeFilterer.ParseProposalEvent(evt)
+			if err != nil {
+				t.Fatalf("failed to parse ProposalEvent event: %s", err)
+			}
+			sourceId := parsedEvent.OriginChainID
+			depositNonce := parsedEvent.DepositNonce
+			status := parsedEvent.Status
 
 			if m.Source == msg.ChainId(sourceId) &&
 				uint64(m.DepositNonce) == depositNonce &&

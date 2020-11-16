@@ -194,9 +194,14 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte,
 
 			// execute the proposal once we find the matching finalized event
 			for _, evt := range evts {
-				sourceId := evt.Topics[1].Big().Uint64()
-				depositNonce := evt.Topics[2].Big().Uint64()
-				status := evt.Topics[3].Big().Uint64()
+				parsedEvent, err := w.bridgeContract.BridgeFilterer.ParseProposalEvent(evt)
+				if err != nil {
+					w.log.Error("Failed to parse ProposalEvent event", "err", err)
+					continue
+				}
+				sourceId := parsedEvent.OriginChainID
+				depositNonce := parsedEvent.DepositNonce
+				status := parsedEvent.Status
 
 				if m.Source == msg.ChainId(sourceId) &&
 					m.DepositNonce.Big().Uint64() == depositNonce &&
