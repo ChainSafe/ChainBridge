@@ -163,9 +163,9 @@ func run(ctx *cli.Context) error {
 	c := core.NewCore(sysErr)
 
 	for _, chain := range cfg.Chains {
-		chainId, err := strconv.Atoi(chain.Id)
-		if err != nil {
-			return err
+		chainId, errr := strconv.Atoi(chain.Id)
+		if errr != nil {
+			return errr
 		}
 		chainConfig := &core.ChainConfig{
 			Name:           chain.Name,
@@ -206,7 +206,15 @@ func run(ctx *cli.Context) error {
 	// Start prometheus and health server
 	if ctx.Bool(config.MetricsFlag.Name) {
 		port := ctx.Int(config.MetricsPort.Name)
-		h := health.NewHealthServer(port, c.Registry)
+		blockTimeoutStr := os.Getenv(config.HealthBlockTimeout)
+		blockTimeout := config.DefaultBlockTimeout
+		if blockTimeoutStr != "" {
+			blockTimeout, err = strconv.ParseInt(blockTimeoutStr, 10, 0)
+			if err != nil {
+				return err
+			}
+		}
+		h := health.NewHealthServer(port, c.Registry, int(blockTimeout))
 
 		go func() {
 			http.Handle("/metrics", promhttp.Handler())
