@@ -4,7 +4,9 @@
 - Docker, docker-compose
 - chainbridge `v1.0.0` binary (see [README](https://github.com/chainsafe/chainbridge/#building))
 - Polkadot JS Portal ([https://portal.chain.centrifuge.io](https://portal.chain.centrifuge.io/))
-    - Type definitions can be found here: [https://gist.github.com/ansermino/0280b30594a9bc653ae288ccca46dc55](https://gist.github.com/ansermino/0280b30594a9bc653ae288ccca46dc55)
+    - Connect to your local node (below) by clicking in the top-left corner and using `ws://localhost:9944`
+    - You will need to setup the type definitions for the chain by selecting `Settings` -> `Developer`
+    - Type definitions can be found here: [PolkadotJS Apps](https://github.com/ChainSafe/chainbridge-substrate-chain#polkadot-js-apps)
 - cb-sol-cli (see [README](https://github.com/ChainSafe/chainbridge-deploy/tree/master/cb-sol-cli#cb-sol-cli-documentation))
 
 ## Starting Local Chains
@@ -164,10 +166,27 @@ Here is an example config file for a single relayer ("Alice") using the contract
 }
 ```
 
-You can then start a relayer using the default "Alice" key:
+
+Run ``` make install ``` in ChanBridge directory to build chainbridge and put it in GOBIN path, 
+
+
+You can then start a relayer as a binary using the default "Alice" key.
 
 ```bash
 chainbridge --config config.json --testkey alice --latest
+```
+
+OR 
+
+By building an image first
+
+```bash
+docker build -t chainsafe/chainbridge .
+```
+You can start the relayer as a docker container 
+
+```bash
+docker run -v ./config.json:/config.json --network host chainsafe/chainbridge --testkey alice --latest
 ```
 
 ## Fungible Transfers
@@ -203,7 +222,7 @@ cb-sol-cli erc20 approve --amount 1000 --recipient "0x3167776db165D8eA0f51790CA2
 To initiate a transfer on the ethereum chain use this command (Note: there will be a 10 block delay before the relayer will process the transfer):
 
 ```bash
-cb-sol-cli erc20 deposit --amount 1000 --dest 1 --recipient "0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d" --resourceId "0x000000000000000000000000000000c76ebe4a02bbc34786d860b355f5a5ce00"
+cb-sol-cli erc20 deposit --amount 1 --dest 1 --recipient "0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d" --resourceId "0x000000000000000000000000000000c76ebe4a02bbc34786d860b355f5a5ce00"
 ```
 
 ## Non-Fungible Transfers
