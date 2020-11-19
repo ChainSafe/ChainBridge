@@ -109,7 +109,7 @@ func init() {
 	app.Name = "chainbridge"
 	app.Usage = "ChainBridge"
 	app.Authors = []*cli.Author{{Name: "ChainSafe Systems 2019"}}
-	app.Version = getCurrentTag()
+	app.Version = Version
 	app.EnableBashCompletion = true
 	app.Commands = []*cli.Command{
 		&accountCommand,
@@ -229,13 +229,4 @@ func run(ctx *cli.Context) error {
 	c.Start()
 
 	return nil
-}
-
-func getCurrentTag() string {
-
-	version := strings.TrimSpace(string(Version))
-
-	versionNumber := strings.Replace(version, "v", "", 1)
-
-	return versionNumber
 }
