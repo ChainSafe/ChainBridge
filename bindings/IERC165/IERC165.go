@@ -20,6 +20,7 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
+	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -171,28 +172,23 @@ func (_IERC165 *IERC165TransactorRaw) Transact(opts *bind.TransactOpts, method s
 	return _IERC165.Contract.contract.Transact(opts, method, params...)
 }
 
-// SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
+// SupportsInterface is a paid mutator transaction binding the contract method 0x01ffc9a7.
 //
-// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
-func (_IERC165 *IERC165Caller) SupportsInterface(opts *bind.CallOpts, interfaceId [4]byte) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := _IERC165.contract.Call(opts, out, "supportsInterface", interfaceId)
-	return *ret0, err
+// Solidity: function supportsInterface(bytes4 interfaceId) returns(bool)
+func (_IERC165 *IERC165Transactor) SupportsInterface(opts *bind.TransactOpts, interfaceId [4]byte) (*types.Transaction, error) {
+	return _IERC165.contract.Transact(opts, "supportsInterface", interfaceId)
 }
 
-// SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
+// SupportsInterface is a paid mutator transaction binding the contract method 0x01ffc9a7.
 //
-// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
-func (_IERC165 *IERC165Session) SupportsInterface(interfaceId [4]byte) (bool, error) {
-	return _IERC165.Contract.SupportsInterface(&_IERC165.CallOpts, interfaceId)
+// Solidity: function supportsInterface(bytes4 interfaceId) returns(bool)
+func (_IERC165 *IERC165Session) SupportsInterface(interfaceId [4]byte) (*types.Transaction, error) {
+	return _IERC165.Contract.SupportsInterface(&_IERC165.TransactOpts, interfaceId)
 }
 
-// SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
+// SupportsInterface is a paid mutator transaction binding the contract method 0x01ffc9a7.
 //
-// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
-func (_IERC165 *IERC165CallerSession) SupportsInterface(interfaceId [4]byte) (bool, error) {
-	return _IERC165.Contract.SupportsInterface(&_IERC165.CallOpts, interfaceId)
+// Solidity: function supportsInterface(bytes4 interfaceId) returns(bool)
+func (_IERC165 *IERC165TransactorSession) SupportsInterface(interfaceId [4]byte) (*types.Transaction, error) {
+	return _IERC165.Contract.SupportsInterface(&_IERC165.TransactOpts, interfaceId)
 }

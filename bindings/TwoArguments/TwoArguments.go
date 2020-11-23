@@ -20,6 +20,7 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
+	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -30,7 +31,7 @@ var (
 const TwoArgumentsABI = "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"argumentOne\",\"type\":\"address[]\"},{\"indexed\":false,\"internalType\":\"bytes4\",\"name\":\"argumentTwo\",\"type\":\"bytes4\"}],\"name\":\"TwoArgumentsCalled\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"argumentOne\",\"type\":\"address[]\"},{\"internalType\":\"bytes4\",\"name\":\"argumentTwo\",\"type\":\"bytes4\"}],\"name\":\"twoArguments\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // TwoArgumentsBin is the compiled bytecode used for deploying new contracts.
-var TwoArgumentsBin = "0x608060405234801561001057600080fd5b506101b9806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c806372e0745c14610030575b600080fd5b6100d06004803603604081101561004657600080fd5b810190808035906020019064010000000081111561006357600080fd5b82018360208201111561007557600080fd5b8035906020019184602083028401116401000000008311171561009757600080fd5b909192939192939080357bffffffffffffffffffffffffffffffffffffffffffffffffffffffff191690602001909291905050506100d2565b005b7fc983106aca50fad459fb18ede1630e8ff8147ff28ad451a856427931fd7f15e38383836040518080602001837bffffffffffffffffffffffffffffffffffffffffffffffffffffffff19167bffffffffffffffffffffffffffffffffffffffffffffffffffffffff191681526020018281038252858582818152602001925060200280828437600081840152601f19601f82011690508083019250505094505050505060405180910390a150505056fea26469706673582212206f55647f72b37c70221f762e456eb27312d94aeac18f90297a4b152841eb9ec864736f6c63430006040033"
+const TwoArgumentsBin = `608060405234801561001057600080fd5b506101b9806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c806372e0745c14610030575b600080fd5b6100d06004803603604081101561004657600080fd5b810190808035906020019064010000000081111561006357600080fd5b82018360208201111561007557600080fd5b8035906020019184602083028401116401000000008311171561009757600080fd5b909192939192939080357bffffffffffffffffffffffffffffffffffffffffffffffffffffffff191690602001909291905050506100d2565b005b7fc983106aca50fad459fb18ede1630e8ff8147ff28ad451a856427931fd7f15e38383836040518080602001837bffffffffffffffffffffffffffffffffffffffffffffffffffffffff19167bffffffffffffffffffffffffffffffffffffffffffffffffffffffff191681526020018281038252858582818152602001925060200280828437600081840152601f19601f82011690508083019250505094505050505060405180910390a150505056fea26469706673582212202c67617a27f74dcd5e8e9963819e8718965077334fd13d03941ea994d7d4cff664736f6c63430006040033`
 
 // DeployTwoArguments deploys a new Ethereum contract, binding an instance of TwoArguments to it.
 func DeployTwoArguments(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *TwoArguments, error) {
@@ -38,7 +39,6 @@ func DeployTwoArguments(auth *bind.TransactOpts, backend bind.ContractBackend) (
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-
 	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(TwoArgumentsBin), backend)
 	if err != nil {
 		return common.Address{}, nil, nil, err
@@ -330,15 +330,4 @@ func (_TwoArguments *TwoArgumentsFilterer) WatchTwoArgumentsCalled(opts *bind.Wa
 			}
 		}
 	}), nil
-}
-
-// ParseTwoArgumentsCalled is a log parse operation binding the contract event 0xc983106aca50fad459fb18ede1630e8ff8147ff28ad451a856427931fd7f15e3.
-//
-// Solidity: event TwoArgumentsCalled(address[] argumentOne, bytes4 argumentTwo)
-func (_TwoArguments *TwoArgumentsFilterer) ParseTwoArgumentsCalled(log types.Log) (*TwoArgumentsTwoArgumentsCalled, error) {
-	event := new(TwoArgumentsTwoArgumentsCalled)
-	if err := _TwoArguments.contract.UnpackLog(event, "TwoArgumentsCalled", log); err != nil {
-		return nil, err
-	}
-	return event, nil
 }
