@@ -202,9 +202,10 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 
 	rId := msg.ResourceIdFromSlice(common.LeftPadBytes(assetStoreAddr.Bytes(), 32))
 	depositSig := utils.CreateFunctionSignature("")
+	depositorOffset := big.NewInt(0)
 	executeSig := utils.CreateFunctionSignature("store(bytes32)")
 
-	ethtest.RegisterGenericResource(t, client, contracts.BridgeAddress, contracts.GenericHandlerAddress, rId, assetStoreAddr, depositSig, executeSig)
+	ethtest.RegisterGenericResource(t, client, contracts.BridgeAddress, contracts.GenericHandlerAddress, rId, assetStoreAddr, depositSig, depositorOffset, executeSig)
 	// Create initial transfer message
 	hash := common.HexToHash("0xf0a8748d2b102eb4e0e116047753b9beff0396d81b830693b19a1376ac4b14e8")
 	m := msg.Message{
