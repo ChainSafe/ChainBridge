@@ -205,12 +205,12 @@ func CreateGenericDeposit(t *testing.T, client *utils.Client, destId msg.ChainId
 	}
 }
 
-func WaitForProposalActive(t *testing.T, client *utils.Client, bridge common.Address, nonce uint64) {
+func WaitForProposalActive(t *testing.T, client *utils.Client, bridgeAddress common.Address, nonce uint64) {
 	startBlock := ethtest.GetLatestBlock(t, client)
 
 	query := eth.FilterQuery{
 		FromBlock: startBlock,
-		Addresses: []common.Address{bridge},
+		Addresses: []common.Address{bridgeAddress},
 		Topics: [][]common.Hash{
 			{utils.ProposalEvent.GetTopic()},
 		},
@@ -221,13 +221,21 @@ func WaitForProposalActive(t *testing.T, client *utils.Client, bridge common.Add
 	if err != nil {
 		t.Fatal(err)
 	}
+	bridgeContract, err := bridge.NewBridge(bridgeAddress, client.Client)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer sub.Unsubscribe()
 	timeout := time.After(TestTimeout)
 	for {
 		select {
 		case evt := <-ch:
-			currentNonce := evt.Topics[2].Big()
-			status := uint8(evt.Topics[3].Big().Uint64())
+			parsedEvent, err := bridgeContract.BridgeFilterer.ParseProposalEvent(evt)
+			if err != nil {
+				t.Fatalf("failed to parse ProposalEvent event: %s", err)
+			}
+			currentNonce := new(big.Int).SetUint64(parsedEvent.DepositNonce)
+			status := parsedEvent.Status
 			// Check nonce matches
 			if utils.IsActive(status) && currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
 				log.Info("Got matching ProposalCreated event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
@@ -245,12 +253,12 @@ func WaitForProposalActive(t *testing.T, client *utils.Client, bridge common.Add
 	}
 }
 
-func WaitForProposalExecutedEvent(t *testing.T, client *utils.Client, bridge common.Address, nonce uint64) {
+func WaitForProposalExecutedEvent(t *testing.T, client *utils.Client, bridgeAddress common.Address, nonce uint64) {
 	startBlock := ethtest.GetLatestBlock(t, client)
 
 	query := eth.FilterQuery{
 		FromBlock: startBlock,
-		Addresses: []common.Address{bridge},
+		Addresses: []common.Address{bridgeAddress},
 		Topics: [][]common.Hash{
 			{utils.ProposalEvent.GetTopic()},
 		},
@@ -261,14 +269,22 @@ func WaitForProposalExecutedEvent(t *testing.T, client *utils.Client, bridge com
 	if err != nil {
 		t.Fatal(err)
 	}
+	bridgeContract, err := bridge.NewBridge(bridgeAddress, client.Client)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer sub.Unsubscribe()
 
 	timeout := time.After(TestTimeout)
 	for {
 		select {
 		case evt := <-ch:
-			currentNonce := evt.Topics[2].Big()
-			status := uint8(evt.Topics[3].Big().Uint64())
+			parsedEvent, err := bridgeContract.BridgeFilterer.ParseProposalEvent(evt)
+			if err != nil {
+				t.Fatalf("failed to parse ProposalEvent event: %s", err)
+			}
+			currentNonce := new(big.Int).SetUint64(parsedEvent.DepositNonce)
+			status := parsedEvent.Status
 			// Check nonce matches
 			if utils.IsExecuted(status) && currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
 				log.Info("Got matching ProposalExecuted event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
