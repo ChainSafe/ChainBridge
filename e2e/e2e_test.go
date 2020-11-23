@@ -200,14 +200,14 @@ func setupNonFungibleTests(t *testing.T, ctx *testContext) {
 func setupGenericTests(t *testing.T, ctx *testContext) {
 	// Deploy asset store for sub->eth on ethA, register resource ID
 	assetStoreContractASub := ethtest.DeployAssetStore(t, ctx.ethA.Client)
-	ethtest.RegisterGenericResource(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.GenericHandlerAddress, ctx.GenericHashResourceId, assetStoreContractASub, [4]byte{}, ethutils.StoreFunctionSig)
+	ethtest.RegisterGenericResource(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.GenericHandlerAddress, ctx.GenericHashResourceId, assetStoreContractASub, [4]byte{}, big.NewInt(0), ethutils.StoreFunctionSig)
 
 	// Deploy asset store for eth->eth on ethB, register resource ID
 	assetStoreContractBEth := ethtest.DeployAssetStore(t, ctx.ethB.Client)
 	ethGenericResourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(assetStoreContractBEth.Bytes(), 31), byte(EthBChainId)))
-	ethtest.RegisterGenericResource(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, ctx.ethB.BaseContracts.GenericHandlerAddress, ethGenericResourceId, assetStoreContractBEth, [4]byte{}, ethutils.StoreFunctionSig)
+	ethtest.RegisterGenericResource(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, ctx.ethB.BaseContracts.GenericHandlerAddress, ethGenericResourceId, assetStoreContractBEth, [4]byte{}, big.NewInt(0), ethutils.StoreFunctionSig)
 	// Register resource on ethA as well for deposit, address used could be anything
-	ethtest.RegisterGenericResource(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.GenericHandlerAddress, ethGenericResourceId, assetStoreContractBEth, [4]byte{}, ethutils.StoreFunctionSig)
+	ethtest.RegisterGenericResource(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, ctx.ethA.BaseContracts.GenericHandlerAddress, ethGenericResourceId, assetStoreContractBEth, [4]byte{}, big.NewInt(0), ethutils.StoreFunctionSig)
 
 	ctx.ethA.TestContracts.AssetStoreSub = assetStoreContractASub
 	ctx.ethB.TestContracts.AssetStoreEth = assetStoreContractBEth
