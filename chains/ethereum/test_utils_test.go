@@ -48,6 +48,7 @@ func createConfig(name string, startBlock *big.Int, contracts *utils.DeployedCon
 		maxGasPrice:            big.NewInt(DefaultGasPrice),
 		http:                   false,
 		startBlock:             startBlock,
+		blockConfirmations:     big.NewInt(0),
 	}
 
 	if contracts != nil {
