@@ -25,7 +25,6 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 )
 
-var BlockDelay = big.NewInt(10)
 var BlockRetryInterval = time.Second * 5
 var BlockRetryLimit = 5
 var ErrFatalPolling = errors.New("listener block polling failed")
@@ -44,19 +43,21 @@ type listener struct {
 	sysErr                 chan<- error // Reports fatal error to core
 	latestBlock            metrics.LatestBlock
 	metrics                *metrics.ChainMetrics
+	blockConfirmations     *big.Int
 }
 
 // NewListener creates and returns a listener
 func NewListener(conn Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error, m *metrics.ChainMetrics) *listener {
 	return &listener{
-		cfg:         *cfg,
-		conn:        conn,
-		log:         log,
-		blockstore:  bs,
-		stop:        stop,
-		sysErr:      sysErr,
-		latestBlock: metrics.LatestBlock{LastUpdated: time.Now()},
-		metrics:     m,
+		cfg:                *cfg,
+		conn:               conn,
+		log:                log,
+		blockstore:         bs,
+		stop:               stop,
+		sysErr:             sysErr,
+		latestBlock:        metrics.LatestBlock{LastUpdated: time.Now()},
+		metrics:            m,
+		blockConfirmations: cfg.blockConfirmations,
 	}
 }
 
@@ -119,7 +120,7 @@ func (l *listener) pollBlocks() error {
 			}
 
 			// Sleep if the difference is less than BlockDelay; (latest - current) < BlockDelay
-			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(BlockDelay) == -1 {
+			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(l.blockConfirmations) == -1 {
 				l.log.Debug("Block not ready, will retry", "target", currentBlock, "latest", latestBlock)
 				time.Sleep(BlockRetryInterval)
 				continue
