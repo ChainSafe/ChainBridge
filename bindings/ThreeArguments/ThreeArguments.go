@@ -20,7 +20,6 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
-	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -31,7 +30,7 @@ var (
 const ThreeArgumentsABI = "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"argumentOne\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"int8\",\"name\":\"argumentTwo\",\"type\":\"int8\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"argumentThree\",\"type\":\"bool\"}],\"name\":\"ThreeArgumentsCalled\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"argumentOne\",\"type\":\"string\"},{\"internalType\":\"int8\",\"name\":\"argumentTwo\",\"type\":\"int8\"},{\"internalType\":\"bool\",\"name\":\"argumentThree\",\"type\":\"bool\"}],\"name\":\"threeArguments\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // ThreeArgumentsBin is the compiled bytecode used for deploying new contracts.
-const ThreeArgumentsBin = `608060405234801561001057600080fd5b5061017b806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c80639280b90514610030575b600080fd5b6100c06004803603606081101561004657600080fd5b810190808035906020019064010000000081111561006357600080fd5b82018360208201111561007557600080fd5b8035906020019184600183028401116401000000008311171561009757600080fd5b9091929391929390803560000b90602001909291908035151590602001909291905050506100c2565b005b7fd589183661fa75f94e2db32f4eb7ebb50f4154c160e15eb43f772a46f360a3a88484848460405180806020018460000b60000b8152602001831515151581526020018281038252868682818152602001925080828437600081840152601f19601f8201169050808301925050509550505050505060405180910390a15050505056fea264697066735822122078443d175287d18447764d90e968a3e0baeafcf27ebe237ce8b5142ad8e25c8564736f6c63430006040033`
+var ThreeArgumentsBin = "0x608060405234801561001057600080fd5b5061017b806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c80639280b90514610030575b600080fd5b6100c06004803603606081101561004657600080fd5b810190808035906020019064010000000081111561006357600080fd5b82018360208201111561007557600080fd5b8035906020019184600183028401116401000000008311171561009757600080fd5b9091929391929390803560000b90602001909291908035151590602001909291905050506100c2565b005b7fd589183661fa75f94e2db32f4eb7ebb50f4154c160e15eb43f772a46f360a3a88484848460405180806020018460000b60000b8152602001831515151581526020018281038252868682818152602001925080828437600081840152601f19601f8201169050808301925050509550505050505060405180910390a15050505056fea26469706673582212204057408fbd70191577028087ead7d6c306e82aff84f9f914e76594d314db5c4a64736f6c63430006040033"
 
 // DeployThreeArguments deploys a new Ethereum contract, binding an instance of ThreeArguments to it.
 func DeployThreeArguments(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *ThreeArguments, error) {
@@ -39,6 +38,7 @@ func DeployThreeArguments(auth *bind.TransactOpts, backend bind.ContractBackend)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
+
 	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(ThreeArgumentsBin), backend)
 	if err != nil {
 		return common.Address{}, nil, nil, err
@@ -331,4 +331,15 @@ func (_ThreeArguments *ThreeArgumentsFilterer) WatchThreeArgumentsCalled(opts *b
 			}
 		}
 	}), nil
+}
+
+// ParseThreeArgumentsCalled is a log parse operation binding the contract event 0xd589183661fa75f94e2db32f4eb7ebb50f4154c160e15eb43f772a46f360a3a8.
+//
+// Solidity: event ThreeArgumentsCalled(string argumentOne, int8 argumentTwo, bool argumentThree)
+func (_ThreeArguments *ThreeArgumentsFilterer) ParseThreeArgumentsCalled(log types.Log) (*ThreeArgumentsThreeArgumentsCalled, error) {
+	event := new(ThreeArgumentsThreeArgumentsCalled)
+	if err := _ThreeArguments.contract.UnpackLog(event, "ThreeArgumentsCalled", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }

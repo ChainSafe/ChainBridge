@@ -20,7 +20,6 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
-	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -172,6 +171,136 @@ func (_IERC721 *IERC721TransactorRaw) Transact(opts *bind.TransactOpts, method s
 	return _IERC721.Contract.contract.Transact(opts, method, params...)
 }
 
+// BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
+//
+// Solidity: function balanceOf(address owner) view returns(uint256 balance)
+func (_IERC721 *IERC721Caller) BalanceOf(opts *bind.CallOpts, owner common.Address) (*big.Int, error) {
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := _IERC721.contract.Call(opts, out, "balanceOf", owner)
+	return *ret0, err
+}
+
+// BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
+//
+// Solidity: function balanceOf(address owner) view returns(uint256 balance)
+func (_IERC721 *IERC721Session) BalanceOf(owner common.Address) (*big.Int, error) {
+	return _IERC721.Contract.BalanceOf(&_IERC721.CallOpts, owner)
+}
+
+// BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
+//
+// Solidity: function balanceOf(address owner) view returns(uint256 balance)
+func (_IERC721 *IERC721CallerSession) BalanceOf(owner common.Address) (*big.Int, error) {
+	return _IERC721.Contract.BalanceOf(&_IERC721.CallOpts, owner)
+}
+
+// GetApproved is a free data retrieval call binding the contract method 0x081812fc.
+//
+// Solidity: function getApproved(uint256 tokenId) view returns(address operator)
+func (_IERC721 *IERC721Caller) GetApproved(opts *bind.CallOpts, tokenId *big.Int) (common.Address, error) {
+	var (
+		ret0 = new(common.Address)
+	)
+	out := ret0
+	err := _IERC721.contract.Call(opts, out, "getApproved", tokenId)
+	return *ret0, err
+}
+
+// GetApproved is a free data retrieval call binding the contract method 0x081812fc.
+//
+// Solidity: function getApproved(uint256 tokenId) view returns(address operator)
+func (_IERC721 *IERC721Session) GetApproved(tokenId *big.Int) (common.Address, error) {
+	return _IERC721.Contract.GetApproved(&_IERC721.CallOpts, tokenId)
+}
+
+// GetApproved is a free data retrieval call binding the contract method 0x081812fc.
+//
+// Solidity: function getApproved(uint256 tokenId) view returns(address operator)
+func (_IERC721 *IERC721CallerSession) GetApproved(tokenId *big.Int) (common.Address, error) {
+	return _IERC721.Contract.GetApproved(&_IERC721.CallOpts, tokenId)
+}
+
+// IsApprovedForAll is a free data retrieval call binding the contract method 0xe985e9c5.
+//
+// Solidity: function isApprovedForAll(address owner, address operator) view returns(bool)
+func (_IERC721 *IERC721Caller) IsApprovedForAll(opts *bind.CallOpts, owner common.Address, operator common.Address) (bool, error) {
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := _IERC721.contract.Call(opts, out, "isApprovedForAll", owner, operator)
+	return *ret0, err
+}
+
+// IsApprovedForAll is a free data retrieval call binding the contract method 0xe985e9c5.
+//
+// Solidity: function isApprovedForAll(address owner, address operator) view returns(bool)
+func (_IERC721 *IERC721Session) IsApprovedForAll(owner common.Address, operator common.Address) (bool, error) {
+	return _IERC721.Contract.IsApprovedForAll(&_IERC721.CallOpts, owner, operator)
+}
+
+// IsApprovedForAll is a free data retrieval call binding the contract method 0xe985e9c5.
+//
+// Solidity: function isApprovedForAll(address owner, address operator) view returns(bool)
+func (_IERC721 *IERC721CallerSession) IsApprovedForAll(owner common.Address, operator common.Address) (bool, error) {
+	return _IERC721.Contract.IsApprovedForAll(&_IERC721.CallOpts, owner, operator)
+}
+
+// OwnerOf is a free data retrieval call binding the contract method 0x6352211e.
+//
+// Solidity: function ownerOf(uint256 tokenId) view returns(address owner)
+func (_IERC721 *IERC721Caller) OwnerOf(opts *bind.CallOpts, tokenId *big.Int) (common.Address, error) {
+	var (
+		ret0 = new(common.Address)
+	)
+	out := ret0
+	err := _IERC721.contract.Call(opts, out, "ownerOf", tokenId)
+	return *ret0, err
+}
+
+// OwnerOf is a free data retrieval call binding the contract method 0x6352211e.
+//
+// Solidity: function ownerOf(uint256 tokenId) view returns(address owner)
+func (_IERC721 *IERC721Session) OwnerOf(tokenId *big.Int) (common.Address, error) {
+	return _IERC721.Contract.OwnerOf(&_IERC721.CallOpts, tokenId)
+}
+
+// OwnerOf is a free data retrieval call binding the contract method 0x6352211e.
+//
+// Solidity: function ownerOf(uint256 tokenId) view returns(address owner)
+func (_IERC721 *IERC721CallerSession) OwnerOf(tokenId *big.Int) (common.Address, error) {
+	return _IERC721.Contract.OwnerOf(&_IERC721.CallOpts, tokenId)
+}
+
+// SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
+//
+// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
+func (_IERC721 *IERC721Caller) SupportsInterface(opts *bind.CallOpts, interfaceId [4]byte) (bool, error) {
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := _IERC721.contract.Call(opts, out, "supportsInterface", interfaceId)
+	return *ret0, err
+}
+
+// SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
+//
+// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
+func (_IERC721 *IERC721Session) SupportsInterface(interfaceId [4]byte) (bool, error) {
+	return _IERC721.Contract.SupportsInterface(&_IERC721.CallOpts, interfaceId)
+}
+
+// SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
+//
+// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
+func (_IERC721 *IERC721CallerSession) SupportsInterface(interfaceId [4]byte) (bool, error) {
+	return _IERC721.Contract.SupportsInterface(&_IERC721.CallOpts, interfaceId)
+}
+
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
 // Solidity: function approve(address to, uint256 tokenId) returns()
@@ -193,109 +322,46 @@ func (_IERC721 *IERC721TransactorSession) Approve(to common.Address, tokenId *bi
 	return _IERC721.Contract.Approve(&_IERC721.TransactOpts, to, tokenId)
 }
 
-// BalanceOf is a paid mutator transaction binding the contract method 0x70a08231.
+// SafeTransferFrom is a paid mutator transaction binding the contract method 0x42842e0e.
 //
-// Solidity: function balanceOf(address owner) returns(uint256 balance)
-func (_IERC721 *IERC721Transactor) BalanceOf(opts *bind.TransactOpts, owner common.Address) (*types.Transaction, error) {
-	return _IERC721.contract.Transact(opts, "balanceOf", owner)
+// Solidity: function safeTransferFrom(address from, address to, uint256 tokenId) returns()
+func (_IERC721 *IERC721Transactor) SafeTransferFrom(opts *bind.TransactOpts, from common.Address, to common.Address, tokenId *big.Int) (*types.Transaction, error) {
+	return _IERC721.contract.Transact(opts, "safeTransferFrom", from, to, tokenId)
 }
 
-// BalanceOf is a paid mutator transaction binding the contract method 0x70a08231.
+// SafeTransferFrom is a paid mutator transaction binding the contract method 0x42842e0e.
 //
-// Solidity: function balanceOf(address owner) returns(uint256 balance)
-func (_IERC721 *IERC721Session) BalanceOf(owner common.Address) (*types.Transaction, error) {
-	return _IERC721.Contract.BalanceOf(&_IERC721.TransactOpts, owner)
+// Solidity: function safeTransferFrom(address from, address to, uint256 tokenId) returns()
+func (_IERC721 *IERC721Session) SafeTransferFrom(from common.Address, to common.Address, tokenId *big.Int) (*types.Transaction, error) {
+	return _IERC721.Contract.SafeTransferFrom(&_IERC721.TransactOpts, from, to, tokenId)
 }
 
-// BalanceOf is a paid mutator transaction binding the contract method 0x70a08231.
+// SafeTransferFrom is a paid mutator transaction binding the contract method 0x42842e0e.
 //
-// Solidity: function balanceOf(address owner) returns(uint256 balance)
-func (_IERC721 *IERC721TransactorSession) BalanceOf(owner common.Address) (*types.Transaction, error) {
-	return _IERC721.Contract.BalanceOf(&_IERC721.TransactOpts, owner)
+// Solidity: function safeTransferFrom(address from, address to, uint256 tokenId) returns()
+func (_IERC721 *IERC721TransactorSession) SafeTransferFrom(from common.Address, to common.Address, tokenId *big.Int) (*types.Transaction, error) {
+	return _IERC721.Contract.SafeTransferFrom(&_IERC721.TransactOpts, from, to, tokenId)
 }
 
-// GetApproved is a paid mutator transaction binding the contract method 0x081812fc.
-//
-// Solidity: function getApproved(uint256 tokenId) returns(address operator)
-func (_IERC721 *IERC721Transactor) GetApproved(opts *bind.TransactOpts, tokenId *big.Int) (*types.Transaction, error) {
-	return _IERC721.contract.Transact(opts, "getApproved", tokenId)
-}
-
-// GetApproved is a paid mutator transaction binding the contract method 0x081812fc.
-//
-// Solidity: function getApproved(uint256 tokenId) returns(address operator)
-func (_IERC721 *IERC721Session) GetApproved(tokenId *big.Int) (*types.Transaction, error) {
-	return _IERC721.Contract.GetApproved(&_IERC721.TransactOpts, tokenId)
-}
-
-// GetApproved is a paid mutator transaction binding the contract method 0x081812fc.
-//
-// Solidity: function getApproved(uint256 tokenId) returns(address operator)
-func (_IERC721 *IERC721TransactorSession) GetApproved(tokenId *big.Int) (*types.Transaction, error) {
-	return _IERC721.Contract.GetApproved(&_IERC721.TransactOpts, tokenId)
-}
-
-// IsApprovedForAll is a paid mutator transaction binding the contract method 0xe985e9c5.
-//
-// Solidity: function isApprovedForAll(address owner, address operator) returns(bool)
-func (_IERC721 *IERC721Transactor) IsApprovedForAll(opts *bind.TransactOpts, owner common.Address, operator common.Address) (*types.Transaction, error) {
-	return _IERC721.contract.Transact(opts, "isApprovedForAll", owner, operator)
-}
-
-// IsApprovedForAll is a paid mutator transaction binding the contract method 0xe985e9c5.
-//
-// Solidity: function isApprovedForAll(address owner, address operator) returns(bool)
-func (_IERC721 *IERC721Session) IsApprovedForAll(owner common.Address, operator common.Address) (*types.Transaction, error) {
-	return _IERC721.Contract.IsApprovedForAll(&_IERC721.TransactOpts, owner, operator)
-}
-
-// IsApprovedForAll is a paid mutator transaction binding the contract method 0xe985e9c5.
-//
-// Solidity: function isApprovedForAll(address owner, address operator) returns(bool)
-func (_IERC721 *IERC721TransactorSession) IsApprovedForAll(owner common.Address, operator common.Address) (*types.Transaction, error) {
-	return _IERC721.Contract.IsApprovedForAll(&_IERC721.TransactOpts, owner, operator)
-}
-
-// OwnerOf is a paid mutator transaction binding the contract method 0x6352211e.
-//
-// Solidity: function ownerOf(uint256 tokenId) returns(address owner)
-func (_IERC721 *IERC721Transactor) OwnerOf(opts *bind.TransactOpts, tokenId *big.Int) (*types.Transaction, error) {
-	return _IERC721.contract.Transact(opts, "ownerOf", tokenId)
-}
-
-// OwnerOf is a paid mutator transaction binding the contract method 0x6352211e.
-//
-// Solidity: function ownerOf(uint256 tokenId) returns(address owner)
-func (_IERC721 *IERC721Session) OwnerOf(tokenId *big.Int) (*types.Transaction, error) {
-	return _IERC721.Contract.OwnerOf(&_IERC721.TransactOpts, tokenId)
-}
-
-// OwnerOf is a paid mutator transaction binding the contract method 0x6352211e.
-//
-// Solidity: function ownerOf(uint256 tokenId) returns(address owner)
-func (_IERC721 *IERC721TransactorSession) OwnerOf(tokenId *big.Int) (*types.Transaction, error) {
-	return _IERC721.Contract.OwnerOf(&_IERC721.TransactOpts, tokenId)
-}
-
-// SafeTransferFrom is a paid mutator transaction binding the contract method 0xb88d4fde.
+// SafeTransferFrom0 is a paid mutator transaction binding the contract method 0xb88d4fde.
 //
 // Solidity: function safeTransferFrom(address from, address to, uint256 tokenId, bytes data) returns()
-func (_IERC721 *IERC721Transactor) SafeTransferFrom(opts *bind.TransactOpts, from common.Address, to common.Address, tokenId *big.Int, data []byte) (*types.Transaction, error) {
-	return _IERC721.contract.Transact(opts, "safeTransferFrom", from, to, tokenId, data)
+func (_IERC721 *IERC721Transactor) SafeTransferFrom0(opts *bind.TransactOpts, from common.Address, to common.Address, tokenId *big.Int, data []byte) (*types.Transaction, error) {
+	return _IERC721.contract.Transact(opts, "safeTransferFrom0", from, to, tokenId, data)
 }
 
-// SafeTransferFrom is a paid mutator transaction binding the contract method 0xb88d4fde.
+// SafeTransferFrom0 is a paid mutator transaction binding the contract method 0xb88d4fde.
 //
 // Solidity: function safeTransferFrom(address from, address to, uint256 tokenId, bytes data) returns()
-func (_IERC721 *IERC721Session) SafeTransferFrom(from common.Address, to common.Address, tokenId *big.Int, data []byte) (*types.Transaction, error) {
-	return _IERC721.Contract.SafeTransferFrom(&_IERC721.TransactOpts, from, to, tokenId, data)
+func (_IERC721 *IERC721Session) SafeTransferFrom0(from common.Address, to common.Address, tokenId *big.Int, data []byte) (*types.Transaction, error) {
+	return _IERC721.Contract.SafeTransferFrom0(&_IERC721.TransactOpts, from, to, tokenId, data)
 }
 
-// SafeTransferFrom is a paid mutator transaction binding the contract method 0xb88d4fde.
+// SafeTransferFrom0 is a paid mutator transaction binding the contract method 0xb88d4fde.
 //
 // Solidity: function safeTransferFrom(address from, address to, uint256 tokenId, bytes data) returns()
-func (_IERC721 *IERC721TransactorSession) SafeTransferFrom(from common.Address, to common.Address, tokenId *big.Int, data []byte) (*types.Transaction, error) {
-	return _IERC721.Contract.SafeTransferFrom(&_IERC721.TransactOpts, from, to, tokenId, data)
+func (_IERC721 *IERC721TransactorSession) SafeTransferFrom0(from common.Address, to common.Address, tokenId *big.Int, data []byte) (*types.Transaction, error) {
+	return _IERC721.Contract.SafeTransferFrom0(&_IERC721.TransactOpts, from, to, tokenId, data)
 }
 
 // SetApprovalForAll is a paid mutator transaction binding the contract method 0xa22cb465.
@@ -317,27 +383,6 @@ func (_IERC721 *IERC721Session) SetApprovalForAll(operator common.Address, _appr
 // Solidity: function setApprovalForAll(address operator, bool _approved) returns()
 func (_IERC721 *IERC721TransactorSession) SetApprovalForAll(operator common.Address, _approved bool) (*types.Transaction, error) {
 	return _IERC721.Contract.SetApprovalForAll(&_IERC721.TransactOpts, operator, _approved)
-}
-
-// SupportsInterface is a paid mutator transaction binding the contract method 0x01ffc9a7.
-//
-// Solidity: function supportsInterface(bytes4 interfaceId) returns(bool)
-func (_IERC721 *IERC721Transactor) SupportsInterface(opts *bind.TransactOpts, interfaceId [4]byte) (*types.Transaction, error) {
-	return _IERC721.contract.Transact(opts, "supportsInterface", interfaceId)
-}
-
-// SupportsInterface is a paid mutator transaction binding the contract method 0x01ffc9a7.
-//
-// Solidity: function supportsInterface(bytes4 interfaceId) returns(bool)
-func (_IERC721 *IERC721Session) SupportsInterface(interfaceId [4]byte) (*types.Transaction, error) {
-	return _IERC721.Contract.SupportsInterface(&_IERC721.TransactOpts, interfaceId)
-}
-
-// SupportsInterface is a paid mutator transaction binding the contract method 0x01ffc9a7.
-//
-// Solidity: function supportsInterface(bytes4 interfaceId) returns(bool)
-func (_IERC721 *IERC721TransactorSession) SupportsInterface(interfaceId [4]byte) (*types.Transaction, error) {
-	return _IERC721.Contract.SupportsInterface(&_IERC721.TransactOpts, interfaceId)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
@@ -511,6 +556,17 @@ func (_IERC721 *IERC721Filterer) WatchApproval(opts *bind.WatchOpts, sink chan<-
 	}), nil
 }
 
+// ParseApproval is a log parse operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
+//
+// Solidity: event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)
+func (_IERC721 *IERC721Filterer) ParseApproval(log types.Log) (*IERC721Approval, error) {
+	event := new(IERC721Approval)
+	if err := _IERC721.contract.UnpackLog(event, "Approval", log); err != nil {
+		return nil, err
+	}
+	return event, nil
+}
+
 // IERC721ApprovalForAllIterator is returned from FilterApprovalForAll and is used to iterate over the raw logs and unpacked data for ApprovalForAll events raised by the IERC721 contract.
 type IERC721ApprovalForAllIterator struct {
 	Event *IERC721ApprovalForAll // Event containing the contract specifics and raw log
@@ -651,6 +707,17 @@ func (_IERC721 *IERC721Filterer) WatchApprovalForAll(opts *bind.WatchOpts, sink 
 			}
 		}
 	}), nil
+}
+
+// ParseApprovalForAll is a log parse operation binding the contract event 0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31.
+//
+// Solidity: event ApprovalForAll(address indexed owner, address indexed operator, bool approved)
+func (_IERC721 *IERC721Filterer) ParseApprovalForAll(log types.Log) (*IERC721ApprovalForAll, error) {
+	event := new(IERC721ApprovalForAll)
+	if err := _IERC721.contract.UnpackLog(event, "ApprovalForAll", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }
 
 // IERC721TransferIterator is returned from FilterTransfer and is used to iterate over the raw logs and unpacked data for Transfer events raised by the IERC721 contract.
@@ -801,4 +868,15 @@ func (_IERC721 *IERC721Filterer) WatchTransfer(opts *bind.WatchOpts, sink chan<-
 			}
 		}
 	}), nil
+}
+
+// ParseTransfer is a log parse operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
+//
+// Solidity: event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+func (_IERC721 *IERC721Filterer) ParseTransfer(log types.Log) (*IERC721Transfer, error) {
+	event := new(IERC721Transfer)
+	if err := _IERC721.contract.UnpackLog(event, "Transfer", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }

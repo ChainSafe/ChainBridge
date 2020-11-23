@@ -20,7 +20,6 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
-	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -31,7 +30,7 @@ var (
 const NoArgumentABI = "[{\"anonymous\":false,\"inputs\":[],\"name\":\"NoArgumentCalled\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"noArgument\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // NoArgumentBin is the compiled bytecode used for deploying new contracts.
-const NoArgumentBin = `6080604052348015600f57600080fd5b5060998061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063568959ca14602d575b600080fd5b60336035565b005b7fc582abe1670c5a7f7cad8f171e4af03c793dd9f59fee6714179f56b6e9aea26f60405160405180910390a156fea26469706673582212203c8cc8993009f156819c16303434f7e431902c57856e721d56f2fdba4ce2434d64736f6c63430006040033`
+var NoArgumentBin = "0x6080604052348015600f57600080fd5b5060998061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063568959ca14602d575b600080fd5b60336035565b005b7fc582abe1670c5a7f7cad8f171e4af03c793dd9f59fee6714179f56b6e9aea26f60405160405180910390a156fea26469706673582212204fa7294084a3dccda0b383b84ee838a645cf5a2e319352167d176db3cca9949164736f6c63430006040033"
 
 // DeployNoArgument deploys a new Ethereum contract, binding an instance of NoArgument to it.
 func DeployNoArgument(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *NoArgument, error) {
@@ -39,6 +38,7 @@ func DeployNoArgument(auth *bind.TransactOpts, backend bind.ContractBackend) (co
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
+
 	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(NoArgumentBin), backend)
 	if err != nil {
 		return common.Address{}, nil, nil, err
@@ -328,4 +328,15 @@ func (_NoArgument *NoArgumentFilterer) WatchNoArgumentCalled(opts *bind.WatchOpt
 			}
 		}
 	}), nil
+}
+
+// ParseNoArgumentCalled is a log parse operation binding the contract event 0xc582abe1670c5a7f7cad8f171e4af03c793dd9f59fee6714179f56b6e9aea26f.
+//
+// Solidity: event NoArgumentCalled()
+func (_NoArgument *NoArgumentFilterer) ParseNoArgumentCalled(log types.Log) (*NoArgumentNoArgumentCalled, error) {
+	event := new(NoArgumentNoArgumentCalled)
+	if err := _NoArgument.contract.UnpackLog(event, "NoArgumentCalled", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }

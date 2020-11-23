@@ -20,7 +20,6 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
-	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -172,6 +171,318 @@ func (_ERC721Burnable *ERC721BurnableTransactorRaw) Transact(opts *bind.Transact
 	return _ERC721Burnable.Contract.contract.Transact(opts, method, params...)
 }
 
+// BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
+//
+// Solidity: function balanceOf(address owner) view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableCaller) BalanceOf(opts *bind.CallOpts, owner common.Address) (*big.Int, error) {
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "balanceOf", owner)
+	return *ret0, err
+}
+
+// BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
+//
+// Solidity: function balanceOf(address owner) view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableSession) BalanceOf(owner common.Address) (*big.Int, error) {
+	return _ERC721Burnable.Contract.BalanceOf(&_ERC721Burnable.CallOpts, owner)
+}
+
+// BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
+//
+// Solidity: function balanceOf(address owner) view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableCallerSession) BalanceOf(owner common.Address) (*big.Int, error) {
+	return _ERC721Burnable.Contract.BalanceOf(&_ERC721Burnable.CallOpts, owner)
+}
+
+// BaseURI is a free data retrieval call binding the contract method 0x6c0360eb.
+//
+// Solidity: function baseURI() view returns(string)
+func (_ERC721Burnable *ERC721BurnableCaller) BaseURI(opts *bind.CallOpts) (string, error) {
+	var (
+		ret0 = new(string)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "baseURI")
+	return *ret0, err
+}
+
+// BaseURI is a free data retrieval call binding the contract method 0x6c0360eb.
+//
+// Solidity: function baseURI() view returns(string)
+func (_ERC721Burnable *ERC721BurnableSession) BaseURI() (string, error) {
+	return _ERC721Burnable.Contract.BaseURI(&_ERC721Burnable.CallOpts)
+}
+
+// BaseURI is a free data retrieval call binding the contract method 0x6c0360eb.
+//
+// Solidity: function baseURI() view returns(string)
+func (_ERC721Burnable *ERC721BurnableCallerSession) BaseURI() (string, error) {
+	return _ERC721Burnable.Contract.BaseURI(&_ERC721Burnable.CallOpts)
+}
+
+// GetApproved is a free data retrieval call binding the contract method 0x081812fc.
+//
+// Solidity: function getApproved(uint256 tokenId) view returns(address)
+func (_ERC721Burnable *ERC721BurnableCaller) GetApproved(opts *bind.CallOpts, tokenId *big.Int) (common.Address, error) {
+	var (
+		ret0 = new(common.Address)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "getApproved", tokenId)
+	return *ret0, err
+}
+
+// GetApproved is a free data retrieval call binding the contract method 0x081812fc.
+//
+// Solidity: function getApproved(uint256 tokenId) view returns(address)
+func (_ERC721Burnable *ERC721BurnableSession) GetApproved(tokenId *big.Int) (common.Address, error) {
+	return _ERC721Burnable.Contract.GetApproved(&_ERC721Burnable.CallOpts, tokenId)
+}
+
+// GetApproved is a free data retrieval call binding the contract method 0x081812fc.
+//
+// Solidity: function getApproved(uint256 tokenId) view returns(address)
+func (_ERC721Burnable *ERC721BurnableCallerSession) GetApproved(tokenId *big.Int) (common.Address, error) {
+	return _ERC721Burnable.Contract.GetApproved(&_ERC721Burnable.CallOpts, tokenId)
+}
+
+// IsApprovedForAll is a free data retrieval call binding the contract method 0xe985e9c5.
+//
+// Solidity: function isApprovedForAll(address owner, address operator) view returns(bool)
+func (_ERC721Burnable *ERC721BurnableCaller) IsApprovedForAll(opts *bind.CallOpts, owner common.Address, operator common.Address) (bool, error) {
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "isApprovedForAll", owner, operator)
+	return *ret0, err
+}
+
+// IsApprovedForAll is a free data retrieval call binding the contract method 0xe985e9c5.
+//
+// Solidity: function isApprovedForAll(address owner, address operator) view returns(bool)
+func (_ERC721Burnable *ERC721BurnableSession) IsApprovedForAll(owner common.Address, operator common.Address) (bool, error) {
+	return _ERC721Burnable.Contract.IsApprovedForAll(&_ERC721Burnable.CallOpts, owner, operator)
+}
+
+// IsApprovedForAll is a free data retrieval call binding the contract method 0xe985e9c5.
+//
+// Solidity: function isApprovedForAll(address owner, address operator) view returns(bool)
+func (_ERC721Burnable *ERC721BurnableCallerSession) IsApprovedForAll(owner common.Address, operator common.Address) (bool, error) {
+	return _ERC721Burnable.Contract.IsApprovedForAll(&_ERC721Burnable.CallOpts, owner, operator)
+}
+
+// Name is a free data retrieval call binding the contract method 0x06fdde03.
+//
+// Solidity: function name() view returns(string)
+func (_ERC721Burnable *ERC721BurnableCaller) Name(opts *bind.CallOpts) (string, error) {
+	var (
+		ret0 = new(string)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "name")
+	return *ret0, err
+}
+
+// Name is a free data retrieval call binding the contract method 0x06fdde03.
+//
+// Solidity: function name() view returns(string)
+func (_ERC721Burnable *ERC721BurnableSession) Name() (string, error) {
+	return _ERC721Burnable.Contract.Name(&_ERC721Burnable.CallOpts)
+}
+
+// Name is a free data retrieval call binding the contract method 0x06fdde03.
+//
+// Solidity: function name() view returns(string)
+func (_ERC721Burnable *ERC721BurnableCallerSession) Name() (string, error) {
+	return _ERC721Burnable.Contract.Name(&_ERC721Burnable.CallOpts)
+}
+
+// OwnerOf is a free data retrieval call binding the contract method 0x6352211e.
+//
+// Solidity: function ownerOf(uint256 tokenId) view returns(address)
+func (_ERC721Burnable *ERC721BurnableCaller) OwnerOf(opts *bind.CallOpts, tokenId *big.Int) (common.Address, error) {
+	var (
+		ret0 = new(common.Address)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "ownerOf", tokenId)
+	return *ret0, err
+}
+
+// OwnerOf is a free data retrieval call binding the contract method 0x6352211e.
+//
+// Solidity: function ownerOf(uint256 tokenId) view returns(address)
+func (_ERC721Burnable *ERC721BurnableSession) OwnerOf(tokenId *big.Int) (common.Address, error) {
+	return _ERC721Burnable.Contract.OwnerOf(&_ERC721Burnable.CallOpts, tokenId)
+}
+
+// OwnerOf is a free data retrieval call binding the contract method 0x6352211e.
+//
+// Solidity: function ownerOf(uint256 tokenId) view returns(address)
+func (_ERC721Burnable *ERC721BurnableCallerSession) OwnerOf(tokenId *big.Int) (common.Address, error) {
+	return _ERC721Burnable.Contract.OwnerOf(&_ERC721Burnable.CallOpts, tokenId)
+}
+
+// SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
+//
+// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
+func (_ERC721Burnable *ERC721BurnableCaller) SupportsInterface(opts *bind.CallOpts, interfaceId [4]byte) (bool, error) {
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "supportsInterface", interfaceId)
+	return *ret0, err
+}
+
+// SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
+//
+// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
+func (_ERC721Burnable *ERC721BurnableSession) SupportsInterface(interfaceId [4]byte) (bool, error) {
+	return _ERC721Burnable.Contract.SupportsInterface(&_ERC721Burnable.CallOpts, interfaceId)
+}
+
+// SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
+//
+// Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
+func (_ERC721Burnable *ERC721BurnableCallerSession) SupportsInterface(interfaceId [4]byte) (bool, error) {
+	return _ERC721Burnable.Contract.SupportsInterface(&_ERC721Burnable.CallOpts, interfaceId)
+}
+
+// Symbol is a free data retrieval call binding the contract method 0x95d89b41.
+//
+// Solidity: function symbol() view returns(string)
+func (_ERC721Burnable *ERC721BurnableCaller) Symbol(opts *bind.CallOpts) (string, error) {
+	var (
+		ret0 = new(string)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "symbol")
+	return *ret0, err
+}
+
+// Symbol is a free data retrieval call binding the contract method 0x95d89b41.
+//
+// Solidity: function symbol() view returns(string)
+func (_ERC721Burnable *ERC721BurnableSession) Symbol() (string, error) {
+	return _ERC721Burnable.Contract.Symbol(&_ERC721Burnable.CallOpts)
+}
+
+// Symbol is a free data retrieval call binding the contract method 0x95d89b41.
+//
+// Solidity: function symbol() view returns(string)
+func (_ERC721Burnable *ERC721BurnableCallerSession) Symbol() (string, error) {
+	return _ERC721Burnable.Contract.Symbol(&_ERC721Burnable.CallOpts)
+}
+
+// TokenByIndex is a free data retrieval call binding the contract method 0x4f6ccce7.
+//
+// Solidity: function tokenByIndex(uint256 index) view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableCaller) TokenByIndex(opts *bind.CallOpts, index *big.Int) (*big.Int, error) {
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "tokenByIndex", index)
+	return *ret0, err
+}
+
+// TokenByIndex is a free data retrieval call binding the contract method 0x4f6ccce7.
+//
+// Solidity: function tokenByIndex(uint256 index) view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableSession) TokenByIndex(index *big.Int) (*big.Int, error) {
+	return _ERC721Burnable.Contract.TokenByIndex(&_ERC721Burnable.CallOpts, index)
+}
+
+// TokenByIndex is a free data retrieval call binding the contract method 0x4f6ccce7.
+//
+// Solidity: function tokenByIndex(uint256 index) view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableCallerSession) TokenByIndex(index *big.Int) (*big.Int, error) {
+	return _ERC721Burnable.Contract.TokenByIndex(&_ERC721Burnable.CallOpts, index)
+}
+
+// TokenOfOwnerByIndex is a free data retrieval call binding the contract method 0x2f745c59.
+//
+// Solidity: function tokenOfOwnerByIndex(address owner, uint256 index) view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableCaller) TokenOfOwnerByIndex(opts *bind.CallOpts, owner common.Address, index *big.Int) (*big.Int, error) {
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "tokenOfOwnerByIndex", owner, index)
+	return *ret0, err
+}
+
+// TokenOfOwnerByIndex is a free data retrieval call binding the contract method 0x2f745c59.
+//
+// Solidity: function tokenOfOwnerByIndex(address owner, uint256 index) view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableSession) TokenOfOwnerByIndex(owner common.Address, index *big.Int) (*big.Int, error) {
+	return _ERC721Burnable.Contract.TokenOfOwnerByIndex(&_ERC721Burnable.CallOpts, owner, index)
+}
+
+// TokenOfOwnerByIndex is a free data retrieval call binding the contract method 0x2f745c59.
+//
+// Solidity: function tokenOfOwnerByIndex(address owner, uint256 index) view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableCallerSession) TokenOfOwnerByIndex(owner common.Address, index *big.Int) (*big.Int, error) {
+	return _ERC721Burnable.Contract.TokenOfOwnerByIndex(&_ERC721Burnable.CallOpts, owner, index)
+}
+
+// TokenURI is a free data retrieval call binding the contract method 0xc87b56dd.
+//
+// Solidity: function tokenURI(uint256 tokenId) view returns(string)
+func (_ERC721Burnable *ERC721BurnableCaller) TokenURI(opts *bind.CallOpts, tokenId *big.Int) (string, error) {
+	var (
+		ret0 = new(string)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "tokenURI", tokenId)
+	return *ret0, err
+}
+
+// TokenURI is a free data retrieval call binding the contract method 0xc87b56dd.
+//
+// Solidity: function tokenURI(uint256 tokenId) view returns(string)
+func (_ERC721Burnable *ERC721BurnableSession) TokenURI(tokenId *big.Int) (string, error) {
+	return _ERC721Burnable.Contract.TokenURI(&_ERC721Burnable.CallOpts, tokenId)
+}
+
+// TokenURI is a free data retrieval call binding the contract method 0xc87b56dd.
+//
+// Solidity: function tokenURI(uint256 tokenId) view returns(string)
+func (_ERC721Burnable *ERC721BurnableCallerSession) TokenURI(tokenId *big.Int) (string, error) {
+	return _ERC721Burnable.Contract.TokenURI(&_ERC721Burnable.CallOpts, tokenId)
+}
+
+// TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
+//
+// Solidity: function totalSupply() view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableCaller) TotalSupply(opts *bind.CallOpts) (*big.Int, error) {
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := _ERC721Burnable.contract.Call(opts, out, "totalSupply")
+	return *ret0, err
+}
+
+// TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
+//
+// Solidity: function totalSupply() view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableSession) TotalSupply() (*big.Int, error) {
+	return _ERC721Burnable.Contract.TotalSupply(&_ERC721Burnable.CallOpts)
+}
+
+// TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
+//
+// Solidity: function totalSupply() view returns(uint256)
+func (_ERC721Burnable *ERC721BurnableCallerSession) TotalSupply() (*big.Int, error) {
+	return _ERC721Burnable.Contract.TotalSupply(&_ERC721Burnable.CallOpts)
+}
+
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
 // Solidity: function approve(address to, uint256 tokenId) returns()
@@ -191,48 +502,6 @@ func (_ERC721Burnable *ERC721BurnableSession) Approve(to common.Address, tokenId
 // Solidity: function approve(address to, uint256 tokenId) returns()
 func (_ERC721Burnable *ERC721BurnableTransactorSession) Approve(to common.Address, tokenId *big.Int) (*types.Transaction, error) {
 	return _ERC721Burnable.Contract.Approve(&_ERC721Burnable.TransactOpts, to, tokenId)
-}
-
-// BalanceOf is a paid mutator transaction binding the contract method 0x70a08231.
-//
-// Solidity: function balanceOf(address owner) returns(uint256)
-func (_ERC721Burnable *ERC721BurnableTransactor) BalanceOf(opts *bind.TransactOpts, owner common.Address) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "balanceOf", owner)
-}
-
-// BalanceOf is a paid mutator transaction binding the contract method 0x70a08231.
-//
-// Solidity: function balanceOf(address owner) returns(uint256)
-func (_ERC721Burnable *ERC721BurnableSession) BalanceOf(owner common.Address) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.BalanceOf(&_ERC721Burnable.TransactOpts, owner)
-}
-
-// BalanceOf is a paid mutator transaction binding the contract method 0x70a08231.
-//
-// Solidity: function balanceOf(address owner) returns(uint256)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) BalanceOf(owner common.Address) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.BalanceOf(&_ERC721Burnable.TransactOpts, owner)
-}
-
-// BaseURI is a paid mutator transaction binding the contract method 0x6c0360eb.
-//
-// Solidity: function baseURI() returns(string)
-func (_ERC721Burnable *ERC721BurnableTransactor) BaseURI(opts *bind.TransactOpts) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "baseURI")
-}
-
-// BaseURI is a paid mutator transaction binding the contract method 0x6c0360eb.
-//
-// Solidity: function baseURI() returns(string)
-func (_ERC721Burnable *ERC721BurnableSession) BaseURI() (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.BaseURI(&_ERC721Burnable.TransactOpts)
-}
-
-// BaseURI is a paid mutator transaction binding the contract method 0x6c0360eb.
-//
-// Solidity: function baseURI() returns(string)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) BaseURI() (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.BaseURI(&_ERC721Burnable.TransactOpts)
 }
 
 // Burn is a paid mutator transaction binding the contract method 0x42966c68.
@@ -256,109 +525,46 @@ func (_ERC721Burnable *ERC721BurnableTransactorSession) Burn(tokenId *big.Int) (
 	return _ERC721Burnable.Contract.Burn(&_ERC721Burnable.TransactOpts, tokenId)
 }
 
-// GetApproved is a paid mutator transaction binding the contract method 0x081812fc.
+// SafeTransferFrom is a paid mutator transaction binding the contract method 0x42842e0e.
 //
-// Solidity: function getApproved(uint256 tokenId) returns(address)
-func (_ERC721Burnable *ERC721BurnableTransactor) GetApproved(opts *bind.TransactOpts, tokenId *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "getApproved", tokenId)
+// Solidity: function safeTransferFrom(address from, address to, uint256 tokenId) returns()
+func (_ERC721Burnable *ERC721BurnableTransactor) SafeTransferFrom(opts *bind.TransactOpts, from common.Address, to common.Address, tokenId *big.Int) (*types.Transaction, error) {
+	return _ERC721Burnable.contract.Transact(opts, "safeTransferFrom", from, to, tokenId)
 }
 
-// GetApproved is a paid mutator transaction binding the contract method 0x081812fc.
+// SafeTransferFrom is a paid mutator transaction binding the contract method 0x42842e0e.
 //
-// Solidity: function getApproved(uint256 tokenId) returns(address)
-func (_ERC721Burnable *ERC721BurnableSession) GetApproved(tokenId *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.GetApproved(&_ERC721Burnable.TransactOpts, tokenId)
+// Solidity: function safeTransferFrom(address from, address to, uint256 tokenId) returns()
+func (_ERC721Burnable *ERC721BurnableSession) SafeTransferFrom(from common.Address, to common.Address, tokenId *big.Int) (*types.Transaction, error) {
+	return _ERC721Burnable.Contract.SafeTransferFrom(&_ERC721Burnable.TransactOpts, from, to, tokenId)
 }
 
-// GetApproved is a paid mutator transaction binding the contract method 0x081812fc.
+// SafeTransferFrom is a paid mutator transaction binding the contract method 0x42842e0e.
 //
-// Solidity: function getApproved(uint256 tokenId) returns(address)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) GetApproved(tokenId *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.GetApproved(&_ERC721Burnable.TransactOpts, tokenId)
+// Solidity: function safeTransferFrom(address from, address to, uint256 tokenId) returns()
+func (_ERC721Burnable *ERC721BurnableTransactorSession) SafeTransferFrom(from common.Address, to common.Address, tokenId *big.Int) (*types.Transaction, error) {
+	return _ERC721Burnable.Contract.SafeTransferFrom(&_ERC721Burnable.TransactOpts, from, to, tokenId)
 }
 
-// IsApprovedForAll is a paid mutator transaction binding the contract method 0xe985e9c5.
-//
-// Solidity: function isApprovedForAll(address owner, address operator) returns(bool)
-func (_ERC721Burnable *ERC721BurnableTransactor) IsApprovedForAll(opts *bind.TransactOpts, owner common.Address, operator common.Address) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "isApprovedForAll", owner, operator)
-}
-
-// IsApprovedForAll is a paid mutator transaction binding the contract method 0xe985e9c5.
-//
-// Solidity: function isApprovedForAll(address owner, address operator) returns(bool)
-func (_ERC721Burnable *ERC721BurnableSession) IsApprovedForAll(owner common.Address, operator common.Address) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.IsApprovedForAll(&_ERC721Burnable.TransactOpts, owner, operator)
-}
-
-// IsApprovedForAll is a paid mutator transaction binding the contract method 0xe985e9c5.
-//
-// Solidity: function isApprovedForAll(address owner, address operator) returns(bool)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) IsApprovedForAll(owner common.Address, operator common.Address) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.IsApprovedForAll(&_ERC721Burnable.TransactOpts, owner, operator)
-}
-
-// Name is a paid mutator transaction binding the contract method 0x06fdde03.
-//
-// Solidity: function name() returns(string)
-func (_ERC721Burnable *ERC721BurnableTransactor) Name(opts *bind.TransactOpts) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "name")
-}
-
-// Name is a paid mutator transaction binding the contract method 0x06fdde03.
-//
-// Solidity: function name() returns(string)
-func (_ERC721Burnable *ERC721BurnableSession) Name() (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.Name(&_ERC721Burnable.TransactOpts)
-}
-
-// Name is a paid mutator transaction binding the contract method 0x06fdde03.
-//
-// Solidity: function name() returns(string)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) Name() (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.Name(&_ERC721Burnable.TransactOpts)
-}
-
-// OwnerOf is a paid mutator transaction binding the contract method 0x6352211e.
-//
-// Solidity: function ownerOf(uint256 tokenId) returns(address)
-func (_ERC721Burnable *ERC721BurnableTransactor) OwnerOf(opts *bind.TransactOpts, tokenId *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "ownerOf", tokenId)
-}
-
-// OwnerOf is a paid mutator transaction binding the contract method 0x6352211e.
-//
-// Solidity: function ownerOf(uint256 tokenId) returns(address)
-func (_ERC721Burnable *ERC721BurnableSession) OwnerOf(tokenId *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.OwnerOf(&_ERC721Burnable.TransactOpts, tokenId)
-}
-
-// OwnerOf is a paid mutator transaction binding the contract method 0x6352211e.
-//
-// Solidity: function ownerOf(uint256 tokenId) returns(address)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) OwnerOf(tokenId *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.OwnerOf(&_ERC721Burnable.TransactOpts, tokenId)
-}
-
-// SafeTransferFrom is a paid mutator transaction binding the contract method 0xb88d4fde.
+// SafeTransferFrom0 is a paid mutator transaction binding the contract method 0xb88d4fde.
 //
 // Solidity: function safeTransferFrom(address from, address to, uint256 tokenId, bytes _data) returns()
-func (_ERC721Burnable *ERC721BurnableTransactor) SafeTransferFrom(opts *bind.TransactOpts, from common.Address, to common.Address, tokenId *big.Int, _data []byte) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "safeTransferFrom", from, to, tokenId, _data)
+func (_ERC721Burnable *ERC721BurnableTransactor) SafeTransferFrom0(opts *bind.TransactOpts, from common.Address, to common.Address, tokenId *big.Int, _data []byte) (*types.Transaction, error) {
+	return _ERC721Burnable.contract.Transact(opts, "safeTransferFrom0", from, to, tokenId, _data)
 }
 
-// SafeTransferFrom is a paid mutator transaction binding the contract method 0xb88d4fde.
+// SafeTransferFrom0 is a paid mutator transaction binding the contract method 0xb88d4fde.
 //
 // Solidity: function safeTransferFrom(address from, address to, uint256 tokenId, bytes _data) returns()
-func (_ERC721Burnable *ERC721BurnableSession) SafeTransferFrom(from common.Address, to common.Address, tokenId *big.Int, _data []byte) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.SafeTransferFrom(&_ERC721Burnable.TransactOpts, from, to, tokenId, _data)
+func (_ERC721Burnable *ERC721BurnableSession) SafeTransferFrom0(from common.Address, to common.Address, tokenId *big.Int, _data []byte) (*types.Transaction, error) {
+	return _ERC721Burnable.Contract.SafeTransferFrom0(&_ERC721Burnable.TransactOpts, from, to, tokenId, _data)
 }
 
-// SafeTransferFrom is a paid mutator transaction binding the contract method 0xb88d4fde.
+// SafeTransferFrom0 is a paid mutator transaction binding the contract method 0xb88d4fde.
 //
 // Solidity: function safeTransferFrom(address from, address to, uint256 tokenId, bytes _data) returns()
-func (_ERC721Burnable *ERC721BurnableTransactorSession) SafeTransferFrom(from common.Address, to common.Address, tokenId *big.Int, _data []byte) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.SafeTransferFrom(&_ERC721Burnable.TransactOpts, from, to, tokenId, _data)
+func (_ERC721Burnable *ERC721BurnableTransactorSession) SafeTransferFrom0(from common.Address, to common.Address, tokenId *big.Int, _data []byte) (*types.Transaction, error) {
+	return _ERC721Burnable.Contract.SafeTransferFrom0(&_ERC721Burnable.TransactOpts, from, to, tokenId, _data)
 }
 
 // SetApprovalForAll is a paid mutator transaction binding the contract method 0xa22cb465.
@@ -380,132 +586,6 @@ func (_ERC721Burnable *ERC721BurnableSession) SetApprovalForAll(operator common.
 // Solidity: function setApprovalForAll(address operator, bool approved) returns()
 func (_ERC721Burnable *ERC721BurnableTransactorSession) SetApprovalForAll(operator common.Address, approved bool) (*types.Transaction, error) {
 	return _ERC721Burnable.Contract.SetApprovalForAll(&_ERC721Burnable.TransactOpts, operator, approved)
-}
-
-// SupportsInterface is a paid mutator transaction binding the contract method 0x01ffc9a7.
-//
-// Solidity: function supportsInterface(bytes4 interfaceId) returns(bool)
-func (_ERC721Burnable *ERC721BurnableTransactor) SupportsInterface(opts *bind.TransactOpts, interfaceId [4]byte) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "supportsInterface", interfaceId)
-}
-
-// SupportsInterface is a paid mutator transaction binding the contract method 0x01ffc9a7.
-//
-// Solidity: function supportsInterface(bytes4 interfaceId) returns(bool)
-func (_ERC721Burnable *ERC721BurnableSession) SupportsInterface(interfaceId [4]byte) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.SupportsInterface(&_ERC721Burnable.TransactOpts, interfaceId)
-}
-
-// SupportsInterface is a paid mutator transaction binding the contract method 0x01ffc9a7.
-//
-// Solidity: function supportsInterface(bytes4 interfaceId) returns(bool)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) SupportsInterface(interfaceId [4]byte) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.SupportsInterface(&_ERC721Burnable.TransactOpts, interfaceId)
-}
-
-// Symbol is a paid mutator transaction binding the contract method 0x95d89b41.
-//
-// Solidity: function symbol() returns(string)
-func (_ERC721Burnable *ERC721BurnableTransactor) Symbol(opts *bind.TransactOpts) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "symbol")
-}
-
-// Symbol is a paid mutator transaction binding the contract method 0x95d89b41.
-//
-// Solidity: function symbol() returns(string)
-func (_ERC721Burnable *ERC721BurnableSession) Symbol() (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.Symbol(&_ERC721Burnable.TransactOpts)
-}
-
-// Symbol is a paid mutator transaction binding the contract method 0x95d89b41.
-//
-// Solidity: function symbol() returns(string)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) Symbol() (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.Symbol(&_ERC721Burnable.TransactOpts)
-}
-
-// TokenByIndex is a paid mutator transaction binding the contract method 0x4f6ccce7.
-//
-// Solidity: function tokenByIndex(uint256 index) returns(uint256)
-func (_ERC721Burnable *ERC721BurnableTransactor) TokenByIndex(opts *bind.TransactOpts, index *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "tokenByIndex", index)
-}
-
-// TokenByIndex is a paid mutator transaction binding the contract method 0x4f6ccce7.
-//
-// Solidity: function tokenByIndex(uint256 index) returns(uint256)
-func (_ERC721Burnable *ERC721BurnableSession) TokenByIndex(index *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.TokenByIndex(&_ERC721Burnable.TransactOpts, index)
-}
-
-// TokenByIndex is a paid mutator transaction binding the contract method 0x4f6ccce7.
-//
-// Solidity: function tokenByIndex(uint256 index) returns(uint256)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) TokenByIndex(index *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.TokenByIndex(&_ERC721Burnable.TransactOpts, index)
-}
-
-// TokenOfOwnerByIndex is a paid mutator transaction binding the contract method 0x2f745c59.
-//
-// Solidity: function tokenOfOwnerByIndex(address owner, uint256 index) returns(uint256)
-func (_ERC721Burnable *ERC721BurnableTransactor) TokenOfOwnerByIndex(opts *bind.TransactOpts, owner common.Address, index *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "tokenOfOwnerByIndex", owner, index)
-}
-
-// TokenOfOwnerByIndex is a paid mutator transaction binding the contract method 0x2f745c59.
-//
-// Solidity: function tokenOfOwnerByIndex(address owner, uint256 index) returns(uint256)
-func (_ERC721Burnable *ERC721BurnableSession) TokenOfOwnerByIndex(owner common.Address, index *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.TokenOfOwnerByIndex(&_ERC721Burnable.TransactOpts, owner, index)
-}
-
-// TokenOfOwnerByIndex is a paid mutator transaction binding the contract method 0x2f745c59.
-//
-// Solidity: function tokenOfOwnerByIndex(address owner, uint256 index) returns(uint256)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) TokenOfOwnerByIndex(owner common.Address, index *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.TokenOfOwnerByIndex(&_ERC721Burnable.TransactOpts, owner, index)
-}
-
-// TokenURI is a paid mutator transaction binding the contract method 0xc87b56dd.
-//
-// Solidity: function tokenURI(uint256 tokenId) returns(string)
-func (_ERC721Burnable *ERC721BurnableTransactor) TokenURI(opts *bind.TransactOpts, tokenId *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "tokenURI", tokenId)
-}
-
-// TokenURI is a paid mutator transaction binding the contract method 0xc87b56dd.
-//
-// Solidity: function tokenURI(uint256 tokenId) returns(string)
-func (_ERC721Burnable *ERC721BurnableSession) TokenURI(tokenId *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.TokenURI(&_ERC721Burnable.TransactOpts, tokenId)
-}
-
-// TokenURI is a paid mutator transaction binding the contract method 0xc87b56dd.
-//
-// Solidity: function tokenURI(uint256 tokenId) returns(string)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) TokenURI(tokenId *big.Int) (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.TokenURI(&_ERC721Burnable.TransactOpts, tokenId)
-}
-
-// TotalSupply is a paid mutator transaction binding the contract method 0x18160ddd.
-//
-// Solidity: function totalSupply() returns(uint256)
-func (_ERC721Burnable *ERC721BurnableTransactor) TotalSupply(opts *bind.TransactOpts) (*types.Transaction, error) {
-	return _ERC721Burnable.contract.Transact(opts, "totalSupply")
-}
-
-// TotalSupply is a paid mutator transaction binding the contract method 0x18160ddd.
-//
-// Solidity: function totalSupply() returns(uint256)
-func (_ERC721Burnable *ERC721BurnableSession) TotalSupply() (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.TotalSupply(&_ERC721Burnable.TransactOpts)
-}
-
-// TotalSupply is a paid mutator transaction binding the contract method 0x18160ddd.
-//
-// Solidity: function totalSupply() returns(uint256)
-func (_ERC721Burnable *ERC721BurnableTransactorSession) TotalSupply() (*types.Transaction, error) {
-	return _ERC721Burnable.Contract.TotalSupply(&_ERC721Burnable.TransactOpts)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
@@ -679,6 +759,17 @@ func (_ERC721Burnable *ERC721BurnableFilterer) WatchApproval(opts *bind.WatchOpt
 	}), nil
 }
 
+// ParseApproval is a log parse operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
+//
+// Solidity: event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)
+func (_ERC721Burnable *ERC721BurnableFilterer) ParseApproval(log types.Log) (*ERC721BurnableApproval, error) {
+	event := new(ERC721BurnableApproval)
+	if err := _ERC721Burnable.contract.UnpackLog(event, "Approval", log); err != nil {
+		return nil, err
+	}
+	return event, nil
+}
+
 // ERC721BurnableApprovalForAllIterator is returned from FilterApprovalForAll and is used to iterate over the raw logs and unpacked data for ApprovalForAll events raised by the ERC721Burnable contract.
 type ERC721BurnableApprovalForAllIterator struct {
 	Event *ERC721BurnableApprovalForAll // Event containing the contract specifics and raw log
@@ -819,6 +910,17 @@ func (_ERC721Burnable *ERC721BurnableFilterer) WatchApprovalForAll(opts *bind.Wa
 			}
 		}
 	}), nil
+}
+
+// ParseApprovalForAll is a log parse operation binding the contract event 0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31.
+//
+// Solidity: event ApprovalForAll(address indexed owner, address indexed operator, bool approved)
+func (_ERC721Burnable *ERC721BurnableFilterer) ParseApprovalForAll(log types.Log) (*ERC721BurnableApprovalForAll, error) {
+	event := new(ERC721BurnableApprovalForAll)
+	if err := _ERC721Burnable.contract.UnpackLog(event, "ApprovalForAll", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }
 
 // ERC721BurnableTransferIterator is returned from FilterTransfer and is used to iterate over the raw logs and unpacked data for Transfer events raised by the ERC721Burnable contract.
@@ -969,4 +1071,15 @@ func (_ERC721Burnable *ERC721BurnableFilterer) WatchTransfer(opts *bind.WatchOpt
 			}
 		}
 	}), nil
+}
+
+// ParseTransfer is a log parse operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
+//
+// Solidity: event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+func (_ERC721Burnable *ERC721BurnableFilterer) ParseTransfer(log types.Log) (*ERC721BurnableTransfer, error) {
+	event := new(ERC721BurnableTransfer)
+	if err := _ERC721Burnable.contract.UnpackLog(event, "Transfer", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }
