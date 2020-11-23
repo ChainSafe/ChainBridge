@@ -14,7 +14,6 @@ import (
 	"os"
 
 	"strconv"
-	"strings"
 
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
