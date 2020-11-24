@@ -23,14 +23,15 @@ func TestParseChainConfig(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"bridge":         "0x1234",
-			"erc20Handler":   "0x1234",
-			"erc721Handler":  "0x1234",
-			"genericHandler": "0x1234",
-			"gasLimit":       "10",
-			"maxGasPrice":    "20",
-			"http":           "true",
-			"startBlock":     "10",
+			"bridge":             "0x1234",
+			"erc20Handler":       "0x1234",
+			"erc721Handler":      "0x1234",
+			"genericHandler":     "0x1234",
+			"gasLimit":           "10",
+			"maxGasPrice":        "20",
+			"http":               "true",
+			"startBlock":         "10",
+			"blockConfirmations": "50",
 		},
 	}
 
@@ -54,6 +55,7 @@ func TestParseChainConfig(t *testing.T) {
 		maxGasPrice:            big.NewInt(20),
 		http:                   true,
 		startBlock:             big.NewInt(10),
+		blockConfirmations:     big.NewInt(50),
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -99,6 +101,7 @@ func TestChainConfigOneContract(t *testing.T) {
 		maxGasPrice:          big.NewInt(20),
 		http:                 true,
 		startBlock:           big.NewInt(10),
+		blockConfirmations:   big.NewInt(0),
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
