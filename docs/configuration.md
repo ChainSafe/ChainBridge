@@ -42,6 +42,7 @@ Substrate supports the following additonal options:
 ```
 {
     "startBlock": "1234" // The block to start processing events from (default: 0)
+    "useExtendedCall": "true" // Extend extrinsic calls to substrate with ResourceID. Used for backward compatibility with example pallet.
 }
 ```
 
