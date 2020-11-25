@@ -173,7 +173,7 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 			return fmt.Errorf("failed to parse Deposit event: %w", err)
 		}
 		destId := msg.ChainId(parsedLog.DestinationChainID)
-		rId := msg.ResourceIdFromSlice(parsedLog.ResourceID[:])
+		rId := msg.ResourceId(parsedLog.ResourceID)
 		nonce := msg.Nonce(parsedLog.DepositNonce)
 
 		addr, err := l.bridgeContract.ResourceIDToHandlerAddress(&bind.CallOpts{From: l.conn.Keypair().CommonAddress()}, rId)
