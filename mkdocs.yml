@@ -23,7 +23,9 @@ theme:
 nav:
   - Overview: index.md
   - Installation: installation.md
-  - Configuration: configuration.md
+  - Configuration:
+    - Overview: configuration.md
+    - CLI Options: cli-options.md
   - Specification:
       - ChainBridge: spec.md
       - Ethereum: chains/ethereum.md
