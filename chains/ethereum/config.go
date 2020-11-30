@@ -51,6 +51,7 @@ type Config struct {
 	blockConfirmations     *big.Int
 }
 
+
 // parseChainConfig uses a core.ChainConfig to construct a corresponding Config
 func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 
