@@ -69,7 +69,6 @@ func (w *writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	call, err := types.NewCall(
 		&meta,
 		method,
@@ -78,6 +77,13 @@ func (w *writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 	)
 	if err != nil {
 		return nil, err
+	}
+	if w.extendCall {
+		eRID, err := types.EncodeToBytes(m.ResourceId)
+		if err != nil {
+			return nil, err
+		}
+		call.Args = append(call.Args, eRID...)
 	}
 
 	return &proposal{
@@ -111,6 +117,13 @@ func (w *writer) createNonFungibleProposal(m msg.Message) (*proposal, error) {
 	if err != nil {
 		return nil, err
 	}
+	if w.extendCall {
+		eRID, err := types.EncodeToBytes(m.ResourceId)
+		if err != nil {
+			return nil, err
+		}
+		call.Args = append(call.Args, eRID...)
+	}
 
 	return &proposal{
 		depositNonce: depositNonce,
@@ -133,9 +146,16 @@ func (w *writer) createGenericProposal(m msg.Message) (*proposal, error) {
 		method,
 		types.NewHash(m.Payload[0].([]byte)),
 	)
-
 	if err != nil {
 		return nil, err
+	}
+	if w.extendCall {
+		eRID, err := types.EncodeToBytes(m.ResourceId)
+		if err != nil {
+			return nil, err
+		}
+
+		call.Args = append(call.Args, eRID...)
 	}
 	return &proposal{
 		depositNonce: types.U64(m.DepositNonce),

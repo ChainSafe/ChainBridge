@@ -24,23 +24,21 @@ var AcknowledgeProposal utils.Method = utils.BridgePalletName + ".acknowledge_pr
 var TerminatedError = errors.New("terminated")
 
 type writer struct {
-	conn    *Connection
-	log     log15.Logger
-	sysErr  chan<- error
-	metrics *metrics.ChainMetrics
+	conn       *Connection
+	log        log15.Logger
+	sysErr     chan<- error
+	metrics    *metrics.ChainMetrics
+	extendCall bool // Extend extrinsic calls to substrate with ResourceID.Used for backward compatibility with example pallet.
 }
 
-func NewWriter(conn *Connection, log log15.Logger, sysErr chan<- error, m *metrics.ChainMetrics) *writer {
+func NewWriter(conn *Connection, log log15.Logger, sysErr chan<- error, m *metrics.ChainMetrics, extendCall bool) *writer {
 	return &writer{
-		conn:    conn,
-		log:     log,
-		sysErr:  sysErr,
-		metrics: m,
+		conn:       conn,
+		log:        log,
+		sysErr:     sysErr,
+		metrics:    m,
+		extendCall: extendCall,
 	}
-}
-
-func (w *writer) start() error {
-	return nil
 }
 
 func (w *writer) ResolveMessage(m msg.Message) bool {
@@ -76,7 +74,8 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 
 		// If active submit call, otherwise skip it. Retry on failure.
 		if valid {
-			w.log.Trace("Acknowledging proposal on chain", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", fmt.Sprintf("%x", prop.resourceId), "method", prop.method)
+			w.log.Info("Acknowledging proposal on chain", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", fmt.Sprintf("%x", prop.resourceId), "method", prop.method)
+
 			err = w.conn.SubmitTx(AcknowledgeProposal, prop.depositNonce, prop.sourceId, prop.resourceId, prop.call)
 			if err != nil && err.Error() == TerminatedError.Error() {
 				return false
@@ -90,7 +89,7 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 			}
 			return true
 		} else {
-			w.log.Debug("Ignoring proposal", "reason", reason, "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)
+			w.log.Info("Ignoring proposal", "reason", reason, "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)
 			return true
 		}
 	}
@@ -106,7 +105,6 @@ func (w *writer) resolveResourceId(id [32]byte) (string, error) {
 	if !exists {
 		return "", fmt.Errorf("resource %x not found on chain", id)
 	}
-
 	return string(res), nil
 }
 
