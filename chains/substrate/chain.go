@@ -100,9 +100,11 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, sysErr chan<- e
 		startBlock = uint64(curr.Number)
 	}
 
+	ue := parseUseExtended(cfg)
+
 	// Setup listener & writer
 	l := NewListener(conn, cfg.Name, cfg.Id, startBlock, logger, bs, stop, sysErr, m)
-	w := NewWriter(conn, logger, sysErr, m)
+	w := NewWriter(conn, logger, sysErr, m, ue)
 	return &Chain{
 		cfg:      cfg,
 		conn:     conn,
@@ -117,12 +119,6 @@ func (c *Chain) Start() error {
 	if err != nil {
 		return err
 	}
-
-	err = c.writer.start()
-	if err != nil {
-		return err
-	}
-
 	c.conn.log.Debug("Successfully started chain", "chainId", c.cfg.Id)
 	return nil
 }
