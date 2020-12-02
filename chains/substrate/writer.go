@@ -74,7 +74,8 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 
 		// If active submit call, otherwise skip it. Retry on failure.
 		if valid {
-			w.log.Trace("Acknowledging proposal on chain", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", fmt.Sprintf("%x", prop.resourceId), "method", prop.method)
+			w.log.Info("Acknowledging proposal on chain", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", fmt.Sprintf("%x", prop.resourceId), "method", prop.method)
+
 			err = w.conn.SubmitTx(AcknowledgeProposal, prop.depositNonce, prop.sourceId, prop.resourceId, prop.call)
 			if err != nil && err.Error() == TerminatedError.Error() {
 				return false
@@ -88,7 +89,7 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 			}
 			return true
 		} else {
-			w.log.Debug("Ignoring proposal", "reason", reason, "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)
+			w.log.Info("Ignoring proposal", "reason", reason, "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)
 			return true
 		}
 	}
