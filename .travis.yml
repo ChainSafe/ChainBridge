@@ -22,7 +22,7 @@ jobs:
   include:
     - stage: "Test"
       language: go
-      go: 1.13.x
+      go: 1.15.x
       name: "Linter"
       script:
         - make lint
@@ -31,7 +31,7 @@ jobs:
 
     - stage: "Test"
       language: go
-      go: 1.13.x
+      go: 1.15.x
       name: "Go tests"
       script:
         - set -e
@@ -41,7 +41,7 @@ jobs:
 
     - stage: "Test"
       language: go
-      go: 1.13.x
+      go: 1.15.x
       name: "E2E tests"
       script:
         - set -e
