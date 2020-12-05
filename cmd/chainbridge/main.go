@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
 	"strconv"
 
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
@@ -96,6 +97,10 @@ var accountCommand = cli.Command{
 	},
 }
 
+var (
+	Version = "0.0.1"
+)
+
 // init initializes CLI
 func init() {
 	app.Action = run
@@ -103,7 +108,7 @@ func init() {
 	app.Name = "chainbridge"
 	app.Usage = "ChainBridge"
 	app.Authors = []*cli.Author{{Name: "ChainSafe Systems 2019"}}
-	app.Version = "0.0.1"
+	app.Version = Version
 	app.EnableBashCompletion = true
 	app.Commands = []*cli.Command{
 		&accountCommand,

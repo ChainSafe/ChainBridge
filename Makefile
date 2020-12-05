@@ -1,4 +1,5 @@
 PROJECTNAME=$(shell basename "$(PWD)")
+VERSION=-ldflags="-X main.Version=$(shell git describe --tags)"
 SOL_DIR=./solidity
 
 CENT_EMITTER_ADDR?=0x1
@@ -39,11 +40,11 @@ lint-fix:
 
 build:
 	@echo "  >  \033[32mBuilding binary...\033[0m "
-	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge
+	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge $(VERSION)
 
 install:
 	@echo "  >  \033[32mInstalling bridge...\033[0m "
-	cd cmd/chainbridge && go install
+	cd cmd/chainbridge && go install $(VERSION)
 
 build-mkdocs:
 	docker run --rm -it -v ${PWD}:/docs squidfunk/mkdocs-material build
