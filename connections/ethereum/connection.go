@@ -23,12 +23,13 @@ import (
 var BlockRetryInterval = time.Second * 5
 
 type Connection struct {
-	endpoint    string
-	http        bool
-	kp          *secp256k1.Keypair
-	gasLimit    *big.Int
-	maxGasPrice *big.Int
-	conn        *ethclient.Client
+	endpoint      string
+	http          bool
+	kp            *secp256k1.Keypair
+	gasLimit      *big.Int
+	maxGasPrice   *big.Int
+	gasMultiplier *big.Float
+	conn          *ethclient.Client
 	// signer    ethtypes.Signer
 	opts     *bind.TransactOpts
 	callOpts *bind.CallOpts
@@ -39,15 +40,16 @@ type Connection struct {
 }
 
 // NewConnection returns an uninitialized connection, must call Connection.Connect() before using.
-func NewConnection(endpoint string, http bool, kp *secp256k1.Keypair, log log15.Logger, gasLimit, gasPrice *big.Int) *Connection {
+func NewConnection(endpoint string, http bool, kp *secp256k1.Keypair, log log15.Logger, gasLimit, gasPrice *big.Int, gasMultiplier *big.Float) *Connection {
 	return &Connection{
-		endpoint:    endpoint,
-		http:        http,
-		kp:          kp,
-		gasLimit:    gasLimit,
-		maxGasPrice: gasPrice,
-		log:         log,
-		stop:        make(chan int),
+		endpoint:      endpoint,
+		http:          http,
+		kp:            kp,
+		gasLimit:      gasLimit,
+		maxGasPrice:   gasPrice,
+		gasMultiplier: gasMultiplier,
+		log:           log,
+		stop:          make(chan int),
 	}
 }
 
@@ -115,10 +117,14 @@ func (c *Connection) CallOpts() *bind.CallOpts {
 }
 
 func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
-	gasPrice, err := c.conn.SuggestGasPrice(context.TODO())
+
+	suggestedGasPrice, err := c.conn.SuggestGasPrice(context.TODO())
+
 	if err != nil {
 		return nil, err
 	}
+
+	gasPrice := multiplyGasPrice(suggestedGasPrice, c.gasMultiplier)
 
 	// Check we aren't exceeding our limit
 	if gasPrice.Cmp(c.maxGasPrice) == 1 {
@@ -126,6 +132,19 @@ func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 	} else {
 		return gasPrice, nil
 	}
+}
+
+func multiplyGasPrice(gasEstimate *big.Int, gasMultiplier *big.Float) *big.Int {
+
+	gasEstimateFloat := new(big.Float).SetInt(gasEstimate)
+
+	result := gasEstimateFloat.Mul(gasEstimateFloat, gasMultiplier)
+
+	gasPrice := new(big.Int)
+
+	result.Int(gasPrice)
+
+	return gasPrice
 }
 
 // LockAndUpdateOpts acquires a lock on the opts before updating the nonce
