@@ -100,12 +100,13 @@ var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
 // Polling begins at the block defined in `l.startBlock`. Failed attempts to fetch the latest block or parse
 // a block will be retried up to BlockRetryLimit times before returning with an error.
 func (l *listener) pollBlocks() error {
+	l.log.Info("Polling Blocks...")
 	var currentBlock = l.startBlock
 	var retry = BlockRetryLimit
 	for {
 		select {
 		case <-l.stop:
-			return errors.New("terminated")
+			return errors.New("polling terminated")
 		default:
 			// No more retries, goto next block
 			if retry == 0 {
@@ -137,7 +138,7 @@ func (l *listener) pollBlocks() error {
 
 			// Sleep if the block we want comes after the most recently finalized block
 			if currentBlock > uint64(finalizedHeader.Number) {
-				l.log.Trace("Block not yet finalized", "target", currentBlock, "latest", finalizedHeader.Number)
+				l.log.Debug("Block not yet finalized", "target", currentBlock, "latest", finalizedHeader.Number)
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
@@ -153,6 +154,8 @@ func (l *listener) pollBlocks() error {
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
+
+			l.log.Debug("Querying block for deposit events", "target", currentBlock)
 
 			err = l.processEvents(hash)
 			if err != nil {
@@ -182,7 +185,7 @@ func (l *listener) pollBlocks() error {
 
 // processEvents fetches a block and parses out the events, calling Listener.handleEvents()
 func (l *listener) processEvents(hash types.Hash) error {
-	l.log.Trace("Fetching block for events", "hash", hash.Hex())
+	l.log.Trace("Fetching events for block", "hash", hash.Hex())
 	meta := l.conn.getMetadata()
 	key, err := types.CreateStorageKey(&meta, "System", "Events", nil, nil)
 	if err != nil {
