@@ -193,8 +193,9 @@ func (c *Connection) EnsureHasBytecode(addr ethcommon.Address) error {
 	return nil
 }
 
-// WaitForBlock will poll for the block number until the current block is equal or greater than
-func (c *Connection) WaitForBlock(block *big.Int) error {
+// WaitForBlock will poll for the block number until the current block is equal or greater.
+// If delay is provided it will wait until currBlock - delay = targetBlock
+func (c *Connection) WaitForBlock(targetBlock *big.Int, delay *big.Int) error {
 	for {
 		select {
 		case <-c.stop:
@@ -205,11 +206,15 @@ func (c *Connection) WaitForBlock(block *big.Int) error {
 				return err
 			}
 
+			if delay != nil {
+				currBlock.Sub(currBlock, delay)
+			}
+
 			// Equal or greater than target
-			if currBlock.Cmp(block) >= 0 {
+			if currBlock.Cmp(targetBlock) >= 0 {
 				return nil
 			}
-			c.log.Trace("Block not ready, waiting", "target", block, "current", currBlock)
+			c.log.Trace("Block not ready, waiting", "target", targetBlock, "current", currBlock, "delay", delay)
 			time.Sleep(BlockRetryInterval)
 			continue
 		}

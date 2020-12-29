@@ -49,7 +49,7 @@ func createConfig(name string, startBlock *big.Int, contracts *utils.DeployedCon
 		gasMultiplier:          big.NewFloat(DefaultGasMultiplier),
 		http:                   false,
 		startBlock:             startBlock,
-		blockConfirmations:     big.NewInt(0),
+		blockConfirmations:     big.NewInt(3),
 	}
 
 	if contracts != nil {
