@@ -75,6 +75,17 @@ func (w *writer) shouldVote(m msg.Message, dataHash [32]byte) bool {
 	return true
 }
 
+// getProposalBlockNumber returns the block number when a given proposal was created
+func (w *writer) getProposalBlockNumber(m msg.Message, dataHash [32]byte) (*big.Int, error) {
+	prop, err := w.bridgeContract.GetProposal(w.conn.CallOpts(), uint8(m.Source), uint64(m.DepositNonce), dataHash)
+	if err != nil {
+		w.log.Error("Failed to check proposal existence", "err", err)
+		return nil, err
+	}
+	w.log.Error("prop", "prop", prop.ProposedBlock)
+	return prop.ProposedBlock, nil
+}
+
 // createErc20Proposal creates an Erc20 proposal.
 // Returns true if the proposal is successfully created or is complete
 func (w *writer) createErc20Proposal(m msg.Message) bool {
@@ -83,21 +94,24 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 	data := ConstructErc20ProposalData(m.Payload[0].([]byte), m.Payload[1].([]byte))
 	dataHash := utils.Hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 
-	if !w.shouldVote(m, dataHash) {
-		return false
+	if w.shouldVote(m, dataHash) {
+		w.voteProposal(m, dataHash)
 	}
 
-	// Capture latest block so when know where to watch from
-	latestBlock, err := w.conn.LatestBlock()
+	// Get the block number where the proposal was created
+	// This is intended to help the case where we may be re-syncing with the chain events.
+	proposalBlockNumber, err := w.getProposalBlockNumber(m, dataHash)
 	if err != nil {
-		w.log.Error("Unable to fetch latest block", "err", err)
+		w.log.Error("Unable the block of the given proposal", "err", err)
 		return false
 	}
 
 	// watch for execution event
-	go w.watchThenExecute(m, data, dataHash, latestBlock)
-
-	w.voteProposal(m, dataHash)
+	if !w.proposalIsFinalized(m.Source, m.DepositNonce, dataHash) {
+		go w.watchThenExecute(m, data, dataHash, proposalBlockNumber)
+	} else {
+		w.log.Debug("Proposal already finalized", "src", m.Source, "nonce", m.DepositNonce)
+	}
 
 	return true
 }

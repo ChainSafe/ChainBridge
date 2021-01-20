@@ -45,6 +45,8 @@ github.com/aristanetworks/goarista v0.0.0-20170210015632-ea17b1a17847/go.mod h1:
 github.com/aristanetworks/goarista v0.0.0-20200609010056-95bcf8053598 h1:VbwKXgO1O1JSbI8o3PQqlC/KTem5t3YD7LqvfBT+0Gk=
 github.com/aristanetworks/goarista v0.0.0-20200609010056-95bcf8053598/go.mod h1:QZe5Yh80Hp1b6JxQdpfSEEe8X7hTyTEZSosSrFf/oJE=
 github.com/aristanetworks/splunk-hec-go v0.3.3/go.mod h1:1VHO9r17b0K7WmOlLb9nTk/2YanvOEnLMUgsFrxBROc=
+github.com/ava-labs/go-ethereum v1.9.3 h1:GmnMZ/dlvVAPFmWBzEpRJX49pUAymPfoASLNRJqR0AY=
+github.com/ava-labs/go-ethereum v1.9.3/go.mod h1:a+agc6fXfZFsPZCylA3ry4Y8CLCqLKg3Rc23NXZ9aw8=
 github.com/aws/aws-sdk-go v1.25.48/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
