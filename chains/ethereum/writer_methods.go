@@ -48,6 +48,15 @@ func (w *writer) proposalIsFinalized(srcId msg.ChainId, nonce msg.Nonce, dataHas
 	return prop.Status == TransferredStatus || prop.Status == CancelledStatus // Transferred (3)
 }
 
+func (w *writer) proposalIsPassed(srcId msg.ChainId, nonce msg.Nonce, dataHash [32]byte) bool {
+	prop, err := w.bridgeContract.GetProposal(w.conn.CallOpts(), uint8(srcId), uint64(nonce), dataHash)
+	if err != nil {
+		w.log.Error("Failed to check proposal existence", "err", err)
+		return false
+	}
+	return prop.Status == PassedStatus
+}
+
 // hasVoted checks if this relayer has already voted
 func (w *writer) hasVoted(srcId msg.ChainId, nonce msg.Nonce, dataHash [32]byte) bool {
 	hasVoted, err := w.bridgeContract.HasVotedOnProposal(w.conn.CallOpts(), utils.IDAndNonce(srcId, nonce), dataHash, w.conn.Opts().From)
@@ -84,7 +93,13 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 	dataHash := utils.Hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 
 	if !w.shouldVote(m, dataHash) {
-		return false
+		if w.proposalIsPassed(m.Source, m.DepositNonce, dataHash) {
+			// We should not vote for this proposal but it is ready to be executed
+			w.executeProposal(m, data, dataHash)
+			return true
+		} else {
+			return false
+		}
 	}
 
 	// Capture latest block so when know where to watch from
@@ -111,7 +126,13 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 	dataHash := utils.Hash(append(w.cfg.erc721HandlerContract.Bytes(), data...))
 
 	if !w.shouldVote(m, dataHash) {
-		return false
+		if w.proposalIsPassed(m.Source, m.DepositNonce, dataHash) {
+			// We should not vote for this proposal but it is ready to be executed
+			w.executeProposal(m, data, dataHash)
+			return true
+		} else {
+			return false
+		}
 	}
 
 	// Capture latest block so we know where to watch from
@@ -140,7 +161,13 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	dataHash := utils.Hash(toHash)
 
 	if !w.shouldVote(m, dataHash) {
-		return false
+		if w.proposalIsPassed(m.Source, m.DepositNonce, dataHash) {
+			// We should not vote for this proposal but it is ready to be executed
+			w.executeProposal(m, data, dataHash)
+			return true
+		} else {
+			return false
+		}
 	}
 
 	// Capture latest block so when know where to watch from
