@@ -38,8 +38,6 @@ import (
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -102,8 +100,6 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 		return nil, err
 	}
 	kp, _ := kpI.(*secp256k1.Keypair)
-	pkBytes := crypto.FromECDSA(kp.PrivateKey())
-	fmt.Println(hexutil.Encode(pkBytes)[4:])
 
 	bs, err := setupBlockstore(cfg, kp)
 	if err != nil {
