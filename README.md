@@ -14,7 +14,7 @@
 # Getting Started
 - Check out our [documentation](https://chainsafe.github.io/ChainBridge/).
 - Try [running ChainBridge locally](https://chainsafe.github.io/ChainBridge/local/).
-- Chat with us on [discord](https://discord.gg/GPH6Sp).
+- Chat with us on [discord](https://discord.com/invite/n2U6x9c).
 
 # Installation
 
