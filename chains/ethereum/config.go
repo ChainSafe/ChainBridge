@@ -17,6 +17,7 @@ import (
 const DefaultGasLimit = 6721975
 const DefaultGasPrice = 20000000000
 const DefaultBlockConfirmations = 10
+const DefaultGasMultiplier = 1
 
 // Chain specific options
 var (
@@ -26,6 +27,7 @@ var (
 	GenericHandlerOpt     = "genericHandler"
 	MaxGasPriceOpt        = "maxGasPrice"
 	GasLimitOpt           = "gasLimit"
+	GasMultiplier         = "gasMultiplier"
 	HttpOpt               = "http"
 	StartBlockOpt         = "startBlock"
 	BlockConfirmationsOpt = "blockConfirmations"
@@ -46,6 +48,7 @@ type Config struct {
 	genericHandlerContract common.Address
 	gasLimit               *big.Int
 	maxGasPrice            *big.Int
+	gasMultiplier          *big.Float
 	http                   bool // Config for type of connection
 	startBlock             *big.Int
 	blockConfirmations     *big.Int
@@ -68,6 +71,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		genericHandlerContract: utils.ZeroAddress,
 		gasLimit:               big.NewInt(DefaultGasLimit),
 		maxGasPrice:            big.NewInt(DefaultGasPrice),
+		gasMultiplier:          big.NewFloat(DefaultGasMultiplier),
 		http:                   false,
 		startBlock:             big.NewInt(0),
 		blockConfirmations:     big.NewInt(0),
@@ -108,6 +112,17 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 			delete(chainCfg.Opts, GasLimitOpt)
 		} else {
 			return nil, errors.New("unable to parse gas limit")
+		}
+	}
+
+	if gasMultiplier, ok := chainCfg.Opts[GasMultiplier]; ok {
+		multilier := big.NewFloat(1)
+		_, pass := multilier.SetString(gasMultiplier)
+		if pass {
+			config.gasMultiplier = multilier
+			delete(chainCfg.Opts, GasMultiplier)
+		} else {
+			return nil, errors.New("unable to parse gasMultiplier to float")
 		}
 	}
 

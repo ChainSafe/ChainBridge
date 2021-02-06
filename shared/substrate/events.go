@@ -123,6 +123,52 @@ type EventTreasuryMinting struct {
 	Topics []types.Hash
 }
 
+// EventRadClaimsClaimed is emitted when RAD Tokens have been claimed
+type EventRadClaimsClaimed struct {
+	Phase  types.Phase
+	Who    types.AccountID
+	Value  types.U128
+	Topics []types.Hash
+}
+
+// EventRadClaimsRootHashStored is emitted when RootHash has been stored for the correspondent RAD Claims batch
+type EventRadClaimsRootHashStored struct {
+	Phase    types.Phase
+	RootHash types.Hash
+	Topics   []types.Hash
+}
+
+// EventNftTransferred is emitted when the ownership of the asset has been transferred to the account
+type EventNftTransferred struct {
+	Phase      types.Phase
+	RegistryId RegistryId
+	AssetId    AssetId
+	Who        types.AccountID
+	Topics     []types.Hash
+}
+
+// EventRegistryMint is emitted when successfully minting an NFT
+type EventRegistryMint struct {
+	Phase      types.Phase
+	RegistryId RegistryId
+	TokenId    TokenId
+	Topics     []types.Hash
+}
+
+// EventRegistryRegistryCreated is emitted when successfully creating a NFT registry
+type EventRegistryRegistryCreated struct {
+	Phase      types.Phase
+	RegistryId RegistryId
+	Topics     []types.Hash
+}
+
+// EventRegistryTmp is emitted only for testing
+type EventRegistryTmp struct {
+	Phase  types.Phase
+	Hash   types.Hash
+	Topics []types.Hash
+}
+
 type Events struct {
 	types.EventRecords
 	events.Events
@@ -146,5 +192,11 @@ type Events struct {
 	MultiAccount_MultisigApproval    []EventMultisigApproval               //nolint:stylecheck,golint
 	MultiAccount_MultisigExecuted    []EventMultisigExecuted               //nolint:stylecheck,golint
 	MultiAccount_MultisigCancelled   []EventMultisigCancelled              //nolint:stylecheck,golint
-	TreasuryReward_TreasuryMinting   []EventTreasuryMinting                //nolint:stylecheck,gol
+	TreasuryReward_TreasuryMinting   []EventTreasuryMinting                //nolint:stylecheck,golint
+	Nft_Transferred                  []EventNftTransferred                 //nolint:stylecheck,golint
+	RadClaims_Claimed                []EventRadClaimsClaimed               //nolint:stylecheck,golint
+	RadClaims_RootHashStored         []EventRadClaimsRootHashStored        //nolint:stylecheck,golint
+	Registry_Mint                    []EventRegistryMint                   //nolint:stylecheck,golint
+	Registry_RegistryCreated         []EventRegistryRegistryCreated        //nolint:stylecheck,golint
+	Registry_RegistryTmp             []EventRegistryTmp                    //nolint:stylecheck,golint
 }

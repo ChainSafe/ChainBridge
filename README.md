@@ -14,7 +14,7 @@
 # Getting Started
 - Check out our [documentation](https://chainsafe.github.io/ChainBridge/).
 - Try [running ChainBridge locally](https://chainsafe.github.io/ChainBridge/local/).
-- Chat with us on [discord](https://discord.gg/GPH6Sp).
+- Chat with us on [discord](https://discord.com/invite/n2U6x9c).
 
 # Installation
 
@@ -78,9 +78,11 @@ Ethereum chains support the following additional options:
     "genericHandler": "0x1234...",   // Address of generic handler (required)
     "maxGasPrice": "0x1234",         // Gas price for transactions (default: 20000000000)
     "gasLimit": "0x1234",            // Gas limit for transactions (default: 6721975)
+    "gasMultiplier": "1.25",         // Multiplies the gas price by the supplied value (default: 1)
     "http": "true",                  // Whether the chain connection is ws or http (default: false)
     "startBlock": "1234",            // The block to start processing events from (default: 0)
     "blockConfirmations": "10"       // Number of blocks to wait before processing a block
+    "useExtendedCall": "true"        // Extend extrinsic calls to substrate with ResourceID. Used for backward compatibility with example pallet. *Default: false*
 }
 ```
 
