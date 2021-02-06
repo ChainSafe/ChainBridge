@@ -24,7 +24,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Test
-        run: make test
+        run: |
+          docker-compose -f ./docker-compose-e2e.yml up -d
+          make test
       - name: Cover
         run:  echo "COVER=$(go tool cover -func cover.out | grep total | awk '{print substr($3, 1, length($3)-1)}')" >> $GITHUB_ENV
       - name: Create comment
