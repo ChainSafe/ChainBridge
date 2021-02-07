@@ -1,7 +1,7 @@
 # Copyright 2020 ChainSafe Systems
 # SPDX-License-Identifier: LGPL-3.0-only
 
-name: Test
+name: Tests
 
 on:
   pull_request:
@@ -70,3 +70,16 @@ jobs:
           docker-compose -f ./docker-compose-e2e.yml up -d
           docker ps
           make test-e2e
+
+  lint:
+    name: Lint and License Headers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.31
+          args: --timeout=5m
+      - name: License Check
+        run: make license-check
