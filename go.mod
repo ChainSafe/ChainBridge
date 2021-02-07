@@ -14,6 +14,6 @@ require (
 	github.com/prometheus/client_golang v1.4.1
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/stretchr/testify v1.7.0
-	github.com/urfave/cli/v2 v2.2.0
+	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 )
