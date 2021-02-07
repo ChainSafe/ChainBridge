@@ -35,14 +35,39 @@ jobs:
           sleep 3
           docker ps
           make test
-      - name: Cover
-        run:  echo "COVER=$(go tool cover -func cover.out | grep total | awk '{print substr($3, 1, length($3)-1)}')" >> $GITHUB_ENV
-      - name: Create comment
-        uses: peter-evans/create-or-update-comment@v1
+
+  e2e:
+    strategy:
+      matrix:
+        go-version: [ 1.15.x ]
+        platform: [ ubuntu-latest ]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
         with:
-          issue-number: ${{github.event.number}}
-          body: |
-            Go Test coverage is ${{env.COVER}} %\ :sparkles: :sparkles: :sparkles:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Install Subkey
+        run: |
+          wget -P $HOME/.local/bin/ https://chainbridge.ams3.digitaloceanspaces.com/subkey-v2.0.0
+          mv $HOME/.local/bin/subkey-v2.0.0 $HOME/.local/bin/subkey
+          chmod +x $HOME/.local/bin/subkey
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Test
+        run: |
+          docker-compose -f ./docker-compose-e2e.yml up -d
+          sleep 3
+          docker ps
+          make test-e2e
+
   lint:
     name: lint
     runs-on: ubuntu-latest
