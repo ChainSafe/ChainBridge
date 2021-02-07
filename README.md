@@ -1,6 +1,12 @@
 # ChainBridge
 
-[![Build Status](https://travis-ci.com/ChainSafe/ChainBridge.svg?branch=master)](https://travis-ci.com/ChainSafe/ChainBridge)
+<a href="https://discord.gg/ykXsJKfhgq">
+  <img alt="discord" src="https://img.shields.io/discord/593655374469660673?label=Discord&logo=discord&style=flat" />
+</a>
+<a href="https://github.com/ChainSafe/ChainBridge/actions">
+  <img alt="build status" src="https://github.com/ChainSafe/ChainBridge/workflows/Test%20and%20lint.yml/badge.svg?branch=master" />
+</a>
+
 
 # Contents
 
