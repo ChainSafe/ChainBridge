@@ -38,7 +38,7 @@ func DeployMintApproveErc20(client *Client, erc20Handler common.Address, amount 
 		return ZeroAddress, err
 	}
 
-	_, err = erc20Instance.Mint(client.Opts, client.Opts.From, amount)
+	tx, err = erc20Instance.Mint(client.Opts, client.Opts.From, amount)
 	if err != nil {
 		return ZeroAddress, err
 	}
