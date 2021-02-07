@@ -43,6 +43,11 @@ func DeployMintApproveErc20(client *Client, erc20Handler common.Address, amount 
 		return ZeroAddress, err
 	}
 
+	err = WaitForTx(client, tx)
+	if err != nil {
+		return ZeroAddress, err
+	}
+
 	client.UnlockNonce()
 
 	// Approve
