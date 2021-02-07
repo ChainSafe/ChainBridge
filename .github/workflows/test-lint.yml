@@ -1,8 +1,12 @@
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
+
+name: Lint & Test
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-name: Lint & Test
 jobs:
   test:
     strategy:
@@ -64,7 +68,6 @@ jobs:
       - name: Test
         run: |
           docker-compose -f ./docker-compose-e2e.yml up -d
-          sleep 3
           docker ps
           make test-e2e
 
@@ -78,3 +81,5 @@ jobs:
         with:
           version: v1.29
           args: --timeout=5m
+      - name: License Check
+        run: make license-check
