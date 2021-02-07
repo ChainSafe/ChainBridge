@@ -9,6 +9,7 @@ on:
 
 jobs:
   test:
+    name: Tests
     strategy:
       matrix:
         go-version: [1.15.x]
@@ -41,6 +42,7 @@ jobs:
           make test
 
   e2e:
+    name: E2E Tests
     strategy:
       matrix:
         go-version: [ 1.15.x ]
@@ -79,7 +81,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.31
+          version: v1.36
           args: --timeout=5m
       - name: License Check
         run: make license-check
