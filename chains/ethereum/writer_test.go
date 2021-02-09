@@ -132,7 +132,6 @@ func TestCreateAndExecuteErc20DepositProposal(t *testing.T) {
 	defer stopB()
 	defer writerA.conn.Close()
 	defer writerB.conn.Close()
-
 	erc20Address := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
 	ethtest.FundErc20Handler(t, client, contracts.ERC20HandlerAddress, erc20Address, big.NewInt(100))
 
