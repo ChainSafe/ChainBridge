@@ -64,16 +64,3 @@ jobs:
           on:
             tags: true
 
-    - stage: "Deploy"
-      name: "Github Pages"
-      script:
-        - make build-mkdocs
-      deploy:
-        - provider: pages
-          skip_cleanup: true
-          github_token: $GITHUB_TOKEN
-          local_dir: "./site"
-          keep_history: true
-          on:
-            branch: master
-
