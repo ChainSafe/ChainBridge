@@ -41,7 +41,15 @@ func NewClient(endpoint string, kp *secp256k1.Keypair) (*Client, error) {
 	}
 	client := ethclient.NewClient(rpcClient)
 
-	opts := bind.NewKeyedTransactor(kp.PrivateKey())
+	id, err := client.ChainID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	opts, err := bind.NewKeyedTransactorWithChainID(kp.PrivateKey(), id)
+	if err != nil {
+		return nil, err
+	}
 	opts.Nonce = big.NewInt(0)
 	opts.Value = big.NewInt(0)              // in wei
 	opts.GasLimit = uint64(DefaultGasLimit) // in units
