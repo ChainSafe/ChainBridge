@@ -1,6 +1,12 @@
 # ChainBridge
 
-[![Build Status](https://travis-ci.com/ChainSafe/ChainBridge.svg?branch=master)](https://travis-ci.com/ChainSafe/ChainBridge)
+<a href="https://discord.gg/ykXsJKfhgq">
+  <img alt="discord" src="https://img.shields.io/discord/593655374469660673?label=Discord&logo=discord&style=flat" />
+</a>
+<a href="https://github.com/ChainSafe/ChainBridge/actions">
+  <img alt="build status" src="https://github.com/ChainSafe/ChainBridge/workflows/Tests/badge.svg?branch=master" />
+</a>
+
 
 # Contents
 
@@ -12,9 +18,9 @@
 - [Simulations](#simulations)
 
 # Getting Started
-- Check out our [documentation](https://chainsafe.github.io/ChainBridge/).
-- Try [running ChainBridge locally](https://chainsafe.github.io/ChainBridge/local/).
-- Chat with us on [discord](https://discord.com/invite/n2U6x9c).
+- Check out our [documentation](https://chainbridge.chainsafe.io).
+- Try [running ChainBridge locally](https://chainbridge.chainsafe.io/local/).
+- Chat with us on [discord](https://discord.gg/ykXsJKfhgq).
 
 # Installation
 

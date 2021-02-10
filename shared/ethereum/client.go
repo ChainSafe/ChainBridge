@@ -5,10 +5,13 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"sync"
 	"time"
+
+	"github.com/ethereum/go-ethereum"
 
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -76,9 +79,13 @@ func WaitForTx(client *Client, tx *ethtypes.Transaction) error {
 	for retry > 0 {
 		receipt, err := client.Client.TransactionReceipt(context.Background(), tx.Hash())
 		if err != nil {
-			retry--
-			time.Sleep(ExpectedBlockTime)
-			continue
+			if errors.Is(err, ethereum.NotFound) {
+				retry--
+				time.Sleep(ExpectedBlockTime)
+				continue
+			} else {
+				return err
+			}
 		}
 
 		if receipt.Status != 1 {
