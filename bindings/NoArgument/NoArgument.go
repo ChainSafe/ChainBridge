@@ -30,7 +30,7 @@ var (
 const NoArgumentABI = "[{\"anonymous\":false,\"inputs\":[],\"name\":\"NoArgumentCalled\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"noArgument\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // NoArgumentBin is the compiled bytecode used for deploying new contracts.
-var NoArgumentBin = "0x6080604052348015600f57600080fd5b5060998061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063568959ca14602d575b600080fd5b60336035565b005b7fc582abe1670c5a7f7cad8f171e4af03c793dd9f59fee6714179f56b6e9aea26f60405160405180910390a156fea26469706673582212204fa7294084a3dccda0b383b84ee838a645cf5a2e319352167d176db3cca9949164736f6c63430006040033"
+var NoArgumentBin = "0x6080604052348015600f57600080fd5b5060998061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063568959ca14602d575b600080fd5b60336035565b005b7fc582abe1670c5a7f7cad8f171e4af03c793dd9f59fee6714179f56b6e9aea26f60405160405180910390a156fea2646970667358221220016fd768f6d334a67219af52840dab7b38ffaf47ec0931ffcdc800ec411c523264736f6c63430006040033"
 
 // DeployNoArgument deploys a new Ethereum contract, binding an instance of NoArgument to it.
 func DeployNoArgument(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *NoArgument, error) {
@@ -154,7 +154,7 @@ func bindNoArgument(address common.Address, caller bind.ContractCaller, transact
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_NoArgument *NoArgumentRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (_NoArgument *NoArgumentRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _NoArgument.Contract.NoArgumentCaller.contract.Call(opts, result, method, params...)
 }
 
@@ -173,7 +173,7 @@ func (_NoArgument *NoArgumentRaw) Transact(opts *bind.TransactOpts, method strin
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_NoArgument *NoArgumentCallerRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (_NoArgument *NoArgumentCallerRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _NoArgument.Contract.contract.Call(opts, result, method, params...)
 }
 
@@ -338,5 +338,6 @@ func (_NoArgument *NoArgumentFilterer) ParseNoArgumentCalled(log types.Log) (*No
 	if err := _NoArgument.contract.UnpackLog(event, "NoArgumentCalled", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }

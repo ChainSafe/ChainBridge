@@ -137,7 +137,7 @@ func bindIDepositExecute(address common.Address, caller bind.ContractCaller, tra
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_IDepositExecute *IDepositExecuteRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (_IDepositExecute *IDepositExecuteRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _IDepositExecute.Contract.IDepositExecuteCaller.contract.Call(opts, result, method, params...)
 }
 
@@ -156,7 +156,7 @@ func (_IDepositExecute *IDepositExecuteRaw) Transact(opts *bind.TransactOpts, me
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_IDepositExecute *IDepositExecuteCallerRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (_IDepositExecute *IDepositExecuteCallerRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _IDepositExecute.Contract.contract.Call(opts, result, method, params...)
 }
 

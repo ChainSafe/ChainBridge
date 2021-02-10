@@ -30,7 +30,7 @@ var (
 const CentrifugeAssetABI = "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"asset\",\"type\":\"bytes32\"}],\"name\":\"AssetStored\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"_assetsStored\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"asset\",\"type\":\"bytes32\"}],\"name\":\"store\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // CentrifugeAssetBin is the compiled bytecode used for deploying new contracts.
-var CentrifugeAssetBin = "0x608060405234801561001057600080fd5b5061029e806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063654cf88c1461003b57806396add60014610057575b600080fd5b61005560048036038101906100509190610177565b610087565b005b610071600480360381019061006c9190610177565b610142565b60405161007e91906101ef565b60405180910390f35b60008082815260200190815260200160002060009054906101000a900460ff16156100e7576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016100de9061020a565b60405180910390fd5b600160008083815260200190815260200160002060006101000a81548160ff021916908315150217905550807f08ae553713effae7116be03743b167b8b803449ee8fb912c2ec43dc2c824f53560405160405180910390a250565b60006020528060005260406000206000915054906101000a900460ff1681565b60008135905061017181610251565b92915050565b60006020828403121561018957600080fd5b600061019784828501610162565b91505092915050565b6101a98161023b565b82525050565b60006101bc60178361022a565b91507f617373657420697320616c72656164792073746f7265640000000000000000006000830152602082019050919050565b600060208201905061020460008301846101a0565b92915050565b60006020820190508181036000830152610223816101af565b9050919050565b600082825260208201905092915050565b60008115159050919050565b6000819050919050565b61025a81610247565b811461026557600080fd5b5056fea2646970667358221220772999f6448f8492c5b2bd1d54acfe2a777142c63d5c9b9b0b17ca0337f6b90264736f6c63430006040033"
+var CentrifugeAssetBin = "0x608060405234801561001057600080fd5b5061029e806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063654cf88c1461003b57806396add60014610057575b600080fd5b61005560048036038101906100509190610177565b610087565b005b610071600480360381019061006c9190610177565b610142565b60405161007e91906101ef565b60405180910390f35b60008082815260200190815260200160002060009054906101000a900460ff16156100e7576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016100de9061020a565b60405180910390fd5b600160008083815260200190815260200160002060006101000a81548160ff021916908315150217905550807f08ae553713effae7116be03743b167b8b803449ee8fb912c2ec43dc2c824f53560405160405180910390a250565b60006020528060005260406000206000915054906101000a900460ff1681565b60008135905061017181610251565b92915050565b60006020828403121561018957600080fd5b600061019784828501610162565b91505092915050565b6101a98161023b565b82525050565b60006101bc60178361022a565b91507f617373657420697320616c72656164792073746f7265640000000000000000006000830152602082019050919050565b600060208201905061020460008301846101a0565b92915050565b60006020820190508181036000830152610223816101af565b9050919050565b600082825260208201905092915050565b60008115159050919050565b6000819050919050565b61025a81610247565b811461026557600080fd5b5056fea2646970667358221220635e7023f0d6831255c9d3247bcb04f1d174ac7a45614bc3e812928f8814ca9564736f6c63430006040033"
 
 // DeployCentrifugeAsset deploys a new Ethereum contract, binding an instance of CentrifugeAsset to it.
 func DeployCentrifugeAsset(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *CentrifugeAsset, error) {
@@ -154,7 +154,7 @@ func bindCentrifugeAsset(address common.Address, caller bind.ContractCaller, tra
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_CentrifugeAsset *CentrifugeAssetRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (_CentrifugeAsset *CentrifugeAssetRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _CentrifugeAsset.Contract.CentrifugeAssetCaller.contract.Call(opts, result, method, params...)
 }
 
@@ -173,7 +173,7 @@ func (_CentrifugeAsset *CentrifugeAssetRaw) Transact(opts *bind.TransactOpts, me
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_CentrifugeAsset *CentrifugeAssetCallerRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (_CentrifugeAsset *CentrifugeAssetCallerRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _CentrifugeAsset.Contract.contract.Call(opts, result, method, params...)
 }
 
@@ -192,12 +192,17 @@ func (_CentrifugeAsset *CentrifugeAssetTransactorRaw) Transact(opts *bind.Transa
 //
 // Solidity: function _assetsStored(bytes32 ) view returns(bool)
 func (_CentrifugeAsset *CentrifugeAssetCaller) AssetsStored(opts *bind.CallOpts, arg0 [32]byte) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := _CentrifugeAsset.contract.Call(opts, out, "_assetsStored", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := _CentrifugeAsset.contract.Call(opts, &out, "_assetsStored", arg0)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // AssetsStored is a free data retrieval call binding the contract method 0x96add600.
@@ -375,5 +380,6 @@ func (_CentrifugeAsset *CentrifugeAssetFilterer) ParseAssetStored(log types.Log)
 	if err := _CentrifugeAsset.contract.UnpackLog(event, "AssetStored", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
