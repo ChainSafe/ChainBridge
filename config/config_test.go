@@ -5,9 +5,9 @@ package config
 
 import (
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/ChainSafe/ChainBridge/config/flags"
@@ -22,7 +22,7 @@ func createTempConfigFile() (*os.File, *Config, error) {
 		Id:       "1",
 		Endpoint: "endpoint",
 		From:     "0x0",
-		Opts:     nil,
+		Opts:     []byte(`{}`),
 	}
 	testConfig := &Config{
 		Chains:       []RawChainConfig{ethCfg},
@@ -32,47 +32,28 @@ func createTempConfigFile() (*os.File, *Config, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	fmt.Println(tmpFile.Name())
 	f, err := testConfig.ToJSON(tmpFile.Name())
 	return f, testConfig, err
 }
 
-// Creates a cli context for a test given a set of flags and values
-//func createCliContext(description string, flags []string, values []interface{}) (*cli.Context, error) {
-//	set := flag.NewFlagSet(description, 0)
-//	for i := range values {
-//		switch v := values[i].(type) {
-//		case bool:
-//			set.Bool(flags[i], v, "")
-//		case string:
-//			set.String(flags[i], v, "")
-//		case uint:
-//			set.Uint(flags[i], v, "")
-//		default:
-//			return nil, fmt.Errorf("unexpected cli value type: %T", values[i])
-//		}
-//	}
-//	context := cli.NewContext(nil, set, nil)
-//	return context, nil
-//}
-
 func TestLoadJSONConfig(t *testing.T) {
-	file, _, err := createTempConfigFile()
+	file, cfg, err := createTempConfigFile()
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	fset := flag.NewFlagSet("test", 1)
 	fset.String(flags.ConfigFileFlag.Name, file.Name(), "")
 	ctx := cli.NewContext(nil, fset, nil)
 
-	_, _ = GetConfig(ctx)
-	//if err != nil {
-	//	t.Fatalf("failed to get config: %x", err)
-	//}
+	res, err := GetConfig(ctx)
+	if err != nil {
+		t.Fatalf("failed to get config: %x", err)
+	}
 
-	//if !reflect.DeepEqual(res, cfg) {
-	//	t.Fatalf("did not match\ngot: %+v\nexpected: %+v", res.Chains[0], cfg.Chains[0])
-	//}
+	if !reflect.DeepEqual(res, cfg) {
+		t.Fatalf("did not match\ngot: %+v\nexpected: %+v", res.Chains[0], cfg.Chains[0])
+	}
 }
 
 func TestValdiateConfig(t *testing.T) {

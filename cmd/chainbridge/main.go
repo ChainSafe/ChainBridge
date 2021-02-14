@@ -153,39 +153,11 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-	// Check for test key flag
-	//var ks string
-	//var insecure bool
-	//if key := ctx.String(flags.TestKeyFlag.Name); key != "" {
-	//	ks = key
-	//	insecure = true
-	//} else {
-	//	ks = cfg.KeystorePath
-	//}
-
 	// Used to signal core shutdown due to fatal error
 	sysErr := make(chan error)
 	c := core.NewCore(sysErr)
 
 	for _, chain := range cfg.Chains {
-		//TODO: Remove core.ChainConfig from here once substrate is updated
-		//chainId, errr := strconv.Atoi(chain.Id)
-		//if errr != nil {
-		//	return errr
-		//}
-		//
-		//chainConfig := &core.ChainConfig{
-		//	Name:           chain.Name,
-		//	Id:             msg.ChainId(chainId),
-		//	Endpoint:       chain.Endpoint,
-		//	From:           chain.From,
-		//	KeystorePath:   ks,
-		//	Insecure:       insecure,
-		//	BlockstorePath: ctx.String(flags.BlockstorePathFlag.Name),
-		//	FreshStart:     ctx.Bool(flags.FreshStartFlag.Name),
-		//	LatestBlock:    ctx.Bool(flags.LatestBlockFlag.Name),
-		//	Opts:           chain.Opts,
-		//}
 		var newChain core.Chain
 		var m *metrics.ChainMetrics
 
@@ -203,7 +175,7 @@ func run(ctx *cli.Context) error {
 			newChain, err = ethereum.InitializeChain(cfg, logger, sysErr, m)
 		} else if chain.Type == "substrate" {
 			// TODO: Need to update config to re-enable
-			//newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, m)
+			// newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, m)
 		} else {
 			return errors.New("unrecognized Chain Type")
 		}
