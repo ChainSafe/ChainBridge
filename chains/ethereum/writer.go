@@ -4,11 +4,17 @@
 package ethereum
 
 import (
+	"context"
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
+	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
+	eth "github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/core/types"
+	"math/big"
 )
 
 var _ core.Writer = &writer{}
@@ -19,8 +25,8 @@ var TransferredStatus uint8 = 3
 var CancelledStatus uint8 = 4
 
 type writer struct {
-	cfg            Config
-	conn           Connection
+	cfg            config.Config
+	conn           WriterChainDataFetcher
 	bridgeContract *Bridge.Bridge // instance of bound receiver bridgeContract
 	log            log15.Logger
 	stop           <-chan int
@@ -28,8 +34,19 @@ type writer struct {
 	metrics        *metrics.ChainMetrics
 }
 
+// TODO: Rename once in own package
+type WriterChainDataFetcher interface {
+	Opts() *bind.TransactOpts
+	CallOpts() *bind.CallOpts
+	LockAndUpdateOpts() error
+	UnlockOpts()
+	LatestBlock() (*big.Int, error)
+	WaitForBlock(*big.Int, *big.Int) error
+	FilterLogs(context.Context, eth.FilterQuery) ([]types.Log, error)
+}
+
 // NewWriter creates and returns writer
-func NewWriter(conn Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error, m *metrics.ChainMetrics) *writer {
+func NewWriter(cfg *config.Config, conn WriterChainDataFetcher, log log15.Logger, stop <-chan int, sysErr chan<- error, m *metrics.ChainMetrics) *writer {
 	return &writer{
 		cfg:     *cfg,
 		conn:    conn,

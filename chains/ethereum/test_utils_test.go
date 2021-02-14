@@ -5,12 +5,13 @@ package ethereum
 
 import (
 	"fmt"
+	"github.com/ChainSafe/ChainBridge/chains/ethereum/client"
+	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
 	"math/big"
 	"testing"
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
 	"github.com/ChainSafe/chainbridge-utils/msg"
@@ -29,34 +30,36 @@ var BobKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
 var TestRelayerThreshold = big.NewInt(2)
 var TestChainId = msg.ChainId(0)
 
-var aliceTestConfig = createConfig("alice", nil, nil)
+var aliceTestConfig = createConfig(TestChainId, "alice", nil, nil)
 
-func createConfig(name string, startBlock *big.Int, contracts *utils.DeployedContracts) *Config {
-	cfg := &Config{
-		name:                   name,
-		id:                     0,
-		endpoint:               TestEndpoint,
-		from:                   name,
-		keystorePath:           "",
-		blockstorePath:         "",
-		freshStart:             true,
-		bridgeContract:         common.Address{},
-		erc20HandlerContract:   common.Address{},
-		erc721HandlerContract:  common.Address{},
-		genericHandlerContract: common.Address{},
-		gasLimit:               big.NewInt(DefaultGasLimit),
-		maxGasPrice:            big.NewInt(DefaultGasPrice),
-		gasMultiplier:          big.NewFloat(DefaultGasMultiplier),
-		http:                   false,
-		startBlock:             startBlock,
-		blockConfirmations:     big.NewInt(3),
+func createConfig(id msg.ChainId, name string, startBlock *big.Int, contracts *utils.DeployedContracts) *config.Config {
+	cfg := &config.Config{
+		Name:                   name,
+		Id:                     id,
+		Endpoint:               TestEndpoint,
+		From:                   name,
+		KeystorePath:           name,
+		Insecure:               true,
+		BlockstorePath:         "",
+		FreshStart:             true,
+		BridgeContract:         common.Address{},
+		ERC20HandlerContract:   common.Address{},
+		ERC721HandlerContract:  common.Address{},
+		GenericHandlerContract: common.Address{},
+		GasLimit:               big.NewInt(config.DefaultGasLimit),
+		MaxGasPrice:            big.NewInt(config.DefaultMaxGasPrice),
+		GasMultiplier:          big.NewFloat(config.DefaultGasMultiplier),
+		Http:                   false,
+		StartBlock:             startBlock,
+		BlockConfirmations:     big.NewInt(3),
+		LatestBlock:            false,
 	}
 
 	if contracts != nil {
-		cfg.bridgeContract = contracts.BridgeAddress
-		cfg.erc20HandlerContract = contracts.ERC20HandlerAddress
-		cfg.erc721HandlerContract = contracts.ERC721HandlerAddress
-		cfg.genericHandlerContract = contracts.GenericHandlerAddress
+		cfg.BridgeContract = contracts.BridgeAddress
+		cfg.ERC20HandlerContract = contracts.ERC20HandlerAddress
+		cfg.ERC721HandlerContract = contracts.ERC721HandlerAddress
+		cfg.GenericHandlerContract = contracts.GenericHandlerAddress
 	}
 
 	return cfg
@@ -68,9 +71,9 @@ func newTestLogger(name string) log15.Logger {
 	return tLog
 }
 
-func newLocalConnection(t *testing.T, cfg *Config) *connection.Connection {
-	kp := keystore.TestKeyRing.EthereumKeys[cfg.from]
-	conn := connection.NewConnection(TestEndpoint, false, kp, TestLogger, big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice), big.NewFloat(DefaultGasMultiplier))
+func newLocalConnection(t *testing.T, cfg *config.Config) *client.Client {
+	kp := keystore.TestKeyRing.EthereumKeys[cfg.From]
+	conn := client.NewClient(TestEndpoint, false, kp, TestLogger, big.NewInt(config.DefaultGasLimit), big.NewInt(config.DefaultMaxGasPrice), big.NewFloat(config.DefaultGasMultiplier))
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)

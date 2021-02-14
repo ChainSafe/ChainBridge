@@ -4,6 +4,7 @@
 package config
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -22,7 +23,7 @@ func createTempConfigFile() (*os.File, *Config) {
 		Id:       "1",
 		Endpoint: "endpoint",
 		From:     "0x0",
-		Opts:     map[string]string{"key": "value"},
+		Opts:     json.RawMessage{},
 	}
 	testConfig.Chains = []RawChainConfig{ethCfg}
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "*.json")

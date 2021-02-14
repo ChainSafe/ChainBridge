@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package config
+package flags
 
 import (
 	log "github.com/ChainSafe/log15"
@@ -13,10 +13,14 @@ var (
 	HealthBlockTimeout = "BLOCK_TIMEOUT"
 )
 
+const DefaultConfigPath = "./config.json"
+const DefaultKeystorePath = "./keys"
+
 var (
 	ConfigFileFlag = &cli.StringFlag{
 		Name:  "config",
 		Usage: "JSON configuration file",
+		Value: DefaultConfigPath,
 	}
 
 	VerbosityFlag = &cli.StringFlag{

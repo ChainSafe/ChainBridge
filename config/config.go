@@ -6,6 +6,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ChainSafe/ChainBridge/config/flags"
 	"os"
 	"path/filepath"
 
@@ -22,14 +23,18 @@ type Config struct {
 	KeystorePath string           `json:"keystorePath,omitempty"`
 }
 
+/**
+ * TODO: Rename to ChainConfig
+ */
+
 // RawChainConfig is parsed directly from the config file and should be using to construct the core.ChainConfig
 type RawChainConfig struct {
-	Name     string            `json:"name"`
-	Type     string            `json:"type"`
-	Id       string            `json:"id"`       // ChainID
-	Endpoint string            `json:"endpoint"` // url for rpc endpoint
-	From     string            `json:"from"`     // address of key to use
-	Opts     map[string]string `json:"opts"`
+	Name     string          `json:"name"`
+	Type     string          `json:"type"`
+	Id       string          `json:"id"`       // ChainID
+	Endpoint string          `json:"endpoint"` // url for rpc endpoint
+	From     string          `json:"from"`     // address of key to use
+	Opts     json.RawMessage `json:"opts"`
 }
 
 func NewConfig() *Config {
@@ -89,7 +94,7 @@ func (c *Config) validate() error {
 func GetConfig(ctx *cli.Context) (*Config, error) {
 	var fig Config
 	path := DefaultConfigPath
-	if file := ctx.String(ConfigFileFlag.Name); file != "" {
+	if file := ctx.String(flags.ConfigFileFlag.Name); file != "" {
 		path = file
 	}
 	err := loadConfig(path, &fig)
@@ -97,7 +102,7 @@ func GetConfig(ctx *cli.Context) (*Config, error) {
 		log.Warn("err loading json file", "err", err.Error())
 		return &fig, err
 	}
-	if ksPath := ctx.String(KeystorePathFlag.Name); ksPath != "" {
+	if ksPath := ctx.String(flags.KeystorePathFlag.Name); ksPath != "" {
 		fig.KeystorePath = ksPath
 	}
 	log.Debug("Loaded config", "path", path)

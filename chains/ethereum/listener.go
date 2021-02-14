@@ -7,6 +7,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
+	"github.com/ethereum/go-ethereum/core/types"
 	"math/big"
 	"time"
 
@@ -14,9 +16,7 @@ import (
 	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
-	"github.com/ChainSafe/ChainBridge/chains"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	"github.com/ChainSafe/chainbridge-utils/blockstore"
 	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
@@ -29,16 +29,31 @@ var BlockRetryInterval = time.Second * 5
 var BlockRetryLimit = 5
 var ErrFatalPolling = errors.New("listener block polling failed")
 
+// TODO: Rename once in own package
+type ListenerChainDataFetcher interface {
+	CallOpts() *bind.CallOpts
+	LatestBlock() (*big.Int, error)
+	FilterLogs(context.Context, eth.FilterQuery) ([]types.Log, error)
+}
+
+type MsgSender interface {
+	Send(message msg.Message) error
+}
+
+type Blockstorer interface {
+	StoreBlock(*big.Int) error
+}
+
 type listener struct {
-	cfg                    Config
-	conn                   Connection
-	router                 chains.Router
+	cfg                    config.Config
+	client                 ListenerChainDataFetcher
+	router                 MsgSender
 	bridgeContract         *Bridge.Bridge // instance of bound bridge contract
 	erc20HandlerContract   *ERC20Handler.ERC20Handler
 	erc721HandlerContract  *ERC721Handler.ERC721Handler
 	genericHandlerContract *GenericHandler.GenericHandler
 	log                    log15.Logger
-	blockstore             blockstore.Blockstorer
+	blockstore             Blockstorer
 	stop                   <-chan int
 	sysErr                 chan<- error // Reports fatal error to core
 	latestBlock            metrics.LatestBlock
@@ -47,22 +62,22 @@ type listener struct {
 }
 
 // NewListener creates and returns a listener
-func NewListener(conn Connection, cfg *Config, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error, m *metrics.ChainMetrics) *listener {
+func NewListener(cfg *config.Config, client ListenerChainDataFetcher, log log15.Logger, bs Blockstorer, stop <-chan int, sysErr chan<- error, m *metrics.ChainMetrics) *listener {
 	return &listener{
 		cfg:                *cfg,
-		conn:               conn,
+		client:             client,
 		log:                log,
 		blockstore:         bs,
 		stop:               stop,
 		sysErr:             sysErr,
 		latestBlock:        metrics.LatestBlock{LastUpdated: time.Now()},
 		metrics:            m,
-		blockConfirmations: cfg.blockConfirmations,
+		blockConfirmations: cfg.BlockConfirmations,
 	}
 }
 
 // setContracts sets the listener with the appropriate contracts
-func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handler.ERC20Handler, erc721Handler *ERC721Handler.ERC721Handler, genericHandler *GenericHandler.GenericHandler) {
+func (l *listener) SetContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handler.ERC20Handler, erc721Handler *ERC721Handler.ERC721Handler, genericHandler *GenericHandler.GenericHandler) {
 	l.bridgeContract = bridge
 	l.erc20HandlerContract = erc20Handler
 	l.erc721HandlerContract = erc721Handler
@@ -70,7 +85,7 @@ func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handle
 }
 
 // sets the router
-func (l *listener) setRouter(r chains.Router) {
+func (l *listener) SetRouter(r MsgSender) {
 	l.router = r
 }
 
@@ -93,7 +108,7 @@ func (l *listener) start() error {
 // a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *listener) pollBlocks() error {
 	l.log.Info("Polling Blocks...")
-	var currentBlock = l.cfg.startBlock
+	var currentBlock = l.cfg.StartBlock
 	var retry = BlockRetryLimit
 	for {
 		select {
@@ -107,7 +122,7 @@ func (l *listener) pollBlocks() error {
 				return nil
 			}
 
-			latestBlock, err := l.conn.LatestBlock()
+			latestBlock, err := l.client.LatestBlock()
 			if err != nil {
 				l.log.Error("Unable to get latest block", "block", currentBlock, "err", err)
 				retry--
@@ -158,10 +173,10 @@ func (l *listener) pollBlocks() error {
 // getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	l.log.Debug("Querying block for deposit events", "block", latestBlock)
-	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
+	query := buildQuery(l.cfg.BridgeContract, utils.Deposit, latestBlock, latestBlock)
 
 	// querying for logs
-	logs, err := l.conn.Client().FilterLogs(context.Background(), query)
+	logs, err := l.client.FilterLogs(context.Background(), query)
 	if err != nil {
 		return fmt.Errorf("unable to Filter Logs: %w", err)
 	}
@@ -173,16 +188,16 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		rId := msg.ResourceIdFromSlice(log.Topics[2].Bytes())
 		nonce := msg.Nonce(log.Topics[3].Big().Uint64())
 
-		addr, err := l.bridgeContract.ResourceIDToHandlerAddress(&bind.CallOpts{From: l.conn.Keypair().CommonAddress()}, rId)
+		addr, err := l.bridgeContract.ResourceIDToHandlerAddress(l.client.CallOpts(), rId)
 		if err != nil {
 			return fmt.Errorf("failed to get handler from resource ID %x", rId)
 		}
 
-		if addr == l.cfg.erc20HandlerContract {
+		if addr == l.cfg.ERC20HandlerContract {
 			m, err = l.handleErc20DepositedEvent(destId, nonce)
-		} else if addr == l.cfg.erc721HandlerContract {
+		} else if addr == l.cfg.ERC721HandlerContract {
 			m, err = l.handleErc721DepositedEvent(destId, nonce)
-		} else if addr == l.cfg.genericHandlerContract {
+		} else if addr == l.cfg.GenericHandlerContract {
 			m, err = l.handleGenericDepositedEvent(destId, nonce)
 		} else {
 			l.log.Error("event has unrecognized handler", "handler", addr.Hex())

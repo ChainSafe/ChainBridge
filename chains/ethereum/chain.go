@@ -22,6 +22,8 @@ package ethereum
 
 import (
 	"fmt"
+	"github.com/ChainSafe/ChainBridge/chains/ethereum/client"
+	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
 	"math/big"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
@@ -60,42 +62,37 @@ type Connection interface {
 }
 
 type Chain struct {
-	cfg      *core.ChainConfig // The config of the chain
-	conn     Connection        // THe chains connection
-	listener *listener         // The listener of this chain
-	writer   *writer           // The writer of the chain
+	cfg      *config.Config // The config of the chain
+	conn     *client.Client // THe chains connection
+	listener *listener      // The listener of this chain
+	writer   *writer        // The writer of the chain
 	stop     chan<- int
 }
 
 // checkBlockstore queries the blockstore for the latest known block. If the latest block is
 // greater than cfg.startBlock, then cfg.startBlock is replaced with the latest known block.
-func setupBlockstore(cfg *Config, kp *secp256k1.Keypair) (*blockstore.Blockstore, error) {
-	bs, err := blockstore.NewBlockstore(cfg.blockstorePath, cfg.id, kp.Address())
+func setupBlockstore(cfg *config.Config, kp *secp256k1.Keypair) (*blockstore.Blockstore, error) {
+	bs, err := blockstore.NewBlockstore(cfg.BlockstorePath, cfg.Id, kp.Address())
 	if err != nil {
 		return nil, err
 	}
 
-	if !cfg.freshStart {
+	if !cfg.FreshStart {
 		latestBlock, err := bs.TryLoadLatestBlock()
 		if err != nil {
 			return nil, err
 		}
 
-		if latestBlock.Cmp(cfg.startBlock) == 1 {
-			cfg.startBlock = latestBlock
+		if latestBlock.Cmp(cfg.StartBlock) == 1 {
+			cfg.StartBlock = latestBlock
 		}
 	}
 
 	return bs, nil
 }
 
-func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr chan<- error, m *metrics.ChainMetrics) (*Chain, error) {
-	cfg, err := parseChainConfig(chainCfg)
-	if err != nil {
-		return nil, err
-	}
-
-	kpI, err := keystore.KeypairFromAddress(cfg.from, keystore.EthChain, cfg.keystorePath, chainCfg.Insecure)
+func InitializeChain(cfg *config.Config, logger log15.Logger, sysErr chan<- error, m *metrics.ChainMetrics) (*Chain, error) {
+	kpI, err := keystore.KeypairFromAddress(cfg.From, keystore.EthChain, cfg.KeystorePath, cfg.Insecure)
 	if err != nil {
 		return nil, err
 	}
@@ -107,25 +104,13 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	}
 
 	stop := make(chan int)
-	conn := connection.NewConnection(cfg.endpoint, cfg.http, kp, logger, cfg.gasLimit, cfg.maxGasPrice, cfg.gasMultiplier)
+	conn := client.NewClient(cfg.Endpoint, cfg.Http, kp, logger, cfg.GasLimit, cfg.MaxGasPrice, cfg.GasMultiplier)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
 	}
-	err = conn.EnsureHasBytecode(cfg.bridgeContract)
-	if err != nil {
-		return nil, err
-	}
-	err = conn.EnsureHasBytecode(cfg.erc20HandlerContract)
-	if err != nil {
-		return nil, err
-	}
-	err = conn.EnsureHasBytecode(cfg.genericHandlerContract)
-	if err != nil {
-		return nil, err
-	}
 
-	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.Client())
+	bridgeContract, err := bridge.NewBridge(cfg.BridgeContract, conn)
 	if err != nil {
 		return nil, err
 	}
@@ -135,41 +120,41 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 		return nil, err
 	}
 
-	if chainId != uint8(chainCfg.Id) {
-		return nil, fmt.Errorf("chainId (%d) and configuration chainId (%d) do not match", chainId, chainCfg.Id)
+	if chainId != uint8(cfg.Id) {
+		return nil, fmt.Errorf("chainId (%d) and configuration chainId (%d) do not match", chainId, cfg.Id)
 	}
 
-	erc20HandlerContract, err := erc20Handler.NewERC20Handler(cfg.erc20HandlerContract, conn.Client())
+	erc20HandlerContract, err := erc20Handler.NewERC20Handler(cfg.ERC20HandlerContract, conn)
 	if err != nil {
 		return nil, err
 	}
 
-	erc721HandlerContract, err := erc721Handler.NewERC721Handler(cfg.erc721HandlerContract, conn.Client())
+	erc721HandlerContract, err := erc721Handler.NewERC721Handler(cfg.ERC721HandlerContract, conn)
 	if err != nil {
 		return nil, err
 	}
 
-	genericHandlerContract, err := GenericHandler.NewGenericHandler(cfg.genericHandlerContract, conn.Client())
+	genericHandlerContract, err := GenericHandler.NewGenericHandler(cfg.GenericHandlerContract, conn)
 	if err != nil {
 		return nil, err
 	}
 
-	if chainCfg.LatestBlock {
+	if cfg.LatestBlock {
 		curr, err := conn.LatestBlock()
 		if err != nil {
 			return nil, err
 		}
-		cfg.startBlock = curr
+		cfg.StartBlock = curr
 	}
 
-	listener := NewListener(conn, cfg, logger, bs, stop, sysErr, m)
-	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
+	listener := NewListener(cfg, conn, logger, bs, stop, sysErr, m)
+	listener.SetContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 
-	writer := NewWriter(conn, cfg, logger, stop, sysErr, m)
+	writer := NewWriter(cfg, conn, logger, stop, sysErr, m)
 	writer.setContract(bridgeContract)
 
 	return &Chain{
-		cfg:      chainCfg,
+		cfg:      cfg,
 		conn:     conn,
 		writer:   writer,
 		listener: listener,
@@ -179,7 +164,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 
 func (c *Chain) SetRouter(r *core.Router) {
 	r.Listen(c.cfg.Id, c.writer)
-	c.listener.setRouter(r)
+	c.listener.SetRouter(r)
 }
 
 func (c *Chain) Start() error {

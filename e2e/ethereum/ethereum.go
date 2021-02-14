@@ -12,7 +12,7 @@ import (
 	"time"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	"github.com/ChainSafe/ChainBridge/chains/ethereum"
+	ethCfg "github.com/ChainSafe/ChainBridge/chains/ethereum/config"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ChainSafe/chainbridge-utils/core"
@@ -98,6 +98,7 @@ func DeployTestContracts(t *testing.T, client *utils.Client, endpoint string, id
 	return contracts
 }
 
+// TODO: Unused
 func CreateEthClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) (*ethclient.Client, *bind.TransactOpts) {
 	ctx := context.Background()
 	rpcClient, err := rpc.DialWebsocket(ctx, endpoint, "/ws")
@@ -111,10 +112,10 @@ func CreateEthClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) (*eth
 		t.Fatal(err)
 	}
 	opts := bind.NewKeyedTransactor(kp.PrivateKey())
-	opts.Nonce = big.NewInt(int64(nonce - 1))        // -1 since we always increment before calling
-	opts.Value = big.NewInt(0)                       // in wei
-	opts.GasLimit = uint64(ethereum.DefaultGasLimit) // in units
-	opts.GasPrice = big.NewInt(ethereum.DefaultGasPrice)
+	opts.Nonce = big.NewInt(int64(nonce - 1))      // -1 since we always increment before calling
+	opts.Value = big.NewInt(0)                     // in wei
+	opts.GasLimit = uint64(ethCfg.DefaultGasLimit) // in units
+	opts.GasPrice = big.NewInt(ethCfg.DefaultMaxGasPrice)
 	opts.Context = ctx
 
 	return client, opts
