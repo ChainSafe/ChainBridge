@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ChainSafe/ChainBridge/config/flags"
+	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
 
@@ -37,13 +38,7 @@ type RawChainConfig struct {
 	Opts     json.RawMessage `json:"opts"`
 }
 
-func NewConfig() *Config {
-	return &Config{
-		Chains: []RawChainConfig{},
-	}
-}
-
-func (c *Config) ToJSON(file string) *os.File {
+func (c *Config) ToJSON(file string) (*os.File, error) {
 	var (
 		newFile *os.File
 		err     error
@@ -51,23 +46,22 @@ func (c *Config) ToJSON(file string) *os.File {
 
 	var raw []byte
 	if raw, err = json.Marshal(*c); err != nil {
-		log.Warn("error marshalling json", "err", err)
-		os.Exit(1)
+		return nil, errors.Wrap(err, "error marshalling json")
 	}
 
 	newFile, err = os.Create(file)
 	if err != nil {
-		log.Warn("error creating config file", "err", err)
+		return nil, errors.Wrap(err, "error creating config file")
 	}
 	_, err = newFile.Write(raw)
 	if err != nil {
-		log.Warn("error writing to config file", "err", err)
+		return nil, errors.Wrap(err, "error writing to config file")
 	}
 
 	if err := newFile.Close(); err != nil {
 		log.Warn("error closing file", "err", err)
 	}
-	return newFile
+	return newFile, nil
 }
 
 func (c *Config) validate() error {

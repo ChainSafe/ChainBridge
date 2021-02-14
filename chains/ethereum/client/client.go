@@ -7,8 +7,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	eth "github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/core/types"
 	"math/big"
 	"sync"
 	"time"
@@ -38,12 +36,6 @@ type Client struct {
 	optsLock      sync.Mutex
 	log           log15.Logger
 	stop          chan int // All routines should exit when this channel is closed
-}
-
-type LogFilterWithLatestBlock interface {
-	FilterLogs(ctx context.Context, q eth.FilterQuery) ([]types.Log, error)
-	LatestBlock() (*big.Int, error)
-	BlockByNumber(ctx context.Context, number *big.Int) (*types.Block, error)
 }
 
 // NewConnection returns an uninitialized connection, must call Connection.Connect() before using.
