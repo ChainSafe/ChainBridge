@@ -31,7 +31,6 @@ import (
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
-	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/blockstore"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
@@ -45,8 +44,6 @@ import (
 )
 
 var _ core.Chain = &Chain{}
-
-var _ Connection = &connection.Connection{}
 
 type Connection interface {
 	Connect() error

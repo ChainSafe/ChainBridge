@@ -9,8 +9,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ChainSafe/ChainBridge/config/flags"
 	"github.com/pkg/errors"
+
+	"github.com/ChainSafe/ChainBridge/config/flags"
 
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli/v2"
