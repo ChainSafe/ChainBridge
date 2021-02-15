@@ -9,6 +9,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/pkg/errors"
+
+	"github.com/ChainSafe/ChainBridge/config/flags"
+
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli/v2"
 )
@@ -18,27 +22,25 @@ const DefaultKeystorePath = "./keys"
 const DefaultBlockTimeout = int64(180) // 3 minutes
 
 type Config struct {
-	Chains       []RawChainConfig `json:"chains"`
-	KeystorePath string           `json:"keystorePath,omitempty"`
+	Chains       []*RawChainConfig `json:"chains"`
+	KeystorePath string            `json:"keystorePath,omitempty"`
 }
+
+/**
+ * TODO: Rename to ChainConfig
+ */
 
 // RawChainConfig is parsed directly from the config file and should be using to construct the core.ChainConfig
 type RawChainConfig struct {
-	Name     string            `json:"name"`
-	Type     string            `json:"type"`
-	Id       string            `json:"id"`       // ChainID
-	Endpoint string            `json:"endpoint"` // url for rpc endpoint
-	From     string            `json:"from"`     // address of key to use
-	Opts     map[string]string `json:"opts"`
+	Name     string          `json:"name"`
+	Type     string          `json:"type"`
+	Id       string          `json:"id"`       // ChainID
+	Endpoint string          `json:"endpoint"` // url for rpc endpoint
+	From     string          `json:"from"`     // address of key to use
+	Opts     json.RawMessage `json:"opts"`
 }
 
-func NewConfig() *Config {
-	return &Config{
-		Chains: []RawChainConfig{},
-	}
-}
-
-func (c *Config) ToJSON(file string) *os.File {
+func (c *Config) ToJSON(file string) (*os.File, error) {
 	var (
 		newFile *os.File
 		err     error
@@ -46,23 +48,22 @@ func (c *Config) ToJSON(file string) *os.File {
 
 	var raw []byte
 	if raw, err = json.Marshal(*c); err != nil {
-		log.Warn("error marshalling json", "err", err)
-		os.Exit(1)
+		return nil, errors.Wrap(err, "error marshalling json")
 	}
 
 	newFile, err = os.Create(file)
 	if err != nil {
-		log.Warn("error creating config file", "err", err)
+		return nil, errors.Wrap(err, "error creating config file")
 	}
 	_, err = newFile.Write(raw)
 	if err != nil {
-		log.Warn("error writing to config file", "err", err)
+		return nil, errors.Wrap(err, "error writing to config file")
 	}
 
 	if err := newFile.Close(); err != nil {
 		log.Warn("error closing file", "err", err)
 	}
-	return newFile
+	return newFile, nil
 }
 
 func (c *Config) validate() error {
@@ -89,7 +90,7 @@ func (c *Config) validate() error {
 func GetConfig(ctx *cli.Context) (*Config, error) {
 	var fig Config
 	path := DefaultConfigPath
-	if file := ctx.String(ConfigFileFlag.Name); file != "" {
+	if file := ctx.String(flags.ConfigFileFlag.Name); file != "" {
 		path = file
 	}
 	err := loadConfig(path, &fig)
@@ -97,7 +98,7 @@ func GetConfig(ctx *cli.Context) (*Config, error) {
 		log.Warn("err loading json file", "err", err.Error())
 		return &fig, err
 	}
-	if ksPath := ctx.String(KeystorePathFlag.Name); ksPath != "" {
+	if ksPath := ctx.String(flags.KeystorePathFlag.Name); ksPath != "" {
 		fig.KeystorePath = ksPath
 	}
 	log.Debug("Loaded config", "path", path)

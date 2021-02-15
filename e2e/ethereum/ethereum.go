@@ -12,10 +12,9 @@ import (
 	"time"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	"github.com/ChainSafe/ChainBridge/chains/ethereum"
+	ethCfg "github.com/ChainSafe/ChainBridge/chains/ethereum/config"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
-	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
 	"github.com/ChainSafe/chainbridge-utils/msg"
@@ -55,23 +54,26 @@ type TestContracts struct {
 	AssetStoreEth common.Address // Contract configured for eth to eth generic transfer
 }
 
-func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *core.ChainConfig {
-	return &core.ChainConfig{
-		Name:           fmt.Sprintf("ethereum(%s,%d)", key, chain),
-		Id:             chain,
-		Endpoint:       endpoint,
-		From:           "",
-		KeystorePath:   key,
-		Insecure:       true,
-		FreshStart:     true,
-		BlockstorePath: os.TempDir(),
-		Opts: map[string]string{
-			"bridge":             contracts.BridgeAddress.String(),
-			"erc20Handler":       contracts.ERC20HandlerAddress.String(),
-			"erc721Handler":      contracts.ERC721HandlerAddress.String(),
-			"genericHandler":     contracts.GenericHandlerAddress.String(),
-			"blockConfirmations": "3",
-		},
+func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *ethCfg.Config {
+	return &ethCfg.Config{
+		Name:                   fmt.Sprintf("ethereum(%s,%d)", key, chain),
+		Id:                     chain,
+		Endpoint:               endpoint,
+		From:                   "",
+		KeystorePath:           key,
+		Insecure:               true,
+		FreshStart:             true,
+		BlockstorePath:         os.TempDir(),
+		BridgeContract:         contracts.BridgeAddress,
+		ERC20HandlerContract:   contracts.ERC20HandlerAddress,
+		ERC721HandlerContract:  contracts.ERC721HandlerAddress,
+		GenericHandlerContract: contracts.GenericHandlerAddress,
+		BlockConfirmations:     big.NewInt(1),
+		GasLimit:               big.NewInt(ethCfg.DefaultGasLimit),
+		MaxGasPrice:            big.NewInt(ethCfg.DefaultMaxGasPrice),
+		LatestBlock:            true,
+		StartBlock:             big.NewInt(0),
+		GasMultiplier:          big.NewFloat(1.25),
 	}
 }
 
@@ -98,6 +100,7 @@ func DeployTestContracts(t *testing.T, client *utils.Client, endpoint string, id
 	return contracts
 }
 
+// TODO: Unused
 func CreateEthClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) (*ethclient.Client, *bind.TransactOpts) {
 	ctx := context.Background()
 	rpcClient, err := rpc.DialWebsocket(ctx, endpoint, "/ws")
@@ -111,10 +114,10 @@ func CreateEthClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) (*eth
 		t.Fatal(err)
 	}
 	opts := bind.NewKeyedTransactor(kp.PrivateKey())
-	opts.Nonce = big.NewInt(int64(nonce - 1))        // -1 since we always increment before calling
-	opts.Value = big.NewInt(0)                       // in wei
-	opts.GasLimit = uint64(ethereum.DefaultGasLimit) // in units
-	opts.GasPrice = big.NewInt(ethereum.DefaultGasPrice)
+	opts.Nonce = big.NewInt(int64(nonce - 1))      // -1 since we always increment before calling
+	opts.Value = big.NewInt(0)                     // in wei
+	opts.GasLimit = uint64(ethCfg.DefaultGasLimit) // in units
+	opts.GasPrice = big.NewInt(ethCfg.DefaultMaxGasPrice)
 	opts.Context = ctx
 
 	return client, opts

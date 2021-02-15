@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package ethereum
+package client
 
 import (
 	"context"
@@ -22,26 +22,25 @@ import (
 
 var BlockRetryInterval = time.Second * 5
 
-type Connection struct {
+type Client struct {
+	*ethclient.Client
 	endpoint      string
 	http          bool
 	kp            *secp256k1.Keypair
 	gasLimit      *big.Int
 	maxGasPrice   *big.Int
 	gasMultiplier *big.Float
-	conn          *ethclient.Client
-	// signer    ethtypes.Signer
-	opts     *bind.TransactOpts
-	callOpts *bind.CallOpts
-	nonce    uint64
-	optsLock sync.Mutex
-	log      log15.Logger
-	stop     chan int // All routines should exit when this channel is closed
+	opts          *bind.TransactOpts
+	callOpts      *bind.CallOpts
+	nonce         uint64
+	optsLock      sync.Mutex
+	log           log15.Logger
+	stop          chan int // All routines should exit when this channel is closed
 }
 
 // NewConnection returns an uninitialized connection, must call Connection.Connect() before using.
-func NewConnection(endpoint string, http bool, kp *secp256k1.Keypair, log log15.Logger, gasLimit, gasPrice *big.Int, gasMultiplier *big.Float) *Connection {
-	return &Connection{
+func NewClient(endpoint string, http bool, kp *secp256k1.Keypair, log log15.Logger, gasLimit, gasPrice *big.Int, gasMultiplier *big.Float) *Client {
+	return &Client{
 		endpoint:      endpoint,
 		http:          http,
 		kp:            kp,
@@ -54,7 +53,7 @@ func NewConnection(endpoint string, http bool, kp *secp256k1.Keypair, log log15.
 }
 
 // Connect starts the ethereum WS connection
-func (c *Connection) Connect() error {
+func (c *Client) Connect() error {
 	c.log.Info("Connecting to ethereum chain...", "url", c.endpoint)
 	var rpcClient *rpc.Client
 	var err error
@@ -67,7 +66,7 @@ func (c *Connection) Connect() error {
 	if err != nil {
 		return err
 	}
-	c.conn = ethclient.NewClient(rpcClient)
+	c.Client = ethclient.NewClient(rpcClient)
 
 	// Construct tx opts, call opts, and nonce mechanism
 	opts, _, err := c.newTransactOpts(big.NewInt(0), c.gasLimit, c.maxGasPrice)
@@ -81,11 +80,11 @@ func (c *Connection) Connect() error {
 }
 
 // newTransactOpts builds the TransactOpts for the connection's keypair.
-func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, uint64, error) {
+func (c *Client) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.TransactOpts, uint64, error) {
 	privateKey := c.kp.PrivateKey()
 	address := ethcrypto.PubkeyToAddress(privateKey.PublicKey)
 
-	nonce, err := c.conn.PendingNonceAt(context.Background(), address)
+	nonce, err := c.Client.PendingNonceAt(context.Background(), address)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -100,26 +99,20 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 	return auth, nonce, nil
 }
 
-func (c *Connection) Keypair() *secp256k1.Keypair {
+func (c *Client) Keypair() *secp256k1.Keypair {
 	return c.kp
 }
 
-func (c *Connection) Client() *ethclient.Client {
-	return c.conn
-}
-
-func (c *Connection) Opts() *bind.TransactOpts {
+func (c *Client) Opts() *bind.TransactOpts {
 	return c.opts
 }
 
-func (c *Connection) CallOpts() *bind.CallOpts {
+func (c *Client) CallOpts() *bind.CallOpts {
 	return c.callOpts
 }
 
-func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
-
-	suggestedGasPrice, err := c.conn.SuggestGasPrice(context.TODO())
-
+func (c *Client) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
+	suggestedGasPrice, err := c.Client.SuggestGasPrice(context.TODO())
 	if err != nil {
 		return nil, err
 	}
@@ -135,21 +128,16 @@ func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 }
 
 func multiplyGasPrice(gasEstimate *big.Int, gasMultiplier *big.Float) *big.Int {
-
 	gasEstimateFloat := new(big.Float).SetInt(gasEstimate)
-
 	result := gasEstimateFloat.Mul(gasEstimateFloat, gasMultiplier)
-
 	gasPrice := new(big.Int)
-
 	result.Int(gasPrice)
-
 	return gasPrice
 }
 
 // LockAndUpdateOpts acquires a lock on the opts before updating the nonce
 // and gas price.
-func (c *Connection) LockAndUpdateOpts() error {
+func (c *Client) LockAndUpdateOpts() error {
 	c.optsLock.Lock()
 
 	gasPrice, err := c.SafeEstimateGas(context.TODO())
@@ -158,7 +146,7 @@ func (c *Connection) LockAndUpdateOpts() error {
 	}
 	c.opts.GasPrice = gasPrice
 
-	nonce, err := c.conn.PendingNonceAt(context.Background(), c.opts.From)
+	nonce, err := c.Client.PendingNonceAt(context.Background(), c.opts.From)
 	if err != nil {
 		c.optsLock.Unlock()
 		return err
@@ -167,13 +155,13 @@ func (c *Connection) LockAndUpdateOpts() error {
 	return nil
 }
 
-func (c *Connection) UnlockOpts() {
+func (c *Client) UnlockOpts() {
 	c.optsLock.Unlock()
 }
 
 // LatestBlock returns the latest block from the current chain
-func (c *Connection) LatestBlock() (*big.Int, error) {
-	header, err := c.conn.HeaderByNumber(context.Background(), nil)
+func (c *Client) LatestBlock() (*big.Int, error) {
+	header, err := c.Client.HeaderByNumber(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -181,8 +169,8 @@ func (c *Connection) LatestBlock() (*big.Int, error) {
 }
 
 // EnsureHasBytecode asserts if contract code exists at the specified address
-func (c *Connection) EnsureHasBytecode(addr ethcommon.Address) error {
-	code, err := c.conn.CodeAt(context.Background(), addr, nil)
+func (c *Client) EnsureHasBytecode(addr ethcommon.Address) error {
+	code, err := c.Client.CodeAt(context.Background(), addr, nil)
 	if err != nil {
 		return err
 	}
@@ -195,7 +183,7 @@ func (c *Connection) EnsureHasBytecode(addr ethcommon.Address) error {
 
 // WaitForBlock will poll for the block number until the current block is equal or greater.
 // If delay is provided it will wait until currBlock - delay = targetBlock
-func (c *Connection) WaitForBlock(targetBlock *big.Int, delay *big.Int) error {
+func (c *Client) WaitForBlock(targetBlock *big.Int, delay *big.Int) error {
 	for {
 		select {
 		case <-c.stop:
@@ -222,9 +210,9 @@ func (c *Connection) WaitForBlock(targetBlock *big.Int, delay *big.Int) error {
 }
 
 // Close terminates the client connection and stops any running routines
-func (c *Connection) Close() {
-	if c.conn != nil {
-		c.conn.Close()
+func (c *Client) Close() {
+	if c.Client != nil {
+		c.Client.Close()
 	}
 	close(c.stop)
 }

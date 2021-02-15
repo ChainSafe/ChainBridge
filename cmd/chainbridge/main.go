@@ -13,15 +13,16 @@ import (
 	"net/http"
 	"os"
 
+	ethCfg "github.com/ChainSafe/ChainBridge/chains/ethereum/config"
+	"github.com/ChainSafe/ChainBridge/config/flags"
+
 	"strconv"
 
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
-	"github.com/ChainSafe/ChainBridge/chains/substrate"
 	"github.com/ChainSafe/ChainBridge/config"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/metrics/health"
 	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
-	"github.com/ChainSafe/chainbridge-utils/msg"
 	log "github.com/ChainSafe/log15"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/cli/v2"
@@ -30,34 +31,34 @@ import (
 var app = cli.NewApp()
 
 var cliFlags = []cli.Flag{
-	config.ConfigFileFlag,
-	config.VerbosityFlag,
-	config.KeystorePathFlag,
-	config.BlockstorePathFlag,
-	config.FreshStartFlag,
-	config.LatestBlockFlag,
-	config.MetricsFlag,
-	config.MetricsPort,
+	flags.ConfigFileFlag,
+	flags.VerbosityFlag,
+	flags.KeystorePathFlag,
+	flags.BlockstorePathFlag,
+	flags.FreshStartFlag,
+	flags.LatestBlockFlag,
+	flags.MetricsFlag,
+	flags.MetricsPort,
 }
 
 var generateFlags = []cli.Flag{
-	config.PasswordFlag,
-	config.Sr25519Flag,
-	config.Secp256k1Flag,
-	config.SubkeyNetworkFlag,
+	flags.PasswordFlag,
+	flags.Sr25519Flag,
+	flags.Secp256k1Flag,
+	flags.SubkeyNetworkFlag,
 }
 
 var devFlags = []cli.Flag{
-	config.TestKeyFlag,
+	flags.TestKeyFlag,
 }
 
 var importFlags = []cli.Flag{
-	config.EthereumImportFlag,
-	config.PrivateKeyFlag,
-	config.Sr25519Flag,
-	config.Secp256k1Flag,
-	config.PasswordFlag,
-	config.SubkeyNetworkFlag,
+	flags.EthereumImportFlag,
+	flags.PrivateKeyFlag,
+	flags.Sr25519Flag,
+	flags.Secp256k1Flag,
+	flags.PasswordFlag,
+	flags.SubkeyNetworkFlag,
 }
 
 var accountCommand = cli.Command{
@@ -130,9 +131,9 @@ func startLogger(ctx *cli.Context) error {
 	handler := logger.GetHandler()
 	var lvl log.Lvl
 
-	if lvlToInt, err := strconv.Atoi(ctx.String(config.VerbosityFlag.Name)); err == nil {
+	if lvlToInt, err := strconv.Atoi(ctx.String(flags.VerbosityFlag.Name)); err == nil {
 		lvl = log.Lvl(lvlToInt)
-	} else if lvl, err = log.LvlFromString(ctx.String(config.VerbosityFlag.Name)); err != nil {
+	} else if lvl, err = log.LvlFromString(ctx.String(flags.VerbosityFlag.Name)); err != nil {
 		return err
 	}
 	log.Root().SetHandler(log.LvlFilterHandler(lvl, handler))
@@ -153,65 +154,45 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-	// Check for test key flag
-	var ks string
-	var insecure bool
-	if key := ctx.String(config.TestKeyFlag.Name); key != "" {
-		ks = key
-		insecure = true
-	} else {
-		ks = cfg.KeystorePath
-	}
-
 	// Used to signal core shutdown due to fatal error
 	sysErr := make(chan error)
 	c := core.NewCore(sysErr)
 
 	for _, chain := range cfg.Chains {
-		chainId, errr := strconv.Atoi(chain.Id)
-		if errr != nil {
-			return errr
-		}
-		chainConfig := &core.ChainConfig{
-			Name:           chain.Name,
-			Id:             msg.ChainId(chainId),
-			Endpoint:       chain.Endpoint,
-			From:           chain.From,
-			KeystorePath:   ks,
-			Insecure:       insecure,
-			BlockstorePath: ctx.String(config.BlockstorePathFlag.Name),
-			FreshStart:     ctx.Bool(config.FreshStartFlag.Name),
-			LatestBlock:    ctx.Bool(config.LatestBlockFlag.Name),
-			Opts:           chain.Opts,
-		}
 		var newChain core.Chain
 		var m *metrics.ChainMetrics
 
-		logger := log.Root().New("chain", chainConfig.Name)
+		logger := log.Root().New("chain", chain.Name)
 
-		if ctx.Bool(config.MetricsFlag.Name) {
+		if ctx.Bool(flags.MetricsFlag.Name) {
 			m = metrics.NewChainMetrics(chain.Name)
 		}
 
 		if chain.Type == "ethereum" {
-			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr, m)
+			cfg, errr := ethCfg.ParseChainConfig(chain, ctx)
+			if errr != nil {
+				return errr
+			}
+
+			newChain, errr = ethereum.InitializeChain(cfg, logger, sysErr, m)
+			if errr != nil {
+				return errr
+			}
 		} else if chain.Type == "substrate" {
-			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, m)
+			// TODO: Need to update config to re-enable
+			// newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, m)
 		} else {
 			return errors.New("unrecognized Chain Type")
 		}
 
-		if err != nil {
-			return err
-		}
 		c.AddChain(newChain)
 
 	}
 
 	// Start prometheus and health server
-	if ctx.Bool(config.MetricsFlag.Name) {
-		port := ctx.Int(config.MetricsPort.Name)
-		blockTimeoutStr := os.Getenv(config.HealthBlockTimeout)
+	if ctx.Bool(flags.MetricsFlag.Name) {
+		port := ctx.Int(flags.MetricsPort.Name)
+		blockTimeoutStr := os.Getenv(flags.HealthBlockTimeout)
 		blockTimeout := config.DefaultBlockTimeout
 		if blockTimeoutStr != "" {
 			blockTimeout, err = strconv.ParseInt(blockTimeoutStr, 10, 0)
