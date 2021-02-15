@@ -5,6 +5,8 @@ package ethereum
 
 import (
 	"context"
+	"math/big"
+
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
 	"github.com/ChainSafe/chainbridge-utils/core"
@@ -14,7 +16,6 @@ import (
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"
-	"math/big"
 )
 
 var _ core.Writer = &writer{}

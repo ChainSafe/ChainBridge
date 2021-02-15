@@ -6,10 +6,11 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ChainSafe/ChainBridge/config/flags"
-	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
+
+	"github.com/ChainSafe/ChainBridge/config/flags"
+	"github.com/pkg/errors"
 
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli/v2"
@@ -20,8 +21,8 @@ const DefaultKeystorePath = "./keys"
 const DefaultBlockTimeout = int64(180) // 3 minutes
 
 type Config struct {
-	Chains       []RawChainConfig `json:"chains"`
-	KeystorePath string           `json:"keystorePath,omitempty"`
+	Chains       []*RawChainConfig `json:"chains"`
+	KeystorePath string            `json:"keystorePath,omitempty"`
 }
 
 /**

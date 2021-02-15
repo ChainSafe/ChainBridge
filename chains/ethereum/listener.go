@@ -7,10 +7,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
-	"github.com/ethereum/go-ethereum/core/types"
 	"math/big"
 	"time"
+
+	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
+	"github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"

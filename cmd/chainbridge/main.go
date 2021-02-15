@@ -10,10 +10,11 @@ package main
 import (
 	"errors"
 	"fmt"
-	ethCfg "github.com/ChainSafe/ChainBridge/chains/ethereum/config"
-	"github.com/ChainSafe/ChainBridge/config/flags"
 	"net/http"
 	"os"
+
+	ethCfg "github.com/ChainSafe/ChainBridge/chains/ethereum/config"
+	"github.com/ChainSafe/ChainBridge/config/flags"
 
 	"strconv"
 
@@ -168,11 +169,15 @@ func run(ctx *cli.Context) error {
 		}
 
 		if chain.Type == "ethereum" {
-			cfg, err := ethCfg.ParseChainConfig(&chain, ctx)
-			if err != nil {
-				return err
+			cfg, errr := ethCfg.ParseChainConfig(chain, ctx)
+			if errr != nil {
+				return errr
 			}
-			newChain, err = ethereum.InitializeChain(cfg, logger, sysErr, m)
+
+			newChain, errr = ethereum.InitializeChain(cfg, logger, sysErr, m)
+			if errr != nil {
+				return errr
+			}
 		} else if chain.Type == "substrate" {
 			// TODO: Need to update config to re-enable
 			// newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, m)
@@ -180,9 +185,6 @@ func run(ctx *cli.Context) error {
 			return errors.New("unrecognized Chain Type")
 		}
 
-		if err != nil {
-			return err
-		}
 		c.AddChain(newChain)
 
 	}

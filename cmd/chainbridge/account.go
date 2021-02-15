@@ -6,10 +6,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ChainSafe/ChainBridge/config/flags"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/ChainSafe/ChainBridge/config/flags"
 
 	"github.com/ChainSafe/ChainBridge/config"
 	"github.com/ChainSafe/chainbridge-utils/crypto"

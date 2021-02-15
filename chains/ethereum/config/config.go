@@ -6,12 +6,13 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
+	"strconv"
+
 	"github.com/ChainSafe/ChainBridge/chains/ethereum/client"
 	"github.com/ChainSafe/ChainBridge/config"
 	"github.com/ChainSafe/ChainBridge/config/flags"
 	"github.com/urfave/cli/v2"
-	"math/big"
-	"strconv"
 
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/msg"

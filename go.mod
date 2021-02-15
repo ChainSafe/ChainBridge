@@ -11,6 +11,7 @@ require (
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/ethereum/go-ethereum v1.9.17
 	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.4.1
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/stretchr/testify v1.7.0

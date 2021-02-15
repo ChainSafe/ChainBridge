@@ -16,7 +16,7 @@ import (
 )
 
 func createTempConfigFile() (*os.File, *Config, error) {
-	ethCfg := RawChainConfig{
+	ethCfg := &RawChainConfig{
 		Name:     "chain",
 		Type:     "ethereum",
 		Id:       "1",
@@ -25,7 +25,7 @@ func createTempConfigFile() (*os.File, *Config, error) {
 		Opts:     []byte(`{}`),
 	}
 	testConfig := &Config{
-		Chains:       []RawChainConfig{ethCfg},
+		Chains:       []*RawChainConfig{ethCfg},
 		KeystorePath: "",
 	}
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "*.json")
@@ -57,7 +57,7 @@ func TestLoadJSONConfig(t *testing.T) {
 }
 
 func TestValdiateConfig(t *testing.T) {
-	valid := RawChainConfig{
+	valid := &RawChainConfig{
 		Name:     "chain",
 		Type:     "ethereum",
 		Id:       "1",
@@ -66,7 +66,7 @@ func TestValdiateConfig(t *testing.T) {
 		Opts:     nil,
 	}
 
-	missingType := RawChainConfig{
+	missingType := &RawChainConfig{
 		Name:     "chain",
 		Type:     "",
 		Id:       "1",
@@ -75,7 +75,7 @@ func TestValdiateConfig(t *testing.T) {
 		Opts:     nil,
 	}
 
-	missingEndpoint := RawChainConfig{
+	missingEndpoint := &RawChainConfig{
 		Name:     "chain",
 		Type:     "ethereum",
 		Id:       "1",
@@ -84,7 +84,7 @@ func TestValdiateConfig(t *testing.T) {
 		Opts:     nil,
 	}
 
-	missingName := RawChainConfig{
+	missingName := &RawChainConfig{
 		Name:     "",
 		Type:     "ethereum",
 		Id:       "1",
@@ -94,7 +94,7 @@ func TestValdiateConfig(t *testing.T) {
 	}
 
 	cfg := Config{
-		Chains:       []RawChainConfig{valid},
+		Chains:       []*RawChainConfig{valid},
 		KeystorePath: "",
 	}
 
@@ -104,7 +104,7 @@ func TestValdiateConfig(t *testing.T) {
 	}
 
 	cfg = Config{
-		Chains:       []RawChainConfig{missingType},
+		Chains:       []*RawChainConfig{missingType},
 		KeystorePath: "",
 	}
 
@@ -114,7 +114,7 @@ func TestValdiateConfig(t *testing.T) {
 	}
 
 	cfg = Config{
-		Chains:       []RawChainConfig{missingEndpoint},
+		Chains:       []*RawChainConfig{missingEndpoint},
 		KeystorePath: "",
 	}
 
@@ -124,7 +124,7 @@ func TestValdiateConfig(t *testing.T) {
 	}
 
 	cfg = Config{
-		Chains:       []RawChainConfig{missingName},
+		Chains:       []*RawChainConfig{missingName},
 		KeystorePath: "",
 	}
 

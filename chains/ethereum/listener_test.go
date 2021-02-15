@@ -5,11 +5,12 @@ package ethereum
 
 import (
 	"fmt"
-	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
 	"math/big"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"

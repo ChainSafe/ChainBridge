@@ -5,9 +5,10 @@ package config
 
 import (
 	"flag"
-	"github.com/ChainSafe/chainbridge-utils/keystore"
 	"math/big"
 	"testing"
+
+	"github.com/ChainSafe/chainbridge-utils/keystore"
 
 	"github.com/ChainSafe/ChainBridge/config"
 	"github.com/ChainSafe/ChainBridge/config/flags"

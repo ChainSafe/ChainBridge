@@ -5,10 +5,11 @@ package ethereum
 
 import (
 	"context"
-	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
 	"math/big"
 	"testing"
 	"time"
+
+	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"

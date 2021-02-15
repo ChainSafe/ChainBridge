@@ -22,9 +22,10 @@ package ethereum
 
 import (
 	"fmt"
+	"math/big"
+
 	"github.com/ChainSafe/ChainBridge/chains/ethereum/client"
 	"github.com/ChainSafe/ChainBridge/chains/ethereum/config"
-	"math/big"
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"

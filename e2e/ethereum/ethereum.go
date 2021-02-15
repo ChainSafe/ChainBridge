@@ -15,7 +15,6 @@ import (
 	ethCfg "github.com/ChainSafe/ChainBridge/chains/ethereum/config"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
-	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
 	"github.com/ChainSafe/chainbridge-utils/msg"
@@ -55,23 +54,26 @@ type TestContracts struct {
 	AssetStoreEth common.Address // Contract configured for eth to eth generic transfer
 }
 
-func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *core.ChainConfig {
-	return &core.ChainConfig{
-		Name:           fmt.Sprintf("ethereum(%s,%d)", key, chain),
-		Id:             chain,
-		Endpoint:       endpoint,
-		From:           "",
-		KeystorePath:   key,
-		Insecure:       true,
-		FreshStart:     true,
-		BlockstorePath: os.TempDir(),
-		Opts: map[string]string{
-			"bridge":             contracts.BridgeAddress.String(),
-			"erc20Handler":       contracts.ERC20HandlerAddress.String(),
-			"erc721Handler":      contracts.ERC721HandlerAddress.String(),
-			"genericHandler":     contracts.GenericHandlerAddress.String(),
-			"blockConfirmations": "3",
-		},
+func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContracts, endpoint string) *ethCfg.Config {
+	return &ethCfg.Config{
+		Name:                   fmt.Sprintf("ethereum(%s,%d)", key, chain),
+		Id:                     chain,
+		Endpoint:               endpoint,
+		From:                   "",
+		KeystorePath:           key,
+		Insecure:               true,
+		FreshStart:             true,
+		BlockstorePath:         os.TempDir(),
+		BridgeContract:         contracts.BridgeAddress,
+		ERC20HandlerContract:   contracts.ERC20HandlerAddress,
+		ERC721HandlerContract:  contracts.ERC721HandlerAddress,
+		GenericHandlerContract: contracts.GenericHandlerAddress,
+		BlockConfirmations:     big.NewInt(1),
+		GasLimit:               big.NewInt(ethCfg.DefaultGasLimit),
+		MaxGasPrice:            big.NewInt(ethCfg.DefaultMaxGasPrice),
+		LatestBlock:            true,
+		StartBlock:             big.NewInt(0),
+		GasMultiplier:          big.NewFloat(1.25),
 	}
 }
 
