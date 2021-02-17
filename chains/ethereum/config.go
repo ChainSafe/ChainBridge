@@ -154,6 +154,9 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		} else {
 			return nil, fmt.Errorf("unable to parse %s", BlockConfirmationsOpt)
 		}
+	} else {
+		config.blockConfirmations = big.NewInt(DefaultBlockConfirmations)
+		delete(chainCfg.Opts, BlockConfirmationsOpt)
 	}
 
 	if len(chainCfg.Opts) != 0 {
