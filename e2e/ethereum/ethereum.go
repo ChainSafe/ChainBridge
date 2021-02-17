@@ -110,7 +110,15 @@ func CreateEthClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) (*eth
 	if err != nil {
 		t.Fatal(err)
 	}
-	opts := bind.NewKeyedTransactor(kp.PrivateKey())
+
+	id, err := client.ChainID(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	opts, err := bind.NewKeyedTransactorWithChainID(kp.PrivateKey(), id)
+	if err != nil {
+		t.Fatal(err)
+	}
 	opts.Nonce = big.NewInt(int64(nonce - 1))        // -1 since we always increment before calling
 	opts.Value = big.NewInt(0)                       // in wei
 	opts.GasLimit = uint64(ethereum.DefaultGasLimit) // in units
