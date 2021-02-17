@@ -157,7 +157,7 @@ func TestChainConfigOneContract(t *testing.T) {
 		gasMultiplier:        big.NewFloat(1),
 		http:                 true,
 		startBlock:           big.NewInt(10),
-		blockConfirmations:   big.NewInt(0),
+		blockConfirmations:   big.NewInt(DefaultBlockConfirmations),
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
