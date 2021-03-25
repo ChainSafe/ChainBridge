@@ -90,7 +90,16 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 		return nil, 0, err
 	}
 
-	auth := bind.NewKeyedTransactor(privateKey)
+	id, err := c.conn.ChainID(context.Background())
+	if err != nil {
+		return nil, 0, err
+	}
+
+	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, id)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = value
 	auth.GasLimit = uint64(gasLimit.Int64())
