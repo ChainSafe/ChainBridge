@@ -7,21 +7,30 @@ assignees: ''
 
 ---
 
-<!--- Provide a general summary of your changes in the Title above -->
+<!--- Provide a general summary of the issue in the Title above -->
 
-## Description
-<!--- Describe your changes in detail -->
+## Expected Behavior
+<!--- If you're describing a bug, tell us what should happen -->
+<!--- If you're suggesting a change/improvement, tell us how it should work -->
 
-## Related Issue Or Context
-<!--- If suggesting a new feature or change, please discuss it in an issue first -->
-<!--- If fixing a bug, there should be an issue describing it with steps to reproduce -->
-<!--- Otherwise, describe context and motivation for change herre -->
+## Current Behavior
+<!--- If describing a bug, tell us what happens instead of the expected behavior -->
+<!--- If suggesting a change/improvement, explain the difference from current behavior -->
 
-Closes: #<issue>
+## Possible Solution
+<!--- Not obligatory, but suggest a fix/reason for the bug, -->
+<!--- or ideas how to implement the addition or change -->
 
-## How Has This Been Tested? Testing details.
-<!--- Please describe in detail how you tested your changes. -->
-<!--- Include details of your testing environment, and the tests you ran to -->
-<!--- see how your change affects other areas of the code, etc. -->
+## Steps to Reproduce (for bugs)
+<!--- Provide a link to a live example, or an unambiguous set of steps to -->
+<!--- reproduce this bug. Include code to reproduce, if relevant -->
+1.
+2.
+3.
+4.
 
-## Types of changes
+## Versions
+ChainBridge commit (or docker tag):
+chainbridge-solidity version:
+chainbridge-substrate version:
+Go version:

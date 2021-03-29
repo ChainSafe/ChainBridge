@@ -1,6 +1,6 @@
 ---
-name: Backlog Item
-about: Suggest an idea for this project
+name: Template For Internal Use
+about: Speccing out the details of development for specific features/epics
 title: ''
 labels: ''
 assignees: ''
