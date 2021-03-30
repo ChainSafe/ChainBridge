@@ -1,3 +1,12 @@
+---
+name: Feature request or epic
+about: Suggest an idea for this project
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 ## Story
 As a <type of user/persona>
 I want <to perform some task>
@@ -11,7 +20,7 @@ So that I can <achieve some goal/benefit/value>
 
 ## Scenarios
 Scenario: <name of scenario>
-Given I am <type of user/persona>
+Given I am <type of user/persona> 
 When <process any kind of action>
 And <additional optional action>
 Then <result>
