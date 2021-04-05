@@ -4,7 +4,7 @@
 package utils
 
 import (
-	events "github.com/ChainSafe/chainbridge-substrate-events"
+	events "github.com/Cerebellum-Network/chainbridge-substrate-events"
 	"github.com/centrifuge/go-substrate-rpc-client/v2/types"
 )
 

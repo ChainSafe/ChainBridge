@@ -10,9 +10,9 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v2/types"
 
-	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
-	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
-	message "github.com/ChainSafe/chainbridge-utils/msg"
+	utils "github.com/Cerebellum-Network/ChainBridge/shared/substrate"
+	subtest "github.com/Cerebellum-Network/ChainBridge/shared/substrate/testing"
+	message "github.com/Cerebellum-Network/chainbridge-utils/msg"
 )
 
 func assertProposalState(t *testing.T, conn *Connection, prop *proposal, votes *voteState, hasValue bool) {

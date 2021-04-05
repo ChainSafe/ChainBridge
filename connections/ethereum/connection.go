@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
+	"github.com/Cerebellum-Network/chainbridge-utils/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcommon "github.com/ethereum/go-ethereum/common"

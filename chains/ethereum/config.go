@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"math/big"
 
-	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	"github.com/ChainSafe/chainbridge-utils/core"
-	"github.com/ChainSafe/chainbridge-utils/msg"
+	utils "github.com/Cerebellum-Network/ChainBridge/shared/ethereum"
+	"github.com/Cerebellum-Network/chainbridge-utils/core"
+	"github.com/Cerebellum-Network/chainbridge-utils/msg"
 	"github.com/ethereum/go-ethereum/common"
 )
 

@@ -3,7 +3,7 @@
 /*
 Provides the command-line interface for the chainbridge application.
 
-For configuration and CLI commands see the README: https://github.com/ChainSafe/ChainBridge.
+For configuration and CLI commands see the README: https://github.com/Cerebellum-Network/ChainBridge.
 */
 package main
 
@@ -14,13 +14,13 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/ChainSafe/ChainBridge/chains/ethereum"
-	"github.com/ChainSafe/ChainBridge/chains/substrate"
-	"github.com/ChainSafe/ChainBridge/config"
-	"github.com/ChainSafe/chainbridge-utils/core"
-	"github.com/ChainSafe/chainbridge-utils/metrics/health"
-	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
-	"github.com/ChainSafe/chainbridge-utils/msg"
+	"github.com/Cerebellum-Network/ChainBridge/chains/ethereum"
+	"github.com/Cerebellum-Network/ChainBridge/chains/substrate"
+	"github.com/Cerebellum-Network/ChainBridge/config"
+	"github.com/Cerebellum-Network/chainbridge-utils/core"
+	"github.com/Cerebellum-Network/chainbridge-utils/metrics/health"
+	metrics "github.com/Cerebellum-Network/chainbridge-utils/metrics/types"
+	"github.com/Cerebellum-Network/chainbridge-utils/msg"
 	log "github.com/ChainSafe/log15"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/cli/v2"
