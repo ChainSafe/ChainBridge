@@ -31,6 +31,7 @@ import (
 	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
+	"github.com/centrifuge/go-substrate-rpc-client/v2/signature"
 )
 
 var _ core.Chain = &Chain{}
@@ -65,7 +66,7 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, sysErr chan<- e
 	}
 
 	krp := kp.(*sr25519.Keypair).AsKeyringPair()
-
+	krpv2 := (*signature.KeyringPair)(krp)
 	// Attempt to load latest block
 	bs, err := blockstore.NewBlockstore(cfg.BlockstorePath, cfg.Id, kp.Address())
 	if err != nil {
@@ -81,7 +82,7 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, sysErr chan<- e
 
 	stop := make(chan int)
 	// Setup connection
-	conn := NewConnection(cfg.Endpoint, cfg.Name, krp, logger, stop, sysErr)
+	conn := NewConnection(cfg.Endpoint, cfg.Name, krpv2, logger, stop, sysErr)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
