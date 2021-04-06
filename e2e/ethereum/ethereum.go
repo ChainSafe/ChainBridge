@@ -13,17 +13,16 @@ import (
 
 	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
-	"github.com/ChainSafe/ChainBridge/core"
-	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
-	"github.com/ChainSafe/ChainBridge/keystore"
-	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
+	"github.com/ChainSafe/chainbridge-utils/core"
+	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
+	"github.com/ChainSafe/chainbridge-utils/keystore"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -31,19 +30,20 @@ import (
 
 var TestTimeout = time.Second * 30
 
+const EthAEndpoint = "ws://localhost:8545"
+const EthBEndpoint = "ws://localhost:8546"
+
 var log = log15.New("e2e", "ethereum")
 
-// TODO: Remove extra addrs vars when PR #339 lands
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
-var AliceAddr = common.HexToAddress(AliceKp.Address())
 var CharlieKp = keystore.TestKeyRing.EthereumKeys[keystore.BobKey]
-var CharlieAddr = common.HexToAddress(CharlieKp.Address())
+var DaveKp = keystore.TestKeyRing.EthereumKeys[keystore.DaveKey]
+var EveKp = keystore.TestKeyRing.EthereumKeys[keystore.EveKey]
 
 type TestContext struct {
 	BaseContracts *utils.DeployedContracts // All the contracts required for the bridge
 	TestContracts TestContracts            // Additional contracts for tests (eg. erc contracts)
-	Client        *ethclient.Client
-	Opts          *bind.TransactOpts
+	Client        *utils.Client
 }
 
 type TestContracts struct {
@@ -66,19 +66,19 @@ func CreateConfig(key string, chain msg.ChainId, contracts *utils.DeployedContra
 		FreshStart:     true,
 		BlockstorePath: os.TempDir(),
 		Opts: map[string]string{
-			"bridge":         contracts.BridgeAddress.String(),
-			"erc20Handler":   contracts.ERC20HandlerAddress.String(),
-			"erc721Handler":  contracts.ERC721HandlerAddress.String(),
-			"genericHandler": contracts.GenericHandlerAddress.String(),
+			"bridge":             contracts.BridgeAddress.String(),
+			"erc20Handler":       contracts.ERC20HandlerAddress.String(),
+			"erc721Handler":      contracts.ERC721HandlerAddress.String(),
+			"genericHandler":     contracts.GenericHandlerAddress.String(),
+			"blockConfirmations": "3",
 		},
 	}
 }
 
-func DeployTestContracts(t *testing.T, endpoint string, id msg.ChainId, threshold *big.Int) *utils.DeployedContracts {
+func DeployTestContracts(t *testing.T, client *utils.Client, endpoint string, id msg.ChainId, threshold *big.Int) *utils.DeployedContracts {
 	contracts, err := utils.DeployContracts(
-		hexutil.Encode(AliceKp.Encode())[2:],
+		client,
 		uint8(id),
-		endpoint,
 		threshold,
 	)
 	if err != nil {
@@ -110,7 +110,15 @@ func CreateEthClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) (*eth
 	if err != nil {
 		t.Fatal(err)
 	}
-	opts := bind.NewKeyedTransactor(kp.PrivateKey())
+
+	id, err := client.ChainID(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	opts, err := bind.NewKeyedTransactorWithChainID(kp.PrivateKey(), id)
+	if err != nil {
+		t.Fatal(err)
+	}
 	opts.Nonce = big.NewInt(int64(nonce - 1))        // -1 since we always increment before calling
 	opts.Value = big.NewInt(0)                       // in wei
 	opts.GasLimit = uint64(ethereum.DefaultGasLimit) // in units
@@ -120,101 +128,118 @@ func CreateEthClient(t *testing.T, endpoint string, kp *secp256k1.Keypair) (*eth
 	return client, opts
 }
 
-func CreateErc20Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, recipient []byte, amount *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
-	data := utils.ConstructErc20DepositData(rId, recipient, amount)
+func CreateErc20Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, recipient []byte, amount *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+	data := utils.ConstructErc20DepositData(recipient, amount)
 
-	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
+	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = utils.UpdateNonce(opts, client)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if _, err := bridgeInstance.Deposit(
-		opts,
+	tx, err := bridgeInstance.Deposit(
+		client.Opts,
 		uint8(destId),
-		contracts.ERC20HandlerAddress,
+		rId,
 		data,
-	); err != nil {
+	)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = utils.WaitForTx(client, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+}
+
+func CreateErc721Deposit(t *testing.T, client *utils.Client, destId msg.ChainId, recipient []byte, tokenId *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+	data := utils.ConstructErc721DepositData(tokenId, recipient)
+
+	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = utils.UpdateNonce(client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tx, err := bridgeInstance.Deposit(
+		client.Opts,
+		uint8(destId),
+		rId,
+		data,
+	)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = utils.WaitForTx(client, tx)
+	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func CreateErc721Deposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, recipient []byte, tokenId *big.Int, contracts *utils.DeployedContracts, rId msg.ResourceId) {
-	data := utils.ConstructErc721DepositData(rId, tokenId, recipient)
+func CreateGenericDeposit(t *testing.T, client *utils.Client, destId msg.ChainId, metadata []byte, contracts *utils.DeployedContracts, rId msg.ResourceId) {
+	data := utils.ConstructGenericDepositData(metadata)
 
-	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
+	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client.Client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = utils.UpdateNonce(opts, client)
+	err = utils.UpdateNonce(client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if _, err := bridgeInstance.Deposit(
-		opts,
+	tx, err := bridgeInstance.Deposit(
+		client.Opts,
 		uint8(destId),
-		contracts.ERC721HandlerAddress,
+		rId,
 		data,
-	); err != nil {
+	)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = utils.WaitForTx(client, tx)
+	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func CreateGenericDeposit(t *testing.T, client *ethclient.Client, opts *bind.TransactOpts, destId msg.ChainId, metadata []byte, contracts *utils.DeployedContracts, rId msg.ResourceId) {
-	data := utils.ConstructGenericDepositData(rId, metadata)
-
-	bridgeInstance, err := bridge.NewBridge(contracts.BridgeAddress, client)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = utils.UpdateNonce(opts, client)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if _, err := bridgeInstance.Deposit(
-		opts,
-		uint8(destId),
-		contracts.GenericHandlerAddress,
-		data,
-	); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func WaitForDepositCreatedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
+func WaitForProposalActive(t *testing.T, client *utils.Client, bridge common.Address, nonce uint64) {
 	startBlock := ethtest.GetLatestBlock(t, client)
 
 	query := eth.FilterQuery{
 		FromBlock: startBlock,
 		Addresses: []common.Address{bridge},
 		Topics: [][]common.Hash{
-			{utils.ProposalCreated.GetTopic()},
+			{utils.ProposalEvent.GetTopic()},
 		},
 	}
 
 	ch := make(chan ethtypes.Log)
-	sub, err := client.SubscribeFilterLogs(context.Background(), query, ch)
+	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	defer sub.Unsubscribe()
+	timeout := time.After(TestTimeout)
 	for {
 		select {
 		case evt := <-ch:
-			currentNonce := evt.Topics[3].Big()
+			currentNonce := evt.Topics[2].Big()
+			status := uint8(evt.Topics[3].Big().Uint64())
 			// Check nonce matches
-			if currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
+			if utils.IsActive(status) && currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
 				log.Info("Got matching ProposalCreated event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
-				sub.Unsubscribe()
-				close(ch)
 				return
 			} else {
 				log.Info("Incorrect ProposalCreated event", "nonce", currentNonce, "expectedNonce", nonce, "topics", evt.Topics)
@@ -223,38 +248,39 @@ func WaitForDepositCreatedEvent(t *testing.T, client *ethclient.Client, bridge c
 			if err != nil {
 				t.Fatal(err)
 			}
-		case <-time.After(TestTimeout):
+		case <-timeout:
 			t.Fatalf("Test timed out waiting for ProposalCreated event")
 		}
 	}
 }
 
-func WaitForDepositExecutedEvent(t *testing.T, client *ethclient.Client, bridge common.Address, nonce uint64) {
+func WaitForProposalExecutedEvent(t *testing.T, client *utils.Client, bridge common.Address, nonce uint64) {
 	startBlock := ethtest.GetLatestBlock(t, client)
 
 	query := eth.FilterQuery{
 		FromBlock: startBlock,
 		Addresses: []common.Address{bridge},
 		Topics: [][]common.Hash{
-			{utils.ProposalExecuted.GetTopic()},
+			{utils.ProposalEvent.GetTopic()},
 		},
 	}
 
 	ch := make(chan ethtypes.Log)
-	sub, err := client.SubscribeFilterLogs(context.Background(), query, ch)
+	sub, err := client.Client.SubscribeFilterLogs(context.Background(), query, ch)
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer sub.Unsubscribe()
 
+	timeout := time.After(TestTimeout)
 	for {
 		select {
 		case evt := <-ch:
-			currentNonce := evt.Topics[3].Big()
+			currentNonce := evt.Topics[2].Big()
+			status := uint8(evt.Topics[3].Big().Uint64())
 			// Check nonce matches
-			if currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
+			if utils.IsExecuted(status) && currentNonce.Cmp(big.NewInt(int64(nonce))) == 0 {
 				log.Info("Got matching ProposalExecuted event, continuing...", "nonce", currentNonce, "topics", evt.Topics)
-				sub.Unsubscribe()
-				close(ch)
 				return
 			} else {
 				log.Info("Incorrect ProposalExecuted event", "nonce", currentNonce, "expectedNonce", nonce, "topics", evt.Topics)
@@ -263,7 +289,7 @@ func WaitForDepositExecutedEvent(t *testing.T, client *ethclient.Client, bridge 
 			if err != nil {
 				t.Fatal(err)
 			}
-		case <-time.After(TestTimeout):
+		case <-timeout:
 			t.Fatalf("Test timed out waiting for ProposalExecuted event")
 		}
 	}

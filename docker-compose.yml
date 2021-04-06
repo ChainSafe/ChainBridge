@@ -1,0 +1,16 @@
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
+
+version: '3'
+services:
+  bridge:
+    build:
+      context: .
+    container_name: bridge
+    environment:
+      - KEYSTORE_PASSWORD=password
+    command: --config /config/config.json
+    volumes:
+      - ./config:/config
+      - ./keys:/keys/
+    network_mode: host

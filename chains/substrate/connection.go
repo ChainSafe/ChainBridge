@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"sync"
 
-	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
 	"github.com/centrifuge/go-substrate-rpc-client/rpc/author"
@@ -18,17 +18,21 @@ import (
 
 type Connection struct {
 	api         *gsrpc.SubstrateAPI
-	url         string
-	name        string
-	meta        types.Metadata
-	genesisHash types.Hash
-	key         *signature.KeyringPair
-	metaLock    sync.RWMutex
 	log         log15.Logger
+	url         string                 // API endpoint
+	name        string                 // Chain name
+	meta        types.Metadata         // Latest chain metadata
+	metaLock    sync.RWMutex           // Lock metadata for updates, allows concurrent reads
+	genesisHash types.Hash             // Chain genesis hash
+	key         *signature.KeyringPair // Keyring used for signing
+	nonce       types.U32              // Latest account nonce
+	nonceLock   sync.Mutex             // Locks nonce for updates
+	stop        <-chan int             // Signals system shutdown, should be observed in all selects and loops
+	sysErr      chan<- error           // Propagates fatal errors to core
 }
 
-func NewConnection(url string, name string, key *signature.KeyringPair, log log15.Logger) *Connection {
-	return &Connection{url: url, name: name, key: key, log: log}
+func NewConnection(url string, name string, key *signature.KeyringPair, log log15.Logger, stop <-chan int, sysErr chan<- error) *Connection {
+	return &Connection{url: url, name: name, key: key, log: log, stop: stop, sysErr: sysErr}
 }
 
 func (c *Connection) getMetadata() (meta types.Metadata) {
@@ -90,7 +94,7 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 		args...,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to construct call: %s", err.Error())
+		return fmt.Errorf("failed to construct call: %w", err)
 	}
 	ext := types.NewExtrinsic(call)
 
@@ -100,39 +104,51 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 		return err
 	}
 
-	var acct types.AccountInfo
-	_, err = c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
+	c.nonceLock.Lock()
+	latestNonce, err := c.getLatestNonce()
 	if err != nil {
+		c.nonceLock.Unlock()
 		return err
+	}
+	if latestNonce > c.nonce {
+		c.nonce = latestNonce
 	}
 
 	// Sign the extrinsic
 	o := types.SignatureOptions{
-		BlockHash:   c.genesisHash,
-		Era:         types.ExtrinsicEra{IsMortalEra: false},
-		GenesisHash: c.genesisHash,
-		Nonce:       types.UCompact(acct.Nonce),
-		SpecVersion: rv.SpecVersion,
-		Tip:         0,
+		BlockHash:          c.genesisHash,
+		Era:                types.ExtrinsicEra{IsMortalEra: false},
+		GenesisHash:        c.genesisHash,
+		Nonce:              types.NewUCompactFromUInt(uint64(c.nonce)),
+		SpecVersion:        rv.SpecVersion,
+		Tip:                types.NewUCompactFromUInt(0),
+		TransactionVersion: 1,
 	}
+
 	err = ext.Sign(*c.key, o)
 	if err != nil {
+		c.nonceLock.Unlock()
 		return err
 	}
 
 	// Submit and watch the extrinsic
 	sub, err := c.api.RPC.Author.SubmitAndWatchExtrinsic(ext)
+	c.nonce++
+	c.nonceLock.Unlock()
 	if err != nil {
-		return fmt.Errorf("submission of extrinsic failed: %s", err.Error())
+		return fmt.Errorf("submission of extrinsic failed: %w", err)
 	}
-	c.log.Debug("Extrinsic submission succeeded")
+	c.log.Trace("Extrinsic submission succeeded")
 	defer sub.Unsubscribe()
+
 	return c.watchSubmission(sub)
 }
 
 func (c *Connection) watchSubmission(sub *author.ExtrinsicStatusSubscription) error {
 	for {
 		select {
+		case <-c.stop:
+			return TerminatedError
 		case status := <-sub.Chan():
 			switch {
 			case status.IsInBlock:
@@ -196,6 +212,18 @@ func (c *Connection) checkChainId(expected msg.ChainId) error {
 	return nil
 }
 
+func (c *Connection) getLatestNonce() (types.U32, error) {
+	var acct types.AccountInfo
+	exists, err := c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
+	if err != nil {
+		return 0, err
+	}
+	if !exists {
+		return 0, nil
+	}
+
+	return acct.Nonce, nil
+}
 func (c *Connection) Close() {
 	// TODO: Anything required to shutdown GRPC?
 }

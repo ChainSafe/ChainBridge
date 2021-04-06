@@ -5,6 +5,7 @@ package utils
 
 import (
 	"fmt"
+	"math/big"
 	"sync"
 
 	"github.com/ChainSafe/log15"
@@ -37,12 +38,13 @@ func SubmitTx(client *Client, method Method, args ...interface{}) error {
 
 	// Sign the extrinsic
 	o := types.SignatureOptions{
-		BlockHash:   client.Genesis,
-		Era:         types.ExtrinsicEra{IsMortalEra: false},
-		GenesisHash: client.Genesis,
-		Nonce:       types.UCompact(acct.Nonce),
-		SpecVersion: rv.SpecVersion,
-		Tip:         0,
+		BlockHash:          client.Genesis,
+		Era:                types.ExtrinsicEra{IsMortalEra: false},
+		GenesisHash:        client.Genesis,
+		Nonce:              types.NewUCompactFromUInt(uint64(acct.Nonce)),
+		SpecVersion:        rv.SpecVersion,
+		Tip:                types.NewUCompactFromUInt(0),
+		TransactionVersion: 1,
 	}
 	err = ext.Sign(*client.Key, o)
 	if err != nil {
@@ -95,12 +97,13 @@ func BatchSubmit(client *Client, calls []types.Call) error {
 
 	// Sign the extrinsic
 	o := types.SignatureOptions{
-		BlockHash:   client.Genesis,
-		Era:         types.ExtrinsicEra{IsMortalEra: false},
-		GenesisHash: client.Genesis,
-		Nonce:       types.UCompact(acct.Nonce),
-		SpecVersion: rv.SpecVersion,
-		Tip:         0,
+		BlockHash:          client.Genesis,
+		Era:                types.ExtrinsicEra{IsMortalEra: false},
+		GenesisHash:        client.Genesis,
+		Nonce:              types.NewUCompactFromUInt(uint64(acct.Nonce)),
+		SpecVersion:        rv.SpecVersion,
+		Tip:                types.NewUCompactFromUInt(0),
+		TransactionVersion: 1,
 	}
 
 	wg := &sync.WaitGroup{}
@@ -137,7 +140,8 @@ func BatchSubmit(client *Client, calls []types.Call) error {
 			}
 		}()
 
-		o.Nonce = o.Nonce + 1
+		bigNonce := big.Int(o.Nonce)
+		o.Nonce = types.NewUCompactFromUInt(bigNonce.Uint64() + 1)
 	}
 
 	wg.Wait()

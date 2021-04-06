@@ -9,9 +9,11 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/ChainSafe/ChainBridge/blockstore"
 	"github.com/ChainSafe/ChainBridge/chains"
-	msg "github.com/ChainSafe/ChainBridge/message"
+	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	"github.com/ChainSafe/chainbridge-utils/blockstore"
+	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -25,12 +27,17 @@ type listener struct {
 	subscriptions map[eventName]eventHandler // Handlers for specific events
 	router        chains.Router
 	log           log15.Logger
+	stop          <-chan int
+	sysErr        chan<- error
+	latestBlock   metrics.LatestBlock
+	metrics       *metrics.ChainMetrics
 }
 
 // Frequency of polling for a new block
-var BlockRetryInterval = time.Second * 2
+var BlockRetryInterval = time.Second * 5
+var BlockRetryLimit = 5
 
-func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer) *listener {
+func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint64, log log15.Logger, bs blockstore.Blockstorer, stop <-chan int, sysErr chan<- error, m *metrics.ChainMetrics) *listener {
 	return &listener{
 		name:          name,
 		chainId:       id,
@@ -39,6 +46,10 @@ func NewListener(conn *Connection, name string, id msg.ChainId, startBlock uint6
 		conn:          conn,
 		subscriptions: make(map[eventName]eventHandler),
 		log:           log,
+		stop:          stop,
+		sysErr:        sysErr,
+		latestBlock:   metrics.LatestBlock{LastUpdated: time.Now()},
+		metrics:       m,
 	}
 }
 
@@ -48,7 +59,7 @@ func (l *listener) setRouter(r chains.Router) {
 
 // start creates the initial subscription for all events
 func (l *listener) start() error {
-	// Check that whether latest is less than starting block
+	// Check whether latest is less than starting block
 	header, err := l.conn.api.RPC.Chain.GetHeaderLatest()
 	if err != nil {
 		return err
@@ -85,33 +96,96 @@ func (l *listener) registerEventHandler(name eventName, handler eventHandler) er
 
 var ErrBlockNotReady = errors.New("required result to be 32 bytes, but got 0")
 
+// pollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
+// Polling begins at the block defined in `l.startBlock`. Failed attempts to fetch the latest block or parse
+// a block will be retried up to BlockRetryLimit times before returning with an error.
 func (l *listener) pollBlocks() error {
-	var latestBlock = l.startBlock
+	l.log.Info("Polling Blocks...")
+	var currentBlock = l.startBlock
+	var retry = BlockRetryLimit
 	for {
-		hash, err := l.conn.api.RPC.Chain.GetBlockHash(latestBlock)
-		if err != nil && err.Error() == ErrBlockNotReady.Error() {
-			time.Sleep(BlockRetryInterval)
-			continue
-		} else if err != nil {
-			return err
-		}
-		err = l.processEvents(hash)
-		if err != nil {
-			return err
-		}
+		select {
+		case <-l.stop:
+			return errors.New("polling terminated")
+		default:
+			// No more retries, goto next block
+			if retry == 0 {
+				l.sysErr <- fmt.Errorf("event polling retries exceeded (chain=%d, name=%s)", l.chainId, l.name)
+				return nil
+			}
 
-		// Write to blockstore
-		err = l.blockstore.StoreBlock(big.NewInt(0).SetUint64(latestBlock))
-		if err != nil {
-			l.log.Error("Failed to write to blockstore", "err", err)
+			// Get finalized block hash
+			finalizedHash, err := l.conn.api.RPC.Chain.GetFinalizedHead()
+			if err != nil {
+				l.log.Error("Failed to fetch finalized hash", "err", err)
+				retry--
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
+			// Get finalized block header
+			finalizedHeader, err := l.conn.api.RPC.Chain.GetHeader(finalizedHash)
+			if err != nil {
+				l.log.Error("Failed to fetch finalized header", "err", err)
+				retry--
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
+			if l.metrics != nil {
+				l.metrics.LatestKnownBlock.Set(float64(finalizedHeader.Number))
+			}
+
+			// Sleep if the block we want comes after the most recently finalized block
+			if currentBlock > uint64(finalizedHeader.Number) {
+				l.log.Debug("Block not yet finalized", "target", currentBlock, "latest", finalizedHeader.Number)
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
+			// Get hash for latest block, sleep and retry if not ready
+			hash, err := l.conn.api.RPC.Chain.GetBlockHash(currentBlock)
+			if err != nil && err.Error() == ErrBlockNotReady.Error() {
+				time.Sleep(BlockRetryInterval)
+				continue
+			} else if err != nil {
+				l.log.Error("Failed to query latest block", "block", currentBlock, "err", err)
+				retry--
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+
+			l.log.Debug("Querying block for deposit events", "target", currentBlock)
+
+			err = l.processEvents(hash)
+			if err != nil {
+				l.log.Error("Failed to process events in block", "block", currentBlock, "err", err)
+				retry--
+				continue
+			}
+
+			// Write to blockstore
+			err = l.blockstore.StoreBlock(big.NewInt(0).SetUint64(currentBlock))
+			if err != nil {
+				l.log.Error("Failed to write to blockstore", "err", err)
+			}
+
+			if l.metrics != nil {
+				l.metrics.BlocksProcessed.Inc()
+				l.metrics.LatestProcessedBlock.Set(float64(currentBlock))
+			}
+
+			currentBlock++
+			l.latestBlock.Height = big.NewInt(0).SetUint64(currentBlock)
+			l.latestBlock.LastUpdated = time.Now()
+			retry = BlockRetryLimit
 		}
-		latestBlock++
 	}
 }
 
 // processEvents fetches a block and parses out the events, calling Listener.handleEvents()
 func (l *listener) processEvents(hash types.Hash) error {
-	l.log.Trace("Fetching block for events", "hash", hash.Hex())
+	l.log.Trace("Fetching events for block", "hash", hash.Hex())
 	meta := l.conn.getMetadata()
 	key, err := types.CreateStorageKey(&meta, "System", "Events", nil, nil)
 	if err != nil {
@@ -124,7 +198,7 @@ func (l *listener) processEvents(hash types.Hash) error {
 		return err
 	}
 
-	e := Events{}
+	e := utils.Events{}
 	err = records.DecodeEventRecords(&meta, &e)
 	if err != nil {
 		return err
@@ -137,7 +211,7 @@ func (l *listener) processEvents(hash types.Hash) error {
 }
 
 // handleEvents calls the associated handler for all registered event types
-func (l *listener) handleEvents(evts Events) {
+func (l *listener) handleEvents(evts utils.Events) {
 	if l.subscriptions[FungibleTransfer] != nil {
 		for _, evt := range evts.ChainBridge_FungibleTransfer {
 			l.log.Trace("Handling FungibleTransfer event")
@@ -177,8 +251,4 @@ func (l *listener) submitMessage(m msg.Message, err error) {
 	if err != nil {
 		log15.Error("failed to process event", "err", err)
 	}
-}
-
-func (l *listener) Stop() error {
-	return nil
 }

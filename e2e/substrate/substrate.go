@@ -9,11 +9,10 @@ import (
 	"testing"
 	"time"
 
-	subChain "github.com/ChainSafe/ChainBridge/chains/substrate"
-	"github.com/ChainSafe/ChainBridge/core"
-	"github.com/ChainSafe/ChainBridge/keystore"
-	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	"github.com/ChainSafe/chainbridge-utils/core"
+	"github.com/ChainSafe/chainbridge-utils/keystore"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
@@ -28,11 +27,12 @@ var AliceKp = keystore.TestKeyRing.SubstrateKeys[keystore.AliceKey]
 var BobKp = keystore.TestKeyRing.SubstrateKeys[keystore.BobKey]
 var CharlieKp = keystore.TestKeyRing.SubstrateKeys[keystore.CharlieKey]
 var DaveKp = keystore.TestKeyRing.SubstrateKeys[keystore.DaveKey]
+var EveKp = keystore.TestKeyRing.SubstrateKeys[keystore.EveKey]
 
 var RelayerSet = []types.AccountID{
-	types.NewAccountID(AliceKp.AsKeyringPair().PublicKey),
 	types.NewAccountID(BobKp.AsKeyringPair().PublicKey),
 	types.NewAccountID(CharlieKp.AsKeyringPair().PublicKey),
+	types.NewAccountID(DaveKp.AsKeyringPair().PublicKey),
 }
 
 func CreateConfig(key string, chain msg.ChainId) *core.ChainConfig {
@@ -45,7 +45,7 @@ func CreateConfig(key string, chain msg.ChainId) *core.ChainConfig {
 		Insecure:       true,
 		FreshStart:     true,
 		BlockstorePath: os.TempDir(),
-		Opts:           map[string]string{},
+		Opts:           map[string]string{"useExtendedCall": "true"},
 	}
 }
 
@@ -59,6 +59,7 @@ func WaitForProposalSuccessOrFail(t *testing.T, client *utils.Client, nonce type
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer sub.Unsubscribe()
 
 	timeout := time.After(TestTimeout)
 	for {
@@ -73,7 +74,7 @@ func WaitForProposalSuccessOrFail(t *testing.T, client *utils.Client, nonce type
 				}
 
 				// Decode the event records
-				events := subChain.Events{}
+				events := utils.Events{}
 				err = types.EventRecordsRaw(chng.StorageData).DecodeEventRecords(client.Meta, &events)
 				if err != nil {
 					t.Fatal(err)

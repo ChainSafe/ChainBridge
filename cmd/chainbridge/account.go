@@ -10,13 +10,14 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ChainSafe/ChainBridge/crypto"
-	"github.com/ChainSafe/ChainBridge/crypto/secp256k1"
-	"github.com/ChainSafe/ChainBridge/crypto/sr25519"
-	"github.com/ChainSafe/ChainBridge/keystore"
+	"github.com/ChainSafe/ChainBridge/config"
+	"github.com/ChainSafe/chainbridge-utils/crypto"
+	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
+	"github.com/ChainSafe/chainbridge-utils/crypto/sr25519"
+	"github.com/ChainSafe/chainbridge-utils/keystore"
 	log "github.com/ChainSafe/log15"
 	gokeystore "github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 //dataHandler is a struct which wraps any extra data our CMD functions need that cannot be passed through parameters
@@ -36,7 +37,7 @@ func wrapHandler(hdl func(*cli.Context, *dataHandler) error) cli.ActionFunc {
 
 		datadir, err := getDataDir(ctx)
 		if err != nil {
-			return fmt.Errorf("failed to access the datadir: %s", err)
+			return fmt.Errorf("failed to access the datadir: %w", err)
 		}
 
 		return hdl(ctx, &dataHandler{datadir: datadir})
@@ -50,60 +51,67 @@ func handleGenerateCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 	// check if --ed25519 or --sr25519 is set
 	keytype := crypto.Secp256k1Type
-	if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
+	if flagtype := ctx.Bool(config.Sr25519Flag.Name); flagtype {
 		keytype = crypto.Sr25519Type
-	} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
+	} else if flagtype := ctx.Bool(config.Secp256k1Flag.Name); flagtype {
 		keytype = crypto.Secp256k1Type
 	}
 
 	// check if --password is set
 	var password []byte = nil
-	if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
+	if pwdflag := ctx.String(config.PasswordFlag.Name); pwdflag != "" {
 		password = []byte(pwdflag)
 	}
 
-	_, err := generateKeypair(keytype, dHandler.datadir, password)
+	_, err := generateKeypair(keytype, dHandler.datadir, password, ctx.String(config.SubkeyNetworkFlag.Name))
 	if err != nil {
-		return fmt.Errorf("failed to generate key: %s", err)
+		return fmt.Errorf("failed to generate key: %w", err)
 	}
 	return nil
 }
 
 // handleImportCmd imports external keystores into the bridge
 func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
-
-	// import key
-
-	var err error
-
 	log.Info("Importing key...")
+	var err error
 
 	// check if --ed25519 or --sr25519 is set
 	keytype := crypto.Secp256k1Type
-	if flagtype := ctx.Bool(Sr25519Flag.Name); flagtype {
+	if flagtype := ctx.Bool(config.Sr25519Flag.Name); flagtype {
 		keytype = crypto.Sr25519Type
-	} else if flagtype := ctx.Bool(Secp256k1Flag.Name); flagtype {
+	} else if flagtype := ctx.Bool(config.Secp256k1Flag.Name); flagtype {
 		keytype = crypto.Secp256k1Type
 	}
 
-	if ctx.Bool(EthereumImportFlag.Name) {
+	if ctx.Bool(config.EthereumImportFlag.Name) {
 		if keyimport := ctx.Args().First(); keyimport != "" {
-			_, err = importEthKey(keyimport, dHandler.datadir)
+			// check if --password is set
+			var password []byte = nil
+			if pwdflag := ctx.String(config.PasswordFlag.Name); pwdflag != "" {
+				password = []byte(pwdflag)
+			}
+			_, err = importEthKey(keyimport, dHandler.datadir, password, nil)
 		} else {
 			return fmt.Errorf("Must provide a key to import.")
 		}
-	} else if privkeyflag := ctx.String(PrivateKeyFlag.Name); privkeyflag != "" {
+	} else if privkeyflag := ctx.String(config.PrivateKeyFlag.Name); privkeyflag != "" {
 		// check if --password is set
 		var password []byte = nil
-		if pwdflag := ctx.String(PasswordFlag.Name); pwdflag != "" {
+		if pwdflag := ctx.String(config.PasswordFlag.Name); pwdflag != "" {
 			password = []byte(pwdflag)
 		}
 
-		_, err = importPrivKey(keytype, dHandler.datadir, privkeyflag, password)
+		_, err = importPrivKey(ctx, keytype, dHandler.datadir, privkeyflag, password)
+	} else {
+		if keyimport := ctx.Args().First(); keyimport != "" {
+			_, err = importKey(keyimport, dHandler.datadir)
+		} else {
+			return fmt.Errorf("Must provide a key to import.")
+		}
 	}
 
 	if err != nil {
-		return fmt.Errorf("failed to import key: %s", err)
+		return fmt.Errorf("failed to import key: %w", err)
 	}
 
 	return nil
@@ -114,7 +122,7 @@ func handleListCmd(ctx *cli.Context, dHandler *dataHandler) error {
 
 	_, err := listKeys(dHandler.datadir)
 	if err != nil {
-		return fmt.Errorf("failed to list keys: %s", err)
+		return fmt.Errorf("failed to list keys: %w", err)
 	}
 
 	return nil
@@ -123,7 +131,7 @@ func handleListCmd(ctx *cli.Context, dHandler *dataHandler) error {
 // getDataDir obtains the path to the keystore and returns it as a string
 func getDataDir(ctx *cli.Context) (string, error) {
 	// key directory is datadir/keystore/
-	if dir := ctx.GlobalString(KeystorePathFlag.Name); dir != "" {
+	if dir := ctx.String(config.KeystorePathFlag.Name); dir != "" {
 		datadir, err := filepath.Abs(dir)
 		if err != nil {
 			return "", err
@@ -135,7 +143,7 @@ func getDataDir(ctx *cli.Context) (string, error) {
 }
 
 //importPrivKey imports a private key into a keypair
-func importPrivKey(keytype, datadir, key string, password []byte) (string, error) {
+func importPrivKey(ctx *cli.Context, keytype, datadir, key string, password []byte) (string, error) {
 	if password == nil {
 		password = keystore.GetPassword("Enter password to encrypt keystore file:")
 	}
@@ -150,9 +158,10 @@ func importPrivKey(keytype, datadir, key string, password []byte) (string, error
 
 	if keytype == crypto.Sr25519Type {
 		// generate sr25519 keys
-		kp, err = sr25519.NewKeypairFromSeed(key)
+		network := ctx.String(config.SubkeyNetworkFlag.Name)
+		kp, err = sr25519.NewKeypairFromSeed(key, network)
 		if err != nil {
-			return "", fmt.Errorf("could not generate sr25519 keypair from given string: %s", err)
+			return "", fmt.Errorf("could not generate sr25519 keypair from given string: %w", err)
 		}
 	} else if keytype == crypto.Secp256k1Type {
 		// Hex must not have leading 0x
@@ -163,7 +172,7 @@ func importPrivKey(keytype, datadir, key string, password []byte) (string, error
 		}
 
 		if err != nil {
-			return "", fmt.Errorf("could not generate secp256k1 keypair from given string: %s", err)
+			return "", fmt.Errorf("could not generate secp256k1 keypair from given string: %w", err)
 		}
 	} else {
 		return "", fmt.Errorf("invalid key type: %s", keytype)
@@ -171,12 +180,12 @@ func importPrivKey(keytype, datadir, key string, password []byte) (string, error
 
 	fp, err := filepath.Abs(keystorepath + "/" + kp.Address() + ".key")
 	if err != nil {
-		return "", fmt.Errorf("invalid filepath: %s", err)
+		return "", fmt.Errorf("invalid filepath: %w", err)
 	}
 
-	file, err := os.OpenFile(fp, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(filepath.Clean(fp), os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
-		return "", fmt.Errorf("Unable to Open File: %s", err)
+		return "", fmt.Errorf("Unable to Open File: %w", err)
 	}
 
 	defer func() {
@@ -188,7 +197,7 @@ func importPrivKey(keytype, datadir, key string, password []byte) (string, error
 
 	err = keystore.EncryptAndWriteToFile(file, kp, password)
 	if err != nil {
-		return "", fmt.Errorf("could not write key to file: %s", err)
+		return "", fmt.Errorf("could not write key to file: %w", err)
 	}
 
 	log.Info("private key imported", "address", kp.Address(), "file", fp)
@@ -197,32 +206,34 @@ func importPrivKey(keytype, datadir, key string, password []byte) (string, error
 }
 
 //importEthKey takes an ethereum keystore and converts it to our keystore format
-func importEthKey(filename, datadir string) (string, error) {
+func importEthKey(filename, datadir string, password, newPassword []byte) (string, error) {
 	keystorepath, err := keystoreDir(datadir)
 	if err != nil {
-		return "", fmt.Errorf("could not get keystore directory: %s", err)
+		return "", fmt.Errorf("could not get keystore directory: %w", err)
 	}
 
 	importdata, err := ioutil.ReadFile(filepath.Clean(filename))
 	if err != nil {
-		return "", fmt.Errorf("could not read import file: %s", err)
+		return "", fmt.Errorf("could not read import file: %w", err)
 	}
 
-	password := keystore.GetPassword("Enter password to decrypt keystore file:")
+	if password == nil {
+		password = keystore.GetPassword("Enter password to decrypt keystore file:")
+	}
 
 	key, err := gokeystore.DecryptKey(importdata, string(password))
 	if err != nil {
-		return "", fmt.Errorf("Unable to decrypt file: %s", err)
+		return "", fmt.Errorf("Unable to decrypt file: %w", err)
 	}
 
 	kp := secp256k1.NewKeypair(*key.PrivateKey)
 
 	fp, err := filepath.Abs(keystorepath + "/" + kp.Address() + ".key")
 	if err != nil {
-		return "", fmt.Errorf("invalid filepath: %s", err)
+		return "", fmt.Errorf("invalid filepath: %w", err)
 	}
 
-	file, err := os.OpenFile(fp, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(filepath.Clean(fp), os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return "", err
 	}
@@ -234,11 +245,13 @@ func importEthKey(filename, datadir string) (string, error) {
 		}
 	}()
 
-	newPassword := keystore.GetPassword("Enter password to encrypt new keystore file:")
+	if newPassword == nil {
+		newPassword = keystore.GetPassword("Enter password to encrypt new keystore file:")
+	}
 
 	err = keystore.EncryptAndWriteToFile(file, kp, newPassword)
 	if err != nil {
-		return "", fmt.Errorf("could not write key to file: %s", err)
+		return "", fmt.Errorf("could not write key to file: %w", err)
 	}
 
 	log.Info("ETH key imported", "address", kp.Address(), "file", fp)
@@ -252,28 +265,28 @@ func importEthKey(filename, datadir string) (string, error) {
 func importKey(filename, datadir string) (string, error) {
 	keystorepath, err := keystoreDir(datadir)
 	if err != nil {
-		return "", fmt.Errorf("could not get keystore directory: %s", err)
+		return "", fmt.Errorf("could not get keystore directory: %w", err)
 	}
 
 	importdata, err := ioutil.ReadFile(filepath.Clean(filename))
 	if err != nil {
-		return "", fmt.Errorf("could not read import file: %s", err)
+		return "", fmt.Errorf("could not read import file: %w", err)
 	}
 
 	ksjson := new(keystore.EncryptedKeystore)
 	err = json.Unmarshal(importdata, ksjson)
 	if err != nil {
-		return "", fmt.Errorf("could not read file contents: %s", err)
+		return "", fmt.Errorf("could not read file contents: %w", err)
 	}
 
 	keystorefile, err := filepath.Abs(keystorepath + "/" + ksjson.Address[2:] + ".key")
 	if err != nil {
-		return "", fmt.Errorf("could not create keystore file path: %s", err)
+		return "", fmt.Errorf("could not create keystore file path: %w", err)
 	}
 
 	err = ioutil.WriteFile(keystorefile, importdata, 0600)
 	if err != nil {
-		return "", fmt.Errorf("could not write to keystore directory: %s", err)
+		return "", fmt.Errorf("could not write to keystore directory: %w", err)
 	}
 
 	log.Info("successfully imported key", "address", ksjson.Address, "file", keystorefile)
@@ -299,12 +312,12 @@ func listKeys(datadir string) ([]string, error) {
 func getKeyFiles(datadir string) ([]string, error) {
 	keystorepath, err := keystoreDir(datadir)
 	if err != nil {
-		return nil, fmt.Errorf("could not get keystore directory: %s", err)
+		return nil, fmt.Errorf("could not get keystore directory: %w", err)
 	}
 
 	files, err := ioutil.ReadDir(keystorepath)
 	if err != nil {
-		return nil, fmt.Errorf("could not read keystore dir: %s", err)
+		return nil, fmt.Errorf("could not read keystore dir: %w", err)
 	}
 
 	keys := []string{}
@@ -322,7 +335,7 @@ func getKeyFiles(datadir string) ([]string, error) {
 // generateKeypair create a new keypair with the corresponding type and saves it to datadir/keystore/[public key].key
 // in json format encrypted using the specified password
 // it returns the resulting filepath of the new key
-func generateKeypair(keytype, datadir string, password []byte) (string, error) {
+func generateKeypair(keytype, datadir string, password []byte, subNetwork string) (string, error) {
 	if password == nil {
 		password = keystore.GetPassword("Enter password to encrypt keystore file:")
 	}
@@ -337,15 +350,15 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 
 	if keytype == crypto.Sr25519Type {
 		// generate sr25519 keys
-		kp, err = sr25519.GenerateKeypair()
+		kp, err = sr25519.GenerateKeypair(subNetwork)
 		if err != nil {
-			return "", fmt.Errorf("could not generate sr25519 keypair: %s", err)
+			return "", fmt.Errorf("could not generate sr25519 keypair: %w", err)
 		}
 	} else if keytype == crypto.Secp256k1Type {
 		// generate secp256k1 keys
 		kp, err = secp256k1.GenerateKeypair()
 		if err != nil {
-			return "", fmt.Errorf("could not generate secp256k1 keypair: %s", err)
+			return "", fmt.Errorf("could not generate secp256k1 keypair: %w", err)
 		}
 	} else {
 		return "", fmt.Errorf("invalid key type: %s", keytype)
@@ -353,15 +366,15 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 
 	keystorepath, err := keystoreDir(datadir)
 	if err != nil {
-		return "", fmt.Errorf("could not get keystore directory: %s", err)
+		return "", fmt.Errorf("could not get keystore directory: %w", err)
 	}
 
 	fp, err := filepath.Abs(keystorepath + "/" + kp.Address() + ".key")
 	if err != nil {
-		return "", fmt.Errorf("invalid filepath: %s", err)
+		return "", fmt.Errorf("invalid filepath: %w", err)
 	}
 
-	file, err := os.OpenFile(fp, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(filepath.Clean(fp), os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return "", err
 	}
@@ -375,7 +388,7 @@ func generateKeypair(keytype, datadir string, password []byte) (string, error) {
 
 	err = keystore.EncryptAndWriteToFile(file, kp, password)
 	if err != nil {
-		return "", fmt.Errorf("could not write key to file: %s", err)
+		return "", fmt.Errorf("could not write key to file: %w", err)
 	}
 
 	log.Info("key generated", "address", kp.Address(), "type", keytype, "file", fp)
@@ -394,11 +407,11 @@ func keystoreDir(keyPath string) (keystorepath string, err error) {
 		}
 	} else {
 		// datadir not specified, use default
-		keyPath = DefaultKeystorePath
+		keyPath = config.DefaultKeystorePath
 
 		keystorepath, err = filepath.Abs(keyPath)
 		if err != nil {
-			return "", fmt.Errorf("could not create keystore file path: %s", err)
+			return "", fmt.Errorf("could not create keystore file path: %w", err)
 		}
 	}
 

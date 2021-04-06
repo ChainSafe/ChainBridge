@@ -4,81 +4,95 @@
 package substrate
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"time"
 
-	"github.com/ChainSafe/ChainBridge/chains"
-	msg "github.com/ChainSafe/ChainBridge/message"
+	"github.com/ChainSafe/chainbridge-utils/core"
+
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 )
 
-var _ chains.Writer = &writer{}
+var _ core.Writer = &writer{}
 
 var AcknowledgeProposal utils.Method = utils.BridgePalletName + ".acknowledge_proposal"
+var TerminatedError = errors.New("terminated")
 
 type writer struct {
-	conn *Connection
-	log  log15.Logger
+	conn       *Connection
+	log        log15.Logger
+	sysErr     chan<- error
+	metrics    *metrics.ChainMetrics
+	extendCall bool // Extend extrinsic calls to substrate with ResourceID.Used for backward compatibility with example pallet.
 }
 
-func NewWriter(conn *Connection, log log15.Logger) *writer {
+func NewWriter(conn *Connection, log log15.Logger, sysErr chan<- error, m *metrics.ChainMetrics, extendCall bool) *writer {
 	return &writer{
-		conn: conn,
-		log:  log,
+		conn:       conn,
+		log:        log,
+		sysErr:     sysErr,
+		metrics:    m,
+		extendCall: extendCall,
 	}
-}
-
-func (w *writer) start() error {
-	return nil
 }
 
 func (w *writer) ResolveMessage(m msg.Message) bool {
 	var prop *proposal
 	var err error
 
+	// Construct the proposal
 	switch m.Type {
 	case msg.FungibleTransfer:
 		prop, err = w.createFungibleProposal(m)
-		if err != nil {
-			w.log.Error("Failed to construct fungible transfer from message", "err", err)
-			return false
-		}
 	case msg.NonFungibleTransfer:
 		prop, err = w.createNonFungibleProposal(m)
-		if err != nil {
-			w.log.Error("Failed to construct nonfungible transfer from message", "err", err)
-			return false
-		}
 	case msg.GenericTransfer:
 		prop, err = w.createGenericProposal(m)
-		if err != nil {
-			w.log.Error("Failed to construct generic transfer from message", "err", err)
-			return false
-		}
-
 	default:
-		w.log.Error("Unrecognized message type", "type", m.Type)
+		w.sysErr <- fmt.Errorf("unrecognized message type received (chain=%d, name=%s)", m.Destination, w.conn.name)
 		return false
 	}
 
-	// Ensure we only submit a vote if the proposal hasn't completed
-	active, err := w.proposalNotCompleted(prop)
 	if err != nil {
-		w.log.Error("Failed to assert proposal state", "err", err)
+		w.sysErr <- fmt.Errorf("failed to construct proposal (chain=%d, name=%s) Error: %w", m.Destination, w.conn.name, err)
 		return false
 	}
-	if active {
-		w.log.Trace("Acknowledging proposal on chain", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", fmt.Sprintf("%x", prop.resourceId), "method", prop.method)
-		err = w.conn.SubmitTx(AcknowledgeProposal, prop.depositNonce, prop.sourceId, prop.resourceId, prop.call)
-		if err != nil {
-			w.log.Error("Failed to execute extrinsic", "err", err)
-			return false
-		}
-	} else {
-		w.log.Debug("Ignoring previously completed proposal", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)
-	}
 
+	for i := 0; i < BlockRetryLimit; i++ {
+		// Ensure we only submit a vote if the proposal hasn't completed
+		valid, reason, err := w.proposalValid(prop)
+		if err != nil {
+			w.log.Error("Failed to assert proposal state", "err", err)
+			time.Sleep(BlockRetryInterval)
+			continue
+		}
+
+		// If active submit call, otherwise skip it. Retry on failure.
+		if valid {
+			w.log.Info("Acknowledging proposal on chain", "nonce", prop.depositNonce, "source", prop.sourceId, "resource", fmt.Sprintf("%x", prop.resourceId), "method", prop.method)
+
+			err = w.conn.SubmitTx(AcknowledgeProposal, prop.depositNonce, prop.sourceId, prop.resourceId, prop.call)
+			if err != nil && err.Error() == TerminatedError.Error() {
+				return false
+			} else if err != nil {
+				w.log.Error("Failed to execute extrinsic", "err", err)
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+			if w.metrics != nil {
+				w.metrics.VotesSubmitted.Inc()
+			}
+			return true
+		} else {
+			w.log.Info("Ignoring proposal", "reason", reason, "nonce", prop.depositNonce, "source", prop.sourceId, "resource", prop.resourceId)
+			return true
+		}
+	}
 	return true
 }
 
@@ -91,32 +105,45 @@ func (w *writer) resolveResourceId(id [32]byte) (string, error) {
 	if !exists {
 		return "", fmt.Errorf("resource %x not found on chain", id)
 	}
-
 	return string(res), nil
 }
 
-func (w *writer) proposalNotCompleted(prop *proposal) (bool, error) {
+// proposalValid asserts the state of a proposal. If the proposal is active and this relayer
+// has not voted, it will return true. Otherwise, it will return false with a reason string.
+func (w *writer) proposalValid(prop *proposal) (bool, string, error) {
 	var voteRes voteState
 	srcId, err := types.EncodeToBytes(prop.sourceId)
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 	propBz, err := prop.encode()
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 	exists, err := w.conn.queryStorage(utils.BridgeStoragePrefix, "Votes", srcId, propBz, &voteRes)
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 
-	// Ensure proposal either doesn't yet exist or is still active
-	if !exists || voteRes.Status.IsActive {
-		return true, nil
+	if !exists {
+		return true, "", nil
+	} else if voteRes.Status.IsActive {
+		if containsVote(voteRes.VotesFor, types.NewAccountID(w.conn.key.PublicKey)) ||
+			containsVote(voteRes.VotesAgainst, types.NewAccountID(w.conn.key.PublicKey)) {
+			return false, "already voted", nil
+		} else {
+			return true, "", nil
+		}
+	} else {
+		return false, "proposal complete", nil
 	}
-	return false, nil
 }
 
-func (w *writer) Stop() error {
-	return nil
+func containsVote(votes []types.AccountID, voter types.AccountID) bool {
+	for _, v := range votes {
+		if bytes.Equal(v[:], voter[:]) {
+			return true
+		}
+	}
+	return false
 }

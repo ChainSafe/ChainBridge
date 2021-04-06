@@ -14,10 +14,10 @@ import (
 	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
-	"github.com/ChainSafe/ChainBridge/blockstore"
-	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
+	"github.com/ChainSafe/chainbridge-utils/blockstore"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
@@ -32,7 +32,7 @@ func (r *MockRouter) Send(message msg.Message) error {
 	return nil
 }
 
-func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedContracts) (*listener, *MockRouter) {
+func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedContracts, stop <-chan int, sysErr chan<- error) (*listener, *MockRouter) {
 	// Create copy and add deployed contract addresses
 	newConfig := *config
 	newConfig.bridgeContract = contracts.BridgeAddress
@@ -41,31 +41,31 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	newConfig.genericHandlerContract = contracts.GenericHandlerAddress
 
 	conn := newLocalConnection(t, &newConfig)
-	latestBlock, err := conn.latestBlock()
+	latestBlock, err := conn.LatestBlock()
 	if err != nil {
 		t.Fatal(err)
 	}
 	newConfig.startBlock = latestBlock
 
-	bridgeContract, err := Bridge.NewBridge(newConfig.bridgeContract, conn.conn)
+	bridgeContract, err := Bridge.NewBridge(newConfig.bridgeContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc20HandlerContract, err := ERC20Handler.NewERC20Handler(newConfig.erc20HandlerContract, conn.conn)
+	erc20HandlerContract, err := ERC20Handler.NewERC20Handler(newConfig.erc20HandlerContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
-	erc721HandlerContract, err := ERC721Handler.NewERC721Handler(newConfig.erc721HandlerContract, conn.conn)
+	erc721HandlerContract, err := ERC721Handler.NewERC721Handler(newConfig.erc721HandlerContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
-	genericHandlerContract, err := GenericHandler.NewGenericHandler(newConfig.genericHandlerContract, conn.conn)
+	genericHandlerContract, err := GenericHandler.NewGenericHandler(newConfig.genericHandlerContract, conn.Client())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	router := &MockRouter{msgs: make(chan msg.Message)}
-	listener := NewListener(conn, &newConfig, TestLogger, &blockstore.EmptyStore{})
+	listener := NewListener(conn, &newConfig, TestLogger, &blockstore.EmptyStore{}, stop, sysErr, nil)
 	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
 	listener.setRouter(router)
 	// Start the listener
@@ -77,36 +77,46 @@ func createTestListener(t *testing.T, config *Config, contracts *utils.DeployedC
 	return listener, router
 }
 
+func verifyMessage(t *testing.T, r *MockRouter, expected msg.Message, errs chan error) {
+	// Verify message
+	select {
+	case m := <-r.msgs:
+		err := compareMessage(expected, m)
+		if err != nil {
+			t.Fatal(err)
+		}
+	case err := <-errs:
+		t.Fatalf("Fatal error: %s", err)
+	case <-time.After(TestTimeout):
+		t.Fatalf("test timed out")
+	}
+}
+
 func TestListener_start_stop(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id)
-	l, _ := createTestListener(t, aliceTestConfig, contracts)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id)
+	stop := make(chan int)
+	l, _ := createTestListener(t, aliceTestConfig, contracts, stop, nil)
 
 	err := l.start()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = l.stop()
-	if err != nil {
-		t.Fatal(err)
-	}
+	// Initiate shutdown
+	close(stop)
 }
 
 func TestListener_Erc20DepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id)
-	l, router := createTestListener(t, aliceTestConfig, contracts)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id)
+	errs := make(chan error)
+	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
-	go watchEvent(l.conn, utils.Deposit)
+	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.Deposit)
 
-	// Get transaction ready
-	opts, nonce, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	nonce.lock.Unlock() // We manual increment nonce in tests
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	erc20Contract := ethtest.DeployMintApproveErc20(t, l.conn.conn, opts, contracts.ERC20HandlerAddress, big.NewInt(100))
+	erc20Contract := ethtest.DeployMintApproveErc20(t, client, contracts.ERC20HandlerAddress, big.NewInt(100))
 
 	amount := big.NewInt(10)
 	src := msg.ChainId(0)
@@ -114,7 +124,7 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc20Contract.Bytes(), 31), uint8(src)))
 	recipient := ethcrypto.PubkeyToAddress(BobKp.PrivateKey().PublicKey)
 
-	ethtest.RegisterResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
+	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC20HandlerAddress, resourceId, erc20Contract)
 
 	expectedMessage := msg.NewFungibleTransfer(
 		src,
@@ -128,28 +138,18 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	createErc20Deposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client,
 		resourceId,
-		l.cfg.erc20HandlerContract,
 
 		recipient,
 		dst,
 		amount,
 	)
 
-	// Verify message
-	select {
-	case m := <-router.msgs:
-		err = compareMessage(expectedMessage, m)
-		if err != nil {
-			t.Fatal(err)
-		}
-	case <-time.After(TestTimeout):
-		t.Fatalf("test timed out")
-	}
+	verifyMessage(t, router, expectedMessage, errs)
 
 	// Create second deposit, verify nonce change
-	expectedMessage2 := msg.NewFungibleTransfer(
+	expectedMessage = msg.NewFungibleTransfer(
 		src,
 		dst,
 		2,
@@ -160,53 +160,39 @@ func TestListener_Erc20DepositedEvent(t *testing.T) {
 	createErc20Deposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client,
 		resourceId,
-		l.cfg.erc20HandlerContract,
 
 		recipient,
 		dst,
 		amount,
 	)
 
-	// Verify message
-	select {
-	case m := <-router.msgs:
-		err = compareMessage(expectedMessage2, m)
-		if err != nil {
-			t.Fatal(err)
-		}
-	case <-time.After(TestTimeout):
-		t.Fatalf("test timed out")
-	}
+	verifyMessage(t, router, expectedMessage, errs)
 }
 
 func TestListener_Erc721DepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id)
-	l, router := createTestListener(t, aliceTestConfig, contracts)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id)
+	errs := make(chan error)
+	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
-	go watchEvent(l.conn, utils.Deposit)
-
-	// Get transaction ready
-	opts, nonce, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	nonce.lock.Unlock() // We manual increment nonce in tests
-	if err != nil {
-		t.Fatal(err)
-	}
+	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.Deposit)
 
 	tokenId := big.NewInt(99)
-	erc721Contract := ethtest.Erc721Deploy(t, l.conn.conn, opts)
-	ethtest.Erc721Mint(t, l.conn.conn, opts, erc721Contract, tokenId, []byte{})
-	ethtest.Erc721Approve(t, l.conn.conn, opts, erc721Contract, contracts.ERC721HandlerAddress, tokenId)
+
+	erc721Contract := ethtest.Erc721Deploy(t, client)
+	ethtest.Erc721Mint(t, client, erc721Contract, tokenId, []byte{})
+	ethtest.Erc721Approve(t, client, erc721Contract, contracts.ERC721HandlerAddress, tokenId)
 	log15.Info("Deployed erc721, minted and approved handler", "handler", contracts.ERC721HandlerAddress, "contract", erc721Contract, "tokenId", tokenId.Bytes())
-	ethtest.Erc721AssertOwner(t, l.conn.conn, opts, erc721Contract, tokenId, opts.From)
+	ethtest.Erc721AssertOwner(t, client, erc721Contract, tokenId, client.Opts.From)
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes(erc721Contract.Bytes(), 31), uint8(src)))
 	recipient := BobKp.CommonAddress()
 
-	ethtest.RegisterResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
+	ethtest.RegisterResource(t, client, contracts.BridgeAddress, contracts.ERC721HandlerAddress, resourceId, erc721Contract)
 
 	expectedMessage := msg.NewNonFungibleTransfer(
 		src,
@@ -222,41 +208,25 @@ func TestListener_Erc721DepositedEvent(t *testing.T) {
 	createErc721Deposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client,
 		resourceId,
-		l.cfg.erc721HandlerContract,
 
 		recipient,
 		dst,
 		tokenId,
-		[]byte{}, // Empty metadata
 	)
 
-	// Verify message
-	select {
-	case m := <-router.msgs:
-		err = compareMessage(expectedMessage, m)
-		if err != nil {
-			t.Fatal(err)
-		}
-	case <-time.After(TestTimeout):
-		t.Fatalf("test timed out")
-	}
+	verifyMessage(t, router, expectedMessage, errs)
 }
 
 func TestListener_GenericDepositedEvent(t *testing.T) {
-	contracts := deployTestContracts(t, aliceTestConfig.id)
-	l, router := createTestListener(t, aliceTestConfig, contracts)
+	client := ethtest.NewClient(t, TestEndpoint, AliceKp)
+	contracts := deployTestContracts(t, client, aliceTestConfig.id)
+	errs := make(chan error)
+	l, router := createTestListener(t, aliceTestConfig, contracts, make(chan int), errs)
 
 	// For debugging
-	go watchEvent(l.conn, utils.Deposit)
-
-	// Get transaction ready
-	opts, nonce, err := l.conn.newTransactOpts(big.NewInt(0), big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice))
-	nonce.lock.Unlock() // We manual increment nonce in tests
-	if err != nil {
-		t.Fatal(err)
-	}
+	go ethtest.WatchEvent(client, contracts.BridgeAddress, utils.Deposit)
 
 	src := msg.ChainId(0)
 	dst := msg.ChainId(1)
@@ -264,7 +234,7 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 	resourceId := msg.ResourceIdFromSlice(append(common.LeftPadBytes([]byte{1}, 31), uint8(src)))
 	depositSig := utils.CreateFunctionSignature("")
 	executeSig := utils.CreateFunctionSignature("store()")
-	ethtest.RegisterGenericResource(t, l.conn.conn, opts, contracts.BridgeAddress, contracts.GenericHandlerAddress, resourceId, utils.ZeroAddress, depositSig, executeSig)
+	ethtest.RegisterGenericResource(t, client, contracts.BridgeAddress, contracts.GenericHandlerAddress, resourceId, utils.ZeroAddress, depositSig, executeSig)
 
 	expectedMessage := msg.NewGenericTransfer(
 		src,
@@ -278,24 +248,14 @@ func TestListener_GenericDepositedEvent(t *testing.T) {
 	createGenericDeposit(
 		t,
 		l.bridgeContract,
-		opts,
+		client,
 		resourceId,
-		l.cfg.genericHandlerContract,
 
 		dst,
 		hash[:],
 	)
 
-	// Verify message
-	select {
-	case m := <-router.msgs:
-		err = compareMessage(expectedMessage, m)
-		if err != nil {
-			t.Fatal(err)
-		}
-	case <-time.After(TestTimeout):
-		t.Fatalf("test timed out")
-	}
+	verifyMessage(t, router, expectedMessage, errs)
 }
 
 func compareMessage(expected, actual msg.Message) error {

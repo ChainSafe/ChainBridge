@@ -21,16 +21,21 @@ coverage.txt
 # Builds
 build/
 bin/
+site/
 
 # golang
 .env
 bridge
 keys/
+*.key
 
 # Chainbridge
 config.toml
-./centrifuge-chain
+config.json
 *.block
-
+gethdata1/
+gethdata2/
+centrifuge-chain/
 # Solidity
 /solidity
+/cfgBuilder/*.toml

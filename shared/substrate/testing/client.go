@@ -8,8 +8,8 @@ import (
 	"math/big"
 	"testing"
 
-	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
@@ -109,4 +109,12 @@ func GetDepositNonce(t *testing.T, client *utils.Client, chain msg.ChainId) uint
 		t.Fatal(err)
 	}
 	return count
+}
+
+func NewNativeTransferCall(t *testing.T, client *utils.Client, amount types.U128, recipient []byte, destId msg.ChainId) types.Call {
+	call, err := client.NewNativeTransferCall(amount, recipient, destId)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return call
 }

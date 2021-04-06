@@ -7,14 +7,13 @@ import (
 	"bytes"
 	"testing"
 
-	msg "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func AssertGenericResourceAddress(t *testing.T, client *ethclient.Client, handler common.Address, rId msg.ResourceId, expected common.Address) {
+func AssertGenericResourceAddress(t *testing.T, client *utils.Client, handler common.Address, rId msg.ResourceId, expected common.Address) {
 	actual, err := utils.GetGenericResourceAddress(client, handler, rId)
 	if err != nil {
 		t.Fatal(err)

@@ -6,7 +6,7 @@ package substrate
 import (
 	"strconv"
 
-	"github.com/ChainSafe/ChainBridge/core"
+	"github.com/ChainSafe/chainbridge-utils/core"
 )
 
 func parseStartBlock(cfg *core.ChainConfig) uint64 {
@@ -18,4 +18,15 @@ func parseStartBlock(cfg *core.ChainConfig) uint64 {
 		return res
 	}
 	return 0
+}
+
+func parseUseExtended(cfg *core.ChainConfig) bool {
+	if b, ok := cfg.Opts["useExtendedCall"]; ok {
+		res, err := strconv.ParseBool(b)
+		if err != nil {
+			panic(err)
+		}
+		return res
+	}
+	return false
 }

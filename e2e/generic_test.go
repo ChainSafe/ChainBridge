@@ -25,8 +25,8 @@ func testSubstrateHashToGenericHandler(t *testing.T, ctx *testContext) {
 			subtest.InitiateHashTransfer(t, ctx.subClient, hash, EthAChainId)
 
 			// Wait for event
-			eth.WaitForDepositCreatedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
-			eth.WaitForDepositExecutedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalActive(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalExecutedEvent(t, ctx.ethA.Client, ctx.ethA.BaseContracts.BridgeAddress, nonce)
 			nonce++
 
 			// Verify hash is available
@@ -47,12 +47,12 @@ func testEthereumHashToGenericHandler(t *testing.T, ctx *testContext) {
 		ok := t.Run(fmt.Sprintf("Transfer %d", i), func(t *testing.T) {
 			// Execute transfer
 			hash := sub.HashInt(i)
-			log.Info("Submitting transaction", "number", i, "hash", hash.Hex(), "resourceId", ctx.EthGenericResourceId.Hex(), "from", ctx.ethA.Opts.From, "handler", ctx.ethA.BaseContracts.GenericHandlerAddress)
-			eth.CreateGenericDeposit(t, ctx.ethA.Client, ctx.ethA.Opts, EthBChainId, hash[:], ctx.ethB.BaseContracts, ctx.EthGenericResourceId)
+			log.Info("Submitting transaction", "number", i, "hash", hash.Hex(), "resourceId", ctx.EthGenericResourceId.Hex(), "from", ctx.ethA.Client.Opts.From, "handler", ctx.ethA.BaseContracts.GenericHandlerAddress)
+			eth.CreateGenericDeposit(t, ctx.ethA.Client, EthBChainId, hash[:], ctx.ethB.BaseContracts, ctx.EthGenericResourceId)
 
 			// Wait for event
-			eth.WaitForDepositCreatedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
-			eth.WaitForDepositExecutedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalActive(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
+			eth.WaitForProposalExecutedEvent(t, ctx.ethB.Client, ctx.ethB.BaseContracts.BridgeAddress, nonce)
 			nonce++
 
 			// Verify hash is available

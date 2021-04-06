@@ -1,4 +1,5 @@
 PROJECTNAME=$(shell basename "$(PWD)")
+VERSION=-ldflags="-X main.Version=$(shell git describe --tags)"
 SOL_DIR=./solidity
 
 CENT_EMITTER_ADDR?=0x1
@@ -22,7 +23,7 @@ get:
 	go mod tidy && go mod download
 
 get-lint:
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s latest
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s v1.31.0
 
 .PHONY: lint
 lint:
@@ -31,13 +32,22 @@ lint:
 	fi;
 	./bin/golangci-lint run ./... --timeout 5m0s
 
+lint-fix:
+	if [ ! -f ./bin/golangci-lint ]; then \
+		$(MAKE) get-lint; \
+	fi;
+	./bin/golangci-lint run ./... --timeout 5m0s --fix
+
 build:
 	@echo "  >  \033[32mBuilding binary...\033[0m "
-	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge
+	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge $(VERSION)
 
 install:
 	@echo "  >  \033[32mInstalling bridge...\033[0m "
-	cd cmd/chainbridge && go install
+	cd cmd/chainbridge && go install $(VERSION)
+
+build-mkdocs:
+	docker run --rm -it -v ${PWD}:/docs squidfunk/mkdocs-material build
 
 setup-sol-cli:
 	@echo " > \033[32mSetting up solidity cli... \033[0m "
@@ -51,13 +61,13 @@ rebuild-contracts:
 license:
 	@echo "  >  \033[32mAdding license headers...\033[0m "
 	GO111MODULE=off go get -u github.com/google/addlicense
-	addlicense -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .
+	addlicense -c "ChainSafe Systems" -f ./scripts/header.txt -y 2020 .
 
 ## license-check: Checks for missing license headers
 license-check:
 	@echo "  >  \033[Checking for license headers...\033[0m "
 	GO111MODULE=off go get -u github.com/google/addlicense
-	addlicense -check -c "ChainSafe Systems" -f ./copyright.txt -y 2020 .
+	addlicense -check -c "ChainSafe Systems" -f ./scripts/header.txt -y 2020 .
 
 ## Install dependency subkey
 install-subkey:
@@ -67,11 +77,11 @@ install-subkey:
 ## Runs go test for all packages except the solidity bindings
 test:
 	@echo "  >  \033[32mRunning tests...\033[0m "
-	go test `go list ./... | grep -v bindings | grep -v e2e`
+	go test -coverprofile=cover.out -v `go list ./... | grep -v bindings | grep -v e2e`
 
 test-e2e:
 	@echo "  >  \033[32mRunning e2e tests...\033[0m "
-	go test ./e2e
+	go test -v -timeout 0 ./e2e
 
 test-eth:
 	@echo "  >  \033[32mRunning ethereum tests...\033[0m "
@@ -83,6 +93,12 @@ test-sub:
 
 docker-start:
 	./scripts/docker/start-docker.sh
+
+docker-e2e:
+	docker-compose -f ./docker-compose-e2e.yml up -V
+
+mkdocs:
+	docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material
 
 clean:
 	rm -rf build/ solidity/

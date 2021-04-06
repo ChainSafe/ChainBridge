@@ -10,9 +10,9 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 
-	message "github.com/ChainSafe/ChainBridge/message"
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
+	message "github.com/ChainSafe/chainbridge-utils/msg"
 )
 
 func assertProposalState(t *testing.T, conn *Connection, prop *proposal, votes *voteState, hasValue bool) {
@@ -37,6 +37,17 @@ func assertProposalState(t *testing.T, conn *Connection, prop *proposal, votes *
 
 	if !ok && hasValue {
 		t.Fatalf("expected vote to exists but is None")
+	}
+}
+
+func Test_ContainsVote(t *testing.T) {
+	votes := []types.AccountID{types.NewAccountID(AliceKey.PublicKey)}
+	if !containsVote(votes, types.NewAccountID(AliceKey.PublicKey)) {
+		t.Error("Voter has votes")
+	}
+
+	if containsVote(votes, types.NewAccountID(BobKey.PublicKey)) {
+		t.Error("Voter has not voted")
 	}
 }
 
@@ -97,6 +108,12 @@ func TestWriter_ResolveMessage_FungibleProposal(t *testing.T) {
 	} else {
 		t.Logf("Bob's new balance: %s (amount: %s)", bBal.String(), big.NewInt(0).Sub(bBal.Int, startingBalance.Int).String())
 	}
+
+	select {
+	case err = <-context.wSysErr:
+		t.Fatal(err)
+	default:
+	}
 }
 
 func TestWriter_ResolveMessage_NonFungibleProposal(t *testing.T) {
@@ -105,7 +122,7 @@ func TestWriter_ResolveMessage_NonFungibleProposal(t *testing.T) {
 	subtest.QueryConst(t, context.client, "Example", "Erc721Id", &rId)
 	// Construct the message to initiate a vote
 	tokenId := big.NewInt(10000000)
-	context.latestInNonce = context.latestInNonce + 1
+	context.latestInNonce++
 	m := message.NewNonFungibleTransfer(ForeignChain, ThisChain, context.latestInNonce, rId, tokenId, context.writerBob.conn.key.PublicKey, []byte{})
 	// Create a proposal to help us check results
 	prop, err := context.writerAlice.createNonFungibleProposal(m)
@@ -147,6 +164,12 @@ func TestWriter_ResolveMessage_NonFungibleProposal(t *testing.T) {
 
 	// Assert token exists
 	subtest.AssertOwnerOf(t, context.client, tokenId, types.NewAccountID(BobKey.PublicKey))
+
+	select {
+	case err = <-context.wSysErr:
+		t.Fatal(err)
+	default:
+	}
 }
 
 func TestWriter_ResolveMessage_GenericProposal(t *testing.T) {
@@ -157,7 +180,7 @@ func TestWriter_ResolveMessage_GenericProposal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	context.latestInNonce = context.latestInNonce + 1
+	context.latestInNonce++
 	m := message.NewGenericTransfer(ForeignChain, ThisChain, context.latestInNonce, rId, hash[:])
 	// Create a proposal to help us check results
 	prop, err := context.writerAlice.createGenericProposal(m)
@@ -199,4 +222,56 @@ func TestWriter_ResolveMessage_GenericProposal(t *testing.T) {
 
 	// Assert remark event exists
 	subtest.WaitForRemarkEvent(t, context.client, hash)
+
+	select {
+	case err = <-context.wSysErr:
+		t.Fatal(err)
+	default:
+	}
+}
+
+func TestWriter_ResolveMessage_Duplicate(t *testing.T) {
+	// Setup message and params
+	var rId [32]byte
+	subtest.QueryConst(t, context.client, "Example", "NativeTokenId", &rId)
+	// Construct the message to initiate a vote
+	amount := big.NewInt(10000000)
+	context.latestInNonce++
+	m := message.NewFungibleTransfer(ForeignChain, ThisChain, context.latestInNonce, amount, rId, context.writerBob.conn.key.PublicKey)
+	// Create a proposal to help us check results
+	prop, err := context.writerAlice.createFungibleProposal(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// First, ensure the proposal doesn't already exist
+	assertProposalState(t, context.writerAlice.conn, prop, nil, false)
+
+	// Submit the message for processing
+	ok := context.writerAlice.ResolveMessage(m)
+	if !ok {
+		t.Fatal("Alice failed to resolve the message")
+	}
+
+	// Now check if the proposal exists on chain
+	singleVoteState := &voteState{
+		VotesFor: []types.AccountID{types.NewAccountID(context.writerAlice.conn.key.PublicKey)},
+		Status:   voteStatus{IsActive: true},
+	}
+	assertProposalState(t, context.writerAlice.conn, prop, singleVoteState, true)
+
+	// Submit a second vote from Bob this time
+	ok = context.writerAlice.ResolveMessage(m)
+	if !ok {
+		t.Fatalf("Bob failed to resolve the message")
+	}
+
+	assertProposalState(t, context.writerAlice.conn, prop, singleVoteState, true)
+
+	select {
+	case err = <-context.wSysErr:
+		t.Fatal(err)
+	default:
+	}
+
 }
