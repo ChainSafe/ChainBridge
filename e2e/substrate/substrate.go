@@ -45,7 +45,7 @@ func CreateConfig(key string, chain msg.ChainId) *core.ChainConfig {
 		Insecure:       true,
 		FreshStart:     true,
 		BlockstorePath: os.TempDir(),
-		Opts:           map[string]string{},
+		Opts:           map[string]string{"useExtendedCall": "true"},
 	}
 }
 

@@ -23,11 +23,65 @@ func TestParseChainConfig(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
+			"bridge":             "0x1234",
+			"erc20Handler":       "0x1234",
+			"erc721Handler":      "0x1234",
+			"genericHandler":     "0x1234",
+			"gasLimit":           "10",
+			"gasMultiplier":      "1",
+			"maxGasPrice":        "20",
+			"http":               "true",
+			"startBlock":         "10",
+			"blockConfirmations": "50",
+		},
+	}
+
+	out, err := parseChainConfig(&input)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := Config{
+		name:                   "chain",
+		id:                     1,
+		endpoint:               "endpoint",
+		from:                   "0x0",
+		keystorePath:           "./keys",
+		bridgeContract:         common.HexToAddress("0x1234"),
+		erc20HandlerContract:   common.HexToAddress("0x1234"),
+		erc721HandlerContract:  common.HexToAddress("0x1234"),
+		genericHandlerContract: common.HexToAddress("0x1234"),
+		gasLimit:               big.NewInt(10),
+		maxGasPrice:            big.NewInt(20),
+		gasMultiplier:          big.NewFloat(1),
+		http:                   true,
+		startBlock:             big.NewInt(10),
+		blockConfirmations:     big.NewInt(50),
+	}
+
+	if !reflect.DeepEqual(&expected, out) {
+		t.Fatalf("Output not expected.\n\tExpected: %#v\n\tGot: %#v\n", &expected, out)
+	}
+}
+
+//TestParseChainConfig tests parseChainConfig with all handlerContracts provided
+func TestParseChainConfigWithNoBlockConfirmations(t *testing.T) {
+
+	input := core.ChainConfig{
+		Name:         "chain",
+		Id:           1,
+		Endpoint:     "endpoint",
+		From:         "0x0",
+		KeystorePath: "./keys",
+		Insecure:     false,
+		Opts: map[string]string{
 			"bridge":         "0x1234",
 			"erc20Handler":   "0x1234",
 			"erc721Handler":  "0x1234",
 			"genericHandler": "0x1234",
 			"gasLimit":       "10",
+			"gasMultiplier":  "1",
 			"maxGasPrice":    "20",
 			"http":           "true",
 			"startBlock":     "10",
@@ -52,8 +106,10 @@ func TestParseChainConfig(t *testing.T) {
 		genericHandlerContract: common.HexToAddress("0x1234"),
 		gasLimit:               big.NewInt(10),
 		maxGasPrice:            big.NewInt(20),
+		gasMultiplier:          big.NewFloat(1),
 		http:                   true,
 		startBlock:             big.NewInt(10),
+		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -72,12 +128,13 @@ func TestChainConfigOneContract(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"bridge":       "0x1234",
-			"erc20Handler": "0x1234",
-			"gasLimit":     "10",
-			"maxGasPrice":  "20",
-			"http":         "true",
-			"startBlock":   "10",
+			"bridge":        "0x1234",
+			"erc20Handler":  "0x1234",
+			"gasLimit":      "10",
+			"maxGasPrice":   "20",
+			"gasMultiplier": "1",
+			"http":          "true",
+			"startBlock":    "10",
 		},
 	}
 
@@ -97,8 +154,10 @@ func TestChainConfigOneContract(t *testing.T) {
 		erc20HandlerContract: common.HexToAddress("0x1234"),
 		gasLimit:             big.NewInt(10),
 		maxGasPrice:          big.NewInt(20),
+		gasMultiplier:        big.NewFloat(1),
 		http:                 true,
 		startBlock:           big.NewInt(10),
+		blockConfirmations:   big.NewInt(DefaultBlockConfirmations),
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -153,6 +212,7 @@ func TestExtraOpts(t *testing.T) {
 			"bridge":        "0x1234",
 			"gasLimit":      "10",
 			"maxGasPrice":   "20",
+			"gasMultiplier": "1",
 			"http":          "true",
 			"incorrect_opt": "error",
 		},

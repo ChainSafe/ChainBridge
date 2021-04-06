@@ -154,7 +154,7 @@ func bindERC20PresetMinterPauser(address common.Address, caller bind.ContractCal
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _ERC20PresetMinterPauser.Contract.ERC20PresetMinterPauserCaller.contract.Call(opts, result, method, params...)
 }
 
@@ -173,7 +173,7 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserRaw) Transact(opts *bind.
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _ERC20PresetMinterPauser.Contract.contract.Call(opts, result, method, params...)
 }
 
@@ -192,12 +192,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserTransactorRaw) Transact(o
 //
 // Solidity: function DEFAULT_ADMIN_ROLE() view returns(bytes32)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) DEFAULTADMINROLE(opts *bind.CallOpts) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "DEFAULT_ADMIN_ROLE")
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "DEFAULT_ADMIN_ROLE")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // DEFAULTADMINROLE is a free data retrieval call binding the contract method 0xa217fddf.
@@ -218,12 +223,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) DEFAULTADM
 //
 // Solidity: function MINTER_ROLE() view returns(bytes32)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) MINTERROLE(opts *bind.CallOpts) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "MINTER_ROLE")
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "MINTER_ROLE")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // MINTERROLE is a free data retrieval call binding the contract method 0xd5391393.
@@ -244,12 +254,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) MINTERROLE
 //
 // Solidity: function PAUSER_ROLE() view returns(bytes32)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) PAUSERROLE(opts *bind.CallOpts) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "PAUSER_ROLE")
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "PAUSER_ROLE")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // PAUSERROLE is a free data retrieval call binding the contract method 0xe63ab1e9.
@@ -270,12 +285,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) PAUSERROLE
 //
 // Solidity: function allowance(address owner, address spender) view returns(uint256)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) Allowance(opts *bind.CallOpts, owner common.Address, spender common.Address) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "allowance", owner, spender)
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "allowance", owner, spender)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
@@ -296,12 +316,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) Allowance(
 //
 // Solidity: function balanceOf(address account) view returns(uint256)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) BalanceOf(opts *bind.CallOpts, account common.Address) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "balanceOf", account)
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "balanceOf", account)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
@@ -322,12 +347,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) BalanceOf(
 //
 // Solidity: function decimals() view returns(uint8)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) Decimals(opts *bind.CallOpts) (uint8, error) {
-	var (
-		ret0 = new(uint8)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "decimals")
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "decimals")
+
+	if err != nil {
+		return *new(uint8), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(uint8)).(*uint8)
+
+	return out0, err
+
 }
 
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
@@ -348,12 +378,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) Decimals()
 //
 // Solidity: function getRoleAdmin(bytes32 role) view returns(bytes32)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) GetRoleAdmin(opts *bind.CallOpts, role [32]byte) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "getRoleAdmin", role)
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "getRoleAdmin", role)
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // GetRoleAdmin is a free data retrieval call binding the contract method 0x248a9ca3.
@@ -374,12 +409,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) GetRoleAdm
 //
 // Solidity: function getRoleMember(bytes32 role, uint256 index) view returns(address)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) GetRoleMember(opts *bind.CallOpts, role [32]byte, index *big.Int) (common.Address, error) {
-	var (
-		ret0 = new(common.Address)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "getRoleMember", role, index)
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "getRoleMember", role, index)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
 }
 
 // GetRoleMember is a free data retrieval call binding the contract method 0x9010d07c.
@@ -400,12 +440,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) GetRoleMem
 //
 // Solidity: function getRoleMemberCount(bytes32 role) view returns(uint256)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) GetRoleMemberCount(opts *bind.CallOpts, role [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "getRoleMemberCount", role)
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "getRoleMemberCount", role)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // GetRoleMemberCount is a free data retrieval call binding the contract method 0xca15c873.
@@ -426,12 +471,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) GetRoleMem
 //
 // Solidity: function hasRole(bytes32 role, address account) view returns(bool)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) HasRole(opts *bind.CallOpts, role [32]byte, account common.Address) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "hasRole", role, account)
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "hasRole", role, account)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // HasRole is a free data retrieval call binding the contract method 0x91d14854.
@@ -452,12 +502,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) HasRole(ro
 //
 // Solidity: function name() view returns(string)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) Name(opts *bind.CallOpts) (string, error) {
-	var (
-		ret0 = new(string)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "name")
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "name")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
 }
 
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
@@ -478,12 +533,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) Name() (st
 //
 // Solidity: function paused() view returns(bool)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) Paused(opts *bind.CallOpts) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "paused")
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "paused")
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // Paused is a free data retrieval call binding the contract method 0x5c975abb.
@@ -504,12 +564,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) Paused() (
 //
 // Solidity: function symbol() view returns(string)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) Symbol(opts *bind.CallOpts) (string, error) {
-	var (
-		ret0 = new(string)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "symbol")
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "symbol")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
 }
 
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
@@ -530,12 +595,17 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCallerSession) Symbol() (
 //
 // Solidity: function totalSupply() view returns(uint256)
 func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserCaller) TotalSupply(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _ERC20PresetMinterPauser.contract.Call(opts, out, "totalSupply")
-	return *ret0, err
+	var out []interface{}
+	err := _ERC20PresetMinterPauser.contract.Call(opts, &out, "totalSupply")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
@@ -975,6 +1045,7 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserFilterer) ParseApproval(l
 	if err := _ERC20PresetMinterPauser.contract.UnpackLog(event, "Approval", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -1108,6 +1179,7 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserFilterer) ParsePaused(log
 	if err := _ERC20PresetMinterPauser.contract.UnpackLog(event, "Paused", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -1269,6 +1341,7 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserFilterer) ParseRoleGrante
 	if err := _ERC20PresetMinterPauser.contract.UnpackLog(event, "RoleGranted", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -1430,6 +1503,7 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserFilterer) ParseRoleRevoke
 	if err := _ERC20PresetMinterPauser.contract.UnpackLog(event, "RoleRevoked", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -1583,6 +1657,7 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserFilterer) ParseTransfer(l
 	if err := _ERC20PresetMinterPauser.contract.UnpackLog(event, "Transfer", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -1716,5 +1791,6 @@ func (_ERC20PresetMinterPauser *ERC20PresetMinterPauserFilterer) ParseUnpaused(l
 	if err := _ERC20PresetMinterPauser.contract.UnpackLog(event, "Unpaused", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }

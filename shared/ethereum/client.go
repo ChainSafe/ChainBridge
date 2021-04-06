@@ -5,10 +5,13 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"sync"
 	"time"
+
+	"github.com/ethereum/go-ethereum"
 
 	"github.com/Cerebellum-Network/chainbridge-utils/crypto/secp256k1"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -19,6 +22,7 @@ import (
 
 const DefaultGasLimit = 6721975
 const DefaultMaxGasPrice = 20000000000
+const DefaultGasMultiplier = 1
 
 var ExpectedBlockTime = time.Second
 
@@ -37,7 +41,15 @@ func NewClient(endpoint string, kp *secp256k1.Keypair) (*Client, error) {
 	}
 	client := ethclient.NewClient(rpcClient)
 
-	opts := bind.NewKeyedTransactor(kp.PrivateKey())
+	id, err := client.ChainID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	opts, err := bind.NewKeyedTransactorWithChainID(kp.PrivateKey(), id)
+	if err != nil {
+		return nil, err
+	}
 	opts.Nonce = big.NewInt(0)
 	opts.Value = big.NewInt(0)              // in wei
 	opts.GasLimit = uint64(DefaultGasLimit) // in units
@@ -75,9 +87,13 @@ func WaitForTx(client *Client, tx *ethtypes.Transaction) error {
 	for retry > 0 {
 		receipt, err := client.Client.TransactionReceipt(context.Background(), tx.Hash())
 		if err != nil {
-			retry--
-			time.Sleep(ExpectedBlockTime)
-			continue
+			if errors.Is(err, ethereum.NotFound) {
+				retry--
+				time.Sleep(ExpectedBlockTime)
+				continue
+			} else {
+				return err
+			}
 		}
 
 		if receipt.Status != 1 {

@@ -19,3 +19,14 @@ func parseStartBlock(cfg *core.ChainConfig) uint64 {
 	}
 	return 0
 }
+
+func parseUseExtended(cfg *core.ChainConfig) bool {
+	if b, ok := cfg.Opts["useExtendedCall"]; ok {
+		res, err := strconv.ParseBool(b)
+		if err != nil {
+			panic(err)
+		}
+		return res
+	}
+	return false
+}

@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
 	"strconv"
 
 	"github.com/Cerebellum-Network/ChainBridge/chains/ethereum"
@@ -96,6 +97,10 @@ var accountCommand = cli.Command{
 	},
 }
 
+var (
+	Version = "0.0.1"
+)
+
 // init initializes CLI
 func init() {
 	app.Action = run
@@ -103,7 +108,7 @@ func init() {
 	app.Name = "chainbridge"
 	app.Usage = "ChainBridge"
 	app.Authors = []*cli.Author{{Name: "ChainSafe Systems 2019"}}
-	app.Version = "0.0.1"
+	app.Version = Version
 	app.EnableBashCompletion = true
 	app.Commands = []*cli.Command{
 		&accountCommand,
@@ -163,9 +168,9 @@ func run(ctx *cli.Context) error {
 	c := core.NewCore(sysErr)
 
 	for _, chain := range cfg.Chains {
-		chainId, err := strconv.Atoi(chain.Id)
-		if err != nil {
-			return err
+		chainId, errr := strconv.Atoi(chain.Id)
+		if errr != nil {
+			return errr
 		}
 		chainConfig := &core.ChainConfig{
 			Name:           chain.Name,
@@ -206,13 +211,21 @@ func run(ctx *cli.Context) error {
 	// Start prometheus and health server
 	if ctx.Bool(config.MetricsFlag.Name) {
 		port := ctx.Int(config.MetricsPort.Name)
-		h := health.NewHealthServer(port, c.Registry)
+		blockTimeoutStr := os.Getenv(config.HealthBlockTimeout)
+		blockTimeout := config.DefaultBlockTimeout
+		if blockTimeoutStr != "" {
+			blockTimeout, err = strconv.ParseInt(blockTimeoutStr, 10, 0)
+			if err != nil {
+				return err
+			}
+		}
+		h := health.NewHealthServer(port, c.Registry, int(blockTimeout))
 
 		go func() {
 			http.Handle("/metrics", promhttp.Handler())
 			http.HandleFunc("/health", h.HealthStatus)
 			err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
-			if err == http.ErrServerClosed {
+			if errors.Is(err, http.ErrServerClosed) {
 				log.Info("Health status server is shutting down", err)
 			} else {
 				log.Error("Error serving metrics", "err", err)

@@ -16,6 +16,22 @@ import (
 
 const DefaultGasLimit = 6721975
 const DefaultGasPrice = 20000000000
+const DefaultBlockConfirmations = 10
+const DefaultGasMultiplier = 1
+
+// Chain specific options
+var (
+	BridgeOpt             = "bridge"
+	Erc20HandlerOpt       = "erc20Handler"
+	Erc721HandlerOpt      = "erc721Handler"
+	GenericHandlerOpt     = "genericHandler"
+	MaxGasPriceOpt        = "maxGasPrice"
+	GasLimitOpt           = "gasLimit"
+	GasMultiplier         = "gasMultiplier"
+	HttpOpt               = "http"
+	StartBlockOpt         = "startBlock"
+	BlockConfirmationsOpt = "blockConfirmations"
+)
 
 // Config encapsulates all necessary parameters in ethereum compatible forms
 type Config struct {
@@ -32,8 +48,10 @@ type Config struct {
 	genericHandlerContract common.Address
 	gasLimit               *big.Int
 	maxGasPrice            *big.Int
+	gasMultiplier          *big.Float
 	http                   bool // Config for type of connection
 	startBlock             *big.Int
+	blockConfirmations     *big.Int
 }
 
 // parseChainConfig uses a core.ChainConfig to construct a corresponding Config
@@ -53,65 +71,92 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		genericHandlerContract: utils.ZeroAddress,
 		gasLimit:               big.NewInt(DefaultGasLimit),
 		maxGasPrice:            big.NewInt(DefaultGasPrice),
+		gasMultiplier:          big.NewFloat(DefaultGasMultiplier),
 		http:                   false,
 		startBlock:             big.NewInt(0),
+		blockConfirmations:     big.NewInt(0),
 	}
 
-	if contract, ok := chainCfg.Opts["bridge"]; ok && contract != "" {
+	if contract, ok := chainCfg.Opts[BridgeOpt]; ok && contract != "" {
 		config.bridgeContract = common.HexToAddress(contract)
-		delete(chainCfg.Opts, "bridge")
+		delete(chainCfg.Opts, BridgeOpt)
 	} else {
 		return nil, fmt.Errorf("must provide opts.bridge field for ethereum config")
 	}
 
-	config.erc20HandlerContract = common.HexToAddress(chainCfg.Opts["erc20Handler"])
-	delete(chainCfg.Opts, "erc20Handler")
+	config.erc20HandlerContract = common.HexToAddress(chainCfg.Opts[Erc20HandlerOpt])
+	delete(chainCfg.Opts, Erc20HandlerOpt)
 
-	config.erc721HandlerContract = common.HexToAddress(chainCfg.Opts["erc721Handler"])
-	delete(chainCfg.Opts, "erc721Handler")
+	config.erc721HandlerContract = common.HexToAddress(chainCfg.Opts[Erc721HandlerOpt])
+	delete(chainCfg.Opts, Erc721HandlerOpt)
 
-	config.genericHandlerContract = common.HexToAddress(chainCfg.Opts["genericHandler"])
-	delete(chainCfg.Opts, "genericHandler")
+	config.genericHandlerContract = common.HexToAddress(chainCfg.Opts[GenericHandlerOpt])
+	delete(chainCfg.Opts, GenericHandlerOpt)
 
-	if gasPrice, ok := chainCfg.Opts["maxGasPrice"]; ok {
+	if gasPrice, ok := chainCfg.Opts[MaxGasPriceOpt]; ok {
 		price := big.NewInt(0)
 		_, pass := price.SetString(gasPrice, 10)
 		if pass {
 			config.maxGasPrice = price
-			delete(chainCfg.Opts, "maxGasPrice")
+			delete(chainCfg.Opts, MaxGasPriceOpt)
 		} else {
 			return nil, errors.New("unable to parse max gas price")
 		}
 	}
 
-	if gasLimit, ok := chainCfg.Opts["gasLimit"]; ok {
+	if gasLimit, ok := chainCfg.Opts[GasLimitOpt]; ok {
 		limit := big.NewInt(0)
 		_, pass := limit.SetString(gasLimit, 10)
 		if pass {
 			config.gasLimit = limit
-			delete(chainCfg.Opts, "gasLimit")
+			delete(chainCfg.Opts, GasLimitOpt)
 		} else {
 			return nil, errors.New("unable to parse gas limit")
 		}
 	}
 
-	if HTTP, ok := chainCfg.Opts["http"]; ok && HTTP == "true" {
-		config.http = true
-		delete(chainCfg.Opts, "http")
-	} else if HTTP, ok := chainCfg.Opts["http"]; ok && HTTP == "false" {
-		config.http = false
-		delete(chainCfg.Opts, "http")
+	if gasMultiplier, ok := chainCfg.Opts[GasMultiplier]; ok {
+		multilier := big.NewFloat(1)
+		_, pass := multilier.SetString(gasMultiplier)
+		if pass {
+			config.gasMultiplier = multilier
+			delete(chainCfg.Opts, GasMultiplier)
+		} else {
+			return nil, errors.New("unable to parse gasMultiplier to float")
+		}
 	}
 
-	if startBlock, ok := chainCfg.Opts["startBlock"]; ok && startBlock != "" {
+	if HTTP, ok := chainCfg.Opts[HttpOpt]; ok && HTTP == "true" {
+		config.http = true
+		delete(chainCfg.Opts, HttpOpt)
+	} else if HTTP, ok := chainCfg.Opts[HttpOpt]; ok && HTTP == "false" {
+		config.http = false
+		delete(chainCfg.Opts, HttpOpt)
+	}
+
+	if startBlock, ok := chainCfg.Opts[StartBlockOpt]; ok && startBlock != "" {
 		block := big.NewInt(0)
 		_, pass := block.SetString(startBlock, 10)
 		if pass {
 			config.startBlock = block
-			delete(chainCfg.Opts, "startBlock")
+			delete(chainCfg.Opts, StartBlockOpt)
 		} else {
-			return nil, errors.New("unable to parse start block")
+			return nil, fmt.Errorf("unable to parse %s", StartBlockOpt)
 		}
+	}
+
+	if blockConfirmations, ok := chainCfg.Opts[BlockConfirmationsOpt]; ok && blockConfirmations != "" {
+		val := big.NewInt(DefaultBlockConfirmations)
+		_, pass := val.SetString(blockConfirmations, 10)
+		if pass {
+			config.blockConfirmations = val
+			delete(chainCfg.Opts, BlockConfirmationsOpt)
+		} else {
+			return nil, fmt.Errorf("unable to parse %s", BlockConfirmationsOpt)
+		}
+	} else {
+		config.blockConfirmations = big.NewInt(DefaultBlockConfirmations)
+		delete(chainCfg.Opts, BlockConfirmationsOpt)
 	}
 
 	if len(chainCfg.Opts) != 0 {

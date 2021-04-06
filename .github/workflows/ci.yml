@@ -1,0 +1,92 @@
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
+
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+    tags:
+      - "v*.*.*"
+
+jobs:
+  test:
+    name: Tests
+    strategy:
+      matrix:
+        go-version: [1.15.x]
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/cache@v2.1.4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Install Subkey
+        run: |
+          wget -P $HOME/.local/bin/ https://chainbridge.ams3.digitaloceanspaces.com/subkey-v2.0.0
+          mv $HOME/.local/bin/subkey-v2.0.0 $HOME/.local/bin/subkey
+          chmod +x $HOME/.local/bin/subkey
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Test
+        run: |
+          docker-compose -f ./docker-compose-e2e.yml up -d
+          sleep 3
+          docker ps
+          make test
+
+  e2e:
+    name: E2E Tests
+    strategy:
+      matrix:
+        go-version: [ 1.15.x ]
+        platform: [ ubuntu-latest ]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/cache@v2.1.4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Install Subkey
+        run: |
+          wget -P $HOME/.local/bin/ https://chainbridge.ams3.digitaloceanspaces.com/subkey-v2.0.0
+          mv $HOME/.local/bin/subkey-v2.0.0 $HOME/.local/bin/subkey
+          chmod +x $HOME/.local/bin/subkey
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Test
+        run: |
+          docker-compose -f ./docker-compose-e2e.yml up -d
+          docker ps
+          make test-e2e
+
+  lint:
+    name: Lint and License Headers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.36
+          args: --timeout=5m
+      - name: License Check
+        run: make license-check

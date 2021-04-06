@@ -32,7 +32,7 @@ func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonc
 
 	record, err := l.erc721HandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.Keypair().CommonAddress()}, uint64(nonce), uint8(destId))
 	if err != nil {
-		l.log.Error("Error Unpacking ERC20 Deposit Record", "err", err)
+		l.log.Error("Error Unpacking ERC721 Deposit Record", "err", err)
 		return msg.Message{}, err
 	}
 

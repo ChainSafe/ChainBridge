@@ -8,10 +8,15 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// Env vars
+var (
+	HealthBlockTimeout = "BLOCK_TIMEOUT"
+)
+
 var (
 	ConfigFileFlag = &cli.StringFlag{
 		Name:  "config",
-		Usage: "TOML configuration file",
+		Usage: "JSON configuration file",
 	}
 
 	VerbosityFlag = &cli.StringFlag{
