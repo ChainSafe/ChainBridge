@@ -21,8 +21,8 @@ RUN subkey --version
 COPY --from=builder /bridge ./
 RUN chmod +x ./bridge
 
-RUN groupadd -g 1234 cere && useradd -u 1234 -g cere cere
-RUN chown -R cere:cere /app
-USER cere
+RUN groupadd -g 1234 crb && useradd -u 1234 -g crb crb
+RUN chown -R crb:crb /app /home
+USER crb
 
 ENTRYPOINT ["/app/bridge"]
