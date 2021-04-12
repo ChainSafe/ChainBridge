@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ChainSafe/ChainBridge/e2e/substrate"
-	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
-	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/Cerebellum-Network/ChainBridge/e2e/substrate"
+	utils "github.com/Cerebellum-Network/ChainBridge/shared/substrate"
+	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v2"
+	"github.com/centrifuge/go-substrate-rpc-client/v2/types"
 )
 
 func TestChain_Events(t *testing.T) {

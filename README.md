@@ -7,6 +7,16 @@
   <img alt="build status" src="https://github.com/ChainSafe/ChainBridge/workflows/Tests/badge.svg?branch=master" />
 </a>
 
+# Release Notes
+
+## [Unreleased]
+-
+
+## 2.0.0
+- Changed Lib name to Cerebellum-Network
+- Integrated with chainbridge-substrate-events v2
+- Ingegrated with chainbridge-utils v2
+
 
 # Contents
 
