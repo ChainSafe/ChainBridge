@@ -8,9 +8,9 @@ import (
 	"math/big"
 	"testing"
 
-	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
+	utils "github.com/Cerebellum-Network/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v2/types"
 )
 
 func QueryStorage(t *testing.T, client *utils.Client, prefix, method string, arg1, arg2 []byte, result interface{}) bool {

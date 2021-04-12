@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
-	"github.com/ChainSafe/chainbridge-utils/core"
-	"github.com/ChainSafe/chainbridge-utils/keystore"
-	"github.com/ChainSafe/chainbridge-utils/msg"
+	utils "github.com/Cerebellum-Network/ChainBridge/shared/substrate"
+	"github.com/Cerebellum-Network/chainbridge-utils/core"
+	"github.com/Cerebellum-Network/chainbridge-utils/keystore"
+	"github.com/Cerebellum-Network/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v2/types"
 )
 
 const TestSubEndpoint = "ws://localhost:9944"

@@ -1,0 +1,8 @@
+version: '3'
+services:
+  geth1:
+    image: "chainsafe/chainbridge-geth:20200505131100-5586a65"
+    container_name: geth1
+    ports:
+    - "8545:8545"
+

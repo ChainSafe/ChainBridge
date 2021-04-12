@@ -9,15 +9,15 @@ import (
 	"testing"
 	"time"
 
-	eth "github.com/ChainSafe/ChainBridge/e2e/ethereum"
-	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
-	subutils "github.com/ChainSafe/ChainBridge/shared/substrate"
-	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
-	"github.com/ChainSafe/chainbridge-utils/msg"
+	eth "github.com/Cerebellum-Network/ChainBridge/e2e/ethereum"
+	ethutils "github.com/Cerebellum-Network/ChainBridge/shared/ethereum"
+	ethtest "github.com/Cerebellum-Network/ChainBridge/shared/ethereum/testing"
+	subutils "github.com/Cerebellum-Network/ChainBridge/shared/substrate"
+	subtest "github.com/Cerebellum-Network/ChainBridge/shared/substrate/testing"
+	"github.com/Cerebellum-Network/chainbridge-utils/msg"
 	log "github.com/ChainSafe/log15"
-	"github.com/centrifuge/go-substrate-rpc-client/signature"
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v2/signature"
+	"github.com/centrifuge/go-substrate-rpc-client/v2/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 
