@@ -122,7 +122,7 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 		Nonce:              types.NewUCompactFromUInt(uint64(c.nonce)),
 		SpecVersion:        rv.SpecVersion,
 		Tip:                types.NewUCompactFromUInt(0),
-		TransactionVersion: 1,
+		TransactionVersion: rv.TransactionVersion,
 	}
 
 	err = ext.Sign(*c.key, o)
