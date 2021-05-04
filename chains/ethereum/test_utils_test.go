@@ -70,7 +70,7 @@ func newTestLogger(name string) log15.Logger {
 
 func newLocalConnection(t *testing.T, cfg *Config) *connection.Connection {
 	kp := keystore.TestKeyRing.EthereumKeys[cfg.from]
-	conn := connection.NewConnection(TestEndpoint, false, kp, TestLogger, big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice), big.NewFloat(DefaultGasMultiplier))
+	conn := connection.NewConnection(TestEndpoint, false, kp, TestLogger, big.NewInt(DefaultGasLimit), big.NewInt(DefaultGasPrice), big.NewFloat(DefaultGasMultiplier), "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
