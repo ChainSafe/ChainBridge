@@ -136,9 +136,9 @@ func (c *Connection) SafeEstimateGas(ctx context.Context, apiKey, estimation str
 	gsnRes = callGSN(apiKey, retries)
 
 	// TODO: will need to ask the user for what type of tx type. Options are:
-	//       fast, fastest, safeLow, average, block_time, blockNum, speed, safeLowWait, avgWait, fastWait, fastestWait
+	//       "fast", "fastest", "safeLow", and "average"
 	//       https://docs.ethgasstation.info/gas-price
-	//       default to "fastest" if no estimation is given
+	//       default to "fast" if no estimation is given
 
 	if gsnRes != nil {
 		// fmt.Println("Response: ", gsnRes)
