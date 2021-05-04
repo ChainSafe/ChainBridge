@@ -189,7 +189,10 @@ func multiplyGasPrice(gasEstimate *big.Int, gasMultiplier *big.Float) *big.Int {
 func (c *Connection) LockAndUpdateOpts() error {
 	c.optsLock.Lock()
 
-	gasPrice, err := c.SafeEstimateGas(context.TODO())
+	// TODO:
+	// passing empty apikey and empty estimation for now
+	// should either pass from config file or have a convenient way to pass as args
+	gasPrice, err := c.SafeEstimateGas(context.TODO(), "", "")
 	if err != nil {
 		return err
 	}
