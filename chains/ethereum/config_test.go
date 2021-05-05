@@ -23,18 +23,18 @@ func TestParseChainConfig(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"bridge":              "0x1234",
-			"erc20Handler":        "0x1234",
-			"erc721Handler":       "0x1234",
-			"genericHandler":      "0x1234",
-			"gasLimit":            "10",
-			"gasMultiplier":       "1",
-			"maxGasPrice":         "20",
-			"http":                "true",
-			"startBlock":          "10",
-			"blockConfirmations":  "50",
-			"ethGasStationApiKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // fake key
-			"ethGasStationSpeed":  "fast",
+			"bridge":             "0x1234",
+			"erc20Handler":       "0x1234",
+			"erc721Handler":      "0x1234",
+			"genericHandler":     "0x1234",
+			"gasLimit":           "10",
+			"gasMultiplier":      "1",
+			"maxGasPrice":        "20",
+			"http":               "true",
+			"startBlock":         "10",
+			"blockConfirmations": "50",
+			"gsnApiKey":          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // fake key
+			"gsnSpeed":           "fast",
 		},
 	}
 
@@ -60,8 +60,8 @@ func TestParseChainConfig(t *testing.T) {
 		http:                   true,
 		startBlock:             big.NewInt(10),
 		blockConfirmations:     big.NewInt(50),
-		ethGasStationApiKey:    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-		ethGasStationSpeed:     "fast",
+		gsnApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		gsnSpeed:               "fast",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -238,17 +238,17 @@ func TestEthGasStationDefaultSpeed(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"bridge":              "0x1234",
-			"erc20Handler":        "0x1234",
-			"erc721Handler":       "0x1234",
-			"genericHandler":      "0x1234",
-			"gasLimit":            "10",
-			"gasMultiplier":       "1",
-			"maxGasPrice":         "20",
-			"http":                "true",
-			"startBlock":          "10",
-			"ethGasStationApiKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-			"ethGasStationSpeed":  "",
+			"bridge":         "0x1234",
+			"erc20Handler":   "0x1234",
+			"erc721Handler":  "0x1234",
+			"genericHandler": "0x1234",
+			"gasLimit":       "10",
+			"gasMultiplier":  "1",
+			"maxGasPrice":    "20",
+			"http":           "true",
+			"startBlock":     "10",
+			"gsnApiKey":      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+			"gsnSpeed":       "",
 		},
 	}
 
@@ -274,8 +274,8 @@ func TestEthGasStationDefaultSpeed(t *testing.T) {
 		http:                   true,
 		startBlock:             big.NewInt(10),
 		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
-		ethGasStationApiKey:    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-		ethGasStationSpeed:     "fast",
+		gsnApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		gsnSpeed:               "fast",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -292,17 +292,17 @@ func TestEthGasStationCustomSpeed(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"bridge":              "0x1234",
-			"erc20Handler":        "0x1234",
-			"erc721Handler":       "0x1234",
-			"genericHandler":      "0x1234",
-			"gasLimit":            "10",
-			"gasMultiplier":       "1",
-			"maxGasPrice":         "20",
-			"http":                "true",
-			"startBlock":          "10",
-			"ethGasStationApiKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-			"ethGasStationSpeed":  "average",
+			"bridge":         "0x1234",
+			"erc20Handler":   "0x1234",
+			"erc721Handler":  "0x1234",
+			"genericHandler": "0x1234",
+			"gasLimit":       "10",
+			"gasMultiplier":  "1",
+			"maxGasPrice":    "20",
+			"http":           "true",
+			"startBlock":     "10",
+			"gsnApiKey":      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+			"gsnSpeed":       "average",
 		},
 	}
 
@@ -328,8 +328,8 @@ func TestEthGasStationCustomSpeed(t *testing.T) {
 		http:                   true,
 		startBlock:             big.NewInt(10),
 		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
-		ethGasStationApiKey:    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-		ethGasStationSpeed:     "average",
+		gsnApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		gsnSpeed:               "average",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -346,17 +346,17 @@ func TestEthGasStationInvalidSpeed(t *testing.T) {
 		KeystorePath: "./keys",
 		Insecure:     false,
 		Opts: map[string]string{
-			"bridge":              "0x1234",
-			"erc20Handler":        "0x1234",
-			"erc721Handler":       "0x1234",
-			"genericHandler":      "0x1234",
-			"gasLimit":            "10",
-			"gasMultiplier":       "1",
-			"maxGasPrice":         "20",
-			"http":                "true",
-			"startBlock":          "10",
-			"ethGasStationApiKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-			"ethGasStationSpeed":  "standard",
+			"bridge":         "0x1234",
+			"erc20Handler":   "0x1234",
+			"erc721Handler":  "0x1234",
+			"genericHandler": "0x1234",
+			"gasLimit":       "10",
+			"gasMultiplier":  "1",
+			"maxGasPrice":    "20",
+			"http":           "true",
+			"startBlock":     "10",
+			"gsnApiKey":      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+			"gsnSpeed":       "standard",
 		},
 	}
 
@@ -382,8 +382,8 @@ func TestEthGasStationInvalidSpeed(t *testing.T) {
 		http:                   true,
 		startBlock:             big.NewInt(10),
 		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
-		ethGasStationApiKey:    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-		ethGasStationSpeed:     "fast",
+		gsnApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		gsnSpeed:               "fast",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {

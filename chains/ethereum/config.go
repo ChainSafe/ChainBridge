@@ -31,8 +31,8 @@ var (
 	HttpOpt               = "http"
 	StartBlockOpt         = "startBlock"
 	BlockConfirmationsOpt = "blockConfirmations"
-	EthGasStationApiKey   = "ethGasStationApiKey"
-	EthGasStationSpeed    = "ethGasStationSpeed"
+	GSNApiKey             = "gsnApiKey"
+	GSNSpeed              = "gsnSpeed"
 )
 
 // Config encapsulates all necessary parameters in ethereum compatible forms
@@ -54,8 +54,8 @@ type Config struct {
 	http                   bool // Config for type of connection
 	startBlock             *big.Int
 	blockConfirmations     *big.Int
-	ethGasStationApiKey    string // API key for ethgasstation to query gas prices
-	ethGasStationSpeed     string // The speed which a transaction should be processed: average, fast, fastest. Default: fast
+	gsnApiKey              string // API key for ethgasstation to query gas prices
+	gsnSpeed               string // The speed which a transaction should be processed: average, fast, fastest. Default: fast
 }
 
 // parseChainConfig uses a core.ChainConfig to construct a corresponding Config
@@ -79,8 +79,8 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		http:                   false,
 		startBlock:             big.NewInt(0),
 		blockConfirmations:     big.NewInt(0),
-		ethGasStationApiKey:    "",
-		ethGasStationSpeed:     "",
+		gsnApiKey:              "",
+		gsnSpeed:               "",
 	}
 
 	if contract, ok := chainCfg.Opts[BridgeOpt]; ok && contract != "" {
@@ -165,18 +165,18 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		delete(chainCfg.Opts, BlockConfirmationsOpt)
 	}
 
-	if ethGasStationApiKey, ok := chainCfg.Opts[EthGasStationApiKey]; ok && ethGasStationApiKey != "" {
-		config.ethGasStationApiKey = ethGasStationApiKey
-		delete(chainCfg.Opts, EthGasStationApiKey)
+	if gsnApiKey, ok := chainCfg.Opts[GSNApiKey]; ok && gsnApiKey != "" {
+		config.gsnApiKey = gsnApiKey
+		delete(chainCfg.Opts, GSNApiKey)
 	}
 
-	if speed, ok := chainCfg.Opts[EthGasStationSpeed]; ok && speed == "average" || speed == "fast" || speed == "fastest" {
-		config.ethGasStationSpeed = speed
-		delete(chainCfg.Opts, EthGasStationSpeed)
+	if speed, ok := chainCfg.Opts[GSNSpeed]; ok && speed == "average" || speed == "fast" || speed == "fastest" {
+		config.gsnSpeed = speed
+		delete(chainCfg.Opts, GSNSpeed)
 	} else {
 		// Default to "fast"
-		config.ethGasStationSpeed = "fast"
-		delete(chainCfg.Opts, EthGasStationSpeed)
+		config.gsnSpeed = "fast"
+		delete(chainCfg.Opts, GSNSpeed)
 	}
 
 	if len(chainCfg.Opts) != 0 {
