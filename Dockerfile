@@ -1,7 +1,7 @@
 # Copyright 2020 ChainSafe Systems
 # SPDX-License-Identifier: LGPL-3.0-only
 
-FROM  golang:1.13-stretch AS builder
+FROM  golang:1.15-stretch AS builder
 ADD . /src
 WORKDIR /src
 RUN go mod download
