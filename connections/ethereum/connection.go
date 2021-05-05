@@ -5,15 +5,13 @@ package ethereum
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math/big"
-	"net/http"
 	"sync"
 	"time"
 
+	"github.com/ChainSafe/ChainBridge/connections/ethereum/gsn"
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -132,40 +130,29 @@ func (c *Connection) CallOpts() *bind.CallOpts {
 	return c.callOpts
 }
 
-func (c *Connection) SafeEstimateGas(ctx context.Context, apiKey, estimation string) (*big.Int, error) {
-	// TODO: if the apikey is stored in a config file, we won't need to pass as an arg but can pull
-	//       that info from the configuration file.
-	var gsnRes *gsnResponse
-	retries := 10
-	gsnRes, err := callGSN(apiKey, retries)
-	if err != nil {
-		return nil, err
-	}
+func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 
-	// TODO: will need to ask the user for what type of tx type. Options are:
-	//       "fast", "fastest", "safeLow", and "average"
-	//       https://docs.ethgasstation.info/gas-price
-	//       default to "fast" if no estimation is given
+	var suggestedGasPrice *big.Int
 
-	if gsnRes != nil {
-		// fmt.Println("Response: ", gsnRes)
-		switch estimation {
-		case "fast":
-			return big.NewInt(gsnRes.Fast), nil
-		case "fastest":
-			return big.NewInt(gsnRes.Fastest), nil
-		case "safeLow":
-			return big.NewInt(gsnRes.SafeLow), nil
-		case "average":
-			return big.NewInt(gsnRes.Average), nil
-		default:
-			return big.NewInt(gsnRes.Fast), nil
+	// First attempt to use GSN for the gas price if the api key is supplied
+	if c.ethGasStationApiKey != "" {
+		err, price := gsn.CallGSN(c.ethGasStationApiKey, c.ethGasStationSpeed)
+		if err != nil {
+			c.log.Debug("Couldn't fetch gasPrice from GSN", err)
+		} else {
+			suggestedGasPrice = price
 		}
 	}
 
-	suggestedGasPrice, err := c.conn.SuggestGasPrice(context.TODO())
-	if err != nil {
-		return nil, err
+	// Fallback to the node rpc method for the gas price if GSN did not provide a price
+	if suggestedGasPrice == nil {
+		c.log.Debug("Fetching gasPrice from node")
+		nodePriceEstimate, err := c.conn.SuggestGasPrice(context.TODO())
+		if err != nil {
+			return nil, err
+		} else {
+			suggestedGasPrice = nodePriceEstimate
+		}
 	}
 
 	gasPrice := multiplyGasPrice(suggestedGasPrice, c.gasMultiplier)
@@ -196,10 +183,7 @@ func multiplyGasPrice(gasEstimate *big.Int, gasMultiplier *big.Float) *big.Int {
 func (c *Connection) LockAndUpdateOpts() error {
 	c.optsLock.Lock()
 
-	// TODO:
-	// passing empty apikey and empty estimation for now
-	// should either pass from config file or have a convenient way to pass as args
-	gasPrice, err := c.SafeEstimateGas(context.TODO(), "", "")
+	gasPrice, err := c.SafeEstimateGas(context.TODO())
 	if err != nil {
 		return err
 	}
@@ -274,78 +258,4 @@ func (c *Connection) Close() {
 		c.conn.Close()
 	}
 	close(c.stop)
-}
-
-// Utility methods for connections
-
-type RPCError struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-type Response struct {
-	Error  *RPCError       `json:"error"`
-	ID     int             `json:"id"`
-	Result json.RawMessage `json:"result,omitempty"`
-}
-
-type gsnResponse struct {
-	Fast          int64       `json:"fast"`
-	Fastest       int64       `json:"fastest"`
-	SafeLow       int64       `json:"safeLow"`
-	Average       int64       `json:"average"`
-	Block_time    float32     `json:"block_time"`
-	BlockNum      int64       `json:"blockNum"`
-	Speed         float32     `json:"speed"`
-	SafeLowWait   float32     `json:"safeLowWait"`
-	AvgWait       float32     `json:"avgWait"`
-	FastWait      float32     `json:"fastWait"`
-	FastestWait   float32     `json:"fastestWait"`
-	GasPriceRange interface{} `json:"gasPriceRange"`
-}
-
-// callGSN will call the Gas Station Network and request the gas prices on the Ethereum network
-// TODO: if the apikey is stored in a config file, we won't need to pass as an arg but can pull
-//       that info from the configuration file.
-func callGSN(apiKey string, retries int) (*gsnResponse, error) {
-	time.Sleep(1 * time.Second)
-
-	gsnURL := "https://ethgasstation.info/api/ethgasAPI.json"
-	if len(apiKey) != 0 {
-		gsnURL = gsnURL + "?api-key=" + apiKey
-	}
-
-	var gsnRes gsnResponse
-	var body []byte
-
-	for i := 0; i < retries; i++ {
-		res, err := http.Get(gsnURL)
-		if err != nil {
-			return nil, err
-		}
-
-		body, err = ioutil.ReadAll(res.Body)
-		if err != nil {
-			return nil, err
-		}
-		err = json.Unmarshal(body, &gsnRes)
-		if err != nil {
-			return nil, err
-		}
-
-		if body != nil && res.StatusCode == http.StatusOK {
-			break
-		}
-
-		defer res.Body.Close()
-		time.Sleep(1 * time.Second)
-	}
-
-	// fmt.Println(big.NewInt(gsnRes.Fast))
-	// fmt.Println(big.NewInt(gsnRes.Fastest))
-	// fmt.Println(big.NewInt(gsnRes.SafeLow))
-	// fmt.Println(big.NewInt(gsnRes.Average))
-
-	return &gsnRes, nil
 }

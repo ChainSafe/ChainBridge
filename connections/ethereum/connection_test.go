@@ -69,7 +69,7 @@ func TestConnection_SafeEstimateGas(t *testing.T) {
 	}
 	defer conn.Close()
 
-	price, err := conn.SafeEstimateGas(context.Background(), "", "")
+	price, err := conn.SafeEstimateGas(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +88,7 @@ func TestConnection_SafeEstimateGasMax(t *testing.T) {
 	}
 	defer conn.Close()
 
-	price, err := conn.SafeEstimateGas(context.Background(), "", "")
+	price, err := conn.SafeEstimateGas(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
