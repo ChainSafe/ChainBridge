@@ -39,7 +39,7 @@ type gsnResponse struct {
 func CallGSN(apiKey, speed string) (error, *big.Int) {
 	time.Sleep(1 * time.Second)
 
-	gsnURL := "https://ethgasstation.info/api/ethgasAPI.json?api-key=" + apiKey
+	var gsnURL = "https://ethgasstation.info/api/ethgasAPI.json?api-key=" + apiKey
 
 	var gsnRes gsnResponse
 	var body []byte
@@ -67,7 +67,6 @@ func CallGSN(apiKey, speed string) (error, *big.Int) {
 	return nil, getPrice(&gsnRes, speed)
 }
 
-
 func getPrice(result *gsnResponse, speed string) *big.Int {
 	switch speed {
 	case "fast":
@@ -78,5 +77,5 @@ func getPrice(result *gsnResponse, speed string) *big.Int {
 		return big.NewInt(result.Average)
 	default:
 		return big.NewInt(result.Fast)
-	}	
+	}
 }
