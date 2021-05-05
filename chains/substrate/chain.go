@@ -31,7 +31,6 @@ import (
 	metrics "github.com/Cerebellum-Network/chainbridge-utils/metrics/types"
 	"github.com/Cerebellum-Network/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
-	"github.com/centrifuge/go-substrate-rpc-client/v2/signature"
 )
 
 var _ core.Chain = &Chain{}
