@@ -137,7 +137,10 @@ func (c *Connection) SafeEstimateGas(ctx context.Context, apiKey, estimation str
 	//       that info from the configuration file.
 	var gsnRes *gsnResponse
 	retries := 10
-	gsnRes = callGSN(apiKey, retries)
+	gsnRes, err := callGSN(apiKey, retries)
+	if err != nil {
+		return nil, err
+	}
 
 	// TODO: will need to ask the user for what type of tx type. Options are:
 	//       "fast", "fastest", "safeLow", and "average"
@@ -305,7 +308,7 @@ type gsnResponse struct {
 // callGSN will call the Gas Station Network and request the gas prices on the Ethereum network
 // TODO: if the apikey is stored in a config file, we won't need to pass as an arg but can pull
 //       that info from the configuration file.
-func callGSN(apiKey string, retries int) *gsnResponse {
+func callGSN(apiKey string, retries int) (*gsnResponse, error) {
 	time.Sleep(1 * time.Second)
 
 	gsnURL := "https://ethgasstation.info/api/ethgasAPI.json"
@@ -319,26 +322,30 @@ func callGSN(apiKey string, retries int) *gsnResponse {
 	for i := 0; i < retries; i++ {
 		res, err := http.Get(gsnURL)
 		if err != nil {
-			return nil
+			return nil, err
 		}
 
 		body, err = ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
 		err = json.Unmarshal(body, &gsnRes)
 		if err != nil {
-			return nil
+			return nil, err
 		}
 
 		if body != nil && res.StatusCode == http.StatusOK {
 			break
 		}
 
+		defer res.Body.Close()
 		time.Sleep(1 * time.Second)
 	}
 
-	fmt.Println(big.NewInt(gsnRes.Fast))
-	fmt.Println(big.NewInt(gsnRes.Fastest))
-	fmt.Println(big.NewInt(gsnRes.SafeLow))
-	fmt.Println(big.NewInt(gsnRes.Average))
+	// fmt.Println(big.NewInt(gsnRes.Fast))
+	// fmt.Println(big.NewInt(gsnRes.Fastest))
+	// fmt.Println(big.NewInt(gsnRes.SafeLow))
+	// fmt.Println(big.NewInt(gsnRes.Average))
 
-	return &gsnRes
+	return &gsnRes, nil
 }
