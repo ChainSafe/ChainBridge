@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"math/big"
 	"net/http"
+	"path/filepath"
 	"time"
 )
 
@@ -46,7 +47,7 @@ func CallGSN(apiKey, speed string) (error, *big.Int) {
 	retries := 10
 	for i := 0; i < retries; i++ {
 		client := &http.Client{Timeout: time.Second * 10}
-		res, err := client.Get(gsnURL)
+		res, err := client.Get(filepath.Clean(gsnURL))
 		if err != nil {
 			return err, nil
 		}
