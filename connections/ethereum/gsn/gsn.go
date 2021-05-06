@@ -42,7 +42,6 @@ func CallGSN(apiKey, speed string) (error, *big.Int) {
 	var gsnURL = "https://ethgasstation.info/api/ethgasAPI.json?api-key=" + apiKey
 
 	var gsnRes gsnResponse
-	var body []byte
 
 	retries := 10
 	for i := 0; i < retries; i++ {
