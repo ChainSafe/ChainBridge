@@ -16,6 +16,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/Cerebellum-Network/chainbridge-substrate-events v0.0.0-20210405134244-6dbd3bf68616 h1:QKO80jgPJBRa1El04ctPW0Iq6icYuPCf7c+LhMet+Ys=
 github.com/Cerebellum-Network/chainbridge-substrate-events v0.0.0-20210405134244-6dbd3bf68616/go.mod h1:h67Ya88vt7Czx5Frkp/7AtuJkvG2GA/ra/IBoBfJHAA=
+github.com/Cerebellum-Network/chainbridge-substrate-events v0.0.0-20210506100715-541be1ab4476 h1:PLoHoTLiRmwXqCGmjnOY8ZSaMNgrOvqv4qTdAnr+Ns4=
+github.com/Cerebellum-Network/chainbridge-substrate-events v0.0.0-20210506100715-541be1ab4476/go.mod h1:h67Ya88vt7Czx5Frkp/7AtuJkvG2GA/ra/IBoBfJHAA=
 github.com/Cerebellum-Network/chainbridge-utils v1.0.4-0.20210405122152-2858f1fb38cd h1:8alfiyOE1As3sDUjc+l+FiY1GPY6Y7KmF17j4E0D3V4=
 github.com/Cerebellum-Network/chainbridge-utils v1.0.4-0.20210405122152-2858f1fb38cd/go.mod h1:zQGnOHqtYE/H/z2OChugge5/EAJtB8czZVYuIySdiK4=
 github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210406112409-442053b6e3cd h1:u6oxHQFxc9srxPO9euKuMXuaRllsd2n1cas9f1mrXJQ=
