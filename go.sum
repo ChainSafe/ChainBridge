@@ -22,6 +22,8 @@ github.com/Cerebellum-Network/chainbridge-utils v1.0.4-0.20210405122152-2858f1fb
 github.com/Cerebellum-Network/chainbridge-utils v1.0.4-0.20210405122152-2858f1fb38cd/go.mod h1:zQGnOHqtYE/H/z2OChugge5/EAJtB8czZVYuIySdiK4=
 github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210406112409-442053b6e3cd h1:u6oxHQFxc9srxPO9euKuMXuaRllsd2n1cas9f1mrXJQ=
 github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210406112409-442053b6e3cd/go.mod h1:zQGnOHqtYE/H/z2OChugge5/EAJtB8czZVYuIySdiK4=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210412213906-94daae7f7483 h1:2Ljylrd1W45Kil/NTa/DmSmkqVmDOU3H3APqphosiy4=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210412213906-94daae7f7483/go.mod h1:xzmPjGfeywPRIKXbyRb/gQHLVnLk2+w/k2zoZ3Ce/4I=
 github.com/ChainSafe/log15 v1.0.0 h1:vRDVtWtVwIH5uSCBvgTTZh6FA58UBJ6+QiiypaZfBf8=
 github.com/ChainSafe/log15 v1.0.0/go.mod h1:5v1+ALHtdW0NfAeeoYyKmzCAMcAeqkdhIg4uxXWIgOg=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
