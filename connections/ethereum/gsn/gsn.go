@@ -50,7 +50,10 @@ func CallGSN(apiKey, speed string) (error, *big.Int) {
 			return err, nil
 		}
 
-		body, err = ioutil.ReadAll(res.Body)
+		body, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return err, nil
+		}
 		err = json.Unmarshal(body, &gsnRes)
 		if err != nil {
 			return err, nil
