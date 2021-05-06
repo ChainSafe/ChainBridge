@@ -45,10 +45,12 @@ func CallGSN(apiKey, speed string) (error, *big.Int) {
 
 	retries := 10
 	for i := 0; i < retries; i++ {
-		res, err := http.Get(gsnURL)
+		client := &http.Client{Timeout: time.Second * 10}
+		res, err := client.Get(gsnURL)
 		if err != nil {
 			return err, nil
 		}
+		defer res.Body.Close()
 
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
