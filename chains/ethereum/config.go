@@ -6,6 +6,7 @@ package ethereum
 import (
 	"errors"
 	"fmt"
+	"github.com/ChainSafe/ChainBridge/connections/ethereum/gsn"
 	"math/big"
 
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
@@ -170,12 +171,12 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		delete(chainCfg.Opts, GSNApiKey)
 	}
 
-	if speed, ok := chainCfg.Opts[GSNSpeed]; ok && speed == "average" || speed == "fast" || speed == "fastest" {
+	if speed, ok := chainCfg.Opts[GSNSpeed]; ok && speed == gsn.Average || speed == gsn.Fast || speed == gsn.Fastest {
 		config.gsnSpeed = speed
 		delete(chainCfg.Opts, GSNSpeed)
 	} else {
 		// Default to "fast"
-		config.gsnSpeed = "fast"
+		config.gsnSpeed = gsn.Fast
 		delete(chainCfg.Opts, GSNSpeed)
 	}
 

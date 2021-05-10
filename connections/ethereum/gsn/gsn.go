@@ -2,31 +2,29 @@ package gsn
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"math/big"
 	"net/http"
-	"path/filepath"
 	"time"
 )
 
-type RPCError struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
+const (
+	// Retries is the amount of times to reattempt fetching price data before giving up
+	Retries = 5
+	// Timeout is the duration in seconds for http timeouts
+	Timeout = 10
+	Fast    = "fast"
+	Fastest = "fastest"
+	Average = "average"
+)
 
-type Response struct {
-	Error  *RPCError       `json:"error"`
-	ID     int             `json:"id"`
-	Result json.RawMessage `json:"result,omitempty"`
-}
-
-type gsnResponse struct {
+type gasPriceResponse struct {
 	Fast          int64       `json:"fast"`
 	Fastest       int64       `json:"fastest"`
 	SafeLow       int64       `json:"safeLow"`
 	Average       int64       `json:"average"`
-	Block_time    float32     `json:"block_time"`
+	BlockTime     float32     `json:"block_time"`
 	BlockNum      int64       `json:"blockNum"`
 	Speed         float32     `json:"speed"`
 	SafeLowWait   float32     `json:"safeLowWait"`
@@ -36,49 +34,56 @@ type gsnResponse struct {
 	GasPriceRange interface{} `json:"gasPriceRange"`
 }
 
-// callGSN will call the Gas Station Network and request the gas prices on the Ethereum network
-func CallGSN(apiKey, speed string) (error, *big.Int) {
-	time.Sleep(1 * time.Second)
-
+// FetchGasPrice will query GSN for the current gas prices and return the price for the specified speed.
+func FetchGasPrice(apiKey, speed string) (*big.Int, error) {
 	var gsnURL = "https://ethgasstation.info/api/ethgasAPI.json?api-key=" + apiKey
 
-	var gsnRes gsnResponse
-
-	retries := 10
-	for i := 0; i < retries; i++ {
-		client := &http.Client{Timeout: time.Second * 10}
-		res, err := client.Get(filepath.Clean(gsnURL))
+	for i := 0; i < Retries; i++ {
+		res, err := queryAPI(gsnURL)
 		if err != nil {
-			return err, nil
-		}
-		defer res.Body.Close()
-
-		body, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return err, nil
-		}
-		err = json.Unmarshal(body, &gsnRes)
-		if err != nil {
-			return err, nil
+			return nil, err
 		}
 
-		if body != nil && res.StatusCode == http.StatusOK {
-			break
+		if res != nil {
+			return parsePrice(res, speed), nil
 		}
 
 		time.Sleep(1 * time.Second)
 	}
 
-	return nil, getPrice(&gsnRes, speed)
+	return nil, errors.New("failed to fetch GSN gas price - retries exceeded")
 }
 
-func getPrice(result *gsnResponse, speed string) *big.Int {
+func queryAPI(url string) (*gasPriceResponse, error) {
+	client := &http.Client{Timeout: time.Second * Timeout}
+	res, err := client.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() { _ = res.Body.Close() }()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var data gasPriceResponse
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &data, nil
+}
+
+func parsePrice(result *gasPriceResponse, speed string) *big.Int {
 	switch speed {
-	case "fast":
-		return big.NewInt(result.Fast)
-	case "fastest":
+	case Fastest:
 		return big.NewInt(result.Fastest)
-	case "average":
+	case Fast:
+		return big.NewInt(result.Fast)
+	case Average:
 		return big.NewInt(result.Average)
 	default:
 		return big.NewInt(result.Fast)

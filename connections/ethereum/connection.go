@@ -136,7 +136,7 @@ func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 
 	// First attempt to use GSN for the gas price if the api key is supplied
 	if c.gsnApiKey != "" {
-		err, price := gsn.CallGSN(c.gsnApiKey, c.gsnSpeed)
+		price, err := gsn.FetchGasPrice(c.gsnApiKey, c.gsnSpeed)
 		if err != nil {
 			c.log.Debug("Couldn't fetch gasPrice from GSN", err)
 		} else {
