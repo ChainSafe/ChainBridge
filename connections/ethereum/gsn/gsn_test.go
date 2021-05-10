@@ -10,36 +10,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var ExampleResponse = &gasPriceResponse{
+var exampleResponse = &gasPriceResponse{
 	Fast:          1,
 	Fastest:       2,
-	SafeLow:       3,
 	Average:       4,
-	BlockTime:     5,
-	BlockNum:      6,
-	Speed:         7,
-	SafeLowWait:   8,
-	AvgWait:       9,
-	FastWait:      10,
-	FastestWait:   11,
-	GasPriceRange: nil,
 }
 
+// Captured by querying endpoint manually
+var rawResponse = "{\"fast\":590,\"fastest\":700,\"safeLow\":490,\"average\":500,\"block_time\":15.9,\"blockNum\":12389059,\"speed\":0.995538884040233,\"safeLowWait\":13.6,\"avgWait\":2.1,\"fastWait\":0.9,\"fastestWait\":0.6,\"gasPriceRange\":{\"4\":265,\"6\":265,\"8\":265,\"10\":265,\"20\":265,\"30\":265,\"40\":265,\"50\":265,\"60\":265,\"70\":265,\"80\":265,\"90\":265,\"100\":265,\"110\":265,\"120\":265,\"130\":265,\"140\":265,\"150\":265,\"160\":265,\"170\":265,\"180\":265,\"190\":265,\"200\":265,\"220\":265,\"240\":265,\"260\":265,\"280\":265,\"300\":265,\"320\":265,\"340\":265,\"360\":265,\"380\":265,\"400\":265,\"420\":265,\"440\":265,\"460\":265,\"480\":15,\"490\":13.6,\"500\":2.1,\"520\":1.7,\"540\":1.2,\"560\":1,\"580\":0.9,\"590\":0.9,\"600\":0.8,\"620\":0.7,\"640\":0.7,\"660\":0.7,\"680\":0.7,\"700\":0.6}}"
+
 func TestParsePrice(t *testing.T) {
-	assert.Equal(t, parsePrice(ExampleResponse, Fastest), big.NewInt(ExampleResponse.Fastest))
-	assert.Equal(t, parsePrice(ExampleResponse, Fast), big.NewInt(ExampleResponse.Fast))
-	assert.Equal(t, parsePrice(ExampleResponse, Average), big.NewInt(ExampleResponse.Average))
+	assert.Equal(t, parsePrice(exampleResponse, Fastest), big.NewInt(exampleResponse.Fastest))
+	assert.Equal(t, parsePrice(exampleResponse, Fast), big.NewInt(exampleResponse.Fast))
+	assert.Equal(t, parsePrice(exampleResponse, Average), big.NewInt(exampleResponse.Average))
 }
 
 func TestFetchPrice(t *testing.T) {
 	// Start a local HTTP server
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		// Send response to be tested
-		bz, err := json.Marshal(ExampleResponse)
-		if err != nil {
-			panic(err)
-		}
-		_, _ = rw.Write(bz)
+		_, _ = rw.Write([]byte(rawResponse))
 	}))
 	// Close the server when test finishes
 	defer server.Close()
@@ -49,6 +38,13 @@ func TestFetchPrice(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, res, ExampleResponse)
-	assert.Equal(t, parsePrice(ExampleResponse, Fastest), big.NewInt(ExampleResponse.Fastest))
+	var expected gasPriceResponse
+	err = json.Unmarshal([]byte(rawResponse), &expected)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, *res, expected)
+	assert.Equal(t, parsePrice(res, Fastest), big.NewInt(700))
 }
+
