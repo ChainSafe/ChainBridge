@@ -1,6 +1,7 @@
 package gsn
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -55,8 +56,16 @@ func FetchGasPrice(apiKey, speed string) (*big.Int, error) {
 }
 
 func queryAPI(url string) (*gasPriceResponse, error) {
-	client := &http.Client{Timeout: time.Second * Timeout}
-	res, err := client.Get(url)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*Timeout)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	client := &http.Client{}
+	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}

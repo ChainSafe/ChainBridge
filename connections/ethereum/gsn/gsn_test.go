@@ -11,9 +11,9 @@ import (
 )
 
 var exampleResponse = &gasPriceResponse{
-	Fast:          1,
-	Fastest:       2,
-	Average:       4,
+	Fast:    1,
+	Fastest: 2,
+	Average: 4,
 }
 
 // Captured by querying endpoint manually
@@ -47,4 +47,3 @@ func TestFetchPrice(t *testing.T) {
 	assert.Equal(t, *res, expected)
 	assert.Equal(t, parsePrice(res, Fastest), big.NewInt(700))
 }
-

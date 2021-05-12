@@ -6,9 +6,9 @@ package ethereum
 import (
 	"errors"
 	"fmt"
-	"github.com/ChainSafe/ChainBridge/connections/ethereum/gsn"
 	"math/big"
 
+	"github.com/ChainSafe/ChainBridge/connections/ethereum/gsn"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/msg"
