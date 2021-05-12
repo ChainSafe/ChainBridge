@@ -162,6 +162,8 @@ func TestChainConfigOneContract(t *testing.T) {
 		http:                 true,
 		startBlock:           big.NewInt(10),
 		blockConfirmations:   big.NewInt(DefaultBlockConfirmations),
+		gsnApiKey:            "",
+		gsnSpeed:             "fast",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
