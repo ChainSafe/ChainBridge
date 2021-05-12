@@ -89,8 +89,8 @@ Ethereum chains support the following additional options:
     "startBlock": "1234",            // The block to start processing events from (default: 0)
     "blockConfirmations": "10"       // Number of blocks to wait before processing a block
     "useExtendedCall": "true"        // Extend extrinsic calls to substrate with ResourceID. Used for backward compatibility with example pallet. *Default: false*
-    "gsnApiKey": "xxx..."            // API key for [Eth Gas Station](https://www.ethgasstation.info/) this offers an alternative way to estimate transaction gas prices
-    "gsnSpeed": "fast"               // If gsnApiKey is set, a speed must be chosen, the options are: "average", "fast", "fastest"
+    "egsApiKey": "xxx..."            // API key for Eth Gas Station (https://www.ethgasstation.info/)
+    "egsSpeed": "fast"               // Desired speed for gas price selection, the options are: "average", "fast", "fastest"
 }
 ```
 

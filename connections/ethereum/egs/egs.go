@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 
-package gsn
+package egs
 
 import (
 	"context"
@@ -38,7 +38,7 @@ type gasPriceResponse struct {
 	GasPriceRange interface{} `json:"gasPriceRange"`
 }
 
-// FetchGasPrice will query GSN for the current gas prices and return the price for the specified speed.
+// FetchGasPrice will query EGS for the current gas prices and return the price for the specified speed.
 func FetchGasPrice(apiKey, speed string) (*big.Int, error) {
 	var gsnURL = "https://ethgasstation.info/api/ethgasAPI.json?api-key=" + apiKey
 
@@ -59,7 +59,6 @@ func FetchGasPrice(apiKey, speed string) (*big.Int, error) {
 }
 
 func queryAPI(url string) (*gasPriceResponse, error) {
-
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*Timeout)
 	defer cancel()
 

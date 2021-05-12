@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/ChainSafe/ChainBridge/connections/ethereum/gsn"
+	"github.com/ChainSafe/ChainBridge/connections/ethereum/egs"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/msg"
@@ -32,8 +32,8 @@ var (
 	HttpOpt               = "http"
 	StartBlockOpt         = "startBlock"
 	BlockConfirmationsOpt = "blockConfirmations"
-	GSNApiKey             = "gsnApiKey"
-	GSNSpeed              = "gsnSpeed"
+	EGSApiKey             = "egsApiKey"
+	EGSSpeed              = "egsSpeed"
 )
 
 // Config encapsulates all necessary parameters in ethereum compatible forms
@@ -55,8 +55,8 @@ type Config struct {
 	http                   bool // Config for type of connection
 	startBlock             *big.Int
 	blockConfirmations     *big.Int
-	gsnApiKey              string // API key for ethgasstation to query gas prices
-	gsnSpeed               string // The speed which a transaction should be processed: average, fast, fastest. Default: fast
+	egsApiKey              string // API key for ethgasstation to query gas prices
+	egsSpeed               string // The speed which a transaction should be processed: average, fast, fastest. Default: fast
 }
 
 // parseChainConfig uses a core.ChainConfig to construct a corresponding Config
@@ -80,8 +80,8 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		http:                   false,
 		startBlock:             big.NewInt(0),
 		blockConfirmations:     big.NewInt(0),
-		gsnApiKey:              "",
-		gsnSpeed:               "",
+		egsApiKey:              "",
+		egsSpeed:               "",
 	}
 
 	if contract, ok := chainCfg.Opts[BridgeOpt]; ok && contract != "" {
@@ -166,18 +166,18 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		delete(chainCfg.Opts, BlockConfirmationsOpt)
 	}
 
-	if gsnApiKey, ok := chainCfg.Opts[GSNApiKey]; ok && gsnApiKey != "" {
-		config.gsnApiKey = gsnApiKey
-		delete(chainCfg.Opts, GSNApiKey)
+	if gsnApiKey, ok := chainCfg.Opts[EGSApiKey]; ok && gsnApiKey != "" {
+		config.egsApiKey = gsnApiKey
+		delete(chainCfg.Opts, EGSApiKey)
 	}
 
-	if speed, ok := chainCfg.Opts[GSNSpeed]; ok && speed == gsn.Average || speed == gsn.Fast || speed == gsn.Fastest {
-		config.gsnSpeed = speed
-		delete(chainCfg.Opts, GSNSpeed)
+	if speed, ok := chainCfg.Opts[EGSSpeed]; ok && speed == egs.Average || speed == egs.Fast || speed == egs.Fastest {
+		config.egsSpeed = speed
+		delete(chainCfg.Opts, EGSSpeed)
 	} else {
 		// Default to "fast"
-		config.gsnSpeed = gsn.Fast
-		delete(chainCfg.Opts, GSNSpeed)
+		config.egsSpeed = egs.Fast
+		delete(chainCfg.Opts, EGSSpeed)
 	}
 
 	if len(chainCfg.Opts) != 0 {

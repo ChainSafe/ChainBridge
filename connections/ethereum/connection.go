@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ChainSafe/ChainBridge/connections/ethereum/gsn"
+	"github.com/ChainSafe/ChainBridge/connections/ethereum/egs"
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -30,8 +30,8 @@ type Connection struct {
 	gasLimit      *big.Int
 	maxGasPrice   *big.Int
 	gasMultiplier *big.Float
-	gsnApiKey     string
-	gsnSpeed      string
+	egsApiKey     string
+	egsSpeed      string
 	conn          *ethclient.Client
 	// signer    ethtypes.Signer
 	opts     *bind.TransactOpts
@@ -51,8 +51,8 @@ func NewConnection(endpoint string, http bool, kp *secp256k1.Keypair, log log15.
 		gasLimit:      gasLimit,
 		maxGasPrice:   gasPrice,
 		gasMultiplier: gasMultiplier,
-		gsnApiKey:     gsnApiKey,
-		gsnSpeed:      gsnSpeed,
+		egsApiKey:     gsnApiKey,
+		egsSpeed:      gsnSpeed,
 		log:           log,
 		stop:          make(chan int),
 	}
@@ -134,9 +134,9 @@ func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 
 	var suggestedGasPrice *big.Int
 
-	// First attempt to use GSN for the gas price if the api key is supplied
-	if c.gsnApiKey != "" {
-		price, err := gsn.FetchGasPrice(c.gsnApiKey, c.gsnSpeed)
+	// First attempt to use EGS for the gas price if the api key is supplied
+	if c.egsApiKey != "" {
+		price, err := egs.FetchGasPrice(c.egsApiKey, c.egsSpeed)
 		if err != nil {
 			c.log.Debug("Couldn't fetch gasPrice from GSN", err)
 		} else {

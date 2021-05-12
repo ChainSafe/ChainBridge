@@ -33,8 +33,8 @@ func TestParseChainConfig(t *testing.T) {
 			"http":               "true",
 			"startBlock":         "10",
 			"blockConfirmations": "50",
-			"gsnApiKey":          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // fake key
-			"gsnSpeed":           "fast",
+			"egsApiKey":          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // fake key
+			"egsSpeed":           "fast",
 		},
 	}
 
@@ -60,8 +60,8 @@ func TestParseChainConfig(t *testing.T) {
 		http:                   true,
 		startBlock:             big.NewInt(10),
 		blockConfirmations:     big.NewInt(50),
-		gsnApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-		gsnSpeed:               "fast",
+		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		egsSpeed:               "fast",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -114,8 +114,8 @@ func TestParseChainConfigWithNoBlockConfirmations(t *testing.T) {
 		http:                   true,
 		startBlock:             big.NewInt(10),
 		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
-		gsnApiKey:              "",
-		gsnSpeed:               "fast",
+		egsApiKey:              "",
+		egsSpeed:               "fast",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -164,8 +164,8 @@ func TestChainConfigOneContract(t *testing.T) {
 		http:                 true,
 		startBlock:           big.NewInt(10),
 		blockConfirmations:   big.NewInt(DefaultBlockConfirmations),
-		gsnApiKey:            "",
-		gsnSpeed:             "fast",
+		egsApiKey:            "",
+		egsSpeed:             "fast",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -251,8 +251,8 @@ func TestEthGasStationDefaultSpeed(t *testing.T) {
 			"maxGasPrice":    "20",
 			"http":           "true",
 			"startBlock":     "10",
-			"gsnApiKey":      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-			"gsnSpeed":       "",
+			"egsApiKey":      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+			"egsSpeed":       "",
 		},
 	}
 
@@ -278,8 +278,8 @@ func TestEthGasStationDefaultSpeed(t *testing.T) {
 		http:                   true,
 		startBlock:             big.NewInt(10),
 		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
-		gsnApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-		gsnSpeed:               "fast",
+		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		egsSpeed:               "fast",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -305,8 +305,8 @@ func TestEthGasStationCustomSpeed(t *testing.T) {
 			"maxGasPrice":    "20",
 			"http":           "true",
 			"startBlock":     "10",
-			"gsnApiKey":      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-			"gsnSpeed":       "average",
+			"egsApiKey":      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+			"egsSpeed":       "average",
 		},
 	}
 
@@ -332,8 +332,8 @@ func TestEthGasStationCustomSpeed(t *testing.T) {
 		http:                   true,
 		startBlock:             big.NewInt(10),
 		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
-		gsnApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-		gsnSpeed:               "average",
+		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		egsSpeed:               "average",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -359,8 +359,8 @@ func TestEthGasStationInvalidSpeed(t *testing.T) {
 			"maxGasPrice":    "20",
 			"http":           "true",
 			"startBlock":     "10",
-			"gsnApiKey":      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-			"gsnSpeed":       "standard",
+			"egsApiKey":      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+			"egsSpeed":       "standard",
 		},
 	}
 
@@ -386,8 +386,8 @@ func TestEthGasStationInvalidSpeed(t *testing.T) {
 		http:                   true,
 		startBlock:             big.NewInt(10),
 		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
-		gsnApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-		gsnSpeed:               "fast",
+		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		egsSpeed:               "fast",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
