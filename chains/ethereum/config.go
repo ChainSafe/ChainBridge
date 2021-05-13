@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/ChainSafe/ChainBridge/connections/ethereum/egs"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/msg"
@@ -31,6 +32,8 @@ var (
 	HttpOpt               = "http"
 	StartBlockOpt         = "startBlock"
 	BlockConfirmationsOpt = "blockConfirmations"
+	EGSApiKey             = "egsApiKey"
+	EGSSpeed              = "egsSpeed"
 )
 
 // Config encapsulates all necessary parameters in ethereum compatible forms
@@ -52,6 +55,8 @@ type Config struct {
 	http                   bool // Config for type of connection
 	startBlock             *big.Int
 	blockConfirmations     *big.Int
+	egsApiKey              string // API key for ethgasstation to query gas prices
+	egsSpeed               string // The speed which a transaction should be processed: average, fast, fastest. Default: fast
 }
 
 // parseChainConfig uses a core.ChainConfig to construct a corresponding Config
@@ -75,6 +80,8 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		http:                   false,
 		startBlock:             big.NewInt(0),
 		blockConfirmations:     big.NewInt(0),
+		egsApiKey:              "",
+		egsSpeed:               "",
 	}
 
 	if contract, ok := chainCfg.Opts[BridgeOpt]; ok && contract != "" {
@@ -157,6 +164,20 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	} else {
 		config.blockConfirmations = big.NewInt(DefaultBlockConfirmations)
 		delete(chainCfg.Opts, BlockConfirmationsOpt)
+	}
+
+	if gsnApiKey, ok := chainCfg.Opts[EGSApiKey]; ok && gsnApiKey != "" {
+		config.egsApiKey = gsnApiKey
+		delete(chainCfg.Opts, EGSApiKey)
+	}
+
+	if speed, ok := chainCfg.Opts[EGSSpeed]; ok && speed == egs.Average || speed == egs.Fast || speed == egs.Fastest {
+		config.egsSpeed = speed
+		delete(chainCfg.Opts, EGSSpeed)
+	} else {
+		// Default to "fast"
+		config.egsSpeed = egs.Fast
+		delete(chainCfg.Opts, EGSSpeed)
 	}
 
 	if len(chainCfg.Opts) != 0 {

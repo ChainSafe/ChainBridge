@@ -265,7 +265,7 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 			w.conn.UnlockOpts()
 
 			if err == nil {
-				w.log.Info("Submitted proposal vote", "tx", tx.Hash(), "src", m.Source, "depositNonce", m.DepositNonce)
+				w.log.Info("Submitted proposal vote", "tx", tx.Hash(), "src", m.Source, "depositNonce", m.DepositNonce, "gasPrice", tx.GasPrice().String())
 				if w.metrics != nil {
 					w.metrics.VotesSubmitted.Inc()
 				}
@@ -312,7 +312,7 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 			w.conn.UnlockOpts()
 
 			if err == nil {
-				w.log.Info("Submitted proposal execution", "tx", tx.Hash(), "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
+				w.log.Info("Submitted proposal execution", "tx", tx.Hash(), "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce, "gasPrice", tx.GasPrice().String())
 				return
 			} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
 				w.log.Error("Nonce too low, will retry")
