@@ -100,5 +100,6 @@ func parsePrice(result *gasPriceResponse, speed string) *big.Int {
 	default:
 		res = big.NewInt(result.Fast)
 	}
-	return res.Mul(res, big.NewInt(0).Exp(big.NewInt(10), big.NewInt(8), nil))
+	base := big.NewInt(8) // we are using 8 here but not 9 bcs ethgas station returns values in Gwei * 10
+	return res.Mul(res, big.NewInt(0).Exp(big.NewInt(10), base, nil))
 }
