@@ -94,6 +94,11 @@ func (l *listener) start() error {
 func (l *listener) pollBlocks() error {
 	l.log.Info("Polling Blocks...")
 	var currentBlock = l.cfg.startBlock
+
+	startBlockStr := fmt.Sprintf("Starting block: %v", currentBlock)
+
+	l.log.Info(startBlockStr)
+
 	var retry = BlockRetryLimit
 	for {
 		select {
