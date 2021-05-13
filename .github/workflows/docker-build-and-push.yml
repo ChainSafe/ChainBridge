@@ -16,7 +16,6 @@ jobs:
   build-and-deploy:
     name: Docker Deployment
     runs-on: ubuntu-latest
-    needs: [test, e2e, lint]
     if: github.ref == 'refs/heads/main' || contains(github.ref, '/tags/v')
     steps:
       - name: Prepare
