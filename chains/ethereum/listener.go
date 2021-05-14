@@ -95,9 +95,11 @@ func (l *listener) pollBlocks() error {
 	l.log.Info("Polling Blocks...")
 	var currentBlock = l.cfg.startBlock
 
-	startBlockStr := fmt.Sprintf("Starting block: %v", currentBlock)
-
-	l.log.Info(startBlockStr)
+	l.log.Info(
+		fmt.Sprintf(
+			"Starting block: %v", currentBlock,
+		),
+	)
 
 	var retry = BlockRetryLimit
 	for {
