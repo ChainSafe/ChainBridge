@@ -16,6 +16,7 @@
 - Changed Lib name to Cerebellum-Network
 - Integrated with chainbridge-substrate-events v2
 - Ingegrated with chainbridge-utils v2
+- Removed bytecode check for `genericHandler`
 
 
 # Contents
