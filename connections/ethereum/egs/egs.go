@@ -89,14 +89,17 @@ func queryAPI(url string) (*gasPriceResponse, error) {
 }
 
 func parsePrice(result *gasPriceResponse, speed string) *big.Int {
+	var res *big.Int
 	switch speed {
 	case Fastest:
-		return big.NewInt(result.Fastest)
+		res = big.NewInt(result.Fastest)
 	case Fast:
-		return big.NewInt(result.Fast)
+		res = big.NewInt(result.Fast)
 	case Average:
-		return big.NewInt(result.Average)
+		res = big.NewInt(result.Average)
 	default:
-		return big.NewInt(result.Fast)
+		res = big.NewInt(result.Fast)
 	}
+	base := big.NewInt(8) // we are using 8 here but not 9 bcs ethgas station returns values in Gwei * 10
+	return res.Mul(res, big.NewInt(0).Exp(big.NewInt(10), base, nil))
 }

@@ -77,11 +77,11 @@ install-subkey:
 ## Runs go test for all packages except the solidity bindings
 test:
 	@echo "  >  \033[32mRunning tests...\033[0m "
-	go test -coverprofile=cover.out -v `go list ./... | grep -v bindings | grep -v e2e`
+	go test -p 1 -coverprofile=cover.out -v `go list ./... | grep -v bindings | grep -v e2e`
 
 test-e2e:
 	@echo "  >  \033[32mRunning e2e tests...\033[0m "
-	go test -v -timeout 0 ./e2e
+	go test -p 1 -v -timeout 0 ./e2e
 
 test-eth:
 	@echo "  >  \033[32mRunning ethereum tests...\033[0m "
