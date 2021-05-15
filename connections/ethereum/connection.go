@@ -138,7 +138,7 @@ func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 	if c.egsApiKey != "" {
 		price, err := egs.FetchGasPrice(c.egsApiKey, c.egsSpeed)
 		if err != nil {
-			c.log.Debug("Couldn't fetch gasPrice from GSN", err)
+			c.log.Error("Couldn't fetch gasPrice from GSN", "err", err)
 		} else {
 			suggestedGasPrice = price
 		}
