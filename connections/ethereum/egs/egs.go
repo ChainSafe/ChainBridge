@@ -24,10 +24,10 @@ const (
 )
 
 type gasPriceResponse struct {
-	Fast          int64       `json:"fast"`
-	Fastest       int64       `json:"fastest"`
-	SafeLow       int64       `json:"safeLow"`
-	Average       int64       `json:"average"`
+	Fast          float32     `json:"fast"`
+	Fastest       float32     `json:"fastest"`
+	SafeLow       float32     `json:"safeLow"`
+	Average       float32     `json:"average"`
 	BlockTime     float32     `json:"block_time"`
 	BlockNum      int64       `json:"blockNum"`
 	Speed         float32     `json:"speed"`
@@ -92,14 +92,19 @@ func parsePrice(result *gasPriceResponse, speed string) *big.Int {
 	var res *big.Int
 	switch speed {
 	case Fastest:
-		res = big.NewInt(result.Fastest)
+		res = big.NewInt(int64(result.Fastest))
 	case Fast:
-		res = big.NewInt(result.Fast)
+		res = big.NewInt(int64(result.Fast))
 	case Average:
-		res = big.NewInt(result.Average)
+		res = big.NewInt(int64(result.Average))
 	default:
-		res = big.NewInt(result.Fast)
+		res = big.NewInt(int64(result.Fast))
 	}
+	// Make sure we get at least 10 gwei to avoid prices of 0
+	if res.Cmp(big.NewInt(1)) == -1 {
+		res = big.NewInt(1)
+	}
+
 	base := big.NewInt(8) // we are using 8 here but not 9 bcs ethgas station returns values in Gwei * 10
 	return res.Mul(res, big.NewInt(0).Exp(big.NewInt(10), base, nil))
 }
