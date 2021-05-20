@@ -12,12 +12,13 @@
 ## [Unreleased]
 -
 
+## 2.1.0
+- Removed bytecode check for `genericHandler`
+
 ## 2.0.0
 - Changed Lib name to Cerebellum-Network
 - Integrated with chainbridge-substrate-events v2
 - Ingegrated with chainbridge-utils v2
-- Removed bytecode check for `genericHandler`
-
 
 # Contents
 
