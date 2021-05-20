@@ -97,12 +97,12 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	}
 
 	if contract, ok := chainCfg.Opts[Erc721HandlerOpt]; ok {
-		config.erc20HandlerContract = common.HexToAddress(contract)
+		config.erc721HandlerContract = common.HexToAddress(contract)
 		delete(chainCfg.Opts, Erc721HandlerOpt)
 	}
 
 	if contract, ok := chainCfg.Opts[GenericHandlerOpt]; ok {
-		config.erc20HandlerContract = common.HexToAddress(contract)
+		config.genericHandlerContract = common.HexToAddress(contract)
 		delete(chainCfg.Opts, GenericHandlerOpt)
 	}
 

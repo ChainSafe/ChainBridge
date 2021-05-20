@@ -117,6 +117,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	if err != nil {
 		return nil, err
 	}
+
 	if cfg.erc20HandlerContract == utils.ZeroAddress {
 		err = nil
 	} else {
@@ -125,6 +126,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	if err != nil {
 		return nil, err
 	}
+
 	if cfg.genericHandlerContract == utils.ZeroAddress {
 		err = nil
 	} else {

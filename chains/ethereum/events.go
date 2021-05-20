@@ -4,16 +4,11 @@
 package ethereum
 
 import (
-	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
 
 func (l *listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce) (msg.Message, error) {
-	if l.cfg.erc20HandlerContract == utils.ZeroAddress {
-		l.log.Warn("You are attempting to perform an ERC20 transfer without a deployed handler")
-	}
-
 	l.log.Info("Handling fungible deposit event", "dest", destId, "nonce", nonce)
 
 	record, err := l.erc20HandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.Keypair().CommonAddress()}, uint64(nonce), uint8(destId))
@@ -33,10 +28,6 @@ func (l *listener) handleErc20DepositedEvent(destId msg.ChainId, nonce msg.Nonce
 }
 
 func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonce) (msg.Message, error) {
-	if l.cfg.erc20HandlerContract == utils.ZeroAddress {
-		l.log.Warn("You are attempting to perform an ERC721 transfer without a deployed handler")
-	}
-
 	l.log.Info("Handling nonfungible deposit event")
 
 	record, err := l.erc721HandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.Keypair().CommonAddress()}, uint64(nonce), uint8(destId))
@@ -57,10 +48,6 @@ func (l *listener) handleErc721DepositedEvent(destId msg.ChainId, nonce msg.Nonc
 }
 
 func (l *listener) handleGenericDepositedEvent(destId msg.ChainId, nonce msg.Nonce) (msg.Message, error) {
-	if l.cfg.erc20HandlerContract == utils.ZeroAddress {
-		l.log.Warn("You are attempting to perform a generic transfer without a deployed handler")
-	}
-
 	l.log.Info("Handling generic deposit event")
 
 	record, err := l.genericHandlerContract.GetDepositRecord(&bind.CallOpts{From: l.conn.Keypair().CommonAddress()}, uint64(nonce), uint8(destId))
