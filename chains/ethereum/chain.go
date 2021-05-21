@@ -118,22 +118,18 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 		return nil, err
 	}
 
-	if cfg.erc20HandlerContract == utils.ZeroAddress {
-		err = nil
-	} else {
+	if cfg.erc20HandlerContract != utils.ZeroAddress {
 		err = conn.EnsureHasBytecode(cfg.erc20HandlerContract)
-	}
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	if cfg.genericHandlerContract == utils.ZeroAddress {
-		err = nil
-	} else {
+	if cfg.genericHandlerContract != utils.ZeroAddress {
 		err = conn.EnsureHasBytecode(cfg.genericHandlerContract)
-	}
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.Client())
