@@ -274,7 +274,7 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				w.log.Debug("Nonce too low, will retry")
 				time.Sleep(TxRetryInterval)
 			} else {
-				w.log.Warn("Voting failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce, "err", err)
+				w.log.Warn("Voting failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce, "gas", tx.Gas(), "gasPrice", tx.GasPrice().String(), "err", err)
 				time.Sleep(TxRetryInterval)
 			}
 
@@ -318,7 +318,7 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 				w.log.Error("Nonce too low, will retry")
 				time.Sleep(TxRetryInterval)
 			} else {
-				w.log.Warn("Execution failed, proposal may already be complete", "err", err)
+				w.log.Warn("Execution failed, proposal may already be complete", "gas", tx.Gas(), "gasPrice", tx.GasPrice().String(), "err", err)
 				time.Sleep(TxRetryInterval)
 			}
 
