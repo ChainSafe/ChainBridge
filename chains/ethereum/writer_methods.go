@@ -255,7 +255,9 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				continue
 			}
 			// These store the gas limit and price before a transaction is sent for logging in case of a failure
-			// This is necessary as tx will be nil in the case of an error when sending VoteProposal()
+			// This declaration is necessary as tx will be nil in the case of an error when sending VoteProposal()
+			// We must also declare variables instead of using w.conn.Opts() directly as the opts are currently locked
+			// here but for all the logging after line 272 the w.conn.Opts() is unlocked and could be changed by another process
 			gasLimit := w.conn.Opts().GasLimit
 			gasPrice := w.conn.Opts().GasPrice
 
