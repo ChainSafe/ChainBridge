@@ -29,6 +29,7 @@ import (
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
+	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/blockstore"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
@@ -116,13 +117,19 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	if err != nil {
 		return nil, err
 	}
-	err = conn.EnsureHasBytecode(cfg.erc20HandlerContract)
-	if err != nil {
-		return nil, err
+
+	if cfg.erc20HandlerContract != utils.ZeroAddress {
+		err = conn.EnsureHasBytecode(cfg.erc20HandlerContract)
+		if err != nil {
+			return nil, err
+		}
 	}
-	err = conn.EnsureHasBytecode(cfg.genericHandlerContract)
-	if err != nil {
-		return nil, err
+
+	if cfg.genericHandlerContract != utils.ZeroAddress {
+		err = conn.EnsureHasBytecode(cfg.genericHandlerContract)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.Client())

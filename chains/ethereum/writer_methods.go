@@ -254,6 +254,12 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				w.log.Error("Failed to update tx opts", "err", err)
 				continue
 			}
+			// These store the gas limit and price before a transaction is sent for logging in case of a failure
+			// This declaration is necessary as tx will be nil in the case of an error when sending VoteProposal()
+			// We must also declare variables instead of using w.conn.Opts() directly as the opts are currently locked
+			// here but for all the logging after line 272 the w.conn.Opts() is unlocked and could be changed by another process
+			gasLimit := w.conn.Opts().GasLimit
+			gasPrice := w.conn.Opts().GasPrice
 
 			tx, err := w.bridgeContract.VoteProposal(
 				w.conn.Opts(),
@@ -274,7 +280,7 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				w.log.Debug("Nonce too low, will retry")
 				time.Sleep(TxRetryInterval)
 			} else {
-				w.log.Warn("Voting failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce, "err", err)
+				w.log.Warn("Voting failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce, "gasLimit", gasLimit, "gasPrice", gasPrice, "err", err)
 				time.Sleep(TxRetryInterval)
 			}
 
@@ -301,6 +307,10 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 				w.log.Error("Failed to update nonce", "err", err)
 				return
 			}
+			// These store the gas limit and price before a transaction is sent for logging in case of a failure
+			// This is necessary as tx will be nil in the case of an error when sending VoteProposal()
+			gasLimit := w.conn.Opts().GasLimit
+			gasPrice := w.conn.Opts().GasPrice
 
 			tx, err := w.bridgeContract.ExecuteProposal(
 				w.conn.Opts(),
@@ -318,7 +328,7 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 				w.log.Error("Nonce too low, will retry")
 				time.Sleep(TxRetryInterval)
 			} else {
-				w.log.Warn("Execution failed, proposal may already be complete", "err", err)
+				w.log.Warn("Execution failed, proposal may already be complete", "gasLimit", gasLimit, "gasPrice", gasPrice, "err", err)
 				time.Sleep(TxRetryInterval)
 			}
 
