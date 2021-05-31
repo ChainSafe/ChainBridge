@@ -36,7 +36,7 @@ jobs:
           # creates local variable of commit hash that triggered workflow
           COMMIT_HASH=$(echo $GITHUB_SHA | head -c7)
 
-          # creates local variable to hold docker_images
+          # creates local variable to hold docker images
           TAGS="${DOCKER_IMAGE}:${COMMIT_HASH},${DOCKER_IMAGE}:latest"
 
           # check if branch/tag that triggered workflow was from tags
