@@ -30,7 +30,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          # pulls docker image from chainsafe
+          # creates local variable of chainbridge docker image
           DOCKER_IMAGE=chainsafe/chainbridge
 
           # creates local variable of commit hash that triggered workflow
