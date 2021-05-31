@@ -37,7 +37,7 @@ jobs:
           COMMIT_HASH=$(echo $GITHUB_SHA | head -c7)
 
           # creates local variable to hold docker_images
-          TAGS=${DOCKER_IMAGE}:${COMMIT_HASH},${DOCKER_IMAGE}:latest"
+          TAGS="${DOCKER_IMAGE}:${COMMIT_HASH},${DOCKER_IMAGE}:latest"
 
           # check if branch/tag that triggered workflow was from tags
           if [[ $GITHUB_REF == refs/tags/* ]]; then
@@ -46,7 +46,7 @@ jobs:
             VERSION=${GITHUB_REF#refs/tags/}
 
             # append version to tags
-            TAGS=${TAGS},${DOCKER_IMAGE}:${VERSION}
+            TAGS="${TAGS},${DOCKER_IMAGE}:${VERSION}"
 
           fi
 
