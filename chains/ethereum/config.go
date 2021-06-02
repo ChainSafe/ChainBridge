@@ -34,15 +34,19 @@ var (
 	BlockConfirmationsOpt = "blockConfirmations"
 	EGSApiKey             = "egsApiKey"
 	EGSSpeed              = "egsSpeed"
+	ItxEndpoint           = "itxEndpoint"
+	ForwarderAddress      = "forwarderAddress"
 )
 
 // Config encapsulates all necessary parameters in ethereum compatible forms
 type Config struct {
-	name                   string      // Human-readable chain name
-	id                     msg.ChainId // ChainID
-	endpoint               string      // url for rpc endpoint
-	from                   string      // address of key to use
-	keystorePath           string      // Location of keyfiles
+	name                   string          // Human-readable chain name
+	id                     msg.ChainId     // ChainID
+	endpoint               string          // url for rpc endpoint
+	itxEndpoint            *string         // url for itx rpc endpoint
+	forwarderAddress       *common.Address // address of a forwarder to use when submitting transactions
+	from                   string          // address of key to use
+	keystorePath           string          // Location of keyfiles
 	blockstorePath         string
 	freshStart             bool // Disables loading from blockstore at start
 	bridgeContract         common.Address
@@ -178,6 +182,24 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		// Default to "fast"
 		config.egsSpeed = egs.Fast
 		delete(chainCfg.Opts, EGSSpeed)
+	}
+
+	if itxConfig, ok := chainCfg.Opts[ItxEndpoint]; ok && itxConfig != "" {
+		config.itxEndpoint = &itxConfig
+		delete(chainCfg.Opts, ItxEndpoint)
+	} else {
+		config.itxEndpoint = nil
+		delete(chainCfg.Opts, ItxEndpoint)
+	}
+
+	if forwarderAddress, ok := chainCfg.Opts[ForwarderAddress]; ok && forwarderAddress != "" {
+		commonForwarderAddress := common.HexToAddress(forwarderAddress)
+		config.forwarderAddress = &commonForwarderAddress
+		// config.forwarderAddress = &forwarderAddress
+		delete(chainCfg.Opts, ForwarderAddress)
+	} else {
+		config.forwarderAddress = nil
+		delete(chainCfg.Opts, ForwarderAddress)
 	}
 
 	if len(chainCfg.Opts) != 0 {

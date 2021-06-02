@@ -25,6 +25,7 @@ var BlockRetryInterval = time.Second * 5
 
 type Connection struct {
 	endpoint      string
+	itxEndpoint   *string
 	http          bool
 	kp            *secp256k1.Keypair
 	gasLimit      *big.Int
@@ -33,19 +34,20 @@ type Connection struct {
 	egsApiKey     string
 	egsSpeed      string
 	conn          *ethclient.Client
-	// signer    ethtypes.Signer
-	opts     *bind.TransactOpts
-	callOpts *bind.CallOpts
-	nonce    uint64
-	optsLock sync.Mutex
-	log      log15.Logger
-	stop     chan int // All routines should exit when this channel is closed
+	itxRpc        *rpc.Client
+	opts          *bind.TransactOpts
+	callOpts      *bind.CallOpts
+	nonce         uint64
+	optsLock      sync.Mutex
+	log           log15.Logger
+	stop          chan int // All routines should exit when this channel is closed
 }
 
 // NewConnection returns an uninitialized connection, must call Connection.Connect() before using.
-func NewConnection(endpoint string, http bool, kp *secp256k1.Keypair, log log15.Logger, gasLimit, gasPrice *big.Int, gasMultiplier *big.Float, gsnApiKey, gsnSpeed string) *Connection {
+func NewConnection(endpoint string, itxEndpoint *string, http bool, kp *secp256k1.Keypair, log log15.Logger, gasLimit, gasPrice *big.Int, gasMultiplier *big.Float, gsnApiKey, gsnSpeed string) *Connection {
 	return &Connection{
 		endpoint:      endpoint,
+		itxEndpoint:   itxEndpoint,
 		http:          http,
 		kp:            kp,
 		gasLimit:      gasLimit,
@@ -72,7 +74,19 @@ func (c *Connection) Connect() error {
 	if err != nil {
 		return err
 	}
+
 	c.conn = ethclient.NewClient(rpcClient)
+	if c.itxEndpoint != nil {
+		// CHRIS:TODO: remove unneccessary logging I've added
+		c.log.Info("Connecting to ITX...", "url", c.itxEndpoint)
+		itxRpc, err := rpc.DialHTTP(*c.itxEndpoint)
+		if err != nil {
+			return err
+		}
+		c.itxRpc = itxRpc
+	} else {
+		c.itxRpc = nil
+	}
 
 	// Construct tx opts, call opts, and nonce mechanism
 	opts, _, err := c.newTransactOpts(big.NewInt(0), c.gasLimit, c.maxGasPrice)
@@ -116,6 +130,10 @@ func (c *Connection) newTransactOpts(value, gasLimit, gasPrice *big.Int) (*bind.
 
 func (c *Connection) Keypair() *secp256k1.Keypair {
 	return c.kp
+}
+
+func (c *Connection) ItxClient() *rpc.Client {
+	return c.itxRpc
 }
 
 func (c *Connection) Client() *ethclient.Client {

@@ -39,6 +39,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/rpc"
 )
 
 var _ core.Chain = &Chain{}
@@ -53,6 +54,7 @@ type Connection interface {
 	LockAndUpdateOpts() error
 	UnlockOpts()
 	Client() *ethclient.Client
+	ItxClient() *rpc.Client
 	EnsureHasBytecode(address common.Address) error
 	LatestBlock() (*big.Int, error)
 	WaitForBlock(block *big.Int, delay *big.Int) error
@@ -107,7 +109,8 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	}
 
 	stop := make(chan int)
-	conn := connection.NewConnection(cfg.endpoint, cfg.http, kp, logger, cfg.gasLimit, cfg.maxGasPrice, cfg.gasMultiplier, cfg.egsApiKey, cfg.egsSpeed)
+
+	conn := connection.NewConnection(cfg.endpoint, cfg.itxEndpoint, cfg.http, kp, logger, cfg.gasLimit, cfg.maxGasPrice, cfg.gasMultiplier, cfg.egsApiKey, cfg.egsSpeed)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
@@ -123,6 +126,19 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	err = conn.EnsureHasBytecode(cfg.genericHandlerContract)
 	if err != nil {
 		return nil, err
+	}
+
+	var forwarderClient *ForwarderClient = nil
+	if cfg.forwarderAddress != nil {
+		err = conn.EnsureHasBytecode(*cfg.forwarderAddress)
+		if err != nil {
+			return nil, err
+		}
+
+		forwarderClient, err = NewForwarderClient(conn.Client(), *cfg.forwarderAddress, common.HexToAddress(cfg.from))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.Client())
@@ -167,6 +183,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 
 	writer := NewWriter(conn, cfg, logger, stop, sysErr, m)
 	writer.setContract(bridgeContract)
+	writer.setForwarder(forwarderClient)
 
 	return &Chain{
 		cfg:      chainCfg,
