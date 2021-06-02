@@ -22,25 +22,7 @@ type RelayTx struct {
 	schedule string
 }
 
-func sendRelayTransaction(rpc *rpc.Client, ctx context.Context, relayTx RelayTx, sig []byte) (*string, error) {
-	var hex hexutil.Bytes
-	sigHex := "0x" + common.Bytes2Hex(sig)
-	txArg := map[string]interface{}{
-		"to":       relayTx.to.String(),
-		"data":     "0x" + common.Bytes2Hex(relayTx.data),
-		"gasLimit": relayTx.gasLimit,
-		"schedule": relayTx.schedule,
-	}
-	err := rpc.CallContext(ctx, &hex, "relay_sendTransaction", txArg, sigHex)
-
-	if err != nil {
-		return nil, err
-	} else {
-		txId := hex.String()
-		return &txId, nil
-	}
-}
-
+// ABI encode the vote proposal function args
 func packVoteProposalData(chainID uint8, depositNonce uint64, resourceID [32]byte, dataHash [32]byte) ([]byte, error) {
 	parsed, err := abi.JSON(strings.NewReader(Bridge.BridgeABI))
 	if err != nil {
@@ -53,6 +35,7 @@ func packVoteProposalData(chainID uint8, depositNonce uint64, resourceID [32]byt
 	return packed, nil
 }
 
+// ABI encode the execute proposal function args
 func packExecuteProposalData(chainID uint8, depositNonce uint64, data []byte, resourceID [32]byte) ([]byte, error) {
 	parsed, err := abi.JSON(strings.NewReader(Bridge.BridgeABI))
 	if err != nil {
@@ -65,6 +48,7 @@ func packExecuteProposalData(chainID uint8, depositNonce uint64, data []byte, re
 	return packed, nil
 }
 
+// Form and sign a relay transaction
 func toSignedRelayTx(to string, data []byte, gasLimit uint, chainId uint, keyPair *secp256k1.Keypair) (*struct {
 	tx   RelayTx
 	sig  []byte
@@ -141,4 +125,24 @@ func toSignedRelayTx(to string, data []byte, gasLimit uint, chainId uint, keyPai
 	}
 
 	return &signedTx, nil
+}
+
+// Send a relay transaction to the provided rpc client
+func sendRelayTransaction(rpc *rpc.Client, ctx context.Context, relayTx RelayTx, sig []byte) (*string, error) {
+	var hex hexutil.Bytes
+	sigHex := "0x" + common.Bytes2Hex(sig)
+	txArg := map[string]interface{}{
+		"to":       relayTx.to.String(),
+		"data":     "0x" + common.Bytes2Hex(relayTx.data),
+		"gasLimit": relayTx.gasLimit,
+		"schedule": relayTx.schedule,
+	}
+	err := rpc.CallContext(ctx, &hex, "relay_sendTransaction", txArg, sigHex)
+
+	if err != nil {
+		return nil, err
+	} else {
+		txId := hex.String()
+		return &txId, nil
+	}
 }
