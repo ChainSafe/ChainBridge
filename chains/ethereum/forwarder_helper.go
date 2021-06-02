@@ -77,6 +77,7 @@ func (c *ForwarderClient) GetOnChainNonce() (*big.Int, error) {
 	return nonce, nil
 }
 
+// Locks nonce access and returns the next nonce
 func (c *ForwarderClient) LockAndNextNonce() (*big.Int, error) {
 	c.forwarderNonceLock.Lock()
 
@@ -87,10 +88,10 @@ func (c *ForwarderClient) LockAndNextNonce() (*big.Int, error) {
 	}
 }
 
+// Unlocks nonce access and sets the provided nonce
+// If transaction usage of a nonce failes the nonce shouldnt be
+// updated upon unlock, instead nil should be supplied
 func (c *ForwarderClient) UnlockAndSetNonce(nonce *big.Int) {
-	// CHRIS:TODO check all the comments in this file, some of them are todos
-	// CHRIS:TODO docs about the nil
-
 	if nonce != nil {
 		c.forwarderNonce = nonce
 	}
@@ -143,7 +144,6 @@ func (c *ForwarderClient) TypedHash(
 
 	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
 	if err != nil {
-		// CHRIS: add the proper errors everywhere
 		return nil, err
 	}
 	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
@@ -160,8 +160,6 @@ func (c *ForwarderClient) PackAndSignForwarderArg(
 	nonce, value, gas *big.Int,
 	chainId uint,
 	kp secp256k1.Keypair) ([]byte, error) {
-	// CHRIS:TODO: need to revert this nonce if we fail to send
-
 	forwarderHash, err := c.TypedHash(
 		from.String(),
 		to.String(),
@@ -178,7 +176,7 @@ func (c *ForwarderClient) PackAndSignForwarderArg(
 
 	// now sign that hash
 	sig, err := crypto.Sign(forwarderHash, kp.PrivateKey())
-	sig[64] += 27 // Transform V from 0/1 to 27/28 according to the yellow paper
+	sig[64] += 27 // Transform V from 0/1 to 27/28
 
 	if err != nil {
 		return nil, err

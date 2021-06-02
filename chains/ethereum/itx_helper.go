@@ -33,11 +33,6 @@ func sendRelayTransaction(rpc *rpc.Client, ctx context.Context, relayTx RelayTx,
 	}
 	err := rpc.CallContext(ctx, &hex, "relay_sendTransaction", txArg, sigHex)
 
-	// CHRIS:
-	// 3. ensure that it'll all work on testnets etc + source/dest
-	// 4. add forwarder support
-	// 5. add tests
-
 	if err != nil {
 		return nil, err
 	} else {

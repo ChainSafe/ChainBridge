@@ -77,7 +77,6 @@ func (c *Connection) Connect() error {
 
 	c.conn = ethclient.NewClient(rpcClient)
 	if c.itxEndpoint != nil {
-		// CHRIS:TODO: remove unneccessary logging I've added
 		c.log.Info("Connecting to ITX...", "url", c.itxEndpoint)
 		itxRpc, err := rpc.DialHTTP(*c.itxEndpoint)
 		if err != nil {

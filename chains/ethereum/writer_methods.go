@@ -260,8 +260,6 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 			return
 		default:
 			if w.conn.ItxClient() != nil && w.forwarderClient != nil && itxFailures < ItxRetryLimit {
-				// CHRIS:TODO: get rid of weird comments in here
-				w.log.Warn("Sending to ITX vote...")
 				forwarderNonce, err := w.forwarderClient.LockAndNextNonce()
 				if err != nil {
 					itxFailures++
