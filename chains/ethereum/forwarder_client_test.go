@@ -38,11 +38,7 @@ func TestCreateAndExecuteForwarder(t *testing.T) {
 	}
 	client.UnlockNonce()
 
-	forwarderClient, err := NewForwarderClient(client.Client, forwarderAddress, pl.CommonAddress())
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-
+	forwarderClient := NewForwarderClient(client.Client, forwarderAddress, pl.CommonAddress())
 	nonce, err := forwarderClient.LockAndNextNonce()
 	if err != nil {
 		t.Fatal(err.Error())
@@ -83,9 +79,9 @@ func TestCreateAndExecuteForwarder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	} else {
-		p, err := forwarderClient.forwarderAbi.Unpack("execute", res)
-		if err != nil {
-			t.Fatal(err.Error())
+		p, unErr := forwarderClient.forwarderAbi.Unpack("execute", res)
+		if unErr != nil {
+			t.Fatal(unErr.Error())
 		}
 		if p[0] == false {
 			t.Fatal("Inner call failed")

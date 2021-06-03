@@ -48,12 +48,14 @@ func packExecuteProposalData(chainID uint8, depositNonce uint64, data []byte, re
 	return packed, nil
 }
 
-// Form and sign a relay transaction
-func toSignedRelayTx(to string, data []byte, gasLimit uint, chainId uint, keyPair *secp256k1.Keypair) (*struct {
+type SignedRelayTx struct {
 	tx   RelayTx
 	sig  []byte
 	txId string
-}, error) {
+}
+
+// Form and sign a relay transaction
+func toSignedRelayTx(to string, data []byte, gasLimit uint, chainId uint, keyPair *secp256k1.Keypair) (*SignedRelayTx, error) {
 	// see https://infura.io/docs/transactions#section/Developing-with-ITX/Signing-a-relay-request
 	toAddress := common.HexToAddress(to)
 	gasInt := big.NewInt(int64(gasLimit))
@@ -64,14 +66,17 @@ func toSignedRelayTx(to string, data []byte, gasLimit uint, chainId uint, keyPai
 	if err != nil {
 		return nil, err
 	}
+
 	addressTy, err := abi.NewType("address", "address", nil)
 	if err != nil {
 		return nil, err
 	}
+
 	bytesTy, err := abi.NewType("bytes", "bytes", nil)
 	if err != nil {
 		return nil, err
 	}
+
 	stringTy, err := abi.NewType("string", "string", nil)
 	if err != nil {
 		return nil, err
@@ -109,11 +114,7 @@ func toSignedRelayTx(to string, data []byte, gasLimit uint, chainId uint, keyPai
 		return nil, err
 	}
 
-	signedTx := struct {
-		tx   RelayTx
-		sig  []byte
-		txId string
-	}{
+	return &SignedRelayTx{
 		tx: RelayTx{
 			to:       toAddress,
 			data:     data,
@@ -122,9 +123,7 @@ func toSignedRelayTx(to string, data []byte, gasLimit uint, chainId uint, keyPai
 		},
 		sig:  sig,
 		txId: relayTxId.String(),
-	}
-
-	return &signedTx, nil
+	}, nil
 }
 
 // Send a relay transaction to the provided rpc client

@@ -31,14 +31,15 @@ type ForwarderClient struct {
 	fromAddress        common.Address
 }
 
+var forwarderAbi, forwarderAbiErr = abi.JSON(strings.NewReader(ForwarderAbi))
+
 func NewForwarderClient(
 	client *ethclient.Client,
 	forwarderAddress common.Address,
 	fromAddress common.Address,
-) (*ForwarderClient, error) {
-	forwarderAbi, err := abi.JSON(strings.NewReader(ForwarderAbi))
-	if err != nil {
-		return nil, err
+) *ForwarderClient {
+	if forwarderAbiErr != nil {
+		panic(forwarderAbiErr)
 	}
 
 	return &ForwarderClient{
@@ -46,7 +47,7 @@ func NewForwarderClient(
 		forwarderAddress: forwarderAddress,
 		fromAddress:      fromAddress,
 		forwarderAbi:     forwarderAbi,
-	}, nil
+	}
 }
 
 func (c *ForwarderClient) GetOnChainNonce() (*big.Int, error) {
@@ -149,10 +150,12 @@ func (c *ForwarderClient) TypedHash(
 	if err != nil {
 		return nil, err
 	}
+
 	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
 	if err != nil {
 		return nil, err
 	}
+
 	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
 	return crypto.Keccak256(rawData), nil
 }
@@ -186,22 +189,16 @@ func (c *ForwarderClient) PackAndSignForwarderArg(
 		return nil, err
 	}
 
-	// struct ForwardRequest {
-	//     address from;
-	//     address to;
-	//     uint256 value;
-	//     uint256 gas;
-	//     uint256 nonce;
-	//     bytes data;
-	// }
-	forwardReq := struct {
+	type ForwardRequest struct {
 		From  common.Address
 		To    common.Address
 		Value *big.Int
 		Gas   *big.Int
 		Nonce *big.Int
 		Data  []byte
-	}{
+	}
+
+	forwardReq := ForwardRequest{
 		From:  from,
 		To:    to,
 		Value: value,

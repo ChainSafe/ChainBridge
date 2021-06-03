@@ -186,21 +186,14 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 
 	if itxConfig, ok := chainCfg.Opts[ItxEndpoint]; ok && itxConfig != "" {
 		config.itxEndpoint = &itxConfig
-		delete(chainCfg.Opts, ItxEndpoint)
-	} else {
-		config.itxEndpoint = nil
-		delete(chainCfg.Opts, ItxEndpoint)
 	}
+	delete(chainCfg.Opts, ItxEndpoint)
 
 	if forwarderAddress, ok := chainCfg.Opts[ForwarderAddress]; ok && forwarderAddress != "" {
 		commonForwarderAddress := common.HexToAddress(forwarderAddress)
 		config.forwarderAddress = &commonForwarderAddress
-		// config.forwarderAddress = &forwarderAddress
-		delete(chainCfg.Opts, ForwarderAddress)
-	} else {
-		config.forwarderAddress = nil
-		delete(chainCfg.Opts, ForwarderAddress)
 	}
+	delete(chainCfg.Opts, ForwarderAddress)
 
 	if len(chainCfg.Opts) != 0 {
 		return nil, fmt.Errorf("unknown Opts Encountered: %#v", chainCfg.Opts)
