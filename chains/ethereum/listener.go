@@ -92,8 +92,9 @@ func (l *listener) start() error {
 // Polling begins at the block defined in `l.cfg.startBlock`. Failed attempts to fetch the latest block or parse
 // a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *listener) pollBlocks() error {
-	l.log.Info("Polling Blocks...")
 	var currentBlock = l.cfg.startBlock
+	l.log.Info("Polling Blocks...", "block", currentBlock)
+
 	var retry = BlockRetryLimit
 	for {
 		select {
