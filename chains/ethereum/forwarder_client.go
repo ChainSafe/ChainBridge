@@ -18,7 +18,7 @@ import (
 	signer "github.com/ethereum/go-ethereum/signer/core"
 )
 
-const ForwarderAbi = "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"gas\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"struct MinimalForwarder.ForwardRequest\",\"name\":\"req\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"execute\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"}],\"name\":\"getNonce\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"gas\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"struct MinimalForwarder.ForwardRequest\",\"name\":\"req\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"verify\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
+const GsnForwarderAbi = "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"domainSeparator\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"domainValue\",\"type\":\"bytes\"}],\"name\":\"DomainRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"typeHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"typeStr\",\"type\":\"string\"}],\"name\":\"RequestTypeRegistered\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"EIP712_DOMAIN_TYPE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"GENERIC_PARAMS\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"gas\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"validUntil\",\"type\":\"uint256\"}],\"internalType\":\"structIForwarder.ForwardRequest\",\"name\":\"req\",\"type\":\"tuple\"},{\"internalType\":\"bytes32\",\"name\":\"requestTypeHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"suffixData\",\"type\":\"bytes\"}],\"name\":\"_getEncoded\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"domains\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"gas\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"validUntil\",\"type\":\"uint256\"}],\"internalType\":\"structIForwarder.ForwardRequest\",\"name\":\"req\",\"type\":\"tuple\"},{\"internalType\":\"bytes32\",\"name\":\"domainSeparator\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"requestTypeHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"suffixData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"sig\",\"type\":\"bytes\"}],\"name\":\"execute\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"},{\"internalType\":\"bytes\",\"name\":\"ret\",\"type\":\"bytes\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"}],\"name\":\"getNonce\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"version\",\"type\":\"string\"}],\"name\":\"registerDomainSeparator\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"typeName\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"typeSuffix\",\"type\":\"string\"}],\"name\":\"registerRequestType\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"typeHashes\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"gas\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"validUntil\",\"type\":\"uint256\"}],\"internalType\":\"structIForwarder.ForwardRequest\",\"name\":\"req\",\"type\":\"tuple\"},{\"internalType\":\"bytes32\",\"name\":\"domainSeparator\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"requestTypeHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"suffixData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"sig\",\"type\":\"bytes\"}],\"name\":\"verify\",\"outputs\":[],\"stateMutability\":\"view\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]"
 
 // Keeps track of forwarder info include the state of the current
 // nonces
@@ -31,22 +31,22 @@ type ForwarderClient struct {
 	fromAddress        common.Address
 }
 
-var forwarderAbi, forwarderAbiErr = abi.JSON(strings.NewReader(ForwarderAbi))
+var gsnForwarderAbi, gsnForwarderAbiErr = abi.JSON(strings.NewReader(GsnForwarderAbi))
 
 func NewForwarderClient(
 	client *ethclient.Client,
 	forwarderAddress common.Address,
 	fromAddress common.Address,
 ) *ForwarderClient {
-	if forwarderAbiErr != nil {
-		panic(forwarderAbiErr)
+	if gsnForwarderAbiErr != nil {
+		panic(gsnForwarderAbiErr)
 	}
 
 	return &ForwarderClient{
 		client:           client,
 		forwarderAddress: forwarderAddress,
 		fromAddress:      fromAddress,
-		forwarderAbi:     forwarderAbi,
+		forwarderAbi:     gsnForwarderAbi,
 	}
 }
 
@@ -108,7 +108,7 @@ func (c *ForwarderClient) TypedHash(
 	value, gas *math.HexOrDecimal256,
 	nonce *big.Int,
 	chainId *math.HexOrDecimal256,
-	verifyingContract string) ([]byte, error) {
+	verifyingContract string) ([]byte, *[32]byte, *[32]byte, error) {
 
 	typedData := signer.TypedData{
 		Types: signer.Types{
@@ -119,7 +119,7 @@ func (c *ForwarderClient) TypedHash(
 				{Name: "chainId", Type: "uint256"},
 				{Name: "verifyingContract", Type: "address"},
 			},
-			// ForwardRequest(address from,address to,uint256 value,uint256 gas,uint256 nonce,bytes data)
+			// ForwardRequest(address from,address to,uint256 value,uint256 gas,uint256 nonce,bytes data,uint256 validUntil)
 			"ForwardRequest": []signer.Type{
 				{Name: "from", Type: "address"},
 				{Name: "to", Type: "address"},
@@ -127,37 +127,46 @@ func (c *ForwarderClient) TypedHash(
 				{Name: "gas", Type: "uint256"},
 				{Name: "nonce", Type: "uint256"},
 				{Name: "data", Type: "bytes"},
+				{Name: "validUntil", Type: "uint256"},
 			},
 		},
+		// domain hash - 0xAA937C9BB1C0E90D11F3420A75F7D8EF42DFF261ADAE5B58B57AB0F692C4F7B7
+		// name "GSN Relayed Transaction"- "2"
 		PrimaryType: "ForwardRequest",
 		Domain: signer.TypedDataDomain{
-			Name:              "MinimalForwarder",
+			Name:              "GSN Relayed Transaction",
 			ChainId:           chainId,
-			Version:           "0.0.1",
+			Version:           "2",
 			VerifyingContract: verifyingContract,
 		},
 		Message: signer.TypedDataMessage{
-			"from":  from,
-			"to":    to,
-			"value": value,
-			"gas":   gas,
-			"data":  data,
-			"nonce": math.NewHexOrDecimal256(nonce.Int64()),
+			"from":       from,
+			"to":         to,
+			"value":      value,
+			"gas":        gas,
+			"data":       data,
+			"nonce":      math.NewHexOrDecimal256(nonce.Int64()),
+			"validUntil": math.NewHexOrDecimal256(0),
 		},
 	}
 
 	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
+
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
+	var fixedSizeDomainSeperator [32]byte
+	copy(fixedSizeDomainSeperator[:], domainSeparator)
 
 	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
+	var fixedSizeTypeHash [32]byte
+	copy(fixedSizeTypeHash[:], typedData.TypeHash(typedData.PrimaryType))
 
 	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
-	return crypto.Keccak256(rawData), nil
+	return crypto.Keccak256(rawData), &fixedSizeDomainSeperator, &fixedSizeTypeHash, nil
 }
 
 // Pack and sign forwarder contract 'execute' arguments
@@ -167,7 +176,8 @@ func (c *ForwarderClient) PackAndSignForwarderArg(
 	nonce, value, gas *big.Int,
 	chainId uint,
 	kp secp256k1.Keypair) ([]byte, error) {
-	forwarderHash, err := c.TypedHash(
+
+	forwarderHash, domainSeperator, typeHash, err := c.TypedHash(
 		from.String(),
 		to.String(),
 		data,
@@ -175,7 +185,8 @@ func (c *ForwarderClient) PackAndSignForwarderArg(
 		math.NewHexOrDecimal256(int64(gas.Uint64())),
 		nonce,
 		math.NewHexOrDecimal256(int64(chainId)),
-		c.forwarderAddress.String())
+		c.forwarderAddress.String(),
+	)
 
 	if err != nil {
 		return nil, err
@@ -189,25 +200,29 @@ func (c *ForwarderClient) PackAndSignForwarderArg(
 		return nil, err
 	}
 
+	var suffixData = common.Hex2Bytes("0x")
+
 	type ForwardRequest struct {
-		From  common.Address
-		To    common.Address
-		Value *big.Int
-		Gas   *big.Int
-		Nonce *big.Int
-		Data  []byte
+		From       common.Address
+		To         common.Address
+		Value      *big.Int
+		Gas        *big.Int
+		Nonce      *big.Int
+		Data       []byte
+		ValidUntil *big.Int
 	}
 
 	forwardReq := ForwardRequest{
-		From:  from,
-		To:    to,
-		Value: value,
-		Gas:   gas,
-		Nonce: nonce,
-		Data:  data,
+		From:       from,
+		To:         to,
+		Value:      value,
+		Gas:        gas,
+		Nonce:      nonce,
+		Data:       data,
+		ValidUntil: big.NewInt(0),
 	}
 
-	packed, err := c.forwarderAbi.Pack("execute", forwardReq, sig)
+	packed, err := c.forwarderAbi.Pack("execute", forwardReq, domainSeperator, typeHash, suffixData, sig)
 	if err != nil {
 		return nil, err
 	}
