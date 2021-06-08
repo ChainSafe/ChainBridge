@@ -65,7 +65,7 @@ func TestCreateAndExecuteGsnForwarder(t *testing.T) {
 	packed, err := forwarderClient.PackAndSignForwarderArg(
 		pl.CommonAddress(),
 		pl.CommonAddress(),
-		common.Hex2Bytes("0x"),
+		common.Hex2Bytes("6666"),
 		nonce,
 		value,
 		gas,
