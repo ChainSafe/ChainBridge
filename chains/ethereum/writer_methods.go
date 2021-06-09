@@ -263,7 +263,10 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				forwarderNonce, err := w.forwarderClient.LockAndNextNonce()
 				if err != nil {
 					itxFailures++
-					w.log.Error("Failed to get and lock forwarder nonce for vote proposal", "itxFailures", itxFailures, "err", err)
+					w.log.Warn("Failed to get and lock forwarder nonce for vote proposal", "itxFailures", itxFailures, "err", err)
+					if itxFailures == ItxRetryLimit {
+						w.log.Error("Maximum ITX errors reached.", "itxFailures", itxFailures)
+					}
 					time.Sleep(TxRetryInterval)
 					continue
 				}
@@ -308,7 +311,10 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				if err != nil {
 					w.forwarderClient.UnlockAndSetNonce(nil)
 					itxFailures++
-					w.log.Error("Failed to send vote proposal to itx", "itxFailures", itxFailures, "err", err)
+					w.log.Warn("Failed to send vote proposal to itx", "itxFailures", itxFailures, "err", err)
+					if itxFailures == ItxRetryLimit {
+						w.log.Error("Maximum ITX errors reached.", "itxFailures", itxFailures)
+					}
 					time.Sleep(TxRetryInterval)
 					continue
 				} else {
@@ -376,7 +382,10 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 				forwarderNonce, err := w.forwarderClient.LockAndNextNonce()
 				if err != nil {
 					itxFailures++
-					w.log.Error("Failed to get and lock forwarder nonce for proposal execution", "itxFailures", itxFailures, "err", err)
+					w.log.Warn("Failed to get and lock forwarder nonce for proposal execution", "itxFailures", itxFailures, "err", err)
+					if itxFailures == ItxRetryLimit {
+						w.log.Error("Maximum ITX errors reached.", "itxFailures", itxFailures)
+					}
 					time.Sleep(TxRetryInterval)
 					continue
 				}
@@ -420,7 +429,10 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 				if err != nil {
 					w.forwarderClient.UnlockAndSetNonce(nil)
 					itxFailures++
-					w.log.Error("Failed to send proposal execution to itx", "itxFailures", itxFailures, "err", err)
+					w.log.Warn("Failed to send proposal execution to itx", "itxFailures", itxFailures, "err", err)
+					if itxFailures == ItxRetryLimit {
+						w.log.Error("Maximum ITX errors reached.", "itxFailures", itxFailures)
+					}
 					time.Sleep(TxRetryInterval)
 					continue
 				} else {
