@@ -10,7 +10,7 @@
 # Release Notes
 
 ## [Unreleased]
--
+- Added DDC custom events
 
 ## 2.1.0
 - Removed bytecode check for `genericHandler`
