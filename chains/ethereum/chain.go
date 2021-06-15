@@ -21,7 +21,6 @@ The writer recieves the message and creates a proposals on-chain. Once a proposa
 package ethereum
 
 import (
-	"context"
 	"fmt"
 	"math/big"
 
@@ -144,7 +143,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 			return nil, err
 		}
 
-		networkChainId, err := conn.Client().ChainID(context.Background())
+		networkChainId, err := conn.Client().ChainID(conn.Opts().Context)
 		if err != nil {
 			return nil, err
 		}
