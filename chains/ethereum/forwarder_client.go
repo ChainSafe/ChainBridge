@@ -27,6 +27,7 @@ type ForwarderClient struct {
 	forwarderNonceLock sync.Mutex
 	forwarderNonce     *big.Int
 	fromAddress        common.Address
+	chainId            *big.Int
 }
 
 // https://github.com/opengsn/gsn/blob/bdce42a5fbd37d1abc7bd32bdbe10fc8c71dc602/packages/contracts/src/forwarder/Forwarder.sol
@@ -38,7 +39,9 @@ func NewForwarderClient(
 	client *ethclient.Client,
 	forwarderAddress common.Address,
 	fromAddress common.Address,
+	chainId *big.Int,
 ) *ForwarderClient {
+
 	if gsnForwarderAbiErr != nil {
 		panic(gsnForwarderAbiErr)
 	}
@@ -48,6 +51,7 @@ func NewForwarderClient(
 		forwarderAddress: forwarderAddress,
 		fromAddress:      fromAddress,
 		forwarderAbi:     gsnForwarderAbi,
+		chainId:          chainId,
 	}
 }
 
@@ -108,8 +112,9 @@ func (c *ForwarderClient) TypedHash(
 	data []byte,
 	value, gas *math.HexOrDecimal256,
 	nonce *big.Int,
-	chainId *math.HexOrDecimal256,
 	verifyingContract string) ([]byte, *[32]byte, *[32]byte, error) {
+
+	chainId := math.NewHexOrDecimal256(int64(c.chainId.Uint64()))
 
 	typedData := signer.TypedData{
 		Types: signer.Types{
@@ -175,7 +180,6 @@ func (c *ForwarderClient) PackAndSignForwarderArg(
 	from, to common.Address,
 	data []byte,
 	nonce, value, gas *big.Int,
-	chainId uint,
 	kp secp256k1.Keypair) ([]byte, error) {
 
 	forwarderHash, domainSeperator, typeHash, err := c.TypedHash(
@@ -185,7 +189,6 @@ func (c *ForwarderClient) PackAndSignForwarderArg(
 		math.NewHexOrDecimal256(int64(value.Uint64())),
 		math.NewHexOrDecimal256(int64(gas.Uint64())),
 		nonce,
-		math.NewHexOrDecimal256(int64(chainId)),
 		c.forwarderAddress.String(),
 	)
 

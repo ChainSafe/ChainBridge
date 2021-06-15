@@ -116,6 +116,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	if err != nil {
 		return nil, err
 	}
+
 	err = conn.EnsureHasBytecode(cfg.bridgeContract)
 	if err != nil {
 		return nil, err
@@ -142,7 +143,12 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 			return nil, err
 		}
 
-		forwarderClient = NewForwarderClient(conn.Client(), *cfg.forwarderAddress, common.HexToAddress(cfg.from))
+		networkChainId, err := conn.Client().ChainID(conn.CallOpts().Context)
+		if err != nil {
+			return nil, err
+		}
+
+		forwarderClient = NewForwarderClient(conn.Client(), *cfg.forwarderAddress, common.HexToAddress(cfg.from), networkChainId)
 	}
 
 	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.Client())

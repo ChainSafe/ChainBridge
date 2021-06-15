@@ -289,7 +289,6 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 					pData, forwarderNonce,
 					big.NewInt(0),
 					big.NewInt(int64(w.conn.Opts().GasLimit)),
-					uint(m.Destination),
 					*w.conn.Keypair(),
 				)
 				if err != nil {
@@ -300,7 +299,7 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 
 				// add gas for the forwarder call
 				forwarderGas := uint(w.conn.Opts().GasLimit*64/63 + 100000)
-				signedTx, err := toSignedRelayTx(w.forwarderClient.forwarderAddress.String(), signedData, forwarderGas, uint(uint8(m.Destination)), w.conn.Keypair())
+				signedTx, err := toSignedRelayTx(w.forwarderClient.forwarderAddress.String(), signedData, forwarderGas, uint(w.forwarderClient.chainId.Uint64()), w.conn.Keypair())
 				if err != nil {
 					itxFailures = ItxRetryLimit
 					w.log.Error("Failed to sign relay tx for vote proposal", "err", err)
@@ -408,7 +407,6 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 					pData, forwarderNonce,
 					big.NewInt(0),
 					big.NewInt(int64(w.conn.Opts().GasLimit)),
-					uint(m.Destination),
 					*w.conn.Keypair(),
 				)
 				if err != nil {
@@ -419,7 +417,7 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 
 				// add gas for the forwarder call
 				forwarderGas := uint(w.conn.Opts().GasLimit*64/63 + 100000)
-				signedTx, err := toSignedRelayTx(w.forwarderClient.forwarderAddress.String(), signedData, forwarderGas, uint(uint8(m.Destination)), w.conn.Keypair())
+				signedTx, err := toSignedRelayTx(w.forwarderClient.forwarderAddress.String(), signedData, forwarderGas, uint(w.forwarderClient.chainId.Uint64()), w.conn.Keypair())
 				if err != nil {
 					itxFailures = ItxRetryLimit
 					w.log.Error("Failed to sign relay tx for proposal execution", "err", err)

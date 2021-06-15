@@ -49,7 +49,12 @@ func TestCreateAndExecuteGsnForwarder(t *testing.T) {
 	utils.WaitForTx(client, sendDomainTx)
 	client.UnlockNonce()
 
-	forwarderClient := NewForwarderClient(client.Client, forwarderAddress, pl.CommonAddress())
+	chainId, err := client.Client.ChainID(client.CallOpts.Context)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	forwarderClient := NewForwarderClient(client.Client, forwarderAddress, pl.CommonAddress(), chainId)
 	nonce, err := forwarderClient.LockAndNextNonce()
 	if err != nil {
 		t.Fatal(err.Error())
@@ -57,10 +62,6 @@ func TestCreateAndExecuteGsnForwarder(t *testing.T) {
 
 	value := big.NewInt(0)
 	gas := big.NewInt(100000)
-	chainId, err := client.Client.ChainID(client.Opts.Context)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
 
 	packed, err := forwarderClient.PackAndSignForwarderArg(
 		pl.CommonAddress(),
@@ -69,7 +70,6 @@ func TestCreateAndExecuteGsnForwarder(t *testing.T) {
 		nonce,
 		value,
 		gas,
-		uint(chainId.Uint64()),
 		*pl)
 
 	if err != nil {
