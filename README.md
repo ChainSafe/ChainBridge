@@ -10,7 +10,10 @@
 # Release Notes
 
 ## [Unreleased]
--
+
+## 2.1.1
+- Updated `chainbridge-utils`
+- Added DDC custom events
 
 ## 2.1.0
 - Removed bytecode check for `genericHandler`

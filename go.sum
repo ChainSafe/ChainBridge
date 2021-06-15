@@ -24,6 +24,16 @@ github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210406112409-442053b6
 github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210406112409-442053b6e3cd/go.mod h1:zQGnOHqtYE/H/z2OChugge5/EAJtB8czZVYuIySdiK4=
 github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210412213906-94daae7f7483 h1:2Ljylrd1W45Kil/NTa/DmSmkqVmDOU3H3APqphosiy4=
 github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210412213906-94daae7f7483/go.mod h1:xzmPjGfeywPRIKXbyRb/gQHLVnLk2+w/k2zoZ3Ce/4I=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210610164428-ba8708eb8218 h1:9cxvTVDPw0fqDAnL3CeYZrCreEB7P9vmKRBs+tpz6tA=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210610164428-ba8708eb8218/go.mod h1:xzmPjGfeywPRIKXbyRb/gQHLVnLk2+w/k2zoZ3Ce/4I=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210611122158-e6f1a02086a1 h1:KolCme6qWsYMtGwAr7iIcFKQaBErWZQema4uJGWe83o=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210611122158-e6f1a02086a1/go.mod h1:xzmPjGfeywPRIKXbyRb/gQHLVnLk2+w/k2zoZ3Ce/4I=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210611122514-8752073843ce h1:q9RLODxj49PWWckd3W/Aj9eEBT1w61pVQUQUPnyWW2k=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210611122514-8752073843ce/go.mod h1:xzmPjGfeywPRIKXbyRb/gQHLVnLk2+w/k2zoZ3Ce/4I=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210611123349-559947e26199 h1:YBGeIYpZYD2rUvJpvU5FQy/ReuxnR6ABw1MEt6riJuU=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210611123349-559947e26199/go.mod h1:xzmPjGfeywPRIKXbyRb/gQHLVnLk2+w/k2zoZ3Ce/4I=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210614155039-7b03e295a9f3 h1:KFNJYjIJlvCBOGanJTCI9fVZSZhgQMGGs2CNA6pH5xE=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210614155039-7b03e295a9f3/go.mod h1:xzmPjGfeywPRIKXbyRb/gQHLVnLk2+w/k2zoZ3Ce/4I=
 github.com/ChainSafe/log15 v1.0.0 h1:vRDVtWtVwIH5uSCBvgTTZh6FA58UBJ6+QiiypaZfBf8=
 github.com/ChainSafe/log15 v1.0.0/go.mod h1:5v1+ALHtdW0NfAeeoYyKmzCAMcAeqkdhIg4uxXWIgOg=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
