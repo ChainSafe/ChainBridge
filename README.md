@@ -11,6 +11,9 @@
 
 ## [Unreleased]
 
+## 2.1.2
+- Fixed health-check endpoint initialization for networks
+
 ## 2.1.1
 - Updated `chainbridge-utils`
 - Added DDC custom events
