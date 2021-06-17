@@ -15,7 +15,7 @@ import (
 	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v3/types"
 )
 
 type listener struct {
@@ -184,7 +184,7 @@ func (l *listener) pollBlocks() error {
 func (l *listener) processEvents(hash types.Hash) error {
 	l.log.Trace("Fetching block for events", "hash", hash.Hex())
 	meta := l.conn.getMetadata()
-	key, err := types.CreateStorageKey(&meta, "System", "Events", nil, nil)
+	key, err := types.CreateStorageKey(&meta, "System", "Events", nil)
 	if err != nil {
 		return err
 	}

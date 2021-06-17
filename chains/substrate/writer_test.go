@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v3/types"
 
 	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
@@ -25,7 +25,7 @@ func assertProposalState(t *testing.T, conn *Connection, prop *proposal, votes *
 	if err != nil {
 		t.Fatal(err)
 	}
-	ok, err := conn.queryStorage(utils.BridgeStoragePrefix, "Votes", srcId, propBz, &voteRes)
+	ok, err := conn.queryStorage(utils.BridgeStoragePrefix, "Votes", &voteRes, srcId, propBz)
 	if err != nil {
 		t.Fatalf("failed to query votes: %s", err)
 	}

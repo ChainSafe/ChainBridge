@@ -15,7 +15,7 @@ import (
 	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v3/types"
 )
 
 var _ core.Writer = &writer{}
@@ -98,7 +98,7 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 
 func (w *writer) resolveResourceId(id [32]byte) (string, error) {
 	var res []byte
-	exists, err := w.conn.queryStorage(utils.BridgeStoragePrefix, "Resources", id[:], nil, &res)
+	exists, err := w.conn.queryStorage(utils.BridgeStoragePrefix, "Resources", &res, id[:])
 	if err != nil {
 		return "", err
 	}
@@ -120,7 +120,7 @@ func (w *writer) proposalValid(prop *proposal) (bool, string, error) {
 	if err != nil {
 		return false, "", err
 	}
-	exists, err := w.conn.queryStorage(utils.BridgeStoragePrefix, "Votes", srcId, propBz, &voteRes)
+	exists, err := w.conn.queryStorage(utils.BridgeStoragePrefix, "Votes", &voteRes, srcId, propBz)
 	if err != nil {
 		return false, "", err
 	}

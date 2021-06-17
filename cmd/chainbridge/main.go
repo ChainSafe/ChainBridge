@@ -44,7 +44,7 @@ var generateFlags = []cli.Flag{
 	config.PasswordFlag,
 	config.Sr25519Flag,
 	config.Secp256k1Flag,
-	config.SubkeyNetworkFlag,
+	config.NetworkIdFlag,
 }
 
 var devFlags = []cli.Flag{
@@ -57,7 +57,7 @@ var importFlags = []cli.Flag{
 	config.Sr25519Flag,
 	config.Secp256k1Flag,
 	config.PasswordFlag,
-	config.SubkeyNetworkFlag,
+	config.NetworkIdFlag,
 }
 
 var accountCommand = cli.Command{

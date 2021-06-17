@@ -4,7 +4,7 @@
 package utils
 
 import (
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v3/types"
 )
 
 const BridgePalletName = "ChainBridge"

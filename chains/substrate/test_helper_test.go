@@ -11,7 +11,7 @@ import (
 	"github.com/ChainSafe/chainbridge-utils/keystore"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v3/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
@@ -147,7 +147,7 @@ func createAliceAndBobConnections() (*Connection, *Connection, chan error, error
 func getFreeBalance(c *Connection, res *types.U128) {
 	var acct types.AccountInfo
 
-	ok, err := c.queryStorage("System", "Account", c.key.PublicKey, nil, &acct)
+	ok, err := c.queryStorage("System", "Account", &acct, c.key.PublicKey)
 	if err != nil {
 		panic(err)
 	} else if !ok {
