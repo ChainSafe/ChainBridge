@@ -143,7 +143,8 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 			return nil, err
 		}
 
-		networkChainId, err := conn.Client().ChainID(conn.Opts().Context)
+		var networkChainId *big.Int
+		networkChainId, err = conn.Client().ChainID(conn.Opts().Context)
 		if err != nil {
 			return nil, err
 		}
