@@ -22,6 +22,7 @@ const TxRetryInterval = time.Second * 2
 
 // Maximum number of tx retries before exiting
 const TxRetryLimit = 10
+const ItxRetryLimit = 5
 
 var ErrNonceTooLow = errors.New("nonce too low")
 var ErrTxUnderpriced = errors.New("replacement transaction underpriced")
@@ -231,7 +232,15 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte,
 					w.executeProposal(m, data, dataHash)
 					return
 				} else {
-					w.log.Trace("Ignoring event", "src", sourceId, "nonce", depositNonce)
+					w.log.Trace("Ignoring event", "src",
+						sourceId, "msrc",
+						m.Source, "nonce",
+						depositNonce,
+						"mNonce",
+						m.DepositNonce.Big().Uint64(),
+						"status", status,
+						"mstatus", utils.IsFinalized(uint8(status)),
+					)
 				}
 			}
 			w.log.Trace("No finalization event found in current block", "block", latestBlock, "src", m.Source, "nonce", m.DepositNonce)
@@ -244,50 +253,115 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte,
 // voteProposal submits a vote proposal
 // a vote proposal will try to be submitted up to the TxRetryLimit times
 func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
+	itxFailures := 0
 	for i := 0; i < TxRetryLimit; i++ {
 		select {
 		case <-w.stop:
 			return
 		default:
-			err := w.conn.LockAndUpdateOpts()
-			if err != nil {
-				w.log.Error("Failed to update tx opts", "err", err)
-				continue
-			}
-			// These store the gas limit and price before a transaction is sent for logging in case of a failure
-			// This declaration is necessary as tx will be nil in the case of an error when sending VoteProposal()
-			// We must also declare variables instead of using w.conn.Opts() directly as the opts are currently locked
-			// here but for all the logging after line 272 the w.conn.Opts() is unlocked and could be changed by another process
-			gasLimit := w.conn.Opts().GasLimit
-			gasPrice := w.conn.Opts().GasPrice
-
-			tx, err := w.bridgeContract.VoteProposal(
-				w.conn.Opts(),
-				uint8(m.Source),
-				uint64(m.DepositNonce),
-				m.ResourceId,
-				dataHash,
-			)
-			w.conn.UnlockOpts()
-
-			if err == nil {
-				w.log.Info("Submitted proposal vote", "tx", tx.Hash(), "src", m.Source, "depositNonce", m.DepositNonce, "gasPrice", tx.GasPrice().String())
-				if w.metrics != nil {
-					w.metrics.VotesSubmitted.Inc()
+			if w.conn.ItxClient() != nil && w.forwarderClient != nil && itxFailures < ItxRetryLimit {
+				forwarderNonce, err := w.forwarderClient.LockAndNextNonce()
+				if err != nil {
+					itxFailures++
+					w.log.Warn("Failed to get and lock forwarder nonce for vote proposal", "itxFailures", itxFailures, "err", err)
+					if itxFailures == ItxRetryLimit {
+						w.log.Error("Maximum ITX errors reached.", "itxFailures", itxFailures)
+					}
+					time.Sleep(TxRetryInterval)
+					continue
 				}
-				return
-			} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
-				w.log.Debug("Nonce too low, will retry")
-				time.Sleep(TxRetryInterval)
-			} else {
-				w.log.Warn("Voting failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce, "gasLimit", gasLimit, "gasPrice", gasPrice, "err", err)
-				time.Sleep(TxRetryInterval)
-			}
 
-			// Verify proposal is still open for voting, otherwise no need to retry
-			if w.proposalIsComplete(m.Source, m.DepositNonce, dataHash) {
-				w.log.Info("Proposal voting complete on chain", "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
-				return
+				pData, err := packVoteProposalData(
+					uint8(m.Source),
+					uint64(m.DepositNonce),
+					m.ResourceId,
+					dataHash,
+				)
+				if err != nil {
+					itxFailures = ItxRetryLimit
+					w.log.Error("Failed to pack data for vote proposal", "err", err)
+					continue
+				}
+
+				signedData, err := w.forwarderClient.PackAndSignForwarderArg(
+					w.conn.Opts().From,
+					w.cfg.bridgeContract,
+					pData, forwarderNonce,
+					big.NewInt(0),
+					big.NewInt(int64(w.conn.Opts().GasLimit)),
+					*w.conn.Keypair(),
+				)
+				if err != nil {
+					itxFailures = ItxRetryLimit
+					w.log.Error("Failed to sign forwarder data for vote proposal", "err", err)
+					continue
+				}
+
+				// add gas for the forwarder call
+				forwarderGas := uint(w.conn.Opts().GasLimit*64/63 + 100000)
+				signedTx, err := toSignedRelayTx(w.forwarderClient.forwarderAddress.String(), signedData, forwarderGas, uint(w.forwarderClient.chainId.Uint64()), w.conn.Keypair())
+				if err != nil {
+					itxFailures = ItxRetryLimit
+					w.log.Error("Failed to sign relay tx for vote proposal", "err", err)
+					continue
+				}
+
+				res, err := sendRelayTransaction(w.conn.ItxClient(), w.conn.Opts().Context, signedTx.tx, signedTx.sig)
+				if err != nil {
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					itxFailures++
+					w.log.Warn("Failed to send vote proposal to itx", "itxFailures", itxFailures, "err", err)
+					if itxFailures == ItxRetryLimit {
+						w.log.Error("Maximum ITX errors reached.", "itxFailures", itxFailures)
+					}
+					time.Sleep(TxRetryInterval)
+					continue
+				} else {
+					w.forwarderClient.UnlockAndSetNonce(forwarderNonce)
+					w.log.Info("Submitted proposal vote to ITX", "relayTx", *res, "src", m.Source, "depositNonce", m.DepositNonce)
+					return
+				}
+			} else {
+				err := w.conn.LockAndUpdateOpts()
+				if err != nil {
+					w.log.Error("Failed to update tx opts", "err", err)
+					continue
+				}
+				// These store the gas limit and price before a transaction is sent for logging in case of a failure
+				// This declaration is necessary as tx will be nil in the case of an error when sending VoteProposal()
+				// We must also declare variables instead of using w.conn.Opts() directly as the opts are currently locked
+				// here but for all the logging after line 272 the w.conn.Opts() is unlocked and could be changed by another process
+				gasLimit := w.conn.Opts().GasLimit
+				gasPrice := w.conn.Opts().GasPrice
+
+				tx, err := w.bridgeContract.VoteProposal(
+					w.conn.Opts(),
+					uint8(m.Source),
+					uint64(m.DepositNonce),
+					m.ResourceId,
+					dataHash,
+				)
+				w.conn.UnlockOpts()
+
+				if err == nil {
+					w.log.Info("Submitted proposal vote", "tx", tx.Hash(), "src", m.Source, "depositNonce", m.DepositNonce, "gasPrice", tx.GasPrice().String())
+					if w.metrics != nil {
+						w.metrics.VotesSubmitted.Inc()
+					}
+					return
+				} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
+					w.log.Debug("Nonce too low, will retry")
+					time.Sleep(TxRetryInterval)
+				} else {
+					w.log.Warn("Voting failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce, "gasLimit", gasLimit, "gasPrice", gasPrice, "err", err)
+					time.Sleep(TxRetryInterval)
+				}
+
+				// Verify proposal is still open for voting, otherwise no need to retry
+				if w.proposalIsComplete(m.Source, m.DepositNonce, dataHash) {
+					w.log.Info("Proposal voting complete on chain", "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
+					return
+				}
 			}
 		}
 	}
@@ -297,46 +371,111 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 
 // executeProposal executes the proposal
 func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) {
+	itxFailures := 0
 	for i := 0; i < TxRetryLimit; i++ {
 		select {
 		case <-w.stop:
 			return
 		default:
-			err := w.conn.LockAndUpdateOpts()
-			if err != nil {
-				w.log.Error("Failed to update nonce", "err", err)
-				return
-			}
-			// These store the gas limit and price before a transaction is sent for logging in case of a failure
-			// This is necessary as tx will be nil in the case of an error when sending VoteProposal()
-			gasLimit := w.conn.Opts().GasLimit
-			gasPrice := w.conn.Opts().GasPrice
+			if w.conn.ItxClient() != nil && w.forwarderClient != nil && itxFailures < ItxRetryLimit {
+				forwarderNonce, err := w.forwarderClient.LockAndNextNonce()
+				if err != nil {
+					itxFailures++
+					w.log.Warn("Failed to get and lock forwarder nonce for proposal execution", "itxFailures", itxFailures, "err", err)
+					if itxFailures == ItxRetryLimit {
+						w.log.Error("Maximum ITX errors reached.", "itxFailures", itxFailures)
+					}
+					time.Sleep(TxRetryInterval)
+					continue
+				}
 
-			tx, err := w.bridgeContract.ExecuteProposal(
-				w.conn.Opts(),
-				uint8(m.Source),
-				uint64(m.DepositNonce),
-				data,
-				m.ResourceId,
-			)
-			w.conn.UnlockOpts()
+				pData, err := packExecuteProposalData(
+					uint8(m.Source),
+					uint64(m.DepositNonce),
+					data,
+					m.ResourceId,
+				)
+				if err != nil {
+					itxFailures = ItxRetryLimit
+					w.log.Error("Failed to pack data for proposal execution", "err", err)
+					continue
+				}
 
-			if err == nil {
-				w.log.Info("Submitted proposal execution", "tx", tx.Hash(), "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce, "gasPrice", tx.GasPrice().String())
-				return
-			} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
-				w.log.Error("Nonce too low, will retry")
-				time.Sleep(TxRetryInterval)
+				signedData, err := w.forwarderClient.PackAndSignForwarderArg(
+					w.conn.Opts().From,
+					w.cfg.bridgeContract,
+					pData, forwarderNonce,
+					big.NewInt(0),
+					big.NewInt(int64(w.conn.Opts().GasLimit)),
+					*w.conn.Keypair(),
+				)
+				if err != nil {
+					itxFailures = ItxRetryLimit
+					w.log.Error("Failed to sign forwarder data for proposal execution", "err", err)
+					continue
+				}
+
+				// add gas for the forwarder call
+				forwarderGas := uint(w.conn.Opts().GasLimit*64/63 + 100000)
+				signedTx, err := toSignedRelayTx(w.forwarderClient.forwarderAddress.String(), signedData, forwarderGas, uint(w.forwarderClient.chainId.Uint64()), w.conn.Keypair())
+				if err != nil {
+					itxFailures = ItxRetryLimit
+					w.log.Error("Failed to sign relay tx for proposal execution", "err", err)
+					continue
+				}
+				res, err := sendRelayTransaction(w.conn.ItxClient(), w.conn.Opts().Context, signedTx.tx, signedTx.sig)
+				if err != nil {
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					itxFailures++
+					w.log.Warn("Failed to send proposal execution to itx", "itxFailures", itxFailures, "err", err)
+					if itxFailures == ItxRetryLimit {
+						w.log.Error("Maximum ITX errors reached.", "itxFailures", itxFailures)
+					}
+					time.Sleep(TxRetryInterval)
+					continue
+				} else {
+					w.forwarderClient.UnlockAndSetNonce(forwarderNonce)
+					w.log.Info("Submitted proposal execution to ITX", "relayTx", *res, "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
+					return
+				}
+
 			} else {
-				w.log.Warn("Execution failed, proposal may already be complete", "gasLimit", gasLimit, "gasPrice", gasPrice, "err", err)
-				time.Sleep(TxRetryInterval)
-			}
+				err := w.conn.LockAndUpdateOpts()
+				if err != nil {
+					w.log.Error("Failed to update nonce", "err", err)
+					return
+				}
+				// These store the gas limit and price before a transaction is sent for logging in case of a failure
+				// This is necessary as tx will be nil in the case of an error when sending VoteProposal()
+				gasLimit := w.conn.Opts().GasLimit
+				gasPrice := w.conn.Opts().GasPrice
 
-			// Verify proposal is still open for execution, tx will fail if we aren't the first to execute,
-			// but there is no need to retry
-			if w.proposalIsFinalized(m.Source, m.DepositNonce, dataHash) {
-				w.log.Info("Proposal finalized on chain", "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
-				return
+				tx, err := w.bridgeContract.ExecuteProposal(
+					w.conn.Opts(),
+					uint8(m.Source),
+					uint64(m.DepositNonce),
+					data,
+					m.ResourceId,
+				)
+				w.conn.UnlockOpts()
+
+				if err == nil {
+					w.log.Info("Submitted proposal execution", "tx", tx.Hash(), "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce, "gasPrice", tx.GasPrice().String())
+					return
+				} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
+					w.log.Error("Nonce too low, will retry")
+					time.Sleep(TxRetryInterval)
+				} else {
+					w.log.Warn("Execution failed, proposal may already be complete", "gasLimit", gasLimit, "gasPrice", gasPrice, "err", err)
+					time.Sleep(TxRetryInterval)
+				}
+
+				// Verify proposal is still open for execution, tx will fail if we aren't the first to execute,
+				// but there is no need to retry
+				if w.proposalIsFinalized(m.Source, m.DepositNonce, dataHash) {
+					w.log.Info("Proposal finalized on chain", "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
+					return
+				}
 			}
 		}
 	}
