@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"strconv"
 	"strings"
 
 	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
@@ -136,7 +137,7 @@ func sendRelayTransaction(rpc *rpc.Client, ctx context.Context, relayTx RelayTx,
 	txArg := map[string]interface{}{
 		"to":       relayTx.to.String(),
 		"data":     "0x" + common.Bytes2Hex(relayTx.data),
-		"gasLimit": relayTx.gasLimit,
+		"gas":      strconv.Itoa(int(relayTx.gasLimit)),
 		"schedule": relayTx.schedule,
 	}
 	err := rpc.CallContext(ctx, &hex, "relay_sendTransaction", txArg, sigHex)

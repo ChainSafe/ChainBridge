@@ -96,7 +96,12 @@ func (c *ForwarderClient) LockAndNextNonce() (*big.Int, error) {
 	c.forwarderNonceLock.Lock()
 
 	if c.forwarderNonce == nil {
-		return c.GetOnChainNonce()
+		nonce, err := c.GetOnChainNonce()
+		if err != nil {
+			c.forwarderNonceLock.Unlock()
+			return nil, err
+		}
+		return nonce, nil
 	} else {
 		return c.forwarderNonce.Add(c.forwarderNonce, big.NewInt(1)), nil
 	}
