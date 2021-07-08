@@ -22,6 +22,7 @@ const TxRetryInterval = time.Second * 2
 
 // Maximum number of tx retries before exiting
 const TxRetryLimit = 10
+const ItxRetryLimit = 5
 
 var ErrNonceTooLow = errors.New("nonce too low")
 var ErrTxUnderpriced = errors.New("replacement transaction underpriced")
@@ -231,7 +232,15 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte,
 					w.executeProposal(m, data, dataHash)
 					return
 				} else {
-					w.log.Trace("Ignoring event", "src", sourceId, "nonce", depositNonce)
+					w.log.Trace("Ignoring event", "src",
+						sourceId, "msrc",
+						m.Source, "nonce",
+						depositNonce,
+						"mNonce",
+						m.DepositNonce.Big().Uint64(),
+						"status", status,
+						"mstatus", utils.IsFinalized(uint8(status)),
+					)
 				}
 			}
 			w.log.Trace("No finalization event found in current block", "block", latestBlock, "src", m.Source, "nonce", m.DepositNonce)
@@ -244,11 +253,94 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte,
 // voteProposal submits a vote proposal
 // a vote proposal will try to be submitted up to the TxRetryLimit times
 func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
+	if w.conn.ItxClient() != nil && w.forwarderClient != nil {
+
+		for i := 0; i < ItxRetryLimit; i++ {
+			select {
+			case <-w.stop:
+				return
+			default:
+				forwarderNonce, err := w.forwarderClient.LockAndNextNonce()
+				if err != nil {
+					w.log.Warn("Failed to get and lock forwarder nonce for vote proposal", "itxFailures", i, "err", err)
+					time.Sleep(TxRetryInterval)
+					continue
+				}
+
+				pData, err := packVoteProposalData(
+					uint8(m.Source),
+					uint64(m.DepositNonce),
+					m.ResourceId,
+					dataHash,
+				)
+				if err != nil {
+					w.log.Error("Failed to pack data for vote proposal", "err", err)
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					break
+				}
+
+				err = w.conn.LockAndUpdateOpts()
+				if err != nil {
+					w.log.Error("Failed to update tx opts", "err", err)
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					continue
+				}
+
+				signedData, err := w.forwarderClient.PackAndSignForwarderArg(
+					w.conn.Opts().From,
+					w.cfg.bridgeContract,
+					pData, forwarderNonce,
+					big.NewInt(0),
+					big.NewInt(int64(w.conn.Opts().GasLimit)),
+					*w.conn.Keypair(),
+				)
+				if err != nil {
+					w.log.Error("Failed to sign forwarder data for vote proposal", "err", err)
+					w.conn.UnlockOpts()
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					break
+				}
+
+				// add gas for the forwarder call
+				forwarderGas := uint(w.conn.Opts().GasLimit*64/63 + 100000)
+				signedTx, err := toSignedRelayTx(w.forwarderClient.forwarderAddress.String(), signedData, forwarderGas, uint(w.forwarderClient.chainId.Uint64()), w.conn.Keypair())
+				if err != nil {
+					w.log.Error("Failed to sign relay tx for vote proposal", "err", err)
+					w.conn.UnlockOpts()
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					break
+				}
+
+				res, err := sendRelayTransaction(w.conn.ItxClient(), w.conn.Opts().Context, signedTx.tx, signedTx.sig)
+				if err != nil {
+					w.conn.UnlockOpts()
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					w.log.Warn("Failed to send vote proposal to itx", "itxFailures", i, "err", err)
+					if err.Error() == "Insufficient funds." {
+						w.log.Error("Insufficient funds to send via ITX. Reverting to standard tx send.")
+						break
+					} else {
+						time.Sleep(TxRetryInterval)
+						continue
+					}
+				} else {
+					w.conn.UnlockOpts()
+					w.forwarderClient.UnlockAndSetNonce(forwarderNonce)
+					w.log.Info("Submitted proposal vote to ITX", "relayTx", *res, "src", m.Source, "depositNonce", m.DepositNonce)
+					return
+				}
+			}
+		}
+
+		w.log.Error("Maximum ITX errors reached, falling back to standard tx send", "itxFailures", ItxRetryLimit)
+	}
+
 	for i := 0; i < TxRetryLimit; i++ {
 		select {
 		case <-w.stop:
 			return
 		default:
+
 			err := w.conn.LockAndUpdateOpts()
 			if err != nil {
 				w.log.Error("Failed to update tx opts", "err", err)
@@ -289,6 +381,7 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				w.log.Info("Proposal voting complete on chain", "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
 				return
 			}
+
 		}
 	}
 	w.log.Error("Submission of Vote transaction failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
@@ -297,11 +390,93 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 
 // executeProposal executes the proposal
 func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) {
+	if w.conn.ItxClient() != nil && w.forwarderClient != nil {
+		for i := 0; i < ItxRetryLimit; i++ {
+			select {
+			case <-w.stop:
+				return
+			default:
+				forwarderNonce, err := w.forwarderClient.LockAndNextNonce()
+				if err != nil {
+					w.log.Warn("Failed to get and lock forwarder nonce for proposal execution", "itxFailures", i, "err", err)
+					time.Sleep(TxRetryInterval)
+					continue
+				}
+
+				pData, err := packExecuteProposalData(
+					uint8(m.Source),
+					uint64(m.DepositNonce),
+					data,
+					m.ResourceId,
+				)
+				if err != nil {
+					w.log.Error("Failed to pack data for proposal execution", "err", err)
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					break
+				}
+
+				err = w.conn.LockAndUpdateOpts()
+				if err != nil {
+					w.log.Error("Failed to update tx opts", "err", err)
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					continue
+				}
+
+				signedData, err := w.forwarderClient.PackAndSignForwarderArg(
+					w.conn.Opts().From,
+					w.cfg.bridgeContract,
+					pData, forwarderNonce,
+					big.NewInt(0),
+					big.NewInt(int64(w.conn.Opts().GasLimit)),
+					*w.conn.Keypair(),
+				)
+				if err != nil {
+					w.log.Error("Failed to sign forwarder data for proposal execution", "err", err)
+					w.conn.UnlockOpts()
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					break
+				}
+
+				// add gas for the forwarder call
+				forwarderGas := uint(w.conn.Opts().GasLimit*64/63 + 100000)
+				signedTx, err := toSignedRelayTx(w.forwarderClient.forwarderAddress.String(), signedData, forwarderGas, uint(w.forwarderClient.chainId.Uint64()), w.conn.Keypair())
+				if err != nil {
+					w.log.Error("Failed to sign relay tx for proposal execution", "err", err)
+					w.conn.UnlockOpts()
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					break
+				}
+				res, err := sendRelayTransaction(w.conn.ItxClient(), w.conn.Opts().Context, signedTx.tx, signedTx.sig)
+				if err != nil {
+					w.conn.UnlockOpts()
+					w.forwarderClient.UnlockAndSetNonce(nil)
+					w.log.Warn("Failed to send proposal execution to itx", "itxFailures", i, "err", err)
+					if err.Error() == "Insufficient funds." {
+						w.log.Error("Insufficient funds to send via ITX. Reverting to standard tx send.")
+						break
+					} else {
+						time.Sleep(TxRetryInterval)
+						continue
+					}
+				} else {
+					w.conn.UnlockOpts()
+					w.forwarderClient.UnlockAndSetNonce(forwarderNonce)
+					w.log.Info("Submitted proposal execution to ITX", "relayTx", *res, "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
+					return
+				}
+			}
+		}
+
+		w.log.Error("Maximum ITX errors reached, falling back to standard send.", "itxFailures", ItxRetryLimit)
+
+	}
+
 	for i := 0; i < TxRetryLimit; i++ {
 		select {
 		case <-w.stop:
 			return
 		default:
+
 			err := w.conn.LockAndUpdateOpts()
 			if err != nil {
 				w.log.Error("Failed to update nonce", "err", err)

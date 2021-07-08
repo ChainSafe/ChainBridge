@@ -19,13 +19,14 @@ var TransferredStatus uint8 = 3
 var CancelledStatus uint8 = 4
 
 type writer struct {
-	cfg            Config
-	conn           Connection
-	bridgeContract *Bridge.Bridge // instance of bound receiver bridgeContract
-	log            log15.Logger
-	stop           <-chan int
-	sysErr         chan<- error // Reports fatal error to core
-	metrics        *metrics.ChainMetrics
+	cfg             Config
+	conn            Connection
+	bridgeContract  *Bridge.Bridge // instance of bound receiver bridgeContract
+	log             log15.Logger
+	stop            <-chan int
+	sysErr          chan<- error // Reports fatal error to core
+	metrics         *metrics.ChainMetrics
+	forwarderClient *ForwarderClient
 }
 
 // NewWriter creates and returns writer
@@ -48,6 +49,11 @@ func (w *writer) start() error {
 // setContract adds the bound receiver bridgeContract to the writer
 func (w *writer) setContract(bridge *Bridge.Bridge) {
 	w.bridgeContract = bridge
+}
+
+// setForwarder adds the forwarderClient to the writer
+func (w *writer) setForwarder(forwarderClient *ForwarderClient) {
+	w.forwarderClient = forwarderClient
 }
 
 // ResolveMessage handles any given message based on type

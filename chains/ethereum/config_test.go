@@ -14,6 +14,8 @@ import (
 
 //TestParseChainConfig tests parseChainConfig with all handlerContracts provided
 func TestParseChainConfig(t *testing.T) {
+	var testItxEndpoint = "http://test-addr:6768"
+	var testForwarderAddress = common.HexToAddress("0x7F101fE45e6649A6fB8F3F8B43ed03D353f2B90c")
 
 	input := core.ChainConfig{
 		Name:         "chain",
@@ -35,6 +37,8 @@ func TestParseChainConfig(t *testing.T) {
 			"blockConfirmations": "50",
 			"egsApiKey":          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // fake key
 			"egsSpeed":           "fast",
+			"itxEndpoint":        testItxEndpoint,
+			"forwarderAddress":   testForwarderAddress.String(),
 		},
 	}
 
@@ -62,6 +66,8 @@ func TestParseChainConfig(t *testing.T) {
 		blockConfirmations:     big.NewInt(50),
 		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		egsSpeed:               "fast",
+		itxEndpoint:            &testItxEndpoint,
+		forwarderAddress:       &testForwarderAddress,
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -116,6 +122,8 @@ func TestParseChainConfigWithNoBlockConfirmations(t *testing.T) {
 		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
 		egsApiKey:              "",
 		egsSpeed:               "fast",
+		itxEndpoint:            nil,
+		forwarderAddress:       nil,
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -166,6 +174,8 @@ func TestChainConfigOneContract(t *testing.T) {
 		blockConfirmations:   big.NewInt(DefaultBlockConfirmations),
 		egsApiKey:            "",
 		egsSpeed:             "fast",
+		itxEndpoint:          nil,
+		forwarderAddress:     nil,
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -280,6 +290,8 @@ func TestEthGasStationDefaultSpeed(t *testing.T) {
 		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
 		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		egsSpeed:               "fast",
+		itxEndpoint:            nil,
+		forwarderAddress:       nil,
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -334,6 +346,8 @@ func TestEthGasStationCustomSpeed(t *testing.T) {
 		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
 		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		egsSpeed:               "average",
+		itxEndpoint:            nil,
+		forwarderAddress:       nil,
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -388,6 +402,8 @@ func TestEthGasStationInvalidSpeed(t *testing.T) {
 		blockConfirmations:     big.NewInt(DefaultBlockConfirmations),
 		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		egsSpeed:               "fast",
+		itxEndpoint:            nil,
+		forwarderAddress:       nil,
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
