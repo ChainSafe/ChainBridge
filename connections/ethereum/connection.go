@@ -185,6 +185,7 @@ func (c *Connection) LockAndUpdateOpts() error {
 
 	gasPrice, err := c.SafeEstimateGas(context.TODO())
 	if err != nil {
+		c.optsLock.Unlock()
 		return err
 	}
 	c.opts.GasPrice = gasPrice
