@@ -83,9 +83,13 @@ func routeMessageAndWait(t *testing.T, client *utils.Client, alice, bob *writer,
 	for {
 		select {
 		case evt := <-ch:
-			sourceId := evt.Topics[1].Big().Uint64()
-			depositNonce := evt.Topics[2].Big().Uint64()
-			status := uint8(evt.Topics[3].Big().Uint64())
+			parsedEvent, parseErr := bob.bridgeContract.BridgeFilterer.ParseProposalEvent(evt)
+			if parseErr != nil {
+				t.Fatalf("failed to parse ProposalEvent event: %s", parseErr)
+			}
+			sourceId := parsedEvent.OriginChainID
+			depositNonce := parsedEvent.DepositNonce
+			status := parsedEvent.Status
 
 			if m.Source == msg.ChainId(sourceId) &&
 				uint64(m.DepositNonce) == depositNonce &&
@@ -197,9 +201,10 @@ func TestCreateAndExecuteGenericProposal(t *testing.T) {
 
 	rId := msg.ResourceIdFromSlice(common.LeftPadBytes(assetStoreAddr.Bytes(), 32))
 	depositSig := utils.CreateFunctionSignature("")
+	depositorOffset := big.NewInt(0)
 	executeSig := utils.CreateFunctionSignature("store(bytes32)")
 
-	ethtest.RegisterGenericResource(t, client, contracts.BridgeAddress, contracts.GenericHandlerAddress, rId, assetStoreAddr, depositSig, executeSig)
+	ethtest.RegisterGenericResource(t, client, contracts.BridgeAddress, contracts.GenericHandlerAddress, rId, assetStoreAddr, depositSig, depositorOffset, executeSig)
 	// Create initial transfer message
 	hash := common.HexToHash("0xf0a8748d2b102eb4e0e116047753b9beff0396d81b830693b19a1376ac4b14e8")
 	m := msg.Message{

@@ -37,7 +37,7 @@ func RegisterResource(client *Client, bridge, handler common.Address, rId msg.Re
 	return nil
 }
 
-func RegisterGenericResource(client *Client, bridge, handler common.Address, rId msg.ResourceId, addr common.Address, depositSig, executeSig [4]byte) error {
+func RegisterGenericResource(client *Client, bridge, handler common.Address, rId msg.ResourceId, addr common.Address, depositSig [4]byte, depositorOffset *big.Int, executeSig [4]byte) error {
 	instance, err := Bridge.NewBridge(bridge, client.Client)
 	if err != nil {
 		return err
@@ -48,7 +48,7 @@ func RegisterGenericResource(client *Client, bridge, handler common.Address, rId
 		return err
 	}
 
-	tx, err := instance.AdminSetGenericResource(client.Opts, handler, rId, addr, depositSig, executeSig)
+	tx, err := instance.AdminSetGenericResource(client.Opts, handler, rId, addr, depositSig, depositorOffset, executeSig)
 	if err != nil {
 		return err
 	}

@@ -143,7 +143,7 @@ func deployGenericHandler(client *Client, bridgeAddress common.Address) (common.
 		return ZeroAddress, err
 	}
 
-	addr, tx, _, err := GenericHandler.DeployGenericHandler(client.Opts, client.Client, bridgeAddress, [][32]byte{}, []common.Address{}, [][4]byte{}, [][4]byte{})
+	addr, tx, _, err := GenericHandler.DeployGenericHandler(client.Opts, client.Client, bridgeAddress, [][32]byte{}, []common.Address{}, [][4]byte{}, []*big.Int{}, [][4]byte{})
 	if err != nil {
 		return ZeroAddress, err
 	}

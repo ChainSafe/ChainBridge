@@ -4,6 +4,7 @@
 package ethtest
 
 import (
+	"math/big"
 	"testing"
 
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
@@ -18,8 +19,8 @@ func RegisterResource(t *testing.T, client *utils.Client, bridge, handler common
 	}
 }
 
-func RegisterGenericResource(t *testing.T, client *utils.Client, bridge, handler common.Address, rId msg.ResourceId, addr common.Address, depositSig, executeSig [4]byte) {
-	err := utils.RegisterGenericResource(client, bridge, handler, rId, addr, depositSig, executeSig)
+func RegisterGenericResource(t *testing.T, client *utils.Client, bridge, handler common.Address, rId msg.ResourceId, addr common.Address, depositSig [4]byte, depositorOffset *big.Int, executeSig [4]byte) {
+	err := utils.RegisterGenericResource(client, bridge, handler, rId, addr, depositSig, depositorOffset, executeSig)
 	if err != nil {
 		t.Fatal(err)
 	}
