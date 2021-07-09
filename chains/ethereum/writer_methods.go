@@ -264,6 +264,7 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				if err != nil {
 					w.log.Warn("Failed to get and lock forwarder nonce for vote proposal", "itxFailures", i, "err", err)
 					time.Sleep(TxRetryInterval)
+					i = ItxRetryLimit
 					continue
 				}
 
@@ -276,13 +277,15 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				if err != nil {
 					w.log.Error("Failed to pack data for vote proposal", "err", err)
 					w.forwarderClient.UnlockAndSetNonce(nil)
-					break
+					i = ItxRetryLimit
+					continue
 				}
 
 				err = w.conn.LockAndUpdateOpts()
 				if err != nil {
 					w.log.Error("Failed to update tx opts", "err", err)
 					w.forwarderClient.UnlockAndSetNonce(nil)
+					time.Sleep(TxRetryInterval)
 					continue
 				}
 
@@ -298,7 +301,8 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 					w.log.Error("Failed to sign forwarder data for vote proposal", "err", err)
 					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(nil)
-					break
+					i = ItxRetryLimit
+					continue
 				}
 
 				// add gas for the forwarder call
@@ -308,7 +312,8 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 					w.log.Error("Failed to sign relay tx for vote proposal", "err", err)
 					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(nil)
-					break
+					i = ItxRetryLimit
+					continue
 				}
 
 				res, err := sendRelayTransaction(w.conn.ItxClient(), w.conn.Opts().Context, signedTx.tx, signedTx.sig)
@@ -317,8 +322,9 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 					w.forwarderClient.UnlockAndSetNonce(nil)
 					w.log.Warn("Failed to send vote proposal to itx", "itxFailures", i, "err", err)
 					if err.Error() == "Insufficient funds." {
-						w.log.Error("Insufficient funds to send via ITX. Reverting to standard tx send.")
-						break
+						w.log.Error("Insufficient funds to send via ITX.")
+						i = ItxRetryLimit
+						continue
 					} else {
 						time.Sleep(TxRetryInterval)
 						continue
@@ -332,7 +338,7 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 			}
 		}
 
-		w.log.Error("Maximum ITX errors reached, falling back to standard tx send", "itxFailures", ItxRetryLimit)
+		w.log.Error("ITX send failed, falling back to standard tx send", "itxFailures", ItxRetryLimit)
 	}
 
 	for i := 0; i < TxRetryLimit; i++ {
@@ -412,7 +418,8 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 				if err != nil {
 					w.log.Error("Failed to pack data for proposal execution", "err", err)
 					w.forwarderClient.UnlockAndSetNonce(nil)
-					break
+					i = ItxRetryLimit
+					continue
 				}
 
 				err = w.conn.LockAndUpdateOpts()
@@ -434,7 +441,8 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 					w.log.Error("Failed to sign forwarder data for proposal execution", "err", err)
 					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(nil)
-					break
+					i = ItxRetryLimit
+					continue
 				}
 
 				// add gas for the forwarder call
@@ -444,7 +452,8 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 					w.log.Error("Failed to sign relay tx for proposal execution", "err", err)
 					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(nil)
-					break
+					i = ItxRetryLimit
+					continue
 				}
 				res, err := sendRelayTransaction(w.conn.ItxClient(), w.conn.Opts().Context, signedTx.tx, signedTx.sig)
 				if err != nil {
@@ -452,8 +461,9 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 					w.forwarderClient.UnlockAndSetNonce(nil)
 					w.log.Warn("Failed to send proposal execution to itx", "itxFailures", i, "err", err)
 					if err.Error() == "Insufficient funds." {
-						w.log.Error("Insufficient funds to send via ITX. Reverting to standard tx send.")
-						break
+						w.log.Error("Insufficient funds to send via ITX.")
+						i = ItxRetryLimit
+						continue
 					} else {
 						time.Sleep(TxRetryInterval)
 						continue
@@ -467,7 +477,7 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 			}
 		}
 
-		w.log.Error("Maximum ITX errors reached, falling back to standard send.", "itxFailures", ItxRetryLimit)
+		w.log.Error("ITX send failed, falling back to standard send.", "itxFailures", ItxRetryLimit)
 
 	}
 
