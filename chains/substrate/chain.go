@@ -80,7 +80,6 @@ func InitializeChain(cfg *core.ChainConfig, logger log15.Logger, sysErr chan<- e
 	}
 
 	stop := make(chan int)
-	// Setup connection
 	conn := NewConnection(cfg.Endpoint, cfg.Name, krp, logger, stop, sysErr)
 	err = conn.Connect()
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	"github.com/ChainSafe/log15"
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v3/types"
 )
 
 func SubmitTx(client *Client, method Method, args ...interface{}) error {

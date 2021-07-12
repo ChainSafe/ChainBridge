@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v3/types"
 )
 
 func QueryStorage(client *Client, prefix, method string, arg1, arg2 []byte, result interface{}) (bool, error) {
@@ -18,18 +18,12 @@ func QueryStorage(client *Client, prefix, method string, arg1, arg2 []byte, resu
 	return client.Api.RPC.State.GetStorageLatest(key, result)
 }
 
-// TODO: Add to GSRPC
 func getConst(meta *types.Metadata, prefix, name string, res interface{}) error {
-	for _, mod := range meta.AsMetadataV12.Modules {
-		if string(mod.Name) == prefix {
-			for _, cons := range mod.Constants {
-				if string(cons.Name) == name {
-					return types.DecodeFromBytes(cons.Value, res)
-				}
-			}
-		}
+	data, err := meta.FindConstantValue(prefix, name)
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("could not find constant %s.%s", prefix, name)
+	return types.DecodeFromBytes(data, res)
 }
 
 // QueryConst looks up a constant in the metadata
