@@ -224,7 +224,7 @@ func run(ctx *cli.Context) error {
 		go func() {
 			http.Handle("/metrics", promhttp.Handler())
 			for _, c := range c.Registry {
-			    http.HandleFunc(fmt.Sprintf("/health/%s", c.Name()), h.HealthStatus)
+				http.HandleFunc(fmt.Sprintf("/health/%s", c.Name()), h.HealthStatus)
 			}
 			err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 			if errors.Is(err, http.ErrServerClosed) {
