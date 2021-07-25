@@ -160,7 +160,9 @@ func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 	gasPrice := multiplyGasPrice(suggestedGasPrice, c.gasMultiplier)
 
 	// Check we aren't exceeding our limit
-	if gasPrice.Cmp(c.maxGasPrice) == 1 {
+	if gasPrice.Cmp(c.minGasPrice) == -1 {
+		return c.minGasPrice, nil
+	} else if gasPrice.Cmp(c.maxGasPrice) == 1 {
 		return c.maxGasPrice, nil
 	} else {
 		return gasPrice, nil

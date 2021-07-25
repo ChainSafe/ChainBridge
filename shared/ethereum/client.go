@@ -22,6 +22,7 @@ import (
 
 const DefaultGasLimit = 6721975
 const DefaultMaxGasPrice = 20000000000
+const DefaultMinGasPrice = 0
 const DefaultGasMultiplier = 1
 
 var ExpectedBlockTime = time.Second

@@ -19,11 +19,12 @@ var TestEndpoint = "ws://localhost:8545"
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var GasLimit = big.NewInt(ethutils.DefaultGasLimit)
 var MaxGasPrice = big.NewInt(ethutils.DefaultMaxGasPrice)
+var MinGasPrice = big.NewInt(ethutils.DefaultMinGasPrice)
 
 var GasMultipler = big.NewFloat(ethutils.DefaultGasMultiplier)
 
 func TestConnect(t *testing.T) {
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -40,7 +41,7 @@ func TestContractCode(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err = conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -62,7 +63,7 @@ func TestContractCode(t *testing.T) {
 
 func TestConnection_SafeEstimateGas(t *testing.T) {
 	// MaxGasPrice is the constant price on the dev network, so we increase it here by 1 to ensure it adjusts
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice.Add(MaxGasPrice, big.NewInt(1)), GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice.Add(MaxGasPrice, big.NewInt(1)), MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -81,7 +82,7 @@ func TestConnection_SafeEstimateGas(t *testing.T) {
 
 func TestConnection_SafeEstimateGasMax(t *testing.T) {
 	maxPrice := big.NewInt(1)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -95,5 +96,24 @@ func TestConnection_SafeEstimateGasMax(t *testing.T) {
 
 	if price.Cmp(maxPrice) != 0 {
 		t.Fatalf("Gas price should equal max. Suggested: %s Max: %s", price.String(), maxPrice.String())
+	}
+}
+
+func TestConnection_SafeEstimateGasMin(t *testing.T) {
+	minPrice := big.NewInt(1)
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, minPrice, big.NewFloat(0), "", "")
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	price, err := conn.SafeEstimateGas(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if price.Cmp(minPrice) != 0 {
+		t.Fatalf("Gas price should equal max. Suggested: %s Min: %s", price.String(), minPrice.String())
 	}
 }
