@@ -281,14 +281,6 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 					continue
 				}
 
-				err = w.conn.LockAndUpdateOpts()
-				if err != nil {
-					w.log.Error("Failed to update tx opts", "err", err)
-					w.forwarderClient.UnlockAndSetNonce(nil)
-					time.Sleep(TxRetryInterval)
-					continue
-				}
-
 				signedData, err := w.forwarderClient.PackAndSignForwarderArg(
 					w.conn.Opts().From,
 					w.cfg.bridgeContract,
@@ -299,7 +291,6 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				)
 				if err != nil {
 					w.log.Error("Failed to sign forwarder data for vote proposal", "err", err)
-					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(nil)
 					i = ItxRetryLimit
 					continue
@@ -310,7 +301,6 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				signedTx, err := toSignedRelayTx(w.forwarderClient.forwarderAddress.String(), signedData, forwarderGas, uint(w.forwarderClient.chainId.Uint64()), w.conn.Keypair())
 				if err != nil {
 					w.log.Error("Failed to sign relay tx for vote proposal", "err", err)
-					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(nil)
 					i = ItxRetryLimit
 					continue
@@ -318,7 +308,6 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 
 				res, err := sendRelayTransaction(w.conn.ItxClient(), w.conn.Opts().Context, signedTx.tx, signedTx.sig)
 				if err != nil {
-					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(nil)
 					w.log.Warn("Failed to send vote proposal to itx", "itxFailures", i, "err", err)
 					if err.Error() == "Insufficient funds." {
@@ -330,7 +319,6 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 						continue
 					}
 				} else {
-					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(forwarderNonce)
 					w.log.Info("Submitted proposal vote to ITX", "relayTx", *res, "src", m.Source, "depositNonce", m.DepositNonce)
 					return
@@ -422,13 +410,6 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 					continue
 				}
 
-				err = w.conn.LockAndUpdateOpts()
-				if err != nil {
-					w.log.Error("Failed to update tx opts", "err", err)
-					w.forwarderClient.UnlockAndSetNonce(nil)
-					continue
-				}
-
 				signedData, err := w.forwarderClient.PackAndSignForwarderArg(
 					w.conn.Opts().From,
 					w.cfg.bridgeContract,
@@ -439,7 +420,6 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 				)
 				if err != nil {
 					w.log.Error("Failed to sign forwarder data for proposal execution", "err", err)
-					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(nil)
 					i = ItxRetryLimit
 					continue
@@ -450,14 +430,12 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 				signedTx, err := toSignedRelayTx(w.forwarderClient.forwarderAddress.String(), signedData, forwarderGas, uint(w.forwarderClient.chainId.Uint64()), w.conn.Keypair())
 				if err != nil {
 					w.log.Error("Failed to sign relay tx for proposal execution", "err", err)
-					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(nil)
 					i = ItxRetryLimit
 					continue
 				}
 				res, err := sendRelayTransaction(w.conn.ItxClient(), w.conn.Opts().Context, signedTx.tx, signedTx.sig)
 				if err != nil {
-					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(nil)
 					w.log.Warn("Failed to send proposal execution to itx", "itxFailures", i, "err", err)
 					if err.Error() == "Insufficient funds." {
@@ -469,7 +447,6 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 						continue
 					}
 				} else {
-					w.conn.UnlockOpts()
 					w.forwarderClient.UnlockAndSetNonce(forwarderNonce)
 					w.log.Info("Submitted proposal execution to ITX", "relayTx", *res, "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
 					return
