@@ -395,7 +395,7 @@ func generateKeypair(keytype, datadir string, password []byte, subNetwork string
 	return fp, nil
 }
 
-// keystoreDir returnns the absolute filepath of the keystore directory given a datadir
+// keystoreDir returns the absolute filepath of the keystore directory given a datadir
 // by default, it is ./keys/
 // otherwise, it is datadir/keys/
 func keystoreDir(keyPath string) (keystorepath string, err error) {
