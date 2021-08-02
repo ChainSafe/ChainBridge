@@ -183,12 +183,40 @@ func multiplyGasPrice(gasEstimate *big.Int, gasMultiplier *big.Float) *big.Int {
 func (c *Connection) LockAndUpdateOpts() error {
 	c.optsLock.Lock()
 
-	gasPrice, err := c.SafeEstimateGas(context.TODO())
+	head, err := c.conn.HeaderByNumber(context.TODO(), nil)
 	if err != nil {
-		c.optsLock.Unlock()
+		c.UnlockOpts()
 		return err
 	}
-	c.opts.GasPrice = gasPrice
+
+	if head.BaseFee != nil {
+		tip, err := c.conn.SuggestGasTipCap(context.TODO())
+		if err != nil {
+			c.UnlockOpts()
+			return err
+		}
+		c.opts.GasTipCap = tip
+
+		gasFeeCap := new(big.Int).Add(
+			c.opts.GasTipCap,
+			new(big.Int).Mul(head.BaseFee, big.NewInt(2)),
+		)
+		c.opts.GasFeeCap = gasFeeCap
+
+		if c.opts.GasFeeCap.Cmp(c.opts.GasTipCap) < 0 {
+			c.UnlockOpts()
+			return fmt.Errorf("maxFeePerGas (%v) < maxPriorityFeePerGas (%v)", c.opts.GasFeeCap, c.opts.GasTipCap)
+		}
+
+		// Both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) cannot be specified: https://github.com/ethereum/go-ethereum/blob/95bbd46eabc5d95d9fb2108ec232dd62df2f44ab/accounts/abi/bind/base.go#L254
+		c.opts.GasPrice = nil
+	} else {
+		c.opts.GasPrice, err = c.SafeEstimateGas(context.TODO())
+		if err != nil {
+			c.UnlockOpts()
+			return err
+		}
+	}
 
 	nonce, err := c.conn.PendingNonceAt(context.Background(), c.opts.From)
 	if err != nil {
