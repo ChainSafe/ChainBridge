@@ -6,31 +6,51 @@ name: Docker build and push
 on:
   push:
     branches:
+    # when main branch receives a push
       - main
+    # when any of these versions receive a push
     tags:
       - "v*.*.*"
+  # when any releases are created
   release:
     types:
       - created
+# list jobs
 jobs:
   build-and-deploy:
     name: Docker Deployment
     runs-on: ubuntu-latest
+    # requires these jobs to run first
     needs: [test, e2e, lint]
+    # if check not passed, job will be skipped
     if: github.ref == 'refs/heads/main' || contains(github.ref, '/tags/v')
+    # list steps
     steps:
+    # prepares docker images
       - name: Prepare
         id: prep
         run: |
+          # creates local variable of chainbridge docker image
           DOCKER_IMAGE=chainsafe/chainbridge
-          VERSION=$(echo $GITHUB_SHA | head -c7)
+
+          # creates local variable of commit hash that triggered workflow
+          COMMIT_HASH=$(echo $GITHUB_SHA | head -c7)
+
+          # creates local variable to hold docker images
+          TAGS="${DOCKER_IMAGE}:${COMMIT_HASH},${DOCKER_IMAGE}:latest"
+
+          # check if branch/tag that triggered workflow was from tags
           if [[ $GITHUB_REF == refs/tags/* ]]; then
+
+            # set version 
             VERSION=${GITHUB_REF#refs/tags/}
+
+            # append version to tags
+            TAGS="${TAGS},${DOCKER_IMAGE}:${VERSION}"
+
           fi
-          TAGS="${DOCKER_IMAGE}:${VERSION}"
-          if [[ $VERSION =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-            TAGS="$TAGS,${DOCKER_IMAGE}:latest"
-          fi
+
+          # sets output of step
           echo ::set-output name=tags::${TAGS}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
