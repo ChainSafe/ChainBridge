@@ -189,8 +189,8 @@ func (c *Connection) LockAndUpdateOpts() error {
 		return err
 	}
 
-	var tip *big.Int
 	if head.BaseFee != nil {
+		var tip *big.Int
 		tip, err = c.conn.SuggestGasTipCap(context.TODO())
 		if err != nil {
 			c.UnlockOpts()
@@ -212,7 +212,8 @@ func (c *Connection) LockAndUpdateOpts() error {
 		// Both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) cannot be specified: https://github.com/ethereum/go-ethereum/blob/95bbd46eabc5d95d9fb2108ec232dd62df2f44ab/accounts/abi/bind/base.go#L254
 		c.opts.GasPrice = nil
 	} else {
-		gasPrice, err := c.SafeEstimateGas(context.TODO())
+		var gasPrice *big.Int
+		gasPrice, err = c.SafeEstimateGas(context.TODO())
 		if err != nil {
 			c.UnlockOpts()
 			return err
