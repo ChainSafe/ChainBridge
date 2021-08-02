@@ -189,8 +189,9 @@ func (c *Connection) LockAndUpdateOpts() error {
 		return err
 	}
 
+	var tip *big.Int
 	if head.BaseFee != nil {
-		tip, err := c.conn.SuggestGasTipCap(context.TODO())
+		tip, err = c.conn.SuggestGasTipCap(context.TODO())
 		if err != nil {
 			c.UnlockOpts()
 			return err
