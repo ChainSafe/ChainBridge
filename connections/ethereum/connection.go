@@ -212,11 +212,12 @@ func (c *Connection) LockAndUpdateOpts() error {
 		// Both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) cannot be specified: https://github.com/ethereum/go-ethereum/blob/95bbd46eabc5d95d9fb2108ec232dd62df2f44ab/accounts/abi/bind/base.go#L254
 		c.opts.GasPrice = nil
 	} else {
-		c.opts.GasPrice, err = c.SafeEstimateGas(context.TODO())
+		gasPrice, err := c.SafeEstimateGas(context.TODO())
 		if err != nil {
 			c.UnlockOpts()
 			return err
 		}
+		c.opts.GasPrice = gasPrice
 	}
 
 	nonce, err := c.conn.PendingNonceAt(context.Background(), c.opts.From)
