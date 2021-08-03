@@ -15,7 +15,7 @@ import (
 	ethcmn "github.com/ethereum/go-ethereum/common"
 )
 
-var TestEndpoint = "ws://localhost:8545"
+var TestEndpoint = "ws://localhost:5000"
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var GasLimit = big.NewInt(ethutils.DefaultGasLimit)
 var MaxGasPrice = big.NewInt(ethutils.DefaultMaxGasPrice)
@@ -98,7 +98,7 @@ func TestConnection_SafeEstimateGasMax(t *testing.T) {
 	}
 }
 
-func TestConnection_SafeEstimateGasTipMax(t *testing.T) {
+func TestConnection_EstimateGasLondon(t *testing.T) {
 	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
 	// Set TestEndpoint to Goerli endpoint when testing
 	maxGasFeeCap := big.NewInt(100)
@@ -117,7 +117,7 @@ func TestConnection_SafeEstimateGasTipMax(t *testing.T) {
 
 	// This is here as the current dev network is an old version of geth and keeps the test failing on the CI
 	if head.BaseFee != nil {
-		tip, feeCap, err := conn.SafeEstimateGasTipCap(context.Background(), head.BaseFee)
+		tip, feeCap, err := conn.EstimateGasLondon(context.Background(), head.BaseFee)
 		t.Logf("estimated tip %v\n", tip)
 		t.Logf("estimated fee cap: %v\n", feeCap)
 		if err != nil {

@@ -165,32 +165,37 @@ func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 	}
 }
 
-func (c *Connection) SafeEstimateGasTipCap(ctx context.Context, baseFee *big.Int) (*big.Int, *big.Int, error) {
+func (c *Connection) EstimateGasLondon(ctx context.Context, baseFee *big.Int) (*big.Int, *big.Int, error) {
+	var maxPriorityFeePerGas *big.Int
+	var maxFeePerGas *big.Int
+
 	if c.maxGasPrice.Cmp(baseFee) < 0 {
-		return nil, nil, fmt.Errorf("maxGasPrice (%v) < BaseFee (%v)", c.maxGasPrice, baseFee)
+		maxPriorityFeePerGas = big.NewInt(1)
+		maxFeePerGas.Add(baseFee, maxPriorityFeePerGas)
+		return maxPriorityFeePerGas, maxFeePerGas, nil
+		//return nil, nil, fmt.Errorf("maxGasPrice (%v) < BaseFee (%v)", c.maxGasPrice, baseFee)
 	}
 
-	var tip *big.Int
-	tip, err := c.conn.SuggestGasTipCap(context.TODO())
+	maxPriorityFeePerGas, err := c.conn.SuggestGasTipCap(context.TODO())
 	if err != nil {
 		return nil, nil, err
 	}
 
-	gasFeeCap := new(big.Int).Add(
-		tip,
+	maxFeePerGas = new(big.Int).Add(
+		maxPriorityFeePerGas,
 		new(big.Int).Mul(baseFee, big.NewInt(2)),
 	)
 
-	if gasFeeCap.Cmp(tip) < 0 {
-		return nil, nil, fmt.Errorf("maxFeePerGas (%v) < maxPriorityFeePerGas (%v)", c.opts.GasFeeCap, c.opts.GasTipCap)
+	if maxFeePerGas.Cmp(maxPriorityFeePerGas) < 0 {
+		return nil, nil, fmt.Errorf("maxFeePerGas (%v) < maxPriorityFeePerGas (%v)", maxFeePerGas, maxPriorityFeePerGas)
 	}
 
 	// Check we aren't exceeding our limit
-	if gasFeeCap.Cmp(c.maxGasPrice) == 1 {
-		tip.Sub(c.maxGasPrice, baseFee)
-		gasFeeCap = c.maxGasPrice
+	if maxFeePerGas.Cmp(c.maxGasPrice) == 1 {
+		maxPriorityFeePerGas.Sub(c.maxGasPrice, baseFee)
+		maxFeePerGas = c.maxGasPrice
 	}
-	return tip, gasFeeCap, nil
+	return maxPriorityFeePerGas, maxFeePerGas, nil
 }
 
 func multiplyGasPrice(gasEstimate *big.Int, gasMultiplier *big.Float) *big.Int {
@@ -218,7 +223,7 @@ func (c *Connection) LockAndUpdateOpts() error {
 	}
 
 	if head.BaseFee != nil {
-		c.opts.GasTipCap, c.opts.GasFeeCap, err = c.SafeEstimateGasTipCap(context.TODO(), head.BaseFee)
+		c.opts.GasTipCap, c.opts.GasFeeCap, err = c.EstimateGasLondon(context.TODO(), head.BaseFee)
 		if err != nil {
 			c.UnlockOpts()
 			return err
