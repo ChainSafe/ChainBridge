@@ -67,7 +67,7 @@ func (c *Connection) Connect() error {
 	if c.http {
 		rpcClient, err = rpc.DialHTTP(c.endpoint)
 	} else {
-		rpcClient, err = rpc.DialWebsocket(context.Background(), c.endpoint, "/ws")
+		rpcClient, err = rpc.DialContext(context.Background(), c.endpoint)
 	}
 	if err != nil {
 		return err
@@ -165,6 +165,34 @@ func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 	}
 }
 
+func (c *Connection) SafeEstimateGasTipCap(ctx context.Context, baseFee *big.Int) (*big.Int, *big.Int, error) {
+	if c.maxGasPrice.Cmp(baseFee) < 0 {
+		return nil, nil, fmt.Errorf("maxGasPrice (%v) < BaseFee (%v)", c.maxGasPrice, baseFee)
+	}
+
+	var tip *big.Int
+	tip, err := c.conn.SuggestGasTipCap(context.TODO())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	gasFeeCap := new(big.Int).Add(
+		tip,
+		new(big.Int).Mul(baseFee, big.NewInt(2)),
+	)
+
+	if gasFeeCap.Cmp(tip) < 0 {
+		return nil, nil, fmt.Errorf("maxFeePerGas (%v) < maxPriorityFeePerGas (%v)", c.opts.GasFeeCap, c.opts.GasTipCap)
+	}
+
+	// Check we aren't exceeding our limit
+	if gasFeeCap.Cmp(c.maxGasPrice) == 1 {
+		tip.Sub(c.maxGasPrice, baseFee)
+		gasFeeCap = c.maxGasPrice
+	}
+	return tip, gasFeeCap, nil
+}
+
 func multiplyGasPrice(gasEstimate *big.Int, gasMultiplier *big.Float) *big.Int {
 
 	gasEstimateFloat := new(big.Float).SetInt(gasEstimate)
@@ -190,23 +218,10 @@ func (c *Connection) LockAndUpdateOpts() error {
 	}
 
 	if head.BaseFee != nil {
-		var tip *big.Int
-		tip, err = c.conn.SuggestGasTipCap(context.TODO())
+		c.opts.GasTipCap, c.opts.GasFeeCap, err = c.SafeEstimateGasTipCap(context.TODO(), head.BaseFee)
 		if err != nil {
 			c.UnlockOpts()
 			return err
-		}
-		c.opts.GasTipCap = tip
-
-		gasFeeCap := new(big.Int).Add(
-			c.opts.GasTipCap,
-			new(big.Int).Mul(head.BaseFee, big.NewInt(2)),
-		)
-		c.opts.GasFeeCap = gasFeeCap
-
-		if c.opts.GasFeeCap.Cmp(c.opts.GasTipCap) < 0 {
-			c.UnlockOpts()
-			return fmt.Errorf("maxFeePerGas (%v) < maxPriorityFeePerGas (%v)", c.opts.GasFeeCap, c.opts.GasTipCap)
 		}
 
 		// Both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) cannot be specified: https://github.com/ethereum/go-ethereum/blob/95bbd46eabc5d95d9fb2108ec232dd62df2f44ab/accounts/abi/bind/base.go#L254
