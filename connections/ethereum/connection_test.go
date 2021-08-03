@@ -15,7 +15,7 @@ import (
 	ethcmn "github.com/ethereum/go-ethereum/common"
 )
 
-var TestEndpoint = "ws://localhost:5000"
+var TestEndpoint = "ws://localhost:8545"
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var GasLimit = big.NewInt(ethutils.DefaultGasLimit)
 var MaxGasPrice = big.NewInt(ethutils.DefaultMaxGasPrice)
@@ -98,6 +98,35 @@ func TestConnection_SafeEstimateGasMax(t *testing.T) {
 	}
 }
 
+func TestConnection_EstimateGasLondon(t *testing.T) {
+	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
+	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
+	maxGasPrice := big.NewInt(100000000000)
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	head, err := conn.conn.HeaderByNumber(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// This is here as the current dev network is an old version of geth and will keep the test failing on the CI
+	if head.BaseFee != nil {
+		_, suggestedGasFeeCap, err := conn.EstimateGasLondon(context.Background(), head.BaseFee)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if suggestedGasFeeCap.Cmp(maxGasPrice) >= 0 {
+			t.Fatalf("Gas fee cap should be less than max gas price. Suggested: %s Max: %s", suggestedGasFeeCap.String(), maxGasPrice.String())
+		}
+	}
+}
+
 func TestConnection_EstimateGasLondonMax(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
 	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
@@ -123,7 +152,7 @@ func TestConnection_EstimateGasLondonMax(t *testing.T) {
 
 		maxPriorityFeePerGas := new(big.Int).Sub(maxGasPrice, head.BaseFee)
 		if suggestedGasTip.Cmp(maxPriorityFeePerGas) != 0 {
-			t.Fatalf("Gas tip cap should equal max - baseFee. Suggested: %s Max: %s", suggestedGasTip.String(), maxPriorityFeePerGas.String())
+			t.Fatalf("Gas tip cap should equal max - baseFee. Suggested: %s Max Tip: %s", suggestedGasTip.String(), maxPriorityFeePerGas.String())
 		}
 
 		if suggestedGasFeeCap.Cmp(maxGasPrice) != 0 {
@@ -160,40 +189,11 @@ func TestConnection_EstimateGasLondonMin(t *testing.T) {
 		maxFeePerGas := new(big.Int).Add(head.BaseFee, maxPriorityFeePerGas)
 
 		if suggestedGasTip.Cmp(maxPriorityFeePerGas) != 0 {
-			t.Fatalf("Gas tip cap should be equal to 1. Suggested: %s Max: %s", suggestedGasTip.String(), maxPriorityFeePerGas)
+			t.Fatalf("Gas tip cap should be equal to 1. Suggested: %s Max Tip: %s", suggestedGasTip.String(), maxPriorityFeePerGas)
 		}
 
 		if suggestedGasFeeCap.Cmp(maxFeePerGas) != 0 {
 			t.Fatalf("Gas fee cap should be 1 greater than the base fee. Suggested: %s Max: %s", suggestedGasFeeCap.String(), maxFeePerGas.String())
-		}
-	}
-}
-
-func TestConnection_EstimateGasLondon(t *testing.T) {
-	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
-	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
-	maxGasPrice := big.NewInt(100000000000)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
-	err := conn.Connect()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer conn.Close()
-
-	head, err := conn.conn.HeaderByNumber(context.Background(), nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// This is here as the current dev network is an old version of geth and will keep the test failing on the CI
-	if head.BaseFee != nil {
-		_, suggestedGasFeeCap, err := conn.EstimateGasLondon(context.Background(), head.BaseFee)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if suggestedGasFeeCap.Cmp(maxGasPrice) >= 0 {
-			t.Fatalf("Gas fee cap should be less than max gas price. Suggested: %s Max: %s", suggestedGasFeeCap.String(), maxGasPrice.String())
 		}
 	}
 }
