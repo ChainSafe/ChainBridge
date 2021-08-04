@@ -67,7 +67,7 @@ func (c *Connection) Connect() error {
 	if c.http {
 		rpcClient, err = rpc.DialHTTP(c.endpoint)
 	} else {
-		rpcClient, err = rpc.DialWebsocket(context.Background(), c.endpoint, "/ws")
+		rpcClient, err = rpc.DialContext(context.Background(), c.endpoint)
 	}
 	if err != nil {
 		return err
@@ -165,6 +165,38 @@ func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 	}
 }
 
+func (c *Connection) EstimateGasLondon(ctx context.Context, baseFee *big.Int) (*big.Int, *big.Int, error) {
+	var maxPriorityFeePerGas *big.Int
+	var maxFeePerGas *big.Int
+
+	if c.maxGasPrice.Cmp(baseFee) < 0 {
+		maxPriorityFeePerGas = big.NewInt(1)
+		maxFeePerGas = new(big.Int).Add(baseFee, maxPriorityFeePerGas)
+		return maxPriorityFeePerGas, maxFeePerGas, nil
+	}
+
+	maxPriorityFeePerGas, err := c.conn.SuggestGasTipCap(context.TODO())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	maxFeePerGas = new(big.Int).Add(
+		maxPriorityFeePerGas,
+		new(big.Int).Mul(baseFee, big.NewInt(2)),
+	)
+
+	if maxFeePerGas.Cmp(maxPriorityFeePerGas) < 0 {
+		return nil, nil, fmt.Errorf("maxFeePerGas (%v) < maxPriorityFeePerGas (%v)", maxFeePerGas, maxPriorityFeePerGas)
+	}
+
+	// Check we aren't exceeding our limit
+	if maxFeePerGas.Cmp(c.maxGasPrice) == 1 {
+		maxPriorityFeePerGas.Sub(c.maxGasPrice, baseFee)
+		maxFeePerGas = c.maxGasPrice
+	}
+	return maxPriorityFeePerGas, maxFeePerGas, nil
+}
+
 func multiplyGasPrice(gasEstimate *big.Int, gasMultiplier *big.Float) *big.Int {
 
 	gasEstimateFloat := new(big.Float).SetInt(gasEstimate)
@@ -183,12 +215,30 @@ func multiplyGasPrice(gasEstimate *big.Int, gasMultiplier *big.Float) *big.Int {
 func (c *Connection) LockAndUpdateOpts() error {
 	c.optsLock.Lock()
 
-	gasPrice, err := c.SafeEstimateGas(context.TODO())
+	head, err := c.conn.HeaderByNumber(context.TODO(), nil)
 	if err != nil {
-		c.optsLock.Unlock()
+		c.UnlockOpts()
 		return err
 	}
-	c.opts.GasPrice = gasPrice
+
+	if head.BaseFee != nil {
+		c.opts.GasTipCap, c.opts.GasFeeCap, err = c.EstimateGasLondon(context.TODO(), head.BaseFee)
+		if err != nil {
+			c.UnlockOpts()
+			return err
+		}
+
+		// Both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) cannot be specified: https://github.com/ethereum/go-ethereum/blob/95bbd46eabc5d95d9fb2108ec232dd62df2f44ab/accounts/abi/bind/base.go#L254
+		c.opts.GasPrice = nil
+	} else {
+		var gasPrice *big.Int
+		gasPrice, err = c.SafeEstimateGas(context.TODO())
+		if err != nil {
+			c.UnlockOpts()
+			return err
+		}
+		c.opts.GasPrice = gasPrice
+	}
 
 	nonce, err := c.conn.PendingNonceAt(context.Background(), c.opts.From)
 	if err != nil {
