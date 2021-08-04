@@ -114,6 +114,6 @@ func TestConnection_SafeEstimateGasMin(t *testing.T) {
 	}
 
 	if price.Cmp(minPrice) != 0 {
-		t.Fatalf("Gas price should equal max. Suggested: %s Min: %s", price.String(), minPrice.String())
+		t.Fatalf("Gas price should equal min. Suggested: %s Min: %s", price.String(), minPrice.String())
 	}
 }
