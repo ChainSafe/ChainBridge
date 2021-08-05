@@ -118,6 +118,26 @@ func TestConnection_SafeEstimateGasMin(t *testing.T) {
 	}
 }
 
+func TestConnection_SafeEstimateGasSameMin(t *testing.T) {
+	// When GasMultipler is set to 1, the gas price is set to 2000000000, so the minPrice is set to the same price.
+	minPrice := MaxGasPrice
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, minPrice, GasMultipler, "", "")
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	price, err := conn.SafeEstimateGas(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if price.Cmp(minPrice) != 0 {
+		t.Fatalf("Gas price should equal min. Suggested: %s Min: %s", price.String(), minPrice.String())
+	}
+}
+
 func TestConnection_EstimateGasLondon(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
 	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
