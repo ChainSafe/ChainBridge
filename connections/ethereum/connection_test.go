@@ -101,7 +101,9 @@ func TestConnection_SafeEstimateGasMax(t *testing.T) {
 
 func TestConnection_SafeEstimateGasMin(t *testing.T) {
 	minPrice := big.NewInt(1)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, minPrice, big.NewFloat(0), "", "")
+	// When gasMultipler is zero, the gasPrice is zero if the effect of the minPrice is removed.
+	gasMultipler := big.NewFloat(0)
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, minPrice, gasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
