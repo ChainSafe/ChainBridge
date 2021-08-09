@@ -53,6 +53,9 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 		prop, err = w.createNonFungibleProposal(m)
 	case msg.GenericTransfer:
 		prop, err = w.createGenericProposal(m)
+	case msg.AckTransfer:
+		// TODO: add create function for ack transfer
+		prop, err = w.createGenericProposal(m)
 	default:
 		w.sysErr <- fmt.Errorf("unrecognized message type received (chain=%d, name=%s)", m.Destination, w.conn.name)
 		return false

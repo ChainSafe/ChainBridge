@@ -62,7 +62,7 @@ func (w *writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 	bigAmt := big.NewInt(0).SetBytes(m.Payload[0].([]byte))
 	amount := types.NewU128(*bigAmt)
 	recipient := types.NewAccountID(m.Payload[1].([]byte))
-	depositNonce := types.U64(m.DepositNonce)
+	depositNonce := types.U64(m.Nonce)
 
 	meta := w.conn.getMetadata()
 	method, err := w.resolveResourceId(m.ResourceId)
@@ -99,7 +99,7 @@ func (w *writer) createNonFungibleProposal(m msg.Message) (*proposal, error) {
 	tokenId := types.NewU256(*big.NewInt(0).SetBytes(m.Payload[0].([]byte)))
 	recipient := types.NewAccountID(m.Payload[1].([]byte))
 	metadata := types.Bytes(m.Payload[2].([]byte))
-	depositNonce := types.U64(m.DepositNonce)
+	depositNonce := types.U64(m.Nonce)
 
 	meta := w.conn.getMetadata()
 	method, err := w.resolveResourceId(m.ResourceId)
@@ -158,7 +158,7 @@ func (w *writer) createGenericProposal(m msg.Message) (*proposal, error) {
 		call.Args = append(call.Args, eRID...)
 	}
 	return &proposal{
-		depositNonce: types.U64(m.DepositNonce),
+		depositNonce: types.U64(m.Nonce),
 		call:         call,
 		sourceId:     types.U8(m.Source),
 		resourceId:   types.NewBytes32(m.ResourceId),

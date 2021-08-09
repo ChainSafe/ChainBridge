@@ -70,14 +70,14 @@ func (w *writer) hasVoted(srcId msg.ChainId, nonce msg.Nonce, dataHash [32]byte)
 
 func (w *writer) shouldVote(m msg.Message, dataHash [32]byte) bool {
 	// Check if proposal has passed and skip if Passed or Transferred
-	if w.proposalIsComplete(m.Source, m.DepositNonce, dataHash) {
-		w.log.Info("Proposal complete, not voting", "src", m.Source, "nonce", m.DepositNonce)
+	if w.proposalIsComplete(m.Source, m.Nonce, dataHash) {
+		w.log.Info("Proposal complete, not voting", "src", m.Source, "nonce", m.Nonce)
 		return false
 	}
 
 	// Check if relayer has previously voted
-	if w.hasVoted(m.Source, m.DepositNonce, dataHash) {
-		w.log.Info("Relayer has already voted, not voting", "src", m.Source, "nonce", m.DepositNonce)
+	if w.hasVoted(m.Source, m.Nonce, dataHash) {
+		w.log.Info("Relayer has already voted, not voting", "src", m.Source, "nonce", m.Nonce)
 		return false
 	}
 
@@ -87,13 +87,13 @@ func (w *writer) shouldVote(m msg.Message, dataHash [32]byte) bool {
 // createErc20Proposal creates an Erc20 proposal.
 // Returns true if the proposal is successfully created or is complete
 func (w *writer) createErc20Proposal(m msg.Message) bool {
-	w.log.Info("Creating erc20 proposal", "src", m.Source, "nonce", m.DepositNonce)
+	w.log.Info("Creating erc20 proposal", "src", m.Source, "nonce", m.Nonce)
 
 	data := ConstructErc20ProposalData(m.Payload[0].([]byte), m.Payload[1].([]byte))
 	dataHash := utils.Hash(append(w.cfg.erc20HandlerContract.Bytes(), data...))
 
 	if !w.shouldVote(m, dataHash) {
-		if w.proposalIsPassed(m.Source, m.DepositNonce, dataHash) {
+		if w.proposalIsPassed(m.Source, m.Nonce, dataHash) {
 			// We should not vote for this proposal but it is ready to be executed
 			w.executeProposal(m, data, dataHash)
 			return true
@@ -120,13 +120,13 @@ func (w *writer) createErc20Proposal(m msg.Message) bool {
 // createErc721Proposal creates an Erc721 proposal.
 // Returns true if the proposal is succesfully created or is complete
 func (w *writer) createErc721Proposal(m msg.Message) bool {
-	w.log.Info("Creating erc721 proposal", "src", m.Source, "nonce", m.DepositNonce)
+	w.log.Info("Creating erc721 proposal", "src", m.Source, "nonce", m.Nonce)
 
 	data := ConstructErc721ProposalData(m.Payload[0].([]byte), m.Payload[1].([]byte), m.Payload[2].([]byte))
 	dataHash := utils.Hash(append(w.cfg.erc721HandlerContract.Bytes(), data...))
 
 	if !w.shouldVote(m, dataHash) {
-		if w.proposalIsPassed(m.Source, m.DepositNonce, dataHash) {
+		if w.proposalIsPassed(m.Source, m.Nonce, dataHash) {
 			// We should not vote for this proposal but it is ready to be executed
 			w.executeProposal(m, data, dataHash)
 			return true
@@ -153,7 +153,7 @@ func (w *writer) createErc721Proposal(m msg.Message) bool {
 // createGenericDepositProposal creates a generic proposal
 // returns true if the proposal is complete or is succesfully created
 func (w *writer) createGenericDepositProposal(m msg.Message) bool {
-	w.log.Info("Creating generic proposal", "src", m.Source, "nonce", m.DepositNonce)
+	w.log.Info("Creating generic proposal", "src", m.Source, "nonce", m.Nonce)
 
 	metadata := m.Payload[0].([]byte)
 	data := ConstructGenericProposalData(metadata)
@@ -161,7 +161,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 	dataHash := utils.Hash(toHash)
 
 	if !w.shouldVote(m, dataHash) {
-		if w.proposalIsPassed(m.Source, m.DepositNonce, dataHash) {
+		if w.proposalIsPassed(m.Source, m.Nonce, dataHash) {
 			// We should not vote for this proposal but it is ready to be executed
 			w.executeProposal(m, data, dataHash)
 			return true
@@ -187,7 +187,7 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 
 // watchThenExecute watches for the latest block and executes once the matching finalized event is found
 func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte, latestBlock *big.Int) {
-	w.log.Info("Watching for finalization event", "src", m.Source, "nonce", m.DepositNonce)
+	w.log.Info("Watching for finalization event", "src", m.Source, "nonce", m.Nonce)
 
 	// watching for the latest block, querying and matching the finalized event will be retried up to ExecuteBlockWatchLimit times
 	for i := 0; i < ExecuteBlockWatchLimit; i++ {
@@ -226,7 +226,7 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte,
 				status := evt.Topics[3].Big().Uint64()
 
 				if m.Source == msg.ChainId(sourceId) &&
-					m.DepositNonce.Big().Uint64() == depositNonce &&
+					m.Nonce.Big().Uint64() == depositNonce &&
 					utils.IsFinalized(uint8(status)) {
 					w.executeProposal(m, data, dataHash)
 					return
@@ -234,11 +234,11 @@ func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte,
 					w.log.Trace("Ignoring event", "src", sourceId, "nonce", depositNonce)
 				}
 			}
-			w.log.Trace("No finalization event found in current block", "block", latestBlock, "src", m.Source, "nonce", m.DepositNonce)
+			w.log.Trace("No finalization event found in current block", "block", latestBlock, "src", m.Source, "nonce", m.Nonce)
 			latestBlock = latestBlock.Add(latestBlock, big.NewInt(1))
 		}
 	}
-	log.Warn("Block watch limit exceeded, skipping execution", "source", m.Source, "dest", m.Destination, "nonce", m.DepositNonce)
+	log.Warn("Block watch limit exceeded, skipping execution", "source", m.Source, "dest", m.Destination, "nonce", m.Nonce)
 }
 
 // voteProposal submits a vote proposal
@@ -264,14 +264,14 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 			tx, err := w.bridgeContract.VoteProposal(
 				w.conn.Opts(),
 				uint8(m.Source),
-				uint64(m.DepositNonce),
+				uint64(m.Nonce),
 				m.ResourceId,
 				dataHash,
 			)
 			w.conn.UnlockOpts()
 
 			if err == nil {
-				w.log.Info("Submitted proposal vote", "tx", tx.Hash(), "src", m.Source, "depositNonce", m.DepositNonce, "gasPrice", tx.GasPrice().String())
+				w.log.Info("Submitted proposal vote", "tx", tx.Hash(), "src", m.Source, "depositNonce", m.Nonce, "gasPrice", tx.GasPrice().String())
 				if w.metrics != nil {
 					w.metrics.VotesSubmitted.Inc()
 				}
@@ -280,18 +280,18 @@ func (w *writer) voteProposal(m msg.Message, dataHash [32]byte) {
 				w.log.Debug("Nonce too low, will retry")
 				time.Sleep(TxRetryInterval)
 			} else {
-				w.log.Warn("Voting failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce, "gasLimit", gasLimit, "gasPrice", gasPrice, "err", err)
+				w.log.Warn("Voting failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.Nonce, "gasLimit", gasLimit, "gasPrice", gasPrice, "err", err)
 				time.Sleep(TxRetryInterval)
 			}
 
 			// Verify proposal is still open for voting, otherwise no need to retry
-			if w.proposalIsComplete(m.Source, m.DepositNonce, dataHash) {
-				w.log.Info("Proposal voting complete on chain", "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
+			if w.proposalIsComplete(m.Source, m.Nonce, dataHash) {
+				w.log.Info("Proposal voting complete on chain", "src", m.Source, "dst", m.Destination, "nonce", m.Nonce)
 				return
 			}
 		}
 	}
-	w.log.Error("Submission of Vote transaction failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
+	w.log.Error("Submission of Vote transaction failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.Nonce)
 	w.sysErr <- ErrFatalTx
 }
 
@@ -315,14 +315,14 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 			tx, err := w.bridgeContract.ExecuteProposal(
 				w.conn.Opts(),
 				uint8(m.Source),
-				uint64(m.DepositNonce),
+				uint64(m.Nonce),
 				data,
 				m.ResourceId,
 			)
 			w.conn.UnlockOpts()
 
 			if err == nil {
-				w.log.Info("Submitted proposal execution", "tx", tx.Hash(), "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce, "gasPrice", tx.GasPrice().String())
+				w.log.Info("Submitted proposal execution", "tx", tx.Hash(), "src", m.Source, "dst", m.Destination, "nonce", m.Nonce, "gasPrice", tx.GasPrice().String())
 				return
 			} else if err.Error() == ErrNonceTooLow.Error() || err.Error() == ErrTxUnderpriced.Error() {
 				w.log.Error("Nonce too low, will retry")
@@ -334,12 +334,12 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 
 			// Verify proposal is still open for execution, tx will fail if we aren't the first to execute,
 			// but there is no need to retry
-			if w.proposalIsFinalized(m.Source, m.DepositNonce, dataHash) {
-				w.log.Info("Proposal finalized on chain", "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce)
+			if w.proposalIsFinalized(m.Source, m.Nonce, dataHash) {
+				w.log.Info("Proposal finalized on chain", "src", m.Source, "dst", m.Destination, "nonce", m.Nonce)
 				return
 			}
 		}
 	}
-	w.log.Error("Submission of Execute transaction failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.DepositNonce)
+	w.log.Error("Submission of Execute transaction failed", "source", m.Source, "dest", m.Destination, "depositNonce", m.Nonce)
 	w.sysErr <- ErrFatalTx
 }

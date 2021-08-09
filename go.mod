@@ -15,4 +15,4 @@ require (
 
 replace github.com/ChainSafe/chainbridge-substrate-events => github.com/ParthDesai/chainbridge-substrate-events v0.0.0-20210617050925-1781bf7f0e70
 
-replace github.com/ChainSafe/chainbridge-utils => github.com/ParthDesai/chainbridge-utils v1.0.7-0.20210617044003-5cd33cb31ddb
+replace github.com/ChainSafe/chainbridge-utils => github.com/ParthDesai/chainbridge-utils v1.0.7-0.20210809132641-c45063f5c41e

@@ -44,6 +44,8 @@ github.com/ParthDesai/chainbridge-substrate-events v0.0.0-20210617050925-1781bf7
 github.com/ParthDesai/chainbridge-substrate-events v0.0.0-20210617050925-1781bf7f0e70/go.mod h1:XrMtrOHK6SE67sn0IHCbPejJaHQBgrIJFT37EvC69FY=
 github.com/ParthDesai/chainbridge-utils v1.0.7-0.20210617044003-5cd33cb31ddb h1:/UN3Diw8jmJavV9TiPgIeVDP9VlPlpqO67VPquFx+gg=
 github.com/ParthDesai/chainbridge-utils v1.0.7-0.20210617044003-5cd33cb31ddb/go.mod h1:Ya3NmviD85V2/nukuc+Y0tMrwS0eKCB2ovhbfb6r198=
+github.com/ParthDesai/chainbridge-utils v1.0.7-0.20210809132641-c45063f5c41e h1:SHYkR9D7Gd5r99YuB+GQs4LcOixXaPmiJhBz+AFuuxk=
+github.com/ParthDesai/chainbridge-utils v1.0.7-0.20210809132641-c45063f5c41e/go.mod h1:m8FRh2H40rerzBfJfyi84H2JUIPTlJNO0bvhkY9uW9c=
 github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 h1:fLjPD/aNc3UIOA6tDi6QXUemppXK3P9BI7mr2hd6gx8=
 github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
 github.com/VictoriaMetrics/fastcache v1.5.7 h1:4y6y0G8PRzszQUYIQHHssv/jgPHAb5qQuuDNdCbyAgw=
