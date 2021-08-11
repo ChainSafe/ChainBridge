@@ -62,8 +62,12 @@ func TestContractCode(t *testing.T) {
 }
 
 func TestConnection_SafeEstimateGas(t *testing.T) {
+	// In the case of d := c.Add(a, b), since c==d, there is a risk that MaxGasPrice itself will be changed,
+	// so the local variable maxGasPrice is defined by big.NewInt(0).
+	maxGasPrice := big.NewInt(0)
 	// MaxGasPrice is the constant price on the dev network, so we increase it here by 1 to ensure it adjusts
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice.Add(MaxGasPrice, big.NewInt(1)), MinGasPrice, GasMultipler, "", "")
+	maxGasPrice.Add(MaxGasPrice, big.NewInt(1))
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -75,7 +79,7 @@ func TestConnection_SafeEstimateGas(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if price.Cmp(MaxGasPrice) == 0 {
+	if price.Cmp(maxGasPrice) == 0 {
 		t.Fatalf("Gas price should be less than max. Suggested: %s Max: %s", price.String(), MaxGasPrice.String())
 	}
 }
