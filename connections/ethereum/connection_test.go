@@ -121,9 +121,12 @@ func TestConnection_SafeEstimateGasMin(t *testing.T) {
 }
 
 func TestConnection_SafeEstimateGasSameMin(t *testing.T) {
-	// When GasMultipler is set to 1, the gas price is set to 2000000000, so the minPrice is set to the same price.
-	minPrice := MaxGasPrice
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, minPrice, GasMultipler, "", "")
+	minPrice, maxGasPrice := big.NewInt(0), big.NewInt(0)
+	// When GasMultipler is set to 1, the gas price is set to 2000000000, so the minPrice is set to the same price
+	// and maxPrice is made larger than the minPrice by adding one.
+	minPrice.Add(MaxGasPrice, big.NewInt(0))
+	maxGasPrice.Add(MaxGasPrice, big.NewInt(1))
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, minPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
