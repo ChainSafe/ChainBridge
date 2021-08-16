@@ -132,7 +132,10 @@ func toSignedRelayTx(to string, data []byte, gasLimit uint, chainId uint, keyPai
 
 // Send a relay transaction to the provided rpc client
 func sendRelayTransaction(rpc *rpc.Client, ctx context.Context, relayTx RelayTx, sig []byte) (*string, error) {
-	var hex hexutil.Bytes
+	type SendTransactionResponse struct {
+		RelayTransactionHash hexutil.Bytes
+	}
+	var hex SendTransactionResponse
 	sigHex := "0x" + common.Bytes2Hex(sig)
 	txArg := map[string]interface{}{
 		"to":       relayTx.to.String(),
@@ -140,12 +143,13 @@ func sendRelayTransaction(rpc *rpc.Client, ctx context.Context, relayTx RelayTx,
 		"gas":      strconv.Itoa(int(relayTx.gasLimit)),
 		"schedule": relayTx.schedule,
 	}
+
 	err := rpc.CallContext(ctx, &hex, "relay_sendTransaction", txArg, sigHex)
 
 	if err != nil {
 		return nil, err
 	} else {
-		txId := hex.String()
+		txId := hex.RelayTransactionHash.String()
 		return &txId, nil
 	}
 }
