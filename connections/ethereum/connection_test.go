@@ -15,7 +15,7 @@ import (
 	ethcmn "github.com/ethereum/go-ethereum/common"
 )
 
-var TestEndpoint = "ws://localhost:5000"
+var TestEndpoint = "ws://localhost:8545"
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var GasLimit = big.NewInt(ethutils.DefaultGasLimit)
 var MaxGasPrice = big.NewInt(ethutils.DefaultMaxGasPrice)
