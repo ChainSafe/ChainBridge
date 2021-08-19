@@ -15,7 +15,7 @@ import (
 	ethcmn "github.com/ethereum/go-ethereum/common"
 )
 
-var TestEndpoint = "ws://localhost:8545"
+var TestEndpoint = "ws://localhost:5000"
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var GasLimit = big.NewInt(ethutils.DefaultGasLimit)
 var MaxGasPrice = big.NewInt(ethutils.DefaultMaxGasPrice)
@@ -186,7 +186,7 @@ func TestConnection_EstimateGasLondonMin(t *testing.T) {
 		}
 
 		maxPriorityFeePerGas := big.NewInt(1)
-		maxFeePerGas := new(big.Int).Add(head.BaseFee, maxPriorityFeePerGas)
+		maxFeePerGas := new(big.Int).Add(maxGasPrice, maxPriorityFeePerGas)
 
 		if suggestedGasTip.Cmp(maxPriorityFeePerGas) != 0 {
 			t.Fatalf("Gas tip cap should be equal to 1. Suggested: %s Max Tip: %s", suggestedGasTip.String(), maxPriorityFeePerGas)
