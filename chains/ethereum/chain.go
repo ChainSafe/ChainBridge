@@ -136,7 +136,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 		}
 	}
 
-	var forwarderClient *ForwarderClient
+	var forwarderClient *GnosisForwarderClient
 	if cfg.forwarderAddress != nil {
 		err = conn.EnsureHasBytecode(*cfg.forwarderAddress)
 		if err != nil {
@@ -149,7 +149,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 			return nil, err
 		}
 
-		forwarderClient = NewForwarderClient(conn.Client(), *cfg.forwarderAddress, common.HexToAddress(cfg.from), networkChainId)
+		forwarderClient = NewGnosisForwarderClient(conn.Client(), *cfg.forwarderAddress, common.HexToAddress(cfg.from), networkChainId)
 	}
 
 	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.Client())

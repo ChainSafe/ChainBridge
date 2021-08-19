@@ -23,7 +23,7 @@ import (
 
 // Keeps track of forwarder info include the state of the current
 // nonces
-type ForwarderClient struct {
+type GsnForwarderClient struct {
 	client             *ethclient.Client
 	forwarderAddress   common.Address
 	forwarderAbi       abi.ABI
@@ -46,13 +46,13 @@ func init() {
 	}
 }
 
-func NewForwarderClient(
+func NewGsnForwarderClient(
 	client *ethclient.Client,
 	forwarderAddress common.Address,
 	fromAddress common.Address,
 	chainId *big.Int,
-) *ForwarderClient {
-	return &ForwarderClient{
+) *GsnForwarderClient {
+	return &GsnForwarderClient{
 		client:           client,
 		forwarderAddress: forwarderAddress,
 		fromAddress:      fromAddress,
@@ -61,7 +61,7 @@ func NewForwarderClient(
 	}
 }
 
-func (c *ForwarderClient) GetOnChainNonce() (*big.Int, error) {
+func (c *GsnForwarderClient) GetOnChainNonce() (*big.Int, error) {
 	packed, err := c.forwarderAbi.Pack("getNonce", c.fromAddress)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (c *ForwarderClient) GetOnChainNonce() (*big.Int, error) {
 }
 
 // Locks nonce access and returns the next nonce
-func (c *ForwarderClient) LockAndNextNonce() (*big.Int, error) {
+func (c *GsnForwarderClient) LockAndNextNonce() (*big.Int, error) {
 	c.forwarderNonceLock.Lock()
 
 	if c.forwarderNonce == nil {
@@ -110,7 +110,7 @@ func (c *ForwarderClient) LockAndNextNonce() (*big.Int, error) {
 // Unlocks nonce access and sets the provided nonce
 // If transaction usage of a nonce failes the nonce shouldnt be
 // updated upon unlock, instead nil should be supplied
-func (c *ForwarderClient) UnlockAndSetNonce(nonce *big.Int) {
+func (c *GsnForwarderClient) UnlockAndSetNonce(nonce *big.Int) {
 	if nonce != nil {
 		c.forwarderNonce = nonce
 	}
@@ -118,7 +118,7 @@ func (c *ForwarderClient) UnlockAndSetNonce(nonce *big.Int) {
 }
 
 // Generate the 712 type hash for signing
-func (c *ForwarderClient) TypedHash(
+func (c *GsnForwarderClient) TypedHash(
 	from, to string,
 	data []byte,
 	value, gas *math.HexOrDecimal256,
@@ -187,7 +187,7 @@ func (c *ForwarderClient) TypedHash(
 }
 
 // Pack and sign forwarder contract 'execute' arguments
-func (c *ForwarderClient) PackAndSignForwarderArg(
+func (c *GsnForwarderClient) PackAndSignForwarderArg(
 	from, to common.Address,
 	data []byte,
 	nonce, value, gas *big.Int,
