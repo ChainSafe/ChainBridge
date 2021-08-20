@@ -78,7 +78,7 @@ func (c *Connection) Connect() error {
 	c.conn = ethclient.NewClient(rpcClient)
 	var itxRpc *rpc.Client
 	if c.itxEndpoint != nil {
-		c.log.Info("Connecting to ITX...", "url", c.itxEndpoint)
+		c.log.Info("Connecting to ITX...", "url", *c.itxEndpoint)
 		itxRpc, err = rpc.DialHTTP(*c.itxEndpoint)
 		if err != nil {
 			return err
