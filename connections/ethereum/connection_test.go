@@ -149,7 +149,7 @@ func TestConnection_SafeEstimateGasSameMin(t *testing.T) {
 
 func TestConnection_EstimateGasLondon(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
-	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
+	// Goerli commonly has a base fee of 7 wei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(100000000000)
 	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
@@ -178,7 +178,7 @@ func TestConnection_EstimateGasLondon(t *testing.T) {
 
 func TestConnection_EstimateGasLondonMax(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
-	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
+	// Goerli commonly has a base fee of 7 wei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(100)
 	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
@@ -213,7 +213,7 @@ func TestConnection_EstimateGasLondonMax(t *testing.T) {
 
 func TestConnection_EstimateGasLondonMin(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
-	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
+	// Goerli commonly has a base fee of 7 wei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(1)
 	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
@@ -235,7 +235,7 @@ func TestConnection_EstimateGasLondonMin(t *testing.T) {
 		}
 
 		maxPriorityFeePerGas := big.NewInt(1)
-		maxFeePerGas := new(big.Int).Add(head.BaseFee, maxPriorityFeePerGas)
+		maxFeePerGas := new(big.Int).Add(maxGasPrice, maxPriorityFeePerGas)
 
 		if suggestedGasTip.Cmp(maxPriorityFeePerGas) != 0 {
 			t.Fatalf("Gas tip cap should be equal to 1. Suggested: %s Max Tip: %s", suggestedGasTip.String(), maxPriorityFeePerGas)
