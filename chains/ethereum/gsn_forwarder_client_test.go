@@ -66,7 +66,7 @@ func TestCreateAndExecuteGsnForwarder(t *testing.T) {
 	}
 	client.UnlockNonce()
 
-	forwarderClient := NewForwarderClient(client.Client, forwarderAddress, pl.CommonAddress(), chainId)
+	forwarderClient := NewGsnForwarderClient(client.Client, forwarderAddress, pl.CommonAddress(), chainId)
 	nonce, err := forwarderClient.LockAndNextNonce()
 	if err != nil {
 		t.Fatal(err.Error())
