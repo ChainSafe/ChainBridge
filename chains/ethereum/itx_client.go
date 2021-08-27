@@ -64,7 +64,7 @@ func toSignedRelayTx(to string, data []byte, gasLimit uint, chainId uint, keyPai
 	toAddress := common.HexToAddress(to)
 	gasInt := big.NewInt(int64(gasLimit))
 	chainIdBigInt := big.NewInt(int64(chainId))
-	schedule := "fast"
+	schedule := "high-max"
 
 	uint256Ty, err := abi.NewType("uint256", "uint256", nil)
 	if err != nil {
