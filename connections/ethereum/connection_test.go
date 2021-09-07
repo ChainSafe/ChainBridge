@@ -102,7 +102,7 @@ func TestConnection_EstimateGasLondon(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
 	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(100000000000)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, nil, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -131,7 +131,7 @@ func TestConnection_EstimateGasLondonMax(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
 	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(100)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, nil, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -166,7 +166,7 @@ func TestConnection_EstimateGasLondonMin(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
 	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(1)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, nil, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
