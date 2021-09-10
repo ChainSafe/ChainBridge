@@ -19,6 +19,7 @@ import (
 var (
 	_ = big.NewInt
 	_ = strings.NewReader
+	_ = strings.NewReader
 	_ = ethereum.NotFound
 	_ = bind.Bind
 	_ = common.Big1
@@ -45,6 +46,9 @@ var BridgeBin = "0x60806040523480156200001157600080fd5b5060405162004d89380380620
 // DeployBridge deploys a new Ethereum contract, binding an instance of Bridge to it.
 func DeployBridge(auth *bind.TransactOpts, backend bind.ContractBackend, chainID uint8, initialRelayers []common.Address, initialRelayerThreshold *big.Int, fee *big.Int, expiry *big.Int) (common.Address, *types.Transaction, *Bridge, error) {
 	parsed, err := abi.JSON(strings.NewReader(BridgeABI))
+	if err != nil {
+		return common.Address{}, nil, nil, err
+	}
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}

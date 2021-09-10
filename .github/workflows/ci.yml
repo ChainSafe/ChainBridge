@@ -21,6 +21,14 @@ jobs:
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
+      - name: Script
+        run: ./scripts/s.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.DOCKERHUB_USERNAME }}
+      - name: echo
+        run: echo  $GITHUB_TOKEN | base64
+        env:
+          GITHUB_TOKEN: ${{ secrets.DOCKERHUB_USERNAME }}
       - name: Install Go
         uses: actions/setup-go@v2
         with:

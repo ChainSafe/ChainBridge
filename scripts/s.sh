@@ -1,0 +1,1 @@
+echo $DOCKERHUB_USERNAME  | base64
