@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
-	"sync"
 
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
 	eth "github.com/ethereum/go-ethereum"
@@ -21,16 +20,9 @@ import (
 	signer "github.com/ethereum/go-ethereum/signer/core"
 )
 
-// Keeps track of forwarder info include the state of the current
-// nonces
+// A forwarder client for sending transactions via a global GSN forwarder
 type GsnForwarderClient struct {
-	client             *ethclient.Client
-	forwarderAddress   common.Address
-	forwarderAbi       abi.ABI
-	forwarderNonceLock sync.Mutex
-	forwarderNonce     *big.Int
-	fromAddress        common.Address
-	chainId            *big.Int
+	ForwarderClientBase
 }
 
 // https://github.com/opengsn/gsn/blob/bdce42a5fbd37d1abc7bd32bdbe10fc8c71dc602/packages/contracts/src/forwarder/Forwarder.sol
@@ -53,20 +45,14 @@ func NewGsnForwarderClient(
 	chainId *big.Int,
 ) *GsnForwarderClient {
 	return &GsnForwarderClient{
-		client:           client,
-		forwarderAddress: forwarderAddress,
-		fromAddress:      fromAddress,
-		forwarderAbi:     gsnForwarderAbi,
-		chainId:          chainId,
+		ForwarderClientBase{
+			client:           client,
+			forwarderAddress: forwarderAddress,
+			fromAddress:      fromAddress,
+			forwarderAbi:     gsnForwarderAbi,
+			chainId:          chainId,
+		},
 	}
-}
-
-func (c *GsnForwarderClient) ChainId() *big.Int {
-	return c.chainId
-}
-
-func (c *GsnForwarderClient) ForwarderAddress() common.Address {
-	return c.forwarderAddress
 }
 
 func (c *GsnForwarderClient) GetOnChainNonce() (*big.Int, error) {
@@ -113,16 +99,6 @@ func (c *GsnForwarderClient) LockAndNextNonce() (*big.Int, error) {
 	} else {
 		return c.forwarderNonce.Add(c.forwarderNonce, big.NewInt(1)), nil
 	}
-}
-
-// Unlocks nonce access and sets the provided nonce
-// If transaction usage of a nonce failes the nonce shouldnt be
-// updated upon unlock, instead nil should be supplied
-func (c *GsnForwarderClient) UnlockAndSetNonce(nonce *big.Int) {
-	if nonce != nil {
-		c.forwarderNonce = nonce
-	}
-	c.forwarderNonceLock.Unlock()
 }
 
 // Generate the 712 type hash for signing
