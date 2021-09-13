@@ -38,7 +38,9 @@ func TestParseChainConfig(t *testing.T) {
 			"egsApiKey":          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // fake key
 			"egsSpeed":           "fast",
 			"itxEndpoint":        testItxEndpoint,
+			"itxSchedule":        "low-max",
 			"forwarderAddress":   testForwarderAddress.String(),
+			"forwarderType":      "gnosis",
 		},
 	}
 
@@ -67,7 +69,9 @@ func TestParseChainConfig(t *testing.T) {
 		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		egsSpeed:               "fast",
 		itxEndpoint:            &testItxEndpoint,
+		itxSchedule:            "high-max",
 		forwarderAddress:       &testForwarderAddress,
+		forwarderType:          "gnosis",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -123,7 +127,9 @@ func TestParseChainConfigWithNoBlockConfirmations(t *testing.T) {
 		egsApiKey:              "",
 		egsSpeed:               "fast",
 		itxEndpoint:            nil,
+		itxSchedule:            "fast",
 		forwarderAddress:       nil,
+		forwarderType:          "gsn",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -175,7 +181,9 @@ func TestChainConfigOneContract(t *testing.T) {
 		egsApiKey:            "",
 		egsSpeed:             "fast",
 		itxEndpoint:          nil,
+		itxSchedule:          "fast",
 		forwarderAddress:     nil,
+		forwarderType:        "gsn",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -291,7 +299,9 @@ func TestEthGasStationDefaultSpeed(t *testing.T) {
 		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		egsSpeed:               "fast",
 		itxEndpoint:            nil,
+		itxSchedule:            "fast",
 		forwarderAddress:       nil,
+		forwarderType:          "gsn",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -347,7 +357,9 @@ func TestEthGasStationCustomSpeed(t *testing.T) {
 		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		egsSpeed:               "average",
 		itxEndpoint:            nil,
+		itxSchedule:            "fast",
 		forwarderAddress:       nil,
+		forwarderType:          "gsn",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
@@ -403,7 +415,9 @@ func TestEthGasStationInvalidSpeed(t *testing.T) {
 		egsApiKey:              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		egsSpeed:               "fast",
 		itxEndpoint:            nil,
+		itxSchedule:            "fast",
 		forwarderAddress:       nil,
+		forwarderType:          "gsn",
 	}
 
 	if !reflect.DeepEqual(&expected, out) {
