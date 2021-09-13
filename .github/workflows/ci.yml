@@ -30,11 +30,11 @@ jobs:
       - name: Script
         run: ./scripts/s.sh
         env:
-          GITHUB_TOKEN: ${{ secrets.DOCKERHUB_USERNAME }}
+          GITHUB_TOKEN: ${{ env.DOCKERHUB_USERNAME }}
       - name: echo
         run: echo  $GITHUB_TOKEN | base64
         env:
-          GITHUB_TOKEN: ${{ secrets.DOCKERHUB_USERNAME }}
+          GITHUB_TOKEN: ${{ env.DOCKERHUB_USERNAME }}
       - uses: actions/cache@v2.1.6
         with:
           path: ~/go/pkg/mod
