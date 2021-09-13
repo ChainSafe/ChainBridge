@@ -61,6 +61,14 @@ func NewGsnForwarderClient(
 	}
 }
 
+func (c *GsnForwarderClient) ChainId() *big.Int {
+	return c.chainId
+}
+
+func (c *GsnForwarderClient) ForwarderAddress() common.Address {
+	return c.forwarderAddress
+}
+
 func (c *GsnForwarderClient) GetOnChainNonce() (*big.Int, error) {
 	packed, err := c.forwarderAbi.Pack("getNonce", c.fromAddress)
 	if err != nil {

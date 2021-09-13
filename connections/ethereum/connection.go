@@ -35,6 +35,7 @@ type Connection struct {
 	egsSpeed      string
 	conn          *ethclient.Client
 	itxRpc        *rpc.Client
+	itxSchedule   string
 	opts          *bind.TransactOpts
 	callOpts      *bind.CallOpts
 	nonce         uint64
@@ -44,10 +45,11 @@ type Connection struct {
 }
 
 // NewConnection returns an uninitialized connection, must call Connection.Connect() before using.
-func NewConnection(endpoint string, itxEndpoint *string, http bool, kp *secp256k1.Keypair, log log15.Logger, gasLimit, gasPrice *big.Int, gasMultiplier *big.Float, gsnApiKey, gsnSpeed string) *Connection {
+func NewConnection(endpoint string, itxEndpoint *string, itxSchedule string, http bool, kp *secp256k1.Keypair, log log15.Logger, gasLimit, gasPrice *big.Int, gasMultiplier *big.Float, gsnApiKey, gsnSpeed string) *Connection {
 	return &Connection{
 		endpoint:      endpoint,
 		itxEndpoint:   itxEndpoint,
+		itxSchedule:   itxSchedule,
 		http:          http,
 		kp:            kp,
 		gasLimit:      gasLimit,
@@ -134,6 +136,10 @@ func (c *Connection) Keypair() *secp256k1.Keypair {
 
 func (c *Connection) ItxClient() *rpc.Client {
 	return c.itxRpc
+}
+
+func (c *Connection) ItxSchedule() string {
+	return c.itxSchedule
 }
 
 func (c *Connection) Client() *ethclient.Client {

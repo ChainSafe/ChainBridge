@@ -35,18 +35,22 @@ var (
 	EGSApiKey             = "egsApiKey"
 	EGSSpeed              = "egsSpeed"
 	ItxEndpoint           = "itxEndpoint"
+	ItxSchedule           = "itxSchedule"
 	ForwarderAddress      = "forwarderAddress"
+	ForwarderType         = "forwarderType"
 )
 
 // Config encapsulates all necessary parameters in ethereum compatible forms
 type Config struct {
-	name                   string          // Human-readable chain name
-	id                     msg.ChainId     // ChainID
-	endpoint               string          // url for rpc endpoint
-	itxEndpoint            *string         // url for itx rpc endpoint
-	forwarderAddress       *common.Address // address of a forwarder to use when submitting transactions
-	from                   string          // address of key to use
-	keystorePath           string          // Location of keyfiles
+	name                   string            // Human-readable chain name
+	id                     msg.ChainId       // ChainID
+	endpoint               string            // url for rpc endpoint
+	itxEndpoint            *string           // url for itx rpc endpoint
+	itxSchedule            string            // the gas pricing schedule to be used by itx eg "fast"
+	forwarderAddress       *common.Address   // address of a forwarder to use when submitting transactions
+	forwarderType          ForwarderTypeEnum // the type of forwarder to be used, only currently supports "gnosis" or "gsn"
+	from                   string            // address of key to use
+	keystorePath           string            // Location of keyfiles
 	blockstorePath         string
 	freshStart             bool // Disables loading from blockstore at start
 	bridgeContract         common.Address
@@ -62,6 +66,13 @@ type Config struct {
 	egsApiKey              string // API key for ethgasstation to query gas prices
 	egsSpeed               string // The speed which a transaction should be processed: average, fast, fastest. Default: fast
 }
+
+type ForwarderTypeEnum string
+
+const (
+	Gnosis ForwarderTypeEnum = "gnosis"
+	Gsn    ForwarderTypeEnum = "gsn"
+)
 
 // parseChainConfig uses a core.ChainConfig to construct a corresponding Config
 func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
@@ -195,11 +206,34 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	}
 	delete(chainCfg.Opts, ItxEndpoint)
 
+	itxSchedule, scheduleOk := chainCfg.Opts[ItxSchedule]
+	if scheduleOk {
+		config.itxSchedule = itxSchedule
+		delete(chainCfg.Opts, ItxEndpoint)
+	} else {
+		config.itxSchedule = "fast"
+	}
+
 	if forwarderAddress, ok := chainCfg.Opts[ForwarderAddress]; ok && forwarderAddress != "" {
 		commonForwarderAddress := common.HexToAddress(forwarderAddress)
 		config.forwarderAddress = &commonForwarderAddress
 	}
 	delete(chainCfg.Opts, ForwarderAddress)
+
+	forwarderType, forwarderTypeOk := chainCfg.Opts[ForwarderType]
+	if forwarderTypeOk {
+		if forwarderType == "gnosis" {
+			config.forwarderType = Gnosis
+			delete(chainCfg.Opts, ForwarderType)
+		} else if forwarderType == "gsn" {
+			config.forwarderType = Gsn
+			delete(chainCfg.Opts, ForwarderType)
+		} else {
+			return nil, fmt.Errorf("Unknown %s. Must be 'gnosis' or 'gsn'", ForwarderType)
+		}
+	} else {
+		config.forwarderType = Gsn
+	}
 
 	if len(chainCfg.Opts) != 0 {
 		return nil, fmt.Errorf("unknown Opts Encountered: %#v", chainCfg.Opts)

@@ -63,6 +63,14 @@ func NewGnosisForwarderClient(
 	}
 }
 
+func (c *GnosisForwarderClient) ChainId() *big.Int {
+	return c.chainId
+}
+
+func (c *GnosisForwarderClient) ForwarderAddress() common.Address {
+	return c.forwarderAddress
+}
+
 func (c *GnosisForwarderClient) GetOnChainNonce() (*big.Int, error) {
 	packed, err := c.forwarderAbi.Pack("nonce")
 	if err != nil {
