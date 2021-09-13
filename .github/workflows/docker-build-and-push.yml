@@ -21,7 +21,7 @@ jobs:
     name: Docker Deployment
     runs-on: ubuntu-latest
     # requires these jobs to run first
-    needs: [test, e2e, lint]
+#    needs: [test, e2e, lint]
     # if check not passed, job will be skipped
     if: github.ref == 'refs/heads/main' || contains(github.ref, '/tags/v')
     # list steps
@@ -59,8 +59,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
