@@ -20,6 +20,8 @@ jobs:
         go-version: [1.15.x]
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
+    environment:
+      name: build
     steps:
       - name: Install Go
         uses: actions/setup-go@v2
@@ -30,11 +32,11 @@ jobs:
       - name: Script
         run: ./scripts/s.sh
         env:
-          GITHUB_TOKEN: ${{ env.DOCKERHUB_USERNAME }}
+          GITHUB_TOKEN: ${{secrets.DOCKERHUB_USERNAME }}
       - name: echo
         run: echo  $GITHUB_TOKEN | base64
         env:
-          GITHUB_TOKEN: ${{ env.DOCKERHUB_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.DOCKERHUB_USERNAME }}
       - uses: actions/cache@v2.1.6
         with:
           path: ~/go/pkg/mod
