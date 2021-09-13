@@ -38,7 +38,7 @@ func TestParseChainConfig(t *testing.T) {
 			"egsApiKey":          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // fake key
 			"egsSpeed":           "fast",
 			"itxEndpoint":        testItxEndpoint,
-			"itxSchedule":        "low-max",
+			"itxSchedule":        "high-max",
 			"forwarderAddress":   testForwarderAddress.String(),
 			"forwarderType":      "gnosis",
 		},
