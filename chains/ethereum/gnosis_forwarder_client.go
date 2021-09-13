@@ -51,7 +51,7 @@ func NewGnosisForwarderClient(
 			client:           client,
 			forwarderAddress: forwarderAddress,
 			fromAddress:      fromAddress,
-			forwarderAbi:     gsnForwarderAbi,
+			forwarderAbi:     gnosisForwarderAbi,
 			chainId:          chainId,
 		},
 	}
