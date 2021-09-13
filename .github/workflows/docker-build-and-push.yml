@@ -24,6 +24,8 @@ jobs:
 #    needs: [test, e2e, lint]
     # if check not passed, job will be skipped
     if: github.ref == 'refs/heads/main' || contains(github.ref, '/tags/v')
+    environment:
+      name: build
     # list steps
     steps:
     # prepares docker images
