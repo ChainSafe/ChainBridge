@@ -209,7 +209,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	itxSchedule, scheduleOk := chainCfg.Opts[ItxSchedule]
 	if scheduleOk {
 		config.itxSchedule = itxSchedule
-		delete(chainCfg.Opts, ItxEndpoint)
+		delete(chainCfg.Opts, ItxSchedule)
 	} else {
 		config.itxSchedule = "fast"
 	}
