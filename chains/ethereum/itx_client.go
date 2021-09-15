@@ -59,12 +59,11 @@ type SignedRelayTx struct {
 }
 
 // Form and sign a relay transaction
-func toSignedRelayTx(to string, data []byte, gasLimit uint, chainId uint, keyPair *secp256k1.Keypair) (*SignedRelayTx, error) {
+func toSignedRelayTx(to string, data []byte, gasLimit uint, chainId uint, keyPair *secp256k1.Keypair, schedule string) (*SignedRelayTx, error) {
 	// see https://infura.io/docs/transactions#section/Developing-with-ITX/Signing-a-relay-request
 	toAddress := common.HexToAddress(to)
 	gasInt := big.NewInt(int64(gasLimit))
 	chainIdBigInt := big.NewInt(int64(chainId))
-	schedule := "fast"
 
 	uint256Ty, err := abi.NewType("uint256", "uint256", nil)
 	if err != nil {

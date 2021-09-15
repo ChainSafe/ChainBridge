@@ -26,7 +26,7 @@ type writer struct {
 	stop            <-chan int
 	sysErr          chan<- error // Reports fatal error to core
 	metrics         *metrics.ChainMetrics
-	forwarderClient *ForwarderClient
+	forwarderClient ForwarderClient
 }
 
 // NewWriter creates and returns writer
@@ -52,7 +52,7 @@ func (w *writer) setContract(bridge *Bridge.Bridge) {
 }
 
 // setForwarder adds the forwarderClient to the writer
-func (w *writer) setForwarder(forwarderClient *ForwarderClient) {
+func (w *writer) setForwarder(forwarderClient ForwarderClient) {
 	w.forwarderClient = forwarderClient
 }
 

@@ -23,7 +23,7 @@ var MaxGasPrice = big.NewInt(ethutils.DefaultMaxGasPrice)
 var GasMultipler = big.NewFloat(ethutils.DefaultGasMultiplier)
 
 func TestConnect(t *testing.T) {
-	conn := NewConnection(TestEndpoint, nil, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, nil, "fast", false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -40,7 +40,7 @@ func TestContractCode(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	conn := NewConnection(TestEndpoint, nil, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, nil, "fast", false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, GasMultipler, "", "")
 	err = conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -62,7 +62,7 @@ func TestContractCode(t *testing.T) {
 
 func TestConnection_SafeEstimateGas(t *testing.T) {
 	// MaxGasPrice is the constant price on the dev network, so we increase it here by 1 to ensure it adjusts
-	conn := NewConnection(TestEndpoint, nil, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice.Add(MaxGasPrice, big.NewInt(1)), GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, nil, "fast", false, AliceKp, log15.Root(), GasLimit, MaxGasPrice.Add(MaxGasPrice, big.NewInt(1)), GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -81,7 +81,7 @@ func TestConnection_SafeEstimateGas(t *testing.T) {
 
 func TestConnection_SafeEstimateGasMax(t *testing.T) {
 	maxPrice := big.NewInt(1)
-	conn := NewConnection(TestEndpoint, nil, false, AliceKp, log15.Root(), GasLimit, maxPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, nil, "fast", false, AliceKp, log15.Root(), GasLimit, maxPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -102,7 +102,7 @@ func TestConnection_EstimateGasLondon(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
 	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(100000000000)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, nil, "fast", false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -131,7 +131,7 @@ func TestConnection_EstimateGasLondonMax(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
 	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(100)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, nil, "fast", false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -166,7 +166,7 @@ func TestConnection_EstimateGasLondonMin(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
 	// Goerli commonly has a base fee of 7 gwei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(1)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, nil, "fast", false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)

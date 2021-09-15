@@ -56,10 +56,20 @@ type Connection interface {
 	UnlockOpts()
 	Client() *ethclient.Client
 	ItxClient() *rpc.Client
+	ItxSchedule() string
 	EnsureHasBytecode(address common.Address) error
 	LatestBlock() (*big.Int, error)
 	WaitForBlock(block *big.Int, delay *big.Int) error
 	Close()
+}
+
+type ForwarderClient interface {
+	ForwarderAddress() common.Address
+	ChainId() *big.Int
+	GetOnChainNonce() (*big.Int, error)
+	LockAndNextNonce() (*big.Int, error)
+	UnlockAndSetNonce(nonce *big.Int)
+	PackAndSignForwarderArg(from, to common.Address, data []byte, nonce, value, gas *big.Int, kp secp256k1.Keypair) ([]byte, error)
 }
 
 type Chain struct {
@@ -111,7 +121,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 
 	stop := make(chan int)
 
-	conn := connection.NewConnection(cfg.endpoint, cfg.itxEndpoint, cfg.http, kp, logger, cfg.gasLimit, cfg.maxGasPrice, cfg.gasMultiplier, cfg.egsApiKey, cfg.egsSpeed)
+	conn := connection.NewConnection(cfg.endpoint, cfg.itxEndpoint, cfg.itxSchedule, cfg.http, kp, logger, cfg.gasLimit, cfg.maxGasPrice, cfg.gasMultiplier, cfg.egsApiKey, cfg.egsSpeed)
 	err = conn.Connect()
 	if err != nil {
 		return nil, err
@@ -136,7 +146,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 		}
 	}
 
-	var forwarderClient *ForwarderClient
+	var forwarderClient ForwarderClient
 	if cfg.forwarderAddress != nil {
 		err = conn.EnsureHasBytecode(*cfg.forwarderAddress)
 		if err != nil {
@@ -149,7 +159,13 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 			return nil, err
 		}
 
-		forwarderClient = NewForwarderClient(conn.Client(), *cfg.forwarderAddress, common.HexToAddress(cfg.from), networkChainId)
+		if cfg.forwarderType == Gsn {
+			forwarderClient = NewGsnForwarderClient(conn.Client(), *cfg.forwarderAddress, common.HexToAddress(cfg.from), networkChainId)
+		} else if cfg.forwarderType == Gnosis {
+			forwarderClient = NewGnosisForwarderClient(conn.Client(), *cfg.forwarderAddress, common.HexToAddress(cfg.from), networkChainId)
+		} else {
+			return nil, fmt.Errorf("Unexpected forwarder type %s", cfg.forwarderType)
+		}
 	}
 
 	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.Client())
