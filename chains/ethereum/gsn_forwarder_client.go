@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
 	eth "github.com/ethereum/go-ethereum"
@@ -69,7 +70,10 @@ func (c *GsnForwarderClient) GetOnChainNonce() (*big.Int, error) {
 		Value: big.NewInt(0),
 	}
 
-	callOpts := &bind.CallOpts{From: c.fromAddress, Context: context.Background()}
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	callOpts := &bind.CallOpts{From: c.fromAddress, Context: timeoutCtx}
 	res, err := c.client.CallContract(callOpts.Context, data, nil)
 	if err != nil {
 		return nil, err
@@ -80,7 +84,10 @@ func (c *GsnForwarderClient) GetOnChainNonce() (*big.Int, error) {
 		return nil, err
 	}
 
-	nonce := p[0].(*big.Int)
+	nonce, ok := p[0].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf("Unexpected nonce type %v", p[0])
+	}
 
 	return nonce, nil
 }

@@ -222,10 +222,10 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 
 	forwarderType, forwarderTypeOk := chainCfg.Opts[ForwarderType]
 	if forwarderTypeOk {
-		if forwarderType == "gnosis" {
+		if forwarderType == string(Gnosis) {
 			config.forwarderType = Gnosis
 			delete(chainCfg.Opts, ForwarderType)
-		} else if forwarderType == "gsn" {
+		} else if forwarderType == string(Gsn) {
 			config.forwarderType = Gsn
 			delete(chainCfg.Opts, ForwarderType)
 		} else {
