@@ -91,6 +91,10 @@ test-sub:
 	@echo "  >  \033[32mRunning substrate tests...\033[0m "
 	go test ./chains/substrate
 
+test-aleo:
+	@echo "  >  \033[32mRunning aleo tests...\033[0m "
+	go test ./chains/aleo
+
 docker-start:
 	./scripts/docker/start-docker.sh
 
