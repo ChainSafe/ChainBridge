@@ -17,7 +17,6 @@ import (
 
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
-	"github.com/fortelabsinc/ChainBridge/chains/aleo"
 	"github.com/ChainSafe/ChainBridge/config"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/metrics/health"
@@ -196,13 +195,14 @@ func run(ctx *cli.Context) error {
 			m = metrics.NewChainMetrics(chain.Name)
 		}
 
+		// TODO: Add configuration for the aleo chain
+		//if chain.Type == "aleo" {
+		//	newChain, err = aleo.InitializeChain(chainConfig, logger, sysErr, m) }
 		if chain.Type == "ethereum" {
 			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr, m)
 		} else if chain.Type == "substrate" {
 			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, m)
-		} else if chain.Type == "aleo" {
-			newChain, err = aleo.InitializeChain(chainConfig, logger, sysErr, m)
-		}else {
+		} else {
 			return errors.New("unrecognized Chain Type")
 		}
 

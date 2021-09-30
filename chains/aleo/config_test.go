@@ -12,18 +12,19 @@
 package aleo
 
 import (
-	"github.com/ChainSafe/chainbridge-utils/core"
 	"reflect"
 	"testing"
+
+	"github.com/ChainSafe/chainbridge-utils/core"
 )
 
 //TestParseChainConfig tests parseChainConfig with the custodian's base inputs
-func TestParseChainConfig(t *testing.T)  {
+func TestParseChainConfig(t *testing.T) {
 
 	input := core.ChainConfig{
-		Name: "aleo_chain",
-		Id: 1,
-		Endpoint: "ws://localhost",
+		Name:       "aleo_chain",
+		Id:         1,
+		Endpoint:   "ws://localhost",
 		FreshStart: false,
 		Opts: map[string]string{
 			"http": "false",
@@ -36,11 +37,11 @@ func TestParseChainConfig(t *testing.T)  {
 	}
 
 	expected := Config{
-		name:                   "aleo_chain",
-		id: 					1,
-		endpoint: 				"ws://localhost",
-		freshStart: 			false,
-		http: 					false,
+		name:       "aleo_chain",
+		id:         1,
+		endpoint:   "ws://localhost",
+		freshStart: false,
+		http:       false,
 	}
 
 	if !reflect.DeepEqual(&expected, out) {

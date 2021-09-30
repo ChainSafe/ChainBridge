@@ -22,12 +22,12 @@ import (
 var _ core.Writer = &writer{}
 
 type writer struct {
-	cfg            Config
-	conn           *Connection
-	log            log15.Logger
-	stop           <-chan int
-	sysErr         chan<- error // Reports fatal error to core
-	metrics        *metrics.ChainMetrics
+	cfg     Config
+	conn    *Connection
+	log     log15.Logger
+	stop    <-chan int
+	sysErr  chan<- error // Reports fatal error to core
+	metrics *metrics.ChainMetrics
 }
 
 // NewWriter creates and returns writer
@@ -51,8 +51,14 @@ func (w *writer) ResolveMessage(m msg.Message) bool {
 	w.log.Info("Attempting to resolve message", "type", m.Type, "src", m.Source, "dst", m.Destination, "nonce", m.DepositNonce, "rId", m.ResourceId.Hex())
 
 	switch m.Type {
+	case msg.FungibleTransfer:
+		w.log.Error("Message type fungible transfer received but not supported")
+		return false
 	case msg.NonFungibleTransfer:
 		return w.createArc721Proposal(m)
+	case msg.GenericTransfer:
+		w.log.Error("Message type generic transfer received but not supported")
+		return false
 	default:
 		w.log.Error("Unknown message type received", "type", m.Type)
 		return false

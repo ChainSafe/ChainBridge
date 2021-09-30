@@ -14,35 +14,36 @@ package aleo
 
 import (
 	"errors"
+	"time"
+
 	"github.com/ChainSafe/ChainBridge/chains"
 	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/log15"
-	"time"
 )
 
 var CustodianRetryLimit = 5
 
 type listener struct {
-	cfg                     Config
-	conn                    *Connection
-	router                 chains.Router
-	log                     log15.Logger
-	latestBlock            metrics.LatestBlock
-	stop                   <-chan int
-	sysErr                 chan<- error // Reports fatal error to core
-	metrics                *metrics.ChainMetrics
+	cfg         Config
+	conn        *Connection
+	router      chains.Router
+	log         log15.Logger
+	latestBlock metrics.LatestBlock
+	stop        <-chan int
+	sysErr      chan<- error // Reports fatal error to core
+	metrics     *metrics.ChainMetrics
 }
 
 // NewListener creates and returns a listener
 func NewListener(conn *Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error, m *metrics.ChainMetrics) *listener {
 	return &listener{
-		cfg: *cfg,
-		conn: conn,
-		log:  log,
-		latestBlock:        metrics.LatestBlock{LastUpdated: time.Now()},
-		stop: stop,
-		sysErr: sysErr,
-		metrics: m,
+		cfg:         *cfg,
+		conn:        conn,
+		log:         log,
+		latestBlock: metrics.LatestBlock{LastUpdated: time.Now()},
+		stop:        stop,
+		sysErr:      sysErr,
+		metrics:     m,
 	}
 }
 
@@ -75,18 +76,13 @@ func (l *listener) pollCustodian() error {
 		case <-l.stop:
 			return errors.New("polling terminated")
 		default:
-			// No more retries, goto next block
+			// No more retries
 			if retry == 0 {
 				l.log.Error("Polling failed, retries exceeded")
 				l.sysErr <- errors.New("polling failure")
 				return nil
 			}
 
-
-
-
 		}
 	}
-	return nil
 }
-

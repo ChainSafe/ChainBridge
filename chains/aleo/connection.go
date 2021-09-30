@@ -14,25 +14,26 @@ package aleo
 
 import (
 	"context"
+
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
 type Connection struct {
-	endpoint   string
-	http       bool
-	log    log15.Logger
-	client *rpc.Client
-	stop   chan int
+	endpoint string
+	http     bool
+	log      log15.Logger
+	client   *rpc.Client
+	stop     chan int
 }
 
 // NewConnection returns an uninitialized connection, must call Connection.Connect() before using.
 func NewConnection(endpoint string, http bool, log log15.Logger) *Connection {
 	return &Connection{
 		endpoint: endpoint,
-		http:	http,
-		log: log,
-		stop: make(chan int),
+		http:     http,
+		log:      log,
+		stop:     make(chan int),
 	}
 }
 

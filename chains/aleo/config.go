@@ -14,40 +14,40 @@ package aleo
 
 import (
 	"fmt"
+
 	"github.com/ChainSafe/chainbridge-utils/core"
 
 	"github.com/ChainSafe/chainbridge-utils/msg"
-
 )
 
 // Chain specific options
 var (
-	HttpOpt               = "http"
+	HttpOpt = "http"
 )
 
 // Config encapsulates all necessary parameters in aleo compatible custodians
 type Config struct {
-	name	               string // Human-readable chain name
-	id                     msg.ChainId
-	endpoint               string // url for the custodian's endpoint
-	from                   string      // address of key to use, not used for the custodian
-	keystorePath           string      // Location of keyfiles, not used for the custodian
-	blockstorePath         string	   // Location of the blockstore, not used for custodian
-	freshStart             bool // Disables loading from blockstore at start, in this case, loads all transactions on the custodian
-	http 				   bool
+	name           string // Human-readable chain name
+	id             msg.ChainId
+	endpoint       string // url for the custodian's endpoint
+	from           string // address of key to use, not used for the custodian
+	keystorePath   string // Location of keyfiles, not used for the custodian
+	blockstorePath string // Location of the blockstore, not used for custodian
+	freshStart     bool   // Disables loading from blockstore at start, in this case, loads all transactions on the custodian
+	http           bool
 }
 
 // parseChainConfig uses a core.ChainConfig to construct the corresponding Config
 func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	config := &Config{
-		name:                   chainCfg.Name,
-		id:                     chainCfg.Id,
-		endpoint:               chainCfg.Endpoint,
-		from:                   chainCfg.From,
-		keystorePath:           chainCfg.KeystorePath,
-		blockstorePath:         chainCfg.BlockstorePath,
-		freshStart:             chainCfg.FreshStart,
-		http: false,
+		name:           chainCfg.Name,
+		id:             chainCfg.Id,
+		endpoint:       chainCfg.Endpoint,
+		from:           chainCfg.From,
+		keystorePath:   chainCfg.KeystorePath,
+		blockstorePath: chainCfg.BlockstorePath,
+		freshStart:     chainCfg.FreshStart,
+		http:           false,
 	}
 
 	if HTTP, ok := chainCfg.Opts[HttpOpt]; ok && HTTP == "true" {

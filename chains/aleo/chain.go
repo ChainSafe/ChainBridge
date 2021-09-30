@@ -29,7 +29,7 @@
 	Writer
 
 	The writer will receive messages from the router, builds proposals, then attempts to vote on those proposals.
- */
+*/
 package aleo
 
 import (
@@ -62,16 +62,16 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 		return nil, err
 	}
 
-	listener := NewListener(conn, cfg, logger,stop, sysErr, m)
+	listener := NewListener(conn, cfg, logger, stop, sysErr, m)
 
 	writer := NewWriter(conn, cfg, logger, stop, sysErr, m)
 
 	return &Chain{
-		cfg:  chainCfg,
-		conn: conn,
-		writer: writer,
+		cfg:      chainCfg,
+		conn:     conn,
+		writer:   writer,
 		listener: listener,
-		stop: stop,
+		stop:     stop,
 	}, nil
 }
 
@@ -80,6 +80,12 @@ func (c *Chain) Start() error {
 	if err != nil {
 		return err
 	}
+
+	err = c.writer.start()
+	if err != nil {
+		return err
+	}
+
 	c.conn.log.Debug("Successfully started chain", "chainId", c.cfg.Id)
 	return nil
 }
