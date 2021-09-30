@@ -10,6 +10,7 @@
 # Release Notes
 
 ## [Unreleased]
+- Updated logic for initialization and scanning chains
 
 ## 2.1.2
 - Fixed health-check endpoint initialization for networks

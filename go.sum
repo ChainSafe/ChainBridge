@@ -29,6 +29,10 @@ github.com/Cerebellum-Network/chainbridge-substrate-events v0.0.0-20210506100715
 github.com/Cerebellum-Network/chainbridge-substrate-events v0.0.0-20210506100715-541be1ab4476/go.mod h1:h67Ya88vt7Czx5Frkp/7AtuJkvG2GA/ra/IBoBfJHAA=
 github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210614155039-7b03e295a9f3 h1:KFNJYjIJlvCBOGanJTCI9fVZSZhgQMGGs2CNA6pH5xE=
 github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210614155039-7b03e295a9f3/go.mod h1:xzmPjGfeywPRIKXbyRb/gQHLVnLk2+w/k2zoZ3Ce/4I=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210929111705-b394df59ca5d h1:NDtKy2MCcR2jhE+GCGBha1xZrKzyZph2cKJviVHnUzY=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210929111705-b394df59ca5d/go.mod h1:xzmPjGfeywPRIKXbyRb/gQHLVnLk2+w/k2zoZ3Ce/4I=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210930074317-80625dc3f15e h1:m2cax5j6Pg0HaCYuZGnB9Xyc3h7zqhj51jP4j8hVP2w=
+github.com/Cerebellum-Network/chainbridge-utils v1.0.7-0.20210930074317-80625dc3f15e/go.mod h1:xzmPjGfeywPRIKXbyRb/gQHLVnLk2+w/k2zoZ3Ce/4I=
 github.com/ChainSafe/log15 v1.0.0 h1:vRDVtWtVwIH5uSCBvgTTZh6FA58UBJ6+QiiypaZfBf8=
 github.com/ChainSafe/log15 v1.0.0/go.mod h1:5v1+ALHtdW0NfAeeoYyKmzCAMcAeqkdhIg4uxXWIgOg=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=

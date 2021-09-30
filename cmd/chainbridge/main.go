@@ -201,10 +201,15 @@ func run(ctx *cli.Context) error {
 			return errors.New("unrecognized Chain Type")
 		}
 
+		if chain.Scan {
+			c.AddChain(newChain)
+		} else {
+			c.SetRouter(newChain)
+		}
+
 		if err != nil {
 			return err
 		}
-		c.AddChain(newChain)
 
 	}
 
