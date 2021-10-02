@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"math/big"
 
-	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/log15"
+	utils "github.com/StirNetwork/ChainBridge/shared/ethereum"
 	eth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"

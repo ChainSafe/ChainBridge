@@ -7,10 +7,10 @@ import (
 	"os"
 	"testing"
 
-	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
+	utils "github.com/StirNetwork/ChainBridge/shared/substrate"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
