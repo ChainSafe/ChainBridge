@@ -15,6 +15,7 @@ import (
 
 	"strconv"
 
+	"github.com/ChainSafe/ChainBridge/chains/aleo"
 	"github.com/ChainSafe/ChainBridge/chains/ethereum"
 	"github.com/ChainSafe/ChainBridge/chains/substrate"
 	"github.com/ChainSafe/ChainBridge/config"
@@ -196,12 +197,13 @@ func run(ctx *cli.Context) error {
 		}
 
 		// TODO: Add configuration for the aleo chain
-		//if chain.Type == "aleo" {
-		//	newChain, err = aleo.InitializeChain(chainConfig, logger, sysErr, m) }
+
 		if chain.Type == "ethereum" {
 			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr, m)
 		} else if chain.Type == "substrate" {
 			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, m)
+		} else if chain.Type == "aleo" {
+			newChain, err = aleo.InitializeChain(chainConfig, logger, sysErr, m)
 		} else {
 			return errors.New("unrecognized Chain Type")
 		}
