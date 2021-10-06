@@ -9,7 +9,10 @@
 
 # Release Notes
 
-## [Unreleased]
+## vNext
+- ...
+
+## v2.2.0
 - Added ability to disable network scanning
 
 ## 2.1.2
