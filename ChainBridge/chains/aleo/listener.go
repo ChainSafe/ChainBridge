@@ -13,7 +13,10 @@
 package aleo
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/chains"
@@ -22,6 +25,7 @@ import (
 )
 
 var CustodianRetryLimit = 5
+var CustodianRetryInterval = time.Second * 5
 
 type listener struct {
 	cfg         Config
@@ -82,7 +86,52 @@ func (l *listener) pollCustodian() error {
 				l.sysErr <- errors.New("polling failure")
 				return nil
 			}
+			arg := map[string]interface{}{
+				"input": "echo",
+			}
+			var raw json.RawMessage
+			if err := l.conn.client.CallContext(context.Background(), &raw, "healthy", arg); err != nil {
+				l.log.Error("rpc error: failed to call context of the health check", "err", err)
+				retry--
+				time.Sleep(CustodianRetryInterval)
+				continue
+			}
 
+			if err := l.getDepositEvents(); err != nil {
+				l.log.Error("Failed to get events from custodian",  "err", err)
+				retry--
+				time.Sleep(CustodianRetryInterval)
+				continue
+			}
+			time.Sleep(CustodianRetryInterval)
 		}
 	}
+}
+
+type DepositLog struct {
+	ChainId               uint64 `json:"chain_id"`
+	SourceAleoAddress     string `json:"source_aleo_address"`
+	DestinationETHAddress string `json:"destination_eth_address"`
+	TokenHex              string `json:"token_hex"`
+	Nonce                 uint64 `json:"nonce"`
+	Handler               string `json:"handler"`
+}
+
+func (l *listener) getDepositEvents() error {
+	l.log.Debug("Querying custodian for deposit events")
+	var results []DepositLog
+
+	if err := l.conn.client.CallContext(context.Background(), &results, "deposit_events"); err != nil {
+		return fmt.Errorf("unable to get Deposit Events: %w", err)
+	}
+
+	for _, event := range results {
+		//var m msg.Message
+		//destId := msg.ChainId(event.ChainId)
+		//nonce := msg.Nonce(event.Nonce)
+		l.log.Info("Deposit Event found", "event", event)
+	}
+
+	return nil
+
 }
