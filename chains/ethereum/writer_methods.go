@@ -312,11 +312,21 @@ func (w *writer) executeProposal(m msg.Message, data []byte, dataHash [32]byte) 
 			gasLimit := w.conn.Opts().GasLimit
 			gasPrice := w.conn.Opts().GasPrice
 
+			// POC: in case this writer processes a proposal on behalf of
+			// another chain, an event should be emitted with the signed
+			// message which has to be called on dest chain
+			if m.Destination != w.cfg.Id {
+				// ToDo: build a signed message which contains everything needed
+				// to fire the message on the dest chain
+			}
+
+
 			tx, err := w.bridgeContract.ExecuteProposal(
 				w.conn.Opts(),
 				uint8(m.Source),
+				uint8(m.Destination), // Let bridge know if we execute or emit out
 				uint64(m.DepositNonce),
-				data,
+				data, // data should be a signed message in case we execute for a foreign chain
 				m.ResourceId,
 			)
 			w.conn.UnlockOpts()

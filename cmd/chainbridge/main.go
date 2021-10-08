@@ -169,6 +169,8 @@ func run(ctx *cli.Context) error {
 	sysErr := make(chan error)
 	c := core.NewCore(sysErr)
 
+        chains := make(map[string]*ethereum.Chain)
+
 	for _, chain := range cfg.Chains {
 		chainId, errr := strconv.Atoi(chain.Id)
 		if errr != nil {
@@ -196,7 +198,10 @@ func run(ctx *cli.Context) error {
 		}
 
 		if chain.Type == "ethereum" {
-			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr, m)
+			var ethChain *ethereum.Chain
+			ethChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr, m, chainConfig.Id)
+			chains[chain.Id] = ethChain
+			newChain = ethChain
 		} else if chain.Type == "substrate" {
 			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, m)
 		} else {
@@ -207,8 +212,9 @@ func run(ctx *cli.Context) error {
 			return err
 		}
 		c.AddChain(newChain)
-
 	}
+	// POC: Vote / execute on Rinkeby for Goerli TX
+	chains["0"].SetWriter(chains["1"])
 
 	// Start prometheus and health server
 	if ctx.Bool(config.MetricsFlag.Name) {

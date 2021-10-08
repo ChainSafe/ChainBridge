@@ -65,6 +65,7 @@ type Chain struct {
 	conn     Connection        // THe chains connection
 	listener *listener         // The listener of this chain
 	writer   *writer           // The writer of the chain
+	manageWriter bool
 	stop     chan<- int
 }
 
@@ -179,9 +180,16 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 		cfg:      chainCfg,
 		conn:     conn,
 		writer:   writer,
+                manageWriter: true,
 		listener: listener,
 		stop:     stop,
 	}, nil
+}
+
+func (c *Chain) SetWriter(from *Chain) {
+	// Maybe have to clone from.writer ???
+	c.writer = from.writer
+	c.manageWriter = false;
 }
 
 func (c *Chain) SetRouter(r *core.Router) {
@@ -195,12 +203,14 @@ func (c *Chain) Start() error {
 		return err
 	}
 
-	err = c.writer.start()
-	if err != nil {
-		return err
-	}
+	if c.manageWriter {
+		err = c.writer.start()
+		if err != nil {
+			return err
+		}
 
-	c.writer.log.Debug("Successfully started chain")
+		c.writer.log.Debug("Successfully started chain")
+	}
 	return nil
 }
 
