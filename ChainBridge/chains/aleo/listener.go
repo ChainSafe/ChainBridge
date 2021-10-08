@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/chains"
@@ -109,12 +110,9 @@ func (l *listener) pollCustodian() error {
 }
 
 type DepositLog struct {
-	ChainId               uint64 `json:"chain_id"`
-	SourceAleoAddress     string `json:"source_aleo_address"`
-	DestinationETHAddress string `json:"destination_eth_address"`
-	TokenHex              string `json:"token_hex"`
-	Nonce                 uint64 `json:"nonce"`
-	Handler               string `json:"handler"`
+	DestinationChainID			uint8    `json:"destination_chain_id"`
+	Nonce                       uint64   `json:"nonce"`
+	Handler                     string   `json:"handler"`
 }
 
 func (l *listener) getDepositEvents() error {
@@ -126,10 +124,28 @@ func (l *listener) getDepositEvents() error {
 	}
 
 	for _, event := range results {
-		//var m msg.Message
-		//destId := msg.ChainId(event.ChainId)
-		//nonce := msg.Nonce(event.Nonce)
+		var m msg.Message
+		var err error
+		destId := msg.ChainId(event.DestinationChainID)
+		nonce := msg.Nonce(event.Nonce)
 		l.log.Info("Deposit Event found", "event", event)
+		if event.Handler == "arc721" {
+			m, err = l.handleArc721DepositedEvent(destId, nonce)
+		} else {
+			l.log.Error("event has unrecognized handler", "handler", event.Handler)
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		l.log.Info("generated message to route", "message", m)
+
+		err = l.router.Send(m)
+		if err != nil {
+			l.log.Error("subscription error: failed to route message", "err", err)
+		}
 	}
 
 	return nil
