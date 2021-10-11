@@ -14,10 +14,10 @@ package aleo
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/ChainSafe/chainbridge-utils/msg"
+	"math/big"
 	"time"
 
 	"github.com/ChainSafe/ChainBridge/chains"
@@ -37,6 +37,7 @@ type listener struct {
 	stop        <-chan int
 	sysErr      chan<- error // Reports fatal error to core
 	metrics     *metrics.ChainMetrics
+	blockConfirmations     *big.Int
 }
 
 // NewListener creates and returns a listener
@@ -49,6 +50,7 @@ func NewListener(conn *Connection, cfg *Config, log log15.Logger, stop <-chan in
 		stop:        stop,
 		sysErr:      sysErr,
 		metrics:     m,
+		blockConfirmations: cfg.blockConfirmations,
 	}
 }
 
@@ -74,7 +76,9 @@ func (l *listener) start() error {
 // pollCustodian will poll the custodian for the latest data and parse the associated events.
 
 func (l *listener) pollCustodian() error {
+	var currentBlock = l.cfg.startBlock
 	l.log.Info("Polling the Custodian...")
+
 	var retry = CustodianRetryLimit
 	for {
 		select {
@@ -87,23 +91,35 @@ func (l *listener) pollCustodian() error {
 				l.sysErr <- errors.New("polling failure")
 				return nil
 			}
-			arg := map[string]interface{}{
-				"input": "echo",
-			}
-			var raw json.RawMessage
-			if err := l.conn.client.CallContext(context.Background(), &raw, "healthy", arg); err != nil {
+
+			var latestBlock *big.Int
+			if err := l.conn.client.CallContext(context.Background(), &latestBlock, "latest_block"); err != nil {
 				l.log.Error("rpc error: failed to call context of the health check", "err", err)
 				retry--
 				time.Sleep(CustodianRetryInterval)
 				continue
 			}
 
-			if err := l.getDepositEvents(); err != nil {
+			// Sleep if the difference is less than BlockDelay; (latest - current) < BlockDelay
+			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(l.blockConfirmations) == -1 {
+				l.log.Debug("Block not ready, will retry", "target", currentBlock, "latest", latestBlock)
+				time.Sleep(CustodianRetryInterval)
+				continue
+			}
+
+			if err := l.getDepositEventsForBlock(latestBlock) ; err != nil {
 				l.log.Error("Failed to get events from custodian",  "err", err)
 				retry--
 				time.Sleep(CustodianRetryInterval)
 				continue
 			}
+			l.latestBlock.Height = big.NewInt(0).Set(latestBlock)
+			l.latestBlock.LastUpdated = time.Now()
+
+			// Goto next block and reset retry counter
+			currentBlock.Add(currentBlock, big.NewInt(1))
+			retry = CustodianRetryLimit
+
 			time.Sleep(CustodianRetryInterval)
 		}
 	}
@@ -115,11 +131,13 @@ type DepositLog struct {
 	Handler                     string   `json:"handler"`
 }
 
-func (l *listener) getDepositEvents() error {
+func (l *listener) getDepositEventsForBlock(latestBlock *big.Int)  error {
 	l.log.Debug("Querying custodian for deposit events")
 	var results []DepositLog
-
-	if err := l.conn.client.CallContext(context.Background(), &results, "deposit_events"); err != nil {
+	arg := map[string]interface{}{
+		"latest_block": latestBlock,
+	}
+	if err := l.conn.client.CallContext(context.Background(), &results, "deposit_events", arg); err != nil {
 		return fmt.Errorf("unable to get Deposit Events: %w", err)
 	}
 

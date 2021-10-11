@@ -14,6 +14,7 @@ package aleo
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/ChainSafe/chainbridge-utils/core"
 
@@ -35,6 +36,8 @@ type Config struct {
 	blockstorePath string // Location of the blockstore, not used for custodian
 	freshStart     bool   // Disables loading from blockstore at start, in this case, loads all transactions on the custodian
 	http           bool
+	startBlock     *big.Int
+	blockConfirmations     *big.Int
 }
 
 // parseChainConfig uses a core.ChainConfig to construct the corresponding Config
@@ -48,6 +51,8 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		blockstorePath: chainCfg.BlockstorePath,
 		freshStart:     chainCfg.FreshStart,
 		http:           false,
+		startBlock:     big.NewInt(0),
+		blockConfirmations:     big.NewInt(0),
 	}
 
 	if HTTP, ok := chainCfg.Opts[HttpOpt]; ok && HTTP == "true" {
