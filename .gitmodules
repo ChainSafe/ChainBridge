@@ -1,0 +1,3 @@
+[submodule "fc_devops"]
+	path = fc_devops
+	url = git@github.com:fortelabsinc/fortex_common_devops.git
