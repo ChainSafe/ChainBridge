@@ -16,9 +16,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ChainSafe/chainbridge-utils/msg"
 	"math/big"
 	"time"
+
+	"github.com/ChainSafe/chainbridge-utils/msg"
 
 	"github.com/ChainSafe/ChainBridge/chains"
 	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
@@ -29,27 +30,27 @@ var CustodianRetryLimit = 5
 var CustodianRetryInterval = time.Second * 5
 
 type listener struct {
-	cfg         Config
-	conn        *Connection
-	router      chains.Router
-	log         log15.Logger
-	latestBlock metrics.LatestBlock
-	stop        <-chan int
-	sysErr      chan<- error // Reports fatal error to core
-	metrics     *metrics.ChainMetrics
-	blockConfirmations     *big.Int
+	cfg                Config
+	conn               *Connection
+	router             chains.Router
+	log                log15.Logger
+	latestBlock        metrics.LatestBlock
+	stop               <-chan int
+	sysErr             chan<- error // Reports fatal error to core
+	metrics            *metrics.ChainMetrics
+	blockConfirmations *big.Int
 }
 
 // NewListener creates and returns a listener
 func NewListener(conn *Connection, cfg *Config, log log15.Logger, stop <-chan int, sysErr chan<- error, m *metrics.ChainMetrics) *listener {
 	return &listener{
-		cfg:         *cfg,
-		conn:        conn,
-		log:         log,
-		latestBlock: metrics.LatestBlock{LastUpdated: time.Now()},
-		stop:        stop,
-		sysErr:      sysErr,
-		metrics:     m,
+		cfg:                *cfg,
+		conn:               conn,
+		log:                log,
+		latestBlock:        metrics.LatestBlock{LastUpdated: time.Now()},
+		stop:               stop,
+		sysErr:             sysErr,
+		metrics:            m,
 		blockConfirmations: cfg.blockConfirmations,
 	}
 }
@@ -107,8 +108,8 @@ func (l *listener) pollCustodian() error {
 				continue
 			}
 
-			if err := l.getDepositEventsForBlock(latestBlock) ; err != nil {
-				l.log.Error("Failed to get events from custodian",  "err", err)
+			if err := l.getDepositEventsForBlock(latestBlock); err != nil {
+				l.log.Error("Failed to get events from custodian", "err", err)
 				retry--
 				time.Sleep(CustodianRetryInterval)
 				continue
@@ -126,12 +127,12 @@ func (l *listener) pollCustodian() error {
 }
 
 type DepositLog struct {
-	DestinationChainID			uint8    `json:"destination_chain_id"`
-	Nonce                       uint64   `json:"nonce"`
-	Handler                     string   `json:"handler"`
+	DestinationChainID uint8  `json:"destination_chain_id"`
+	Nonce              uint64 `json:"nonce"`
+	Handler            string `json:"handler"`
 }
 
-func (l *listener) getDepositEventsForBlock(latestBlock *big.Int)  error {
+func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	l.log.Debug("Querying custodian for deposit events")
 	var results []DepositLog
 	arg := map[string]interface{}{

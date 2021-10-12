@@ -16,18 +16,19 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
-	"github.com/ChainSafe/chainbridge-utils/msg"
 	"math/big"
 	"strings"
+
+	"github.com/ChainSafe/chainbridge-utils/msg"
 )
 
 type ARC721DepositRecord struct {
-	DestinationChainID			uint8             `json:"destination_chain_id"`
-	ResourceID                  string            `json:"resource_id"`
-	Depositer                   string            `json:"depositer"`
-	DestinationRecipientAddress string            `json:"destination_recipient_address"`
-	TokenID                     string            `json:"token_id"`
-	TokenURI				    string            `json:"token_uri"`
+	DestinationChainID          uint8  `json:"destination_chain_id"`
+	ResourceID                  string `json:"resource_id"`
+	Depositer                   string `json:"depositer"`
+	DestinationRecipientAddress string `json:"destination_recipient_address"`
+	TokenID                     string `json:"token_id"`
+	TokenURI                    string `json:"token_uri"`
 }
 
 func hexStringFormat(hexString string) string {
@@ -40,7 +41,7 @@ func (l *listener) handleArc721DepositedEvent(destId msg.ChainId, nonce msg.Nonc
 	l.log.Info("Handling nonfungible deposit event")
 	arg := map[string]interface{}{
 		"destination_chain_id": uint64(destId),
-		"nonce": uint64(nonce),
+		"nonce":                uint64(nonce),
 	}
 	var record ARC721DepositRecord
 
