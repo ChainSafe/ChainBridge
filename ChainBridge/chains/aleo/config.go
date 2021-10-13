@@ -23,7 +23,8 @@ import (
 
 // Chain specific options
 var (
-	HttpOpt = "http"
+	HttpOpt       = "http"
+	StartBlockOpt = "startBlock"
 )
 
 // Config encapsulates all necessary parameters in aleo compatible custodians
@@ -61,6 +62,17 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	} else if HTTP, ok := chainCfg.Opts[HttpOpt]; ok && HTTP == "false" {
 		config.http = false
 		delete(chainCfg.Opts, HttpOpt)
+	}
+
+	if startBlock, ok := chainCfg.Opts[StartBlockOpt]; ok && startBlock != "" {
+		block := big.NewInt(0)
+		_, pass := block.SetString(startBlock, 10)
+		if pass {
+			config.startBlock = block
+			delete(chainCfg.Opts, StartBlockOpt)
+		} else {
+			return nil, fmt.Errorf("unable to parse %s", StartBlockOpt)
+		}
 	}
 
 	if len(chainCfg.Opts) != 0 {

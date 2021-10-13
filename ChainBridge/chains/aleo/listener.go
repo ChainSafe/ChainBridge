@@ -13,7 +13,6 @@
 package aleo
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"math/big"
@@ -93,9 +92,9 @@ func (l *listener) pollCustodian() error {
 				return nil
 			}
 
-			var latestBlock *big.Int
-			if err := l.conn.client.CallContext(context.Background(), &latestBlock, "latest_block"); err != nil {
-				l.log.Error("rpc error: failed to call context of the health check", "err", err)
+			latestBlock, err := l.conn.LatestBlock()
+			if err != nil {
+				l.log.Error("rpc error: failed to query the latest block", "err", err)
 				retry--
 				time.Sleep(CustodianRetryInterval)
 				continue
@@ -126,23 +125,14 @@ func (l *listener) pollCustodian() error {
 	}
 }
 
-type DepositLog struct {
-	DestinationChainID uint8  `json:"destination_chain_id"`
-	Nonce              uint64 `json:"nonce"`
-	Handler            string `json:"handler"`
-}
-
 func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	l.log.Debug("Querying custodian for deposit events")
-	var results []DepositLog
-	arg := map[string]interface{}{
-		"latest_block": latestBlock,
-	}
-	if err := l.conn.client.CallContext(context.Background(), &results, "deposit_events", arg); err != nil {
+	logs, err := l.conn.DepositEvents(latestBlock)
+	if err != nil {
 		return fmt.Errorf("unable to get Deposit Events: %w", err)
 	}
 
-	for _, event := range results {
+	for _, event := range logs {
 		var m msg.Message
 		var err error
 		destId := msg.ChainId(event.DestinationChainID)

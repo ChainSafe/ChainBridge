@@ -14,7 +14,9 @@ package aleo
 
 import (
 	"context"
+	"math/big"
 
+	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/rpc"
 )
@@ -55,6 +57,34 @@ func (c *Connection) Connect() error {
 	c.client = rpcClient
 
 	return nil
+}
+
+// LatestBlock queries the Aleo Custodian for it's advertised "latest block", from our custodian's RPC replication endpoint
+func (c *Connection) LatestBlock() (*big.Int, error) {
+	var latestBlock *big.Int
+	err := c.client.CallContext(context.Background(), &latestBlock, "latest_block")
+	return latestBlock, err
+}
+
+// DepositEvents queries the Aleo Custodian for the deposit events at the latest block
+func (c *Connection) DepositEvents(latestBlock *big.Int) ([]DepositLog, error) {
+	var results []DepositLog
+	arg := map[string]interface{}{
+		"latest_block": latestBlock,
+	}
+	err := c.client.CallContext(context.Background(), &results, "deposit_events", arg)
+	return results, err
+}
+
+// Arc721DepositRecord gets a requested ARC721 Deposit record from the custodian
+func (c *Connection) Arc721DepositRecord(destId msg.ChainId, nonce msg.Nonce) (ARC721DepositRecord, error) {
+	var record ARC721DepositRecord
+	arg := map[string]interface{}{
+		"destination_chain_id": uint64(destId),
+		"nonce":                uint64(nonce),
+	}
+	err := c.client.CallContext(context.Background(), &record, "deposit_record", arg)
+	return record, err
 }
 
 // Close terminates the client connection and stops any running routines
