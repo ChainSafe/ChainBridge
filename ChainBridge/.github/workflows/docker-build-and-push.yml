@@ -1,0 +1,150 @@
+# Copyright 2020 ChainSafe Systems
+# SPDX-License-Identifier: LGPL-3.0-only
+
+name: Docker build and push
+
+on:
+  push:
+    branches:
+    # when main branch receives a push
+      - main
+    # when any of these versions receive a push
+    tags:
+      - "v*.*.*"
+  # when any releases are created
+  release:
+    types:
+      - created
+# list jobs
+jobs:
+  build-and-deploy:
+    name: Docker Deployment
+    runs-on: ubuntu-latest
+    # requires these jobs to run first
+    needs: [test, e2e, lint]
+    # if check not passed, job will be skipped
+    if: github.ref == 'refs/heads/main' || contains(github.ref, '/tags/v')
+    environment:
+      name: build
+    # list steps
+    steps:
+    # prepares docker images
+      - name: Prepare
+        id: prep
+        run: |
+          # creates local variable of chainbridge docker image
+          DOCKER_IMAGE=chainsafe/chainbridge
+
+          # creates local variable of commit hash that triggered workflow
+          COMMIT_HASH=$(echo $GITHUB_SHA | head -c7)
+
+          # creates local variable to hold docker images
+          TAGS="${DOCKER_IMAGE}:${COMMIT_HASH},${DOCKER_IMAGE}:latest"
+
+          # check if branch/tag that triggered workflow was from tags
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+
+            # set version 
+            VERSION=${GITHUB_REF#refs/tags/}
+
+            # append version to tags
+            TAGS="${TAGS},${DOCKER_IMAGE}:${VERSION}"
+
+          fi
+
+          # sets output of step
+          echo ::set-output name=tags::${TAGS}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.prep.outputs.tags }}
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+  test:
+    name: Tests
+    strategy:
+      matrix:
+        go-version: [1.15.x]
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/cache@v2.1.6
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Install Subkey
+        run: |
+          wget -P $HOME/.local/bin/ https://chainbridge.ams3.digitaloceanspaces.com/subkey-v2.0.0
+          mv $HOME/.local/bin/subkey-v2.0.0 $HOME/.local/bin/subkey
+          chmod +x $HOME/.local/bin/subkey
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Test
+        run: |
+          docker-compose -f ./docker-compose-e2e.yml up -d
+          sleep 3
+          docker ps
+          make test
+
+  e2e:
+    name: E2E Tests
+    strategy:
+      matrix:
+        go-version: [ 1.15.x ]
+        platform: [ ubuntu-latest ]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/cache@v2.1.6
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Install Subkey
+        run: |
+          wget -P $HOME/.local/bin/ https://chainbridge.ams3.digitaloceanspaces.com/subkey-v2.0.0
+          mv $HOME/.local/bin/subkey-v2.0.0 $HOME/.local/bin/subkey
+          chmod +x $HOME/.local/bin/subkey
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Test
+        run: |
+          docker-compose -f ./docker-compose-e2e.yml up -d
+          docker ps
+          make test-e2e
+
+  lint:
+    name: Lint and License Headers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.36
+          args: --timeout=5m
+      - name: License Check
+        run: make license-check
