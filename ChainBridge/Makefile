@@ -107,6 +107,11 @@ mkdocs:
 clean:
 	rm -rf build/ solidity/
 
+#start: @ ‍💻 Starts the chainbridge relayer server
+start: SHELL:=/bin/bash
+start:
+	@source .env && ./build/chainbridge --config config/config.json --verbosity trace --latest
+
 #🐳 docker.build: @ Builds a new local docker image
 docker.build: SHELL:=/bin/bash
 docker.build: GITHUB_OAUTH_TOKEN=${GITHUB_OAUTH_TOKEN}

@@ -62,6 +62,14 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 		return nil, err
 	}
 
+	if chainCfg.LatestBlock {
+		curr, err := conn.LatestBlock()
+		if err != nil {
+			return nil, err
+		}
+		cfg.startBlock = curr
+	}
+
 	listener := NewListener(conn, cfg, logger, stop, sysErr, m)
 
 	writer := NewWriter(conn, cfg, logger, stop, sysErr, m)
