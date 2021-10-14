@@ -113,7 +113,7 @@ docker.build: GITHUB_OAUTH_TOKEN=${GITHUB_OAUTH_TOKEN}
 docker.build: TAG:=latest
 docker.build:
 	@echo "🐳👁️  Build docker image"
-	@source .env && docker build -t forte_bridge/forte_bridge_relayer:$(TAG) .
+	@docker build -t forte_bridge/forte_bridge_relayer:$(TAG) .
 
 #🐳 docker.run: @ Runs a local docker image
 docker.run: SHELL:=/bin/bash
