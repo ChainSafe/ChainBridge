@@ -106,3 +106,21 @@ mkdocs:
 
 clean:
 	rm -rf build/ solidity/
+
+#🐳 docker.build: @ Builds a new local docker image
+docker.build: SHELL:=/bin/bash
+docker.build: GITHUB_OAUTH_TOKEN=${GITHUB_OAUTH_TOKEN}
+docker.build: TAG:=latest
+docker.build:
+	@echo "🐳👁️  Build docker image"
+	@source .env && docker build -t forte_bridge/forte_bridge_relayer:$(TAG) .
+
+#🐳 docker.run: @ Runs a local docker image
+docker.run: SHELL:=/bin/bash
+docker.run: MIX_ENV=prod
+docker.run: FORTE_BRIDGE_CUSTODIAN_PORT:=4000
+docker.run: TAG:=latest
+docker.run: PWD=$(shell pwd)
+docker.run:
+	@echo "🐳‍💻  Running a local docker image"
+	@source .env && docker run -v ${PWD}/config/config.json:/app/config.json -v ${PWD}/keys:/app/keys -e KEYSTORE_PASSWORD forte_bridge/forte_bridge_relayer:$(TAG)
