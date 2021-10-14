@@ -27,6 +27,7 @@ import (
 
 var CustodianRetryLimit = 5
 var CustodianRetryInterval = time.Second * 5
+var CustodianARC721Handler = "arc721"
 
 type listener struct {
 	cfg                Config
@@ -138,7 +139,7 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		destId := msg.ChainId(event.DestinationChainID)
 		nonce := msg.Nonce(event.Nonce)
 		l.log.Info("Deposit Event found", "event", event)
-		if event.Handler == "arc721" {
+		if event.Handler == CustodianARC721Handler {
 			m, err = l.handleArc721DepositedEvent(destId, nonce)
 		} else {
 			l.log.Error("event has unrecognized handler", "handler", event.Handler)
