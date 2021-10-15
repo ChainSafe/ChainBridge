@@ -15,6 +15,9 @@ Make a copy of `.env.example` and name it `.env` within the `ChainBridge` direct
 cp .env.example .env
 ```
 
+Environment variables that need to come from Secrets are marked # TODO: Move to Secrets Storage
+
+
 ### Local Build and Setup
 
 To build and set up the local environment, run the following commands.
