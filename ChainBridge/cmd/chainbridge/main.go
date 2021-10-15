@@ -57,6 +57,7 @@ var importFlags = []cli.Flag{
 	config.PrivateKeyFlag,
 	config.Sr25519Flag,
 	config.Secp256k1Flag,
+	config.NewPasswordFlag,
 	config.PasswordFlag,
 	config.SubkeyNetworkFlag,
 }

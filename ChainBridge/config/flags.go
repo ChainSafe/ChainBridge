@@ -64,9 +64,13 @@ var (
 
 // Generate subcommand flags
 var (
+	NewPasswordFlag = &cli.StringFlag{
+		Name:  "newPassword",
+		Usage: "The New Password used to encrypt the ethereum keystore.",
+	}
 	PasswordFlag = &cli.StringFlag{
 		Name:  "password",
-		Usage: "Password used to encrypt the keystore. Used with --generate, --import, or --unlock",
+		Usage: "Password used to encrypt the keystore or decrypt the ethereum keystore. Used with generate, import, or unlock",
 	}
 	Sr25519Flag = &cli.BoolFlag{
 		Name:  "sr25519",

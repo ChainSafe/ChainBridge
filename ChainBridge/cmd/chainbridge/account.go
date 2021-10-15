@@ -90,7 +90,14 @@ func handleImportCmd(ctx *cli.Context, dHandler *dataHandler) error {
 			if pwdflag := ctx.String(config.PasswordFlag.Name); pwdflag != "" {
 				password = []byte(pwdflag)
 			}
-			_, err = importEthKey(keyimport, dHandler.datadir, password, nil)
+
+			// check if --newPassword is set
+			var newPassword []byte = nil
+			if npwdflag := ctx.String(config.NewPasswordFlag.Name); npwdflag != "" {
+				newPassword = []byte(npwdflag)
+			}
+
+			_, err = importEthKey(keyimport, dHandler.datadir, password, newPassword)
 		} else {
 			return fmt.Errorf("Must provide a key to import.")
 		}
