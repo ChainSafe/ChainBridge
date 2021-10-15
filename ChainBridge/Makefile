@@ -109,7 +109,7 @@ clean:
 
 #start: @ ‍💻 Starts the chainbridge relayer server
 start: SHELL:=/bin/bash
-start:
+start: build
 	@source .env && ./build/chainbridge --config config/config.json --verbosity trace --latest
 
 #🐳 docker.build: @ Builds a new local docker image
