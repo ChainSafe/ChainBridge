@@ -114,7 +114,6 @@ start: build
 
 #🐳 docker.build: @ Builds a new local docker image
 docker.build: SHELL:=/bin/bash
-docker.build: GITHUB_OAUTH_TOKEN=${GITHUB_OAUTH_TOKEN}
 docker.build: TAG:=latest
 docker.build:
 	@echo "🐳👁️  Build docker image"
