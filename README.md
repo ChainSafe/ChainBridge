@@ -48,9 +48,10 @@ docker build -t chainsafe/chainbridge .
 ```
 
 To start ChainBridge:
+* `docker run -v` uses an absolute path rather than a relative one.
 
 ``` 
-docker run -v ./config.json:/config.json chainsafe/chainbridge
+docker run -v $(pwd)/config.json:/config.json chainsafe/chainbridge
 ```
 
 # Configuration
