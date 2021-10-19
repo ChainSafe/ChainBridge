@@ -48,7 +48,7 @@ func RegisterGenericResource(client *Client, bridge, handler common.Address, rId
 		return err
 	}
 
-	tx, err := instance.AdminSetGenericResource(client.Opts, handler, rId, addr, depositSig, executeSig)
+	tx, err := instance.AdminSetGenericResource(client.Opts, handler, rId, addr, depositSig, big.NewInt(0), executeSig)
 	if err != nil {
 		return err
 	}

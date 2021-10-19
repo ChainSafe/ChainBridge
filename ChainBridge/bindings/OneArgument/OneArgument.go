@@ -4,6 +4,7 @@
 package OneArgument
 
 import (
+	"errors"
 	"math/big"
 	"strings"
 
@@ -17,6 +18,7 @@ import (
 
 // Reference imports to suppress errors if they are not otherwise used.
 var (
+	_ = errors.New
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
@@ -26,20 +28,31 @@ var (
 	_ = event.NewSubscription
 )
 
+// OneArgumentMetaData contains all meta data concerning the OneArgument contract.
+var OneArgumentMetaData = &bind.MetaData{
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"argumentOne\",\"type\":\"uint256\"}],\"name\":\"OneArgumentCalled\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"argumentOne\",\"type\":\"uint256\"}],\"name\":\"oneArgument\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	Bin: "0x6080604052348015600f57600080fd5b5060ad8061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063c95cf0d814602d575b600080fd5b604760048036036020811015604157600080fd5b50356049565b005b60405181907f29ab08c845830c69b55a1fba5c95718f65dc24361a471e3da14cd5ff2b37315990600090a25056fea2646970667358221220875e49c6d8b3297e82f51c44fcb2f0689ce2b319a24db9347ef4d1ac9bf5f11e64736f6c634300060c0033",
+}
+
 // OneArgumentABI is the input ABI used to generate the binding from.
-const OneArgumentABI = "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"argumentOne\",\"type\":\"uint256\"}],\"name\":\"OneArgumentCalled\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"argumentOne\",\"type\":\"uint256\"}],\"name\":\"oneArgument\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+// Deprecated: Use OneArgumentMetaData.ABI instead.
+var OneArgumentABI = OneArgumentMetaData.ABI
 
 // OneArgumentBin is the compiled bytecode used for deploying new contracts.
-var OneArgumentBin = "0x6080604052348015600f57600080fd5b5060be8061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063c95cf0d814602d575b600080fd5b605660048036036020811015604157600080fd5b81019080803590602001909291905050506058565b005b807f29ab08c845830c69b55a1fba5c95718f65dc24361a471e3da14cd5ff2b37315960405160405180910390a25056fea2646970667358221220f5d9df102f413a664744d3a135d0827dd447379c2856d373efa98a988bf4442864736f6c63430006040033"
+// Deprecated: Use OneArgumentMetaData.Bin instead.
+var OneArgumentBin = OneArgumentMetaData.Bin
 
 // DeployOneArgument deploys a new Ethereum contract, binding an instance of OneArgument to it.
 func DeployOneArgument(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *OneArgument, error) {
-	parsed, err := abi.JSON(strings.NewReader(OneArgumentABI))
+	parsed, err := OneArgumentMetaData.GetAbi()
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
+	if parsed == nil {
+		return common.Address{}, nil, nil, errors.New("GetABI returned nil")
+	}
 
-	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(OneArgumentBin), backend)
+	address, tx, contract, err := bind.DeployContract(auth, *parsed, common.FromHex(OneArgumentBin), backend)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
