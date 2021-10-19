@@ -17,6 +17,7 @@ import (
 
 const DefaultGasLimit = 6721975
 const DefaultGasPrice = 20000000000
+const DefaultMinGasPrice = 0
 const DefaultBlockConfirmations = 10
 const DefaultGasMultiplier = 1
 
@@ -27,6 +28,7 @@ var (
 	Erc721HandlerOpt      = "erc721Handler"
 	GenericHandlerOpt     = "genericHandler"
 	MaxGasPriceOpt        = "maxGasPrice"
+	MinGasPriceOpt        = "minGasPrice"
 	GasLimitOpt           = "gasLimit"
 	GasMultiplier         = "gasMultiplier"
 	HttpOpt               = "http"
@@ -51,6 +53,7 @@ type Config struct {
 	genericHandlerContract common.Address
 	gasLimit               *big.Int
 	maxGasPrice            *big.Int
+	minGasPrice            *big.Int
 	gasMultiplier          *big.Float
 	http                   bool // Config for type of connection
 	startBlock             *big.Int
@@ -76,6 +79,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		genericHandlerContract: utils.ZeroAddress,
 		gasLimit:               big.NewInt(DefaultGasLimit),
 		maxGasPrice:            big.NewInt(DefaultGasPrice),
+		minGasPrice:            big.NewInt(DefaultMinGasPrice),
 		gasMultiplier:          big.NewFloat(DefaultGasMultiplier),
 		http:                   false,
 		startBlock:             big.NewInt(0),
@@ -114,6 +118,17 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 			delete(chainCfg.Opts, MaxGasPriceOpt)
 		} else {
 			return nil, errors.New("unable to parse max gas price")
+		}
+	}
+
+	if minGasPrice, ok := chainCfg.Opts[MinGasPriceOpt]; ok {
+		price := big.NewInt(0)
+		_, pass := price.SetString(minGasPrice, 10)
+		if pass {
+			config.minGasPrice = price
+			delete(chainCfg.Opts, MinGasPriceOpt)
+		} else {
+			return nil, errors.New("unable to parse min gas price")
 		}
 	}
 
