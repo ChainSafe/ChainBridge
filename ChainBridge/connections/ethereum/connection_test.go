@@ -19,11 +19,12 @@ var TestEndpoint = "ws://localhost:8545"
 var AliceKp = keystore.TestKeyRing.EthereumKeys[keystore.AliceKey]
 var GasLimit = big.NewInt(ethutils.DefaultGasLimit)
 var MaxGasPrice = big.NewInt(ethutils.DefaultMaxGasPrice)
+var MinGasPrice = big.NewInt(ethutils.DefaultMinGasPrice)
 
 var GasMultipler = big.NewFloat(ethutils.DefaultGasMultiplier)
 
 func TestConnect(t *testing.T) {
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -40,7 +41,7 @@ func TestContractCode(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err = conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -61,8 +62,12 @@ func TestContractCode(t *testing.T) {
 }
 
 func TestConnection_SafeEstimateGas(t *testing.T) {
+	// In the case of d := c.Add(a, b), since c==d, there is a risk that MaxGasPrice itself will be changed,
+	// so the local variable maxGasPrice is defined by big.NewInt(0).
+	maxGasPrice := big.NewInt(0)
 	// MaxGasPrice is the constant price on the dev network, so we increase it here by 1 to ensure it adjusts
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice.Add(MaxGasPrice, big.NewInt(1)), GasMultipler, "", "")
+	maxGasPrice.Add(MaxGasPrice, big.NewInt(1))
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -74,14 +79,14 @@ func TestConnection_SafeEstimateGas(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if price.Cmp(MaxGasPrice) == 0 {
+	if price.Cmp(maxGasPrice) == 0 {
 		t.Fatalf("Gas price should be less than max. Suggested: %s Max: %s", price.String(), MaxGasPrice.String())
 	}
 }
 
 func TestConnection_SafeEstimateGasMax(t *testing.T) {
 	maxPrice := big.NewInt(1)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -98,11 +103,55 @@ func TestConnection_SafeEstimateGasMax(t *testing.T) {
 	}
 }
 
+func TestConnection_SafeEstimateGasMin(t *testing.T) {
+	minPrice := big.NewInt(1)
+	// When gasMultipler is zero, the gasPrice is zero if the effect of the minPrice is removed.
+	gasMultipler := big.NewFloat(0)
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, MaxGasPrice, minPrice, gasMultipler, "", "")
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	price, err := conn.SafeEstimateGas(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if price.Cmp(minPrice) != 0 {
+		t.Fatalf("Gas price should equal min. Suggested: %s Min: %s", price.String(), minPrice.String())
+	}
+}
+
+func TestConnection_SafeEstimateGasSameMin(t *testing.T) {
+	// When GasMultipler is set to 1, the gas price is set to 2000000000, so the minPrice is set to the same price
+	// and maxPrice is made larger than the minPrice by adding one.
+	minPrice := MaxGasPrice
+	maxGasPrice := big.NewInt(0)
+	maxGasPrice.Add(MaxGasPrice, big.NewInt(1))
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, minPrice, GasMultipler, "", "")
+	err := conn.Connect()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	price, err := conn.SafeEstimateGas(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if price.Cmp(minPrice) != 0 {
+		t.Fatalf("Gas price should equal min. Suggested: %s Min: %s", price.String(), minPrice.String())
+	}
+}
+
 func TestConnection_EstimateGasLondon(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
 	// Goerli commonly has a base fee of 7 wei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(100000000000)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -131,7 +180,7 @@ func TestConnection_EstimateGasLondonMax(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
 	// Goerli commonly has a base fee of 7 wei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(100)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
@@ -166,7 +215,7 @@ func TestConnection_EstimateGasLondonMin(t *testing.T) {
 	// Set TestEndpoint to Goerli endpoint when testing as the current Github CI doesn't use the London version of geth
 	// Goerli commonly has a base fee of 7 wei with maxPriorityFeePerGas of 4.999999993 gwei
 	maxGasPrice := big.NewInt(1)
-	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, GasMultipler, "", "")
+	conn := NewConnection(TestEndpoint, false, AliceKp, log15.Root(), GasLimit, maxGasPrice, MinGasPrice, GasMultipler, "", "")
 	err := conn.Connect()
 	if err != nil {
 		t.Fatal(err)
