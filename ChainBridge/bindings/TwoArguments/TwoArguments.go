@@ -4,6 +4,7 @@
 package TwoArguments
 
 import (
+	"errors"
 	"math/big"
 	"strings"
 
@@ -17,6 +18,7 @@ import (
 
 // Reference imports to suppress errors if they are not otherwise used.
 var (
+	_ = errors.New
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
@@ -26,20 +28,31 @@ var (
 	_ = event.NewSubscription
 )
 
+// TwoArgumentsMetaData contains all meta data concerning the TwoArguments contract.
+var TwoArgumentsMetaData = &bind.MetaData{
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"argumentOne\",\"type\":\"address[]\"},{\"indexed\":false,\"internalType\":\"bytes4\",\"name\":\"argumentTwo\",\"type\":\"bytes4\"}],\"name\":\"TwoArgumentsCalled\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"argumentOne\",\"type\":\"address[]\"},{\"internalType\":\"bytes4\",\"name\":\"argumentTwo\",\"type\":\"bytes4\"}],\"name\":\"twoArguments\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	Bin: "0x608060405234801561001057600080fd5b5061015c806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c806372e0745c14610030575b600080fd5b6100aa6004803603604081101561004657600080fd5b81019060208101813564010000000081111561006157600080fd5b82018360208201111561007357600080fd5b8035906020019184602083028401116401000000008311171561009557600080fd5b9193509150356001600160e01b0319166100ac565b005b7fc983106aca50fad459fb18ede1630e8ff8147ff28ad451a856427931fd7f15e38383836040518080602001836001600160e01b03191681526020018281038252858582818152602001925060200280828437600083820152604051601f909101601f1916909201829003965090945050505050a150505056fea264697066735822122035018a103533c27b81a5384304145f28ae823dfb3bf91ffbb6dcb82156996f6e64736f6c634300060c0033",
+}
+
 // TwoArgumentsABI is the input ABI used to generate the binding from.
-const TwoArgumentsABI = "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"argumentOne\",\"type\":\"address[]\"},{\"indexed\":false,\"internalType\":\"bytes4\",\"name\":\"argumentTwo\",\"type\":\"bytes4\"}],\"name\":\"TwoArgumentsCalled\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"argumentOne\",\"type\":\"address[]\"},{\"internalType\":\"bytes4\",\"name\":\"argumentTwo\",\"type\":\"bytes4\"}],\"name\":\"twoArguments\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+// Deprecated: Use TwoArgumentsMetaData.ABI instead.
+var TwoArgumentsABI = TwoArgumentsMetaData.ABI
 
 // TwoArgumentsBin is the compiled bytecode used for deploying new contracts.
-var TwoArgumentsBin = "0x608060405234801561001057600080fd5b506101b9806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c806372e0745c14610030575b600080fd5b6100d06004803603604081101561004657600080fd5b810190808035906020019064010000000081111561006357600080fd5b82018360208201111561007557600080fd5b8035906020019184602083028401116401000000008311171561009757600080fd5b909192939192939080357bffffffffffffffffffffffffffffffffffffffffffffffffffffffff191690602001909291905050506100d2565b005b7fc983106aca50fad459fb18ede1630e8ff8147ff28ad451a856427931fd7f15e38383836040518080602001837bffffffffffffffffffffffffffffffffffffffffffffffffffffffff19167bffffffffffffffffffffffffffffffffffffffffffffffffffffffff191681526020018281038252858582818152602001925060200280828437600081840152601f19601f82011690508083019250505094505050505060405180910390a150505056fea2646970667358221220a31b9056a86d9052aeda1eb343a1499abd98c78fd9482413cdc186678529d7f864736f6c63430006040033"
+// Deprecated: Use TwoArgumentsMetaData.Bin instead.
+var TwoArgumentsBin = TwoArgumentsMetaData.Bin
 
 // DeployTwoArguments deploys a new Ethereum contract, binding an instance of TwoArguments to it.
 func DeployTwoArguments(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *TwoArguments, error) {
-	parsed, err := abi.JSON(strings.NewReader(TwoArgumentsABI))
+	parsed, err := TwoArgumentsMetaData.GetAbi()
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
+	if parsed == nil {
+		return common.Address{}, nil, nil, errors.New("GetABI returned nil")
+	}
 
-	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(TwoArgumentsBin), backend)
+	address, tx, contract, err := bind.DeployContract(auth, *parsed, common.FromHex(TwoArgumentsBin), backend)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}

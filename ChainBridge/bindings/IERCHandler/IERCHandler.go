@@ -4,6 +4,7 @@
 package IERCHandler
 
 import (
+	"errors"
 	"math/big"
 	"strings"
 
@@ -17,6 +18,7 @@ import (
 
 // Reference imports to suppress errors if they are not otherwise used.
 var (
+	_ = errors.New
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
@@ -26,8 +28,14 @@ var (
 	_ = event.NewSubscription
 )
 
+// IERCHandlerMetaData contains all meta data concerning the IERCHandler contract.
+var IERCHandlerMetaData = &bind.MetaData{
+	ABI: "[{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"resourceID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setResource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setBurnable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setLockMintUnlockable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountOrTokenID\",\"type\":\"uint256\"}],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+}
+
 // IERCHandlerABI is the input ABI used to generate the binding from.
-const IERCHandlerABI = "[{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"resourceID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setResource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setBurnable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountOrTokenID\",\"type\":\"uint256\"}],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+// Deprecated: Use IERCHandlerMetaData.ABI instead.
+var IERCHandlerABI = IERCHandlerMetaData.ABI
 
 // IERCHandler is an auto generated Go binding around an Ethereum contract.
 type IERCHandler struct {
@@ -190,6 +198,27 @@ func (_IERCHandler *IERCHandlerSession) SetBurnable(contractAddress common.Addre
 // Solidity: function setBurnable(address contractAddress) returns()
 func (_IERCHandler *IERCHandlerTransactorSession) SetBurnable(contractAddress common.Address) (*types.Transaction, error) {
 	return _IERCHandler.Contract.SetBurnable(&_IERCHandler.TransactOpts, contractAddress)
+}
+
+// SetLockMintUnlockable is a paid mutator transaction binding the contract method 0x00d8e7ee.
+//
+// Solidity: function setLockMintUnlockable(address contractAddress) returns()
+func (_IERCHandler *IERCHandlerTransactor) SetLockMintUnlockable(opts *bind.TransactOpts, contractAddress common.Address) (*types.Transaction, error) {
+	return _IERCHandler.contract.Transact(opts, "setLockMintUnlockable", contractAddress)
+}
+
+// SetLockMintUnlockable is a paid mutator transaction binding the contract method 0x00d8e7ee.
+//
+// Solidity: function setLockMintUnlockable(address contractAddress) returns()
+func (_IERCHandler *IERCHandlerSession) SetLockMintUnlockable(contractAddress common.Address) (*types.Transaction, error) {
+	return _IERCHandler.Contract.SetLockMintUnlockable(&_IERCHandler.TransactOpts, contractAddress)
+}
+
+// SetLockMintUnlockable is a paid mutator transaction binding the contract method 0x00d8e7ee.
+//
+// Solidity: function setLockMintUnlockable(address contractAddress) returns()
+func (_IERCHandler *IERCHandlerTransactorSession) SetLockMintUnlockable(contractAddress common.Address) (*types.Transaction, error) {
+	return _IERCHandler.Contract.SetLockMintUnlockable(&_IERCHandler.TransactOpts, contractAddress)
 }
 
 // SetResource is a paid mutator transaction binding the contract method 0xb8fa3736.

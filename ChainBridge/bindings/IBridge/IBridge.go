@@ -4,6 +4,7 @@
 package IBridge
 
 import (
+	"errors"
 	"math/big"
 	"strings"
 
@@ -17,6 +18,7 @@ import (
 
 // Reference imports to suppress errors if they are not otherwise used.
 var (
+	_ = errors.New
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
@@ -26,8 +28,14 @@ var (
 	_ = event.NewSubscription
 )
 
+// IBridgeMetaData contains all meta data concerning the IBridge contract.
+var IBridgeMetaData = &bind.MetaData{
+	ABI: "[{\"inputs\":[],\"name\":\"_chainID\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+}
+
 // IBridgeABI is the input ABI used to generate the binding from.
-const IBridgeABI = "[{\"inputs\":[],\"name\":\"_chainID\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+// Deprecated: Use IBridgeMetaData.ABI instead.
+var IBridgeABI = IBridgeMetaData.ABI
 
 // IBridge is an auto generated Go binding around an Ethereum contract.
 type IBridge struct {

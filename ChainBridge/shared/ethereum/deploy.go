@@ -123,7 +123,7 @@ func deployERC721Handler(client *Client, bridgeAddress common.Address) (common.A
 		return ZeroAddress, err
 	}
 
-	erc721HandlerAddr, tx, _, err := erc721Handler.DeployERC721Handler(client.Opts, client.Client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{})
+	erc721HandlerAddr, tx, _, err := erc721Handler.DeployERC721Handler(client.Opts, client.Client, bridgeAddress, [][32]byte{}, []common.Address{}, []common.Address{}, []common.Address{})
 	if err != nil {
 		return ZeroAddress, err
 	}
@@ -143,7 +143,7 @@ func deployGenericHandler(client *Client, bridgeAddress common.Address) (common.
 		return ZeroAddress, err
 	}
 
-	addr, tx, _, err := GenericHandler.DeployGenericHandler(client.Opts, client.Client, bridgeAddress, [][32]byte{}, []common.Address{}, [][4]byte{}, [][4]byte{})
+	addr, tx, _, err := GenericHandler.DeployGenericHandler(client.Opts, client.Client, bridgeAddress, [][32]byte{}, []common.Address{}, [][4]byte{}, []*big.Int{}, [][4]byte{})
 	if err != nil {
 		return ZeroAddress, err
 	}
