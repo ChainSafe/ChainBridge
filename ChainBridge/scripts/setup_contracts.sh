@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 
 CONTRACTS_REPO="https://github.com/fortelabsinc/chainbridge-solidity"
-CONTRACTS_TAG="feature/lock-mint-unlock"
+CONTRACTS_TAG="develop"
 CONTRACTS_DIR="./solidity"
 DEST_DIR="./bindings"
 
