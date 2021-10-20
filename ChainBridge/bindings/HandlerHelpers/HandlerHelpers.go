@@ -4,6 +4,7 @@
 package HandlerHelpers
 
 import (
+	"errors"
 	"math/big"
 	"strings"
 
@@ -17,6 +18,7 @@ import (
 
 // Reference imports to suppress errors if they are not otherwise used.
 var (
+	_ = errors.New
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
@@ -26,20 +28,31 @@ var (
 	_ = event.NewSubscription
 )
 
+// HandlerHelpersMetaData contains all meta data concerning the HandlerHelpers contract.
+var HandlerHelpersMetaData = &bind.MetaData{
+	ABI: "[{\"inputs\":[],\"name\":\"_bridgeAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_burnList\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_contractWhitelist\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_lockMintUnlockList\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"_resourceIDToTokenContractAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_tokenContractAddressToResourceID\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"resourceID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setResource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setBurnable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setLockMintUnlockable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountOrTokenID\",\"type\":\"uint256\"}],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	Bin: "0x608060405234801561001057600080fd5b50610632806100206000396000f3fe608060405234801561001057600080fd5b506004361061009d5760003560e01c80637f79bea8116100665780637f79bea81461016b578063b1f0646314610191578063b8fa3736146101b7578063c8ba6c87146101e3578063d9caed121461021b5761009d565b8062d8e7ee146100a257806307b7ed99146100ca5780630a6d55d8146100f0578063318c136e146101295780636a70d08114610131575b600080fd5b6100c8600480360360208110156100b857600080fd5b50356001600160a01b0316610251565b005b6100c8600480360360208110156100e057600080fd5b50356001600160a01b0316610265565b61010d6004803603602081101561010657600080fd5b5035610276565b604080516001600160a01b039092168252519081900360200190f35b61010d610291565b6101576004803603602081101561014757600080fd5b50356001600160a01b03166102a0565b604080519115158252519081900360200190f35b6101576004803603602081101561018157600080fd5b50356001600160a01b03166102b5565b610157600480360360208110156101a757600080fd5b50356001600160a01b03166102ca565b6100c8600480360360408110156101cd57600080fd5b50803590602001356001600160a01b03166102df565b610209600480360360208110156101f957600080fd5b50356001600160a01b03166102f5565b60408051918252519081900360200190f35b6100c86004803603606081101561023157600080fd5b506001600160a01b03813581169160208101359091169060400135610307565b61025961030c565b6102628161036d565b50565b61026d61030c565b61026281610440565b6001602052600090815260409020546001600160a01b031681565b6000546001600160a01b031681565b60046020526000908152604090205460ff1681565b60036020526000908152604090205460ff1681565b60056020526000908152604090205460ff1681565b6102e761030c565b6102f18282610513565b5050565b60026020526000908152604090205481565b505050565b6000546001600160a01b0316331461036b576040805162461bcd60e51b815260206004820152601e60248201527f73656e646572206d7573742062652062726964676520636f6e74726163740000604482015290519081900360640190fd5b565b6001600160a01b03811660009081526003602052604090205460ff166103c45760405162461bcd60e51b81526004018080602001828103825260248152602001806105d96024913960400191505060405180910390fd5b6001600160a01b03811660009081526004602052604090205460ff161561041c5760405162461bcd60e51b815260040180806020018281038252603b81526020018061059e603b913960400191505060405180910390fd5b6001600160a01b03166000908152600560205260409020805460ff19166001179055565b6001600160a01b03811660009081526003602052604090205460ff166104975760405162461bcd60e51b81526004018080602001828103825260248152602001806105d96024913960400191505060405180910390fd5b6001600160a01b03811660009081526005602052604090205460ff16156104ef5760405162461bcd60e51b815260040180806020018281038252603b815260200180610563603b913960400191505060405180910390fd5b6001600160a01b03166000908152600460205260409020805460ff19166001179055565b600082815260016020818152604080842080546001600160a01b039096166001600160a01b0319909616861790559383526002815283832094909455600390935220805460ff1916909117905556fe70726f766964656420636f6e74726163742063616e6e6f74206265206c6f636b4d696e74556e6c6f636b61626c6520616e64206275726e61626c6570726f766964656420636f6e74726163742063616e6e6f74206265206275726e61626c6520616e64206c6f636b4d696e74556e6c6f636b61626c6570726f766964656420636f6e7472616374206973206e6f742077686974656c6973746564a2646970667358221220ae140e0c522986bc44fce1445ab6fa2a79a0faa29c4ba43828f86276359bdbba64736f6c634300060c0033",
+}
+
 // HandlerHelpersABI is the input ABI used to generate the binding from.
-const HandlerHelpersABI = "[{\"inputs\":[],\"name\":\"_bridgeAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_burnList\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_contractWhitelist\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"_resourceIDToTokenContractAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"_tokenContractAddressToResourceID\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"resourceID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setResource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"}],\"name\":\"setBurnable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountOrTokenID\",\"type\":\"uint256\"}],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+// Deprecated: Use HandlerHelpersMetaData.ABI instead.
+var HandlerHelpersABI = HandlerHelpersMetaData.ABI
 
 // HandlerHelpersBin is the compiled bytecode used for deploying new contracts.
-var HandlerHelpersBin = "0x608060405234801561001057600080fd5b50610741806100206000396000f3fe608060405234801561001057600080fd5b50600436106100885760003560e01c80637f79bea81161005b5780637f79bea8146101e5578063b8fa373614610241578063c8ba6c871461028f578063d9caed12146102e757610088565b806307b7ed991461008d5780630a6d55d8146100d1578063318c136e1461013f5780636a70d08114610189575b600080fd5b6100cf600480360360208110156100a357600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610355565b005b6100fd600480360360208110156100e757600080fd5b8101908080359060200190929190505050610369565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b61014761039c565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6101cb6004803603602081101561019f57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506103c1565b604051808215151515815260200191505060405180910390f35b610227600480360360208110156101fb57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506103e1565b604051808215151515815260200191505060405180910390f35b61028d6004803603604081101561025757600080fd5b8101908080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610401565b005b6102d1600480360360208110156102a557600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610417565b6040518082815260200191505060405180910390f35b610353600480360360608110156102fd57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061042f565b005b61035d610434565b610366816104f8565b50565b60016020528060005260406000206000915054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60046020528060005260406000206000915054906101000a900460ff1681565b60036020528060005260406000206000915054906101000a900460ff1681565b610409610434565b61041382826105f5565b5050565b60026020528060005260406000206000915090505481565b505050565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146104f6576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601e8152602001807f73656e646572206d7573742062652062726964676520636f6e7472616374000081525060200191505060405180910390fd5b565b600360008273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff1661059a576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260248152602001806106e86024913960400191505060405180910390fd5b6001600460008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff02191690831515021790555050565b806001600084815260200190815260200160002060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555081600260008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055506001600360008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff021916908315150217905550505056fe70726f766964656420636f6e7472616374206973206e6f742077686974656c6973746564a264697066735822122099e4f714a83afe4b68ca15a31b8d87043e1b563696e111c85db0abd35e70c33d64736f6c63430006040033"
+// Deprecated: Use HandlerHelpersMetaData.Bin instead.
+var HandlerHelpersBin = HandlerHelpersMetaData.Bin
 
 // DeployHandlerHelpers deploys a new Ethereum contract, binding an instance of HandlerHelpers to it.
 func DeployHandlerHelpers(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *HandlerHelpers, error) {
-	parsed, err := abi.JSON(strings.NewReader(HandlerHelpersABI))
+	parsed, err := HandlerHelpersMetaData.GetAbi()
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
+	if parsed == nil {
+		return common.Address{}, nil, nil, errors.New("GetABI returned nil")
+	}
 
-	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(HandlerHelpersBin), backend)
+	address, tx, contract, err := bind.DeployContract(auth, *parsed, common.FromHex(HandlerHelpersBin), backend)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
@@ -281,6 +294,37 @@ func (_HandlerHelpers *HandlerHelpersCallerSession) ContractWhitelist(arg0 commo
 	return _HandlerHelpers.Contract.ContractWhitelist(&_HandlerHelpers.CallOpts, arg0)
 }
 
+// LockMintUnlockList is a free data retrieval call binding the contract method 0xb1f06463.
+//
+// Solidity: function _lockMintUnlockList(address ) view returns(bool)
+func (_HandlerHelpers *HandlerHelpersCaller) LockMintUnlockList(opts *bind.CallOpts, arg0 common.Address) (bool, error) {
+	var out []interface{}
+	err := _HandlerHelpers.contract.Call(opts, &out, "_lockMintUnlockList", arg0)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// LockMintUnlockList is a free data retrieval call binding the contract method 0xb1f06463.
+//
+// Solidity: function _lockMintUnlockList(address ) view returns(bool)
+func (_HandlerHelpers *HandlerHelpersSession) LockMintUnlockList(arg0 common.Address) (bool, error) {
+	return _HandlerHelpers.Contract.LockMintUnlockList(&_HandlerHelpers.CallOpts, arg0)
+}
+
+// LockMintUnlockList is a free data retrieval call binding the contract method 0xb1f06463.
+//
+// Solidity: function _lockMintUnlockList(address ) view returns(bool)
+func (_HandlerHelpers *HandlerHelpersCallerSession) LockMintUnlockList(arg0 common.Address) (bool, error) {
+	return _HandlerHelpers.Contract.LockMintUnlockList(&_HandlerHelpers.CallOpts, arg0)
+}
+
 // ResourceIDToTokenContractAddress is a free data retrieval call binding the contract method 0x0a6d55d8.
 //
 // Solidity: function _resourceIDToTokenContractAddress(bytes32 ) view returns(address)
@@ -362,6 +406,27 @@ func (_HandlerHelpers *HandlerHelpersSession) SetBurnable(contractAddress common
 // Solidity: function setBurnable(address contractAddress) returns()
 func (_HandlerHelpers *HandlerHelpersTransactorSession) SetBurnable(contractAddress common.Address) (*types.Transaction, error) {
 	return _HandlerHelpers.Contract.SetBurnable(&_HandlerHelpers.TransactOpts, contractAddress)
+}
+
+// SetLockMintUnlockable is a paid mutator transaction binding the contract method 0x00d8e7ee.
+//
+// Solidity: function setLockMintUnlockable(address contractAddress) returns()
+func (_HandlerHelpers *HandlerHelpersTransactor) SetLockMintUnlockable(opts *bind.TransactOpts, contractAddress common.Address) (*types.Transaction, error) {
+	return _HandlerHelpers.contract.Transact(opts, "setLockMintUnlockable", contractAddress)
+}
+
+// SetLockMintUnlockable is a paid mutator transaction binding the contract method 0x00d8e7ee.
+//
+// Solidity: function setLockMintUnlockable(address contractAddress) returns()
+func (_HandlerHelpers *HandlerHelpersSession) SetLockMintUnlockable(contractAddress common.Address) (*types.Transaction, error) {
+	return _HandlerHelpers.Contract.SetLockMintUnlockable(&_HandlerHelpers.TransactOpts, contractAddress)
+}
+
+// SetLockMintUnlockable is a paid mutator transaction binding the contract method 0x00d8e7ee.
+//
+// Solidity: function setLockMintUnlockable(address contractAddress) returns()
+func (_HandlerHelpers *HandlerHelpersTransactorSession) SetLockMintUnlockable(contractAddress common.Address) (*types.Transaction, error) {
+	return _HandlerHelpers.Contract.SetLockMintUnlockable(&_HandlerHelpers.TransactOpts, contractAddress)
 }
 
 // SetResource is a paid mutator transaction binding the contract method 0xb8fa3736.
