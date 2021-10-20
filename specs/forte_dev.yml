@@ -1,0 +1,33 @@
+---
+# ------------------------------------------------------------------
+# Cluster information
+# ------------------------------------------------------------------
+host: gcp
+cluster: fte-nonprd-gke-usc1-01
+project: forte-nonprd-cap-001
+region: us-central1
+service_account: fte-nonprd-capapp-sa-01@forte-nonprd-cap-001.iam.gserviceaccount.com
+
+# ------------------------------------------------------------------
+# Kubernetes Mapping info
+# ------------------------------------------------------------------
+service: cap-bridge-relayer
+stage: dev
+
+# ------------------------------------------------------------------
+# Postgres Information
+# ------------------------------------------------------------------
+postgres_location: "us-central1"
+postgres_name: "fte-nonprd-capdb-usc1-01"
+ecto_user: fte-nonprd-capapp-sa-01@forte-nonprd-cap-001.iam
+google_sa_token_url: http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token
+
+# ------------------------------------------------------------------
+# Product Info
+# ------------------------------------------------------------------
+apps:
+  - name: cap-bridge-relayer
+    path: ChainBridge
+    replicas: 1
+    ver: latest
+    config: None
