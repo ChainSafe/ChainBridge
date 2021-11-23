@@ -113,7 +113,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	if gasPrice, ok := chainCfg.Opts[MaxGasPriceOpt]; ok {
 		price, parseErr := utils.ParseUint256OrHex(&gasPrice)
 		if parseErr != nil {
-			return nil, fmt.Errorf("unable to parse max gas price, %v", parseErr)
+			return nil, fmt.Errorf("unable to parse max gas price, %w", parseErr)
 		}
 
 		config.maxGasPrice = price
@@ -123,7 +123,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	if minGasPrice, ok := chainCfg.Opts[MinGasPriceOpt]; ok {
 		price, parseErr := utils.ParseUint256OrHex(&minGasPrice)
 		if parseErr != nil {
-			return nil, fmt.Errorf("unable to parse min gas price, %v", parseErr)
+			return nil, fmt.Errorf("unable to parse min gas price, %w", parseErr)
 		}
 
 		config.minGasPrice = price
@@ -133,7 +133,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 	if gasLimit, ok := chainCfg.Opts[GasLimitOpt]; ok {
 		limit, parseErr := utils.ParseUint256OrHex(&gasLimit)
 		if parseErr != nil {
-			return nil, fmt.Errorf("unable to parse gas limit, %v", parseErr)
+			return nil, fmt.Errorf("unable to parse gas limit, %w", parseErr)
 		}
 
 		config.gasLimit = limit
