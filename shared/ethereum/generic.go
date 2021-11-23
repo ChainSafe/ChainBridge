@@ -41,19 +41,9 @@ const (
 	hexBase     = 16
 )
 
-// decimalToBig encodes a decimal string to a *big.Int
-func decimalToBig(value string) (*big.Int, error) {
-	val, ok := new(big.Int).SetString(value, decimalBase)
-	if !ok {
-		return nil, fmt.Errorf("unable to parse value")
-	}
-
-	return val, nil
-}
-
-// hexToBig encodes a hex string to a *big.Int
-func hexToBig(value string) (*big.Int, error) {
-	val, ok := new(big.Int).SetString(value, hexBase)
+// valueToBig converts a string value to a *big.Int in the provided base
+func valueToBig(value string, base int) (*big.Int, error) {
+	val, ok := new(big.Int).SetString(value, base)
 	if !ok {
 		return nil, fmt.Errorf("unable to parse value")
 	}
@@ -73,9 +63,9 @@ func ParseUint256OrHex(value *string) (*big.Int, error) {
 	if strings.HasPrefix(*value, "0x") {
 		// Hex value, remove the prefix and parse it
 		clipped := (*value)[2:]
-		return hexToBig(clipped)
+		return valueToBig(clipped, hexBase)
 	}
 
 	// Decimal number, parse it
-	return decimalToBig(*value)
+	return valueToBig(*value, decimalBase)
 }
