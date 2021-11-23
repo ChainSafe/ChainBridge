@@ -4,6 +4,10 @@
 package utils
 
 import (
+	"fmt"
+	"math/big"
+	"strings"
+
 	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ethereum/go-ethereum/common"
@@ -30,4 +34,48 @@ func GetGenericResourceAddress(client *Client, handler common.Address, rId msg.R
 		return ZeroAddress, err
 	}
 	return addr, nil
+}
+
+const (
+	decimalBase = 10
+	hexBase     = 16
+)
+
+// decimalToBig encodes a decimal string to a *big.Int
+func decimalToBig(value string) (*big.Int, error) {
+	val, ok := new(big.Int).SetString(value, decimalBase)
+	if !ok {
+		return nil, fmt.Errorf("unable to parse value")
+	}
+
+	return val, nil
+}
+
+// hexToBig encodes a hex string to a *big.Int
+func hexToBig(value string) (*big.Int, error) {
+	val, ok := new(big.Int).SetString(value, hexBase)
+	if !ok {
+		return nil, fmt.Errorf("unable to parse value")
+	}
+
+	return val, nil
+}
+
+// ParseUint256OrHex parses a string value as either a base 10 number
+// or as a hex value
+func ParseUint256OrHex(value *string) (*big.Int, error) {
+	// Check if the value is valid
+	if value == nil {
+		return nil, fmt.Errorf("invalid value")
+	}
+
+	// Check if the value is hex
+	if strings.HasPrefix(*value, "0x") {
+		// Hex value, remove the prefix and parse it
+		clipped := (*value)[2:]
+		return hexToBig(clipped)
+	}
+
+	// Decimal number, parse it
+	return decimalToBig(*value)
 }
