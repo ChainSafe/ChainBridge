@@ -1,0 +1,12 @@
+steps:
+  - name: 'gcr.io/forte-shared-devops-01/capbuilder:v6'
+    args:
+      - '-c'
+      - "bash builder.sh ${_GITHUB_TOKEN_SECRET_NAME} ${_GITHUB_SSH_SECRET_NAME} ${_SPECFILE} ${_PROJECT_ID} ${_CLUSTER_NAME} ${_REPO_NAME} ${_SECRET_PROJECT_ID} ${_IMPERSONATE_ACCOUNT}"
+    entrypoint: 'bash'
+timeout: 3600s
+logsBucket: 'gs://cap-cb-logs'
+options:
+  logStreamingOption: STREAM_ON
+  workerPool: projects/forte-shared-devops-01/locations/us-central1/workerPools/fte-devops-cbworker-usc1-01
+  logging: LEGACY
