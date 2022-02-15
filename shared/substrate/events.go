@@ -4,8 +4,8 @@
 package utils
 
 import (
-	events "github.com/ChainSafe/chainbridge-substrate-events"
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	events "github.com/centrifuge/chainbridge-substrate-events"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 )
 
 type EventErc721Minted struct {

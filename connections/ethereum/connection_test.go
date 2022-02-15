@@ -10,8 +10,8 @@ import (
 
 	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
-	"github.com/ChainSafe/chainbridge-utils/keystore"
 	"github.com/ChainSafe/log15"
+	"github.com/centrifuge/chainbridge-utils/keystore"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 )
 

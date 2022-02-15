@@ -11,11 +11,11 @@ import (
 	"path/filepath"
 
 	"github.com/ChainSafe/ChainBridge/config"
-	"github.com/ChainSafe/chainbridge-utils/crypto"
-	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
-	"github.com/ChainSafe/chainbridge-utils/crypto/sr25519"
-	"github.com/ChainSafe/chainbridge-utils/keystore"
 	log "github.com/ChainSafe/log15"
+	"github.com/centrifuge/chainbridge-utils/crypto"
+	"github.com/centrifuge/chainbridge-utils/crypto/secp256k1"
+	"github.com/centrifuge/chainbridge-utils/crypto/sr25519"
+	"github.com/centrifuge/chainbridge-utils/keystore"
 	gokeystore "github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/urfave/cli/v2"
 )
@@ -63,7 +63,7 @@ func handleGenerateCmd(ctx *cli.Context, dHandler *dataHandler) error {
 		password = []byte(pwdflag)
 	}
 
-	_, err := generateKeypair(keytype, dHandler.datadir, password, ctx.String(config.SubkeyNetworkFlag.Name))
+	_, err := generateKeypair(keytype, dHandler.datadir, password, uint8(ctx.Uint(config.SubkeyNetworkFlag.Name)))
 	if err != nil {
 		return fmt.Errorf("failed to generate key: %w", err)
 	}
@@ -158,8 +158,8 @@ func importPrivKey(ctx *cli.Context, keytype, datadir, key string, password []by
 
 	if keytype == crypto.Sr25519Type {
 		// generate sr25519 keys
-		network := ctx.String(config.SubkeyNetworkFlag.Name)
-		kp, err = sr25519.NewKeypairFromSeed(key, network)
+		network := ctx.Uint(config.SubkeyNetworkFlag.Name)
+		kp, err = sr25519.NewKeypairFromSeed(key, uint8(network))
 		if err != nil {
 			return "", fmt.Errorf("could not generate sr25519 keypair from given string: %w", err)
 		}
@@ -335,7 +335,7 @@ func getKeyFiles(datadir string) ([]string, error) {
 // generateKeypair create a new keypair with the corresponding type and saves it to datadir/keystore/[public key].key
 // in json format encrypted using the specified password
 // it returns the resulting filepath of the new key
-func generateKeypair(keytype, datadir string, password []byte, subNetwork string) (string, error) {
+func generateKeypair(keytype, datadir string, password []byte, subNetwork uint8) (string, error) {
 	if password == nil {
 		password = keystore.GetPassword("Enter password to encrypt keystore file:")
 	}

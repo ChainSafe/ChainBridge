@@ -15,8 +15,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ChainSafe/chainbridge-utils/crypto"
-	"github.com/ChainSafe/chainbridge-utils/keystore"
+	"github.com/centrifuge/chainbridge-utils/crypto"
+	"github.com/centrifuge/chainbridge-utils/keystore"
 	"github.com/stretchr/testify/require"
 	"github.com/urfave/cli/v2"
 )
@@ -127,11 +127,11 @@ func TestAccountCommands(t *testing.T) {
 	}
 
 	keypath := "."
-	srFile, err := generateKeypair("sr25519", keypath, testPassword, "substrate")
+	srFile, err := generateKeypair("sr25519", keypath, testPassword, 42)
 	if err != nil {
 		t.Fatal(err)
 	}
-	secpFile, err := generateKeypair("secp256k1", keypath, testPassword, "")
+	secpFile, err := generateKeypair("secp256k1", keypath, testPassword, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -221,7 +221,7 @@ func TestGetDatadir(t *testing.T) {
 }
 
 func TestGenerateKey_NoType(t *testing.T) {
-	keyfile, err := generateKeypair("", testKeystoreDir, testPassword, "")
+	keyfile, err := generateKeypair("", testKeystoreDir, testPassword, 42)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -254,7 +254,7 @@ func TestImportKey_ShouldFail(t *testing.T) {
 func TestImportKey(t *testing.T) {
 	keypath := "../../"
 
-	importkeyfile, err := generateKeypair("sr25519", keypath, testPassword, "")
+	importkeyfile, err := generateKeypair("sr25519", keypath, testPassword, 42)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -343,12 +343,12 @@ func TestListKeys(t *testing.T) {
 		var err error
 		var keyfile string
 		if i%2 == 0 {
-			keyfile, err = generateKeypair(crypto.Sr25519Type, testKeystoreDir, testPassword, "")
+			keyfile, err = generateKeypair(crypto.Sr25519Type, testKeystoreDir, testPassword, 42)
 			if err != nil {
 				t.Fatal(err)
 			}
 		} else {
-			keyfile, err = generateKeypair(crypto.Secp256k1Type, testKeystoreDir, testPassword, "")
+			keyfile, err = generateKeypair(crypto.Secp256k1Type, testKeystoreDir, testPassword, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
