@@ -10,6 +10,8 @@
 # Release Notes
 
 ## vNext
+
+## v2.3.0
 - Added condition to prevent excess execution of executeProposal method
 
 ## v2.2.0
