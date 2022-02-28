@@ -21,7 +21,6 @@ The writer recieves the message and creates a proposals on-chain. Once a proposa
 package ethereum
 
 import (
-	"fmt"
 	"math/big"
 
 	bridge "github.com/Cerebellum-Network/ChainBridge/bindings/Bridge"
@@ -132,7 +131,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	}
 
 	if chainId != uint8(chainCfg.Id) {
-		return nil, fmt.Errorf("chainId (%d) and configuration chainId (%d) do not match", chainId, chainCfg.Id)
+	    logger.Warn("Bridge chainId and configuration chainId do not match", "bridge", chainId, "configuration", chainCfg.Id)
 	}
 
 	erc20HandlerContract, err := erc20Handler.NewERC20Handler(cfg.erc20HandlerContract, conn.Client())
