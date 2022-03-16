@@ -10,6 +10,10 @@
 # Release Notes
 
 ## vNext
+- ...
+
+## v2.3.1
+- Block with `System_CodeUpdated` event will be skipped 
 
 ## v2.3.0
 - Added condition to prevent excess execution of executeProposal method
