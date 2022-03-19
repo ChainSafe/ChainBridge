@@ -200,7 +200,7 @@ func (c *Connection) getConst(prefix, name string, res interface{}) error {
 
 func (c *Connection) checkChainId(expected msg.ChainId) error {
 	var actual msg.ChainId
-	err := c.getConst(utils.BridgePalletName, "ChainIdentity", &actual)
+	err := c.getConst(utils.BridgePalletName, "ChainId", &actual)
 	if err != nil {
 		return err
 	}
