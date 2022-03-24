@@ -4,9 +4,10 @@ go 1.17
 
 require (
 	github.com/ChainSafe/log15 v1.0.0
+	github.com/centrifuge/chain-custom-types v0.0.0-20220323235722-1cdf9a3ad7f1
 	github.com/centrifuge/chainbridge-substrate-events v0.0.0-20220215222726-8c1d3a5cad10
 	github.com/centrifuge/chainbridge-utils v1.0.7-0.20220215221345-148255f95a70
-	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.1-0.20220319001748-40d0598b3aff
+	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.1-0.20220323235529-414c4553ce7c
 	github.com/ethereum/go-ethereum v1.10.16
 	github.com/prometheus/client_golang v1.4.1
 	github.com/stretchr/testify v1.7.0
