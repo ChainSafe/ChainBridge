@@ -12,6 +12,11 @@
 ## vNext
 - ...
 
+## v2.3.2
+- Added min gas price check
+- Updated DefaultGasPrice
+- All undecoded blocks will be skipped
+
 ## v2.3.1
 - Block with `System_CodeUpdated` event will be skipped 
 
