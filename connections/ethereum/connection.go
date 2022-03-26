@@ -21,6 +21,8 @@ import (
 )
 
 var BlockRetryInterval = time.Second * 5
+var MinGasPrice = big.NewInt(30000000000)
+var DefaultGasPrice = big.NewInt(60000000000)
 
 type Connection struct {
 	endpoint      string
@@ -138,6 +140,9 @@ func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 	// Check we aren't exceeding our limit
 	if gasPrice.Cmp(c.maxGasPrice) == 1 {
 		return c.maxGasPrice, nil
+	} else if gasPrice.Cmp(MinGasPrice) == -1 {
+	    c.log.Warn("Gas price is below than minimum", "gasPrice", gasPrice.String())
+	    return DefaultGasPrice, nil
 	} else {
 		return gasPrice, nil
 	}
