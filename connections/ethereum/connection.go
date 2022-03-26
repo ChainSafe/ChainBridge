@@ -139,6 +139,7 @@ func (c *Connection) SafeEstimateGas(ctx context.Context) (*big.Int, error) {
 
 	// Check we aren't exceeding our limit
 	if gasPrice.Cmp(c.maxGasPrice) == 1 {
+	    c.log.Warn("Gas price is above than maximum", "gasPrice", gasPrice.String())
 		return c.maxGasPrice, nil
 	} else if gasPrice.Cmp(MinGasPrice) == -1 {
 	    c.log.Warn("Gas price is below than minimum", "gasPrice", gasPrice.String())
