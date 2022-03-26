@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"math/big"
 	"time"
-	"strings"
 
 	"github.com/Cerebellum-Network/ChainBridge/chains"
 	utils "github.com/Cerebellum-Network/ChainBridge/shared/substrate"
@@ -199,11 +198,8 @@ func (l *listener) processEvents(hash types.Hash) error {
 	e := utils.Events{}
 	err = records.DecodeEventRecords(&meta, &e)
 	if err != nil {
-	    if strings.Contains(fmt.Sprint(err), "System_CodeUpdated") {
-            l.log.Warn("Can not decode System_CodeUpdated. Skipping...", "block", hash.Hex())
-            return nil
-        }
-		return err
+	    l.log.Warn("Can not decode. Skipping...", "block", hash.Hex(), "error", err)
+        return nil
 	}
 
 	l.handleEvents(e)
