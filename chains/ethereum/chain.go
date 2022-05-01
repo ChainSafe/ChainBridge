@@ -24,10 +24,8 @@ import (
 	"fmt"
 	"math/big"
 
-	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	bridge "github.com/ChainSafe/ChainBridge/bindings/SnowBridge"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
-	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/blockstore"
 	"github.com/ChainSafe/chainbridge-utils/core"
@@ -116,40 +114,27 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	if err != nil {
 		return nil, err
 	}
-	err = conn.EnsureHasBytecode(cfg.erc20HandlerContract)
-	if err != nil {
-		return nil, err
-	}
-	err = conn.EnsureHasBytecode(cfg.genericHandlerContract)
-	if err != nil {
-		return nil, err
-	}
+	
+	// err = conn.EnsureHasBytecode(cfg.erc721HandlerContract)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	bridgeContract, err := bridge.NewBridge(cfg.bridgeContract, conn.Client())
-	if err != nil {
-		return nil, err
-	}
-
-	chainId, err := bridgeContract.ChainID(conn.CallOpts())
+	bridgeContract, err := bridge.NewSnowBridge(cfg.bridgeContract, conn.Client()) // initialize our snowbridge contract
 	if err != nil {
 		return nil, err
 	}
 
-	if chainId != uint8(chainCfg.Id) {
-		return nil, fmt.Errorf("chainId (%d) and configuration chainId (%d) do not match", chainId, chainCfg.Id)
-	}
+	// chainId, err := bridgeContract.DomainID(conn.CallOpts()) // get ChainID
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	erc20HandlerContract, err := erc20Handler.NewERC20Handler(cfg.erc20HandlerContract, conn.Client())
-	if err != nil {
-		return nil, err
-	}
+	// if chainId != uint8(chainCfg.Id) {
+	// 	return nil, fmt.Errorf("chainId (%d) and configuration chainId (%d) do not match", chainId, chainCfg.Id)
+	// }
 
-	erc721HandlerContract, err := erc721Handler.NewERC721Handler(cfg.erc721HandlerContract, conn.Client())
-	if err != nil {
-		return nil, err
-	}
-
-	genericHandlerContract, err := GenericHandler.NewGenericHandler(cfg.genericHandlerContract, conn.Client())
+	erc721HandlerContract, err := erc721Handler.NewERC721Handler(cfg.erc721HandlerContract, conn.Client()) // initialize our ERC721 handler
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +148,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	}
 
 	listener := NewListener(conn, cfg, logger, bs, stop, sysErr, m)
-	listener.setContracts(bridgeContract, erc20HandlerContract, erc721HandlerContract, genericHandlerContract)
+	listener.setContracts(bridgeContract, erc721HandlerContract)
 
 	writer := NewWriter(conn, cfg, logger, stop, sysErr, m)
 	writer.setContract(bridgeContract)

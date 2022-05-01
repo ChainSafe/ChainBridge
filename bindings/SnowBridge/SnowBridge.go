@@ -28,6 +28,13 @@ var (
 	_ = event.NewSubscription
 )
 
+// SnowBridgeProposal is an auto generated low-level Go binding around an user-defined struct.
+type SnowBridgeProposal struct {
+	Status        uint8
+	YesVotesTotal uint8
+	ProposedBlock *big.Int
+}
+
 // AddressMetaData contains all meta data concerning the Address contract.
 var AddressMetaData = &bind.MetaData{
 	ABI: "[]",
@@ -5110,6 +5117,735 @@ func (_IglooNFT *IglooNFTFilterer) WatchTransfer(opts *bind.WatchOpts, sink chan
 func (_IglooNFT *IglooNFTFilterer) ParseTransfer(log types.Log) (*IglooNFTTransfer, error) {
 	event := new(IglooNFTTransfer)
 	if err := _IglooNFT.contract.UnpackLog(event, "Transfer", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// SnowBridgeMetaData contains all meta data concerning the SnowBridge contract.
+var SnowBridgeMetaData = &bind.MetaData{
+	ABI: "[{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"domainID\",\"type\":\"uint8\"},{\"internalType\":\"address[]\",\"name\":\"initialRelayers\",\"type\":\"address[]\"},{\"internalType\":\"uint256\",\"name\":\"initialRelayerThreshold\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"handler\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"expiry\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"enumSnowBridge.ProposalStatus\",\"name\":\"\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"ProposalEvent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"enumSnowBridge.ProposalStatus\",\"name\":\"\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"ProposalVote\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"_domainId\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_expiry\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_relayerThreshold\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"_relayers\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"dataHash\",\"type\":\"bytes32\"}],\"name\":\"cancelProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"userAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"dataHash\",\"type\":\"bytes32\"}],\"name\":\"executeProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"dataHash\",\"type\":\"bytes32\"}],\"name\":\"getProposal\",\"outputs\":[{\"components\":[{\"internalType\":\"enumSnowBridge.ProposalStatus\",\"name\":\"_status\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"_yesVotesTotal\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"_proposedBlock\",\"type\":\"uint256\"}],\"internalType\":\"structSnowBridge.Proposal\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"dataHash\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"relayer\",\"type\":\"address\"}],\"name\":\"hasVotedOnProposal\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"userAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"}],\"name\":\"voteProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	Sigs: map[string]string{
+		"16a47327": "_domainId()",
+		"c5ec8970": "_expiry()",
+		"b2bdfa7b": "_owner()",
+		"d7a9cd79": "_relayerThreshold()",
+		"4b6c6b2c": "_relayers(uint256)",
+		"37376ca8": "cancelProposal(bytes32)",
+		"ef0335ae": "executeProposal(address,string,bytes32)",
+		"430694cf": "getProposal(bytes32)",
+		"34654585": "hasVotedOnProposal(bytes32,address)",
+		"3b1cea1c": "voteProposal(address,string)",
+	},
+	Bin: "0x60806040523480156200001157600080fd5b506040516200102e3803806200102e8339810160408190526200003491620001c9565b600580546001600160a01b038086166001600160a01b0319928316179092556001805460ff8a1660ff1990911617905560028690556000849055600480549284169290911691909117905584516200009490600390602088019062000115565b5060005b600354811015620001085760016006600060038481548110620000bf57620000bf620002f0565b6000918252602080832091909101546001600160a01b031683528201929092526040019020805460ff191691151591909117905580620000ff8162000306565b91505062000098565b505050505050506200032e565b8280548282559060005260206000209081019282156200016d579160200282015b828111156200016d57825182546001600160a01b0319166001600160a01b0390911617825560209092019160019091019062000136565b506200017b9291506200017f565b5090565b5b808211156200017b576000815560010162000180565b634e487b7160e01b600052604160045260246000fd5b80516001600160a01b0381168114620001c457600080fd5b919050565b60008060008060008060c08789031215620001e357600080fd5b865160ff81168114620001f557600080fd5b602088810151919750906001600160401b03808211156200021557600080fd5b818a0191508a601f8301126200022a57600080fd5b8151818111156200023f576200023f62000196565b8060051b604051601f19603f8301168101818110858211171562000267576200026762000196565b60405291825284820192508381018501918d8311156200028657600080fd5b938501935b82851015620002af576200029f85620001ac565b845293850193928501926200028b565b809a5050505050505060408701519350620002cd60608801620001ac565b925060808701519150620002e460a08801620001ac565b90509295509295509295565b634e487b7160e01b600052603260045260246000fd5b6000600182016200032757634e487b7160e01b600052601160045260246000fd5b5060010190565b610cf0806200033e6000396000f3fe608060405234801561001057600080fd5b506004361061009e5760003560e01c80634b6c6b2c116100665780634b6c6b2c1461015e578063b2bdfa7b14610189578063c5ec89701461019c578063d7a9cd79146101b3578063ef0335ae146101bc57600080fd5b806316a47327146100a357806334654585146100c757806337376ca8146101165780633b1cea1c1461012b578063430694cf1461013e575b600080fd5b6001546100b09060ff1681565b60405160ff90911681526020015b60405180910390f35b6101066100d536600461096b565b60008281526008602090815260408083206001600160a01b038516845290915290205460ff16151560011492915050565b60405190151581526020016100be565b610129610124366004610997565b6101cf565b005b610129610139366004610a53565b6103d4565b61015161014c366004610997565b610722565b6040516100be9190610ad9565b61017161016c366004610997565b6107a4565b6040516001600160a01b0390911681526020016100be565b600454610171906001600160a01b031681565b6101a560005481565b6040519081526020016100be565b6101a560025481565b6101296101ca366004610b09565b6107ce565b3360009081526006602052604090205460ff16151560011461020c5760405162461bcd60e51b815260040161020390610b60565b60405180910390fd5b6000818152600760205260408082208151606081019092528054829060ff16600481111561023c5761023c610aa1565b600481111561024d5761024d610aa1565b81528154610100900460ff166020820152600191820154604090910152815191925081600481111561028157610281610aa1565b148061029e5750600281600481111561029c5761029c610aa1565b145b6102ea5760405162461bcd60e51b815260206004820152601c60248201527f50726f706f73616c2063616e6e6f742062652063616e63656c6c6564000000006044820152606401610203565b60005460408301516102fc9043610ba3565b116103495760405162461bcd60e51b815260206004820181905260248201527f50726f706f73616c206e6f7420617420657870697279207468726573686f6c646044820152606401610203565b60048083526000848152600760205260409020835181548593839160ff191690600190849081111561037d5761037d610aa1565b02179055506020820151815460ff9091166101000261ff001990911617815560409182015160019091015551600080516020610c9b833981519152906103c7906004908690610bba565b60405180910390a1505050565b3360009081526006602052604090205460ff1615156001146104085760405162461bcd60e51b815260040161020390610b60565b6000828260405160200161041d929190610c01565b60408051601f1981840301815282825280516020918201206000818152600790925282822060608501909352825490945090929190829060ff16600481111561046857610468610aa1565b600481111561047957610479610aa1565b81528154610100900460ff16602082015260019091015460409091015290506002815160048111156104ad576104ad610aa1565b036104c3576104bd8484846107ce565b50505050565b805160019060048111156104d9576104d9610aa1565b11156105335760405162461bcd60e51b815260206004820152602360248201527f70726f706f73616c20616c72656164792065786563757465642f63616e63656c6044820152621b195960ea1b6064820152608401610203565b60008281526008602090815260408083203384529091528120805460ff191660011790558151600481111561056a5761056a610aa1565b036105b8575060408051606081018252600180825260006020830152438284015291519091600080516020610c9b833981519152916105ab91908590610bba565b60405180910390a16105fc565b60005460408201516105ca9043610ba3565b11156105fc576004808252604051600080516020610c9b833981519152916105f3918590610bba565b60405180910390a15b60048151600481111561061157610611610aa1565b146106a2576020810180519061062682610c39565b60ff1690525080516040517f54e41ae818de102d36decc85685120a993be03495f23e6dd2eb3ffbb055fddcd9161065e918590610bba565b60405180910390a1600254816020015160ff16106106a2576002808252604051600080516020610c9b83398151915291610699918590610bba565b60405180910390a15b60008281526007602052604090208151815483929190829060ff191660018360048111156106d2576106d2610aa1565b02179055506020820151815460ff9091166101000261ff001990911617815560409091015160019091015560028151600481111561071257610712610aa1565b036104bd576104bd8484846107ce565b60408051606081018252600080825260208201819052918101919091526000828152600760205260408082208151606081019092528054829060ff16600481111561076f5761076f610aa1565b600481111561078057610780610aa1565b81528154610100900460ff1660208201526001909101546040909101529392505050565b600381815481106107b457600080fd5b6000918252602090912001546001600160a01b0316905081565b3360009081526006602052604090205460ff1615156001146108025760405162461bcd60e51b815260040161020390610b60565b6000818152600760205260408082208151606081019092528054829060ff16600481111561083257610832610aa1565b600481111561084357610843610aa1565b81528154610100900460ff166020820152600190910154604090910152905060028151600481111561087757610877610aa1565b146108c45760405162461bcd60e51b815260206004820181905260248201527f50726f706f73616c206d757374206861766520506173736564207374617475736044820152606401610203565b600554604051637ebc941560e11b81526001600160a01b039091169063fd79282a906108f69087908790600401610c58565b600060405180830381600087803b15801561091057600080fd5b505af1158015610924573d6000803e3d6000fd5b50839250600391506109339050565b9081600481111561094657610946610aa1565b90525050505050565b80356001600160a01b038116811461096657600080fd5b919050565b6000806040838503121561097e57600080fd5b8235915061098e6020840161094f565b90509250929050565b6000602082840312156109a957600080fd5b5035919050565b634e487b7160e01b600052604160045260246000fd5b600082601f8301126109d757600080fd5b813567ffffffffffffffff808211156109f2576109f26109b0565b604051601f8301601f19908116603f01168101908282118183101715610a1a57610a1a6109b0565b81604052838152866020858801011115610a3357600080fd5b836020870160208301376000602085830101528094505050505092915050565b60008060408385031215610a6657600080fd5b610a6f8361094f565b9150602083013567ffffffffffffffff811115610a8b57600080fd5b610a97858286016109c6565b9150509250929050565b634e487b7160e01b600052602160045260246000fd5b60058110610ad557634e487b7160e01b600052602160045260246000fd5b9052565b6000606082019050610aec828451610ab7565b60ff60208401511660208301526040830151604083015292915050565b600080600060608486031215610b1e57600080fd5b610b278461094f565b9250602084013567ffffffffffffffff811115610b4357600080fd5b610b4f868287016109c6565b925050604084013590509250925092565b6020808252601390820152723737ba1030903b30b634b2103932b630bcb2b960691b604082015260600190565b634e487b7160e01b600052601160045260246000fd5b600082821015610bb557610bb5610b8d565b500390565b60408101610bc88285610ab7565b8260208301529392505050565b60005b83811015610bf0578181015183820152602001610bd8565b838111156104bd5750506000910152565b6bffffffffffffffffffffffff198360601b16815260008251610c2b816014850160208701610bd5565b919091016014019392505050565b600060ff821660ff8103610c4f57610c4f610b8d565b60010192915050565b60018060a01b03831681526040602082015260008251806040840152610c85816060850160208701610bd5565b601f01601f191691909101606001939250505056fe127dbf8921892b00d516f9bd619e729b30a6ae22bf46cbc49b8cb020b15812a4a26469706673582212204ea6f139bc9c30207985ba026b5236f9fbd251045e849ada39ffea9dd38c119364736f6c634300080d0033",
+}
+
+// SnowBridgeABI is the input ABI used to generate the binding from.
+// Deprecated: Use SnowBridgeMetaData.ABI instead.
+var SnowBridgeABI = SnowBridgeMetaData.ABI
+
+// Deprecated: Use SnowBridgeMetaData.Sigs instead.
+// SnowBridgeFuncSigs maps the 4-byte function signature to its string representation.
+var SnowBridgeFuncSigs = SnowBridgeMetaData.Sigs
+
+// SnowBridgeBin is the compiled bytecode used for deploying new contracts.
+// Deprecated: Use SnowBridgeMetaData.Bin instead.
+var SnowBridgeBin = SnowBridgeMetaData.Bin
+
+// DeploySnowBridge deploys a new Ethereum contract, binding an instance of SnowBridge to it.
+func DeploySnowBridge(auth *bind.TransactOpts, backend bind.ContractBackend, domainID uint8, initialRelayers []common.Address, initialRelayerThreshold *big.Int, handler common.Address, expiry *big.Int, owner common.Address) (common.Address, *types.Transaction, *SnowBridge, error) {
+	parsed, err := SnowBridgeMetaData.GetAbi()
+	if err != nil {
+		return common.Address{}, nil, nil, err
+	}
+	if parsed == nil {
+		return common.Address{}, nil, nil, errors.New("GetABI returned nil")
+	}
+
+	address, tx, contract, err := bind.DeployContract(auth, *parsed, common.FromHex(SnowBridgeBin), backend, domainID, initialRelayers, initialRelayerThreshold, handler, expiry, owner)
+	if err != nil {
+		return common.Address{}, nil, nil, err
+	}
+	return address, tx, &SnowBridge{SnowBridgeCaller: SnowBridgeCaller{contract: contract}, SnowBridgeTransactor: SnowBridgeTransactor{contract: contract}, SnowBridgeFilterer: SnowBridgeFilterer{contract: contract}}, nil
+}
+
+// SnowBridge is an auto generated Go binding around an Ethereum contract.
+type SnowBridge struct {
+	SnowBridgeCaller     // Read-only binding to the contract
+	SnowBridgeTransactor // Write-only binding to the contract
+	SnowBridgeFilterer   // Log filterer for contract events
+}
+
+// SnowBridgeCaller is an auto generated read-only Go binding around an Ethereum contract.
+type SnowBridgeCaller struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// SnowBridgeTransactor is an auto generated write-only Go binding around an Ethereum contract.
+type SnowBridgeTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// SnowBridgeFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type SnowBridgeFilterer struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// SnowBridgeSession is an auto generated Go binding around an Ethereum contract,
+// with pre-set call and transact options.
+type SnowBridgeSession struct {
+	Contract     *SnowBridge       // Generic contract binding to set the session for
+	CallOpts     bind.CallOpts     // Call options to use throughout this session
+	TransactOpts bind.TransactOpts // Transaction auth options to use throughout this session
+}
+
+// SnowBridgeCallerSession is an auto generated read-only Go binding around an Ethereum contract,
+// with pre-set call options.
+type SnowBridgeCallerSession struct {
+	Contract *SnowBridgeCaller // Generic contract caller binding to set the session for
+	CallOpts bind.CallOpts     // Call options to use throughout this session
+}
+
+// SnowBridgeTransactorSession is an auto generated write-only Go binding around an Ethereum contract,
+// with pre-set transact options.
+type SnowBridgeTransactorSession struct {
+	Contract     *SnowBridgeTransactor // Generic contract transactor binding to set the session for
+	TransactOpts bind.TransactOpts     // Transaction auth options to use throughout this session
+}
+
+// SnowBridgeRaw is an auto generated low-level Go binding around an Ethereum contract.
+type SnowBridgeRaw struct {
+	Contract *SnowBridge // Generic contract binding to access the raw methods on
+}
+
+// SnowBridgeCallerRaw is an auto generated low-level read-only Go binding around an Ethereum contract.
+type SnowBridgeCallerRaw struct {
+	Contract *SnowBridgeCaller // Generic read-only contract binding to access the raw methods on
+}
+
+// SnowBridgeTransactorRaw is an auto generated low-level write-only Go binding around an Ethereum contract.
+type SnowBridgeTransactorRaw struct {
+	Contract *SnowBridgeTransactor // Generic write-only contract binding to access the raw methods on
+}
+
+// NewSnowBridge creates a new instance of SnowBridge, bound to a specific deployed contract.
+func NewSnowBridge(address common.Address, backend bind.ContractBackend) (*SnowBridge, error) {
+	contract, err := bindSnowBridge(address, backend, backend, backend)
+	if err != nil {
+		return nil, err
+	}
+	return &SnowBridge{SnowBridgeCaller: SnowBridgeCaller{contract: contract}, SnowBridgeTransactor: SnowBridgeTransactor{contract: contract}, SnowBridgeFilterer: SnowBridgeFilterer{contract: contract}}, nil
+}
+
+// NewSnowBridgeCaller creates a new read-only instance of SnowBridge, bound to a specific deployed contract.
+func NewSnowBridgeCaller(address common.Address, caller bind.ContractCaller) (*SnowBridgeCaller, error) {
+	contract, err := bindSnowBridge(address, caller, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &SnowBridgeCaller{contract: contract}, nil
+}
+
+// NewSnowBridgeTransactor creates a new write-only instance of SnowBridge, bound to a specific deployed contract.
+func NewSnowBridgeTransactor(address common.Address, transactor bind.ContractTransactor) (*SnowBridgeTransactor, error) {
+	contract, err := bindSnowBridge(address, nil, transactor, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &SnowBridgeTransactor{contract: contract}, nil
+}
+
+// NewSnowBridgeFilterer creates a new log filterer instance of SnowBridge, bound to a specific deployed contract.
+func NewSnowBridgeFilterer(address common.Address, filterer bind.ContractFilterer) (*SnowBridgeFilterer, error) {
+	contract, err := bindSnowBridge(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &SnowBridgeFilterer{contract: contract}, nil
+}
+
+// bindSnowBridge binds a generic wrapper to an already deployed contract.
+func bindSnowBridge(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+	parsed, err := abi.JSON(strings.NewReader(SnowBridgeABI))
+	if err != nil {
+		return nil, err
+	}
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+}
+
+// Call invokes the (constant) contract method with params as input values and
+// sets the output to result. The result type might be a single field for simple
+// returns, a slice of interfaces for anonymous returns and a struct for named
+// returns.
+func (_SnowBridge *SnowBridgeRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
+	return _SnowBridge.Contract.SnowBridgeCaller.contract.Call(opts, result, method, params...)
+}
+
+// Transfer initiates a plain transaction to move funds to the contract, calling
+// its default method if one is available.
+func (_SnowBridge *SnowBridgeRaw) Transfer(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _SnowBridge.Contract.SnowBridgeTransactor.contract.Transfer(opts)
+}
+
+// Transact invokes the (paid) contract method with params as input values.
+func (_SnowBridge *SnowBridgeRaw) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error) {
+	return _SnowBridge.Contract.SnowBridgeTransactor.contract.Transact(opts, method, params...)
+}
+
+// Call invokes the (constant) contract method with params as input values and
+// sets the output to result. The result type might be a single field for simple
+// returns, a slice of interfaces for anonymous returns and a struct for named
+// returns.
+func (_SnowBridge *SnowBridgeCallerRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
+	return _SnowBridge.Contract.contract.Call(opts, result, method, params...)
+}
+
+// Transfer initiates a plain transaction to move funds to the contract, calling
+// its default method if one is available.
+func (_SnowBridge *SnowBridgeTransactorRaw) Transfer(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _SnowBridge.Contract.contract.Transfer(opts)
+}
+
+// Transact invokes the (paid) contract method with params as input values.
+func (_SnowBridge *SnowBridgeTransactorRaw) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error) {
+	return _SnowBridge.Contract.contract.Transact(opts, method, params...)
+}
+
+// DomainId is a free data retrieval call binding the contract method 0x16a47327.
+//
+// Solidity: function _domainId() view returns(uint8)
+func (_SnowBridge *SnowBridgeCaller) DomainId(opts *bind.CallOpts) (uint8, error) {
+	var out []interface{}
+	err := _SnowBridge.contract.Call(opts, &out, "_domainId")
+
+	if err != nil {
+		return *new(uint8), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(uint8)).(*uint8)
+
+	return out0, err
+
+}
+
+// DomainId is a free data retrieval call binding the contract method 0x16a47327.
+//
+// Solidity: function _domainId() view returns(uint8)
+func (_SnowBridge *SnowBridgeSession) DomainId() (uint8, error) {
+	return _SnowBridge.Contract.DomainId(&_SnowBridge.CallOpts)
+}
+
+// DomainId is a free data retrieval call binding the contract method 0x16a47327.
+//
+// Solidity: function _domainId() view returns(uint8)
+func (_SnowBridge *SnowBridgeCallerSession) DomainId() (uint8, error) {
+	return _SnowBridge.Contract.DomainId(&_SnowBridge.CallOpts)
+}
+
+// Expiry is a free data retrieval call binding the contract method 0xc5ec8970.
+//
+// Solidity: function _expiry() view returns(uint256)
+func (_SnowBridge *SnowBridgeCaller) Expiry(opts *bind.CallOpts) (*big.Int, error) {
+	var out []interface{}
+	err := _SnowBridge.contract.Call(opts, &out, "_expiry")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// Expiry is a free data retrieval call binding the contract method 0xc5ec8970.
+//
+// Solidity: function _expiry() view returns(uint256)
+func (_SnowBridge *SnowBridgeSession) Expiry() (*big.Int, error) {
+	return _SnowBridge.Contract.Expiry(&_SnowBridge.CallOpts)
+}
+
+// Expiry is a free data retrieval call binding the contract method 0xc5ec8970.
+//
+// Solidity: function _expiry() view returns(uint256)
+func (_SnowBridge *SnowBridgeCallerSession) Expiry() (*big.Int, error) {
+	return _SnowBridge.Contract.Expiry(&_SnowBridge.CallOpts)
+}
+
+// Owner is a free data retrieval call binding the contract method 0xb2bdfa7b.
+//
+// Solidity: function _owner() view returns(address)
+func (_SnowBridge *SnowBridgeCaller) Owner(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _SnowBridge.contract.Call(opts, &out, "_owner")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// Owner is a free data retrieval call binding the contract method 0xb2bdfa7b.
+//
+// Solidity: function _owner() view returns(address)
+func (_SnowBridge *SnowBridgeSession) Owner() (common.Address, error) {
+	return _SnowBridge.Contract.Owner(&_SnowBridge.CallOpts)
+}
+
+// Owner is a free data retrieval call binding the contract method 0xb2bdfa7b.
+//
+// Solidity: function _owner() view returns(address)
+func (_SnowBridge *SnowBridgeCallerSession) Owner() (common.Address, error) {
+	return _SnowBridge.Contract.Owner(&_SnowBridge.CallOpts)
+}
+
+// RelayerThreshold is a free data retrieval call binding the contract method 0xd7a9cd79.
+//
+// Solidity: function _relayerThreshold() view returns(uint256)
+func (_SnowBridge *SnowBridgeCaller) RelayerThreshold(opts *bind.CallOpts) (*big.Int, error) {
+	var out []interface{}
+	err := _SnowBridge.contract.Call(opts, &out, "_relayerThreshold")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// RelayerThreshold is a free data retrieval call binding the contract method 0xd7a9cd79.
+//
+// Solidity: function _relayerThreshold() view returns(uint256)
+func (_SnowBridge *SnowBridgeSession) RelayerThreshold() (*big.Int, error) {
+	return _SnowBridge.Contract.RelayerThreshold(&_SnowBridge.CallOpts)
+}
+
+// RelayerThreshold is a free data retrieval call binding the contract method 0xd7a9cd79.
+//
+// Solidity: function _relayerThreshold() view returns(uint256)
+func (_SnowBridge *SnowBridgeCallerSession) RelayerThreshold() (*big.Int, error) {
+	return _SnowBridge.Contract.RelayerThreshold(&_SnowBridge.CallOpts)
+}
+
+// Relayers is a free data retrieval call binding the contract method 0x4b6c6b2c.
+//
+// Solidity: function _relayers(uint256 ) view returns(address)
+func (_SnowBridge *SnowBridgeCaller) Relayers(opts *bind.CallOpts, arg0 *big.Int) (common.Address, error) {
+	var out []interface{}
+	err := _SnowBridge.contract.Call(opts, &out, "_relayers", arg0)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// Relayers is a free data retrieval call binding the contract method 0x4b6c6b2c.
+//
+// Solidity: function _relayers(uint256 ) view returns(address)
+func (_SnowBridge *SnowBridgeSession) Relayers(arg0 *big.Int) (common.Address, error) {
+	return _SnowBridge.Contract.Relayers(&_SnowBridge.CallOpts, arg0)
+}
+
+// Relayers is a free data retrieval call binding the contract method 0x4b6c6b2c.
+//
+// Solidity: function _relayers(uint256 ) view returns(address)
+func (_SnowBridge *SnowBridgeCallerSession) Relayers(arg0 *big.Int) (common.Address, error) {
+	return _SnowBridge.Contract.Relayers(&_SnowBridge.CallOpts, arg0)
+}
+
+// GetProposal is a free data retrieval call binding the contract method 0x430694cf.
+//
+// Solidity: function getProposal(bytes32 dataHash) view returns((uint8,uint8,uint256))
+func (_SnowBridge *SnowBridgeCaller) GetProposal(opts *bind.CallOpts, dataHash [32]byte) (SnowBridgeProposal, error) {
+	var out []interface{}
+	err := _SnowBridge.contract.Call(opts, &out, "getProposal", dataHash)
+
+	if err != nil {
+		return *new(SnowBridgeProposal), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(SnowBridgeProposal)).(*SnowBridgeProposal)
+
+	return out0, err
+
+}
+
+// GetProposal is a free data retrieval call binding the contract method 0x430694cf.
+//
+// Solidity: function getProposal(bytes32 dataHash) view returns((uint8,uint8,uint256))
+func (_SnowBridge *SnowBridgeSession) GetProposal(dataHash [32]byte) (SnowBridgeProposal, error) {
+	return _SnowBridge.Contract.GetProposal(&_SnowBridge.CallOpts, dataHash)
+}
+
+// GetProposal is a free data retrieval call binding the contract method 0x430694cf.
+//
+// Solidity: function getProposal(bytes32 dataHash) view returns((uint8,uint8,uint256))
+func (_SnowBridge *SnowBridgeCallerSession) GetProposal(dataHash [32]byte) (SnowBridgeProposal, error) {
+	return _SnowBridge.Contract.GetProposal(&_SnowBridge.CallOpts, dataHash)
+}
+
+// CancelProposal is a paid mutator transaction binding the contract method 0x37376ca8.
+//
+// Solidity: function cancelProposal(bytes32 dataHash) returns()
+func (_SnowBridge *SnowBridgeTransactor) CancelProposal(opts *bind.TransactOpts, dataHash [32]byte) (*types.Transaction, error) {
+	return _SnowBridge.contract.Transact(opts, "cancelProposal", dataHash)
+}
+
+// CancelProposal is a paid mutator transaction binding the contract method 0x37376ca8.
+//
+// Solidity: function cancelProposal(bytes32 dataHash) returns()
+func (_SnowBridge *SnowBridgeSession) CancelProposal(dataHash [32]byte) (*types.Transaction, error) {
+	return _SnowBridge.Contract.CancelProposal(&_SnowBridge.TransactOpts, dataHash)
+}
+
+// CancelProposal is a paid mutator transaction binding the contract method 0x37376ca8.
+//
+// Solidity: function cancelProposal(bytes32 dataHash) returns()
+func (_SnowBridge *SnowBridgeTransactorSession) CancelProposal(dataHash [32]byte) (*types.Transaction, error) {
+	return _SnowBridge.Contract.CancelProposal(&_SnowBridge.TransactOpts, dataHash)
+}
+
+// ExecuteProposal is a paid mutator transaction binding the contract method 0xef0335ae.
+//
+// Solidity: function executeProposal(address userAddress, string key, bytes32 dataHash) returns()
+func (_SnowBridge *SnowBridgeTransactor) ExecuteProposal(opts *bind.TransactOpts, userAddress common.Address, key string, dataHash [32]byte) (*types.Transaction, error) {
+	return _SnowBridge.contract.Transact(opts, "executeProposal", userAddress, key, dataHash)
+}
+
+// ExecuteProposal is a paid mutator transaction binding the contract method 0xef0335ae.
+//
+// Solidity: function executeProposal(address userAddress, string key, bytes32 dataHash) returns()
+func (_SnowBridge *SnowBridgeSession) ExecuteProposal(userAddress common.Address, key string, dataHash [32]byte) (*types.Transaction, error) {
+	return _SnowBridge.Contract.ExecuteProposal(&_SnowBridge.TransactOpts, userAddress, key, dataHash)
+}
+
+// ExecuteProposal is a paid mutator transaction binding the contract method 0xef0335ae.
+//
+// Solidity: function executeProposal(address userAddress, string key, bytes32 dataHash) returns()
+func (_SnowBridge *SnowBridgeTransactorSession) ExecuteProposal(userAddress common.Address, key string, dataHash [32]byte) (*types.Transaction, error) {
+	return _SnowBridge.Contract.ExecuteProposal(&_SnowBridge.TransactOpts, userAddress, key, dataHash)
+}
+
+// HasVotedOnProposal is a paid mutator transaction binding the contract method 0x34654585.
+//
+// Solidity: function hasVotedOnProposal(bytes32 dataHash, address relayer) returns(bool)
+func (_SnowBridge *SnowBridgeTransactor) HasVotedOnProposal(opts *bind.TransactOpts, dataHash [32]byte, relayer common.Address) (*types.Transaction, error) {
+	return _SnowBridge.contract.Transact(opts, "hasVotedOnProposal", dataHash, relayer)
+}
+
+// HasVotedOnProposal is a paid mutator transaction binding the contract method 0x34654585.
+//
+// Solidity: function hasVotedOnProposal(bytes32 dataHash, address relayer) returns(bool)
+func (_SnowBridge *SnowBridgeSession) HasVotedOnProposal(dataHash [32]byte, relayer common.Address) (*types.Transaction, error) {
+	return _SnowBridge.Contract.HasVotedOnProposal(&_SnowBridge.TransactOpts, dataHash, relayer)
+}
+
+// HasVotedOnProposal is a paid mutator transaction binding the contract method 0x34654585.
+//
+// Solidity: function hasVotedOnProposal(bytes32 dataHash, address relayer) returns(bool)
+func (_SnowBridge *SnowBridgeTransactorSession) HasVotedOnProposal(dataHash [32]byte, relayer common.Address) (*types.Transaction, error) {
+	return _SnowBridge.Contract.HasVotedOnProposal(&_SnowBridge.TransactOpts, dataHash, relayer)
+}
+
+// VoteProposal is a paid mutator transaction binding the contract method 0x3b1cea1c.
+//
+// Solidity: function voteProposal(address userAddress, string key) returns()
+func (_SnowBridge *SnowBridgeTransactor) VoteProposal(opts *bind.TransactOpts, userAddress common.Address, key string) (*types.Transaction, error) {
+	return _SnowBridge.contract.Transact(opts, "voteProposal", userAddress, key)
+}
+
+// VoteProposal is a paid mutator transaction binding the contract method 0x3b1cea1c.
+//
+// Solidity: function voteProposal(address userAddress, string key) returns()
+func (_SnowBridge *SnowBridgeSession) VoteProposal(userAddress common.Address, key string) (*types.Transaction, error) {
+	return _SnowBridge.Contract.VoteProposal(&_SnowBridge.TransactOpts, userAddress, key)
+}
+
+// VoteProposal is a paid mutator transaction binding the contract method 0x3b1cea1c.
+//
+// Solidity: function voteProposal(address userAddress, string key) returns()
+func (_SnowBridge *SnowBridgeTransactorSession) VoteProposal(userAddress common.Address, key string) (*types.Transaction, error) {
+	return _SnowBridge.Contract.VoteProposal(&_SnowBridge.TransactOpts, userAddress, key)
+}
+
+// SnowBridgeProposalEventIterator is returned from FilterProposalEvent and is used to iterate over the raw logs and unpacked data for ProposalEvent events raised by the SnowBridge contract.
+type SnowBridgeProposalEventIterator struct {
+	Event *SnowBridgeProposalEvent // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *SnowBridgeProposalEventIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(SnowBridgeProposalEvent)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(SnowBridgeProposalEvent)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *SnowBridgeProposalEventIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *SnowBridgeProposalEventIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// SnowBridgeProposalEvent represents a ProposalEvent event raised by the SnowBridge contract.
+type SnowBridgeProposalEvent struct {
+	Arg0 uint8
+	Arg1 [32]byte
+	Raw  types.Log // Blockchain specific contextual infos
+}
+
+// FilterProposalEvent is a free log retrieval operation binding the contract event 0x127dbf8921892b00d516f9bd619e729b30a6ae22bf46cbc49b8cb020b15812a4.
+//
+// Solidity: event ProposalEvent(uint8 arg0, bytes32 arg1)
+func (_SnowBridge *SnowBridgeFilterer) FilterProposalEvent(opts *bind.FilterOpts) (*SnowBridgeProposalEventIterator, error) {
+
+	logs, sub, err := _SnowBridge.contract.FilterLogs(opts, "ProposalEvent")
+	if err != nil {
+		return nil, err
+	}
+	return &SnowBridgeProposalEventIterator{contract: _SnowBridge.contract, event: "ProposalEvent", logs: logs, sub: sub}, nil
+}
+
+// WatchProposalEvent is a free log subscription operation binding the contract event 0x127dbf8921892b00d516f9bd619e729b30a6ae22bf46cbc49b8cb020b15812a4.
+//
+// Solidity: event ProposalEvent(uint8 arg0, bytes32 arg1)
+func (_SnowBridge *SnowBridgeFilterer) WatchProposalEvent(opts *bind.WatchOpts, sink chan<- *SnowBridgeProposalEvent) (event.Subscription, error) {
+
+	logs, sub, err := _SnowBridge.contract.WatchLogs(opts, "ProposalEvent")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(SnowBridgeProposalEvent)
+				if err := _SnowBridge.contract.UnpackLog(event, "ProposalEvent", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseProposalEvent is a log parse operation binding the contract event 0x127dbf8921892b00d516f9bd619e729b30a6ae22bf46cbc49b8cb020b15812a4.
+//
+// Solidity: event ProposalEvent(uint8 arg0, bytes32 arg1)
+func (_SnowBridge *SnowBridgeFilterer) ParseProposalEvent(log types.Log) (*SnowBridgeProposalEvent, error) {
+	event := new(SnowBridgeProposalEvent)
+	if err := _SnowBridge.contract.UnpackLog(event, "ProposalEvent", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// SnowBridgeProposalVoteIterator is returned from FilterProposalVote and is used to iterate over the raw logs and unpacked data for ProposalVote events raised by the SnowBridge contract.
+type SnowBridgeProposalVoteIterator struct {
+	Event *SnowBridgeProposalVote // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *SnowBridgeProposalVoteIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(SnowBridgeProposalVote)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(SnowBridgeProposalVote)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *SnowBridgeProposalVoteIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *SnowBridgeProposalVoteIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// SnowBridgeProposalVote represents a ProposalVote event raised by the SnowBridge contract.
+type SnowBridgeProposalVote struct {
+	Arg0 uint8
+	Arg1 [32]byte
+	Raw  types.Log // Blockchain specific contextual infos
+}
+
+// FilterProposalVote is a free log retrieval operation binding the contract event 0x54e41ae818de102d36decc85685120a993be03495f23e6dd2eb3ffbb055fddcd.
+//
+// Solidity: event ProposalVote(uint8 arg0, bytes32 arg1)
+func (_SnowBridge *SnowBridgeFilterer) FilterProposalVote(opts *bind.FilterOpts) (*SnowBridgeProposalVoteIterator, error) {
+
+	logs, sub, err := _SnowBridge.contract.FilterLogs(opts, "ProposalVote")
+	if err != nil {
+		return nil, err
+	}
+	return &SnowBridgeProposalVoteIterator{contract: _SnowBridge.contract, event: "ProposalVote", logs: logs, sub: sub}, nil
+}
+
+// WatchProposalVote is a free log subscription operation binding the contract event 0x54e41ae818de102d36decc85685120a993be03495f23e6dd2eb3ffbb055fddcd.
+//
+// Solidity: event ProposalVote(uint8 arg0, bytes32 arg1)
+func (_SnowBridge *SnowBridgeFilterer) WatchProposalVote(opts *bind.WatchOpts, sink chan<- *SnowBridgeProposalVote) (event.Subscription, error) {
+
+	logs, sub, err := _SnowBridge.contract.WatchLogs(opts, "ProposalVote")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(SnowBridgeProposalVote)
+				if err := _SnowBridge.contract.UnpackLog(event, "ProposalVote", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseProposalVote is a log parse operation binding the contract event 0x54e41ae818de102d36decc85685120a993be03495f23e6dd2eb3ffbb055fddcd.
+//
+// Solidity: event ProposalVote(uint8 arg0, bytes32 arg1)
+func (_SnowBridge *SnowBridgeFilterer) ParseProposalVote(log types.Log) (*SnowBridgeProposalVote, error) {
+	event := new(SnowBridgeProposalVote)
+	if err := _SnowBridge.contract.UnpackLog(event, "ProposalVote", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

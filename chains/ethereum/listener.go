@@ -10,10 +10,8 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
+	"github.com/ChainSafe/ChainBridge/bindings/SnowBridge"
 	"github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
-	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
 	"github.com/ChainSafe/ChainBridge/chains"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/blockstore"
@@ -34,9 +32,7 @@ type listener struct {
 	conn                   Connection
 	router                 chains.Router
 	bridgeContract         *Bridge.Bridge // instance of bound bridge contract
-	erc20HandlerContract   *ERC20Handler.ERC20Handler
 	erc721HandlerContract  *ERC721Handler.ERC721Handler
-	genericHandlerContract *GenericHandler.GenericHandler
 	log                    log15.Logger
 	blockstore             blockstore.Blockstorer
 	stop                   <-chan int
@@ -62,11 +58,9 @@ func NewListener(conn Connection, cfg *Config, log log15.Logger, bs blockstore.B
 }
 
 // setContracts sets the listener with the appropriate contracts
-func (l *listener) setContracts(bridge *Bridge.Bridge, erc20Handler *ERC20Handler.ERC20Handler, erc721Handler *ERC721Handler.ERC721Handler, genericHandler *GenericHandler.GenericHandler) {
+func (l *listener) setContracts(bridge *Bridge.Bridge, erc721Handler *ERC721Handler.ERC721Handler) {
 	l.bridgeContract = bridge
-	l.erc20HandlerContract = erc20Handler
 	l.erc721HandlerContract = erc721Handler
-	l.genericHandlerContract = genericHandler
 }
 
 // sets the router
@@ -127,7 +121,7 @@ func (l *listener) pollBlocks() error {
 			}
 
 			// Parse out events
-			err = l.getDepositEventsForBlock(currentBlock)
+			err = l.getPutDataEventsForBlock(currentBlock)
 			if err != nil {
 				l.log.Error("Failed to get events for block", "block", currentBlock, "err", err)
 				retry--
@@ -155,10 +149,10 @@ func (l *listener) pollBlocks() error {
 	}
 }
 
-// getDepositEventsForBlock looks for the deposit event in the latest block
-func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
-	l.log.Debug("Querying block for deposit events", "block", latestBlock)
-	query := buildQuery(l.cfg.bridgeContract, utils.Deposit, latestBlock, latestBlock)
+// getPutDataForBlock looks for the PutData event in the latest block
+func (l *listener) getPutDataEventsForBlock(latestBlock *big.Int) error {
+	l.log.Debug("Querying block for putData events", "block", latestBlock)
+	query := buildQuery(l.cfg.bridgeContract, "PutData(address,string)", latestBlock, latestBlock)
 
 	// querying for logs
 	logs, err := l.conn.Client().FilterLogs(context.Background(), query)
@@ -166,29 +160,13 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		return fmt.Errorf("unable to Filter Logs: %w", err)
 	}
 
-	// read through the log events and handle their deposit event if handler is recognized
+	// read through the log events and handle their putData event if handler is recognized
 	for _, log := range logs {
-		var m msg.Message
-		destId := msg.ChainId(log.Topics[1].Big().Uint64())
-		rId := msg.ResourceIdFromSlice(log.Topics[2].Bytes())
-		nonce := msg.Nonce(log.Topics[3].Big().Uint64())
+		var m f
+		userAddress := log.Topics[1];
+		key := log.Topics[2];
 
-		addr, err := l.bridgeContract.ResourceIDToHandlerAddress(&bind.CallOpts{From: l.conn.Keypair().CommonAddress()}, rId)
-		if err != nil {
-			return fmt.Errorf("failed to get handler from resource ID %x", rId)
-		}
-
-		if addr == l.cfg.erc20HandlerContract {
-			m, err = l.handleErc20DepositedEvent(destId, nonce)
-		} else if addr == l.cfg.erc721HandlerContract {
-			m, err = l.handleErc721DepositedEvent(destId, nonce)
-		} else if addr == l.cfg.genericHandlerContract {
-			m, err = l.handleGenericDepositedEvent(destId, nonce)
-		} else {
-			l.log.Error("event has unrecognized handler", "handler", addr.Hex())
-			return nil
-		}
-
+		m, err = l.handleErc721PutDataEvent(userAddress, key)
 		if err != nil {
 			return err
 		}
