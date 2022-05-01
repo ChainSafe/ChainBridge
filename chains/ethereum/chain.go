@@ -21,11 +21,10 @@ The writer recieves the message and creates a proposals on-chain. Once a proposa
 package ethereum
 
 import (
-	"fmt"
 	"math/big"
 
-	bridge "github.com/ChainSafe/ChainBridge/bindings/SnowBridge"
 	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
+	bridge "github.com/ChainSafe/ChainBridge/bindings/SnowBridge"
 	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/blockstore"
 	"github.com/ChainSafe/chainbridge-utils/core"
@@ -55,6 +54,16 @@ type Connection interface {
 	LatestBlock() (*big.Int, error)
 	WaitForBlock(block *big.Int, delay *big.Int) error
 	Close()
+}
+
+// Message is used as a generic format to communicate between chains
+type Message struct {
+	Source       ChainId      // Source where message was initiated
+	Destination  ChainId      // Destination chain of message
+	Type         TransferType // type of bridge transfer
+	DepositNonce Nonce        // Nonce for the deposit
+	ResourceId   ResourceId
+	Payload      []interface{} // data associated with event sequence
 }
 
 type Chain struct {
@@ -114,7 +123,7 @@ func InitializeChain(chainCfg *core.ChainConfig, logger log15.Logger, sysErr cha
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// err = conn.EnsureHasBytecode(cfg.erc721HandlerContract)
 	// if err != nil {
 	// 	return nil, err

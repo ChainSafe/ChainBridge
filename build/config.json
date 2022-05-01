@@ -1,0 +1,36 @@
+{
+  "chains": [
+    {
+      "name": "SubnetEVM",
+      "type": "ethereum",
+      "id": "0",
+      "endpoint": "",
+      "from": "",
+      "opts": {
+        "bridge": "",
+        "erc20Handler": "",
+        "genericHandler": "",
+        "gasLimit": "1000000",
+        "maxGasPrice": "50000000000",
+        "http": "true",
+        "blockConfirmations":"0"
+      }
+    },
+    {
+      "name": "SpacesVM",
+      "type": "ethereum",
+      "id": "1",
+      "endpoint": "",
+      "from": "",
+      "opts": {
+        "bridge": "",
+        "erc20Handler": "",
+        "genericHandler": "",
+        "gasLimit": "1000000",
+        "maxGasPrice": "50000000000",
+        "http": "true",
+        "blockConfirmations":"0"
+      }
+    }
+  ]
+}
