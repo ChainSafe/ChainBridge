@@ -1,0 +1,20 @@
+{
+    "chains": [
+      {
+        "name": "sub",
+        "type": "substrate",
+        "id": "1",
+        "endpoint": "wss://archive.mainnet.cere.network:9945",
+        "from": "5FbgtZmcqnWzJS9Tx9jBSi7Fiw18nXx31bfPg9TPJu9kpD59",
+        "scan": true,
+        "nativeTokenSymbol": "CERE",
+        "chainbridgePalletName": "chainBridge",
+        "bridgeFeeValue": 0,
+        "transferPalletName": "erc20",
+        "transferFunctionName": "transferNative",
+        "opts": {
+          "startBlock": "4233319"
+        }
+      }
+    ]
+  }

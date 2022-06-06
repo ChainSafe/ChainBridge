@@ -72,18 +72,19 @@ Used for substrate key management. Only required if connecting to a substrate ch
 `make install`: Uses `go install` to add `chainbridge` to your GOBIN.
 
 ## Docker 
-The official ChainBridge Docker image can be found here.
 
-To build the Docker image locally run:
-
+To start ChainBridge in container:
+1. Import keys:
 ```
-docker build -t chainsafe/chainbridge .
+cmd/chainbridge accounts import --privateKey 0x1c545f4a8e6afaa04be67edd35cbd5001c80ac6b1b3b5a65e17b56f524b48de0 --sr25519
 ```
-
-To start ChainBridge:
-
+2. Copy `config/config_default.json` to `config/config.json` folder:
+```
+cp config/config_default.json config/config.json
+```
+3. Run docker via docker-compose
 ``` 
-docker run -v ./config.json:/config.json chainsafe/chainbridge
+docker-compose up
 ```
 
 # Configuration
