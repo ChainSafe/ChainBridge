@@ -28,6 +28,7 @@ site/
 bridge
 keys/
 *.key
+vendor
 
 # Chainbridge
 config.toml
