@@ -2,11 +2,9 @@ module github.com/ChainSafe/ChainBridge
 
 go 1.17
 
-require (
-	// NOTE - this is a specific branch that does not have the `Claims_Claimed` event since
-	// it is colliding with the one that we have in the claims pallet of Centrifuge chain.
-	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.3-0.20220627094051-42347b5656a3
-)
+// NOTE - this is a specific branch that does not have the `Claims_Claimed` event since
+// it is colliding with the one that we have in the claims pallet of Centrifuge chain.
+require github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.3-0.20220627094051-42347b5656a3
 
 require (
 	github.com/ChainSafe/log15 v1.0.0
@@ -23,7 +21,6 @@ require (
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/btcsuite/btcd v0.22.0-beta // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.1.2 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
