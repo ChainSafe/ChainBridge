@@ -52,7 +52,7 @@ type proposal struct {
 
 // encode takes only nonce and call and encodes them for storage queries
 func (p *proposal) encode() ([]byte, error) {
-	return types.EncodeToBytes(struct {
+	return types.Encode(struct {
 		types.U64
 		types.Call
 	}{p.depositNonce, p.call})
@@ -79,7 +79,7 @@ func (w *writer) createFungibleProposal(m msg.Message) (*proposal, error) {
 		return nil, err
 	}
 	if w.extendCall {
-		eRID, err := types.EncodeToBytes(m.ResourceId)
+		eRID, err := types.Encode(m.ResourceId)
 		if err != nil {
 			return nil, err
 		}
@@ -118,7 +118,7 @@ func (w *writer) createNonFungibleProposal(m msg.Message) (*proposal, error) {
 		return nil, err
 	}
 	if w.extendCall {
-		eRID, err := types.EncodeToBytes(m.ResourceId)
+		eRID, err := types.Encode(m.ResourceId)
 		if err != nil {
 			return nil, err
 		}
@@ -150,7 +150,7 @@ func (w *writer) createGenericProposal(m msg.Message) (*proposal, error) {
 		return nil, err
 	}
 	if w.extendCall {
-		eRID, err := types.EncodeToBytes(m.ResourceId)
+		eRID, err := types.Encode(m.ResourceId)
 		if err != nil {
 			return nil, err
 		}

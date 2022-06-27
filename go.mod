@@ -2,13 +2,16 @@ module github.com/ChainSafe/ChainBridge
 
 go 1.17
 
+// NOTE - this is a specific branch that does not have the `Claims_Claimed` event since
+// it is colliding with the one that we have in the claims pallet of Centrifuge chain.
+require github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.3-0.20220627094051-42347b5656a3
+
 require (
 	github.com/ChainSafe/log15 v1.0.0
 	github.com/centrifuge/chain-custom-types v0.0.0-20220323235722-1cdf9a3ad7f1
 	github.com/centrifuge/chainbridge-substrate-events v0.0.0-20220215222726-8c1d3a5cad10
-	github.com/centrifuge/chainbridge-utils v1.0.7-0.20220215221345-148255f95a70
-	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.1-0.20220323235529-414c4553ce7c
-	github.com/ethereum/go-ethereum v1.10.16
+	github.com/centrifuge/chainbridge-utils v1.1.0
+	github.com/ethereum/go-ethereum v1.10.17
 	github.com/prometheus/client_golang v1.4.1
 	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli/v2 v2.3.0
@@ -18,7 +21,7 @@ require (
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/btcsuite/btcd v0.22.0-beta // indirect
+	github.com/btcsuite/btcd/btcec/v2 v2.1.2 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
@@ -26,10 +29,11 @@ require (
 	github.com/deckarep/golang-set v1.8.0 // indirect
 	github.com/decred/base58 v1.0.3 // indirect
 	github.com/decred/dcrd/crypto/blake256 v1.0.0 // indirect
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
 	github.com/go-ole/go-ole v1.2.1 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
-	github.com/google/uuid v1.1.5 // indirect
+	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/gtank/merlin v0.1.1 // indirect
 	github.com/gtank/ristretto255 v0.1.2 // indirect

@@ -24,7 +24,7 @@ func getConst(meta *types.Metadata, prefix, name string, res interface{}) error 
 		if string(mod.Name) == prefix {
 			for _, cons := range mod.Constants {
 				if string(cons.Name) == name {
-					return types.DecodeFromBytes(cons.Value, res)
+					return types.Decode(cons.Value, res)
 				}
 			}
 		}
@@ -56,7 +56,7 @@ func BalanceOf(client *Client, publicKey []byte) (*big.Int, error) {
 
 func GetErc721Token(client *Client, id types.U256) (*Erc721Token, error) {
 	var res Erc721Token
-	tokenIdBz, err := types.EncodeToBytes(id)
+	tokenIdBz, err := types.Encode(id)
 	if err != nil {
 		return nil, err
 	}
