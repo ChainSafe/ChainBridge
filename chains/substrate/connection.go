@@ -185,7 +185,7 @@ func getConst(meta *types.Metadata, prefix, name string, res interface{}) error 
 		if string(mod.Name) == prefix {
 			for _, cons := range mod.Constants {
 				if string(cons.Name) == name {
-					return types.DecodeFromBytes(cons.Value, res)
+					return types.Decode(cons.Value, res)
 				}
 			}
 		}

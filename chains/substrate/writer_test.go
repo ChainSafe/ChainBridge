@@ -17,7 +17,7 @@ import (
 
 func assertProposalState(t *testing.T, conn *Connection, prop *proposal, votes *voteState, hasValue bool) {
 	var voteRes voteState
-	srcId, err := types.EncodeToBytes(prop.sourceId)
+	srcId, err := types.Encode(prop.sourceId)
 	if err != nil {
 		t.Fatal(err)
 	}

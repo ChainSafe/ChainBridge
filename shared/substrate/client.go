@@ -146,7 +146,7 @@ func (c *Client) MintErc721(tokenId *big.Int, metadata []byte, recipient *signat
 
 func (c *Client) OwnerOf(tokenId *big.Int) (types.AccountID, error) {
 	var owner types.AccountID
-	tokenIdBz, err := types.EncodeToBytes(types.NewU256(*tokenId))
+	tokenIdBz, err := types.Encode(types.NewU256(*tokenId))
 	if err != nil {
 		return types.AccountID{}, err
 	}
@@ -163,7 +163,7 @@ func (c *Client) OwnerOf(tokenId *big.Int) (types.AccountID, error) {
 
 func (c *Client) GetDepositNonce(chain msg.ChainId) (uint64, error) {
 	var count types.U64
-	chainId, err := types.EncodeToBytes(types.U8(chain))
+	chainId, err := types.Encode(types.U8(chain))
 	if err != nil {
 		return 0, err
 	}

@@ -95,6 +95,8 @@ github.com/btcsuite/snappy-go v1.0.0/go.mod h1:8woku9dyThutzjeg+3xrA5iCpBRH8XEEg
 github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792/go.mod h1:ghJtEyQwv5/p4Mg4C0fgbePVuGr935/5ddU9Z3TmDRY=
 github.com/btcsuite/winsvc v1.0.0/go.mod h1:jsenWakMcC0zFBFurPLEAyrnc/teJEM1O46fmI40EZs=
 github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOCSiVIqS34=
+github.com/cdamian/chainbridge-utils v1.0.7-0.20220627145810-bddad1b39972 h1:pTNUzj9NCmSmLKRLUwPZfgExFtb5XIpUnPgFv+wlQDQ=
+github.com/cdamian/chainbridge-utils v1.0.7-0.20220627145810-bddad1b39972/go.mod h1:2T2eFtxy3pDZhk+QlpwV4a5lV+lDzwazAWr8hFmKyaE=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/centrifuge/chain-custom-types v0.0.0-20220323235722-1cdf9a3ad7f1 h1:i72MKnaZ//Nw9T1bJT4PdpfXGfKGckzkHHf97FKyRDI=
 github.com/centrifuge/chain-custom-types v0.0.0-20220323235722-1cdf9a3ad7f1/go.mod h1:E+MHt0riACBcD/pPctnW6h6BLNa5BRWF49uz31yFUfQ=
@@ -102,6 +104,8 @@ github.com/centrifuge/chainbridge-substrate-events v0.0.0-20220215222726-8c1d3a5
 github.com/centrifuge/chainbridge-substrate-events v0.0.0-20220215222726-8c1d3a5cad10/go.mod h1:e5ffvnL405ZXm5n2inQQqDeIWpa6o7FNRwx1QQC8mWo=
 github.com/centrifuge/chainbridge-utils v1.0.7-0.20220215221345-148255f95a70 h1:hYlbQnCh+LzgQFGN8sV3zPIfheif9x6Ni6TdxFYRNcM=
 github.com/centrifuge/chainbridge-utils v1.0.7-0.20220215221345-148255f95a70/go.mod h1:2pvosXS7vzMuJtJ6nC3iCDI8QxAP7oLYzbwaotM7Q48=
+github.com/centrifuge/chainbridge-utils v1.1.0 h1:YfzGEPf4ClT2x2gftDErhKb0NYM6isxUQM/kY3QTNLs=
+github.com/centrifuge/chainbridge-utils v1.1.0/go.mod h1:2T2eFtxy3pDZhk+QlpwV4a5lV+lDzwazAWr8hFmKyaE=
 github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.0/go.mod h1:MDzvG8lkzMGRaO4qzvxdfJtlDtukRPqNVWG9HJybVt0=
 github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.1-0.20220323235529-414c4553ce7c h1:z0d+F99jg+kBymfaRtbSfHJ7Bb573zrxPC/vSqrqnsM=
 github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.1-0.20220323235529-414c4553ce7c/go.mod h1:Mo1w5OuYcq6hYiNQx+GCg8ot8UEXg4OHlej19kdFCZk=

@@ -112,7 +112,7 @@ func (w *writer) resolveResourceId(id [32]byte) (string, error) {
 // has not voted, it will return true. Otherwise, it will return false with a reason string.
 func (w *writer) proposalValid(prop *proposal) (bool, string, error) {
 	var voteRes voteState
-	srcId, err := types.EncodeToBytes(prop.sourceId)
+	srcId, err := types.Encode(prop.sourceId)
 	if err != nil {
 		return false, "", err
 	}
