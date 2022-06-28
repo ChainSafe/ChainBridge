@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	"github.com/ChainSafe/log15"
-	"github.com/centrifuge/go-substrate-rpc-client/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 )
 
 func SubmitTx(client *Client, method Method, args ...interface{}) error {
@@ -44,7 +44,7 @@ func SubmitTx(client *Client, method Method, args ...interface{}) error {
 		Nonce:              types.NewUCompactFromUInt(uint64(acct.Nonce)),
 		SpecVersion:        rv.SpecVersion,
 		Tip:                types.NewUCompactFromUInt(0),
-		TransactionVersion: 1,
+		TransactionVersion: rv.TransactionVersion,
 	}
 	err = ext.Sign(*client.Key, o)
 	if err != nil {

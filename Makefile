@@ -1,6 +1,7 @@
 PROJECTNAME=$(shell basename "$(PWD)")
 VERSION=-ldflags="-X main.Version=$(shell git describe --tags)"
 SOL_DIR=./solidity
+ARCH=$(shell arch)
 
 CENT_EMITTER_ADDR?=0x1
 CENT_CHAIN_ID?=0x1
@@ -22,25 +23,16 @@ get:
 	@echo "  >  \033[32mDownloading & Installing all the modules...\033[0m "
 	go mod tidy && go mod download
 
-get-lint:
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s v1.31.0
-
 .PHONY: lint
 lint:
-	if [ ! -f ./bin/golangci-lint ]; then \
-		$(MAKE) get-lint; \
-	fi;
-	./bin/golangci-lint run ./... --timeout 5m0s
+	@docker run -v `pwd`:/app -w /app golangci/golangci-lint:v1.36.0 golangci-lint run
 
 lint-fix:
-	if [ ! -f ./bin/golangci-lint ]; then \
-		$(MAKE) get-lint; \
-	fi;
-	./bin/golangci-lint run ./... --timeout 5m0s --fix
+	@docker run -v `pwd`:/app -w /app golangci/golangci-lint:v1.36.0 golangci-lint run --fix
 
 build:
 	@echo "  >  \033[32mBuilding binary...\033[0m "
-	cd cmd/chainbridge && env GOARCH=amd64 go build -o ../../build/chainbridge $(VERSION)
+	cd cmd/chainbridge && env GOARCH=$(ARCH) go build -o ../../build/chainbridge $(VERSION)
 
 install:
 	@echo "  >  \033[32mInstalling bridge...\033[0m "
